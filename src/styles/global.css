@@ -166,3 +166,19 @@
     letter-spacing: -0.025em;
   }
 }
+
+/* Authority strip — seamless horizontal marquee.
+   The list duplicates its content, so translating by -50% wraps cleanly. */
+@keyframes cr-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-cr-marquee {
+  animation: cr-marquee 48s linear infinite;
+}
+.animate-cr-marquee:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-cr-marquee { animation: none; }
+}
