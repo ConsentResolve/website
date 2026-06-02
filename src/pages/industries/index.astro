@@ -1,0 +1,112 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import FeatureCard from "~/components/ui/FeatureCard.astro";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+import { INDUSTRIES } from "~/data/industries";
+import { breadcrumbSchema } from "~/lib/seo";
+import {
+  IconBuilding, IconTool, IconAirConditioning,
+  IconDroplet, IconKey, IconBolt, IconHome,
+  IconBrush, IconLayoutBoardSplit, IconBuildingWarehouse, IconHome2,
+  IconSparkles, IconBugOff, IconShower, IconLeaf, IconCar,
+} from "@tabler/icons-react";
+
+// Map abstract iconKey strings (from data file) to safe Tabler exports.
+const iconMap: Record<string, any> = {
+  IconBuildingCommunity: IconBuilding,
+  IconTool,
+  IconTrees: IconLeaf,
+  IconAirConditioning,
+  IconDroplet,
+  IconKey,
+  IconBolt,
+  IconHome,
+  IconPaint: IconBrush,
+  IconFence: IconLayoutBoardSplit,
+  IconGarage: IconBuildingWarehouse,
+  IconFridge: IconHome2,
+  IconSparkles,
+  IconBug: IconBugOff,
+  IconSpray: IconShower,
+  IconPlant: IconLeaf,
+  IconCar,
+};
+
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "Industries", href: "/industries/" },
+  ]),
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Lead Generation by Trade",
+    url: "https://consentresolve.com/industries/",
+    description: "Exclusive, consent-based leads built for your trade.",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: INDUSTRIES.map((i, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      url: `https://consentresolve.com/${i.slug}-leads/`,
+      name: i.name,
+    })),
+  },
+];
+---
+
+<BaseLayout
+  title="Lead Generation by Trade | Consent Resolve"
+  description="Exclusive, consent-based leads built for your trade — plumbers, roofers, HVAC, electricians, and 13 more. Real names and numbers. $7 a lead. Start for $10."
+  schema={schemas}
+>
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
+    <div class="container-content section relative">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="eyebrow mb-7 justify-center">Built for your trade</p>
+        <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
+          Built for the way your trade<br/>
+          <span class="text-[color:var(--color-brand)]">actually wins jobs.</span>
+        </h1>
+        <p class="mx-auto max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+          The homeowner shopping for a re-pipe doesn't shop like the one pricing a new roof. Pick your trade and see how Consent Resolve fits.
+        </p>
+      </div>
+    </div>
+
+    <!-- AEO answer paragraph -->
+    <div class="container-content pb-8">
+      <div class="mx-auto max-w-3xl rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)]">
+        <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+          <strong class="text-[color:var(--color-ink)]">Consent Resolve identifies the homeowners already shopping your website</strong> — but only after they consent — and gives you their name and number so you can call first. Every lead is exclusive and yours alone, for $7. Pick your trade below.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trade grid -->
+  <section class="pb-24">
+    <div class="container-content">
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {INDUSTRIES.map((i) => {
+          const Icon = iconMap[i.iconKey] ?? IconTool;
+          return (
+            <FeatureCard
+              variant="lift"
+              icon={Icon}
+              title={i.name}
+              body={i.heroSubhead.split(".")[0] + "."}
+              href={`/${i.slug}-leads/`}
+            />
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <FinalCTA />
+</BaseLayout>

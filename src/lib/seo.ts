@@ -73,3 +73,33 @@ export function serviceSchema(opts: {
     ...(opts.description ? { description: opts.description } : {}),
   };
 }
+
+/** Service + Offer schema for industry pages — $7/lead canonical. */
+export function industryServiceSchema(opts: {
+  tradeName: string;
+  tradeSlug: string;
+  description: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: `${opts.tradeName} Lead Identification`,
+    serviceType: `Consent-based visitor identification for ${opts.tradeName.toLowerCase()} businesses`,
+    provider: { "@type": "Organization", name: SITE.name, url: SITE.url + "/" },
+    areaServed: "US",
+    description: opts.description,
+    offers: {
+      "@type": "Offer",
+      price: "7.00",
+      priceCurrency: "USD",
+      priceSpecification: {
+        "@type": "UnitPriceSpecification",
+        price: "7.00",
+        priceCurrency: "USD",
+        unitText: "per lead",
+      },
+      description: `Exclusive ${opts.tradeName.toLowerCase()} leads. 10 leads for $10 to start, then $7 per lead. Card required.`,
+    },
+    url: `${SITE.url}/${opts.tradeSlug}-leads/`,
+  };
+}

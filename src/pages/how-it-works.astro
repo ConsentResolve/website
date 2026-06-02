@@ -1,0 +1,130 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Button from "~/components/ui/Button.astro";
+import HowItWorks from "~/components/sections/HowItWorks.astro";
+import FeatureCard from "~/components/ui/FeatureCard.astro";
+import ComplianceBand from "~/components/sections/ComplianceBand.astro";
+import FAQSection from "~/components/sections/FAQSection.astro";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+import { IconArrowRight, IconEye, IconShieldCheck, IconLock, IconLayers } from "@tabler/icons-react";
+import { breadcrumbSchema } from "~/lib/seo";
+
+const breadcrumbs = breadcrumbSchema([
+  { name: "Home", href: "/" },
+  { name: "How It Works", href: "/how-it-works/" },
+]);
+---
+
+<BaseLayout
+  title="How Consent Resolve Works — From Visitor to Lead in 3 Steps"
+  description="From an anonymous visitor to a lead you can call — in three steps. Paste one line of code. The homeowner consents. You get the name and number. Yours alone, never resold."
+  schema={[breadcrumbs]}
+>
+  <!-- Hero (text-led, no phone mock) -->
+  <section class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
+    <div class="container-content section relative">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="eyebrow mb-7 justify-center">How it works</p>
+        <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
+          From an anonymous visitor to a lead you can call —<br/>
+          <span class="text-[color:var(--color-brand)]">in three steps.</span>
+        </h1>
+        <p class="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+          You already pay to get homeowners to your site. Here's how Consent Resolve turns the ones who consent into names and numbers that are yours alone.
+        </p>
+        <div class="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <Button href="/get-started/" variant="primary" size="lg">
+            Start $10 Trial
+            <IconArrowRight size={18} stroke={2.25} />
+          </Button>
+          <Button href="/sample-lead/" variant="outline" size="lg">
+            <IconEye size={18} stroke={1.75} />
+            See a sample lead
+          </Button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The 3 steps (comet) -->
+  <HowItWorks />
+
+  <!-- Detail rows under the comet -->
+  <section class="section bg-[color:var(--color-bg-alt)]">
+    <div class="container-content">
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        <p class="eyebrow mb-5 justify-center">Step by step</p>
+        <h2 class="display-2 text-[color:var(--color-ink)]">No mystery. No magic. No marketing tricks.</h2>
+      </div>
+      <div class="grid gap-12 lg:grid-cols-3">
+        <article>
+          <p class="mb-2 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[color:var(--color-brand-pressed)]">Step 01</p>
+          <h3 class="display-2 mb-4 text-[color:var(--color-ink)]" style="font-size: clamp(1.25rem, 2vw, 1.5rem)">Drop in one line of code.</h3>
+          <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+            Copy the snippet, paste it in your site's header, done. About 10 minutes. Works on WordPress, Wix, Squarespace, ServiceTitan, and most other builders.
+          </p>
+          <p class="mt-3 text-sm italic text-[color:var(--color-ink-muted)]">
+            No developer needed. If you can paste a tracking tag, you can do this.
+          </p>
+        </article>
+        <article>
+          <p class="mb-2 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[color:var(--color-brand-pressed)]">Step 02</p>
+          <h3 class="display-2 mb-4 text-[color:var(--color-ink)]" style="font-size: clamp(1.25rem, 2vw, 1.5rem)">A homeowner visits and consents.</h3>
+          <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+            Your cookie banner asks for permission like always. When they say yes, Consent Resolve matches them to a real name and mobile number.
+          </p>
+          <p class="mt-3 text-sm italic text-[color:var(--color-ink-muted)]">
+            No consent, no data. Nothing happens in the dark.
+          </p>
+        </article>
+        <article>
+          <p class="mb-2 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[color:var(--color-brand-pressed)]">Step 03</p>
+          <h3 class="display-2 mb-4 text-[color:var(--color-ink)]" style="font-size: clamp(1.25rem, 2vw, 1.5rem)">You get the name and number, and you call.</h3>
+          <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+            It hits your phone in seconds and your CRM at the same time, with what they were shopping for.
+          </p>
+          <p class="mt-3 text-sm italic text-[color:var(--color-ink-muted)]">
+            First contractor to call usually wins. Now that's you.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- What makes it different -->
+  <section class="section">
+    <div class="container-content">
+      <div class="mb-14 text-center">
+        <p class="eyebrow mb-5 justify-center">What makes it different</p>
+        <h2 class="display-2 mx-auto max-w-2xl text-[color:var(--color-ink)]">
+          The three things every other lead tool gets wrong.
+        </h2>
+      </div>
+      <div class="grid gap-6 md:grid-cols-3">
+        <FeatureCard
+          variant="showcase"
+          icon={IconShieldCheck}
+          title="Only after consent."
+          body="No shadow-tracking. A name appears only when a homeowner agrees."
+        />
+        <FeatureCard
+          variant="showcase"
+          icon={IconLock}
+          title="Yours alone."
+          body="One lead, one shop. Never resold, never auctioned."
+        />
+        <FeatureCard
+          variant="showcase"
+          icon={IconLayers}
+          title="Works with what you run now."
+          body="Keep your ads, your LSA, your SEO. This catches the visitors they send who'd otherwise leave without a name."
+        />
+      </div>
+    </div>
+  </section>
+
+  <ComplianceBand />
+  <FAQSection />
+  <FinalCTA />
+</BaseLayout>

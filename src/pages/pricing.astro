@@ -1,0 +1,147 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Button from "~/components/ui/Button.astro";
+import Accordion from "~/components/ui/Accordion.tsx";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+import { IconArrowRight, IconCheck, IconBolt, IconLock } from "@tabler/icons-react";
+import { breadcrumbSchema, faqSchema } from "~/lib/seo";
+
+const billingFaqs = [
+  { question: "What's the $10 for?", answer: "Your first 10 leads — about a dollar apiece to try us out." },
+  { question: "How much is each lead?", answer: "$7, flat. The same whether it's a tune-up or a re-roof." },
+  { question: "When am I billed?", answer: "$10 up front for your first 10 leads, then $7 per lead after that. [CONFIRM billing cadence]" },
+  { question: "How do I cancel?", answer: "Anytime, from your dashboard. No phone call, no hassle." },
+];
+
+const planFeatures = [
+  "Exclusive leads — yours alone, never resold",
+  "Real homeowner names and mobile numbers",
+  "What they were shopping for, captured at consent",
+  "On your phone in seconds (Slack, SMS, email)",
+  "Lands in your CRM — Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo",
+  "Legal by default — GDPR, CCPA, CPA, Termageddon-backed audit trail",
+  "Live in about 10 minutes — one line of code",
+];
+
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "Pricing", href: "/pricing/" },
+  ]),
+  faqSchema(billingFaqs),
+];
+---
+
+<BaseLayout
+  title="Pricing — $10 to Start, Then $7 a Lead | Consent Resolve"
+  description="Your first 10 leads cost $10. After that, $7 a lead — flat. Every lead exclusive, never resold. No contract, cancel anytime. Card required."
+  schema={schemas}
+>
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
+    <div class="container-content section relative">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="eyebrow mb-7 justify-center">Pricing</p>
+        <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
+          Start for $10.<br/>
+          <span class="text-[color:var(--color-brand)]">Pay for leads, not promises.</span>
+        </h1>
+        <p class="mx-auto max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+          Your first 10 leads cost just $10. After that, it's $7 a lead. No contract, cancel anytime — see what consented leads are worth before you scale.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- The plan card -->
+  <section class="pb-24">
+    <div class="container-content">
+      <div class="mx-auto max-w-2xl">
+        <div class="relative overflow-hidden rounded-3xl bg-[color:var(--color-bg-alt)] p-8 lg:p-10 shadow-[0_40px_80px_-30px_rgba(0,192,128,0.35)] ring-[3px] ring-[color:var(--color-brand)]">
+          <div class="absolute inset-x-0 top-0 h-1.5 rounded-t-3xl bg-gradient-to-r from-[color:var(--color-mint-400)] via-[color:var(--color-brand)] to-[color:var(--color-mint-400)]"></div>
+
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--color-brand-pressed)]">One honest plan</p>
+
+          <div class="mt-4 grid items-end gap-6 sm:grid-cols-2">
+            <div>
+              <div class="font-display text-6xl font-black tracking-tighter leading-none text-[color:var(--color-ink)]">$10</div>
+              <p class="mt-2 text-sm font-semibold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)]">
+                First 10 leads
+              </p>
+              <p class="mt-1 text-[15px] text-[color:var(--color-ink-2)]">
+                About $1 each. A card is required.
+              </p>
+            </div>
+            <div class="rounded-2xl bg-[color:var(--color-bg)] p-5">
+              <div class="font-display text-4xl font-black tracking-tighter leading-none text-[color:var(--color-brand-pressed)]">$7</div>
+              <p class="mt-2 text-sm font-semibold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)]">
+                Per lead after that
+              </p>
+              <p class="mt-1 text-[15px] text-[color:var(--color-ink-2)]">
+                Flat. No bidding, no surge.
+              </p>
+            </div>
+          </div>
+
+          <hr class="my-8 border-[color:var(--color-rule)]" />
+
+          <ul class="space-y-3">
+            {planFeatures.map((f) => (
+              <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink)]">
+                <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)]">
+                  <IconCheck size={14} stroke={3} color="#00A86E" />
+                </span>
+                {f}
+              </li>
+            ))}
+          </ul>
+
+          <Button href="/get-started/" variant="primary" size="lg" class="mt-8 w-full">
+            <IconBolt size={18} stroke={2.25} />
+            Start $10 Trial
+            <IconArrowRight size={18} stroke={2.25} />
+          </Button>
+
+          <p class="mt-4 flex items-center justify-center gap-1.5 text-xs text-[color:var(--color-ink-muted)]">
+            <IconLock size={12} stroke={1.75} />
+            256-bit encrypted · Card required · Cancel anytime
+          </p>
+        </div>
+
+        <!-- Reassurance row -->
+        <div class="mt-8 grid grid-cols-3 gap-4 text-center">
+          <div class="rounded-xl bg-[color:var(--color-bg-alt)] p-4">
+            <div class="font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">10 leads</div>
+            <div class="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">for $10</div>
+          </div>
+          <div class="rounded-xl bg-[color:var(--color-bg-alt)] p-4">
+            <div class="font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">$7 / lead</div>
+            <div class="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">after that</div>
+          </div>
+          <div class="rounded-xl bg-[color:var(--color-bg-alt)] p-4">
+            <div class="font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">Cancel</div>
+            <div class="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">anytime</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Billing FAQ -->
+  <section class="section bg-[color:var(--color-bg-alt)]">
+    <div class="container-content max-w-3xl">
+      <div class="mb-12 text-center">
+        <p class="eyebrow mb-5 justify-center">Billing FAQ</p>
+        <h2 class="display-2 text-[color:var(--color-ink)]">The straight answers.</h2>
+      </div>
+      <div class="rounded-2xl bg-[color:var(--color-bg)] p-2">
+        <div class="px-5">
+          <Accordion client:visible items={billingFaqs} variant="chevron" defaultOpen={0} />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <FinalCTA />
+</BaseLayout>
