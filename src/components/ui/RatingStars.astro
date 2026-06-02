@@ -1,0 +1,27 @@
+---
+import { IconStarFilled, IconStar } from "@tabler/icons-react";
+
+interface Props {
+  value: number; // 0-5
+  size?: number;
+  showNumber?: boolean;
+}
+const { value, size = 16, showNumber = true } = Astro.props as Props;
+const v = Math.max(0, Math.min(5, value));
+const full = Math.floor(v);
+const empty = 5 - full;
+---
+
+<div class="inline-flex items-center gap-1.5">
+  <div class="flex items-center gap-0.5">
+    {Array.from({ length: full }).map(() => (
+      <IconStarFilled size={size} color="#f59e0b" />
+    ))}
+    {Array.from({ length: empty }).map(() => (
+      <IconStar size={size} stroke={1.75} color="#cbd5e1" />
+    ))}
+  </div>
+  {showNumber && (
+    <span class="text-sm font-semibold tracking-tight text-[color:var(--color-ink)]">{v.toFixed(1)}</span>
+  )}
+</div>

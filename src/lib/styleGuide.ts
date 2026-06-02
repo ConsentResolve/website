@@ -27,6 +27,7 @@ export const STYLE_GUIDE: StyleGuideEntry[] = [
   { slug: "calculators", title: "Calculators", description: "Interactive ROI and lead-cost calculators." },
   { slug: "how-it-works", title: "How It Works (Comet)", description: "Animated dark-theme 3-step section with a comet that sweeps and lights each node in turn." },
   { slug: "feature-cards", title: "Feature Cards", description: "Eight variants of an icon + title + body tile primitive." },
+  { slug: "comparison-tables", title: "Comparison Tables", description: "Mattress-site-style product cards + dense feature × brand matrix." },
   { slug: "pricing-table", title: "Pricing Table", description: "Tiered pricing card layout." },
   { slug: "testimonials", title: "Testimonials", description: "Customer testimonial card variants." },
 ];

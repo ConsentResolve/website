@@ -1,0 +1,173 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import ComparisonCard from "~/components/ui/ComparisonCard.astro";
+import ComparisonMatrix from "~/components/ui/ComparisonMatrix.astro";
+import RatingStars from "~/components/ui/RatingStars.astro";
+import ScoreBar from "~/components/ui/ScoreBar.astro";
+---
+
+<StyleGuideLayout
+  slug="comparison-tables"
+  title="Comparison Tables"
+  description="Mattress-site-style comparison: product cards in a row at the top, then a deep feature × brand matrix below. Use these on /compare/, /vs/, and /alternatives/ pages."
+>
+  <!-- Section 1: Card row -->
+  <section class="sg-section">
+    <h2>Card row · 4 brands</h2>
+    <p class="sg-lede">Featured card lifts and ribbons. Each card has rating, score, price, best-for chip, pros + cons, and CTAs.</p>
+    <div class="sg-preview" style="padding:2.5rem 2rem">
+      <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        <ComparisonCard
+          featured
+          ribbonLabel="Editor's Pick"
+          brand="Consent Resolve"
+          tagline="Consent-first visitor ID"
+          logoColor="#0A1628"
+          rating={4.9}
+          score={96}
+          price="$10"
+          priceSub="/ first month"
+          bestFor="owner-operators"
+          pros={[
+            "Exclusive leads — never resold",
+            "Real homeowner names and phone numbers",
+            "GDPR / CCPA compliant out of the box",
+            "Lands in your CRM in under 5 seconds",
+          ]}
+          cons={["New platform (founded 2026)", "Limited to 7 states at launch"]}
+          ctaLabel="Start $10 Trial"
+          ctaHref="/get-started/"
+          reviewHref="/vs/thumbtack-vs-consent-resolve/"
+        />
+        <ComparisonCard
+          brand="Thumbtack"
+          tagline="Shared lead marketplace"
+          logoColor="#04b760"
+          rating={3.4}
+          score={64}
+          price="$48"
+          priceSub="/ avg lead"
+          bestFor="high-volume shops"
+          pros={["Large lead volume", "Quick to start", "Mobile app workflow"]}
+          cons={["Same lead sold to 4–6 shops", "Tire-kickers charged at full price", "No exclusivity option"]}
+          ctaLabel="Visit Thumbtack"
+          ctaHref="#"
+          reviewHref="/compare/thumbtack/"
+        />
+        <ComparisonCard
+          brand="Angi"
+          tagline="HomeAdvisor reborn"
+          logoColor="#a3151c"
+          rating={2.9}
+          score={52}
+          price="$35"
+          priceSub="/ avg lead"
+          bestFor="legacy shops"
+          pros={["Established brand recognition", "Vetted-pro program"]}
+          cons={["Shared leads", "Aggressive sales calls reported", "Hard cancel terms"]}
+          ctaLabel="Visit Angi"
+          ctaHref="#"
+          reviewHref="/compare/angi/"
+        />
+        <ComparisonCard
+          brand="Google LSA"
+          tagline="Local Service Ads"
+          logoColor="#1a73e8"
+          rating={4.1}
+          score={78}
+          price="$40"
+          priceSub="/ avg lead"
+          bestFor="local SEO believers"
+          pros={["Pay only for booked leads", "Google's trust badge", "High-intent traffic"]}
+          cons={["Strict eligibility requirements", "Limited to verified trades", "Price fluctuates by ZIP"]}
+          ctaLabel="Visit Google LSA"
+          ctaHref="#"
+          reviewHref="/compare/google-local-service-ads/"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Feature matrix -->
+  <section class="sg-section">
+    <h2>Feature matrix</h2>
+    <p class="sg-lede">Dense feature comparison with grouped sections. Highlighted column reads as the winner; sticky left rail keeps row labels visible while scrolling horizontally on mobile.</p>
+    <div class="sg-preview" style="padding:0">
+      <ComparisonMatrix
+        highlightIndex={0}
+        brands={[
+          { name: "Consent Resolve", initials: "CR", logoColor: "#0A1628" },
+          { name: "Thumbtack",       initials: "Tt", logoColor: "#04b760" },
+          { name: "Angi",            initials: "An", logoColor: "#a3151c" },
+          { name: "Google LSA",      initials: "LSA", logoColor: "#1a73e8" },
+          { name: "HomeAdvisor",     initials: "HA", logoColor: "#f48120" },
+        ]}
+        groups={[
+          {
+            title: "Lead quality",
+            rows: [
+              { label: "Verified homeowner name", values: [true, false, false, true, false] },
+              { label: "Mobile phone number",     values: [true, true, true, true, true] },
+              { label: "Exclusive (never shared)", values: [true, false, false, true, false] },
+              { label: "Service intent captured", values: [true, "partial", false, true, false] },
+              { label: "Service area filtering",  values: [true, true, true, true, true] },
+            ],
+          },
+          {
+            title: "Pricing",
+            rows: [
+              { label: "Starting price",          values: ["$10/mo", "$48/lead", "$35/lead", "$40/lead", "$40/lead"] },
+              { label: "Pay per booked job",      values: [false, false, false, true, false] },
+              { label: "Flat subscription",       values: [true, false, false, false, false] },
+              { label: "Refund unqualified leads", values: [true, "partial", false, true, false] },
+            ],
+          },
+          {
+            title: "Compliance",
+            rows: [
+              { label: "GDPR compliant",          values: [true, true, true, true, true] },
+              { label: "CCPA compliant",          values: [true, true, true, true, true] },
+              { label: "Verifiable audit trail",  values: [true, false, false, "partial", false] },
+              { label: "Termageddon-backed",      values: [true, false, false, false, false], note: "Auto-updating privacy policies" },
+            ],
+          },
+          {
+            title: "Integrations",
+            rows: [
+              { label: "Jobber",                  values: [true, true, false, false, true] },
+              { label: "Housecall Pro",           values: [true, true, false, false, true] },
+              { label: "ServiceTitan",            values: [true, false, false, false, "partial"] },
+              { label: "HubSpot / Salesforce",    values: [true, false, false, false, false] },
+              { label: "Slack / SMS alerts",      values: [true, true, true, false, true] },
+            ],
+          },
+        ]}
+      />
+    </div>
+  </section>
+
+  <!-- Section 3: Atomics -->
+  <section class="sg-section">
+    <h2>Atomics — RatingStars</h2>
+    <div class="sg-preview">
+      <div class="flex flex-wrap items-center gap-8">
+        <RatingStars value={4.9} />
+        <RatingStars value={3.4} />
+        <RatingStars value={2.1} />
+        <RatingStars value={5} showNumber={false} />
+        <RatingStars value={4.5} size={24} />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Atomics — ScoreBar</h2>
+    <div class="sg-preview sg-stack max-w-md">
+      <ScoreBar value={96} label="Consent Resolve" />
+      <ScoreBar value={78} label="Google LSA" />
+      <ScoreBar value={64} label="Thumbtack" />
+      <ScoreBar value={52} label="Angi" />
+      <ScoreBar value={38} label="HomeGuide" />
+    </div>
+  </section>
+</StyleGuideLayout>

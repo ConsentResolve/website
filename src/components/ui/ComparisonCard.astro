@@ -1,0 +1,171 @@
+---
+import { IconCheck, IconX, IconArrowRight, IconCrown, IconExternalLink } from "@tabler/icons-react";
+import RatingStars from "./RatingStars.astro";
+import ScoreBar from "./ScoreBar.astro";
+
+interface ScoreItem { label: string; value: number; }
+
+interface Props {
+  brand: string;
+  initials?: string;
+  logoColor?: string;       // background color of logo box
+  tagline?: string;
+  rating?: number;          // 0-5
+  score?: number;           // 0-100
+  scoreBreakdown?: ScoreItem[];
+  price?: string;
+  priceSub?: string;
+  bestFor?: string;
+  pros?: string[];
+  cons?: string[];
+  ctaLabel: string;
+  ctaHref: string;
+  reviewHref?: string;
+  featured?: boolean;
+  ribbonLabel?: string;     // e.g. "Editor's Pick"
+}
+const {
+  brand,
+  initials,
+  logoColor = "#0A1628",
+  tagline,
+  rating,
+  score,
+  scoreBreakdown,
+  price,
+  priceSub,
+  bestFor,
+  pros = [],
+  cons = [],
+  ctaLabel,
+  ctaHref,
+  reviewHref,
+  featured = false,
+  ribbonLabel = "Editor's Pick",
+} = Astro.props as Props;
+
+const monogram = initials ?? brand.split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase();
+---
+
+<article
+  class:list={[
+    "relative flex flex-col rounded-2xl bg-[color:var(--color-bg-alt)] p-6 transition-all",
+    featured
+      ? "ring-2 ring-[color:var(--color-brand)] shadow-[0_24px_60px_-24px_rgba(0,192,128,0.35)]"
+      : "ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_1px_0_rgba(10,22,40,0.04)]"
+  ]}
+  style={featured ? "transform: translateY(-8px);" : ""}
+>
+  {featured && (
+    <div class="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-[color:var(--color-brand)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white shadow-[0_6px_16px_-6px_rgba(0,192,128,0.6)]">
+      <IconCrown size={12} stroke={2.25} />
+      {ribbonLabel}
+    </div>
+  )}
+
+  <!-- Logo + name -->
+  <div class="flex items-start gap-3">
+    <div
+      class="flex size-12 shrink-0 items-center justify-center rounded-xl font-display text-[15px] font-black tracking-tight text-white"
+      style={`background:${logoColor}`}
+    >
+      {monogram}
+    </div>
+    <div class="min-w-0 flex-1">
+      <h3 class="font-display text-lg font-bold tracking-tight text-[color:var(--color-ink)] leading-tight">{brand}</h3>
+      {tagline && <p class="mt-0.5 text-xs text-[color:var(--color-ink-muted)]">{tagline}</p>}
+    </div>
+  </div>
+
+  <!-- Rating + Score -->
+  {(rating != null || score != null) && (
+    <div class="mt-5 space-y-3">
+      {rating != null && <RatingStars value={rating} />}
+      {score != null && <ScoreBar value={score} label="Overall score" />}
+    </div>
+  )}
+
+  <!-- Score breakdown -->
+  {scoreBreakdown && scoreBreakdown.length > 0 && (
+    <div class="mt-4 space-y-2.5">
+      {scoreBreakdown.map((s) => <ScoreBar value={s.value} label={s.label} size="sm" />)}
+    </div>
+  )}
+
+  <!-- Price -->
+  {price && (
+    <div class="mt-5 border-t border-[color:var(--color-rule)] pt-4">
+      <div class="flex items-baseline gap-1.5">
+        <span class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-ink)]">{price}</span>
+        {priceSub && <span class="text-sm text-[color:var(--color-ink-muted)]">{priceSub}</span>}
+      </div>
+    </div>
+  )}
+
+  <!-- Best for chip -->
+  {bestFor && (
+    <div class="mt-4">
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-brand-soft)] px-3 py-1 text-[11px] font-semibold text-[color:var(--color-brand-pressed)]">
+        Best for: {bestFor}
+      </span>
+    </div>
+  )}
+
+  <!-- Pros -->
+  {pros.length > 0 && (
+    <div class="mt-5">
+      <p class="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-brand-pressed)]">Pros</p>
+      <ul class="space-y-1.5">
+        {pros.map((p) => (
+          <li class="flex items-start gap-2 text-[13px] text-[color:var(--color-ink-2)]">
+            <IconCheck size={14} stroke={2.5} color="#00A86E" className="mt-0.5 shrink-0" />
+            <span>{p}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  <!-- Cons -->
+  {cons.length > 0 && (
+    <div class="mt-3">
+      <p class="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#dc2626]">Cons</p>
+      <ul class="space-y-1.5">
+        {cons.map((c) => (
+          <li class="flex items-start gap-2 text-[13px] text-[color:var(--color-ink-2)]">
+            <IconX size={14} stroke={2.5} color="#dc2626" className="mt-0.5 shrink-0" />
+            <span>{c}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  <!-- Spacer pushes CTA to bottom -->
+  <div class="flex-1"></div>
+
+  <!-- CTAs -->
+  <div class="mt-6 space-y-2">
+    <a
+      href={ctaHref}
+      class:list={[
+        "inline-flex w-full items-center justify-center gap-1.5 rounded-lg px-4 py-3 text-sm font-semibold transition-all",
+        featured
+          ? "bg-[color:var(--color-brand)] text-white hover:bg-[color:var(--color-brand-pressed)] hover:shadow-[0_12px_28px_-12px_rgba(0,192,128,0.6)]"
+          : "bg-[color:var(--color-navy-900)] text-white hover:bg-[color:var(--color-navy-700)]"
+      ]}
+    >
+      {ctaLabel}
+      <IconArrowRight size={14} stroke={2.25} />
+    </a>
+    {reviewHref && (
+      <a
+        href={reviewHref}
+        class="inline-flex w-full items-center justify-center gap-1 text-xs font-medium text-[color:var(--color-ink-muted)] transition-colors hover:text-[color:var(--color-ink)]"
+      >
+        Read full review
+        <IconExternalLink size={11} stroke={1.75} />
+      </a>
+    )}
+  </div>
+</article>

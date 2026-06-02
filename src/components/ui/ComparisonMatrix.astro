@@ -1,0 +1,106 @@
+---
+import { IconCheck, IconX, IconMinus } from "@tabler/icons-react";
+
+type CellValue = true | false | "partial" | string | number;
+
+export interface Brand {
+  name: string;
+  initials?: string;
+  logoColor?: string;
+  highlight?: boolean;
+}
+
+export interface FeatureRow {
+  label: string;
+  values: CellValue[];
+  note?: string;
+}
+
+export interface FeatureGroup {
+  title: string;
+  rows: FeatureRow[];
+}
+
+interface Props {
+  brands: Brand[];
+  groups: FeatureGroup[];
+  highlightIndex?: number;
+}
+
+const { brands, groups, highlightIndex } = Astro.props as Props;
+const cols = brands.length;
+---
+
+<div class="relative overflow-x-auto rounded-2xl ring-1 ring-inset ring-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+  <table class="w-full border-collapse text-sm">
+    <!-- Header: brand columns -->
+    <thead>
+      <tr>
+        <th class="sticky left-0 z-10 w-[200px] min-w-[180px] bg-[color:var(--color-bg-alt)] p-5 text-left">
+          <span class="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Feature</span>
+        </th>
+        {brands.map((b, i) => {
+          const monogram = b.initials ?? b.name.split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase();
+          const isHi = highlightIndex === i || b.highlight;
+          return (
+            <th
+              class:list={[
+                "min-w-[140px] p-5 text-center align-bottom",
+                isHi ? "bg-[color:var(--color-brand-soft)]" : ""
+              ]}
+            >
+              <div class="flex flex-col items-center gap-2">
+                <div
+                  class:list={["flex size-10 items-center justify-center rounded-lg font-display text-[13px] font-black tracking-tight text-white"]}
+                  style={`background:${b.logoColor ?? "#0A1628"}`}
+                >
+                  {monogram}
+                </div>
+                <span class:list={["font-display text-[13px] font-bold tracking-tight", isHi ? "text-[color:var(--color-brand-pressed)]" : "text-[color:var(--color-ink)]"]}>{b.name}</span>
+                {isHi && (
+                  <span class="rounded-full bg-[color:var(--color-brand)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white">Winner</span>
+                )}
+              </div>
+            </th>
+          );
+        })}
+      </tr>
+    </thead>
+
+    <tbody>
+      {groups.map((g, gi) => (
+        <>
+          <tr>
+            <td colspan={cols + 1} class="border-t border-[color:var(--color-rule)] bg-[color:var(--color-bg)] px-5 pt-5 pb-2">
+              <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--color-ink-muted)]">{g.title}</span>
+            </td>
+          </tr>
+          {g.rows.map((r, ri) => (
+            <tr class={ri % 2 === 1 ? "bg-[color:var(--color-bg)]/30" : ""}>
+              <td class="sticky left-0 z-10 bg-[color:var(--color-bg-alt)] px-5 py-3 align-top">
+                <div class="font-semibold tracking-tight text-[color:var(--color-ink)]">{r.label}</div>
+                {r.note && <div class="mt-0.5 text-[11px] text-[color:var(--color-ink-muted)]">{r.note}</div>}
+              </td>
+              {r.values.map((v, vi) => {
+                const isHi = highlightIndex === vi || brands[vi]?.highlight;
+                return (
+                  <td class:list={["px-5 py-3 text-center align-middle", isHi ? "bg-[color:var(--color-brand-soft)]" : ""]}>
+                    {v === true && <IconCheck size={18} stroke={2.5} color="#00A86E" className="inline-block" />}
+                    {v === false && <IconX size={18} stroke={2.25} color="#dc2626" className="inline-block opacity-70" />}
+                    {v === "partial" && <IconMinus size={18} stroke={2.5} color="#94a3b8" className="inline-block" />}
+                    {typeof v === "string" && (
+                      <span class:list={["font-mono text-[13px] font-semibold", isHi ? "text-[color:var(--color-brand-pressed)]" : "text-[color:var(--color-ink)]"]}>{v}</span>
+                    )}
+                    {typeof v === "number" && (
+                      <span class:list={["font-mono text-[13px] font-semibold", isHi ? "text-[color:var(--color-brand-pressed)]" : "text-[color:var(--color-ink)]"]}>{v}</span>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </>
+      ))}
+    </tbody>
+  </table>
+</div>
