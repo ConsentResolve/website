@@ -6,7 +6,7 @@ import {
   IconMessage,
   IconCopy,
   IconWifi,
-  IconSignal4G,
+  IconAntennaBars5,
   IconBatteryFilled,
   IconMapPin,
   IconDroplet,
@@ -68,7 +68,7 @@ export default function LeadPhone() {
             <div className="relative flex items-center justify-between px-7 pb-2 pt-3 text-[12px] font-semibold text-[#0A1628]">
               <span>9:41</span>
               <div className="flex items-center gap-1">
-                <IconSignal4G size={14} stroke={2.5} />
+                <IconAntennaBars5 size={14} stroke={2.5} />
                 <IconWifi size={14} stroke={2.5} />
                 <IconBatteryFilled size={20} stroke={1.5} className="text-[#0A1628]" />
               </div>
