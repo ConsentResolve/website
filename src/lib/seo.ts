@@ -38,6 +38,24 @@ export const organizationSchema = {
   name: SITE.name,
   url: SITE.url,
   description: SITE.description,
+  email: "hello@consentresolve.com",
+  telephone: "+1-727-202-5996",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "1907 Gulf Way #1",
+    addressLocality: "St Pete Beach",
+    addressRegion: "FL",
+    postalCode: "33706",
+    addressCountry: "US",
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+1-727-202-5996",
+    email: "hello@consentresolve.com",
+    contactType: "customer service",
+    areaServed: "US",
+    availableLanguage: ["en"],
+  },
 };
 
 export const websiteSchema = {

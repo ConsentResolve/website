@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Button from "~/components/ui/Button.astro";
-import { IconArrowRight, IconMail, IconPhone, IconClock } from "@tabler/icons-react";
+import { IconArrowRight, IconMail, IconPhone, IconClock, IconMapPin } from "@tabler/icons-react";
 import { breadcrumbSchema } from "~/lib/seo";
 
 const schemas = [
@@ -71,12 +71,22 @@ const schemas = [
           <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]">
             <IconPhone size={20} stroke={1.75} color="#00A86E" />
             <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Phone</p>
-            <span class="mt-1 block font-mono text-[15px] font-semibold text-[color:var(--color-ink)]">[CONFIRM]</span>
+            <a href="tel:+17272025996" class="mt-1 block font-mono text-[15px] font-semibold text-[color:var(--color-ink)] hover:text-[color:var(--color-brand-pressed)]">
+              (727) 202-5996
+            </a>
+          </div>
+          <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]">
+            <IconMapPin size={20} stroke={1.75} color="#00A86E" />
+            <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Office</p>
+            <address class="mt-1 text-[15px] not-italic text-[color:var(--color-ink-2)]">
+              1907 Gulf Way #1<br/>
+              St Pete Beach, FL 33706
+            </address>
           </div>
           <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]">
             <IconClock size={20} stroke={1.75} color="#00A86E" />
             <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Hours</p>
-            <p class="mt-1 text-[15px] text-[color:var(--color-ink-2)]">M–F 8a–6p Central</p>
+            <p class="mt-1 text-[15px] text-[color:var(--color-ink-2)]">M–F 9a–6p Eastern</p>
           </div>
         </aside>
       </div>

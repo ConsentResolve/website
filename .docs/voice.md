@@ -129,8 +129,10 @@ cancel anytime.
 > starter offer for onboarding and CTAs, not for head-to-head price comparisons.
 > The first 10 leads are NOT free — never say "free."
 
-**Coverage at launch** *(confirm before publishing)*
-~16 trades supported · 7 states live · founded 2026.
+**Coverage at launch**
+17 trades supported. Service is nationwide (US) — Consent Resolve runs on your
+own website, so geography of your shop doesn't matter. Founded 2026 in
+St Pete Beach, FL.
 
 **Positioning** *(CONFIRMED — locked)*
 "Keep running the ads and channels that work. Consent Resolve doesn't replace

@@ -5,6 +5,18 @@ export const SITE = {
     "Identify website visitors after explicit consent. GDPR & CCPA compliant. Stop guessing — start following up.",
   defaultOgImage: "/og-default.png",
   twitter: "@consentresolve",
+  // NAP — single source of truth
+  email: "hello@consentresolve.com",
+  phone: "(727) 202-5996",
+  phoneE164: "+17272025996",
+  address: {
+    street: "1907 Gulf Way #1",
+    city: "St Pete Beach",
+    region: "FL",
+    postalCode: "33706",
+    country: "US",
+  },
+  hours: "Mon–Fri 9a–6p Eastern",
 } as const;
 
 export type NavItem = { label: string; href: string };
