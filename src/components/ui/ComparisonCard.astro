@@ -162,7 +162,7 @@ const scoreGrade =
         <p class="mb-3 text-[11px] font-black uppercase tracking-[0.18em] text-[color:var(--color-brand-pressed)]">What you get</p>
         <ul class="space-y-3">
           {pros.map((p) => (
-            <li class="flex items-start gap-3 text-[15px] leading-snug text-[color:var(--color-ink)]">
+            <li class="flex items-start gap-3 text-[15px] leading-snug text-[color:var(--color-ink)] min-h-[24px]">
               <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)]">
                 <IconCheck size={14} stroke={3} color="#00A86E" />
               </span>
@@ -179,7 +179,7 @@ const scoreGrade =
         <p class="mb-3 text-[11px] font-black uppercase tracking-[0.18em] text-[#dc2626]">Watch out for</p>
         <ul class="space-y-3">
           {cons.map((c) => (
-            <li class="flex items-start gap-3 text-[15px] leading-snug text-[color:var(--color-ink-2)]">
+            <li class="flex items-start gap-3 text-[15px] leading-snug text-[color:var(--color-ink-2)] min-h-[24px]">
               <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-red-50">
                 <IconX size={14} stroke={3} color="#dc2626" />
               </span>
@@ -190,8 +190,8 @@ const scoreGrade =
       </div>
     )}
 
-    <!-- Push CTA to bottom -->
-    <div class="flex-1"></div>
+    <!-- Push CTA to bottom (auto-fills remaining space so CTAs align across cards) -->
+    <div class="mt-auto"></div>
 
     <!-- CTA block -->
     <div class="mt-6 space-y-3">

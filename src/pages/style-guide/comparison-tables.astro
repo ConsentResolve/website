@@ -16,7 +16,7 @@ import ScoreBar from "~/components/ui/ScoreBar.astro";
     <h2>Card row · 3 brands (high-impact)</h2>
     <p class="sg-lede">Recommended for landing pages. Generous padding, oversized scores, dramatic featured card with mint accent bar and crown ribbon.</p>
     <div class="sg-preview" style="padding:3rem 1.5rem">
-      <div class="grid gap-7 lg:grid-cols-3 items-start pt-6">
+      <div class="grid gap-7 lg:grid-cols-3 pt-6">
         <ComparisonCard
           featured
           ribbonLabel="Editor's Pick"
@@ -30,10 +30,10 @@ import ScoreBar from "~/components/ui/ScoreBar.astro";
           bestFor="owner-operators"
           pros={[
             "Exclusive leads — never resold",
-            "Real homeowner names + mobile numbers",
+            "Real homeowner names + numbers",
             "GDPR / CCPA compliant by default",
           ]}
-          cons={["New platform (founded 2026)"]}
+          cons={["New platform (founded 2026)", "7 states live at launch"]}
           ctaLabel="Start $10 Trial"
           ctaHref="/get-started/"
           reviewHref="/how-it-works/"
@@ -47,8 +47,8 @@ import ScoreBar from "~/components/ui/ScoreBar.astro";
           price="$48"
           priceSub="Average per lead"
           bestFor="high-volume shops"
-          pros={["Large lead volume", "Quick to start"]}
-          cons={["Same lead sold to 4–6 shops", "Tire-kickers billed at full"]}
+          pros={["Large lead volume", "Quick to start", "Mobile dispatch app"]}
+          cons={["Same lead sold to 4–6 shops", "Tire-kickers billed full"]}
           ctaLabel="Compare in detail"
           ctaHref="/compare/thumbtack/"
           reviewHref="/vs/thumbtack-vs-consent-resolve/"
@@ -62,8 +62,8 @@ import ScoreBar from "~/components/ui/ScoreBar.astro";
           price="$35"
           priceSub="Average per lead"
           bestFor="legacy shops"
-          pros={["Established brand recognition"]}
-          cons={["Shared leads with 5+ shops", "Aggressive sales and hard cancel"]}
+          pros={["Established brand recognition", "Vetted-pro program", "Wide trade coverage"]}
+          cons={["Shared leads with 5+ shops", "Aggressive sales · hard cancel"]}
           ctaLabel="Compare in detail"
           ctaHref="/compare/angi/"
           reviewHref="/vs/angi-vs-consent-resolve/"
@@ -77,7 +77,7 @@ import ScoreBar from "~/components/ui/ScoreBar.astro";
     <h2>Card row · 4 brands (compact)</h2>
     <p class="sg-lede">For comparison hubs that need to fit four brands side by side. Slightly denser; same primitive.</p>
     <div class="sg-preview" style="padding:2.5rem 2rem">
-      <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4 items-start pt-6">
+      <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4 pt-6">
         <ComparisonCard
           featured
           ribbonLabel="Editor's Pick"
@@ -91,11 +91,13 @@ import ScoreBar from "~/components/ui/ScoreBar.astro";
           bestFor="owner-operators"
           pros={[
             "Exclusive leads — never resold",
-            "Real homeowner names and phone numbers",
-            "GDPR / CCPA compliant out of the box",
-            "Lands in your CRM in under 5 seconds",
+            "Real homeowner names + numbers",
+            "GDPR / CCPA compliant",
           ]}
-          cons={["New platform (founded 2026)", "Limited to 7 states at launch"]}
+          cons={[
+            "New platform (founded 2026)",
+            "7 states live at launch",
+          ]}
           ctaLabel="Start $10 Trial"
           ctaHref="/get-started/"
           reviewHref="/vs/thumbtack-vs-consent-resolve/"
@@ -110,7 +112,7 @@ import ScoreBar from "~/components/ui/ScoreBar.astro";
           priceSub="/ avg lead"
           bestFor="high-volume shops"
           pros={["Large lead volume", "Quick to start", "Mobile app workflow"]}
-          cons={["Same lead sold to 4–6 shops", "Tire-kickers charged at full price", "No exclusivity option"]}
+          cons={["Same lead sold to 4–6 shops", "Tire-kickers charged full"]}
           ctaLabel="Visit Thumbtack"
           ctaHref="#"
           reviewHref="/compare/thumbtack/"
@@ -124,8 +126,8 @@ import ScoreBar from "~/components/ui/ScoreBar.astro";
           price="$35"
           priceSub="/ avg lead"
           bestFor="legacy shops"
-          pros={["Established brand recognition", "Vetted-pro program"]}
-          cons={["Shared leads", "Aggressive sales calls reported", "Hard cancel terms"]}
+          pros={["Established brand", "Vetted-pro program", "Wide trade coverage"]}
+          cons={["Shared with 5+ shops", "Aggressive sales · hard cancel"]}
           ctaLabel="Visit Angi"
           ctaHref="#"
           reviewHref="/compare/angi/"
@@ -140,7 +142,7 @@ import ScoreBar from "~/components/ui/ScoreBar.astro";
           priceSub="/ avg lead"
           bestFor="local SEO believers"
           pros={["Pay only for booked leads", "Google's trust badge", "High-intent traffic"]}
-          cons={["Strict eligibility requirements", "Limited to verified trades", "Price fluctuates by ZIP"]}
+          cons={["Strict eligibility requirements", "Price fluctuates by ZIP"]}
           ctaLabel="Visit Google LSA"
           ctaHref="#"
           reviewHref="/compare/google-local-service-ads/"
