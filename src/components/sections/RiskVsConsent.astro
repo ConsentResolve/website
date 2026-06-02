@@ -1,44 +1,70 @@
 ---
+import { IconX, IconCheck, IconGavel, IconShieldCheck } from "@tabler/icons-react";
+
 const illegal = [
   "Shadow-tracking without user knowledge",
-  "Violates GDPR, CCPA, and CPA regulations",
+  "Violates GDPR, CCPA, and CPA",
   "No audit trail of where data came from",
-  "Risk of massive class-action settlements",
+  "Risk of class-action settlements",
 ];
 const consent = [
-  "Identification only AFTER explicit consent",
-  "Iron-clad legal policies (via Termageddon)",
+  "Identification only after explicit consent",
+  "Iron-clad legal policies via Termageddon",
   "Verifiable audit trail for every reveal",
-  "Build trust with your future customers",
+  "Build trust with future customers",
 ];
 ---
 
-<section class="px-6 py-24">
+<section class="section">
   <div class="container-content">
-    <div class="mb-16 text-center">
-      <h2 class="mb-4 text-3xl font-bold md:text-4xl text-[color:var(--color-ink)]">Most ID tools put you at risk.</h2>
-      <p class="text-xl font-bold uppercase italic tracking-wide text-[color:var(--color-danger)]">One lawsuit can cost $50,000.</p>
+    <div class="mb-14 text-center">
+      <p class="eyebrow mb-5 justify-center">The Choice</p>
+      <h2 class="display-2 mx-auto max-w-2xl text-[color:var(--color-ink)]">
+        Most visitor-ID tools put your business at risk.
+      </h2>
     </div>
-    <div class="grid gap-8 md:grid-cols-2">
-      <div class="relative overflow-hidden rounded-2xl border border-[color:var(--color-danger)]/30 bg-[color:var(--color-danger)]/5 p-8">
-        <div class="absolute right-4 top-4 text-[color:var(--color-danger)]/15"><span class="material-symbols-outlined !text-6xl">gavel</span></div>
-        <h3 class="mb-6 text-2xl font-bold text-[color:var(--color-danger)]">The Illegal Way</h3>
-        <ul class="space-y-4 text-[color:var(--color-ink)]">
+
+    <div class="grid gap-6 md:grid-cols-2">
+      <!-- Illegal -->
+      <div class="relative overflow-hidden rounded-2xl bg-[color:var(--color-bg-alt)] p-8" style="box-shadow: 0 0 0 1px rgba(239,68,68,0.18), 0 1px 0 rgba(10,22,40,0.03);">
+        <div class="mb-6 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-danger)]/10">
+              <IconGavel size={20} stroke={1.75} color="#EF4444" />
+            </div>
+            <h3 class="text-lg font-bold tracking-tight text-[color:var(--color-danger)]">The shadow-tracking way</h3>
+          </div>
+          <span class="rounded-full bg-[color:var(--color-danger)]/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-danger)]">Risky</span>
+        </div>
+        <ul class="space-y-3">
           {illegal.map((t) => (
-            <li class="flex items-start gap-3">
-              <span class="material-symbols-outlined !text-[color:var(--color-danger)] mt-0.5">cancel</span>
+            <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink-2)]">
+              <span class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-danger)]/10">
+                <IconX size={12} stroke={3} color="#EF4444" />
+              </span>
               <span>{t}</span>
             </li>
           ))}
         </ul>
       </div>
-      <div class="relative overflow-hidden rounded-2xl border border-[color:var(--color-brand)]/30 bg-[color:var(--color-brand-soft)] p-8">
-        <div class="absolute right-4 top-4 text-[color:var(--color-brand)]/15"><span class="material-symbols-outlined !text-6xl">verified</span></div>
-        <h3 class="mb-6 text-2xl font-bold text-[color:var(--color-brand)]">The Consent Way</h3>
-        <ul class="space-y-4 text-[color:var(--color-ink)]">
+
+      <!-- Consent -->
+      <div class="relative overflow-hidden rounded-2xl bg-[color:var(--color-bg-alt)] p-8" style="box-shadow: 0 0 0 1px rgba(0,192,128,0.25), 0 8px 24px -12px rgba(0,192,128,0.18);">
+        <div class="mb-6 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-brand-soft)]">
+              <IconShieldCheck size={20} stroke={1.75} color="#00A86E" />
+            </div>
+            <h3 class="text-lg font-bold tracking-tight text-[color:var(--color-brand-pressed)]">The consent way</h3>
+          </div>
+          <span class="rounded-full bg-[color:var(--color-brand-soft)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Compliant</span>
+        </div>
+        <ul class="space-y-3">
           {consent.map((t) => (
-            <li class="flex items-start gap-3">
-              <span class="material-symbols-outlined !text-[color:var(--color-brand)] mt-0.5">check_circle</span>
+            <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink-2)]">
+              <span class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)]">
+                <IconCheck size={12} stroke={3} color="#00A86E" />
+              </span>
               <span>{t}</span>
             </li>
           ))}

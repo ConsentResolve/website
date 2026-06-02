@@ -62,37 +62,35 @@
     color: var(--color-ink);
     font-family: var(--font-sans);
     scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
-  body {
-    @apply antialiased;
-  }
+  body { @apply antialiased; }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
+    font-weight: 700;
   }
-  .material-symbols-outlined {
-    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
-    color: var(--color-brand);
-  }
+  h1 { letter-spacing: -0.035em; }
   .skip-link {
     @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[color:var(--color-brand)] focus:px-4 focus:py-2 focus:font-bold focus:text-[color:var(--color-on-brand)];
   }
 
-  /* === Dark section: scope token overrides inside .section-dark === */
+  /* Selection */
+  ::selection { background: var(--color-mint-400); color: var(--color-navy-900); }
+
+  /* === Dark section: scope token overrides === */
   .section-dark {
     background-color: var(--color-bg-inverse);
     color: var(--color-on-inverse);
     --color-ink: var(--color-on-inverse);
     --color-ink-2: #cbd5e1;
-    --color-ink-muted: var(--color-on-inverse-muted);
-    --color-rule: rgba(255, 255, 255, 0.1);
+    --color-ink-muted: #94a3b8;
+    --color-rule: rgba(255, 255, 255, 0.08);
     --color-bg: var(--color-bg-inverse);
     --color-bg-alt: var(--color-bg-inverse-alt);
-    --color-brand: var(--color-mint-400); /* bright mint pops on navy */
+    --color-brand: var(--color-mint-400);
     --color-brand-soft: rgba(0, 229, 160, 0.12);
-  }
-  .section-dark .material-symbols-outlined {
-    color: var(--color-mint-400);
   }
 }
 
@@ -102,25 +100,50 @@
     max-width: var(--container-content);
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-[color:var(--color-brand)] px-6 py-3 font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)];
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-[color:var(--color-brand)] px-6 py-3 text-sm font-semibold text-[color:var(--color-on-brand)] transition-all duration-200 hover:bg-[color:var(--color-brand-pressed)];
+    letter-spacing: -0.005em;
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px -12px rgba(0, 192, 128, 0.55);
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-[color:var(--color-rule)] bg-transparent px-6 py-3 font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-bg-alt)];
-  }
-  .glow-hover {
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-  .glow-hover:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 28px -10px rgba(0, 192, 128, 0.45);
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-transparent px-6 py-3 text-sm font-semibold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-bg-alt)];
   }
   .eyebrow {
-    @apply inline-flex items-center gap-2 rounded-full border border-[color:var(--color-brand)]/30 bg-[color:var(--color-brand-soft)] px-4 py-2 text-xs font-bold uppercase tracking-widest text-[color:var(--color-brand)];
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--color-brand)];
+  }
+  .eyebrow::before {
+    content: "";
+    width: 24px;
+    height: 1px;
+    background: currentColor;
+    display: inline-block;
   }
   .card {
-    @apply rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)];
+    background: var(--color-bg-alt);
+    border-radius: 1rem;
+    box-shadow: 0 1px 0 rgba(10, 22, 40, 0.04), 0 0 0 1px rgba(10, 22, 40, 0.06);
   }
-  .hairline {
-    border-color: var(--color-rule);
+  .card-elevated {
+    background: var(--color-bg-alt);
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 0 rgba(10, 22, 40, 0.04), 0 0 0 1px rgba(10, 22, 40, 0.06), 0 24px 48px -24px rgba(10, 22, 40, 0.18);
+  }
+  .section { padding-top: 7rem; padding-bottom: 7rem; }
+  .section-tight { padding-top: 5rem; padding-bottom: 5rem; }
+  .display-1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.5rem, 5.5vw, 4.75rem);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+  }
+  .display-2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.025em;
   }
 }

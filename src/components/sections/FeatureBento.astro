@@ -1,42 +1,42 @@
 ---
-import HexBolt from "~/components/HexBolt.astro";
+import {
+  IconUserSearch, IconMapPin, IconTool, IconClock,
+  IconArrowsLeftRight, IconBan, IconShieldCheck, IconTrendingUp,
+} from "@tabler/icons-react";
 
-interface Feature { icon: string; title: string; body: string; }
-interface Props { heading?: string; subhead?: string; features?: Feature[]; }
-const {
-  heading = "Everything in your toolbox",
-  subhead = "What you get the moment a homeowner consents.",
-  features = [
-    { icon: "person_search", title: "Verified name & number", body: "The actual homeowner — first name, last name, mobile. Not a P.O. box, not a household label." },
-    { icon: "explore", title: "Address & service area", body: "Drops a pin on your map. Filter leads by zip, route, or radius from your shop." },
-    { icon: "handyman", title: "What they're shopping for", body: "Captured intent: 'water heater quote', 'roof inspection', 'AC tune-up'. No mystery." },
-    { icon: "schedule", title: "Inside-5-minute alerts", body: "Slack, SMS, or email the second a lead consents. First contractor to call wins." },
-    { icon: "sync_alt", title: "CRM & dispatch sync", body: "Pushes to Jobber, Housecall Pro, ServiceTitan, HubSpot, or your spreadsheet." },
-    { icon: "block", title: "Not a shared lead", body: "Goes to you only. Not auctioned to three other shops. Not resold next week." },
-    { icon: "shield", title: "Compliant by default", body: "GDPR, CCPA, CPA. Iron-clad consent + audit trail via Termageddon." },
-    { icon: "trending_up", title: "Return-visit alerts", body: "If a homeowner comes back to your site, you know. Time it right." },
-  ],
-} = Astro.props as Props;
+interface Feature { Icon: any; title: string; body: string; }
+const features: Feature[] = [
+  { Icon: IconUserSearch, title: "Verified name & number", body: "The actual homeowner — first, last, mobile. Not a household label." },
+  { Icon: IconMapPin, title: "Address & service area", body: "Drops a pin on your map. Filter by zip, route, or radius." },
+  { Icon: IconTool, title: "What they're shopping for", body: "Captured intent: 'water heater quote', 'roof inspection', 'AC tune-up'." },
+  { Icon: IconClock, title: "Sub-5-minute alerts", body: "Slack, SMS, or email the second consent fires. First to call wins." },
+  { Icon: IconArrowsLeftRight, title: "CRM & dispatch sync", body: "Pushes to Jobber, Housecall Pro, ServiceTitan, HubSpot, or your sheet." },
+  { Icon: IconBan, title: "Never shared", body: "Goes to you only. Not auctioned to three other shops." },
+  { Icon: IconShieldCheck, title: "Compliant by default", body: "GDPR, CCPA, CPA. Iron-clad audit trail via Termageddon." },
+  { Icon: IconTrendingUp, title: "Return-visit alerts", body: "If a homeowner comes back to your site, you know. Time it right." },
+];
 ---
 
-<section class="bg-[color:var(--color-bg-alt)] px-6 py-24">
+<section class="section">
   <div class="container-content">
-    <div class="mb-12 flex items-end justify-between gap-8">
-      <div>
-        <p class="eyebrow mb-4"><span class="material-symbols-outlined !text-[14px]">build</span> Tools included</p>
-        <h2 class="text-3xl font-bold text-[color:var(--color-ink)] md:text-4xl">{heading}</h2>
-        <p class="mt-3 text-[color:var(--color-ink-2)]">{subhead}</p>
+    <div class="mb-14 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div class="max-w-2xl">
+        <p class="eyebrow mb-5">Tools included</p>
+        <h2 class="display-2 text-[color:var(--color-ink)]">Everything in your toolbox.</h2>
       </div>
+      <p class="max-w-md text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+        What lands in your dashboard the moment a homeowner consents.
+      </p>
     </div>
-    <div class="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-rule)] sm:grid-cols-2 lg:grid-cols-4">
+
+    <div class="grid grid-cols-1 gap-px overflow-hidden rounded-2xl bg-[#e6e6e6] sm:grid-cols-2 lg:grid-cols-4" style="box-shadow: 0 0 0 1px #e6e6e6;">
       {features.map((f) => (
-        <div class="group relative bg-[color:var(--color-bg-alt)] p-6 transition-colors hover:bg-[color:var(--color-paper)]">
-          <span class="absolute right-3 top-3 text-[color:var(--color-rule)] group-hover:text-[color:var(--color-brand)]/40 transition-colors"><HexBolt size={12} /></span>
-          <div class="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-[color:var(--color-brand-soft)]">
-            <span class="material-symbols-outlined !text-[26px]">{f.icon}</span>
+        <div class="group relative bg-[color:var(--color-bg-alt)] p-7 transition-colors hover:bg-[color:var(--color-bg)]">
+          <div class="mb-5 inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-bg)] text-[color:var(--color-ink-2)] group-hover:bg-[color:var(--color-brand-soft)] group-hover:text-[color:var(--color-brand-pressed)] transition-colors">
+            <f.Icon size={20} stroke={1.5} />
           </div>
-          <h5 class="mb-1.5 font-bold text-[color:var(--color-ink)]">{f.title}</h5>
-          <p class="text-sm text-[color:var(--color-ink-2)] leading-relaxed">{f.body}</p>
+          <h3 class="mb-2 text-[15px] font-semibold tracking-tight text-[color:var(--color-ink)]">{f.title}</h3>
+          <p class="text-[14px] leading-relaxed text-[color:var(--color-ink-2)]">{f.body}</p>
         </div>
       ))}
     </div>

@@ -1,7 +1,6 @@
 ---
 import LeadPhone from "~/components/islands/LeadPhone.tsx";
-import ServiceAreaBackdrop from "~/components/ServiceAreaBackdrop.astro";
-import HexBolt from "~/components/HexBolt.astro";
+import { IconArrowRight, IconEye } from "@tabler/icons-react";
 
 interface Props {
   eyebrow?: string;
@@ -23,64 +22,51 @@ const {
 } = Astro.props as Props;
 ---
 
-<section class="relative overflow-hidden px-6 pb-20 pt-20">
-  <ServiceAreaBackdrop />
+<section class="relative overflow-hidden">
+  <!-- Ambient mint glow, top-left -->
+  <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
 
-  <!-- Hex-bolt corner registration marks -->
-  <div class="pointer-events-none absolute left-6 top-6 text-[color:var(--color-rule)]"><HexBolt size={18} /></div>
-  <div class="pointer-events-none absolute right-6 top-6 text-[color:var(--color-rule)]"><HexBolt size={18} /></div>
-
-  <div class="container-content relative grid items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
-    <div class="z-10">
-      {eyebrow && (
-        <p class="eyebrow mb-6">
-          <span class="material-symbols-outlined !text-[14px]">handyman</span>
-          {eyebrow}
-        </p>
-      )}
-      <h1 class="mb-6 text-5xl font-black leading-[1.04] tracking-tight md:text-6xl text-[color:var(--color-ink)]">
-        {title} <br />
-        <span class="italic text-[color:var(--color-brand)]">{titleAccent}</span>
+  <div class="container-content section relative grid items-center gap-16 lg:grid-cols-[1.05fr_1fr]">
+    <div>
+      {eyebrow && <p class="eyebrow mb-7">{eyebrow}</p>}
+      <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
+        {title}<br />
+        <span class="text-[color:var(--color-brand)]">{titleAccent}</span>
       </h1>
-      <p class="mb-8 max-w-xl text-lg text-[color:var(--color-ink-2)]">{subhead}</p>
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <a href={ctaHref} class="btn-primary px-8 py-4 text-lg glow-hover">
+      <p class="mb-10 max-w-xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">{subhead}</p>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <a href={ctaHref} class="btn-primary px-7 py-4 text-base">
           {ctaLabel}
-          <span class="material-symbols-outlined !text-[color:var(--color-on-brand)]">arrow_forward</span>
+          <IconArrowRight size={18} stroke={2.25} />
         </a>
-        <a href="/sample-lead/" class="btn-ghost px-6 py-4">
-          <span class="material-symbols-outlined !text-[18px]">visibility</span>
+        <a href="/sample-lead/" class="btn-ghost px-6 py-4 text-base">
+          <IconEye size={18} stroke={1.75} />
           See a sample lead
         </a>
       </div>
-
-      <!-- coverage stat strip -->
-      <dl class="mt-10 grid grid-cols-3 gap-6 border-t border-[color:var(--color-rule)] pt-6 max-w-lg">
-        <div>
-          <dt class="flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-[color:var(--color-ink-muted)]">
-            <span class="material-symbols-outlined !text-[14px]">construction</span> Trades
-          </dt>
-          <dd class="mt-1 text-2xl font-black text-[color:var(--color-ink)]">16</dd>
-        </div>
-        <div>
-          <dt class="flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-[color:var(--color-ink-muted)]">
-            <span class="material-symbols-outlined !text-[14px]">location_city</span> Cities
-          </dt>
-          <dd class="mt-1 text-2xl font-black text-[color:var(--color-ink)]">35</dd>
-        </div>
-        <div>
-          <dt class="flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-[color:var(--color-ink-muted)]">
-            <span class="material-symbols-outlined !text-[14px]">map</span> States
-          </dt>
-          <dd class="mt-1 text-2xl font-black text-[color:var(--color-ink)]">7</dd>
-        </div>
-      </dl>
     </div>
 
     {showPanel && (
-      <div class="relative z-10">
+      <div class="relative">
         <LeadPhone client:visible />
       </div>
     )}
+  </div>
+
+  <!-- Trust strip -->
+  <div class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+    <div class="container-content grid grid-cols-2 gap-y-6 py-10 md:grid-cols-4">
+      {[
+        { value: "16", label: "Trades supported" },
+        { value: "35", label: "Cities live" },
+        { value: "7", label: "States covered" },
+        { value: "$10", label: "To start" },
+      ].map((s, i) => (
+        <div class={`px-6 ${i < 3 ? "md:border-r md:border-[color:var(--color-rule)]" : ""}`}>
+          <div class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-ink)]">{s.value}</div>
+          <div class="mt-1 text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">{s.label}</div>
+        </div>
+      ))}
+    </div>
   </div>
 </section>

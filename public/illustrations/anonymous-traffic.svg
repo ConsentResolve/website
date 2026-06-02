@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" fill="none">
+  <defs>
+    <radialGradient id="g1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00E5A0" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#00E5A0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="480" height="360" rx="20" fill="#F9F9F9"/>
+  <circle cx="240" cy="180" r="160" fill="url(#g1)"/>
+
+  <!-- Grid of anonymous visitor dots -->
+  <g fill="#0A1628" opacity="0.12">
+    <circle cx="80" cy="80" r="6"/>
+    <circle cx="130" cy="80" r="6"/>
+    <circle cx="180" cy="80" r="6"/>
+    <circle cx="230" cy="80" r="6"/>
+    <circle cx="280" cy="80" r="6"/>
+    <circle cx="330" cy="80" r="6"/>
+    <circle cx="380" cy="80" r="6"/>
+    <circle cx="80" cy="130" r="6"/>
+    <circle cx="130" cy="130" r="6"/>
+    <circle cx="180" cy="130" r="6"/>
+    <circle cx="280" cy="130" r="6"/>
+    <circle cx="330" cy="130" r="6"/>
+    <circle cx="380" cy="130" r="6"/>
+    <circle cx="80" cy="230" r="6"/>
+    <circle cx="180" cy="230" r="6"/>
+    <circle cx="230" cy="230" r="6"/>
+    <circle cx="280" cy="230" r="6"/>
+    <circle cx="380" cy="230" r="6"/>
+    <circle cx="80" cy="280" r="6"/>
+    <circle cx="130" cy="280" r="6"/>
+    <circle cx="180" cy="280" r="6"/>
+    <circle cx="230" cy="280" r="6"/>
+    <circle cx="280" cy="280" r="6"/>
+    <circle cx="330" cy="280" r="6"/>
+    <circle cx="380" cy="280" r="6"/>
+  </g>
+
+  <!-- Revealed center -->
+  <g>
+    <circle cx="230" cy="180" r="36" fill="#0A1628"/>
+    <circle cx="230" cy="180" r="36" stroke="#00E5A0" stroke-width="2"/>
+    <text x="230" y="187" text-anchor="middle" font-family="Hanken Grotesk, sans-serif" font-size="16" font-weight="700" fill="#00E5A0">SJ</text>
+
+    <!-- Identifying tag -->
+    <g transform="translate(290, 145)">
+      <rect width="120" height="74" rx="10" fill="white" stroke="#e6e6e6"/>
+      <text x="14" y="22" font-family="Hanken Grotesk, sans-serif" font-size="11" font-weight="700" fill="#0A1628">Sarah J.</text>
+      <text x="14" y="38" font-family="JetBrains Mono, monospace" font-size="9" fill="#4A5568">(512) 555-0142</text>
+      <line x1="14" y1="46" x2="106" y2="46" stroke="#e6e6e6"/>
+      <text x="14" y="62" font-family="Hanken Grotesk, sans-serif" font-size="9" font-weight="700" fill="#00A86E" letter-spacing="1">CONSENTED</text>
+    </g>
+    <line x1="266" y1="170" x2="290" y2="168" stroke="#0A1628" stroke-width="1.5" stroke-dasharray="2 3"/>
+  </g>
+
+  <!-- pulse highlight on 2 other dots -->
+  <circle cx="230" cy="130" r="6" fill="#00C080" opacity="0.5"/>
+  <circle cx="130" cy="230" r="6" fill="#00C080" opacity="0.5"/>
+  <circle cx="330" cy="230" r="6" fill="#00C080" opacity="0.5"/>
+</svg>

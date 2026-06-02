@@ -1,32 +1,41 @@
 ---
 import { FOOTER_NAV } from "~/lib/site";
+import { IconShieldCheck } from "@tabler/icons-react";
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-t border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] py-16 px-6">
-  <div class="container-content grid gap-12 md:grid-cols-5">
-    <div class="md:col-span-1">
-      <div class="flex items-center gap-2">
-        <div class="size-6 rounded bg-[color:var(--color-brand)] flex items-center justify-center">
-          <span class="material-symbols-outlined !text-[color:var(--color-on-brand)] !text-[14px]">verified_user</span>
+<footer class="border-t border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+  <div class="container-content py-20">
+    <div class="grid gap-12 md:grid-cols-6">
+      <div class="md:col-span-2">
+        <div class="flex items-center gap-2.5">
+          <div class="flex size-8 items-center justify-center rounded-lg bg-[color:var(--color-navy-900)]">
+            <IconShieldCheck size={18} stroke={2.25} color="#00E5A0" />
+          </div>
+          <span class="text-base font-semibold tracking-tight text-[color:var(--color-ink)]">Consent Resolve</span>
         </div>
-        <h2 class="text-lg font-bold tracking-tight">Consent Resolve</h2>
+        <p class="mt-5 max-w-xs text-sm leading-relaxed text-[color:var(--color-ink-2)]">
+          Lead identification for home service businesses. Compliant by default.
+        </p>
       </div>
-      <p class="mt-4 text-sm text-[color:var(--color-ink-muted)]">Identify visitors after consent. No lawsuits, no risk.</p>
+      {Object.entries(FOOTER_NAV).map(([heading, links]) => (
+        <div>
+          <h3 class="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">{heading}</h3>
+          <ul class="space-y-2.5">
+            {links.map((l) => (
+              <li>
+                <a class="text-sm text-[color:var(--color-ink-2)] transition-colors hover:text-[color:var(--color-brand-pressed)]" href={l.href}>
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
-    {Object.entries(FOOTER_NAV).map(([heading, links]) => (
-      <div>
-        <h3 class="text-sm font-bold uppercase tracking-widest text-[color:var(--color-ink)] mb-4">{heading}</h3>
-        <ul class="space-y-2 text-sm text-[color:var(--color-ink-2)]">
-          {links.map((l) => (
-            <li><a class="hover:text-[color:var(--color-brand)]" href={l.href}>{l.label}</a></li>
-          ))}
-        </ul>
-      </div>
-    ))}
-  </div>
-  <div class="container-content mt-12 pt-8 border-t border-[color:var(--color-rule)] text-xs text-[color:var(--color-ink-muted)] flex flex-col md:flex-row justify-between gap-2">
-    <p>© {year} Consent Resolve. All rights reserved.</p>
-    <p>GDPR · CCPA · CPA compliant</p>
+    <div class="mt-16 flex flex-col items-start justify-between gap-3 border-t border-[color:var(--color-rule)] pt-8 text-xs text-[color:var(--color-ink-muted)] md:flex-row md:items-center">
+      <p>© {year} Consent Resolve. All rights reserved.</p>
+      <p>GDPR · CCPA · CPA compliant</p>
+    </div>
   </div>
 </footer>

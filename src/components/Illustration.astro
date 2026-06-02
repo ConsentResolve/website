@@ -1,0 +1,27 @@
+---
+/**
+ * Drop-in slot for branded illustrations. Save SVG to
+ * /public/illustrations/{name}.svg and reference by name.
+ * Recommended source: storyset.com (Rafiki or Pana style, recolored
+ * to #00C080 + #0A1628). Free with attribution.
+ */
+interface Props {
+  name: string;
+  alt?: string;
+  class?: string;
+  width?: number;
+  height?: number;
+}
+const { name, alt = "", class: cls = "", width, height } = Astro.props as Props;
+const src = `/illustrations/${name}.svg`;
+---
+
+<img
+  src={src}
+  alt={alt}
+  class={cls}
+  width={width}
+  height={height}
+  loading="lazy"
+  decoding="async"
+/>
