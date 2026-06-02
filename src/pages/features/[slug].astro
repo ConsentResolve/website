@@ -1,21 +1,21 @@
 ---
 /**
  * Individual feature landing page — one per Feature in src/data/features.ts.
+ * Content comes from the deck at /Users/aaronphillips/Downloads/consent-resolve-feature-pages.md.
  *
- * This file is the LAYOUT scaffold. Sections are spaced and styled but the
- * inner copy is intentionally placeholder so the user can drop final content
- * in directly. Search the page for "[PLACEHOLDER]" to find every block that
- * needs final copy.
+ * Shared sections (ComplianceBand, FinalCTA) are identical on every page
+ * and live in their own components — DO NOT inline-duplicate that copy.
  */
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import FeatureCard from "~/components/ui/FeatureCard.astro";
+import Badge from "~/components/ui/Badge.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import Accordion from "~/components/ui/Accordion.tsx";
-import { ALL_FEATURES, FEATURE_GROUPS, getFeature, getFeatureGroupOf } from "~/data/features";
+import { ALL_FEATURES, getFeature, getFeatureGroupOf } from "~/data/features";
 import { FEATURE_ICONS } from "~/lib/feature-icons";
-import { breadcrumbSchema } from "~/lib/seo";
-import { IconArrowRight, IconCheck, IconEye } from "@tabler/icons-react";
+import { breadcrumbSchema, faqSchema } from "~/lib/seo";
+import { IconArrowRight, IconCheck, IconEye, IconAlertTriangle } from "@tabler/icons-react";
 
 export async function getStaticPaths() {
   return ALL_FEATURES.map((feature) => ({
@@ -28,8 +28,10 @@ const { feature } = Astro.props;
 const group = getFeatureGroupOf(feature.slug)!;
 const Icon = FEATURE_ICONS[feature.iconKey];
 
-// Sibling features in this group — for "Related" rail
-const siblings = group.features.filter((f) => f.slug !== feature.slug);
+// "Pairs Well With" — resolve the slugs from the deck to live Feature objects
+const pairsWith = feature.pairsWith
+  .map((slug) => getFeature(slug))
+  .filter((f): f is NonNullable<typeof f> => Boolean(f));
 
 const canonical = `https://consentresolve.com/features/${feature.slug}/`;
 const schemas = [
@@ -38,32 +40,25 @@ const schemas = [
     { name: "Features", href: "/features/" },
     { name: feature.name, href: `/features/${feature.slug}/` },
   ]),
+  faqSchema(feature.faq.items.map((f) => ({ question: f.q, answer: f.a }))),
 ];
 ---
 
 <BaseLayout
   title={`${feature.name} | Consent Resolve`}
-  description={feature.description}
+  description={feature.subhead}
   canonical={canonical}
   schema={schemas}
 >
-  <!-- 1. Hero ----------------------------------------------------- -->
+  <!-- 1. Hero -->
   <section class="relative overflow-hidden">
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
     <div class="container-content section relative">
       <div class="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
-          <p class="eyebrow mb-7">
-            <a href="/features/" class="hover:text-[color:var(--color-brand-pressed)]">Features</a>
-            <span class="opacity-50">/</span>
-            <span>{group.title.replace(/\.$/, "")}</span>
-          </p>
-          <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
-            {feature.name}
-          </h1>
-          <p class="mb-10 max-w-xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-            {feature.description}
-          </p>
+          <p class="eyebrow mb-7 uppercase">{group.eyebrow}</p>
+          <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">{feature.name}</h1>
+          <p class="mb-10 max-w-xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">{feature.subhead}</p>
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
             <a
               href="/get-started/"
@@ -81,7 +76,7 @@ const schemas = [
             </a>
           </div>
         </div>
-        <!-- Hero visual panel (illustration slot) -->
+        <!-- Hero card -->
         <div class="relative hidden lg:block">
           <div class="rounded-3xl bg-[color:var(--color-bg-alt)] p-12 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_30px_60px_-30px_rgba(10,22,40,0.18)]">
             <div class="mx-auto flex size-32 items-center justify-center rounded-2xl bg-[color:var(--color-brand)]">
@@ -95,125 +90,107 @@ const schemas = [
     </div>
   </section>
 
-  <!-- 2. AEO answer paragraph (40–55 words) ------------------------ -->
+  <!-- 2. AEO answer paragraph -->
   <section class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
     <div class="container-content py-10">
       <div class="mx-auto max-w-3xl">
-        <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
-          [PLACEHOLDER — 40-to-55-word answer paragraph for AI Overview / featured snippet citation. Lead with the feature name, define what it does in one sentence, then list two or three concrete things a contractor gets from it. End with how it differs from a shared-lead reseller.]
-        </p>
+        <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{feature.aeoAnswer}</p>
       </div>
     </div>
   </section>
 
-  <!-- 3. Problem this feature solves ------------------------------- -->
+  <!-- 3. The Problem -->
   <section class="section section-dark">
     <div class="container-content">
       <div class="mx-auto max-w-3xl text-center">
         <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">The problem</p>
-        <h2 class="display-2 text-white">
-          [PLACEHOLDER — one-line problem headline that the rest of the page is about to solve.]
-        </h2>
-        <p class="mt-6 text-lg leading-relaxed text-slate-300">
-          [PLACEHOLDER — two or three sentences making the problem hurt. Use real numbers, real shop language, no fluff.]
-        </p>
+        <h2 class="display-2 text-white">{feature.problem.headline}</h2>
+        <p class="mt-6 text-lg leading-relaxed text-slate-300">{feature.problem.body}</p>
       </div>
     </div>
   </section>
 
-  <!-- 4. How it works (3-step illustrated) ------------------------- -->
+  <!-- 4. How it works -->
   <section class="section">
     <div class="container-content">
       <div class="mx-auto mb-14 max-w-2xl text-center">
         <p class="eyebrow mb-5 justify-center">How it works</p>
-        <h2 class="display-2 text-[color:var(--color-ink)]">
-          [PLACEHOLDER — three-step headline.]
-        </h2>
+        <h2 class="display-2 text-[color:var(--color-ink)]">{feature.howItWorks.headline}</h2>
       </div>
       <div class="grid gap-6 md:grid-cols-3">
-        {[1, 2, 3].map((n) => (
+        {feature.howItWorks.steps.map((step, i) => (
           <div class="relative rounded-2xl bg-[color:var(--color-bg-alt)] p-8 ring-1 ring-inset ring-[color:var(--color-rule)]">
-            <div class="step-badge mb-5">{n}</div>
-            <h3 class="font-display text-lg font-bold tracking-tight text-[color:var(--color-ink)]">
-              [PLACEHOLDER — step {n} title]
-            </h3>
-            <p class="mt-3 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
-              [PLACEHOLDER — what the contractor sees, in plain language.]
-            </p>
+            <div class="step-badge mb-5">{i + 1}</div>
+            <h3 class="font-display text-lg font-bold tracking-tight text-[color:var(--color-ink)]">{step.title}</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{step.body}</p>
           </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- 5. What you get (3-up benefit grid) -------------------------- -->
+  <!-- 5. What You Get -->
   <section class="section bg-[color:var(--color-bg-alt)]">
     <div class="container-content">
       <div class="mx-auto mb-14 max-w-2xl text-center">
         <p class="eyebrow mb-5 justify-center">What you get</p>
-        <h2 class="display-2 text-[color:var(--color-ink)]">
-          [PLACEHOLDER — the three things this feature actually does for the shop.]
-        </h2>
+        <h2 class="display-2 text-[color:var(--color-ink)]">{feature.benefits.headline}</h2>
       </div>
       <div class="grid gap-6 md:grid-cols-3">
-        {[0, 1, 2].map(() => (
-          <FeatureCard
-            variant="showcase"
-            icon={Icon}
-            title="[PLACEHOLDER — benefit title]"
-            body="[PLACEHOLDER — one or two sentences. Money first, jargon never.]"
-          />
+        {feature.benefits.items.map((b) => (
+          <FeatureCard variant="showcase" icon={Icon} title={b.title} body={b.body} />
         ))}
       </div>
     </div>
   </section>
 
-  <!-- 6. Inline proof / quote -------------------------------------- -->
+  <!-- 6. Contractor Quote -->
   <section class="section">
     <div class="container-content max-w-3xl">
-      <figure class="rounded-3xl border-l-4 border-[color:var(--color-mint-400)] bg-[color:var(--color-bg-alt)] p-10 ring-1 ring-inset ring-[color:var(--color-rule)]">
+      <figure class="relative rounded-3xl border-l-4 border-[color:var(--color-mint-400)] bg-[color:var(--color-bg-alt)] p-10 ring-1 ring-inset ring-[color:var(--color-rule)]">
+        {feature.quote.isSample && (
+          <div class="mb-5">
+            <Badge tone="warning" variant="soft" size="sm" uppercase icon={IconAlertTriangle}>
+              Sample quote — replace before launch
+            </Badge>
+          </div>
+        )}
         <blockquote class="font-display text-2xl font-bold leading-snug tracking-tight text-[color:var(--color-ink)]">
-          "[PLACEHOLDER — quote from a contractor about this specific feature. Keep it short, keep it specific.]"
+          "{feature.quote.text}"
         </blockquote>
         <figcaption class="mt-5 text-sm text-[color:var(--color-ink-muted)]">
-          [PLACEHOLDER — Name, Shop, City]
+          — {feature.quote.name}, {feature.quote.shop}, {feature.quote.city}
         </figcaption>
       </figure>
     </div>
   </section>
 
-  <!-- 7. Specs / what's included (bullets w/ checkmarks) ----------- -->
+  <!-- 7. What's Included -->
   <section class="section section-dark">
     <div class="container-content max-w-4xl">
       <div class="mx-auto mb-12 max-w-2xl text-center">
         <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">What's included</p>
-        <h2 class="display-2 text-white">
-          [PLACEHOLDER — the spec headline.]
-        </h2>
+        <h2 class="display-2 text-white">{feature.included.headline}</h2>
       </div>
       <ul class="grid gap-4 md:grid-cols-2">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
+        {feature.included.items.map((line) => (
           <li class="flex items-start gap-3 rounded-2xl bg-white/5 p-5 ring-1 ring-inset ring-white/10">
             <span class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-mint-400)]">
               <IconCheck size={14} stroke={3} color="#0A1628" />
             </span>
-            <span class="text-[15px] leading-snug text-slate-200">
-              [PLACEHOLDER — spec line {i}]
-            </span>
+            <span class="text-[15px] leading-snug text-slate-200">{line}</span>
           </li>
         ))}
       </ul>
     </div>
   </section>
 
-  <!-- 8. FAQ ------------------------------------------------------- -->
+  <!-- 8. FAQ -->
   <section class="section">
     <div class="container-content max-w-3xl">
       <div class="mb-12 text-center">
         <p class="eyebrow mb-5 justify-center">FAQ</p>
-        <h2 class="display-2 text-[color:var(--color-ink)]">
-          What pros ask about {feature.name.toLowerCase()}.
-        </h2>
+        <h2 class="display-2 text-[color:var(--color-ink)]">{feature.faq.headline}</h2>
       </div>
       <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-2 ring-1 ring-inset ring-[color:var(--color-rule)]">
         <div class="px-5">
@@ -221,37 +198,33 @@ const schemas = [
             client:visible
             variant="chevron"
             defaultOpen={0}
-            items={[
-              { question: "[PLACEHOLDER — question 1]", answer: "[PLACEHOLDER — answer]" },
-              { question: "[PLACEHOLDER — question 2]", answer: "[PLACEHOLDER — answer]" },
-              { question: "[PLACEHOLDER — question 3]", answer: "[PLACEHOLDER — answer]" },
-              { question: "[PLACEHOLDER — question 4]", answer: "[PLACEHOLDER — answer]" },
-            ]}
+            items={feature.faq.items.map((f) => ({ question: f.q, answer: f.a }))}
           />
         </div>
       </div>
     </div>
   </section>
 
+  <!-- 9. Compliance (shared) -->
   <ComplianceBand />
 
-  <!-- 9. Related features (siblings in the same group) ------------ -->
-  {siblings.length > 0 && (
+  <!-- 10. Pairs Well With -->
+  {pairsWith.length > 0 && (
     <section class="section bg-[color:var(--color-bg-alt)]">
       <div class="container-content">
         <div class="mx-auto mb-12 max-w-2xl text-center">
           <p class="eyebrow mb-5 justify-center">Pairs well with</p>
-          <h2 class="display-2 text-[color:var(--color-ink)]">More in "{group.title.replace(/\.$/, "")}"</h2>
+          <h2 class="display-2 text-[color:var(--color-ink)]">Stack {feature.name.toLowerCase()} with these.</h2>
         </div>
-        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {siblings.map((s) => {
-            const SibIcon = FEATURE_ICONS[s.iconKey];
+        <div class="grid gap-6 md:grid-cols-3">
+          {pairsWith.map((p) => {
+            const PIcon = FEATURE_ICONS[p.iconKey];
             return (
               <a
-                href={`/features/${s.slug}/`}
+                href={`/features/${p.slug}/`}
                 class="block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand)] focus-visible:ring-offset-2"
               >
-                <FeatureCard variant="showcase" icon={SibIcon} title={s.name} body={s.tagline} />
+                <FeatureCard variant="showcase" icon={PIcon} title={p.name} body={p.tagline} />
               </a>
             );
           })}
@@ -269,5 +242,6 @@ const schemas = [
     </section>
   )}
 
+  <!-- 11. Final CTA (shared) -->
   <FinalCTA />
 </BaseLayout>
