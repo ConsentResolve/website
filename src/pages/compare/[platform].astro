@@ -1,0 +1,184 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Button from "~/components/ui/Button.astro";
+import Alert from "~/components/ui/Alert.astro";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+import { COMPARE_PAGES, type ComparePage } from "~/data/compare";
+import { breadcrumbSchema } from "~/lib/seo";
+import { IconArrowRight, IconCheck, IconX } from "@tabler/icons-react";
+
+export async function getStaticPaths() {
+  return COMPARE_PAGES.map((p) => ({
+    params: { platform: p.slug },
+    props: { page: p },
+  }));
+}
+
+interface Props { page: ComparePage }
+const { page } = Astro.props as Props;
+
+const initials = page.brand.split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase();
+
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "Compare", href: "/compare/" },
+    { name: page.brand, href: `/compare/${page.slug}/` },
+  ]),
+];
+---
+
+<BaseLayout
+  title={page.titleTag}
+  description={page.metaDescription}
+  canonical={`https://consentresolve.com/compare/${page.slug}/`}
+  schema={schemas}
+>
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
+    <div class="container-content section relative">
+      <div class="mx-auto max-w-4xl text-center">
+        <p class="eyebrow mb-7 justify-center">{page.eyebrow}</p>
+        <!-- Logo lockup -->
+        <div class="mb-7 inline-flex items-center gap-4">
+          <div class="flex size-14 items-center justify-center rounded-xl bg-[color:var(--color-navy-900)] font-display text-base font-black text-white">CR</div>
+          <span class="font-display text-2xl font-bold text-[color:var(--color-ink-muted)]">{page.type === "complement" ? "+" : "vs"}</span>
+          <div class="flex size-14 items-center justify-center rounded-xl font-display text-base font-black text-white" style={`background:${page.brandColor}`}>{initials}</div>
+        </div>
+        <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">{page.h1}</h1>
+        <p class="mx-auto max-w-3xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">{page.subhead}</p>
+        <div class="mt-10 flex justify-center">
+          <Button href="/get-started/" variant="primary" size="lg">
+            Start $10 Trial
+            <IconArrowRight size={18} stroke={2.25} />
+          </Button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ============ RESELLER LAYOUT ============ */}
+  {page.type === "reseller" && (
+    <>
+      <!-- What they're good at (honest first) -->
+      <section class="section bg-[color:var(--color-bg-alt)]">
+        <div class="container-content">
+          <div class="grid items-start gap-12 md:grid-cols-[1fr_1fr]">
+            <div>
+              <p class="eyebrow mb-5">What {page.brand} is good at</p>
+              <h2 class="display-2 text-[color:var(--color-ink)]">The honest part first.</h2>
+            </div>
+            <ul class="space-y-4">
+              {page.goodAt?.map((item) => (
+                <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink-2)]">
+                  <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-bg)] ring-1 ring-inset ring-[color:var(--color-rule)]">
+                    <IconCheck size={14} stroke={2.5} color="#475569" />
+                  </span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Where it costs you -->
+      <section class="section">
+        <div class="container-content">
+          <div class="mx-auto max-w-2xl text-center mb-12">
+            <p class="eyebrow mb-5 justify-center" style="color:#7F1D1D">Where it costs you</p>
+            <h2 class="display-2 text-[color:var(--color-ink)]">The math nobody puts on the front page.</h2>
+          </div>
+          <div class="mx-auto max-w-3xl">
+            <Alert variant="warning" title="The trade-off">
+              <ul class="mt-2 space-y-2 list-disc list-inside">
+                {page.costsYou?.map((item) => <li>{item}</li>)}
+              </ul>
+            </Alert>
+          </div>
+        </div>
+      </section>
+
+      <!-- Side by side -->
+      <section class="section bg-[color:var(--color-bg-alt)]">
+        <div class="container-content">
+          <div class="mx-auto max-w-2xl text-center mb-12">
+            <p class="eyebrow mb-5 justify-center">Side by side</p>
+            <h2 class="display-2 text-[color:var(--color-ink)]">Feature by feature.</h2>
+          </div>
+          <div class="mx-auto max-w-3xl overflow-hidden rounded-2xl bg-[color:var(--color-bg-alt)] ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)]">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-[color:var(--color-rule)] bg-[color:var(--color-bg)]">
+                  <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Feature</th>
+                  <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Consent Resolve</th>
+                  <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">{page.brand}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {page.comparisonRows?.map((row, i) => (
+                  <tr class={i % 2 === 1 ? "bg-[color:var(--color-bg)]/40" : ""}>
+                    <td class="px-5 py-3 text-sm font-semibold text-[color:var(--color-ink)]">{row.feature}</td>
+                    <td class="px-5 py-3 text-sm text-[color:var(--color-ink-2)]">
+                      <span class="font-semibold text-[color:var(--color-brand-pressed)]">{row.us}</span>
+                    </td>
+                    <td class="px-5 py-3 text-sm text-[color:var(--color-ink-2)]">{row.them}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </>
+  )}
+
+  {/* ============ COMPLEMENT LAYOUT (Google LSA) ============ */}
+  {page.type === "complement" && (
+    <>
+      <!-- Better together — two columns, NOT a comparison table -->
+      <section class="section bg-[color:var(--color-bg-alt)]">
+        <div class="container-content">
+          <div class="mx-auto max-w-2xl text-center mb-12">
+            <p class="eyebrow mb-5 justify-center">Better together</p>
+            <h2 class="display-2 text-[color:var(--color-ink)]">Two tools, two different jobs.</h2>
+          </div>
+          <div class="grid gap-6 md:grid-cols-2">
+            <div class="rounded-2xl bg-[color:var(--color-bg)] p-8 ring-1 ring-inset ring-[color:var(--color-rule)]">
+              <div class="mb-4 flex size-12 items-center justify-center rounded-xl font-display text-base font-black text-white" style={`background:${page.brandColor}`}>{initials}</div>
+              <h3 class="font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)] mb-3">{page.goodAtBlock?.title}</h3>
+              <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{page.goodAtBlock?.body}</p>
+            </div>
+            <div class="rounded-2xl bg-[color:var(--color-navy-900)] p-8 text-white shadow-[0_30px_60px_-30px_rgba(0,192,128,0.35)]">
+              <div class="mb-4 flex size-12 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)] font-display text-base font-black text-[color:var(--color-navy-900)]">CR</div>
+              <h3 class="font-display text-xl font-bold tracking-tight mb-3">{page.weAddBlock?.title}</h3>
+              <p class="text-[15px] leading-relaxed text-slate-300">{page.weAddBlock?.body}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- How they fit -->
+      <section class="section">
+        <div class="container-content">
+          <div class="mx-auto max-w-2xl text-center mb-12">
+            <p class="eyebrow mb-5 justify-center">How they fit</p>
+            <h2 class="display-2 text-[color:var(--color-ink)]">A simple, two-step flow.</h2>
+          </div>
+          <div class="mx-auto max-w-3xl space-y-3">
+            {page.howTheyFit?.map((step, i) => (
+              <div class="flex items-start gap-4 rounded-2xl bg-[color:var(--color-bg-alt)] p-5 ring-1 ring-inset ring-[color:var(--color-rule)]">
+                <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-mono text-[12px] font-bold text-[color:var(--color-mint-400)]">{i + 1}</span>
+                <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  )}
+
+  <!-- Final CTA: pull H2 and body from the data, override the default -->
+  <FinalCTA heading={page.finalCtaH2} body={page.finalCtaBody} />
+</BaseLayout>
