@@ -1,11 +1,10 @@
 ---
 import Illustration from "~/components/Illustration.astro";
-import { IconCircleCheck } from "@tabler/icons-react";
-
-const badges = ["GDPR", "CCPA", "CPA", "Termageddon"];
+import List from "~/components/ui/List.astro";
+import Callout from "~/components/ui/Callout.astro";
 ---
 
-<section class="section section-dark">
+<section class="section bg-[color:var(--color-bg-alt)]">
   <div class="container-content grid items-center gap-16 md:grid-cols-[1fr_1fr]">
     <div>
       <p class="eyebrow mb-5">Compliance</p>
@@ -15,14 +14,16 @@ const badges = ["GDPR", "CCPA", "CPA", "Termageddon"];
       <p class="mb-8 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
         We don't just identify visitors — we protect your business. Consent Resolve integrates with Termageddon to auto-generate your legal policies and keep an audit trail for every piece of data captured.
       </p>
-      <ul class="flex flex-wrap gap-x-7 gap-y-3">
-        {badges.map((b) => (
-          <li class="flex items-center gap-2 text-[color:var(--color-brand)]">
-            <IconCircleCheck size={18} stroke={2} />
-            <span class="text-base font-semibold tracking-tight text-[color:var(--color-ink)]">{b}</span>
-          </li>
-        ))}
-      </ul>
+      <div class="mb-8">
+        <List
+          items={["GDPR · EU data subjects", "CCPA · California residents", "CPA · Colorado residents", "Termageddon · auto-updating policies"]}
+          variant="filled-check"
+          tone="brand"
+        />
+      </div>
+      <Callout variant="trust" title="Verifiable audit trail">
+        Every reveal is timestamped and cryptographically signed. If a regulator asks, you have receipts.
+      </Callout>
     </div>
     <div>
       <Illustration name="compliance-shield" alt="Compliant data handling" class="w-full h-auto max-w-md mx-auto" />

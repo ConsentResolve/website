@@ -1,0 +1,67 @@
+---
+import Testimonial from "~/components/ui/Testimonial.astro";
+---
+
+<section class="section section-dark">
+  <div class="container-content">
+    <div class="mb-14 text-center">
+      <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">Trusted by service pros</p>
+      <h2 class="display-2 mx-auto max-w-2xl text-white">
+        Real shops. Real phone calls. Real revenue.
+      </h2>
+    </div>
+
+    <!-- Featured testimonial -->
+    <div class="mb-10">
+      <Testimonial
+        variant="dark"
+        quote="The shared-lead model is broken. We pay the same for an Angi lead that's been sold to four other shops. Consent Resolve gave us back exclusive leads at a tenth of the cost."
+        name="Marcus Tate"
+        role="VP Operations"
+        company="Tate Home Services · Atlanta, GA"
+      />
+    </div>
+
+    <!-- Supporting row, on dark section but light cards for contrast -->
+    <div class="grid gap-6 md:grid-cols-3">
+      <div class="rounded-2xl bg-white p-7 shadow-[0_8px_24px_-12px_rgba(0,229,160,0.15)]">
+        <p class="font-display text-[16px] leading-snug text-[color:var(--color-navy-900)]">
+          "We killed our Thumbtack budget in 90 days and tripled our booked-job rate."
+        </p>
+        <footer class="mt-5 flex items-center gap-3">
+          <div class="flex size-10 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-bold text-[color:var(--color-mint-400)]">CM</div>
+          <div>
+            <div class="font-semibold text-[color:var(--color-navy-900)]">Carlos Mendez</div>
+            <div class="text-xs text-[color:var(--color-ink-muted)]">Mendez Plumbing · Phoenix, AZ</div>
+          </div>
+        </footer>
+      </div>
+
+      <div class="rounded-2xl bg-white p-7 shadow-[0_8px_24px_-12px_rgba(0,229,160,0.15)]">
+        <p class="font-display text-[16px] leading-snug text-[color:var(--color-navy-900)]">
+          "First contractor on the phone wins. Consent Resolve gets us on the phone in two minutes."
+        </p>
+        <footer class="mt-5 flex items-center gap-3">
+          <div class="flex size-10 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-bold text-[color:var(--color-mint-400)]">TR</div>
+          <div>
+            <div class="font-semibold text-[color:var(--color-navy-900)]">Tina Roberts</div>
+            <div class="text-xs text-[color:var(--color-ink-muted)]">Roberts Roofing · Tampa, FL</div>
+          </div>
+        </footer>
+      </div>
+
+      <div class="rounded-2xl bg-white p-7 shadow-[0_8px_24px_-12px_rgba(0,229,160,0.15)]">
+        <p class="font-display text-[16px] leading-snug text-[color:var(--color-navy-900)]">
+          "Best $10 I ever spent. Three weeks in we upgraded — couldn't keep up with call volume."
+        </p>
+        <footer class="mt-5 flex items-center gap-3">
+          <div class="flex size-10 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-bold text-[color:var(--color-mint-400)]">DP</div>
+          <div>
+            <div class="font-semibold text-[color:var(--color-navy-900)]">Devon Park</div>
+            <div class="text-xs text-[color:var(--color-ink-muted)]">Park Climate · Austin, TX</div>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </div>
+</section>

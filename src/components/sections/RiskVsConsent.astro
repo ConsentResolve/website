@@ -1,5 +1,6 @@
 ---
-import { IconX, IconCheck, IconGavel, IconShieldCheck } from "@tabler/icons-react";
+import List from "~/components/ui/List.astro";
+import { IconGavel, IconShieldCheck } from "@tabler/icons-react";
 
 const illegal = [
   "Shadow-tracking without user knowledge",
@@ -36,16 +37,7 @@ const consent = [
           </div>
           <span class="rounded-full bg-[color:var(--color-danger)]/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-danger)]">Risky</span>
         </div>
-        <ul class="space-y-3">
-          {illegal.map((t) => (
-            <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink-2)]">
-              <span class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-danger)]/10">
-                <IconX size={12} stroke={3} color="#EF4444" />
-              </span>
-              <span>{t}</span>
-            </li>
-          ))}
-        </ul>
+        <List items={illegal} variant="x" tone="danger" />
       </div>
 
       <!-- Consent -->
@@ -59,16 +51,7 @@ const consent = [
           </div>
           <span class="rounded-full bg-[color:var(--color-brand-soft)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Compliant</span>
         </div>
-        <ul class="space-y-3">
-          {consent.map((t) => (
-            <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink-2)]">
-              <span class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)]">
-                <IconCheck size={12} stroke={3} color="#00A86E" />
-              </span>
-              <span>{t}</span>
-            </li>
-          ))}
-        </ul>
+        <List items={consent} variant="check" tone="brand" />
       </div>
     </div>
   </div>
