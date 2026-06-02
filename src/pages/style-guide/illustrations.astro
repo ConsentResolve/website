@@ -70,7 +70,7 @@ const palette = [
 <StyleGuideLayout
   slug="illustrations"
   title="Illustrations"
-  description="The locked illustration system for consentresolve.com. Hand-drawn marker style in a tight sage-green palette, one subject per icon, flat hard-edged drop shadow. The 9 below map directly to the 9 feature cards on the homepage. Placeholders ship in /public/illustrations/style/; regenerate via the OpenAI script when you want production-grade output."
+  description="The locked illustration system for consentresolve.com. Hand-drawn vector style in the strict brand palette (navy outline + brand mint fill + almost-white highlights). The 9 below map directly to the 9 feature cards on the homepage. Generated via Recraft using a custom Brand Style (locked palette) and post-processed with HSL-bucket recolor to snap every value to exact brand hex."
 >
   <!-- 3x3 grid -->
   <section class="sg-section">
@@ -80,9 +80,9 @@ const palette = [
       <div class="ilg-grid">
         {illustrations.map((ill) => (
           <figure class="ilg-tile">
-            <a href={`/illustrations/style/${ill.n}-${ill.slug}.png`} target="_blank" rel="noopener" class="ilg-img-wrap">
+            <a href={`/illustrations/style/${ill.n}-${ill.slug}.svg`} target="_blank" rel="noopener" class="ilg-img-wrap">
               <img
-                src={`/illustrations/style/${ill.n}-${ill.slug}.png`}
+                src={`/illustrations/style/${ill.n}-${ill.slug}.svg`}
                 alt={`${ill.feature} — ${ill.caption}`}
                 loading="lazy"
                 decoding="async"
@@ -104,7 +104,7 @@ const palette = [
   <!-- Palette -->
   <section class="sg-section">
     <h2>Locked palette</h2>
-    <p class="sg-lede">Five values. Never introduce a sixth. If you ever add a warm accent for a money/results illustration, document it here first.</p>
+    <p class="sg-lede">Four values. Never introduce a fifth. If you ever add a warm accent for a money/results illustration, document it here first.</p>
     <div class="sg-preview">
       <div class="ilg-palette">
         {palette.map((p) => (
@@ -144,21 +144,25 @@ const palette = [
     </div>
   </section>
 
-  <!-- OpenAI generation -->
+  <!-- Recraft generation -->
   <section class="sg-section">
-    <h2>Regenerate via OpenAI</h2>
-    <p class="sg-lede">Two scripts ship — pick whichever you have a runtime for. Both call <code>gpt-image-1</code> with the locked Block A prompt and write transparent PNGs to <code>/public/illustrations/style/</code>.</p>
+    <h2>Regenerate via Recraft</h2>
+    <p class="sg-lede">Production pipeline: Recraft custom Brand Style → SVG → HSL-bucket recolor to exact brand hex. Two-step, ~20 seconds end-to-end per illustration.</p>
     <div class="sg-preview">
-      <pre class="ilg-code"><code>{`# Python (no install needed — uses stdlib)
-#   put your key at ~/.config/openai/key (chmod 600)
-python3 scripts/generate-illustrations.py             # all 9
-python3 scripts/generate-illustrations.py --only=03,07
-python3 scripts/generate-illustrations.py --dry-run   # show prompts only
+      <pre class="ilg-code"><code>{`# Put your Recraft key at ~/.config/recraft/key (chmod 600), then:
 
-# Node (needs Node 22+)
-export OPENAI_API_KEY=sk-...
-node scripts/generate-illustrations.mjs               # all 9
-node scripts/generate-illustrations.mjs --only=03,07`}</code></pre>
+# 1. Generate SVGs via the locked Brand Style
+python3 scripts/generate-recraft.py \\
+    --style-id=214dccd1-dca3-43e6-b005-c664e1b33338     # all 9
+python3 scripts/generate-recraft.py \\
+    --style-id=214dccd1-dca3-43e6-b005-c664e1b33338 --only=03,07
+
+# 2. Snap every color to exact brand hex
+python3 scripts/recolor-illustrations.py               # all 9
+python3 scripts/recolor-illustrations.py --only=03,07
+
+# Legacy: OpenAI script (still works, lower color fidelity)
+python3 scripts/generate-illustrations.py --only=03,07`}</code></pre>
     </div>
   </section>
 
