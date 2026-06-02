@@ -1,0 +1,74 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Button from "~/components/ui/Button.astro";
+import { IconArrowRight, IconCheck, IconLock } from "@tabler/icons-react";
+import { breadcrumbSchema } from "~/lib/seo";
+
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "Get Started", href: "/get-started/" },
+  ]),
+];
+---
+
+<BaseLayout
+  title="Get Started — $10 for Your First 10 Leads | Consent Resolve"
+  description="Two minutes to set up. Your first 10 leads are just $10. Cancel anytime."
+  schema={schemas}
+>
+  <section class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
+    <div class="container-content section relative">
+      <div class="mx-auto max-w-xl">
+        <div class="text-center">
+          <p class="eyebrow mb-7 justify-center">Get started</p>
+          <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
+            Let's get you your first exclusive lead.
+          </h1>
+          <p class="mb-10 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+            Two minutes to set up. Your first 10 leads are just $10. Cancel anytime.
+          </p>
+        </div>
+
+        <!-- Signup form (placeholder — wire to real auth later) -->
+        <form class="space-y-4 rounded-2xl bg-[color:var(--color-bg-alt)] p-8 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)]">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Shop name</label>
+            <input type="text" placeholder="Mendez Plumbing" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Email</label>
+            <input type="email" placeholder="you@yourshop.com" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Mobile</label>
+            <input type="tel" placeholder="(512) 555-0100" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Your site</label>
+            <input type="url" placeholder="https://yourshop.com" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
+          </div>
+
+          <Button variant="primary" size="lg" fullWidth>
+            Create account
+            <IconArrowRight size={18} stroke={2.25} />
+          </Button>
+
+          <p class="flex items-center justify-center gap-1.5 text-xs text-[color:var(--color-ink-muted)]">
+            <IconLock size={12} stroke={1.75} />
+            We'll never sell your info — same promise we make about your leads.
+          </p>
+        </form>
+
+        <!-- Trust list -->
+        <ul class="mt-8 space-y-3 text-[15px] text-[color:var(--color-ink-2)]">
+          <li class="flex items-center gap-2.5"><IconCheck size={18} stroke={2.5} color="#00A86E" /> Card required · $10 for your first 10 leads</li>
+          <li class="flex items-center gap-2.5"><IconCheck size={18} stroke={2.5} color="#00A86E" /> $7 per lead after that — flat</li>
+          <li class="flex items-center gap-2.5"><IconCheck size={18} stroke={2.5} color="#00A86E" /> Cancel anytime, from your dashboard</li>
+          <li class="flex items-center gap-2.5"><IconCheck size={18} stroke={2.5} color="#00A86E" /> Live in about 10 minutes</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

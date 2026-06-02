@@ -1,0 +1,101 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import FeatureCard from "~/components/ui/FeatureCard.astro";
+import Blockquote from "~/components/ui/Blockquote.astro";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+import { IconShieldCheck, IconHandStop, IconUserCheck, IconHome, IconBolt, IconLock } from "@tabler/icons-react";
+import { breadcrumbSchema } from "~/lib/seo";
+
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "About", href: "/about/" },
+  ]),
+];
+
+const values = [
+  { Icon: IconUserCheck,    title: "Consent first, always.",     body: "No shadow-tracking. A name appears only after the homeowner agrees. That's the whole product." },
+  { Icon: IconLock,         title: "One lead, one shop.",        body: "Never resold, never auctioned. The lead you pay for is yours — full stop." },
+  { Icon: IconShieldCheck,  title: "Legal with receipts.",       body: "Termageddon-backed policies, timestamped reveals, a real audit trail. If a regulator asks, you've got proof." },
+  { Icon: IconBolt,         title: "Built for the trades.",      body: "We talk like a peer, not a SaaS. Plain pricing, no jargon, no contracts. You'll know exactly what you pay." },
+];
+---
+
+<BaseLayout
+  title="About Consent Resolve — Built for the Trades"
+  description="We got tired of watching good shops pay for junk leads sold to four other shops. So we built the opposite — a way to see the homeowners already shopping your site and call them first."
+  schema={schemas}
+>
+  <section class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
+    <div class="container-content section relative">
+      <div class="mx-auto max-w-3xl">
+        <div class="text-center">
+          <p class="eyebrow mb-7 justify-center">About</p>
+          <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
+            We got tired of watching good shops<br/>
+            <span class="text-[color:var(--color-brand)]">pay for junk leads.</span>
+          </h1>
+        </div>
+        <div class="mt-10 text-[17px] leading-relaxed text-[color:var(--color-ink-2)]">
+          <p>
+            Consent Resolve was built by people who know the trades and know marketing — and who were done watching contractors pay full price for a lead sold to four other shops. So we built the opposite: a way to see the homeowners already shopping your site, get their name and number when they say yes, and keep that lead all to yourself. Legal from the first click.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission quote -->
+  <section class="section bg-[color:var(--color-bg-alt)]">
+    <div class="container-content max-w-3xl">
+      <Blockquote variant="bordered" cite="The Consent Resolve team">
+        You paid to get that homeowner to your site. You deserve a fair shot at the job — not to lose it to a faceless competitor or a lead reseller.
+      </Blockquote>
+    </div>
+  </section>
+
+  <!-- Values -->
+  <section class="section">
+    <div class="container-content">
+      <div class="mx-auto mb-14 max-w-2xl text-center">
+        <p class="eyebrow mb-5 justify-center">What we stand for</p>
+        <h2 class="display-2 text-[color:var(--color-ink)]">Four rules. No exceptions.</h2>
+      </div>
+      <div class="grid gap-6 md:grid-cols-2">
+        {values.map((v) => (
+          <FeatureCard variant="lift" icon={v.Icon} title={v.title} body={v.body} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Team — placeholder bios -->
+  <section class="section bg-[color:var(--color-bg-alt)]">
+    <div class="container-content">
+      <div class="mx-auto mb-14 max-w-2xl text-center">
+        <p class="eyebrow mb-5 justify-center">Who built this</p>
+        <h2 class="display-2 text-[color:var(--color-ink)]">The founders.</h2>
+        <p class="mt-3 text-sm text-[color:var(--color-ink-muted)]">[CONFIRM founder bios]</p>
+      </div>
+      <div class="mx-auto grid max-w-4xl gap-6 md:grid-cols-3">
+        {[
+          { name: "Andy Mentges", role: "CEO" },
+          { name: "Jason Beyke", role: "COO" },
+          { name: "Aaron Phillips", role: "CMO" },
+        ].map((p) => {
+          const initials = p.name.split(/\s+/).map((s) => s[0]).join("").toUpperCase();
+          return (
+            <div class="rounded-2xl bg-[color:var(--color-bg)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)]">
+              <div class="flex size-16 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-xl font-black text-[color:var(--color-mint-400)]">{initials}</div>
+              <h3 class="mt-5 font-display text-lg font-bold tracking-tight text-[color:var(--color-ink)]">{p.name}</h3>
+              <p class="mt-1 text-sm text-[color:var(--color-ink-muted)]">{p.role}</p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <FinalCTA />
+</BaseLayout>

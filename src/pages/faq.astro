@@ -1,0 +1,62 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Accordion from "~/components/ui/Accordion.tsx";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+import { breadcrumbSchema, faqSchema } from "~/lib/seo";
+
+const faqs = [
+  { q: "Is this legal?", a: "Yes — because a homeowner's name shows up only after they consent. We keep your privacy policy, cookie banner, and disclosures in sync through Termageddon. The shady tools that track people in secret are the illegal ones. We're not one." },
+  { q: "Do I have to change my privacy policy?", a: "We handle it. Termageddon generates and updates the policies for you, so you stay covered without the legwork." },
+  { q: "What if a homeowner doesn't consent?", a: "Then you get nothing on them — and that's the point. No consent, no data. That's what keeps you safe." },
+  { q: "How fast does a lead reach me?", a: "Seconds. A Slack, text, or email fires the moment they consent, and it lands in your CRM at the same time." },
+  { q: "Which CRMs do you work with?", a: "Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, and just about anything else through a webhook." },
+  { q: "Can I cancel anytime?", a: "Yes. Your first 10 leads are $10, then it's $7 a lead, and you can cancel whenever you want." },
+  { q: "Do I need a developer?", a: "No. Paste one line of code in your site's header — about 10 minutes, no developer needed. If you can paste a tracking tag, you can do this." },
+  { q: "What does a homeowner see?", a: "Your normal consent banner — the same kind you already have for cookies. They click Accept like always. Nothing strange, nothing intrusive." },
+  { q: "Is my data safe?", a: "Yes. Everything is 256-bit encrypted. Lead data goes to you and you alone — never resold, never auctioned." },
+];
+
+const accordionItems = faqs.map((f) => ({ question: f.q, answer: f.a }));
+
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "FAQ", href: "/faq/" },
+  ]),
+  faqSchema(accordionItems),
+];
+---
+
+<BaseLayout
+  title="Frequently Asked Questions | Consent Resolve"
+  description="Straight answers about Consent Resolve — legality, privacy policy, CRM integrations, pricing, and setup. The questions pros ask before they start."
+  schema={schemas}
+>
+  <section class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
+    <div class="container-content section relative">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="eyebrow mb-7 justify-center">Frequently asked</p>
+        <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
+          The straight answers,<br/>
+          <span class="text-[color:var(--color-brand)]">no sales script.</span>
+        </h1>
+        <p class="mx-auto max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+          What pros ask before they start. If we missed one, the contact form is on the next page.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-24">
+    <div class="container-content max-w-3xl">
+      <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-2 ring-1 ring-inset ring-[color:var(--color-rule)]">
+        <div class="px-5">
+          <Accordion client:visible items={accordionItems} variant="chevron" defaultOpen={0} />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <FinalCTA />
+</BaseLayout>
