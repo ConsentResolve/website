@@ -1,0 +1,96 @@
+---
+import ComparisonCard from "~/components/ui/ComparisonCard.astro";
+import Button from "~/components/ui/Button.astro";
+import { IconArrowRight } from "@tabler/icons-react";
+---
+
+<section class="section">
+  <div class="container-content">
+    <div class="mx-auto mb-14 max-w-3xl text-center">
+      <p class="eyebrow mb-5 justify-center">Stacked against the alternatives</p>
+      <h2 class="display-2 text-[color:var(--color-ink)]">
+        We don't sell leads. We unlock them.
+      </h2>
+      <p class="mt-4 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+        Why service pros are switching from shared-lead platforms and ad networks.
+      </p>
+    </div>
+
+    <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <ComparisonCard
+        featured
+        ribbonLabel="Editor's Pick"
+        brand="Consent Resolve"
+        tagline="Consent-first visitor ID"
+        logoColor="#0A1628"
+        rating={4.9}
+        score={96}
+        price="$10"
+        priceSub="/ first month"
+        bestFor="owner-operators"
+        pros={[
+          "Exclusive leads — never resold",
+          "Real homeowner names + phones",
+          "GDPR / CCPA compliant",
+          "In your CRM in 5 seconds",
+        ]}
+        cons={["New platform (2026)", "7 states at launch"]}
+        ctaLabel="Start $10 Trial"
+        ctaHref="/get-started/"
+        reviewHref="/how-it-works/"
+      />
+      <ComparisonCard
+        brand="Thumbtack"
+        tagline="Shared lead marketplace"
+        logoColor="#04b760"
+        rating={3.4}
+        score={64}
+        price="$48"
+        priceSub="/ avg lead"
+        bestFor="high-volume shops"
+        pros={["Large lead volume", "Quick to start"]}
+        cons={["Same lead sold to 4–6 shops", "Tire-kickers charged full", "No exclusivity"]}
+        ctaLabel="Compare in detail"
+        ctaHref="/compare/thumbtack/"
+        reviewHref="/vs/thumbtack-vs-consent-resolve/"
+      />
+      <ComparisonCard
+        brand="Angi"
+        tagline="HomeAdvisor reborn"
+        logoColor="#a3151c"
+        rating={2.9}
+        score={52}
+        price="$35"
+        priceSub="/ avg lead"
+        bestFor="legacy shops"
+        pros={["Established brand", "Vetted-pro badge"]}
+        cons={["Shared leads", "Hard cancel terms", "Aggressive sales"]}
+        ctaLabel="Compare in detail"
+        ctaHref="/compare/angi/"
+        reviewHref="/vs/angi-vs-consent-resolve/"
+      />
+      <ComparisonCard
+        brand="Google LSA"
+        tagline="Local Service Ads"
+        logoColor="#1a73e8"
+        rating={4.1}
+        score={78}
+        price="$40"
+        priceSub="/ avg lead"
+        bestFor="local SEO believers"
+        pros={["Pay per booked lead", "Google trust badge"]}
+        cons={["Strict eligibility", "ZIP price varies", "Limited trades"]}
+        ctaLabel="Compare in detail"
+        ctaHref="/compare/google-local-service-ads/"
+        reviewHref="/vs/google-lsa-vs-consent-resolve/"
+      />
+    </div>
+
+    <div class="mt-12 text-center">
+      <Button href="/compare/" variant="ghost">
+        See full comparison (11 platforms)
+        <IconArrowRight size={16} stroke={2.25} />
+      </Button>
+    </div>
+  </div>
+</section>
