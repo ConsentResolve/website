@@ -17,7 +17,7 @@ import {
   IconHome,
   IconRefresh,
   IconEye,
-  IconChartLine,
+  IconChartHistogram,
   IconCalendar,
 } from "@tabler/icons-react";
 
@@ -100,7 +100,7 @@ const timeline: { time: string; title: string; meta?: string; icon: any; tone: "
       <div class="vd-metric-value"><AnimatedNumber client:visible value={12} /></div>
     </div>
     <div class="vd-metric">
-      <div class="vd-metric-icon"><IconChartLine size={14} stroke={1.75} color="#00E5A0" /></div>
+      <div class="vd-metric-icon"><IconChartHistogram size={14} stroke={1.75} color="#00E5A0" /></div>
       <div class="vd-metric-label">Time on site</div>
       <div class="vd-metric-value">8<span class="vd-unit">m</span> 42<span class="vd-unit">s</span></div>
     </div>
@@ -210,7 +210,7 @@ const timeline: { time: string; title: string; meta?: string; icon: any; tone: "
     <div class="vd-col-right">
       <div class="vd-card vd-timeline-card">
         <div class="vd-card-head">
-          <IconChartLine size={14} stroke={1.75} color="#00E5A0" />
+          <IconChartHistogram size={14} stroke={1.75} color="#00E5A0" />
           <span>Activity timeline</span>
           <span class="vd-card-meta">{timeline.length} events · last 1h 8m</span>
         </div>
