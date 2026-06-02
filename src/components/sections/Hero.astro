@@ -1,5 +1,7 @@
 ---
-import LiveTrafficStream from "~/components/islands/LiveTrafficStream.tsx";
+import LeadPhone from "~/components/islands/LeadPhone.tsx";
+import ServiceAreaBackdrop from "~/components/ServiceAreaBackdrop.astro";
+import HexBolt from "~/components/HexBolt.astro";
 
 interface Props {
   eyebrow?: string;
@@ -9,29 +11,26 @@ interface Props {
   ctaLabel?: string;
   ctaHref?: string;
   showPanel?: boolean;
-  showStatStrip?: boolean;
 }
 const {
   eyebrow = "Built for Home Service Pros",
   title = "Most of your website visitors leave without a name.",
   titleAccent = "Now you get the phone number.",
-  subhead = "Identify the homeowners shopping your service area — only after they consent. No shared leads, no lawsuits, no $50 Thumbtack invoices for tire-kickers.",
+  subhead = "Identify the homeowners shopping your service area — only after they consent. No shared leads, no lawsuits, no surprises.",
   ctaLabel = "Start $10 Trial",
   ctaHref = "/get-started/",
   showPanel = true,
-  showStatStrip = true,
 } = Astro.props as Props;
 ---
 
-<section class="relative overflow-hidden px-6 pb-16 pt-16">
-  <!-- Faint blueprint grid backdrop -->
-  <div
-    aria-hidden="true"
-    class="pointer-events-none absolute inset-0 opacity-[0.35]"
-    style="background-image: linear-gradient(to right, rgba(10,22,40,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(10,22,40,0.06) 1px, transparent 1px); background-size: 28px 28px; mask-image: radial-gradient(ellipse at top left, black 30%, transparent 70%);"
-  ></div>
+<section class="relative overflow-hidden px-6 pb-20 pt-20">
+  <ServiceAreaBackdrop />
 
-  <div class="container-content relative grid items-center gap-12 lg:grid-cols-2">
+  <!-- Hex-bolt corner registration marks -->
+  <div class="pointer-events-none absolute left-6 top-6 text-[color:var(--color-rule)]"><HexBolt size={18} /></div>
+  <div class="pointer-events-none absolute right-6 top-6 text-[color:var(--color-rule)]"><HexBolt size={18} /></div>
+
+  <div class="container-content relative grid items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
     <div class="z-10">
       {eyebrow && (
         <p class="eyebrow mb-6">
@@ -39,7 +38,7 @@ const {
           {eyebrow}
         </p>
       )}
-      <h1 class="mb-6 text-5xl font-black leading-[1.05] tracking-tight md:text-6xl text-[color:var(--color-ink)]">
+      <h1 class="mb-6 text-5xl font-black leading-[1.04] tracking-tight md:text-6xl text-[color:var(--color-ink)]">
         {title} <br />
         <span class="italic text-[color:var(--color-brand)]">{titleAccent}</span>
       </h1>
@@ -50,34 +49,38 @@ const {
           <span class="material-symbols-outlined !text-[color:var(--color-on-brand)]">arrow_forward</span>
         </a>
         <a href="/sample-lead/" class="btn-ghost px-6 py-4">
+          <span class="material-symbols-outlined !text-[18px]">visibility</span>
           See a sample lead
         </a>
       </div>
 
-      {showStatStrip && (
-        <dl class="mt-10 grid grid-cols-3 gap-6 border-t border-[color:var(--color-rule)] pt-6">
-          <div>
-            <dt class="text-xs font-medium uppercase tracking-widest text-[color:var(--color-ink-muted)]">Trades</dt>
-            <dd class="mt-1 text-2xl font-black text-[color:var(--color-ink)]">16</dd>
-          </div>
-          <div>
-            <dt class="text-xs font-medium uppercase tracking-widest text-[color:var(--color-ink-muted)]">Cities live</dt>
-            <dd class="mt-1 text-2xl font-black text-[color:var(--color-ink)]">35</dd>
-          </div>
-          <div>
-            <dt class="text-xs font-medium uppercase tracking-widest text-[color:var(--color-ink-muted)]">States</dt>
-            <dd class="mt-1 text-2xl font-black text-[color:var(--color-ink)]">7</dd>
-          </div>
-        </dl>
-      )}
-
-      <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[color:var(--color-ink-muted)]">
-        <span class="flex items-center gap-1.5"><span class="material-symbols-outlined !text-[16px]">verified_user</span> GDPR &amp; CCPA compliant</span>
-        <span class="flex items-center gap-1.5"><span class="material-symbols-outlined !text-[16px]">block</span> No shared leads</span>
-        <span class="flex items-center gap-1.5"><span class="material-symbols-outlined !text-[16px]">savings</span> Cancel anytime</span>
-      </div>
+      <!-- coverage stat strip -->
+      <dl class="mt-10 grid grid-cols-3 gap-6 border-t border-[color:var(--color-rule)] pt-6 max-w-lg">
+        <div>
+          <dt class="flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-[color:var(--color-ink-muted)]">
+            <span class="material-symbols-outlined !text-[14px]">construction</span> Trades
+          </dt>
+          <dd class="mt-1 text-2xl font-black text-[color:var(--color-ink)]">16</dd>
+        </div>
+        <div>
+          <dt class="flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-[color:var(--color-ink-muted)]">
+            <span class="material-symbols-outlined !text-[14px]">location_city</span> Cities
+          </dt>
+          <dd class="mt-1 text-2xl font-black text-[color:var(--color-ink)]">35</dd>
+        </div>
+        <div>
+          <dt class="flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-[color:var(--color-ink-muted)]">
+            <span class="material-symbols-outlined !text-[14px]">map</span> States
+          </dt>
+          <dd class="mt-1 text-2xl font-black text-[color:var(--color-ink)]">7</dd>
+        </div>
+      </dl>
     </div>
 
-    {showPanel && <LiveTrafficStream client:visible />}
+    {showPanel && (
+      <div class="relative z-10">
+        <LeadPhone client:visible />
+      </div>
+    )}
   </div>
 </section>

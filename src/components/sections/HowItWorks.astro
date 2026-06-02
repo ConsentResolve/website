@@ -1,31 +1,53 @@
 ---
+import HexBolt from "~/components/HexBolt.astro";
+
 interface Step { icon: string; title: string; body: string; }
 interface Props { steps?: Step[]; }
 const {
   steps = [
-    { icon: "integration_instructions", title: "1. Drop in one line of code", body: "Paste our snippet on your site. Works with WordPress, Wix, Squarespace, ServiceTitan websites — anything." },
-    { icon: "touch_app", title: "2. Homeowner taps Yes", body: "A compliant banner asks for consent. The ones ready to hire opt in." },
+    { icon: "build_circle", title: "1. Drop in one line of code", body: "Paste our snippet on your site. Works with WordPress, Wix, Squarespace, ServiceTitan websites — anything." },
+    { icon: "ads_click", title: "2. Homeowner taps Yes", body: "A compliant banner asks for consent. The ones ready to hire opt in." },
     { icon: "phone_in_talk", title: "3. Call them back in 5 minutes", body: "Name, phone, what service they're shopping. Pushed to your CRM, Slack, or email instantly." },
   ],
 } = Astro.props as Props;
 ---
 
-<section class="bg-[color:var(--color-bg)] py-20 border-y border-[color:var(--color-rule)]">
-  <div class="mx-auto max-w-[1000px] px-6">
-    <div class="flex flex-col items-center justify-between gap-12 text-center md:flex-row">
+<section class="relative bg-[color:var(--color-bg)] py-24 border-y border-[color:var(--color-rule)]">
+  <!-- corner registration marks -->
+  <div class="pointer-events-none absolute left-6 top-6 text-[color:var(--color-rule)]"><HexBolt size={18} /></div>
+  <div class="pointer-events-none absolute right-6 top-6 text-[color:var(--color-rule)]"><HexBolt size={18} /></div>
+  <div class="pointer-events-none absolute left-6 bottom-6 text-[color:var(--color-rule)]"><HexBolt size={18} /></div>
+  <div class="pointer-events-none absolute right-6 bottom-6 text-[color:var(--color-rule)]"><HexBolt size={18} /></div>
+
+  <div class="mx-auto max-w-[1100px] px-6">
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-0 relative">
+      <!-- dashed connector line between steps (desktop only) -->
+      <svg
+        aria-hidden="true"
+        class="pointer-events-none absolute left-[16.6%] right-[16.6%] top-[60px] hidden h-px md:block"
+        preserveAspectRatio="none"
+        viewBox="0 0 100 1"
+      >
+        <line x1="0" y1="0.5" x2="100" y2="0.5" stroke="var(--color-brand)" stroke-width="1" stroke-dasharray="3 4" />
+      </svg>
+
       {steps.map((s, i) => (
-        <>
-          <div class="group flex-1">
-            <div class="mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl border border-[color:var(--color-rule)] bg-white transition-all group-hover:border-[color:var(--color-brand)]">
-              <span class="material-symbols-outlined !text-3xl">{s.icon}</span>
-            </div>
-            <h4 class="mb-2 text-lg font-bold text-[color:var(--color-ink)]">{s.title}</h4>
-            <p class="text-sm text-[color:var(--color-ink-2)]">{s.body}</p>
+        <div class="group relative px-6 text-center">
+          <div class="relative mx-auto mb-6 flex size-[120px] items-center justify-center">
+            <!-- ring -->
+            <span class="absolute inset-0 rounded-full border border-[color:var(--color-rule)]"></span>
+            <!-- inner dotted ring -->
+            <span class="absolute inset-2 rounded-full border border-dashed border-[color:var(--color-brand)]/40"></span>
+            <!-- icon -->
+            <span class="material-symbols-outlined !text-[42px] relative z-10">{s.icon}</span>
+            <!-- step number badge -->
+            <span class="absolute -right-1 -top-1 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-black text-[12px] text-[color:var(--color-mint-400)]">
+              {String(i + 1).padStart(2, "0")}
+            </span>
           </div>
-          {i < steps.length - 1 && (
-            <span class="material-symbols-outlined hidden !text-[color:var(--color-ink-muted)] opacity-50 md:block">arrow_forward</span>
-          )}
-        </>
+          <h4 class="mb-2 text-lg font-bold text-[color:var(--color-ink)]">{s.title.replace(/^\d+\.\s*/, '')}</h4>
+          <p class="text-sm text-[color:var(--color-ink-2)] max-w-[280px] mx-auto">{s.body}</p>
+        </div>
       ))}
     </div>
   </div>

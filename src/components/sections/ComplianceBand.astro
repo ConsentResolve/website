@@ -1,17 +1,67 @@
 ---
 ---
 
-<section class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg)] px-6 py-20">
-  <div class="mx-auto max-w-[800px] text-center">
-    <div class="eyebrow mb-8"><span class="material-symbols-outlined !text-lg">shield</span> Ironclad Compliance</div>
-    <h2 class="mb-6 text-3xl font-bold text-[color:var(--color-ink)]">Powered by Termageddon.</h2>
-    <p class="mb-10 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-      We don't just identify visitors; we protect your business. Consent Resolve integrates with Termageddon to auto-generate and update your legal policies, ensuring you always have a verifiable audit trail for every piece of data captured.
-    </p>
-    <div class="flex flex-wrap justify-center gap-8 text-[color:var(--color-ink)]">
-      <div class="flex items-center gap-2 text-xl font-black tracking-tighter">GDPR <span class="text-sm font-normal tracking-normal text-[color:var(--color-brand)]">READY</span></div>
-      <div class="flex items-center gap-2 text-xl font-black tracking-tighter">CCPA <span class="text-sm font-normal tracking-normal text-[color:var(--color-brand)]">READY</span></div>
-      <div class="flex items-center gap-2 text-xl font-black tracking-tighter">CPA <span class="text-sm font-normal tracking-normal text-[color:var(--color-brand)]">READY</span></div>
+<section class="relative border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg)] px-6 py-20">
+  <div class="container-content grid items-center gap-12 md:grid-cols-[auto_1fr]">
+    <!-- Inspection-style seal -->
+    <div class="relative mx-auto">
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 200 200"
+        class="size-44"
+      >
+        <defs>
+          <path id="cb-circle" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0" />
+        </defs>
+        <!-- outer ring -->
+        <circle cx="100" cy="100" r="92" fill="none" stroke="var(--color-navy-900)" stroke-width="2" />
+        <!-- inner ring -->
+        <circle cx="100" cy="100" r="78" fill="none" stroke="var(--color-navy-900)" stroke-width="1" stroke-dasharray="2 3" />
+        <!-- ticks -->
+        {Array.from({ length: 36 }).map((_, i) => {
+          const angle = (i / 36) * Math.PI * 2;
+          const x1 = 100 + Math.cos(angle) * 88;
+          const y1 = 100 + Math.sin(angle) * 88;
+          const x2 = 100 + Math.cos(angle) * 92;
+          const y2 = 100 + Math.sin(angle) * 92;
+          return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--color-navy-900)" stroke-width="1" />;
+        })}
+        <!-- curved text top -->
+        <text font-family="Hanken Grotesk, sans-serif" font-size="12" font-weight="800" letter-spacing="0.2em" fill="var(--color-navy-900)">
+          <textPath href="#cb-circle" startOffset="14%">COMPLIANT · AUDITED · CONSENT-FIRST ·</textPath>
+        </text>
+        <!-- center wrench-cross emblem -->
+        <g transform="translate(100,108)">
+          <circle cx="0" cy="0" r="34" fill="var(--color-brand)" />
+          <g transform="rotate(45)" stroke="var(--color-navy-900)" stroke-width="3" stroke-linecap="round" fill="none">
+            <line x1="-22" y1="0" x2="22" y2="0" />
+            <circle cx="-22" cy="0" r="4" fill="var(--color-navy-900)" />
+            <circle cx="22" cy="0" r="4" fill="var(--color-navy-900)" />
+          </g>
+          <g transform="rotate(-45)" stroke="var(--color-navy-900)" stroke-width="3" stroke-linecap="round" fill="none">
+            <line x1="-22" y1="0" x2="22" y2="0" />
+            <circle cx="-22" cy="0" r="4" fill="var(--color-navy-900)" />
+            <circle cx="22" cy="0" r="4" fill="var(--color-navy-900)" />
+          </g>
+        </g>
+        <text x="100" y="170" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="var(--color-navy-900)" letter-spacing="0.15em">
+          EST. 2025
+        </text>
+      </svg>
+    </div>
+
+    <div>
+      <p class="eyebrow mb-4"><span class="material-symbols-outlined !text-[14px]">shield</span> Ironclad Compliance</p>
+      <h2 class="mb-6 text-3xl font-bold text-[color:var(--color-ink)]">Powered by Termageddon.</h2>
+      <p class="mb-8 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+        We don't just identify visitors; we protect your business. Consent Resolve integrates with Termageddon to auto-generate your legal policies and keep an audit trail for every piece of data captured.
+      </p>
+      <div class="flex flex-wrap gap-x-8 gap-y-3 text-[color:var(--color-ink)]">
+        <div class="flex items-center gap-2"><span class="material-symbols-outlined !text-[18px]">check_circle</span><span class="text-base font-black tracking-tighter">GDPR</span></div>
+        <div class="flex items-center gap-2"><span class="material-symbols-outlined !text-[18px]">check_circle</span><span class="text-base font-black tracking-tighter">CCPA</span></div>
+        <div class="flex items-center gap-2"><span class="material-symbols-outlined !text-[18px]">check_circle</span><span class="text-base font-black tracking-tighter">CPA</span></div>
+        <div class="flex items-center gap-2"><span class="material-symbols-outlined !text-[18px]">check_circle</span><span class="text-base font-black tracking-tighter">Termageddon</span></div>
+      </div>
     </div>
   </div>
 </section>

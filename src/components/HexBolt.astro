@@ -1,0 +1,20 @@
+---
+interface Props { class?: string; size?: number; }
+const { class: cls = "", size = 14 } = Astro.props as Props;
+---
+<svg
+  aria-hidden="true"
+  class={cls}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+>
+  <polygon
+    points="12,2 21,7 21,17 12,22 3,17 3,7"
+    stroke="currentColor"
+    stroke-width="1.6"
+    fill="none"
+  />
+  <circle cx="12" cy="12" r="2" fill="currentColor" />
+</svg>
