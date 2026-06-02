@@ -1,0 +1,130 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import FeatureCard from "~/components/ui/FeatureCard.astro";
+import {
+  IconUserCheck,
+  IconMapPin,
+  IconClipboardCheck,
+  IconBellRinging,
+  IconPlugConnected,
+  IconLock,
+  IconShieldCheck,
+  IconRefresh,
+  IconBolt,
+  IconSparkles,
+  IconClock,
+} from "@tabler/icons-react";
+---
+
+<StyleGuideLayout
+  slug="feature-cards"
+  title="Feature Cards"
+  description="Eight variants of a single FeatureCard primitive. Use them on industry pages, location pages, the homepage, comparison pages — anywhere a tile with icon + title + body is needed."
+>
+  <section class="sg-section">
+    <h2>Default</h2>
+    <p class="sg-lede">Clean light card with mint icon-well. Use for standard feature grids.</p>
+    <div class="sg-preview">
+      <div class="grid gap-4 md:grid-cols-3">
+        <FeatureCard icon={IconUserCheck} title="Verified name & phone" body="The actual homeowner — first, last, mobile. Not a household label." />
+        <FeatureCard icon={IconMapPin} title="Service area pin" body="Drops on your map. Filter by zip, route, or radius from your shop." />
+        <FeatureCard icon={IconClipboardCheck} title="Intent captured" body="What they're shopping for — 'AC tune-up', 'roof inspection', 'drain'." />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Lift on hover</h2>
+    <p class="sg-lede">Subtle elevation + mint ring on hover. Use when cards are clickable.</p>
+    <div class="sg-preview">
+      <div class="grid gap-4 md:grid-cols-3">
+        <FeatureCard variant="lift" icon={IconBellRinging} title="Sub-5-minute alerts" body="Slack, SMS, or email the second consent fires. First to call wins." href="#" />
+        <FeatureCard variant="lift" icon={IconPlugConnected} title="CRM & dispatch sync" body="Pushes to Jobber, Housecall Pro, ServiceTitan, HubSpot, or a sheet." href="#" />
+        <FeatureCard variant="lift" icon={IconLock} title="Never shared" body="Goes to you only. Not auctioned to three other shops next week." href="#" />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Minimal (outline icon)</h2>
+    <p class="sg-lede">No icon background, large outline icon. Use in dense feature lists.</p>
+    <div class="sg-preview">
+      <div class="grid gap-4 md:grid-cols-3">
+        <FeatureCard variant="minimal" icon={IconShieldCheck} title="Compliant by default" body="GDPR, CCPA, CPA. Iron-clad audit trail via Termageddon." />
+        <FeatureCard variant="minimal" icon={IconRefresh} title="Return-visit alerts" body="If a homeowner comes back to your site, you know. Time it right." />
+        <FeatureCard variant="minimal" icon={IconClock} title="Real-time delivery" body="Lead lands in your inbox in under 5 seconds." />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Numbered (step variant)</h2>
+    <p class="sg-lede">Same as default but with a numeric badge. Useful for ordered feature sets.</p>
+    <div class="sg-preview">
+      <div class="grid gap-4 md:grid-cols-3">
+        <FeatureCard variant="numbered" number="01" icon={IconClipboardCheck} title="Drop in the snippet" body="One line of code. Works with any site builder." />
+        <FeatureCard variant="numbered" number="02" icon={IconUserCheck} title="Homeowner consents" body="A compliant banner asks for permission to identify." />
+        <FeatureCard variant="numbered" number="03" icon={IconBellRinging} title="Lead alerts your phone" body="Slack, SMS, or CRM in under 5 seconds." />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Featured (filled mint)</h2>
+    <p class="sg-lede">Inverse colors — use for one standout card per grid.</p>
+    <div class="sg-preview">
+      <div class="grid gap-4 md:grid-cols-3">
+        <FeatureCard variant="featured" icon={IconBolt} title="The unfair advantage" body="Identify homeowners before they fill out a form on a competitor's site." badge="Best for" />
+        <FeatureCard icon={IconMapPin} title="Service area pin" body="Drops on your map. Filter by zip, route, or radius." />
+        <FeatureCard icon={IconClipboardCheck} title="Intent captured" body="What they're shopping for, captured at the moment of consent." />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Dark</h2>
+    <p class="sg-lede">Navy filled with mint accents. Use inside dark sections or as a premium row.</p>
+    <div class="sg-preview">
+      <div class="grid gap-4 md:grid-cols-3">
+        <FeatureCard variant="dark" icon={IconShieldCheck} title="Compliant by default" body="GDPR, CCPA, CPA. Termageddon-backed audit trail." />
+        <FeatureCard variant="dark" icon={IconSparkles} title="No shared leads" body="Goes to you only. Not auctioned to three other shops." badge="New" />
+        <FeatureCard variant="dark" icon={IconClock} title="Sub-5-min alerts" body="First contractor to call wins. We get you on the phone in 2 minutes." />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Accent bar (left rule)</h2>
+    <p class="sg-lede">Vertical mint bar on the left edge. Editorial feel.</p>
+    <div class="sg-preview">
+      <div class="grid gap-4 md:grid-cols-3">
+        <FeatureCard variant="accent-bar" icon={IconPlugConnected} title="CRM & dispatch sync" body="Pushes to Jobber, Housecall Pro, ServiceTitan, HubSpot, and Klaviyo." />
+        <FeatureCard variant="accent-bar" icon={IconRefresh} title="Return-visit alerts" body="Tells you the second a previously identified lead comes back to your site." />
+        <FeatureCard variant="accent-bar" icon={IconLock} title="Never shared" body="Goes to you only. Not auctioned, not resold next week." />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Glass (for dark sections)</h2>
+    <p class="sg-lede">Frosted glass card with white text. Use on navy backgrounds.</p>
+    <div class="sg-preview sg-preview-dark">
+      <div class="grid gap-4 md:grid-cols-3">
+        <FeatureCard variant="glass" icon={IconBolt} title="Sub-5-minute alerts" body="Slack, SMS, or email the moment a homeowner consents." />
+        <FeatureCard variant="glass" icon={IconShieldCheck} title="Compliant by default" body="GDPR, CCPA, CPA. Audit trail backed by Termageddon." badge="New" />
+        <FeatureCard variant="glass" icon={IconPlugConnected} title="CRM sync" body="Push to Jobber, Housecall Pro, ServiceTitan, HubSpot." />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Sizes</h2>
+    <p class="sg-lede">Size="lg" gives bigger padding, type, and icons. Use as hero cards.</p>
+    <div class="sg-preview">
+      <div class="grid gap-6 md:grid-cols-2">
+        <FeatureCard size="lg" icon={IconUserCheck} title="Verified name & phone" body="The actual homeowner. Mobile number you can call right now. Address. What they're shopping for. All from one consent tap." />
+        <FeatureCard size="lg" variant="dark" icon={IconBolt} title="The unfair advantage" body="Identify homeowners before they fill out a form on a competitor's site. First contractor to call wins — and we get you on the phone in two minutes." />
+      </div>
+    </div>
+  </section>
+</StyleGuideLayout>

@@ -26,6 +26,7 @@ export const STYLE_GUIDE: StyleGuideEntry[] = [
   { slug: "logo-carousel", title: "Logo Carousel", description: "Marquee, grid, and static brand strips." },
   { slug: "calculators", title: "Calculators", description: "Interactive ROI and lead-cost calculators." },
   { slug: "how-it-works", title: "How It Works (Comet)", description: "Animated dark-theme 3-step section with a comet that sweeps and lights each node in turn." },
+  { slug: "feature-cards", title: "Feature Cards", description: "Eight variants of an icon + title + body tile primitive." },
   { slug: "pricing-table", title: "Pricing Table", description: "Tiered pricing card layout." },
   { slug: "testimonials", title: "Testimonials", description: "Customer testimonial card variants." },
 ];

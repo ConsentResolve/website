@@ -1,20 +1,16 @@
 ---
+import FeatureCard from "~/components/ui/FeatureCard.astro";
 import {
-  IconUserSearch, IconMapPin, IconTool, IconClock,
-  IconArrowsLeftRight, IconBan, IconShieldCheck, IconTrendingUp,
+  IconUserCheck,
+  IconMapPin,
+  IconClipboardCheck,
+  IconBellRinging,
+  IconPlugConnected,
+  IconLock,
+  IconShieldCheck,
+  IconRefresh,
+  IconBolt,
 } from "@tabler/icons-react";
-
-interface Feature { Icon: any; title: string; body: string; }
-const features: Feature[] = [
-  { Icon: IconUserSearch, title: "Verified name & number", body: "The actual homeowner — first, last, mobile. Not a household label." },
-  { Icon: IconMapPin, title: "Address & service area", body: "Drops a pin on your map. Filter by zip, route, or radius." },
-  { Icon: IconTool, title: "What they're shopping for", body: "Captured intent: 'water heater quote', 'roof inspection', 'AC tune-up'." },
-  { Icon: IconClock, title: "Sub-5-minute alerts", body: "Slack, SMS, or email the second consent fires. First to call wins." },
-  { Icon: IconArrowsLeftRight, title: "CRM & dispatch sync", body: "Pushes to Jobber, Housecall Pro, ServiceTitan, HubSpot, or your sheet." },
-  { Icon: IconBan, title: "Never shared", body: "Goes to you only. Not auctioned to three other shops." },
-  { Icon: IconShieldCheck, title: "Compliant by default", body: "GDPR, CCPA, CPA. Iron-clad audit trail via Termageddon." },
-  { Icon: IconTrendingUp, title: "Return-visit alerts", body: "If a homeowner comes back to your site, you know. Time it right." },
-];
 ---
 
 <section class="section">
@@ -29,16 +25,32 @@ const features: Feature[] = [
       </p>
     </div>
 
-    <div class="grid grid-cols-1 gap-px overflow-hidden rounded-2xl bg-[#e6e6e6] sm:grid-cols-2 lg:grid-cols-4" style="box-shadow: 0 0 0 1px #e6e6e6;">
-      {features.map((f) => (
-        <div class="group relative bg-[color:var(--color-bg-alt)] p-7 transition-colors hover:bg-[color:var(--color-bg)]">
-          <div class="mb-5 inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-bg)] text-[color:var(--color-ink-2)] group-hover:bg-[color:var(--color-brand-soft)] group-hover:text-[color:var(--color-brand-pressed)] transition-colors">
-            <f.Icon size={20} stroke={1.5} />
-          </div>
-          <h3 class="mb-2 text-[15px] font-semibold tracking-tight text-[color:var(--color-ink)]">{f.title}</h3>
-          <p class="text-[14px] leading-relaxed text-[color:var(--color-ink-2)]">{f.body}</p>
-        </div>
-      ))}
+    <!-- Bento grid: 1 featured (lg, 2-col) + 6 regular -->
+    <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <!-- Featured card spans 2 columns -->
+      <div class="md:col-span-2 lg:col-span-2 lg:row-span-2">
+        <FeatureCard
+          size="lg"
+          variant="featured"
+          icon={IconBolt}
+          title="The unfair advantage"
+          body="Identify the homeowners shopping your service area — only after they consent. First contractor to call wins. We get you on the phone in under five minutes, with a name, number, and what they need."
+          badge="Best for service pros"
+        />
+      </div>
+
+      <FeatureCard variant="lift" icon={IconUserCheck} title="Verified name & phone" body="The actual homeowner — first, last, mobile. Not a household label." />
+      <FeatureCard variant="lift" icon={IconMapPin} title="Service area pin" body="Drops on your map. Filter by zip, route, or radius from your shop." />
+      <FeatureCard variant="lift" icon={IconClipboardCheck} title="Captured intent" body="'AC tune-up', 'roof inspection', 'water heater quote' — at the moment of consent." />
+      <FeatureCard variant="lift" icon={IconBellRinging} title="Sub-5-min alerts" body="Slack, SMS, or email the second consent fires. First to call wins." />
+      <FeatureCard variant="lift" icon={IconPlugConnected} title="CRM & dispatch sync" body="Pushes to Jobber, Housecall Pro, ServiceTitan, HubSpot, or your sheet." />
+      <FeatureCard variant="lift" icon={IconRefresh} title="Return-visit alerts" body="If a homeowner comes back to your site, you know. Time it right." />
+    </div>
+
+    <!-- Footer row: compliance + exclusivity in accent-bar style -->
+    <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+      <FeatureCard variant="accent-bar" icon={IconShieldCheck} title="Compliant by default" body="GDPR, CCPA, CPA. Iron-clad audit trail via Termageddon. Auditor-ready from day one." />
+      <FeatureCard variant="accent-bar" icon={IconLock} title="Never shared" body="Goes to you only. Not auctioned to three other shops. Not resold next week." />
     </div>
   </div>
 </section>

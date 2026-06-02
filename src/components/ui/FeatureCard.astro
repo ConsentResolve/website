@@ -1,0 +1,145 @@
+---
+import { IconArrowUpRight } from "@tabler/icons-react";
+
+interface Props {
+  icon?: any;
+  title: string;
+  body: string;
+  variant?:
+    | "default"
+    | "lift"
+    | "minimal"
+    | "numbered"
+    | "featured"
+    | "dark"
+    | "accent-bar"
+    | "glass";
+  number?: string;
+  badge?: string;
+  href?: string;
+  size?: "md" | "lg";
+}
+
+const {
+  icon: Icon,
+  title,
+  body,
+  variant = "default",
+  number,
+  badge,
+  href,
+  size = "md",
+} = Astro.props as Props;
+
+const Tag = (href ? "a" : "div") as "a" | "div";
+
+const padding = size === "lg" ? "p-8" : "p-6";
+
+// Visual variants. We compose Tailwind classes per variant.
+const variantClass: Record<string, string> = {
+  default:
+    "relative bg-[color:var(--color-bg-alt)] rounded-2xl shadow-[0_1px_0_rgba(10,22,40,0.04),0_0_0_1px_rgba(10,22,40,0.06)] transition-all",
+  lift:
+    "relative bg-[color:var(--color-bg-alt)] rounded-2xl shadow-[0_1px_0_rgba(10,22,40,0.04),0_0_0_1px_rgba(10,22,40,0.06)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_-18px_rgba(10,22,40,0.22),0_0_0_1px_rgba(0,192,128,0.18)]",
+  minimal:
+    "relative bg-transparent rounded-2xl transition-colors",
+  numbered:
+    "relative bg-[color:var(--color-bg-alt)] rounded-2xl shadow-[0_1px_0_rgba(10,22,40,0.04),0_0_0_1px_rgba(10,22,40,0.06)] transition-all",
+  featured:
+    "relative bg-[color:var(--color-brand)] text-[color:var(--color-navy-900)] rounded-2xl shadow-[0_18px_40px_-18px_rgba(0,192,128,0.45)] transition-all",
+  dark:
+    "relative bg-[color:var(--color-navy-900)] text-white rounded-2xl shadow-[0_18px_40px_-18px_rgba(10,22,40,0.45)] transition-all",
+  "accent-bar":
+    "relative bg-[color:var(--color-bg-alt)] rounded-2xl shadow-[0_1px_0_rgba(10,22,40,0.04),0_0_0_1px_rgba(10,22,40,0.06)] overflow-hidden transition-all",
+  glass:
+    "relative bg-white/[0.04] rounded-2xl ring-1 ring-inset ring-white/10 backdrop-blur transition-all",
+};
+
+const iconWellClass: Record<string, string> = {
+  default: "inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-pressed)]",
+  lift: "inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-pressed)]",
+  minimal: "text-[color:var(--color-brand-pressed)]",
+  numbered: "inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-pressed)]",
+  featured: "inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-navy-900)] text-[color:var(--color-brand)]",
+  dark: "inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-brand)]/15 text-[color:var(--color-mint-400)]",
+  "accent-bar": "inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-pressed)]",
+  glass: "inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-brand)]/15 text-[color:var(--color-mint-400)]",
+};
+
+const titleClass: Record<string, string> = {
+  default: "text-[color:var(--color-ink)]",
+  lift: "text-[color:var(--color-ink)]",
+  minimal: "text-[color:var(--color-ink)]",
+  numbered: "text-[color:var(--color-ink)]",
+  featured: "text-[color:var(--color-navy-900)]",
+  dark: "text-white",
+  "accent-bar": "text-[color:var(--color-ink)]",
+  glass: "text-white",
+};
+
+const bodyClass: Record<string, string> = {
+  default: "text-[color:var(--color-ink-2)]",
+  lift: "text-[color:var(--color-ink-2)]",
+  minimal: "text-[color:var(--color-ink-2)]",
+  numbered: "text-[color:var(--color-ink-2)]",
+  featured: "text-[color:var(--color-navy-900)]/80",
+  dark: "text-slate-300",
+  "accent-bar": "text-[color:var(--color-ink-2)]",
+  glass: "text-slate-300",
+};
+
+const linkAttrs = href ? { href } : {};
+const interactive = href ? "block focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)] focus:ring-offset-2" : "";
+
+const iconSize = size === "lg" ? 24 : 20;
+const minimalIconSize = size === "lg" ? 36 : 30;
+---
+
+<Tag {...linkAttrs} class:list={[variantClass[variant], padding, interactive]}>
+  {/* Accent bar */}
+  {variant === "accent-bar" && (
+    <span class="absolute inset-y-0 left-0 w-1 bg-[color:var(--color-brand)]"></span>
+  )}
+
+  {/* Badge (top-right chip) */}
+  {badge && (
+    <span class:list={[
+      "absolute right-4 top-4 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]",
+      (variant === "featured" || variant === "dark" || variant === "glass")
+        ? "bg-black/15 text-current"
+        : "bg-[color:var(--color-brand)]/15 text-[color:var(--color-brand-pressed)]"
+    ]}>{badge}</span>
+  )}
+
+  {/* Number badge */}
+  {variant === "numbered" && number && (
+    <span class="absolute right-4 top-4 inline-flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-mono text-[11px] font-bold text-[color:var(--color-mint-400)]">{number}</span>
+  )}
+
+  {/* Icon */}
+  {Icon && (
+    variant === "minimal" ? (
+      <div class={iconWellClass[variant]}>
+        <Icon size={minimalIconSize} stroke={1.5} />
+      </div>
+    ) : (
+      <div class={iconWellClass[variant]}>
+        <Icon size={iconSize} stroke={1.75} />
+      </div>
+    )
+  )}
+
+  <h3 class:list={["mt-5 font-semibold tracking-tight", titleClass[variant], size === "lg" ? "text-lg" : "text-[15px]"]}>{title}</h3>
+  <p class:list={["mt-2 leading-relaxed", bodyClass[variant], size === "lg" ? "text-[15px]" : "text-[14px]"]}>{body}</p>
+
+  {/* External link arrow */}
+  {href && (
+    <span class:list={[
+      "mt-5 inline-flex items-center gap-1 text-sm font-semibold",
+      (variant === "featured") ? "text-[color:var(--color-navy-900)]" : (variant === "dark" || variant === "glass") ? "text-[color:var(--color-mint-400)]" : "text-[color:var(--color-brand-pressed)]"
+    ]}>
+      Learn more
+      <IconArrowUpRight size={14} stroke={2.25} />
+    </span>
+  )}
+</Tag>
