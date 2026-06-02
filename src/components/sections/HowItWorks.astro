@@ -10,7 +10,7 @@ const steps: Step[] = [
 ];
 ---
 
-<section class="section bg-[color:var(--color-bg-alt)]">
+<section class="section section-dark">
   <div class="container-content">
     <div class="mx-auto mb-16 max-w-3xl text-center">
       <p class="eyebrow mb-5 justify-center">How it works</p>
@@ -24,10 +24,10 @@ const steps: Step[] = [
             <Illustration name={s.illustration} alt={s.title} class="h-full w-full object-contain p-6" />
           </div>
           <div class="flex items-center gap-3 mb-3">
-            <span class="inline-flex size-8 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-mono text-xs font-bold text-[color:var(--color-mint-400)]">
-              0{i + 1}
+            <span class="step-badge">0{i + 1}</span>
+            <span class="text-[color:var(--color-ink-2)]">
+              <s.Icon size={20} stroke={1.75} />
             </span>
-            <s.Icon size={20} stroke={1.75} color="var(--color-ink-2)" />
           </div>
           <h3 class="mb-2 text-xl font-semibold tracking-tight text-[color:var(--color-ink)]">{s.title}</h3>
           <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{s.body}</p>

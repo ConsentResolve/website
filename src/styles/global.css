@@ -125,6 +125,15 @@
     border-radius: 1rem;
     box-shadow: 0 1px 0 rgba(10, 22, 40, 0.04), 0 0 0 1px rgba(10, 22, 40, 0.06);
   }
+  .step-badge {
+    @apply inline-flex size-8 items-center justify-center rounded-full font-mono text-xs font-bold;
+    background: var(--color-navy-900);
+    color: var(--color-mint-400);
+  }
+  .section-dark .step-badge {
+    background: var(--color-mint-400);
+    color: var(--color-navy-900);
+  }
   .card-elevated {
     background: var(--color-bg-alt);
     border-radius: 1.25rem;

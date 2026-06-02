@@ -5,7 +5,7 @@ import { IconCircleCheck } from "@tabler/icons-react";
 const badges = ["GDPR", "CCPA", "CPA", "Termageddon"];
 ---
 
-<section class="section bg-[color:var(--color-bg-alt)]">
+<section class="section section-dark">
   <div class="container-content grid items-center gap-16 md:grid-cols-[1fr_1fr]">
     <div>
       <p class="eyebrow mb-5">Compliance</p>
@@ -17,8 +17,8 @@ const badges = ["GDPR", "CCPA", "CPA", "Termageddon"];
       </p>
       <ul class="flex flex-wrap gap-x-7 gap-y-3">
         {badges.map((b) => (
-          <li class="flex items-center gap-2">
-            <IconCircleCheck size={18} stroke={2} color="#00A86E" />
+          <li class="flex items-center gap-2 text-[color:var(--color-brand)]">
+            <IconCircleCheck size={18} stroke={2} />
             <span class="text-base font-semibold tracking-tight text-[color:var(--color-ink)]">{b}</span>
           </li>
         ))}
