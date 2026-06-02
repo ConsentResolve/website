@@ -1,0 +1,200 @@
+---
+import DemoChrome from "./DemoChrome.astro";
+import { IconCode, IconLayout, IconEye, IconCheck, IconCopy } from "@tabler/icons-react";
+
+const fakeSiteId = "demo-1234-5678-90ab-cdef";
+const fakeSettingsId = "DemoSettings1234";
+---
+
+<DemoChrome active="consent">
+  <div class="cs-header">
+    <h1 class="cs-title">Consent</h1>
+    <p class="cs-sub">Manage visitor consent and privacy settings</p>
+  </div>
+
+  <div class="cs-card">
+    <div class="cs-tabs">
+      <div class="cs-tabs-left">
+        <button class="cs-tab is-active">
+          <IconCode size={14} stroke={2} />
+          Installation
+        </button>
+        <button class="cs-tab">
+          <IconLayout size={14} stroke={2} />
+          Design &amp; Position
+        </button>
+      </div>
+      <button class="cs-preview">
+        <IconEye size={14} stroke={2} />
+        Show Preview
+      </button>
+    </div>
+
+    <div class="cs-content">
+      <div class="cs-section">
+        <div class="cs-row">
+          <label>Installation Code</label>
+          <button class="cs-copy">
+            <IconCopy size={13} stroke={2} />
+            Copy
+          </button>
+        </div>
+        <div class="cs-code">
+          <code>
+            &lt;script src="https://cdn.consentresolve.com/consentresolve.js"&gt;&lt;/script&gt;&lt;script&gt;ConsentResolve.init(&#123;siteId:'{fakeSiteId}',usercentricsSettingsId:'{fakeSettingsId}'&#125;);ConsentResolve.page();&lt;/script&gt;
+          </code>
+        </div>
+        <p class="cs-helper">Add this code to your website's &lt;head&gt; section, before any other scripts.</p>
+      </div>
+
+      <hr class="cs-divider" />
+
+      <div class="cs-section">
+        <h3 class="cs-section-title">Termageddon Configuration</h3>
+        <div class="cs-status">
+          <IconCheck size={14} stroke={2.5} color="#00E5A0" />
+          Configured
+        </div>
+
+        <label class="cs-field-label">Termageddon Settings ID</label>
+        <div class="cs-input">{fakeSettingsId}</div>
+        <p class="cs-helper">Enter the Settings ID from your <a>Termageddon dashboard</a>.</p>
+
+        <div class="cs-actions">
+          <button class="cs-btn-primary">Save Configuration</button>
+          <button class="cs-btn-secondary">Remove</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</DemoChrome>
+
+<style>
+  .cs-header { margin-bottom: 1.25rem; }
+  .cs-title {
+    font-family: var(--font-display, "Bricolage Grotesque", serif);
+    font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0; letter-spacing: -0.02em;
+  }
+  .cs-sub { color: #94a3b8; font-size: 0.875rem; margin: 0.375rem 0 0; }
+
+  .cs-card {
+    background: rgba(15,32,48,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.875rem;
+  }
+
+  .cs-tabs {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .cs-tabs-left { display: flex; gap: 0.5rem; }
+  .cs-tab {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: #cbd5e1;
+    padding: 0.4rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .cs-tab.is-active {
+    background: rgba(0,229,160,0.15);
+    border-color: rgba(0,229,160,0.4);
+    color: #00E5A0;
+  }
+  .cs-preview {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    padding: 0.4rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .cs-content { padding: 1.5rem 1.5rem 1.75rem; }
+  .cs-section { margin-bottom: 1.25rem; }
+  .cs-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+  .cs-row label, .cs-section-title {
+    color: #fff; font-weight: 700; font-size: 0.95rem;
+    margin: 0;
+  }
+  .cs-copy {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    background: transparent; border: 0;
+    color: #00E5A0;
+    font-size: 0.8rem; font-weight: 600;
+    cursor: pointer;
+  }
+
+  .cs-code {
+    background: #06101c;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 0.5rem;
+    padding: 0.875rem 1rem;
+    font-family: var(--font-mono, "JetBrains Mono", monospace);
+    font-size: 0.78rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    word-break: break-all;
+    white-space: normal;
+  }
+  .cs-code code { font-family: inherit; }
+  .cs-helper { color: #64748b; font-size: 0.78rem; margin: 0.625rem 0 0; }
+  .cs-helper a { color: #00E5A0; text-decoration: underline; text-underline-offset: 2px; }
+
+  .cs-divider {
+    border: 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin: 1.25rem 0;
+  }
+
+  .cs-status {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: #00E5A0;
+    font-size: 0.85rem; font-weight: 600;
+    margin: 0.5rem 0 1rem;
+  }
+  .cs-field-label {
+    display: block;
+    color: #fff; font-weight: 700; font-size: 0.85rem;
+    margin: 0 0 0.5rem;
+  }
+  .cs-input {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 0.5rem;
+    padding: 0.625rem 0.875rem;
+    color: #fff;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.85rem;
+  }
+
+  .cs-actions { display: flex; gap: 0.625rem; margin-top: 1.25rem; }
+  .cs-btn-primary {
+    background: rgba(0,229,160,0.18);
+    border: 1px solid rgba(0,229,160,0.4);
+    color: #00E5A0;
+    padding: 0.55rem 1.125rem;
+    border-radius: 9999px;
+    font-size: 0.85rem; font-weight: 600;
+    cursor: pointer;
+  }
+  .cs-btn-secondary {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    padding: 0.55rem 1.125rem;
+    border-radius: 9999px;
+    font-size: 0.85rem; font-weight: 600;
+    cursor: pointer;
+  }
+</style>

@@ -1,0 +1,59 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import DashboardScreen from "~/components/ui/demo/DashboardScreen.astro";
+import VisitorsScreen from "~/components/ui/demo/VisitorsScreen.astro";
+import IntegrationsScreen from "~/components/ui/demo/IntegrationsScreen.astro";
+import ConsentScreen from "~/components/ui/demo/ConsentScreen.astro";
+---
+
+<StyleGuideLayout
+  slug="product-demo"
+  title="Product Demo Screens"
+  description="Pure HTML/CSS/JS replicas of the Consent Resolve dashboard for use in landing-page hero shots, comparison pages, and marketing collateral. All data anonymized — no real names, emails, or keys. Numbers animate in on scroll."
+>
+  <section class="sg-section">
+    <h2>Dashboard</h2>
+    <p class="sg-lede">Live metrics, time-range selector, animated trend chart (line draws on entry), and a real-time visitor feed that staggers in.</p>
+    <div class="sg-preview demo-frame">
+      <DashboardScreen />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Visitors list</h2>
+    <p class="sg-lede">Searchable, filterable visitor intelligence with device, timezone, visit/view counts, and pagination. Identifiers are obfuscated patterns like <code>k7****l@example.com</code>.</p>
+    <div class="sg-preview demo-frame">
+      <VisitorsScreen />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Integrations</h2>
+    <p class="sg-lede">CRM &amp; marketing-automation connectors with status pills, configure links, and a request-integration CTA.</p>
+    <div class="sg-preview demo-frame">
+      <IntegrationsScreen />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Consent / Installation</h2>
+    <p class="sg-lede">Installation snippet, copy button, Termageddon configuration with a fake but valid-looking Settings ID.</p>
+    <div class="sg-preview demo-frame">
+      <ConsentScreen />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Where to use these</h2>
+    <p class="sg-lede">Embed in landing pages, blog posts, comparison pages, and email screenshots. Add a <code>scale-75</code> or <code>scale-50</code> wrapper for thumbnail use cases.</p>
+  </section>
+</StyleGuideLayout>
+
+<style>
+  .demo-frame {
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    box-shadow: 0 0 0 1px rgba(10,22,40,0.06), 0 30px 60px -30px rgba(10,22,40,0.25);
+  }
+</style>

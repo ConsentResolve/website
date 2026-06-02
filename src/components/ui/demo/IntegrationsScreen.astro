@@ -1,0 +1,132 @@
+---
+import DemoChrome from "./DemoChrome.astro";
+import { IconChevronRight, IconBrandHubspot, IconMail, IconArrowRight } from "@tabler/icons-react";
+---
+
+<DemoChrome active="integrations">
+  <div class="ig-header">
+    <h1 class="ig-title">Integrations</h1>
+    <p class="ig-sub">Connect Consent Resolve with your favorite tools to streamline your workflow.</p>
+  </div>
+
+  <section class="ig-section">
+    <h2 class="ig-section-title">CRM &amp; Sales</h2>
+    <div class="ig-grid">
+      <div class="ig-card">
+        <div class="ig-card-head">
+          <span class="ig-logo ig-logo-hubspot">
+            <IconBrandHubspot size={22} stroke={1.75} />
+          </span>
+          <span class="ig-status">Available</span>
+        </div>
+        <h3 class="ig-card-name">HubSpot</h3>
+        <p class="ig-card-body">Sync identified visitors as contacts to your HubSpot CRM with customizable field mappings.</p>
+        <a class="ig-configure">
+          Configure
+          <IconChevronRight size={14} stroke={2.25} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ig-section">
+    <h2 class="ig-section-title">Marketing Automation</h2>
+    <div class="ig-grid">
+      <div class="ig-card">
+        <div class="ig-card-head">
+          <span class="ig-logo ig-logo-mail">
+            <IconMail size={22} stroke={1.75} />
+          </span>
+          <span class="ig-status">Available</span>
+        </div>
+        <h3 class="ig-card-name">Klaviyo</h3>
+        <p class="ig-card-body">Sync identified visitors as Klaviyo profiles every 5 minutes with subscription consent recorded.</p>
+        <a class="ig-configure">
+          Configure
+          <IconChevronRight size={14} stroke={2.25} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ig-callout">
+    <h3 class="ig-callout-title">Need a Custom Integration?</h3>
+    <p class="ig-callout-body">If you need an integration that is not listed here, let us know. We are always looking to add more integrations based on user feedback.</p>
+    <button class="ig-callout-btn">
+      Request Integration
+      <IconArrowRight size={14} stroke={2.25} />
+    </button>
+  </section>
+</DemoChrome>
+
+<style>
+  .ig-header { margin-bottom: 1.5rem; }
+  .ig-title {
+    font-family: var(--font-display, "Bricolage Grotesque", serif);
+    font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0; letter-spacing: -0.02em;
+  }
+  .ig-sub { color: #94a3b8; font-size: 0.9rem; margin: 0.375rem 0 0; }
+
+  .ig-section { margin-bottom: 1.75rem; }
+  .ig-section-title {
+    font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0 0 0.875rem;
+  }
+  .ig-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+
+  .ig-card {
+    background: rgba(15,32,48,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.875rem;
+    padding: 1.25rem 1.5rem;
+    transition: border-color 0.2s ease;
+  }
+  .ig-card:hover { border-color: rgba(0,229,160,0.35); }
+  .ig-card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+  .ig-logo {
+    width: 40px; height: 40px; border-radius: 9999px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .ig-logo-hubspot { background: #ff7a59; color: #fff; }
+  .ig-logo-mail { background: rgba(255,255,255,0.06); color: #cbd5e1; }
+  .ig-status {
+    color: #94a3b8; font-size: 0.75rem; font-weight: 500;
+  }
+  .ig-card-name {
+    font-family: var(--font-display, serif);
+    font-size: 1.1rem; font-weight: 700; color: #fff;
+    margin: 0 0 0.5rem;
+  }
+  .ig-card-body {
+    color: #94a3b8; font-size: 0.8rem; line-height: 1.55;
+    margin: 0 0 1rem;
+  }
+  .ig-configure {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    color: #00E5A0; font-size: 0.85rem; font-weight: 600;
+    cursor: pointer;
+  }
+
+  .ig-callout {
+    background: rgba(15,32,48,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.875rem;
+    padding: 1.5rem;
+  }
+  .ig-callout-title {
+    font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0 0 0.5rem;
+  }
+  .ig-callout-body {
+    color: #94a3b8; font-size: 0.85rem; line-height: 1.6;
+    margin: 0 0 1rem; max-width: 720px;
+  }
+  .ig-callout-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(0,229,160,0.18);
+    color: #00E5A0;
+    border: 1px solid rgba(0,229,160,0.4);
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.85rem; font-weight: 600;
+    cursor: pointer;
+  }
+</style>

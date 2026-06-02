@@ -1,0 +1,370 @@
+---
+import DemoChrome from "./DemoChrome.astro";
+import AnimatedNumber from "~/components/ui/AnimatedNumber.tsx";
+import { IconChartBar, IconShield, IconArrowDownRight, IconArrowUpRight } from "@tabler/icons-react";
+
+// Anonymized visitor entries
+const visitors = [
+  { initials: "AX", handle: "a*****x@example.com",   page: "Service request page",  time: "43m ago" },
+  { initials: "K7", handle: "k7****l@example.com",   page: "Equipment repair quote", time: "7:26 AM" },
+  { initials: "EM", handle: "em****5@example.com",   page: "Service catalog",       time: "Yesterday, 1:48 PM" },
+  { initials: "GY", handle: "gy****6@example.com",   page: "Pricing inquiry",       time: "Yesterday, 11:09 AM" },
+  { initials: "AH", handle: "ah****_99@example.com", page: "Site inspection",       time: "Sun, 7:16 PM" },
+  { initials: "MB", handle: "mb****5@example.com",   page: "Service request page",  time: "Sat, 8:11 PM" },
+  { initials: "AT", handle: "at@example.com",        page: "Service quote",         time: "Fri, 1:45 PM" },
+  { initials: "AL", handle: "al****1@example.com",   page: "Service quote",         time: "Fri, 1:31 PM" },
+  { initials: "GP", handle: "gp****y@example.com",   page: "Equipment compare",     time: "Fri, 11:57 AM" },
+  { initials: "KA", handle: "ka****l@example.com",   page: "Repair · maintenance",  time: "Thu, 8:57 PM" },
+  { initials: "JS", handle: "js****2@example.com",   page: "Repair · spindle",      time: "Thu, 5:06 PM" },
+  { initials: "DS", handle: "ds****g@example.com",   page: "Repair · maintenance",  time: "Thu, 3:10 PM" },
+  { initials: "IN", handle: "in****y@example.com",   page: "Service request page",  time: "Thu, 12:03 PM" },
+  { initials: "PW", handle: "pw****y@example.com",   page: "Service request page",  time: "Wed, 1:00 PM" },
+  { initials: "RE", handle: "re****y@example.com",   page: "Equipment catalog",     time: "Wed, 11:57 AM" },
+  { initials: "MA", handle: "ma****t@example.com",   page: "Service request page",  time: "Wed, 11:13 AM" },
+  { initials: "CC", handle: "cc****n@example.com",   page: "Service quote",         time: "Wed, 10:57 AM", adBlocker: true },
+];
+
+// Chart sample (Enriched + Ad-Blocked over 30 days)
+const enriched =  [1, 2, 4, 5, 6, 1, 2, 1, 3, 1, 4, 3, 2, 3, 2, 4, 6, 4, 2, 1, 2, 6, 4, 3, 4, 7, 5, 3, 2, 2, 2];
+const adBlocked = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0];
+
+// SVG chart geometry
+const cw = 1080, ch = 280, padL = 40, padR = 16, padT = 12, padB = 40;
+const innerW = cw - padL - padR;
+const innerH = ch - padT - padB;
+const xMax = enriched.length - 1;
+const yMax = Math.max(...enriched, ...adBlocked, 8);
+const xs = enriched.map((_, i) => padL + (i / xMax) * innerW);
+const yE = enriched.map((v) => padT + (1 - v / yMax) * innerH);
+const yA = adBlocked.map((v) => padT + (1 - v / yMax) * innerH);
+
+// Smooth path (Catmull-Rom -> Bezier)
+function smoothPath(xs: number[], ys: number[]) {
+  const pts = xs.map((x, i) => [x, ys[i]]);
+  if (pts.length < 2) return "";
+  let d = `M ${pts[0][0]},${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] || p2;
+    const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
+    const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
+    const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2[0]},${p2[1]}`;
+  }
+  return d;
+}
+const enrichedPath = smoothPath(xs, yE);
+const adBlockedPath = smoothPath(xs, yA);
+const enrichedArea = `${enrichedPath} L ${xs[xs.length-1]},${ch - padB} L ${xs[0]},${ch - padB} Z`;
+const adBlockedArea = `${adBlockedPath} L ${xs[xs.length-1]},${ch - padB} L ${xs[0]},${ch - padB} Z`;
+
+// X axis labels — every 5th day
+const labels = ["May 2","May 7","May 12","May 17","May 22","May 27","Jun 1"];
+const labelXs = [0, 5, 10, 15, 20, 25, 30].map((i) => padL + (i / xMax) * innerW);
+
+// Y gridlines
+const gridYs = [0, 2, 4, 6, 8];
+---
+
+<DemoChrome active="dashboard">
+  <!-- Top metric cards -->
+  <div class="dash-metrics">
+    <div class="dash-card">
+      <div class="dash-card-head">
+        <span class="dash-card-label">Enriched Visitors</span>
+      </div>
+      <div class="dash-card-figure">
+        <AnimatedNumber client:visible value={63} className="dash-figure" />
+        <span class="dash-delta dash-delta-down">
+          <IconArrowDownRight size={14} stroke={2.5} />
+          -24%
+        </span>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-head">
+        <IconShield size={14} stroke={1.75} color="#a78bfa" />
+        <span class="dash-card-label">Ad-Blocked Visitors</span>
+      </div>
+      <div class="dash-card-figure">
+        <AnimatedNumber client:visible value={4} className="dash-figure" />
+        <span class="dash-delta dash-delta-up">
+          <IconArrowUpRight size={14} stroke={2.5} />
+          +300%
+        </span>
+      </div>
+      <p class="dash-card-sub">identified through ad blockers</p>
+    </div>
+  </div>
+
+  <!-- Range tabs -->
+  <div class="dash-tabs">
+    <button class="dash-tab">7d</button>
+    <button class="dash-tab is-active">30d</button>
+    <button class="dash-tab">90d</button>
+    <button class="dash-tab dash-tab-date">mm/dd/yyyy</button>
+  </div>
+
+  <!-- Chart -->
+  <div class="dash-chart-card">
+    <div class="dash-chart-head">
+      <div class="dash-chart-title">
+        <span class="dash-chart-icon"><IconChartBar size={16} stroke={1.75} color="#00E5A0" /></span>
+        <div>
+          <h3>Enrichment Trends</h3>
+          <p>Enriched visitors over time</p>
+        </div>
+      </div>
+      <div class="dash-chart-legend">
+        <span class="dash-legend-item"><span class="dash-dot" style="background:#00E5A0"></span> Enriched</span>
+        <span class="dash-legend-item"><span class="dash-dot" style="background:#a78bfa"></span> Ad-Blocked</span>
+      </div>
+    </div>
+
+    <svg viewBox={`0 0 ${cw} ${ch}`} class="dash-chart-svg" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="dash-fill-e" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#00E5A0" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#00E5A0" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="dash-fill-a" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#a78bfa" stop-opacity="0.25"/>
+          <stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+
+      <!-- gridlines -->
+      {gridYs.map((g) => {
+        const y = padT + (1 - g / yMax) * innerH;
+        return (
+          <g>
+            <line x1={padL} x2={cw - padR} y1={y} y2={y} stroke="rgba(255,255,255,0.05)" stroke-dasharray="2 4" />
+            <text x={padL - 8} y={y + 3} text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.35)">{g}</text>
+          </g>
+        );
+      })}
+
+      <!-- areas -->
+      <path d={enrichedArea}  fill="url(#dash-fill-e)" class="dash-area dash-area-e" />
+      <path d={adBlockedArea} fill="url(#dash-fill-a)" class="dash-area dash-area-a" />
+
+      <!-- lines -->
+      <path d={enrichedPath}  fill="none" stroke="#00E5A0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="dash-line dash-line-e" />
+      <path d={adBlockedPath} fill="none" stroke="#a78bfa" stroke-width="2"   stroke-linecap="round" stroke-linejoin="round" class="dash-line dash-line-a" />
+
+      <!-- x labels -->
+      {labels.map((lab, i) => (
+        <text x={labelXs[i]} y={ch - 14} text-anchor="middle" font-family="Hanken Grotesk, sans-serif" font-size="11" fill="rgba(255,255,255,0.4)">{lab}</text>
+      ))}
+    </svg>
+  </div>
+
+  <!-- Latest enriched visitors -->
+  <div class="dash-latest-card">
+    <div class="dash-latest-head">
+      <span class="dash-latest-title">Latest Enriched Visitors</span>
+      <span class="dash-live">
+        <span class="dash-live-dot"></span> Live
+      </span>
+    </div>
+    <ul class="dash-visitor-list">
+      {visitors.map((v, i) => (
+        <li class="dash-visitor-row" style={`animation-delay:${i * 30}ms`}>
+          <span class="dash-avatar">{v.initials}</span>
+          <div class="dash-visitor-meta">
+            <span class="dash-visitor-handle">
+              {v.handle}
+              {v.adBlocker && <span class="dash-adb-chip">AD BLOCKER</span>}
+            </span>
+            <span class="dash-visitor-page">{v.page}</span>
+          </div>
+          <span class="dash-visitor-time">{v.time}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</DemoChrome>
+
+<style>
+  /* === Layout primitives === */
+  .dash-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .dash-card {
+    background: rgba(15,32,48,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.875rem;
+    padding: 1.25rem 1.5rem;
+  }
+  .dash-card-head {
+    display: flex; align-items: center; gap: 0.5rem;
+    color: #cbd5e1;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .dash-card-figure {
+    display: flex; align-items: baseline; gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  .dash-figure {
+    font-family: var(--font-display, "Bricolage Grotesque", serif);
+    font-size: 3rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .dash-delta {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    font-size: 0.875rem; font-weight: 600;
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  .dash-delta-down { color: #ef4444; }
+  .dash-delta-up   { color: #00E5A0; }
+  .dash-card-sub { margin-top: 0.5rem; font-size: 0.75rem; color: #64748b; }
+
+  /* === Tabs === */
+  .dash-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+  .dash-tab {
+    background: rgba(15,32,48,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    color: #cbd5e1;
+    padding: 0.5rem 0.875rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: default;
+  }
+  .dash-tab.is-active {
+    background: #00E5A0;
+    border-color: #00E5A0;
+    color: #0a1628;
+  }
+  .dash-tab-date {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+
+  /* === Chart === */
+  .dash-chart-card {
+    background: rgba(15,32,48,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.875rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .dash-chart-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+  .dash-chart-title { display: flex; align-items: center; gap: 0.75rem; }
+  .dash-chart-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(0,229,160,0.15);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .dash-chart-title h3 { font-size: 1rem; font-weight: 700; color: #fff; margin: 0; line-height: 1.2; }
+  .dash-chart-title p { font-size: 0.75rem; color: #64748b; margin: 2px 0 0; }
+  .dash-chart-legend { display: flex; gap: 1rem; }
+  .dash-legend-item {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: #cbd5e1; font-size: 0.75rem; font-weight: 600;
+  }
+  .dash-dot { width: 8px; height: 8px; border-radius: 9999px; display: inline-block; }
+  .dash-chart-svg { display: block; width: 100%; height: auto; }
+
+  /* Draw-in animations */
+  .dash-line {
+    stroke-dasharray: 2000;
+    stroke-dashoffset: 2000;
+    animation: dash-draw 2.4s ease-out forwards;
+  }
+  .dash-line-a { animation-delay: 0.3s; animation-duration: 2s; }
+  .dash-area {
+    opacity: 0;
+    animation: dash-fade 1.2s ease-out forwards;
+    animation-delay: 1.4s;
+  }
+  .dash-area-a { animation-delay: 1.7s; }
+  @keyframes dash-draw { to { stroke-dashoffset: 0; } }
+  @keyframes dash-fade { to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .dash-line, .dash-area { animation: none; stroke-dashoffset: 0; opacity: 1; }
+  }
+
+  /* === Latest visitors === */
+  .dash-latest-card {
+    background: rgba(15,32,48,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.875rem;
+  }
+  .dash-latest-head {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .dash-latest-title { color: #fff; font-weight: 700; font-size: 0.95rem; }
+  .dash-live {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.75rem; font-weight: 600; color: #00E5A0;
+  }
+  .dash-live-dot {
+    width: 8px; height: 8px; border-radius: 9999px;
+    background: #00E5A0;
+    box-shadow: 0 0 8px rgba(0,229,160,0.7);
+    animation: dash-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes dash-pulse {
+    50% { opacity: 0.4; }
+  }
+
+  .dash-visitor-list { list-style: none; padding: 0; margin: 0; }
+  .dash-visitor-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.875rem;
+    align-items: center;
+    padding: 0.625rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    opacity: 0;
+    transform: translateY(4px);
+    animation: dash-row-in 0.4s ease-out forwards;
+  }
+  .dash-visitor-row:last-child { border-bottom: 0; }
+  @keyframes dash-row-in { to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    .dash-visitor-row { animation: none; opacity: 1; transform: none; }
+  }
+
+  .dash-avatar {
+    width: 32px; height: 32px; border-radius: 9999px;
+    background: rgba(0,229,160,0.15);
+    color: #00E5A0;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 800;
+  }
+  .dash-visitor-meta { display: flex; flex-direction: column; min-width: 0; }
+  .dash-visitor-handle {
+    color: #fff; font-size: 0.875rem; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .dash-visitor-page { color: #64748b; font-size: 0.75rem; margin-top: 1px; }
+  .dash-visitor-time { color: #64748b; font-size: 0.75rem; white-space: nowrap; }
+  .dash-adb-chip {
+    background: rgba(167,139,250,0.18);
+    color: #c4b5fd;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+</style>

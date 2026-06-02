@@ -1,0 +1,321 @@
+---
+import {
+  IconShieldCheck,
+  IconHome,
+  IconUsers,
+  IconPuzzle,
+  IconShield,
+  IconWorld,
+  IconCreditCard,
+  IconSettings,
+  IconChartBar,
+  IconAlertTriangle,
+  IconBookmark,
+  IconChevronDown,
+  IconCube,
+} from "@tabler/icons-react";
+import AnimatedNumber from "~/components/ui/AnimatedNumber.tsx";
+
+type NavKey = "dashboard" | "visitors" | "integrations" | "consent" | "all-sites" | "billing" | "settings" | "overview" | "users" | "diagnostics";
+
+interface Props {
+  active: NavKey;
+  resolutions?: number;
+}
+
+const { active, resolutions = 807 } = Astro.props as Props;
+
+const nav: { key: NavKey; label: string; Icon: any; group: "main" | "account" | "admin" }[] = [
+  { key: "dashboard",    label: "Dashboard",    Icon: IconHome,            group: "main" },
+  { key: "visitors",     label: "Visitors",     Icon: IconUsers,           group: "main" },
+  { key: "integrations", label: "Integrations", Icon: IconPuzzle,          group: "main" },
+  { key: "consent",      label: "Consent",      Icon: IconShield,          group: "main" },
+  { key: "all-sites",    label: "All Sites",    Icon: IconWorld,           group: "account" },
+  { key: "billing",      label: "Billing",      Icon: IconCreditCard,      group: "account" },
+  { key: "settings",     label: "Settings",     Icon: IconSettings,        group: "account" },
+  { key: "overview",     label: "Overview",     Icon: IconChartBar,        group: "admin" },
+  { key: "users",        label: "Users",        Icon: IconUsers,           group: "admin" },
+  { key: "diagnostics",  label: "Diagnostics",  Icon: IconAlertTriangle,   group: "admin" },
+];
+
+const mainItems = nav.filter((n) => n.group === "main");
+const accountItems = nav.filter((n) => n.group === "account");
+const adminItems = nav.filter((n) => n.group === "admin");
+---
+
+<div class="demo-chrome">
+  <!-- Sidebar -->
+  <aside class="demo-sidebar">
+    <div class="demo-brand">
+      <div class="demo-brand-mark">
+        <IconShieldCheck size={20} stroke={2.25} color="#0A1628" />
+      </div>
+      <span class="demo-brand-name">CR</span>
+    </div>
+
+    <nav class="demo-nav">
+      <ul>
+        {mainItems.map((n) => (
+          <li class:list={["demo-nav-item", active === n.key ? "is-active" : ""]}>
+            <n.Icon size={18} stroke={1.75} />
+            <span>{n.label}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div class="demo-nav-label">Account</div>
+      <ul>
+        {accountItems.map((n) => (
+          <li class:list={["demo-nav-item", active === n.key ? "is-active" : ""]}>
+            <n.Icon size={18} stroke={1.75} />
+            <span>{n.label}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div class="demo-nav-label">Admin</div>
+      <ul>
+        {adminItems.map((n) => (
+          <li class:list={["demo-nav-item", active === n.key ? "is-active" : ""]}>
+            <n.Icon size={18} stroke={1.75} />
+            <span>{n.label}</span>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="demo-sidebar-footer">
+      <div class="demo-nav-item demo-pinned">
+        <IconBookmark size={18} stroke={1.75} />
+        <span>Pinned</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main column -->
+  <div class="demo-main">
+    <!-- Topbar -->
+    <header class="demo-topbar">
+      <div class="demo-topbar-left">
+        <div class="demo-pill demo-site-pill">
+          <span class="demo-dot"></span>
+          <span class="demo-pill-label">Demo Service Co.</span>
+          <span class="demo-live-chip">LIVE</span>
+          <IconChevronDown size={14} stroke={2} class="demo-chevron" />
+        </div>
+        <div class="demo-pill demo-resolutions-pill">
+          <IconCube size={16} stroke={1.75} color="#00E5A0" />
+          <AnimatedNumber client:visible value={resolutions} className="demo-resolutions-number" />
+          <span class="demo-pill-sub">resolutions</span>
+        </div>
+      </div>
+
+      <div class="demo-user-pill">
+        <span class="demo-avatar">D</span>
+        <span class="demo-user-name">Demo User</span>
+        <span class="demo-role-chip">Admin</span>
+        <IconChevronDown size={14} stroke={2} class="demo-chevron" />
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="demo-body">
+      <slot />
+    </main>
+  </div>
+</div>
+
+<style>
+  .demo-chrome {
+    --c-bg:          #051221;
+    --c-bg-2:        #0a1628;
+    --c-bg-3:        #0f2030;
+    --c-border:      rgba(255,255,255,0.06);
+    --c-border-2:    rgba(255,255,255,0.12);
+    --c-text:        #ffffff;
+    --c-text-2:      #cbd5e1;
+    --c-text-muted:  #64748b;
+    --c-mint:        #00E5A0;
+    --c-mint-soft:   rgba(0,229,160,0.12);
+
+    display: grid;
+    grid-template-columns: 224px 1fr;
+    min-height: 720px;
+    background: var(--c-bg);
+    color: var(--c-text);
+    border-radius: 1.25rem;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+    font-family: var(--font-sans, "Hanken Grotesk", sans-serif);
+  }
+
+  /* === Sidebar === */
+  .demo-sidebar {
+    display: flex;
+    flex-direction: column;
+    background: var(--c-bg-2);
+    border-right: 1px solid var(--c-border);
+    padding: 1.25rem 0.875rem 1rem;
+  }
+  .demo-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.25rem 0.5rem 1.25rem;
+  }
+  .demo-brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 0.5rem;
+    background: var(--c-mint);
+  }
+  .demo-brand-name {
+    font-family: var(--font-display, "Bricolage Grotesque", serif);
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: 0.04em;
+  }
+
+  .demo-nav { flex: 1; }
+  .demo-nav ul { list-style: none; padding: 0; margin: 0; }
+  .demo-nav-label {
+    color: var(--c-text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    padding: 1rem 0.625rem 0.5rem;
+  }
+  .demo-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    margin: 1px 0;
+    border-radius: 0.5rem;
+    color: var(--c-text-2);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: default;
+    transition: background 0.15s ease;
+    position: relative;
+  }
+  .demo-nav-item :global(svg) { color: #94a3b8; flex-shrink: 0; }
+  .demo-nav-item.is-active {
+    background: var(--c-mint-soft);
+    color: var(--c-mint);
+  }
+  .demo-nav-item.is-active :global(svg) { color: var(--c-mint); }
+  .demo-nav-item.is-active::before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: 6px;
+    bottom: 6px;
+    width: 3px;
+    background: var(--c-mint);
+    border-radius: 9999px;
+  }
+
+  .demo-sidebar-footer {
+    border-top: 1px solid var(--c-border);
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+  .demo-pinned :global(svg) { transform: rotate(45deg); }
+
+  /* === Main === */
+  .demo-main { display: flex; flex-direction: column; }
+  .demo-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--c-border);
+    background: var(--c-bg);
+    gap: 1rem;
+  }
+  .demo-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .demo-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.875rem;
+    border-radius: 0.5rem;
+    background: var(--c-bg-2);
+    border: 1px solid var(--c-border);
+    color: var(--c-text);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .demo-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--c-mint);
+    box-shadow: 0 0 8px rgba(0,229,160,0.7);
+  }
+  .demo-pill-label { font-weight: 600; }
+  .demo-live-chip {
+    background: var(--c-mint-soft);
+    color: var(--c-mint);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .demo-chevron { color: var(--c-text-muted); }
+
+  .demo-resolutions-number {
+    font-family: var(--font-display, "Bricolage Grotesque", serif);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--c-text);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .demo-pill-sub { color: var(--c-text-muted); font-weight: 500; font-size: 0.875rem; }
+
+  .demo-user-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.25rem 0.625rem 0.25rem 0.25rem;
+    border-radius: 9999px;
+    background: var(--c-bg-2);
+    border: 1px solid var(--c-border);
+  }
+  .demo-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 9999px;
+    background: var(--c-mint);
+    color: #0a1628;
+    font-weight: 800;
+    font-size: 14px;
+  }
+  .demo-user-name { color: var(--c-text); font-weight: 600; font-size: 0.875rem; }
+  .demo-role-chip {
+    background: var(--c-mint-soft);
+    color: var(--c-mint);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 2px 8px;
+    border-radius: 9999px;
+  }
+
+  .demo-body { padding: 1.75rem 1.75rem 2.5rem; }
+</style>

@@ -1,0 +1,271 @@
+---
+import DemoChrome from "./DemoChrome.astro";
+import AnimatedNumber from "~/components/ui/AnimatedNumber.tsx";
+import { IconCalendar, IconChevronDown, IconDownload, IconSearch, IconDeviceDesktop, IconDeviceMobile, IconDeviceTablet, IconChevronRight, IconChevronLeft } from "@tabler/icons-react";
+
+interface V {
+  initials: string;
+  handle: string;
+  device: "desktop" | "mobile" | "tablet";
+  tz: string;
+  time: string;
+  visits: number;
+  views: number;
+  adBlocker?: boolean;
+}
+
+// Generate anonymized visitor list
+const visitors: V[] = [
+  { initials: "AX", handle: "a*****x@example.com",   device: "desktop", tz: "GMT-04:00", time: "59m ago", visits: 1, views: 1 },
+  { initials: "K7", handle: "k7****l@example.com",   device: "desktop", tz: "GMT-05:00", time: "7:10 AM", visits: 1, views: 1 },
+  { initials: "EM", handle: "em****5@example.com",   device: "desktop", tz: "GMT-04:00", time: "Yesterday, 1:32 PM", visits: 1, views: 1 },
+  { initials: "GY", handle: "gy****6@example.com",   device: "desktop", tz: "GMT-05:00", time: "Yesterday, 10:54 AM", visits: 1, views: 1 },
+  { initials: "AH", handle: "ah****_99@example.com", device: "tablet",  tz: "GMT-05:00", time: "Sun, 7:01 PM", visits: 2, views: 2 },
+  { initials: "MB", handle: "mb****5@example.com",   device: "mobile",  tz: "GMT-05:00", time: "Sun, 8:48 AM", visits: 2, views: 2 },
+  { initials: "AT", handle: "at@example.com",        device: "desktop", tz: "GMT-05:00", time: "Fri, 1:30 PM", visits: 1, views: 1 },
+  { initials: "AL", handle: "al****1@example.com",   device: "desktop", tz: "GMT-05:00", time: "Fri, 1:18 PM", visits: 1, views: 1 },
+  { initials: "GP", handle: "gp****y@example.com",   device: "desktop", tz: "GMT-05:00", time: "Fri, 11:42 AM", visits: 1, views: 1 },
+  { initials: "KA", handle: "ka****l@example.com",   device: "tablet",  tz: "GMT-05:00", time: "Thu, 8:41 PM", visits: 1, views: 1 },
+  { initials: "JS", handle: "js****2@example.com",   device: "desktop", tz: "GMT-05:00", time: "Thu, 4:55 PM", visits: 1, views: 1 },
+  { initials: "DS", handle: "ds****g@example.com",   device: "desktop", tz: "GMT-05:00", time: "Thu, 2:55 PM", visits: 1, views: 1 },
+  { initials: "IN", handle: "in****y@example.com",   device: "tablet",  tz: "GMT-06:00", time: "Thu, 11:41 AM", visits: 1, views: 1 },
+  { initials: "PW", handle: "pw****y@example.com",   device: "desktop", tz: "GMT-05:00", time: "Fri, 8:54 AM", visits: 3, views: 4 },
+  { initials: "RE", handle: "re****y@example.com",   device: "desktop", tz: "GMT-05:00", time: "Wed, 11:41 AM", visits: 1, views: 1 },
+  { initials: "MA", handle: "ma****t@example.com",   device: "mobile",  tz: "GMT-04:00", time: "Wed, 10:59 AM", visits: 1, views: 2 },
+  { initials: "CC", handle: "cc****n@example.com",   device: "desktop", tz: "GMT-04:00", time: "Wed, 10:57 AM", visits: 0, views: 0, adBlocker: true },
+];
+
+const deviceIcon = (d: V["device"]) =>
+  d === "mobile" ? IconDeviceMobile : d === "tablet" ? IconDeviceTablet : IconDeviceDesktop;
+---
+
+<DemoChrome active="visitors">
+  <div class="vs-header">
+    <div>
+      <h1 class="vs-title">Visitors</h1>
+      <p class="vs-sub">Demo Service Co. visitor intelligence</p>
+    </div>
+    <div class="vs-date-pill">
+      <IconCalendar size={14} stroke={1.75} color="#cbd5e1" />
+      <span>May 3, 2026 - Jun 2, 2026</span>
+    </div>
+  </div>
+
+  <div class="vs-toolbar">
+    <div class="vs-search">
+      <IconSearch size={16} stroke={1.75} color="#64748b" />
+      <span>Search by name or email...</span>
+    </div>
+    <div class="vs-filter">
+      <span>All Devices</span>
+      <IconChevronDown size={14} stroke={2} color="#cbd5e1" />
+    </div>
+    <button class="vs-export">
+      <IconDownload size={14} stroke={2} />
+      Export
+    </button>
+  </div>
+
+  <div class="vs-table-card">
+    <div class="vs-table-head">
+      <span class="vs-count">
+        <AnimatedNumber client:visible value={67} className="vs-count-num" />
+        <span>Visitors</span>
+      </span>
+      <span class="vs-table-meta">Sorted by first visit (newest first)</span>
+    </div>
+
+    <ul class="vs-list">
+      {visitors.map((v, i) => {
+        const DevIcon = deviceIcon(v.device);
+        return (
+          <li class="vs-row" style={`animation-delay:${i * 25}ms`}>
+            <span class="vs-avatar">{v.initials}</span>
+            <div class="vs-meta">
+              <div class="vs-handle-line">
+                <span class="vs-handle">{v.handle}</span>
+                {v.adBlocker ? (
+                  <span class="vs-chip vs-chip-adb">AD BLOCKER</span>
+                ) : (
+                  <span class="vs-chip vs-chip-enriched">ENRICHED</span>
+                )}
+              </div>
+              <div class="vs-device-line">
+                <DevIcon size={12} stroke={1.75} color="#64748b" />
+                <span class="vs-device-text">{v.device.charAt(0).toUpperCase() + v.device.slice(1)}</span>
+                <span class="vs-tz">{v.tz}</span>
+                <span class="vs-time">{v.time}</span>
+              </div>
+            </div>
+            <div class="vs-counts">
+              <div class="vs-count-cell">
+                <div class="vs-count-val">{v.visits}</div>
+                <div class="vs-count-lab">visits</div>
+              </div>
+              <div class="vs-count-cell">
+                <div class="vs-count-val">{v.views}</div>
+                <div class="vs-count-lab">views</div>
+                {v.views > 0 && (
+                  <div class="vs-bar">
+                    <div class="vs-bar-fill" style={`width:${Math.min(100, v.views * 18)}%`}></div>
+                  </div>
+                )}
+              </div>
+              <IconChevronRight size={16} stroke={1.75} color="#475569" />
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+
+    <div class="vs-pagination">
+      <span class="vs-page-info">Showing 1 to 50 of 67</span>
+      <div class="vs-page-controls">
+        <button class="vs-page-btn"><IconChevronLeft size={14} stroke={2} /></button>
+        <span class="vs-page-num is-active">1</span>
+        <span class="vs-page-divider">/</span>
+        <span class="vs-page-total">2</span>
+        <button class="vs-page-btn"><IconChevronRight size={14} stroke={2} /></button>
+      </div>
+    </div>
+  </div>
+</DemoChrome>
+
+<style>
+  .vs-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+  .vs-title {
+    font-family: var(--font-display, "Bricolage Grotesque", serif);
+    font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0; letter-spacing: -0.02em;
+  }
+  .vs-sub { color: #94a3b8; font-size: 0.85rem; margin: 0.25rem 0 0; }
+  .vs-date-pill {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(15,32,48,0.7);
+    border: 1px solid rgba(255,255,255,0.07);
+    padding: 0.5rem 0.875rem;
+    border-radius: 0.5rem;
+    color: #cbd5e1;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .vs-toolbar { display: flex; gap: 0.75rem; margin-bottom: 1.25rem; }
+  .vs-search {
+    flex: 1;
+    display: flex; align-items: center; gap: 0.625rem;
+    background: rgba(15,32,48,0.7);
+    border: 1px solid rgba(255,255,255,0.07);
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.5rem;
+    color: #64748b; font-size: 0.875rem;
+  }
+  .vs-filter {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(15,32,48,0.7);
+    border: 1px solid rgba(255,255,255,0.07);
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.5rem;
+    color: #cbd5e1; font-size: 0.875rem; font-weight: 500;
+  }
+  .vs-export {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem; font-weight: 600;
+    cursor: pointer;
+  }
+
+  .vs-table-card {
+    background: rgba(15,32,48,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.875rem;
+    overflow: hidden;
+  }
+  .vs-table-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .vs-count { display: inline-flex; align-items: baseline; gap: 0.4rem; color: #fff; font-weight: 700; font-size: 0.95rem; }
+  .vs-count-num { font-family: var(--font-display, serif); font-size: 1.1rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .vs-table-meta { color: #64748b; font-size: 0.75rem; }
+
+  .vs-list { list-style: none; padding: 0; margin: 0; }
+  .vs-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.875rem;
+    align-items: center;
+    padding: 0.625rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    opacity: 0;
+    transform: translateY(4px);
+    animation: vs-row-in 0.4s ease-out forwards;
+  }
+  .vs-row:last-child { border-bottom: 0; }
+  @keyframes vs-row-in { to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .vs-row { animation: none; opacity: 1; transform: none; } }
+
+  .vs-avatar {
+    width: 32px; height: 32px; border-radius: 9999px;
+    background: rgba(0,229,160,0.15);
+    color: #00E5A0;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 800;
+  }
+  .vs-handle-line { display: flex; align-items: center; gap: 0.5rem; }
+  .vs-handle { color: #fff; font-size: 0.875rem; font-weight: 500; }
+  .vs-chip {
+    font-size: 9px; font-weight: 800; letter-spacing: 0.1em;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .vs-chip-enriched { background: rgba(0,229,160,0.15); color: #00E5A0; }
+  .vs-chip-adb { background: rgba(167,139,250,0.18); color: #c4b5fd; }
+
+  .vs-device-line { display: flex; align-items: center; gap: 0.5rem; margin-top: 2px; color: #64748b; font-size: 0.72rem; }
+  .vs-device-text {}
+  .vs-tz, .vs-time {}
+
+  .vs-counts { display: grid; grid-template-columns: 56px 110px auto; gap: 1rem; align-items: center; }
+  .vs-count-cell { text-align: right; }
+  .vs-count-val { color: #fff; font-weight: 700; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+  .vs-count-lab { color: #64748b; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; }
+  .vs-bar {
+    margin-top: 4px;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+  .vs-bar-fill { height: 100%; background: #00E5A0; border-radius: 9999px; }
+
+  .vs-pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    color: #64748b;
+    font-size: 0.75rem;
+  }
+  .vs-page-info {}
+  .vs-page-controls { display: inline-flex; align-items: center; gap: 0.5rem; color: #cbd5e1; }
+  .vs-page-btn {
+    width: 24px; height: 24px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    color: #cbd5e1;
+    cursor: pointer;
+  }
+  .vs-page-num.is-active {
+    background: rgba(0,229,160,0.15); color: #00E5A0;
+    padding: 2px 8px; border-radius: 4px; font-weight: 700;
+  }
+</style>
