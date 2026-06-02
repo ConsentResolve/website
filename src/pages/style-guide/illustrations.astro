@@ -56,14 +56,14 @@ const palette = [
   <!-- 3x3 grid -->
   <section class="sg-section">
     <h2>The 9 — 3 per row</h2>
-    <p class="sg-lede">Each illustration is locked to the same style; only the subject changes. Click to open the full SVG.</p>
+    <p class="sg-lede">Each illustration is locked to the same style; only the subject changes. Click any tile to open the full image.</p>
     <div class="sg-preview">
       <div class="ilg-grid">
         {illustrations.map((ill) => (
           <figure class="ilg-tile">
-            <a href={`/illustrations/style/${ill.n}-${ill.slug}.svg`} target="_blank" rel="noopener" class="ilg-img-wrap">
+            <a href={`/illustrations/style/${ill.n}-${ill.slug}.png`} target="_blank" rel="noopener" class="ilg-img-wrap">
               <img
-                src={`/illustrations/style/${ill.n}-${ill.slug}.svg`}
+                src={`/illustrations/style/${ill.n}-${ill.slug}.png`}
                 alt={`${ill.feature} — ${ill.caption}`}
                 loading="lazy"
                 decoding="async"
@@ -128,19 +128,18 @@ const palette = [
   <!-- OpenAI generation -->
   <section class="sg-section">
     <h2>Regenerate via OpenAI</h2>
-    <p class="sg-lede">A Node script at <code>scripts/generate-illustrations.mjs</code> hits the OpenAI Images API and writes PNGs to <code>/public/illustrations/style/</code>. Trace them to SVG (Illustrator Image Trace / vectorizer.ai / Recraft) and overwrite the placeholders.</p>
+    <p class="sg-lede">Two scripts ship — pick whichever you have a runtime for. Both call <code>gpt-image-1</code> with the locked Block A prompt and write transparent PNGs to <code>/public/illustrations/style/</code>.</p>
     <div class="sg-preview">
-      <pre class="ilg-code"><code>{`# 1. Set your API key
+      <pre class="ilg-code"><code>{`# Python (no install needed — uses stdlib)
+#   put your key at ~/.config/openai/key (chmod 600)
+python3 scripts/generate-illustrations.py             # all 9
+python3 scripts/generate-illustrations.py --only=03,07
+python3 scripts/generate-illustrations.py --dry-run   # show prompts only
+
+# Node (needs Node 22+)
 export OPENAI_API_KEY=sk-...
-
-# 2. Generate all 9
-node scripts/generate-illustrations.mjs
-
-# Or just one or two
-node scripts/generate-illustrations.mjs --only=03,07
-
-# Preview the prompts without calling the API
-node scripts/generate-illustrations.mjs --dry-run`}</code></pre>
+node scripts/generate-illustrations.mjs               # all 9
+node scripts/generate-illustrations.mjs --only=03,07`}</code></pre>
     </div>
   </section>
 
