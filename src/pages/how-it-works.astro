@@ -6,13 +6,9 @@ import FeatureCard from "~/components/ui/FeatureCard.astro";
 import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FAQSection from "~/components/sections/FAQSection.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
-// 2026-06-02: rebuilt imports list to force cache-miss on CF builder
-import { IconArrowRight as _ArrowRight, IconEye as _Eye, IconShieldCheck as _Shield, IconLock as _Lock, IconStack as _Stack } from "@tabler/icons-react";
-const IconArrowRight = _ArrowRight;
-const IconEye = _Eye;
-const IconShieldCheck = _Shield;
-const IconLock = _Lock;
-const IconStack = _Stack;
+// CF-cache-busting marker v2: 2026-06-02T22:00Z
+import { IconArrowRight, IconEye, IconShieldCheck, IconLock, IconStack2 } from "@tabler/icons-react";
+const IconStack = IconStack2;
 import { breadcrumbSchema } from "~/lib/seo";
 
 const breadcrumbs = breadcrumbSchema([
