@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fcd9b6"/>
+      <stop offset="100%" stop-color="#e8b889"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" fill="url(#bg)"/>
+  <!-- shoulders / shirt -->
+  <path d="M20,200 C20,160 60,138 100,138 C140,138 180,160 180,200 Z" fill="#1f2937"/>
+  <!-- neck -->
+  <rect x="84" y="118" width="32" height="28" rx="8" fill="url(#skin)"/>
+  <!-- head -->
+  <circle cx="100" cy="88" r="40" fill="url(#skin)"/>
+  <!-- hair -->
+  <path d="M62,80 C62,52 78,46 100,46 C122,46 138,54 138,80 C138,72 122,68 100,68 C78,68 62,72 62,80 Z" fill="#3f2d20"/>
+  <!-- eyes -->
+  <circle cx="86" cy="92" r="2.5" fill="#1f2937"/>
+  <circle cx="114" cy="92" r="2.5" fill="#1f2937"/>
+  <!-- mouth (worried) -->
+  <path d="M88,108 Q100,114 112,108" stroke="#7c4a32" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

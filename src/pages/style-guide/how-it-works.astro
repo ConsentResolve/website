@@ -1,0 +1,47 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import HowItWorks from "~/components/sections/HowItWorks.astro";
+---
+
+<StyleGuideLayout
+  slug="how-it-works"
+  title="How It Works (Comet)"
+  description="The default 'How it works' section. Dark theme, three-step horizontal layout (stacked on mobile), with an animated comet sweeping the progress track and lighting each step in sequence."
+>
+  <section class="sg-section">
+    <h2>Default — live preview</h2>
+    <p class="sg-lede">Hover or scroll into view; the comet kicks off ~800ms after the section enters the viewport and loops continuously. The 3rd node uses a photo (homeowner placeholder) that sharpens and de-saturates when lit; steps 1 &amp; 2 are icon circles that fill with mint.</p>
+    <div class="sg-preview" style="padding:0;background:transparent;box-shadow:none;overflow:hidden;border-radius:1rem">
+      <HowItWorks />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Mechanics</h2>
+    <p class="sg-lede">Vanilla-JS timing logic; no React island.</p>
+    <div class="sg-preview">
+      <dl class="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 font-mono text-sm">
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Comet duration:</dt> <dd class="inline text-[color:var(--color-ink-2)]">4s linear</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Comet range:</dt> <dd class="inline text-[color:var(--color-ink-2)]">−120% → 360%</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 1 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">167ms → 1000ms</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 2 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">1417ms → 2250ms</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 3 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">2667ms (holds 4500ms)</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Cycle length:</dt> <dd class="inline text-[color:var(--color-ink-2)]">~7.7s</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Initial delay:</dt> <dd class="inline text-[color:var(--color-ink-2)]">800ms</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Reduced motion:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Comet hidden, no orbs, instant fade-in</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Tokens</h2>
+    <div class="sg-preview">
+      <ul class="grid grid-cols-1 gap-3 sm:grid-cols-2 font-mono text-sm text-[color:var(--color-ink-2)]">
+        <li><span class="inline-block size-4 align-middle rounded mr-2" style="background:#0a1628"></span> Section bg · <code>#0a1628</code></li>
+        <li><span class="inline-block size-4 align-middle rounded mr-2" style="background:#00E5A0"></span> Comet / lit · <code>#00E5A0</code></li>
+        <li><span class="inline-block size-4 align-middle rounded mr-2" style="background:#062418"></span> Ink on lit · <code>#062418</code></li>
+        <li><span class="inline-block size-4 align-middle rounded mr-2" style="background:#00A86E"></span> Icon at rest · <code>#00A86E</code></li>
+      </ul>
+    </div>
+  </section>
+</StyleGuideLayout>

@@ -25,6 +25,7 @@ export const STYLE_GUIDE: StyleGuideEntry[] = [
   { slug: "analytics", title: "Analytics Widgets", description: "Metric cards, sparklines, funnels." },
   { slug: "logo-carousel", title: "Logo Carousel", description: "Marquee, grid, and static brand strips." },
   { slug: "calculators", title: "Calculators", description: "Interactive ROI and lead-cost calculators." },
+  { slug: "how-it-works", title: "How It Works (Comet)", description: "Animated dark-theme 3-step section with a comet that sweeps and lights each node in turn." },
   { slug: "pricing-table", title: "Pricing Table", description: "Tiered pricing card layout." },
   { slug: "testimonials", title: "Testimonials", description: "Customer testimonial card variants." },
 ];

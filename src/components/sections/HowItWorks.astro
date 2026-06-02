@@ -1,38 +1,360 @@
 ---
-import Illustration from "~/components/Illustration.astro";
-import { IconCode, IconClick, IconPhoneRinging } from "@tabler/icons-react";
-
-interface Step { Icon: any; title: string; body: string; illustration: string; }
-const steps: Step[] = [
-  { Icon: IconCode, title: "Drop in one line of code", body: "Paste our snippet on your site. Works with WordPress, Wix, Squarespace, ServiceTitan websites — anything.", illustration: "step-install" },
-  { Icon: IconClick, title: "Homeowner taps Yes", body: "A compliant banner asks for consent. The ones ready to hire opt in.", illustration: "step-consent" },
-  { Icon: IconPhoneRinging, title: "Call them back in 5 minutes", body: "Name, phone, and what service they're shopping — pushed to your CRM, Slack, or email instantly.", illustration: "step-call" },
-];
+import { IconGhost, IconShieldCheck } from "@tabler/icons-react";
 ---
 
-<section class="section section-dark">
-  <div class="container-content">
-    <div class="mx-auto mb-16 max-w-3xl text-center">
-      <p class="eyebrow mb-5 justify-center">How it works</p>
-      <h2 class="display-2 text-[color:var(--color-ink)]">From anonymous visitor to dispatched job in three steps.</h2>
-    </div>
+<section class="hiw">
+  <div class="hiw-orb hiw-orb-a" aria-hidden="true"></div>
+  <div class="hiw-orb hiw-orb-b" aria-hidden="true"></div>
 
-    <div class="grid gap-12 md:grid-cols-3">
-      {steps.map((s, i) => (
-        <div class="relative">
-          <div class="aspect-[4/3] mb-6 overflow-hidden rounded-2xl bg-[color:var(--color-bg)]">
-            <Illustration name={s.illustration} alt={s.title} class="h-full w-full object-contain p-6" />
-          </div>
-          <div class="flex items-center gap-3 mb-3">
-            <span class="step-badge">0{i + 1}</span>
-            <span class="text-[color:var(--color-ink-2)]">
-              <s.Icon size={20} stroke={1.75} />
-            </span>
-          </div>
-          <h3 class="mb-2 text-xl font-semibold tracking-tight text-[color:var(--color-ink)]">{s.title}</h3>
-          <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{s.body}</p>
+  <div class="container-content relative">
+    <header class="hiw-head">
+      <h2>How it Works.</h2>
+      <p>Three steps from a visitor you already paid for to a named lead that's yours alone.</p>
+    </header>
+
+    <ol class="hiw-steps">
+      <div class="hiw-track" aria-hidden="true">
+        <span class="hiw-comet"></span>
+      </div>
+
+      <li class="hiw-step" data-idx="0" style="--delay:0s">
+        <div class="hiw-node hiw-node-icon">
+          <IconGhost size={56} stroke={1.5} color="#00A86E" />
         </div>
-      ))}
+        <div class="hiw-badge">Step 01</div>
+        <h3>Unknown visitor arrives</h3>
+        <p>From any ad, search, or organic link.</p>
+      </li>
+
+      <li class="hiw-step" data-idx="1" style="--delay:0.18s">
+        <div class="hiw-node hiw-node-icon">
+          <IconShieldCheck size={56} stroke={1.5} color="#00A86E" />
+        </div>
+        <div class="hiw-badge">Step 02</div>
+        <h3>Cookie banner accepted</h3>
+        <p>Consent unlocks their name, email, and phone.</p>
+      </li>
+
+      <li class="hiw-step" data-idx="2" style="--delay:0.36s">
+        <div class="hiw-node hiw-node-photo">
+          <span class="hiw-help-pill">I need help</span>
+          <img src="/images/homeowner.svg" alt="" />
+        </div>
+        <div class="hiw-badge">Step 03</div>
+        <h3>New lead revealed</h3>
+        <p>Yours alone — no sharing, no bidding.</p>
+      </li>
+    </ol>
+
+    <div class="hiw-cta">
+      <a href="/how-it-works/">See how every platform compares</a>
     </div>
   </div>
 </section>
+
+<style>
+  .hiw {
+    position: relative;
+    overflow: hidden;
+    background: #0a1628;
+    color: #fff;
+    padding-block: 6rem;
+  }
+
+  /* Ambient floating orbs */
+  .hiw-orb {
+    position: absolute;
+    width: 540px;
+    height: 540px;
+    border-radius: 9999px;
+    pointer-events: none;
+    filter: blur(40px);
+  }
+  .hiw-orb-a {
+    top: -180px;
+    left: -160px;
+    background: radial-gradient(closest-side, rgba(0, 229, 160, 0.18), transparent 70%);
+    animation: hiw-orb-a 16s ease-in-out infinite alternate;
+  }
+  .hiw-orb-b {
+    bottom: -200px;
+    right: -180px;
+    background: radial-gradient(closest-side, rgba(0, 229, 160, 0.12), transparent 70%);
+    animation: hiw-orb-b 21s ease-in-out infinite alternate;
+  }
+  @keyframes hiw-orb-a {
+    from { transform: translate(0, 0); }
+    to   { transform: translate(60px, 40px); }
+  }
+  @keyframes hiw-orb-b {
+    from { transform: translate(0, 0); }
+    to   { transform: translate(-50px, -30px); }
+  }
+
+  .hiw-head { text-align: center; max-width: 760px; margin: 0 auto 3rem; }
+  .hiw-head h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    font-size: clamp(1.875rem, 3.5vw, 2.5rem);
+    color: #fff;
+    line-height: 1.05;
+  }
+  .hiw-head p {
+    margin-top: 0.75rem;
+    color: #d4d4d8;
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  /* Steps */
+  .hiw-steps {
+    position: relative;
+    max-width: 1024px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    list-style: none;
+    padding: 0;
+  }
+  @media (min-width: 768px) {
+    .hiw-steps { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  }
+
+  .hiw-step {
+    position: relative;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(14px);
+    animation: hiw-step-in 0.55s ease-out forwards;
+    animation-delay: var(--delay, 0s);
+  }
+  @keyframes hiw-step-in {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Node circles */
+  .hiw-node {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    border-radius: 9999px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .hiw-node-icon {
+    background: #ffffff;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+  .hiw-node-icon :global(svg) { transition: color 0.3s ease, stroke 0.3s ease; }
+
+  /* Step 3: photo */
+  .hiw-node-photo {
+    background: transparent;
+    overflow: hidden;
+    box-shadow: 0 0 0 2px rgba(0, 229, 160, 0.35);
+  }
+  .hiw-node-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(10px) grayscale(60%);
+    transform: scale(1.08);
+    transition: filter 0.65s ease, transform 0.65s ease;
+  }
+  .hiw-node-photo.cr-hiw-lit img,
+  .hiw-step[data-idx="2"].cr-hiw-lit .hiw-node-photo img {
+    filter: blur(0) grayscale(0);
+    transform: scale(1);
+  }
+
+  /* "I need help" floating pill */
+  .hiw-help-pill {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #00E5A0;
+    color: #0a1628;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 9999px;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px -4px rgba(0, 229, 160, 0.55);
+    z-index: 2;
+    transition: opacity 0.3s ease;
+  }
+  .hiw-step[data-idx="2"].cr-hiw-lit .hiw-help-pill { opacity: 0; }
+
+  /* Lit state for icon nodes (Step 1 & 2) */
+  .hiw-step:not([data-idx="2"]).cr-hiw-lit .hiw-node {
+    background-color: #00E5A0 !important;
+    animation: hiw-pulse 1.3s ease-in-out infinite;
+  }
+  .hiw-step:not([data-idx="2"]).cr-hiw-lit .hiw-node :global(svg) {
+    color: #062418 !important;
+    stroke: #062418 !important;
+  }
+  @keyframes hiw-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 229, 160, 0); }
+    50%      { box-shadow: 0 0 0 14px rgba(0, 229, 160, 0); box-shadow: 0 0 14px rgba(0, 229, 160, 0.55); }
+  }
+
+  /* Lit state for photo node (Step 3) */
+  .hiw-step[data-idx="2"].cr-hiw-lit .hiw-node {
+    animation: hiw-ring-pulse 1.3s ease-in-out infinite;
+  }
+  @keyframes hiw-ring-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.9), 0 0 0 0 rgba(0, 229, 160, 0); }
+    50%      { box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.9), 0 0 0 18px rgba(0, 229, 160, 0); }
+  }
+
+  /* Step badge */
+  .hiw-badge {
+    display: inline-block;
+    margin-top: 1.5rem;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.7rem;
+    border-radius: 9999px;
+    transition: all 0.3s ease;
+  }
+  .hiw-step.cr-hiw-lit .hiw-badge {
+    background: #00E5A0;
+    color: #062418;
+    border-color: #00E5A0;
+    box-shadow: 0 0 14px rgba(0, 229, 160, 0.45);
+  }
+
+  .hiw-step h3 {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: #fff;
+    margin-top: 0.875rem;
+  }
+  .hiw-step p {
+    color: #a1a1aa;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    margin-top: 0.4rem;
+    max-width: 240px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Progress track */
+  .hiw-track {
+    position: absolute;
+    top: 48px;
+    left: 16.67%;
+    right: 16.67%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 9999px;
+    overflow: hidden;
+    display: none;
+  }
+  @media (min-width: 768px) {
+    .hiw-track { display: block; }
+  }
+  .hiw-comet {
+    position: absolute;
+    inset: 0 auto;
+    left: 0;
+    width: 33.333%;
+    background: #00E5A0;
+    border-radius: 9999px;
+    transform: translateX(-120%);
+  }
+  .hiw-comet.cr-hiw-comet-run {
+    animation: cr-hiw-comet 4s linear forwards;
+  }
+  @keyframes cr-hiw-comet {
+    0%   { transform: translateX(-120%); }
+    100% { transform: translateX(360%); }
+  }
+
+  /* CTA */
+  .hiw-cta { text-align: center; margin-top: 3rem; }
+  .hiw-cta a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+  .hiw-cta a:hover { background: rgba(255, 255, 255, 0.1); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hiw-step { animation: none; opacity: 1; transform: none; }
+    .hiw-orb-a, .hiw-orb-b { animation: none; }
+    .hiw-comet { display: none; }
+  }
+</style>
+
+<script>
+  (function () {
+    const section = document.querySelector<HTMLElement>(".hiw");
+    if (!section) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const nodes = Array.from(section.querySelectorAll<HTMLElement>(".hiw-step"));
+    const comet = section.querySelector<HTMLElement>(".hiw-comet");
+    if (!comet || nodes.length !== 3) return;
+
+    const S1_ON = 167;
+    const S1_OFF = 1000;
+    const S2_ON = 1417;
+    const S2_OFF = 2250;
+    const S3_ON = 2667;
+    const HOLD = 4500;
+    const CYCLE = S3_ON + HOLD + 500;
+
+    let timers: number[] = [];
+    const clear = () => {
+      timers.forEach((t) => clearTimeout(t));
+      timers = [];
+    };
+    const lit = (i: number) => nodes[i].classList.add("cr-hiw-lit");
+    const unlit = (i: number) => nodes[i].classList.remove("cr-hiw-lit");
+    const unlitAll = () => nodes.forEach((n) => n.classList.remove("cr-hiw-lit"));
+
+    function run() {
+      clear();
+      unlitAll();
+      comet.classList.remove("cr-hiw-comet-run");
+      void comet.offsetWidth;
+      comet.classList.add("cr-hiw-comet-run");
+
+      timers.push(window.setTimeout(() => lit(0), S1_ON));
+      timers.push(window.setTimeout(() => unlit(0), S1_OFF));
+      timers.push(window.setTimeout(() => lit(1), S2_ON));
+      timers.push(window.setTimeout(() => unlit(1), S2_OFF));
+      timers.push(window.setTimeout(() => lit(2), S3_ON));
+      timers.push(window.setTimeout(() => unlit(2), S3_ON + HOLD));
+      timers.push(window.setTimeout(run, CYCLE));
+    }
+
+    window.setTimeout(run, 800);
+  })();
+</script>
