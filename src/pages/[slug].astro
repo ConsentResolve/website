@@ -1,0 +1,222 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Button from "~/components/ui/Button.astro";
+import FeatureCard from "~/components/ui/FeatureCard.astro";
+import HowItWorks from "~/components/sections/HowItWorks.astro";
+import ComplianceBand from "~/components/sections/ComplianceBand.astro";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+import Accordion from "~/components/ui/Accordion.tsx";
+import LeadROICalculator from "~/components/ui/LeadROICalculator.tsx";
+import { INDUSTRIES, type Industry } from "~/data/industries";
+import { breadcrumbSchema, faqSchema, industryServiceSchema } from "~/lib/seo";
+import { IconArrowRight, IconEye, IconCheck,
+  IconBuilding, IconTool, IconAirConditioning, IconDroplet, IconKey, IconBolt,
+  IconHome, IconBrush, IconLayoutBoardSplit, IconBuildingWarehouse, IconHome2,
+  IconSparkles, IconBugOff, IconShower, IconLeaf, IconCar,
+  IconBellRinging, IconClipboardCheck, IconMapPin, IconRefresh,
+  IconPlugConnected, IconLock, IconUserCheck,
+} from "@tabler/icons-react";
+
+export async function getStaticPaths() {
+  return INDUSTRIES.map((trade) => ({
+    params: { slug: `${trade.slug}-leads` },
+    props: { trade },
+  }));
+}
+
+interface Props { trade: Industry }
+const { trade } = Astro.props as Props;
+
+// Map iconKey -> safe Tabler component
+const iconMap: Record<string, any> = {
+  IconBuildingCommunity: IconBuilding,
+  IconTool,
+  IconTrees: IconLeaf,
+  IconAirConditioning,
+  IconDroplet,
+  IconKey,
+  IconBolt,
+  IconHome,
+  IconPaint: IconBrush,
+  IconFence: IconLayoutBoardSplit,
+  IconGarage: IconBuildingWarehouse,
+  IconFridge: IconHome2,
+  IconSparkles,
+  IconBug: IconBugOff,
+  IconSpray: IconShower,
+  IconPlant: IconLeaf,
+  IconCar,
+};
+const TradeIcon = iconMap[trade.iconKey] ?? IconTool;
+
+// Card library — the 3 cards each industry page picks from
+const cardLib: Record<string, { Icon: any; title: string; body: string }> = {
+  "on-phone-five":  { Icon: IconBellRinging,    title: "On your phone in five.",       body: "Slack, text, or email the second a homeowner consents. First one to call usually wins the job." },
+  "why-shopping":   { Icon: IconClipboardCheck, title: "Why they're shopping.",         body: "What they were looking for — captured the moment they consent. You walk into the call already knowing the job." },
+  "mapped-zip":     { Icon: IconMapPin,         title: "Mapped to your zip.",           body: "Every lead drops a pin on your service-area map. Filter by zip, route, or distance from the shop." },
+  "came-back":      { Icon: IconRefresh,        title: "They came back? You'll know.",  body: "Return-visit alerts fire when a known homeowner is back on your site. Time the follow-up right." },
+  "crm":            { Icon: IconPlugConnected,  title: "Lands in your CRM.",            body: "Pushes straight to Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo — or anything else through a webhook." },
+  "yours-alone":    { Icon: IconLock,           title: "Yours alone, never resold.",    body: "Not auctioned to four other shops. Not flipped next week. One consent, one contractor — you." },
+  "real-numbers":   { Icon: IconUserCheck,      title: "Real names. Real numbers.",     body: "First name, last name, mobile phone. The actual homeowner — not a household label, not a P.O. box." },
+};
+const threeCards = trade.cardKeys.map((k) => cardLib[k]).filter(Boolean);
+
+// SEO
+const canonical = `https://consentresolve.com/${trade.slug}-leads/`;
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "Industries", href: "/industries/" },
+    { name: trade.name, href: `/${trade.slug}-leads/` },
+  ]),
+  industryServiceSchema({
+    tradeName: trade.name,
+    tradeSlug: trade.slug,
+    description: trade.metaDescription,
+  }),
+  faqSchema(trade.faqs.map((f) => ({ question: f.q, answer: f.a }))),
+];
+
+const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
+---
+
+<BaseLayout
+  title={trade.titleTag}
+  description={trade.metaDescription}
+  canonical={canonical}
+  schema={schemas}
+>
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
+    <div class="container-content section relative">
+      <div class="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+        <div>
+          <p class="eyebrow mb-7"><TradeIcon size={14} stroke={1.75} /> {trade.name}</p>
+          <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
+            {trade.heroH1}
+          </h1>
+          <p class="mb-10 max-w-xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+            {trade.heroSubhead}
+          </p>
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Button href="/get-started/" variant="primary" size="lg">
+              Start $10 Trial
+              <IconArrowRight size={18} stroke={2.25} />
+            </Button>
+            <Button href="/sample-lead/" variant="outline" size="lg">
+              <IconEye size={18} stroke={1.75} />
+              See a sample lead
+            </Button>
+          </div>
+          <!-- Trust line -->
+          <ul class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[color:var(--color-ink-2)]">
+            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00A86E" /> 10 leads for $10 to start</li>
+            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00A86E" /> Exclusive leads</li>
+            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00A86E" /> Cancel anytime</li>
+          </ul>
+        </div>
+        <!-- Trade icon hero panel -->
+        <div class="relative hidden lg:block">
+          <div class="rounded-3xl bg-[color:var(--color-bg-alt)] p-12 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_30px_60px_-30px_rgba(10,22,40,0.18)]">
+            <div class="mx-auto flex size-32 items-center justify-center rounded-2xl bg-[color:var(--color-brand)]">
+              <TradeIcon size={64} stroke={1.5} color="#0A1628" />
+            </div>
+            <p class="mt-6 text-center font-display text-2xl font-bold tracking-tight text-[color:var(--color-ink)]">{trade.name}</p>
+            <p class="mt-2 text-center text-sm text-[color:var(--color-ink-muted)]">{trade.urgencyLine}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AEO answer paragraph -->
+  <section class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+    <div class="container-content py-10">
+      <div class="mx-auto max-w-3xl">
+        <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+          {trade.aeoAnswer}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem + urgency -->
+  <section class="section section-dark">
+    <div class="container-content">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">The problem</p>
+        <h2 class="display-2 text-white">
+          {trade.problem}
+        </h2>
+        <p class="mt-6 text-lg italic text-[color:var(--color-mint-400)]">
+          {trade.urgencyLine}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works (reused comet) -->
+  <HowItWorks />
+
+  <!-- Trade math -->
+  <section class="section">
+    <div class="container-content">
+      <div class="mx-auto mb-10 max-w-2xl text-center">
+        <p class="eyebrow mb-5 justify-center">Trade math</p>
+        <h2 class="display-2 text-[color:var(--color-ink)]">
+          The numbers for a {trade.shortName.toLowerCase()} shop.
+        </h2>
+        <p class="mt-3 text-[15px] text-[color:var(--color-ink-2)]">
+          Defaults are a typical {trade.shortName.toLowerCase()} shop — avg job <strong>{fmtUsd(trade.math.avgJobValue)}</strong>, close <strong>{trade.math.closeRatePct}%</strong>. Slide them to match yours.
+        </p>
+      </div>
+      <div class="mx-auto max-w-4xl">
+        <LeadROICalculator
+          client:visible
+          defaults={{ avgJob: trade.math.avgJobValue, closeRate: trade.math.closeRatePct, leads: 60, leadCost: 48 }}
+          title={`${trade.name} ROI calculator`}
+          blurb="Plug in your real numbers. No email, no signup wall."
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Why it fits — 3 cards -->
+  <section class="section bg-[color:var(--color-bg-alt)]">
+    <div class="container-content">
+      <div class="mx-auto mb-14 max-w-2xl text-center">
+        <p class="eyebrow mb-5 justify-center">Why it fits {trade.name.toLowerCase()}</p>
+        <h2 class="display-2 text-[color:var(--color-ink)]">
+          The three things that move the needle for your trade.
+        </h2>
+      </div>
+      <div class="grid gap-6 md:grid-cols-3">
+        {threeCards.map((c) => (
+          <FeatureCard variant="showcase" icon={c.Icon} title={c.title} body={c.body} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ComplianceBand />
+
+  <!-- Trade FAQ -->
+  <section class="section section-dark">
+    <div class="container-content max-w-3xl">
+      <div class="mb-12 text-center">
+        <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">Common questions</p>
+        <h2 class="display-2 text-white">
+          What {trade.name.toLowerCase()} ask before they start.
+        </h2>
+      </div>
+      <div class="rounded-2xl bg-white p-2">
+        <div class="px-5">
+          <Accordion client:visible items={trade.faqs.map((f) => ({ question: f.q, answer: f.a }))} variant="chevron" defaultOpen={0} />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <FinalCTA heading={trade.finalCtaH2} />
+</BaseLayout>
