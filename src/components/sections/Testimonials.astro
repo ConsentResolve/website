@@ -1,28 +1,39 @@
 ---
-import Testimonial from "~/components/ui/Testimonial.astro";
+// [ILLUSTRATIVE — REPLACE before launch] Every quote and shop name below is
+// placeholder. Swap in real, permissioned testimonials before publishing,
+// or hide this section entirely. See voice doc Rule #4 — "Numbers must be
+// real or clearly illustrative."
 ---
 
 <section class="section section-dark">
   <div class="container-content">
+    <div class="mb-4 text-center">
+      <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">[Illustrative — replace before launch]</p>
+    </div>
     <div class="mb-14 text-center">
       <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">Trusted by service pros</p>
       <h2 class="display-2 mx-auto max-w-2xl text-white">
-        Real shops. Real phone calls. Real revenue.
+        Real shops. Real phone calls. Real money.
       </h2>
     </div>
 
-    <!-- Featured testimonial -->
+    <!-- Featured (dark variant) -->
     <div class="mb-10">
-      <Testimonial
-        variant="dark"
-        quote="The shared-lead model is broken. We pay the same for an Angi lead that's been sold to four other shops. Consent Resolve gave us back exclusive leads at a tenth of the cost."
-        name="Marcus Tate"
-        role="VP Operations"
-        company="Tate Home Services · Atlanta, GA"
-      />
+      <div class="mx-auto max-w-3xl rounded-2xl bg-[color:var(--color-bg-inverse-alt)] p-8 ring-1 ring-inset ring-white/10">
+        <p class="font-display text-2xl leading-tight text-white">
+          "The shared-lead model is broken. Same Angi lead, sold to four other shops. Consent Resolve gave us back exclusive leads at a tenth of the cost."
+        </p>
+        <footer class="mt-6 flex items-center gap-3">
+          <div class="flex size-10 items-center justify-center rounded-full bg-[color:var(--color-mint-400)] font-bold text-[color:var(--color-navy-900)]">MT</div>
+          <div>
+            <div class="font-semibold text-white">Marcus Tate</div>
+            <div class="text-sm text-slate-400">VP Operations · Tate Home Services · Atlanta, GA</div>
+          </div>
+        </footer>
+      </div>
     </div>
 
-    <!-- Supporting row, on dark section but light cards for contrast -->
+    <!-- Supporting -->
     <div class="grid gap-6 md:grid-cols-3">
       <div class="rounded-2xl bg-white p-7 shadow-[0_8px_24px_-12px_rgba(0,229,160,0.15)]">
         <p class="font-display text-[16px] leading-snug text-[color:var(--color-navy-900)]">
@@ -52,7 +63,7 @@ import Testimonial from "~/components/ui/Testimonial.astro";
 
       <div class="rounded-2xl bg-white p-7 shadow-[0_8px_24px_-12px_rgba(0,229,160,0.15)]">
         <p class="font-display text-[16px] leading-snug text-[color:var(--color-navy-900)]">
-          "Best $10 I ever spent. Three weeks in we upgraded — couldn't keep up with call volume."
+          "Best $10 I ever spent. Three weeks in we upgraded — we couldn't keep up with call volume."
         </p>
         <footer class="mt-5 flex items-center gap-3">
           <div class="flex size-10 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-bold text-[color:var(--color-mint-400)]">DP</div>

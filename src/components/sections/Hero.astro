@@ -1,9 +1,8 @@
 ---
 import LeadPhone from "~/components/islands/LeadPhone.tsx";
 import Button from "~/components/ui/Button.astro";
-import AnimatedStat from "~/components/ui/AnimatedStat.tsx";
 import LogoCarousel from "~/components/ui/LogoCarousel.astro";
-import { IconArrowRight, IconEye, IconTool, IconBuilding, IconMap, IconCoin } from "@tabler/icons-react";
+import { IconArrowRight, IconEye, IconCheck } from "@tabler/icons-react";
 
 const integrations = [
   { name: "Jobber" },
@@ -26,10 +25,10 @@ interface Props {
   showPanel?: boolean;
 }
 const {
-  eyebrow = "Built for Home Service Pros",
-  title = "Most of your website visitors leave without a name.",
-  titleAccent = "Now you get the phone number.",
-  subhead = "Identify the homeowners shopping your service area — only after they consent. No shared leads, no lawsuits, no surprises.",
+  eyebrow = "Built for home-service pros",
+  title = "Most homeowners who visit your site leave without a name.",
+  titleAccent = "Now you get their number.",
+  subhead = "Unlock the homeowners already shopping your site. When they consent, you get their name and number — warm, and ready for you to call about the quote, the estimate, the job.",
   ctaLabel = "Start $10 Trial",
   ctaHref = "/get-started/",
   showPanel = true,
@@ -58,6 +57,22 @@ const {
           See a sample lead
         </Button>
       </div>
+
+      <!-- Trust line -->
+      <ul class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[color:var(--color-ink-2)]">
+        <li class="flex items-center gap-1.5">
+          <IconCheck size={16} stroke={2.5} color="#00A86E" />
+          10 leads for $10 to start
+        </li>
+        <li class="flex items-center gap-1.5">
+          <IconCheck size={16} stroke={2.5} color="#00A86E" />
+          Live in 10 minutes
+        </li>
+        <li class="flex items-center gap-1.5">
+          <IconCheck size={16} stroke={2.5} color="#00A86E" />
+          Cancel anytime
+        </li>
+      </ul>
     </div>
 
     {showPanel && (
@@ -67,28 +82,10 @@ const {
     )}
   </div>
 
-  <!-- Animated trust strip -->
-  <div class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
-    <div class="container-content grid grid-cols-2 gap-y-8 py-12 md:grid-cols-4">
-      <div class="px-6 md:border-r md:border-[color:var(--color-rule)]">
-        <AnimatedStat client:visible value={16} label="Trades supported" Icon={IconTool} size="md" />
-      </div>
-      <div class="px-6 md:border-r md:border-[color:var(--color-rule)]">
-        <AnimatedStat client:visible value={35} label="Cities live" Icon={IconBuilding} size="md" />
-      </div>
-      <div class="px-6 md:border-r md:border-[color:var(--color-rule)]">
-        <AnimatedStat client:visible value={7} label="States covered" Icon={IconMap} size="md" />
-      </div>
-      <div class="px-6">
-        <AnimatedStat client:visible value={10} prefix="$" label="To start" Icon={IconCoin} size="md" />
-      </div>
-    </div>
-  </div>
-
   <!-- Integration logo strip -->
-  <div class="border-b border-[color:var(--color-rule)] bg-[color:var(--color-bg)]">
+  <div class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg)]">
     <div class="container-content py-10">
-      <LogoCarousel logos={integrations} label="Pushes leads to" variant="marquee" speed={45} />
+      <LogoCarousel logos={integrations} label="Pushes leads straight to" variant="marquee" speed={45} />
     </div>
   </div>
 </section>

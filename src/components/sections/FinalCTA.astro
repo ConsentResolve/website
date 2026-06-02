@@ -1,6 +1,6 @@
 ---
 import Button from "~/components/ui/Button.astro";
-import { IconArrowRight, IconBolt, IconCash, IconGavel, IconLock } from "@tabler/icons-react";
+import { IconArrowRight, IconBolt, IconCash, IconLock } from "@tabler/icons-react";
 
 interface Props {
   heading?: string;
@@ -9,15 +9,14 @@ interface Props {
   ctaHref?: string;
 }
 const {
-  heading = "Start small. Stay safe.",
-  body = "Why risk a $50,000 lawsuit for unconsented data when you can start identifying legally for just $10?",
-  ctaLabel = "Start $10 Trial Today",
+  heading = "Your next job is already shopping your site.",
+  body = "Go get it. Your first 10 leads are just $10 — call them, book the jobs, and see what consented leads are worth before you scale up. Legal from the first click.",
+  ctaLabel = "Start $10 Trial",
   ctaHref = "/get-started/",
 } = Astro.props as Props;
 ---
 
 <section class="section-dark relative overflow-hidden">
-  <!-- ambient mint -->
   <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-1/2 size-[480px] -translate-y-1/2 rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
 
   <div class="container-content section">
@@ -41,20 +40,20 @@ const {
         <div class="flex items-center justify-between rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
           <span class="flex items-center gap-3 text-[15px] text-slate-300">
             <IconCash size={20} stroke={1.5} color="#00E5A0" />
-            Monthly trial fee
+            First 10 leads
           </span>
           <span class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-mint-400)]">$10</span>
         </div>
-        <div class="flex items-center justify-between rounded-2xl bg-[color:var(--color-danger)]/[0.08] p-6 ring-1 ring-inset ring-[color:var(--color-danger)]/20">
+        <div class="flex items-center justify-between rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
           <span class="flex items-center gap-3 text-[15px] text-slate-300">
-            <IconGavel size={20} stroke={1.5} color="#EF4444" />
-            Potential legal fine
+            <IconCash size={20} stroke={1.5} color="#00E5A0" />
+            Per lead after that
           </span>
-          <span class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-danger)]">$50,000+</span>
+          <span class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-mint-400)]">$7</span>
         </div>
         <div class="flex items-center justify-center gap-1.5 pt-5 text-xs text-slate-400">
           <IconLock size={12} stroke={1.75} />
-          256-bit encrypted · Cancel anytime · No card to start
+          256-bit encrypted · 10 leads for $10 · Cancel anytime
         </div>
       </div>
     </div>

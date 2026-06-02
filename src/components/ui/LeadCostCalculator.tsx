@@ -32,23 +32,20 @@ export default function LeadCostCalculator({ variant = "default" }: Props) {
           label: "Consent Resolve cost per booked job",
           highlight: true,
           format: (v) => {
-            const consentSpend = 249; // pro plan placeholder
+            const PER_LEAD = 7;
             const closed = v.leads * (v.exclusiveCloseRate / 100);
-            return closed > 0 ? fmtUsd(consentSpend / closed) : "—";
+            return closed > 0 ? fmtUsd((v.leads * PER_LEAD) / closed) : "—";
           },
-          hint: (v) => `${Math.round(v.leads * (v.exclusiveCloseRate / 100))} jobs booked / month at $249 flat`,
+          hint: (v) => `${Math.round(v.leads * (v.exclusiveCloseRate / 100))} jobs booked at $7 a lead`,
         },
         {
           key: "savings",
           label: "Estimated monthly savings",
           format: (v) => {
-            const sharedClosed = v.leads * (v.sharedCloseRate / 100);
-            const consentClosed = v.leads * (v.exclusiveCloseRate / 100);
-            const sharedCac = sharedClosed > 0 ? (v.leads * v.sharedCost) / sharedClosed : 0;
-            const consentCac = consentClosed > 0 ? 249 / consentClosed : 0;
-            const equivalentBooked = consentClosed;
-            const savings = sharedCac * equivalentBooked - consentCac * equivalentBooked;
-            return fmtUsd(Math.max(0, savings));
+            const PER_LEAD = 7;
+            const sharedSpend = v.leads * v.sharedCost;
+            const consentSpend = v.leads * PER_LEAD;
+            return fmtUsd(Math.max(0, sharedSpend - consentSpend));
           },
         },
       ]}

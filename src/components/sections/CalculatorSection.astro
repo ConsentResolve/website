@@ -13,43 +13,28 @@ const dipTrend = [240, 220, 210, 195, 184, 172, 158, 142, 124, 108, 96, 87];
     <div class="mx-auto mb-10 max-w-2xl text-center">
       <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">Run the numbers</p>
       <h2 class="display-2 text-white">
-        See what consented leads do to your bottom line.
+        See what exclusive leads do to your bottom line.
       </h2>
       <p class="mt-3 text-lg leading-relaxed text-slate-300">
-        Plug in your real numbers. No email, no signup wall.
+        Put in your real numbers. No email, no signup wall.
       </p>
     </div>
 
-    <!-- Recent network impact -->
+    <!-- Network impact -->
     <div class="mx-auto mb-10 max-w-4xl">
       <p class="mb-4 text-center text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-        Recent network impact · last 30 days
+        Network impact · last 30 days <span class="ml-1 text-slate-500">[ILLUSTRATIVE — REPLACE]</span>
       </p>
       <div class="grid gap-4 md:grid-cols-3">
-        <MetricCard
-          variant="dark"
-          label="Avg leads / shop"
-          value="84"
+        <MetricCard variant="dark" label="Avg leads / shop" value="84"
           delta={{ direction: "up", value: "+22%", period: "vs last month" }}
-          sparkline={trend}
-          icon={IconUserCheck}
-        />
-        <MetricCard
-          variant="dark"
-          label="Avg booked revenue"
-          value="$28.4k"
+          sparkline={trend} icon={IconUserCheck} />
+        <MetricCard variant="dark" label="Avg booked revenue" value="$28.4k"
           delta={{ direction: "up", value: "+18%", period: "MoM" }}
-          sparkline={revTrend}
-          icon={IconCash}
-        />
-        <MetricCard
-          variant="dark"
-          label="Avg cost / job"
-          value="$87"
+          sparkline={revTrend} icon={IconCash} />
+        <MetricCard variant="dark" label="Avg cost / job" value="$87"
           delta={{ direction: "down", value: "−63%", period: "vs Thumbtack" }}
-          sparkline={dipTrend}
-          icon={IconClock}
-        />
+          sparkline={dipTrend} icon={IconClock} />
       </div>
     </div>
 

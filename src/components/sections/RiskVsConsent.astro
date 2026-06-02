@@ -2,46 +2,46 @@
 import List from "~/components/ui/List.astro";
 import { IconGavel, IconShieldCheck } from "@tabler/icons-react";
 
-const illegal = [
-  "Shadow-tracking without user knowledge",
-  "Violates GDPR, CCPA, and CPA",
-  "No audit trail of where data came from",
-  "Risk of class-action settlements",
+const shadow = [
+  "Tracks visitors without asking",
+  "Breaks GDPR, CCPA, and CPA",
+  "No record of where the data came from",
+  "Opens you up to class-action lawsuits",
 ];
 const consent = [
-  "Identification only after explicit consent",
-  "Iron-clad legal policies via Termageddon",
-  "Verifiable audit trail for every reveal",
-  "Build trust with future customers",
+  "Reveals a name only after the homeowner says yes",
+  "Legal policies kept current by Termageddon",
+  "A timestamped receipt for every lead",
+  "Builds trust with the people you want as customers",
 ];
 ---
 
 <section class="section">
   <div class="container-content">
     <div class="mb-14 text-center">
-      <p class="eyebrow mb-5 justify-center">The Choice</p>
+      <p class="eyebrow mb-5 justify-center">The choice</p>
       <h2 class="display-2 mx-auto max-w-2xl text-[color:var(--color-ink)]">
-        Most visitor-ID tools put your business at risk.
+        Other visitor-ID tools put your shop at risk. We don't.
       </h2>
     </div>
 
     <div class="grid gap-6 md:grid-cols-2">
-      <!-- Illegal -->
-      <div class="relative overflow-hidden rounded-2xl bg-[color:var(--color-bg-alt)] p-8" style="box-shadow: 0 0 0 1px rgba(239,68,68,0.18), 0 1px 0 rgba(10,22,40,0.03);">
+      <!-- The shadow-tracking way -->
+      <div class="relative overflow-hidden rounded-2xl bg-[color:var(--color-bg-alt)] p-8" style="box-shadow: 0 0 0 1px rgba(127,29,29,0.25), 0 1px 0 rgba(10,22,40,0.03);">
         <div class="mb-6 flex items-center justify-between">
           <div class="flex items-center gap-2.5">
             <div class="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-danger)]/10">
-              <IconGavel size={20} stroke={1.75} color="#EF4444" />
+              <IconGavel size={20} stroke={1.75} color="#7F1D1D" />
             </div>
             <h3 class="text-lg font-bold tracking-tight text-[color:var(--color-danger)]">The shadow-tracking way</h3>
           </div>
           <span class="rounded-full bg-[color:var(--color-danger)]/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-danger)]">Risky</span>
         </div>
-        <List items={illegal} variant="x" tone="danger" />
+        <List items={shadow} variant="x" tone="danger" />
       </div>
 
-      <!-- Consent -->
-      <div class="relative overflow-hidden rounded-2xl bg-[color:var(--color-bg-alt)] p-8" style="box-shadow: 0 0 0 1px rgba(0,192,128,0.25), 0 8px 24px -12px rgba(0,192,128,0.18);">
+      <!-- The consent way -->
+      <div class="relative overflow-hidden rounded-2xl bg-[color:var(--color-bg-alt)] p-8" style="box-shadow: 0 0 0 1px rgba(0,229,160,0.25), 0 8px 24px -12px rgba(0,229,160,0.18);">
         <div class="mb-6 flex items-center justify-between">
           <div class="flex items-center gap-2.5">
             <div class="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-brand-soft)]">

@@ -54,8 +54,8 @@ level" · "we're excited to announce"
 ### Reach for these instead
 win the job · book the job · get paid · on the phone · your service area · the
 homeowner · your shop · your crew · your truck · show up · beat the other guy
-to the call · no card to start · real names and real numbers · yours alone ·
-the job you didn't even know you lost
+to the call · 10 leads for $10 to start · $7 a lead · real names and real
+numbers · yours alone · the job you didn't even know you lost
 
 ---
 
@@ -120,22 +120,31 @@ Paste one line of code. Live in about 10 minutes. Works on WordPress, Wix,
 Squarespace, ServiceTitan sites, and most others.
 
 **Pricing**
-Starts at $10. No card to start. Cancel anytime.
+A credit card is required to start. Your first 10 leads cost $10 total — about $1
+each. After that, $7 per lead — flat, exclusive, never resold. No contract;
+cancel anytime.
+
+> When comparing Consent Resolve to other platforms, cite the **$7-per-lead**
+> price (against Thumbtack ~$48, Angi ~$35). Use the **"10 leads for $10"**
+> starter offer for onboarding and CTAs, not for head-to-head price comparisons.
+> The first 10 leads are NOT free — never say "free."
 
 **Coverage at launch** *(confirm before publishing)*
 ~16 trades supported · 7 states live · founded 2026.
 
-**Positioning** *(pending — needs one locked sentence)*
-Consent Resolve sits *on top of* the traffic you already pay for and turns
-anonymous visitors into named, callable leads. How it relates to Thumbtack /
-Angi / HomeAdvisor / Google LSA needs one locked sentence before /compare/
-and industry pages are written.
+**Positioning** *(CONFIRMED — locked)*
+"Keep running the ads and channels that work. Consent Resolve doesn't replace
+your traffic — it reveals the homeowners those channels send to your site
+who'd otherwise leave without a name."
+- **Replaces:** shared-lead resellers (Thumbtack, Angi, HomeAdvisor).
+- **Complements / layers on top of:** your own ads, organic/SEO, and **Google
+  LSA**. Never frame Google LSA as a competitor.
 
 ### Say it this way · never that way
 - ✅ "You get the homeowner's name and number." ❌ "We generate inbound calls for you."
 - ✅ "Only after the homeowner consents." ❌ "We track every visitor." / "anonymous visitor data."
 - ✅ "Yours alone — never resold." ❌ "exclusive-ish" / anything implying limited sharing.
-- ✅ "Start at $10, no card to start." ❌ "free forever" / "free trial."
+- ✅ "$10 for your first 10 leads, then $7 a lead." ❌ "first 10 leads free" / "free trial" / "no card to start" (a card IS required).
 - ✅ "Live in about 10 minutes." ❌ "instant" / "zero setup."
 
 ---

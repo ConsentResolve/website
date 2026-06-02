@@ -41,20 +41,23 @@ const banned = [
   "streamline", "supercharge", "next-level", "world-class", "elevate",
   "frictionless", "in today's fast-paced world", "take it to the next level",
   "we're excited to announce",
+  // Pricing-specific bans (the first 10 leads are NOT free, and a card IS required)
+  "free", "free trial", "free forever", "no card to start", "no credit card",
+  "instant", "zero setup",
 ];
 
 const preferred = [
   "win the job", "book the job", "get paid", "on the phone", "your service area",
   "the homeowner", "your shop", "your crew", "your truck", "show up",
-  "beat the other guy to the call", "no card to start", "real names and real numbers",
-  "yours alone", "the job you didn't even know you lost",
+  "beat the other guy to the call", "10 leads for $10 to start", "$7 a lead",
+  "real names and real numbers", "yours alone", "the job you didn't even know you lost",
 ];
 
 const sayThisWay = [
   { yes: "You get the homeowner's name and number.", no: "We generate inbound calls for you." },
   { yes: "Only after the homeowner consents.", no: "We track every visitor." },
   { yes: "Yours alone — never resold.", no: "exclusive-ish" },
-  { yes: "Start at $10, no card to start.", no: "free forever / free trial" },
+  { yes: "$10 for your first 10 leads, then $7 a lead.", no: "first 10 leads free / free trial / no card to start" },
   { yes: "Live in about 10 minutes.", no: "instant / zero setup" },
 ];
 
@@ -65,7 +68,8 @@ const facts = [
   { label: "Exclusivity", body: "Every lead is yours alone. Never resold, never auctioned, never shared. One consent, one contractor — you." },
   { label: "Compliance", body: "Identification only after explicit consent. No shadow-tracking. GDPR / CCPA / CPA compliant by default. Every reveal timestamped and logged. Policies stay current via Termageddon." },
   { label: "Setup", body: "Paste one line of code. Live in about 10 minutes. Works on WordPress, Wix, Squarespace, ServiceTitan sites, most others." },
-  { label: "Pricing", body: "Starts at $10. No card to start. Cancel anytime." },
+  { label: "Pricing", body: "Card required. $10 for your first 10 leads (~$1 each), then $7 per lead. Flat, exclusive, never resold. Cancel anytime. Use $7/lead for competitor comparisons; never say 'free'." },
+  { label: "Positioning (LOCKED)", body: "Keep running the ads and channels that work. Consent Resolve doesn't replace your traffic — it reveals the homeowners those channels send to your site who'd otherwise leave without a name. REPLACES shared-lead resellers (Thumbtack, Angi, HomeAdvisor). COMPLEMENTS your own ads, SEO, and Google LSA — never frame LSA as a competitor." },
   { label: "Coverage [confirm]", body: "~16 trades supported, 7 states live, founded 2026. Confirm real figures before publishing." },
 ];
 

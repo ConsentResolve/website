@@ -1,6 +1,5 @@
 ---
 import ComparisonCard from "~/components/ui/ComparisonCard.astro";
-import Button from "~/components/ui/Button.astro";
 import { IconArrowRight } from "@tabler/icons-react";
 ---
 
@@ -11,13 +10,13 @@ import { IconArrowRight } from "@tabler/icons-react";
 
   <div class="container-content relative">
     <div class="mx-auto mb-16 max-w-3xl text-center">
-      <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">Stacked against the alternatives</p>
+      <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">Stacked against the shared-lead crowd</p>
       <h2 class="font-display text-4xl md:text-6xl font-black tracking-tight leading-[1.02] text-white">
         We don't sell leads.<br/>
-        <span class="text-[color:var(--color-mint-400)]">We unlock them.</span>
+        <span class="text-[color:var(--color-mint-400)]">We hand them back to you.</span>
       </h2>
       <p class="mt-5 text-lg leading-relaxed text-slate-300">
-        Why service pros are walking away from shared-lead platforms.
+        Here's why pros are walking away from shared-lead platforms — where the same lead gets sold to four other shops.
       </p>
     </div>
 
@@ -29,17 +28,17 @@ import { IconArrowRight } from "@tabler/icons-react";
         logoColor="#0A1628"
         rating={4.9}
         score={96}
-        price="$10"
-        priceSub="First month · Cancel anytime"
+        price="$7"
+        priceSub="Per lead · 10 leads for $10 to start"
         bestFor="owner-operators"
         pros={[
           "Exclusive leads — never resold",
           "Real homeowner names + numbers",
-          "GDPR / CCPA compliant by default",
+          "Legal by default (GDPR / CCPA / CPA)",
         ]}
         cons={[
           "New platform (founded 2026)",
-          "7 states live at launch",
+          "Coverage [CONFIRM] states at launch",
         ]}
         ctaLabel="Start $10 Trial"
         ctaHref="/get-started/"
@@ -51,20 +50,20 @@ import { IconArrowRight } from "@tabler/icons-react";
         rating={3.4}
         score={64}
         price="$48"
-        priceSub="Average per lead"
+        priceSub="Average per lead [CONFIRM CPL]"
         bestFor="high-volume shops"
         pros={[
-          "Large lead volume",
+          "High lead volume",
           "Quick to start",
           "Mobile dispatch app",
         ]}
         cons={[
           "Same lead sold to 4–6 shops",
-          "Tire-kickers billed full price",
+          "Billed for tire-kickers",
         ]}
         ctaLabel="Compare in detail"
         ctaHref="/compare/thumbtack/"
-        reviewHref="/vs/thumbtack-vs-consent-resolve/"
+        reviewHref="/compare/thumbtack/"
       />
       <ComparisonCard
         brand="Angi"
@@ -72,20 +71,20 @@ import { IconArrowRight } from "@tabler/icons-react";
         rating={2.9}
         score={52}
         price="$35"
-        priceSub="Average per lead"
+        priceSub="Average per lead [CONFIRM CPL]"
         bestFor="legacy shops"
         pros={[
-          "Established brand recognition",
+          "Known brand",
           "Vetted-pro program",
           "Wide trade coverage",
         ]}
         cons={[
-          "Shared leads with 5+ shops",
-          "Aggressive sales · hard cancel",
+          "Leads shared with 5+ shops",
+          "Pushy sales, hard to cancel",
         ]}
         ctaLabel="Compare in detail"
         ctaHref="/compare/angi/"
-        reviewHref="/vs/angi-vs-consent-resolve/"
+        reviewHref="/compare/angi/"
       />
     </div>
 
@@ -94,7 +93,7 @@ import { IconArrowRight } from "@tabler/icons-react";
         href="/compare/"
         class="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/25 transition-all hover:bg-white/10 hover:ring-[color:var(--color-mint-400)]/50"
       >
-        See all 11 platforms compared
+        See all platforms compared
         <IconArrowRight size={16} stroke={2.25} />
       </a>
     </div>

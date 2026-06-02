@@ -9,24 +9,29 @@ import Callout from "~/components/ui/Callout.astro";
     <div>
       <p class="eyebrow mb-5">Compliance</p>
       <h2 class="display-2 mb-6 text-[color:var(--color-ink)]">
-        Audit-ready by default.
+        Legal by default. Receipts for everything.
       </h2>
       <p class="mb-8 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-        We don't just identify visitors — we protect your business. Consent Resolve integrates with Termageddon to auto-generate your legal policies and keep an audit trail for every piece of data captured.
+        We don't just hand you a name — we protect your shop. Consent Resolve works with Termageddon to keep your legal policies current and log every piece of data you capture.
       </p>
       <div class="mb-8">
         <List
-          items={["GDPR · EU data subjects", "CCPA · California residents", "CPA · Colorado residents", "Termageddon · auto-updating policies"]}
+          items={[
+            "GDPR · EU visitors",
+            "CCPA · California",
+            "CPA · Colorado",
+            "Termageddon · auto-updating policies",
+          ]}
           variant="filled-check"
           tone="brand"
         />
       </div>
-      <Callout variant="trust" title="Verifiable audit trail">
-        Every reveal is timestamped and cryptographically signed. If a regulator asks, you have receipts.
+      <Callout variant="trust" title="A receipt for every lead">
+        Every reveal is timestamped and signed. If a regulator ever asks, you've got proof.
       </Callout>
     </div>
     <div>
-      <Illustration name="compliance-shield" alt="Compliant data handling" class="w-full h-auto max-w-md mx-auto" />
+      <Illustration name="style/08-shield-doc" alt="Compliant data handling" class="w-full h-auto max-w-md mx-auto" />
     </div>
   </div>
 </section>
