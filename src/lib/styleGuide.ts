@@ -5,6 +5,7 @@ export interface StyleGuideEntry {
 }
 
 export const STYLE_GUIDE: StyleGuideEntry[] = [
+  { slug: "voice", title: "Voice", description: "Locked voice: audience, banned/preferred words, canonical facts." },
   { slug: "buttons", title: "Buttons", description: "Variants, sizes, with-icon, link buttons." },
   { slug: "icons", title: "Icon Styles", description: "Tabler icon library presets and sizing." },
   { slug: "alerts", title: "Alert Messages", description: "Info, success, warning, danger." },

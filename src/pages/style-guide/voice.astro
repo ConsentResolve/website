@@ -1,0 +1,405 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+
+const voiceLock = `You are writing marketing copy for Consent Resolve. Write every line in this voice:
+
+WHO YOU'RE TALKING TO
+A home-service business owner or manager — a plumber, roofer, HVAC tech, or
+electrician. Read this on a phone, in a truck, between jobs. Smart and practical,
+but short on time and out of patience for sales talk. Has been burned by Angi,
+Thumbtack, or HomeAdvisor and is skeptical of anything that smells like another
+lead pitch. Cares about exactly one thing: more booked jobs without getting
+ripped off.
+
+HOW YOU SOUND
+Talk like a sharp peer in the trade who found something that works — not like a
+software company. Plain, direct, confident. You respect their time and their
+intelligence. You never hype, never oversell, never talk down. You let real
+numbers do the bragging. You are the guide, not the hero — the contractor is the
+hero, and Consent Resolve hands them a better tool and a clear plan.
+
+THE RULES
+- Reading level: 6th-7th grade. Most sentences under 15 words. One idea per
+  sentence. Short paragraphs, 1-3 sentences each.
+- Second person. "You" and "your shop." Lead with the benefit to them.
+- Active voice, always. "You call the homeowner," never "the homeowner is contacted."
+- Concrete over abstract. Name the trade, the job, the town. "A water-heater
+  quote in your zip" beats "a high-intent lead signal."
+- Use numerals for numbers (3 jobs, $850, 10 minutes) — they scan faster.
+- Contractions are good (you'll, we'll, here's). They sound human.
+- Money is the through-line. Tie every section back to jobs won, calls made, or
+  dollars kept. That's the only scoreboard this reader watches.
+- Confident, not loud. State the benefit plainly and stop. No exclamation-point
+  salesmanship. No "revolutionary," no "game-changer."
+- Lead with opportunity, not fear. Compliance is the reassurance at the end of
+  the sentence ("…and it's fully legal"), never the opening threat.`;
+
+const banned = [
+  "leverage", "solution", "solutions", "seamless", "robust", "empower",
+  "unlock your potential", "synergy", "cutting-edge", "best-in-class",
+  "revolutionize", "game-changer", "disrupt", "ecosystem", "holistic",
+  "streamline", "supercharge", "next-level", "world-class", "elevate",
+  "frictionless", "in today's fast-paced world", "take it to the next level",
+  "we're excited to announce",
+];
+
+const preferred = [
+  "win the job", "book the job", "get paid", "on the phone", "your service area",
+  "the homeowner", "your shop", "your crew", "your truck", "show up",
+  "beat the other guy to the call", "no card to start", "real names and real numbers",
+  "yours alone", "the job you didn't even know you lost",
+];
+
+const sayThisWay = [
+  { yes: "You get the homeowner's name and number.", no: "We generate inbound calls for you." },
+  { yes: "Only after the homeowner consents.", no: "We track every visitor." },
+  { yes: "Yours alone — never resold.", no: "exclusive-ish" },
+  { yes: "Start at $10, no card to start.", no: "free forever / free trial" },
+  { yes: "Live in about 10 minutes.", no: "instant / zero setup" },
+];
+
+const facts = [
+  { label: "What it is", body: "A consent-first visitor-identification layer for home-service businesses. NOT a shared-lead platform." },
+  { label: "The mechanic", body: "(1) Homeowner visits your site → (2) accepts your consent banner → (3) Consent Resolve reveals real name, mobile, and what they were shopping for → (4) you call or text them. Outbound, not inbound — you make the first move." },
+  { label: "Where it lands", body: "Your phone in seconds (Slack, SMS, email) and your CRM — Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, or any webhook." },
+  { label: "Exclusivity", body: "Every lead is yours alone. Never resold, never auctioned, never shared. One consent, one contractor — you." },
+  { label: "Compliance", body: "Identification only after explicit consent. No shadow-tracking. GDPR / CCPA / CPA compliant by default. Every reveal timestamped and logged. Policies stay current via Termageddon." },
+  { label: "Setup", body: "Paste one line of code. Live in about 10 minutes. Works on WordPress, Wix, Squarespace, ServiceTitan sites, most others." },
+  { label: "Pricing", body: "Starts at $10. No card to start. Cancel anytime." },
+  { label: "Coverage [confirm]", body: "~16 trades supported, 7 states live, founded 2026. Confirm real figures before publishing." },
+];
+
+const briefExample = `Section: Homepage hero
+Job: Make them feel the money walking out the door, then show the fix.
+One idea: The visitors you already paid for leave without a name — now you get
+the phone number.
+Proof: ~95% of site visitors leave anonymous.
+Action: Start $10 Trial.`;
+
+const workedInput = `[paste Block A — Voice Lock]
+[paste Block C — Canonical Facts]
+
+Section: "Tools included" feature grid intro + the "Real names. Real numbers." card
+Job: Show what actually lands in their hands the second a homeowner consents.
+One idea: A real person they can call — not a label, not a recycled lead.
+Proof: First name, last name, mobile phone — the actual homeowner.
+Action: none (this is a feature card; CTA lives elsewhere).`;
+
+const workedOutput = `**Everything in your toolbox.**
+The second a homeowner consents, here's what shows up.
+
+**Real names. Real numbers.**
+First name, last name, mobile phone. The actual homeowner — not a household
+label, not a P.O. box, not a lead three other shops already bought. Just a
+person you can call.`;
+---
+
+<StyleGuideLayout
+  slug="voice"
+  title="Voice"
+  description="The locked voice for every word on the site. Mirror of the illustration system: freeze the voice, swap only the section. Block A is the voice itself; Block B is the section brief; Block C is the canonical facts everything must trace back to."
+>
+  <!-- Block A -->
+  <section class="sg-section">
+    <h2>Block A — Voice lock (paste verbatim, every time)</h2>
+    <p class="sg-lede">The voice the writer (human or AI) must adopt. Audience, sound, rules. Never edit it. Variations come only from Block B.</p>
+    <pre class="vc-prompt"><code>{voiceLock}</code></pre>
+  </section>
+
+  <!-- Banned vs preferred -->
+  <section class="sg-section">
+    <h2>Banned words / preferred phrases</h2>
+    <p class="sg-lede">If you find any word on the left in our copy, replace it. Reach for the right column instead.</p>
+    <div class="sg-preview">
+      <div class="vc-wordpair">
+        <div class="vc-col">
+          <h3 class="vc-col-title vc-col-banned">Never use</h3>
+          <ul class="vc-wordlist">
+            {banned.map((w) => <li><span class="vc-strike">{w}</span></li>)}
+          </ul>
+        </div>
+        <div class="vc-col">
+          <h3 class="vc-col-title vc-col-good">Reach for these</h3>
+          <ul class="vc-wordlist">
+            {preferred.map((w) => <li><span class="vc-good">{w}</span></li>)}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Say it this way -->
+  <section class="sg-section">
+    <h2>Say it this way / never that way</h2>
+    <p class="sg-lede">The 5 traps to never fall into. Memorize them.</p>
+    <div class="sg-preview">
+      <ul class="vc-comparepairs">
+        {sayThisWay.map((p) => (
+          <li>
+            <div class="vc-cmp-yes"><span class="vc-tag vc-tag-yes">SAY</span><span>{p.yes}</span></div>
+            <div class="vc-cmp-no"><span class="vc-tag vc-tag-no">DON'T</span><span>{p.no}</span></div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Block B -->
+  <section class="sg-section">
+    <h2>Block B — Section brief grammar</h2>
+    <p class="sg-lede">Append one of these to Block A + C to write a specific section. Keep it to the job, one idea, and the action.</p>
+    <div class="sg-preview">
+      <pre class="vc-prompt"><code>{briefExample}</code></pre>
+    </div>
+  </section>
+
+  <!-- Block C: Canonical facts -->
+  <section class="sg-section">
+    <h2>Block C — Canonical facts (the anti-conflict lock)</h2>
+    <p class="sg-lede">Every claim on the site must trace back to this list. If a fact isn't here, don't invent it — add it here first so every page stays in sync.</p>
+    <div class="sg-preview">
+      <dl class="vc-facts">
+        {facts.map((f) => (
+          <div class="vc-fact">
+            <dt>{f.label}</dt>
+            <dd>{f.body}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <!-- Voice notes -->
+  <section class="sg-section">
+    <h2>Rules that keep the voice from drifting</h2>
+    <div class="sg-preview">
+      <ol class="vc-notes">
+        <li><strong>Hero is the contractor, guide is Consent Resolve.</strong> The contractor wins the job; we just hand them the name and number and get out of the way. Never let the software be the star of a sentence.</li>
+        <li><strong>Dial the fear down.</strong> Opportunity sells, fear nags. Lead with money on the table; let "and it's fully legal, with receipts" be the relief at the end — not the hook at the front. Use the legal angle once, cleanly, on the Compliance section.</li>
+        <li><strong>One promise per section.</strong> If a section makes three points it makes none. Pick the one that moves them and cut the rest.</li>
+        <li><strong>Numbers must be real or clearly illustrative.</strong> Trust is the product. Don't present invented shops or stats as real customers.</li>
+        <li><strong>Hold the voice, vary the section.</strong> When regenerating one section, re-run Block A + Block C untouched. The moment a banned word slips in or reading level climbs, the site stops sounding like one brand.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Worked example -->
+  <section class="sg-section">
+    <h2>Worked example</h2>
+    <p class="sg-lede">What input/output looks like end-to-end. Use this for calibration when teaching a new writer (human or AI) the voice.</p>
+    <div class="sg-preview">
+      <div class="vc-worked">
+        <div>
+          <h3 class="vc-step">Input</h3>
+          <pre class="vc-prompt"><code>{workedInput}</code></pre>
+        </div>
+        <div>
+          <h3 class="vc-step">Expected output</h3>
+          <pre class="vc-prompt vc-prompt-light"><code>{workedOutput}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How to use -->
+  <section class="sg-section">
+    <h2>How to use this with Claude</h2>
+    <p class="sg-lede">When you want a new section written, just give us the section name and the one thing it has to do. The voice and facts are already locked.</p>
+    <div class="sg-preview">
+      <pre class="vc-prompt"><code>{`Write me [section name] for [page].
+Job: [what this section must make the reader feel or understand].
+Proof or detail: [the fact / number / example from Block C].
+Action: [CTA or next step].
+
+(Voice lock and canonical facts are in /style-guide/voice/.
+Don't restate them — just write the section.)`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>
+
+<style>
+  .vc-prompt {
+    background: #0a1628;
+    color: #cbd5e1;
+    padding: 1.25rem 1.5rem;
+    border-radius: 0.75rem;
+    font-family: var(--font-mono, "JetBrains Mono", monospace);
+    font-size: 0.78rem;
+    line-height: 1.65;
+    overflow-x: auto;
+    white-space: pre-wrap;
+  }
+  .vc-prompt-light {
+    background: var(--color-bg);
+    color: var(--color-ink);
+  }
+  .vc-prompt code { font-family: inherit; }
+
+  /* Word lists */
+  .vc-wordpair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  @media (max-width: 720px) { .vc-wordpair { grid-template-columns: 1fr; } }
+  .vc-col-title {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin: 0 0 0.75rem;
+  }
+  .vc-col-banned { color: #b91c1c; }
+  .vc-col-good   { color: var(--color-brand-pressed); }
+  .vc-wordlist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .vc-strike {
+    display: inline-block;
+    padding: 0.3rem 0.625rem;
+    border-radius: 0.4rem;
+    background: rgba(185,28,28,0.06);
+    color: #6b1212;
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: rgba(185,28,28,0.6);
+    font-size: 0.82rem;
+  }
+  .vc-good {
+    display: inline-block;
+    padding: 0.3rem 0.625rem;
+    border-radius: 0.4rem;
+    background: var(--color-brand-soft);
+    color: var(--color-brand-pressed);
+    font-weight: 500;
+    font-size: 0.82rem;
+  }
+
+  /* Say it this way */
+  .vc-comparepairs {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+  .vc-comparepairs li {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.625rem;
+  }
+  @media (max-width: 720px) { .vc-comparepairs li { grid-template-columns: 1fr; } }
+  .vc-cmp-yes, .vc-cmp-no {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0.875rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+  .vc-cmp-yes {
+    background: var(--color-brand-soft);
+    color: var(--color-ink);
+  }
+  .vc-cmp-no {
+    background: rgba(185,28,28,0.06);
+    color: var(--color-ink-2);
+    text-decoration: line-through;
+    text-decoration-color: rgba(185,28,28,0.4);
+  }
+  .vc-tag {
+    flex-shrink: 0;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-decoration: none;
+    height: fit-content;
+    margin-top: 2px;
+  }
+  .vc-tag-yes { background: var(--color-brand); color: var(--color-on-brand); }
+  .vc-tag-no  { background: #6b1212; color: #fee2e2; }
+
+  /* Facts */
+  .vc-facts {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.875rem;
+  }
+  .vc-fact {
+    padding: 1rem 1.125rem;
+    background: var(--color-bg);
+    border-radius: 0.625rem;
+  }
+  .vc-fact dt {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--color-brand-pressed);
+    margin-bottom: 0.4rem;
+  }
+  .vc-fact dd {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--color-ink-2);
+  }
+
+  /* Notes */
+  .vc-notes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: notes;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+  .vc-notes li {
+    counter-increment: notes;
+    padding-left: 2.25rem;
+    position: relative;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--color-ink-2);
+  }
+  .vc-notes li::before {
+    content: counter(notes, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1.6rem;
+    text-align: right;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--color-brand-pressed);
+  }
+  .vc-notes strong { color: var(--color-ink); font-weight: 700; }
+
+  /* Worked */
+  .vc-worked {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 720px) { .vc-worked { grid-template-columns: 1fr; } }
+  .vc-step {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--color-ink-muted);
+    margin: 0 0 0.5rem;
+  }
+</style>
