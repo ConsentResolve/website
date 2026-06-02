@@ -21,6 +21,10 @@ export const STYLE_GUIDE: StyleGuideEntry[] = [
   { slug: "embed-videos", title: "Embedded Videos", description: "YouTube / Vimeo responsive embeds." },
   { slug: "google-map", title: "Google Map", description: "Responsive embedded map." },
   { slug: "progress", title: "Progress Bars & Charts", description: "Linear progress, ring progress, bar chart." },
+  { slug: "stats", title: "Animated Stats & Highlights", description: "Count-up stats, standouts, before/after comparisons." },
+  { slug: "analytics", title: "Analytics Widgets", description: "Metric cards, sparklines, funnels." },
+  { slug: "logo-carousel", title: "Logo Carousel", description: "Marquee, grid, and static brand strips." },
+  { slug: "calculators", title: "Calculators", description: "Interactive ROI and lead-cost calculators." },
   { slug: "pricing-table", title: "Pricing Table", description: "Tiered pricing card layout." },
   { slug: "testimonials", title: "Testimonials", description: "Customer testimonial card variants." },
 ];

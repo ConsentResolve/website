@@ -1,0 +1,55 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import LogoCarousel from "~/components/ui/LogoCarousel.astro";
+
+const crmLogos = [
+  { name: "Jobber" },
+  { name: "Housecall Pro" },
+  { name: "ServiceTitan" },
+  { name: "HubSpot" },
+  { name: "Salesforce" },
+  { name: "Slack" },
+  { name: "Zapier" },
+  { name: "Klaviyo" },
+  { name: "Twilio" },
+];
+
+const pressLogos = [
+  { name: "TechCrunch", family: "sans" as const, weight: "black" as const },
+  { name: "Forbes", family: "display" as const },
+  { name: "The Information" },
+  { name: "Inc.", family: "display" as const, weight: "black" as const },
+  { name: "Pitchbook" },
+];
+---
+
+<StyleGuideLayout slug="logo-carousel" title="Logo Carousel" description="Marquee, grid, and static brand strips. Use for integrations, press, or customer logos.">
+  <section class="sg-section">
+    <h2>Marquee (auto-scroll)</h2>
+    <p class="sg-lede">Hover to pause. Respects prefers-reduced-motion.</p>
+    <div class="sg-preview">
+      <LogoCarousel logos={crmLogos} label="Integrates with" variant="marquee" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Static grid</h2>
+    <div class="sg-preview">
+      <LogoCarousel logos={crmLogos} label="Works with your stack" variant="grid" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Mixed typography (press)</h2>
+    <div class="sg-preview">
+      <LogoCarousel logos={pressLogos} label="As seen in" variant="grid" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Inline (static)</h2>
+    <div class="sg-preview">
+      <LogoCarousel logos={crmLogos.slice(0, 5)} label="Pushes to" variant="static" />
+    </div>
+  </section>
+</StyleGuideLayout>

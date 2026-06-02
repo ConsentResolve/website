@@ -1,0 +1,33 @@
+---
+interface Props {
+  data: number[];
+  width?: number;
+  height?: number;
+  tone?: "brand" | "navy" | "danger";
+  fill?: boolean;
+}
+const { data, width = 120, height = 36, tone = "brand", fill = true } = Astro.props as Props;
+const color = tone === "navy" ? "#0A1628" : tone === "danger" ? "#dc2626" : "#00C080";
+const min = Math.min(...data), max = Math.max(...data), range = Math.max(0.001, max - min);
+const stepX = data.length > 1 ? width / (data.length - 1) : width;
+const points = data.map((v, i) => [i * stepX, height - ((v - min) / range) * (height - 4) - 2]);
+const path = points.map((p, i) => (i === 0 ? `M${p[0]},${p[1]}` : `L${p[0]},${p[1]}`)).join(" ");
+const areaPath = `${path} L${width},${height} L0,${height} Z`;
+const id = `sl-${Math.random().toString(36).slice(2, 7)}`;
+---
+
+<svg viewBox={`0 0 ${width} ${height}`} class="inline-block" style={`width:${width}px;height:${height}px`}>
+  {fill && (
+    <>
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color={color} stop-opacity="0.25"/>
+          <stop offset="100%" stop-color={color} stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d={areaPath} fill={`url(#${id})`} />
+    </>
+  )}
+  <path d={path} fill="none" stroke={color} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx={points[points.length-1][0]} cy={points[points.length-1][1]} r="2.5" fill={color} />
+</svg>

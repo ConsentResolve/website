@@ -1,0 +1,73 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import MetricCard from "~/components/ui/MetricCard.astro";
+import Sparkline from "~/components/ui/Sparkline.astro";
+import Funnel from "~/components/ui/Funnel.astro";
+import { IconUserCheck, IconCash, IconPhone, IconCalendar } from "@tabler/icons-react";
+
+const trend = [12, 18, 14, 22, 26, 31, 38, 42, 48, 55, 61, 72];
+const dipTrend = [80, 76, 78, 72, 68, 71, 65, 62, 58, 54, 51, 48];
+---
+
+<StyleGuideLayout slug="analytics" title="Analytics Widgets" description="Dashboard-style metric cards, sparklines, and conversion funnels. Useful for impact and proof sections.">
+  <section class="sg-section">
+    <h2>Metric cards</h2>
+    <div class="sg-preview">
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <MetricCard label="Leads this month" value="124" delta={{ direction: "up", value: "+18%", period: "vs last month" }} sparkline={trend} icon={IconUserCheck} />
+        <MetricCard label="Booked revenue" value="$28,440" delta={{ direction: "up", value: "+22%", period: "vs last month" }} sparkline={trend} icon={IconCash} />
+        <MetricCard label="Cost per booked job" value="$87" delta={{ direction: "down", value: "−$41", period: "vs Thumbtack" }} sparkline={dipTrend} icon={IconPhone} />
+        <MetricCard label="Jobs scheduled" value="34" delta={{ direction: "up", value: "+9", period: "this week" }} icon={IconCalendar} />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Metric cards — dark variant</h2>
+    <div class="sg-preview sg-preview-dark">
+      <div class="grid gap-4 md:grid-cols-3">
+        <MetricCard variant="dark" label="Active leads" value="42" delta={{ direction: "up", value: "+12", period: "today" }} sparkline={trend} icon={IconUserCheck} />
+        <MetricCard variant="dark" label="Pipeline value" value="$84k" delta={{ direction: "up", value: "+$16k", period: "this week" }} sparkline={trend} icon={IconCash} />
+        <MetricCard variant="dark" label="Avg response" value="3m 12s" delta={{ direction: "down", value: "−42s", period: "improved" }} icon={IconPhone} />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Sparklines inline</h2>
+    <div class="sg-preview">
+      <div class="flex flex-wrap items-center gap-8">
+        <div>
+          <p class="sg-label">Leads</p>
+          <Sparkline data={trend} width={140} height={42} tone="brand" />
+        </div>
+        <div>
+          <p class="sg-label">Revenue</p>
+          <Sparkline data={trend.map(v => v * 280)} width={140} height={42} tone="brand" />
+        </div>
+        <div>
+          <p class="sg-label">Costs (declining)</p>
+          <Sparkline data={dipTrend} width={140} height={42} tone="danger" />
+        </div>
+        <div>
+          <p class="sg-label">Compact navy</p>
+          <Sparkline data={trend} width={90} height={28} tone="navy" fill={false} />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Conversion funnel</h2>
+    <div class="sg-preview">
+      <Funnel stages={[
+        { label: "Site visitors", value: 12400 },
+        { label: "Consent prompted", value: 4860 },
+        { label: "Consented (leads)", value: 1240 },
+        { label: "Contacted", value: 1180 },
+        { label: "Booked", value: 412 },
+        { label: "Completed jobs", value: 386 },
+      ]} />
+    </div>
+  </section>
+</StyleGuideLayout>

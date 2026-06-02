@@ -1,0 +1,59 @@
+---
+import { IconTrendingUp, IconTrendingDown, IconArrowRight } from "@tabler/icons-react";
+
+interface Props {
+  value: string;
+  label?: string;
+  hint?: string;
+  trend?: { direction: "up" | "down"; value: string };
+  comparison?: { was: string; now: string };
+  variant?: "outlined" | "filled" | "dark" | "mint";
+}
+const { value, label, hint, trend, comparison, variant = "outlined" } = Astro.props as Props;
+
+const variantClass = {
+  outlined: "bg-[color:var(--color-bg-alt)] ring-1 ring-inset ring-[color:var(--color-rule)]",
+  filled:   "bg-[color:var(--color-brand-soft)]",
+  dark:     "bg-[color:var(--color-navy-900)] text-white",
+  mint:     "bg-[color:var(--color-mint-400)] text-[color:var(--color-navy-900)]",
+}[variant];
+
+const isDark = variant === "dark";
+const isMint = variant === "mint";
+const valueClass = isDark
+  ? "text-[color:var(--color-mint-400)]"
+  : isMint
+  ? "text-[color:var(--color-navy-900)]"
+  : "text-[color:var(--color-ink)]";
+const labelClass = isDark ? "text-slate-400" : isMint ? "text-[color:var(--color-navy-900)]/70" : "text-[color:var(--color-ink-muted)]";
+---
+
+<div class:list={["relative overflow-hidden rounded-2xl p-7", variantClass]}>
+  {label && (
+    <p class:list={["text-xs font-semibold uppercase tracking-[0.16em]", labelClass]}>{label}</p>
+  )}
+  <div class={`mt-2 font-display text-5xl md:text-6xl font-bold leading-none tracking-tight ${valueClass}`}>
+    {value}
+  </div>
+  {hint && (
+    <p class:list={["mt-3 text-sm leading-relaxed", isDark ? "text-slate-300" : isMint ? "text-[color:var(--color-navy-900)]/80" : "text-[color:var(--color-ink-2)]"]}>{hint}</p>
+  )}
+  {trend && (
+    <div class:list={[
+      "mt-4 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold",
+      trend.direction === "up"
+        ? "bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-pressed)]"
+        : "bg-red-50 text-red-700"
+    ]}>
+      {trend.direction === "up" ? <IconTrendingUp size={14} stroke={2.25} /> : <IconTrendingDown size={14} stroke={2.25} />}
+      {trend.value}
+    </div>
+  )}
+  {comparison && (
+    <div class:list={["mt-5 flex items-center gap-3 text-sm", isDark ? "text-slate-400" : "text-[color:var(--color-ink-muted)]"]}>
+      <span class="line-through opacity-60">{comparison.was}</span>
+      <IconArrowRight size={14} stroke={2} />
+      <span class:list={["font-semibold", isDark ? "text-[color:var(--color-mint-400)]" : "text-[color:var(--color-brand-pressed)]"]}>{comparison.now}</span>
+    </div>
+  )}
+</div>

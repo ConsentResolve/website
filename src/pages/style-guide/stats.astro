@@ -1,0 +1,60 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import AnimatedStat from "~/components/ui/AnimatedStat.tsx";
+import StatHighlight from "~/components/ui/StatHighlight.astro";
+import { IconUserCheck, IconCash, IconClock, IconUsersGroup } from "@tabler/icons-react";
+---
+
+<StyleGuideLayout slug="stats" title="Animated Stats & Highlights" description="Numbers that count up on scroll, standout stat blocks with trend indicators, and before/after comparison stats.">
+  <section class="sg-section">
+    <h2>Animated stats — count-up row</h2>
+    <p class="sg-lede">Numbers ease in over ~1.5s when scrolled into view. Honors prefers-reduced-motion.</p>
+    <div class="sg-preview">
+      <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
+        <AnimatedStat client:visible value={836} prefix="" label="Pages live" Icon={IconUserCheck} />
+        <AnimatedStat client:visible value={98} suffix="%" label="Walk-away rate" />
+        <AnimatedStat client:visible value={5} suffix="min" label="Average call-back" Icon={IconClock} />
+        <AnimatedStat client:visible value={2400} prefix="$" label="Saved per month" Icon={IconCash} />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Animated stat — extra large</h2>
+    <div class="sg-preview">
+      <AnimatedStat client:visible value={42000} prefix="$" label="Lifetime customer value" hint="Across 7 states and 16 trades." size="xl" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Stat highlight — variants</h2>
+    <div class="sg-preview">
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatHighlight value="98%" label="Walk-away rate" hint="Visitors who leave without identifying." variant="outlined" />
+        <StatHighlight value="4–6×" label="Resell rate" hint="Times a shared lead is sold to another shop." variant="filled" />
+        <StatHighlight value="<5min" label="Lead delivery" hint="From consent tap to your inbox." variant="dark" />
+        <StatHighlight value="$10" label="To start" hint="Cancel anytime. No card to start." variant="mint" />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Stat highlight — with trend</h2>
+    <div class="sg-preview">
+      <div class="grid gap-4 md:grid-cols-2">
+        <StatHighlight value="68%" label="Conversion rate" hint="Consented leads that book within 30 days." variant="outlined" trend={{ direction: "up", value: "+22% MoM" }} />
+        <StatHighlight value="$48" label="Cost per lead" hint="Average across all shared platforms." variant="outlined" trend={{ direction: "down", value: "−$31 vs. Thumbtack" }} />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Before / after comparison</h2>
+    <div class="sg-preview">
+      <div class="grid gap-4 md:grid-cols-2">
+        <StatHighlight value="$2,880" label="Monthly lead spend" hint="Switching from Thumbtack at $48/lead × 60 leads." variant="outlined" comparison={{ was: "$2,880", now: "$249" }} />
+        <StatHighlight value="12 → 32" label="Close rate (%)" hint="Exclusive leads convert ~3× shared ones." variant="filled" comparison={{ was: "12%", now: "32%" }} />
+      </div>
+    </div>
+  </section>
+</StyleGuideLayout>

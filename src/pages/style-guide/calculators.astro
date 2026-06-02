@@ -1,0 +1,31 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import LeadROICalculator from "~/components/ui/LeadROICalculator.tsx";
+import LeadCostCalculator from "~/components/ui/LeadCostCalculator.tsx";
+---
+
+<StyleGuideLayout slug="calculators" title="Calculators" description="Interactive ROI calculators built on a single reusable Calculator base component. Slot in any inputs/outputs combination.">
+  <section class="sg-section">
+    <h2>Lead ROI calculator</h2>
+    <p class="sg-lede">Slide the inputs — outputs recompute live. No backend, no API calls.</p>
+    <div class="sg-preview" style="background:transparent;box-shadow:none;padding:0">
+      <LeadROICalculator client:visible />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Lead cost calculator</h2>
+    <p class="sg-lede">Compares shared-lead economics vs. Consent Resolve's flat-fee model.</p>
+    <div class="sg-preview" style="background:transparent;box-shadow:none;padding:0">
+      <LeadCostCalculator client:visible />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Dark variant</h2>
+    <p class="sg-lede">For embedding in dark hero sections.</p>
+    <div class="sg-preview" style="background:transparent;box-shadow:none;padding:0">
+      <LeadROICalculator client:visible variant="dark" />
+    </div>
+  </section>
+</StyleGuideLayout>

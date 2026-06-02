@@ -1,7 +1,20 @@
 ---
 import LeadPhone from "~/components/islands/LeadPhone.tsx";
 import Button from "~/components/ui/Button.astro";
-import { IconArrowRight, IconEye } from "@tabler/icons-react";
+import AnimatedStat from "~/components/ui/AnimatedStat.tsx";
+import LogoCarousel from "~/components/ui/LogoCarousel.astro";
+import { IconArrowRight, IconEye, IconTool, IconBuilding, IconMap, IconCoin } from "@tabler/icons-react";
+
+const integrations = [
+  { name: "Jobber" },
+  { name: "Housecall Pro" },
+  { name: "ServiceTitan" },
+  { name: "HubSpot" },
+  { name: "Salesforce" },
+  { name: "Slack" },
+  { name: "Zapier" },
+  { name: "Klaviyo" },
+];
 
 interface Props {
   eyebrow?: string;
@@ -54,20 +67,28 @@ const {
     )}
   </div>
 
-  <!-- Trust strip -->
+  <!-- Animated trust strip -->
   <div class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
-    <div class="container-content grid grid-cols-2 gap-y-6 py-10 md:grid-cols-4">
-      {[
-        { value: "16", label: "Trades supported" },
-        { value: "35", label: "Cities live" },
-        { value: "7", label: "States covered" },
-        { value: "$10", label: "To start" },
-      ].map((s, i) => (
-        <div class={`px-6 ${i < 3 ? "md:border-r md:border-[color:var(--color-rule)]" : ""}`}>
-          <div class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-ink)]">{s.value}</div>
-          <div class="mt-1 text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">{s.label}</div>
-        </div>
-      ))}
+    <div class="container-content grid grid-cols-2 gap-y-8 py-12 md:grid-cols-4">
+      <div class="px-6 md:border-r md:border-[color:var(--color-rule)]">
+        <AnimatedStat client:visible value={16} label="Trades supported" Icon={IconTool} size="md" />
+      </div>
+      <div class="px-6 md:border-r md:border-[color:var(--color-rule)]">
+        <AnimatedStat client:visible value={35} label="Cities live" Icon={IconBuilding} size="md" />
+      </div>
+      <div class="px-6 md:border-r md:border-[color:var(--color-rule)]">
+        <AnimatedStat client:visible value={7} label="States covered" Icon={IconMap} size="md" />
+      </div>
+      <div class="px-6">
+        <AnimatedStat client:visible value={10} prefix="$" label="To start" Icon={IconCoin} size="md" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Integration logo strip -->
+  <div class="border-b border-[color:var(--color-rule)] bg-[color:var(--color-bg)]">
+    <div class="container-content py-10">
+      <LogoCarousel logos={integrations} label="Pushes leads to" variant="marquee" speed={45} />
     </div>
   </div>
 </section>

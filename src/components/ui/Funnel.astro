@@ -1,0 +1,38 @@
+---
+interface Stage {
+  label: string;
+  value: number;
+}
+interface Props {
+  stages: Stage[];
+  showRate?: boolean;
+}
+const { stages, showRate = true } = Astro.props as Props;
+const peak = Math.max(...stages.map((s) => s.value));
+---
+
+<div class="space-y-1.5">
+  {stages.map((s, i) => {
+    const pct = (s.value / peak) * 100;
+    const conversion = i === 0 ? null : Math.round((s.value / stages[i - 1].value) * 1000) / 10;
+    return (
+      <div>
+        <div class="mb-1 flex items-baseline justify-between gap-3 text-sm">
+          <span class="font-semibold tracking-tight text-[color:var(--color-ink)]">{s.label}</span>
+          <span class="font-mono font-semibold text-[color:var(--color-ink)]">{s.value.toLocaleString()}</span>
+        </div>
+        <div class="relative h-7 overflow-hidden rounded-md bg-[color:var(--color-bg)]">
+          <div
+            class="h-full rounded-md bg-gradient-to-r from-[color:var(--color-brand)] to-[color:var(--color-mint-400)] transition-[width] duration-700"
+            style={`width:${pct}%`}
+          ></div>
+        </div>
+        {showRate && conversion !== null && (
+          <div class="mt-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">
+            {conversion}% conversion from prior step
+          </div>
+        )}
+      </div>
+    );
+  })}
+</div>
