@@ -14,18 +14,18 @@ const {
 } = Astro.props as Props;
 
 const toneClass = (t: Stat["tone"]) =>
-  t === "danger" ? "text-red-500" : t === "primary" ? "text-[color:var(--color-primary)]" : "text-white";
+  t === "danger" ? "text-[color:var(--color-danger)]" : t === "primary" ? "text-[color:var(--color-vermilion)]" : "text-[color:var(--color-ink)]";
 ---
 
-<section class="bg-white/5 py-20">
+<section class="bg-[color:var(--color-paper-2)] py-20">
   <div class="mx-auto max-w-[960px] px-6 text-center">
-    <h2 class="mb-12 text-3xl font-bold md:text-4xl">{heading}</h2>
+    <h2 class="mb-12 text-3xl font-bold md:text-4xl text-[color:var(--color-ink)]">{heading}</h2>
     <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
       {stats.map((s) => (
-        <div class="rounded-2xl border border-white/10 bg-[color:var(--color-background-dark)] p-8">
-          <p class="mb-2 text-sm font-medium uppercase tracking-widest text-slate-400">{s.label}</p>
+        <div class="card p-8">
+          <p class="mb-2 text-sm font-medium uppercase tracking-widest text-[color:var(--color-ink-muted)]">{s.label}</p>
           <p class={`text-5xl font-black ${toneClass(s.tone)}`}>{s.value}</p>
-          <p class="mt-4 text-sm text-slate-500">{s.note}</p>
+          <p class="mt-4 text-sm text-[color:var(--color-ink-2)]">{s.note}</p>
         </div>
       ))}
     </div>

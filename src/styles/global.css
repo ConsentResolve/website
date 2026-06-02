@@ -1,18 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand palette — lifted from skeleton */
-  --color-primary: #2fe4ab;
-  --color-primary-glow: rgba(47, 228, 171, 0.4);
-  --color-background-light: #f6f8f7;
-  --color-background-dark: #071423;
-  --color-card-dark: #11211c;
-  --color-ink: #f6f8f7;
-  --color-ink-muted: #94a3b8;
+  /* Brand palette — warm paper + ink + vermilion */
+  --color-paper: #faf6ef;          /* primary background */
+  --color-paper-2: #f3ede1;        /* alt band background */
+  --color-ink: #131611;            /* primary text */
+  --color-ink-2: #3d4338;          /* secondary text */
+  --color-ink-muted: #6b7163;      /* tertiary text */
+  --color-rule: #e6dcc8;           /* hairline / border */
+  --color-vermilion: #d6442b;      /* accent */
+  --color-vermilion-2: #b8351f;    /* accent pressed */
+  --color-vermilion-soft: #fbe7e0; /* accent tint background */
+  --color-leaf: #2f7a4a;           /* positive (rare) */
+  --color-danger: #b8351f;         /* danger text */
+
+  /* Aliases consumed by components (so token swaps stay simple) */
+  --color-primary: var(--color-vermilion);
+  --color-primary-pressed: var(--color-vermilion-2);
+  --color-bg: var(--color-paper);
+  --color-bg-alt: var(--color-paper-2);
+  --color-on-primary: #faf6ef;
 
   /* Type */
-  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", ui-serif, Georgia, serif;
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
   /* Radii */
@@ -28,37 +39,55 @@
 
 @layer base {
   html {
-    background-color: var(--color-background-dark);
+    background-color: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
     scroll-behavior: smooth;
   }
   body {
     @apply antialiased;
   }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
   /* Material Symbols icon defaults */
   .material-symbols-outlined {
-    font-variation-settings: "FILL" 0, "wght" 200, "GRAD" 0, "opsz" 24;
-    color: var(--color-primary);
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    color: var(--color-vermilion);
   }
   /* Skip link */
   .skip-link {
-    @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[color:var(--color-primary)] focus:px-4 focus:py-2 focus:font-bold focus:text-[color:var(--color-background-dark)];
+    @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[color:var(--color-vermilion)] focus:px-4 focus:py-2 focus:font-bold focus:text-[color:var(--color-on-primary)];
   }
 }
 
 @layer components {
-  .glow-hover {
-    transition: box-shadow 0.2s ease;
-  }
-  .glow-hover:hover {
-    box-shadow: 0 0 15px var(--color-primary-glow);
-  }
   .container-content {
     @apply mx-auto px-6;
     max-width: var(--container-content);
   }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-[color:var(--color-vermilion)] px-6 py-3 font-bold text-[color:var(--color-on-primary)] transition-colors hover:bg-[color:var(--color-vermilion-2)];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-[color:var(--color-rule)] bg-transparent px-6 py-3 font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)];
+  }
+  .glow-hover {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .glow-hover:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px -8px rgba(214, 68, 43, 0.35);
+  }
   .eyebrow {
-    @apply inline-flex items-center gap-2 rounded-full border border-[color:var(--color-primary)]/20 bg-[color:var(--color-primary)]/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[color:var(--color-primary)];
+    @apply inline-flex items-center gap-2 rounded-full border border-[color:var(--color-vermilion)]/20 bg-[color:var(--color-vermilion-soft)] px-4 py-2 text-xs font-bold uppercase tracking-widest text-[color:var(--color-vermilion)];
+  }
+  .card {
+    @apply rounded-2xl border border-[color:var(--color-rule)] bg-white;
+  }
+  .hairline {
+    border-color: var(--color-rule);
   }
 }

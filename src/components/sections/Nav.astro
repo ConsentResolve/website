@@ -2,20 +2,20 @@
 import { PRIMARY_NAV } from "~/lib/site";
 ---
 
-<header class="sticky top-0 z-50 w-full border-b border-white/10 bg-[color:var(--color-background-dark)]/80 backdrop-blur-md">
+<header class="sticky top-0 z-50 w-full border-b border-[color:var(--color-rule)] bg-[color:var(--color-paper)]/85 backdrop-blur-md">
   <div class="container-content flex h-16 items-center justify-between">
     <a href="/" class="flex items-center gap-2 group">
-      <div class="size-8 rounded-lg bg-[color:var(--color-primary)] flex items-center justify-center">
-        <span class="material-symbols-outlined !text-[color:var(--color-background-dark)]">security</span>
+      <div class="size-8 rounded-lg bg-[color:var(--color-vermilion)] flex items-center justify-center">
+        <span class="material-symbols-outlined !text-[color:var(--color-on-primary)] !text-[20px]">verified_user</span>
       </div>
       <h2 class="text-xl font-bold tracking-tight">Consent Resolve</h2>
     </a>
     <nav class="hidden md:flex items-center gap-8" aria-label="Primary">
       {PRIMARY_NAV.map((item) => (
-        <a class="text-sm font-medium hover:text-[color:var(--color-primary)] transition-colors" href={item.href}>{item.label}</a>
+        <a class="text-sm font-medium text-[color:var(--color-ink-2)] hover:text-[color:var(--color-vermilion)] transition-colors" href={item.href}>{item.label}</a>
       ))}
     </nav>
-    <a href="/get-started/" class="bg-[color:var(--color-primary)] text-[color:var(--color-background-dark)] px-5 py-2 rounded-lg font-bold text-sm glow-hover transition-all">
+    <a href="/get-started/" class="btn-primary px-5 py-2 text-sm glow-hover">
       Start $10 Trial
     </a>
   </div>

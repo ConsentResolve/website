@@ -17,18 +17,18 @@ const {
 } = Astro.props as Props;
 ---
 
-<section class="bg-[color:var(--color-background-dark)] px-6 py-24">
+<section class="bg-[color:var(--color-paper-2)] px-6 py-24">
   <div class="container-content">
     <div class="mb-16">
-      <h2 class="mb-4 text-3xl font-bold">{heading}</h2>
-      <p class="text-slate-400">{subhead}</p>
+      <h2 class="mb-4 text-3xl font-bold text-[color:var(--color-ink)]">{heading}</h2>
+      <p class="text-[color:var(--color-ink-2)]">{subhead}</p>
     </div>
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {features.map((f) => (
-        <div class="group rounded-2xl border border-white/5 bg-white/[0.02] p-6 transition-all hover:bg-white/[0.05]">
+        <div class="group card p-6 transition-all hover:border-[color:var(--color-vermilion)]/40 hover:shadow-[0_8px_24px_-12px_rgba(19,22,17,0.12)]">
           <span class="material-symbols-outlined !text-3xl mb-4">{f.icon}</span>
-          <h5 class="mb-2 font-bold">{f.title}</h5>
-          <p class="text-sm text-slate-400">{f.body}</p>
+          <h5 class="mb-2 font-bold text-[color:var(--color-ink)]">{f.title}</h5>
+          <p class="text-sm text-[color:var(--color-ink-2)]">{f.body}</p>
         </div>
       ))}
     </div>

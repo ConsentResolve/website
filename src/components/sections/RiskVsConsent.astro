@@ -16,29 +16,29 @@ const consent = [
 <section class="px-6 py-24">
   <div class="container-content">
     <div class="mb-16 text-center">
-      <h2 class="mb-4 text-3xl font-bold md:text-4xl">Most ID tools put you at risk.</h2>
-      <p class="text-xl font-bold uppercase italic tracking-wide text-red-400">One lawsuit can cost $50,000.</p>
+      <h2 class="mb-4 text-3xl font-bold md:text-4xl text-[color:var(--color-ink)]">Most ID tools put you at risk.</h2>
+      <p class="text-xl font-bold uppercase italic tracking-wide text-[color:var(--color-danger)]">One lawsuit can cost $50,000.</p>
     </div>
     <div class="grid gap-8 md:grid-cols-2">
-      <div class="relative overflow-hidden rounded-2xl border border-red-500/20 bg-red-500/5 p-8">
-        <div class="absolute right-4 top-4 text-red-500/20"><span class="material-symbols-outlined !text-6xl">gavel</span></div>
-        <h3 class="mb-6 text-2xl font-bold text-red-500">The Illegal Way</h3>
-        <ul class="space-y-4">
+      <div class="relative overflow-hidden rounded-2xl border border-[color:var(--color-danger)]/30 bg-[color:var(--color-danger)]/5 p-8">
+        <div class="absolute right-4 top-4 text-[color:var(--color-danger)]/15"><span class="material-symbols-outlined !text-6xl">gavel</span></div>
+        <h3 class="mb-6 text-2xl font-bold text-[color:var(--color-danger)]">The Illegal Way</h3>
+        <ul class="space-y-4 text-[color:var(--color-ink)]">
           {illegal.map((t) => (
             <li class="flex items-start gap-3">
-              <span class="material-symbols-outlined !text-red-500 mt-0.5">cancel</span>
+              <span class="material-symbols-outlined !text-[color:var(--color-danger)] mt-0.5">cancel</span>
               <span>{t}</span>
             </li>
           ))}
         </ul>
       </div>
-      <div class="relative overflow-hidden rounded-2xl border border-[color:var(--color-primary)]/20 bg-[color:var(--color-primary)]/5 p-8">
-        <div class="absolute right-4 top-4 text-[color:var(--color-primary)]/20"><span class="material-symbols-outlined !text-6xl">verified</span></div>
-        <h3 class="mb-6 text-2xl font-bold text-[color:var(--color-primary)]">The Consent Way</h3>
-        <ul class="space-y-4">
+      <div class="relative overflow-hidden rounded-2xl border border-[color:var(--color-vermilion)]/30 bg-[color:var(--color-vermilion-soft)] p-8">
+        <div class="absolute right-4 top-4 text-[color:var(--color-vermilion)]/15"><span class="material-symbols-outlined !text-6xl">verified</span></div>
+        <h3 class="mb-6 text-2xl font-bold text-[color:var(--color-vermilion)]">The Consent Way</h3>
+        <ul class="space-y-4 text-[color:var(--color-ink)]">
           {consent.map((t) => (
             <li class="flex items-start gap-3">
-              <span class="material-symbols-outlined !text-[color:var(--color-primary)] mt-0.5">check_circle</span>
+              <span class="material-symbols-outlined !text-[color:var(--color-vermilion)] mt-0.5">check_circle</span>
               <span>{t}</span>
             </li>
           ))}
