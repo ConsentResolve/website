@@ -31,20 +31,40 @@ OUT_DIR = ROOT / "public" / "illustrations" / "style"
 STYLE_LOCK = """Minimalist hand-drawn vector illustration of a single subject, centered with
 generous negative space, on a fully transparent background (NOT black, NOT a
 colored fill). Hand-inked marker style: thick, slightly rough, organic outlines
-of even medium-heavy weight in deep navy (#0A1628), with the occasional doubled
-"ghost" outline stroke for a sketched feel. Flat color fills from a strict
-four-value palette only — primary brand mint/cyan (#00E5A0), card navy
-(#1E293B), and almost-white (#F8FAFC) reserved for inner highlights and small
-curved "shine" strokes. Each major shape casts ONE flat, hard-edged offset
-drop shadow (no blur, no gradient) in the card navy (#1E293B), offset slightly
-down and to the right. Rounded, friendly, organic forms with soft corners.
-Completely flat shading: no gradients, no directional lighting, no texture,
-no 3D. Straight-on 2D perspective. Square 1:1 composition. Modern, confident,
+of even medium-heavy weight in DEEP NAVY BLUE (#0A1628 — a very dark navy
+blue, not black, not green), with the occasional doubled "ghost" outline
+stroke for a sketched feel.
+
+STRICT FOUR-COLOR PALETTE — use ONLY these four values, nothing else:
+
+  1. OUTLINE: #0A1628 — deep navy blue (very dark cool blue, not black,
+     not green-tinted)
+  2. PRIMARY FILL: #00E5A0 — vibrant electric mint/cyan, a bright punchy
+     aqua-green (like Spotify green but more cyan-leaning; absolutely NOT
+     sage, NOT olive, NOT forest, NOT teal, NOT emerald, NOT dark green,
+     NOT muted, NOT desaturated — it MUST be a vivid, saturated,
+     cyan-leaning bright green that almost glows)
+  3. SHADOW: #1E293B — slate navy, slightly lighter than the outline,
+     a cool blue-gray; use for ONE flat, hard-edged offset drop shadow per
+     major shape, offset slightly down and to the right
+  4. HIGHLIGHT: #F8FAFC — almost-white, reserved for inner shine strokes
+     and small curved gleam lines
+
+The mint/cyan #00E5A0 must look ELECTRIC and SATURATED. If it could be
+mistaken for sage, olive, forest, or any muted/dusty green, it is wrong.
+
+Each major shape casts ONE flat, hard-edged offset drop shadow (no blur, no
+gradient). Rounded, friendly, organic forms with soft corners. Completely
+flat shading: no gradients, no directional lighting, no texture, no 3D.
+Straight-on 2D perspective. Square 1:1 composition. Modern, confident,
 trustworthy tone.
 
-Negative: no black or colored background, no photorealism, no gradients, no
-ambient occlusion, no neon, no colors outside the four-color palette above,
-no lettering or numbers, no eyes / surveillance-camera / spying imagery."""
+Negative: no black or colored background, no photorealism, no gradients,
+no ambient occlusion, no neon glow effect, NO SAGE GREEN, no olive, no
+forest green, no teal, no emerald, no lime, no muted greens, no dusty
+greens, no warm tones, no oranges, no yellows, no purples, no reds, no
+pinks, no colors outside the strict four-color palette above, no lettering
+or numbers, no eyes / surveillance-camera / spying imagery."""
 
 # === Block B — Subject library ===
 SUBJECTS = [
