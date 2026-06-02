@@ -22,19 +22,19 @@ export const SITE = {
 export type NavItem = { label: string; href: string };
 
 export const PRIMARY_NAV: NavItem[] = [
+  { label: "Features", href: "/features/" },
   { label: "How It Works", href: "/how-it-works/" },
   { label: "Industries", href: "/industries/" },
   { label: "Compare", href: "/compare/" },
   { label: "Pricing", href: "/pricing/" },
-  { label: "Resources", href: "/resources/" },
 ];
 
 export const FOOTER_NAV = {
   product: [
+    { label: "Features", href: "/features/" },
     { label: "How It Works", href: "/how-it-works/" },
     { label: "Pricing", href: "/pricing/" },
     { label: "Sample Lead", href: "/sample-lead/" },
-    { label: "Demo", href: "/demo/" },
     { label: "Get Started", href: "/get-started/" },
   ],
   industries: [

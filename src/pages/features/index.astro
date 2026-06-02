@@ -1,0 +1,112 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import FeatureCard from "~/components/ui/FeatureCard.astro";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+import ComplianceBand from "~/components/sections/ComplianceBand.astro";
+import { FEATURE_GROUPS, ALL_FEATURES } from "~/data/features";
+import { FEATURE_ICONS } from "~/lib/feature-icons";
+import { breadcrumbSchema } from "~/lib/seo";
+import { IconArrowRight } from "@tabler/icons-react";
+
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "Features", href: "/features/" },
+  ]),
+  // ItemList — every feature, in canonical order
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Consent Resolve Features",
+    itemListElement: ALL_FEATURES.map((f, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: f.name,
+      url: `https://consentresolve.com/features/${f.slug}/`,
+    })),
+  },
+];
+---
+
+<BaseLayout
+  title="Features | Consent Resolve — Every Tool, One Platform"
+  description="Exclusive opt-in leads, formless contact capture, real-time mobile alerts, CRM delivery, ROI reporting. Everything Consent Resolve does — grouped, explained, no jargon."
+  schema={schemas}
+>
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
+    <div class="container-content section relative">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="eyebrow mb-7 justify-center">Features</p>
+        <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
+          Every visitor who leaves without calling<br/>
+          <span class="text-[color:var(--color-brand-pressed)]">is a job you'll never know you lost.</span>
+        </h1>
+        <p class="mx-auto max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+          Consent Resolve turns the anonymous people on your website into named leads you can actually call — exclusively yours, every one opted in.
+        </p>
+        <p class="mx-auto mt-6 max-w-2xl text-[15px] leading-relaxed text-[color:var(--color-ink-muted)]">
+          You're already paying to get people to your site. Google, Thumbtack, Angi, your own ads — they all send traffic. But 95 out of 100 of those people look around and leave without ever picking up the phone. You never see them. You never get a name. They just become the other guy's customer. Consent Resolve fixes that. Here's everything it does.
+        </p>
+        <div class="mt-10">
+          <a
+            href="/get-started/"
+            class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
+          >
+            Get Started
+            <IconArrowRight size={16} stroke={2.5} />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- On-page TOC -->
+  <section class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+    <div class="container-content py-8">
+      <ul class="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+        {FEATURE_GROUPS.map((g) => (
+          <li>
+            <a
+              href={`#${g.slug}`}
+              class="inline-flex items-center rounded-full bg-[color:var(--color-bg)] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)] ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:text-[color:var(--color-brand-pressed)] hover:ring-[color:var(--color-mint-400)]/50"
+            >
+              {g.title.replace(/\.$/, "")}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Groups -->
+  {FEATURE_GROUPS.map((group, gi) => (
+    <section id={group.slug} class={`section ${gi % 2 === 1 ? "bg-[color:var(--color-bg-alt)]" : ""} scroll-mt-24`}>
+      <div class="container-content">
+        <div class="mx-auto mb-14 max-w-3xl text-center">
+          <p class="eyebrow mb-5 justify-center">{`Group ${gi + 1}`}</p>
+          <h2 class="display-2 text-[color:var(--color-ink)]">{group.title}</h2>
+          <p class="mt-4 text-[17px] leading-relaxed text-[color:var(--color-ink-2)]">{group.blurb}</p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {group.features.map((f) => {
+            const Icon = FEATURE_ICONS[f.iconKey];
+            return (
+              <a
+                href={`/features/${f.slug}/`}
+                class="group block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand)] focus-visible:ring-offset-2"
+              >
+                <FeatureCard variant="showcase" icon={Icon} title={f.name} body={f.tagline} />
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  ))}
+
+  <ComplianceBand />
+  <FinalCTA />
+</BaseLayout>

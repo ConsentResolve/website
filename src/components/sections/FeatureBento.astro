@@ -1,46 +1,60 @@
 ---
+/**
+ * Homepage feature section — grouped by the four "everything it does"
+ * categories from /features/. Pulls from src/data/features.ts so this
+ * stays in lockstep with the dedicated /features/ pages.
+ */
 import FeatureCard from "~/components/ui/FeatureCard.astro";
-import {
-  IconUserCheck,
-  IconMapPin,
-  IconClipboardCheck,
-  IconBellRinging,
-  IconPlugConnected,
-  IconRefresh,
-  IconLock,
-  IconShieldCheck,
-  IconCode,
-} from "@tabler/icons-react";
-
-const features = [
-  { Icon: IconUserCheck,      title: "Real names. Real numbers.",     body: "First name, last name, mobile phone. The actual homeowner — not a household label, not a P.O. box, not a lead three shops already bought." },
-  { Icon: IconMapPin,         title: "Mapped to your zip.",           body: "Every lead drops a pin on your service-area map. Filter by zip, route, or distance from the shop." },
-  { Icon: IconClipboardCheck, title: "Why they're shopping.",         body: "\"AC tune-up.\" \"Water-heater quote.\" \"Roof inspection.\" What they want, captured the moment they consent." },
-  { Icon: IconBellRinging,    title: "On your phone in five.",        body: "A Slack, text, or email the second a homeowner consents. First one to call usually wins the job." },
-  { Icon: IconPlugConnected,  title: "Lands in your CRM.",            body: "Pushes straight to Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo — or anything else through a webhook." },
-  { Icon: IconRefresh,        title: "They came back? You'll know.",  body: "Return-visit alerts fire when a known homeowner is back on your site. Time your follow-up right." },
-  { Icon: IconLock,           title: "Yours alone. Never resold.",    body: "Not auctioned to four other shops. Not flipped next week. One consent, one contractor — you." },
-  { Icon: IconShieldCheck,    title: "Legal by default.",             body: "GDPR, CCPA, and CPA covered from day one. Iron-clad audit trail, backed by Termageddon." },
-  { Icon: IconCode,           title: "Set up in ten minutes.",        body: "Paste one line of code. WordPress, Wix, Squarespace, ServiceTitan sites — it just works." },
-];
+import { FEATURE_GROUPS } from "~/data/features";
+import { FEATURE_ICONS } from "~/lib/feature-icons";
+import { IconArrowRight } from "@tabler/icons-react";
 ---
 
 <section class="section">
   <div class="container-content">
     <div class="mx-auto mb-16 max-w-3xl text-center">
-      <p class="eyebrow mb-5 justify-center">Tools included</p>
+      <p class="eyebrow mb-5 justify-center">Everything it does</p>
       <h2 class="display-2 text-[color:var(--color-ink)]">
-        Everything in your toolbox.
+        Every visitor who leaves without calling<br/>
+        <span class="text-[color:var(--color-brand-pressed)]">is a job you'll never know you lost.</span>
       </h2>
-      <p class="mt-4 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-        The second a homeowner consents, here's what shows up.
+      <p class="mt-5 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+        Consent Resolve turns the anonymous people on your website into named leads you can actually call — exclusively yours, every one opted in.
       </p>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {features.map((f) => (
-        <FeatureCard variant="showcase" icon={f.Icon} title={f.title} body={f.body} />
+    <div class="space-y-20">
+      {FEATURE_GROUPS.map((group) => (
+        <div>
+          <div class="mx-auto mb-10 max-w-3xl text-center">
+            <h3 class="font-display text-2xl font-black tracking-tight text-[color:var(--color-ink)] md:text-3xl">
+              {group.title}
+            </h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{group.blurb}</p>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {group.features.map((f) => {
+              const Icon = FEATURE_ICONS[f.iconKey];
+              return (
+                <a href={`/features/${f.slug}/`} class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand)] focus-visible:ring-offset-2 rounded-2xl">
+                  <FeatureCard variant="showcase" icon={Icon} title={f.name} body={f.tagline} />
+                </a>
+              );
+            })}
+          </div>
+        </div>
       ))}
+    </div>
+
+    <div class="mt-16 text-center">
+      <a
+        href="/features/"
+        class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
+      >
+        See every feature
+        <IconArrowRight size={16} stroke={2.5} />
+      </a>
     </div>
   </div>
 </section>
