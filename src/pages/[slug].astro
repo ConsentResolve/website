@@ -168,13 +168,13 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
           The numbers for a {trade.shortName.toLowerCase()} shop.
         </h2>
         <p class="mt-3 text-[15px] text-[color:var(--color-ink-2)]">
-          Defaults are a typical {trade.shortName.toLowerCase()} shop — avg job <strong>{fmtUsd(trade.math.avgJobValue)}</strong>, close <strong>{trade.math.closeRatePct}%</strong>. Slide them to match yours.
+          Defaults are a typical {trade.shortName.toLowerCase()} shop — avg job <strong>{fmtUsd(trade.math.avgJobValue)}</strong>, close <strong>{trade.math.closeRatePct}%</strong>, and a current reseller cost of about <strong>{fmtUsd(trade.math.competitorCpl)} per lead</strong>. Slide them to match yours.
         </p>
       </div>
       <div class="mx-auto max-w-4xl">
         <LeadROICalculator
           client:visible
-          defaults={{ avgJob: trade.math.avgJobValue, closeRate: trade.math.closeRatePct, leads: 60, leadCost: 48 }}
+          defaults={{ avgJob: trade.math.avgJobValue, closeRate: trade.math.closeRatePct, leads: 60, leadCost: trade.math.competitorCpl }}
           title={`${trade.name} ROI calculator`}
           blurb="Plug in your real numbers. No email, no signup wall."
         />

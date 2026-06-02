@@ -12,8 +12,11 @@ export interface IndustryFaq {
 export interface IndustryTradeMath {
   avgJobValue: number;
   closeRatePct: number;
-  /** competitor cost-per-lead reference — marked [CONFIRM CPL] in copy */
-  cplLabel: string;
+  /** Representative competitor cost-per-lead — Thumbtack benchmark from the
+   *  Consent Resolve Competitor CPL Matrix (loaded estimate: avg of researched
+   *  range × 1.2, rounded). Used as the calculator preset for "current cost
+   *  per lead" so the math models a typical reseller spend. */
+  competitorCpl: number;
 }
 
 export interface Industry {
@@ -57,7 +60,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Big projects get researched for weeks before a homeowner picks up the phone. See who's pricing a remodel or addition on your site, get their name and number when they consent, and follow up before three other GCs do.",
     problem: "A remodel is a long, careful decision. Homeowners compare bids for weeks and visit your site more than once. Most leave without a name — and the GC who follows up first usually lands the bid.",
     urgencyLine: "The first GC to follow up usually lands the bid.",
-    math: { avgJobValue: 25000, closeRatePct: 20, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 25000, closeRatePct: 20, competitorCpl: 144 },
     cardKeys: ["came-back", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do general contractors get exclusive leads?", a: "You identify homeowners already pricing a project on your site. When they consent, you get their name and number — yours alone, never shared." },
@@ -79,7 +82,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Handyman work runs on volume and speed. See the homeowners shopping your site for a to-do list, get their name and number when they consent, and book the work before they call the next guy.",
     problem: "Most handyman jobs start with a quick search and a website peek. The homeowner doesn't call — they keep scrolling. First handyman to reach out usually fills the slot.",
     urgencyLine: "First handyman to reach out usually fills the slot.",
-    math: { avgJobValue: 300, closeRatePct: 40, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 300, closeRatePct: 40, competitorCpl: 24 },
     cardKeys: ["on-phone-five", "crm", "yours-alone"],
     faqs: [
       { q: "How do handymen find local jobs without paying for shared leads?", a: "You identify the homeowners already on your site. When they consent, the lead is yours alone — not auctioned to other handymen." },
@@ -101,7 +104,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A leaning tree or a storm-snapped limb is a \"today\" problem. See who's pricing removal in your area, get their name and number when they consent, and reach out before the cleanup crews roll in.",
     problem: "After a storm, every homeowner with a downed tree is shopping at once — and they call whoever reaches them first. Miss that window and the high-ticket removal goes to another crew.",
     urgencyLine: "After a storm, whoever calls first books the work.",
-    math: { avgJobValue: 1200, closeRatePct: 30, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 1200, closeRatePct: 30, competitorCpl: 36 },
     cardKeys: ["on-phone-five", "mapped-zip", "yours-alone"],
     faqs: [
       { q: "How do tree removal companies get more local jobs after a storm?", a: "You see the homeowners pricing removal in your area in real time. When they consent, you get the name and number to call first." },
@@ -123,7 +126,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A hot house turns a \"someday\" homeowner into a \"right now\" buyer. See who's shopping your site for a new AC or a no-cool fix, get their name and number when they consent, and call while they're sweating.",
     problem: "When the AC quits in July, minutes matter. The homeowner checks your site, doesn't call, and dials the next shop. First one on the phone books the install.",
     urgencyLine: "When the AC quits in July, minutes matter.",
-    math: { avgJobValue: 5500, closeRatePct: 28, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 5500, closeRatePct: 28, competitorCpl: 87 },
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "Can I tell a new-system shopper from a repair?", a: "Yes — you get what they were shopping for, so you know if it's a tune-up or a replacement before you call." },
@@ -145,7 +148,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A burst pipe doesn't wait for a callback. See who's shopping your area for a water heater or a leak fix, get their name and number when they consent, and call before the next plumber does.",
     problem: "Plumbing problems get searched fast and booked fast. The homeowner checks your site, doesn't call, and dials the next name on the list. You never knew they were there.",
     urgencyLine: "A burst pipe doesn't wait for a callback.",
-    math: { avgJobValue: 450, closeRatePct: 30, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 450, closeRatePct: 30, competitorCpl: 57 },
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "What if it's an emergency, like a burst pipe?", a: "You get the alert in seconds, so you can reach out before they find another plumber." },
@@ -167,7 +170,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A lockout is the definition of \"right now.\" See who's shopping your site for a lockout, rekey, or new locks, get their number when they consent, and be the first locksmith to answer.",
     problem: "Locksmith jobs are won on speed. Someone standing outside a locked door calls the first shop that picks up. If they left your site without calling, you just need a way to reach them first.",
     urgencyLine: "Locksmith jobs are won on speed.",
-    math: { avgJobValue: 180, closeRatePct: 45, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 180, closeRatePct: 45, competitorCpl: 33 },
     cardKeys: ["on-phone-five", "mapped-zip", "yours-alone"],
     faqs: [
       { q: "How do locksmiths get more local calls?", a: "You identify the people already on your site for lock work. When they consent, you get their number and call before another shop does." },
@@ -189,7 +192,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Electrical work gets researched before it gets booked. See who's pricing a panel upgrade or EV charger on your site, get their name and number when they consent, and follow up while it's top of mind.",
     problem: "A homeowner pricing a panel upgrade is ready to buy — they just haven't picked a shop. They read your site, leave, and book whoever follows up first.",
     urgencyLine: "A homeowner pricing a panel upgrade is ready to buy now.",
-    math: { avgJobValue: 2000, closeRatePct: 30, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 2000, closeRatePct: 30, competitorCpl: 51 },
     cardKeys: ["why-shopping", "crm", "yours-alone"],
     faqs: [
       { q: "Are these leads ready to buy?", a: "They were on your site pricing the work. You reach out while it's still top of mind." },
@@ -211,7 +214,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "After a storm, the first roofer to call gets the claim. See who's pricing a new roof or storm repair in your area, get their name and number when they consent, and reach out first.",
     problem: "A roof is one of the biggest checks a homeowner ever writes, and they shop it online. They visit your site, leave, and go with whoever follows up first — often a chaser from out of town.",
     urgencyLine: "After a storm, the first roofer to call gets the claim.",
-    math: { avgJobValue: 9500, closeRatePct: 25, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 9500, closeRatePct: 25, competitorCpl: 78 },
     cardKeys: ["came-back", "mapped-zip", "yours-alone"],
     faqs: [
       { q: "Do these work for storm and insurance jobs?", a: "Yes. You see who's pricing roof repairs right after a storm and reach out first." },
@@ -233,7 +236,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Paint jobs are won at the estimate. See who's pricing interior or exterior work on your site, get their name and number when they consent, and book the walkthrough before another crew does.",
     problem: "Homeowners gather two or three paint quotes and pick fast. They browse your site, leave without calling, and the painter who books the estimate first usually gets the job.",
     urgencyLine: "Paint jobs are won at the estimate.",
-    math: { avgJobValue: 3500, closeRatePct: 28, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 3500, closeRatePct: 28, competitorCpl: 39 },
     cardKeys: ["why-shopping", "on-phone-five", "yours-alone"],
     faqs: [
       { q: "How do painters get more estimate requests?", a: "You identify the homeowners already pricing a job on your site. When they consent, you get their number and book the walkthrough first." },
@@ -255,7 +258,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Deck and fence projects are seasonal and quote-driven. See who's pricing a build on your site, get their name and number when they consent, and get your bid in before the season fills up.",
     problem: "Spring hits and everyone wants a deck or fence at once. Homeowners compare a few builders and book early. The one who quotes first tends to win — and lock up the calendar.",
     urgencyLine: "Spring hits and everyone wants one at once.",
-    math: { avgJobValue: 6000, closeRatePct: 25, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 6000, closeRatePct: 25, competitorCpl: 42 },
     cardKeys: ["why-shopping", "came-back", "yours-alone"],
     faqs: [
       { q: "How do deck and fence builders get leads in the busy season?", a: "You identify the homeowners already pricing a build on your site and reach out first, while your calendar still has room." },
@@ -277,7 +280,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A broken spring means a car trapped in the garage — that's a same-day call. See who's shopping your site for a repair or new door, get their number when they consent, and answer first.",
     problem: "A jammed door or snapped spring is urgent and easy to price online. The homeowner checks your site, doesn't call, and books the next company that reaches out.",
     urgencyLine: "A jammed door is a same-day call.",
-    math: { avgJobValue: 650, closeRatePct: 35, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 650, closeRatePct: 35, competitorCpl: 42 },
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do garage door companies get same-day jobs?", a: "You identify the homeowners already on your site and reach out in seconds, while the door's still stuck." },
@@ -299,7 +302,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A dead fridge is a today problem with food on the line. See who's shopping your site for a repair, get their name and number when they consent, and book the service call before they keep searching.",
     problem: "When an appliance quits, the homeowner searches, peeks at a site, and calls the next tech. The one who reaches out first books the diagnostic.",
     urgencyLine: "A dead fridge is a today problem with food on the line.",
-    math: { avgJobValue: 250, closeRatePct: 40, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 250, closeRatePct: 40, competitorCpl: 24 },
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do appliance repair techs get more local calls?", a: "You identify the homeowners already on your site and reach out fast, before they book someone else." },
@@ -321,7 +324,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "One recurring client is months of revenue. See who's shopping your site for a clean, get their name and number when they consent, and book them before another service replies.",
     problem: "Homeowners shopping for a cleaner compare a few sites and pick fast on trust and response time. Most leave without a name — and the service that follows up first earns the recurring spot.",
     urgencyLine: "First reply earns the recurring spot.",
-    math: { avgJobValue: 180, closeRatePct: 35, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 180, closeRatePct: 35, competitorCpl: 17 },
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do cleaning companies get recurring clients?", a: "You identify the homeowners already shopping your site and reach out first — recurring clients usually go to the service that responds fastest." },
@@ -343,7 +346,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "An infestation is an urgent, \"make it stop today\" problem. See who's shopping your site for treatment, get their name and number when they consent, and call before they book another company.",
     problem: "Bugs or rodents send a homeowner searching fast. They scan a site, don't call, and book the first company that reaches out — often onto a recurring plan worth far more than one visit.",
     urgencyLine: "Bugs and rodents are a \"make it stop today\" problem.",
-    math: { avgJobValue: 250, closeRatePct: 35, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 250, closeRatePct: 35, competitorCpl: 32 },
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do pest control companies get more local jobs?", a: "You identify the homeowners already shopping your site and reach out first, while the problem's still driving them crazy." },
@@ -365,7 +368,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Curb-appeal jobs are easy to say yes to and easy to book. See who's pricing a driveway or house wash on your site, get their name and number when they consent, and quote them first.",
     problem: "Power washing is a quick decision — homeowners see a dirty driveway, search, and want it gone. They browse your site, leave, and book whoever quotes first.",
     urgencyLine: "Quick decisions go to whoever quotes first.",
-    math: { avgJobValue: 350, closeRatePct: 35, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 350, closeRatePct: 35, competitorCpl: 25 },
     cardKeys: ["on-phone-five", "mapped-zip", "yours-alone"],
     faqs: [
       { q: "How do power washing businesses get more jobs?", a: "You identify the homeowners already pricing a wash on your site and reach out first, before they book another crew." },
@@ -387,7 +390,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A recurring mowing client is revenue all season. See who's shopping your site for lawn care, get their name and number when they consent, and lock in the route before another crew does.",
     problem: "Lawn care lives on recurring routes, and homeowners pick a crew early in the season. They browse your site, don't call, and sign with whoever follows up first.",
     urgencyLine: "Recurring routes go to whoever signs them up early.",
-    math: { avgJobValue: 200, closeRatePct: 35, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 200, closeRatePct: 35, competitorCpl: 19 },
     cardKeys: ["mapped-zip", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do lawn care companies get recurring customers?", a: "You identify the homeowners already shopping your site and reach out first — recurring routes go to whoever signs them up early." },
@@ -409,7 +412,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Your whole pitch is convenience — you come to them. See who's shopping your site for mobile repair or detailing, get their name and number when they consent, and book the driveway visit first.",
     problem: "Drivers who want service at home compare a couple of options and book on convenience and speed. They check your site, leave, and schedule with whoever reaches out first.",
     urgencyLine: "Drivers book whoever reaches them first.",
-    math: { avgJobValue: 250, closeRatePct: 35, cplLabel: "[CONFIRM CPL]" },
+    math: { avgJobValue: 250, closeRatePct: 35, competitorCpl: 24 },
     cardKeys: ["mapped-zip", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do mobile mechanics and detailers get more bookings?", a: "You identify the drivers already shopping your site and reach out first, while they're still deciding." },
