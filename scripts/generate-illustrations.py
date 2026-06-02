@@ -31,19 +31,19 @@ OUT_DIR = ROOT / "public" / "illustrations" / "style"
 STYLE_LOCK = """Minimalist hand-drawn vector illustration of a single subject, centered with
 generous negative space, on a fully transparent background (NOT black, NOT a
 colored fill). Hand-inked marker style: thick, slightly rough, organic outlines
-of even medium-heavy weight in near-black forest green (#14271C), with the
-occasional doubled "ghost" outline stroke for a sketched feel. Flat color fills
-from a tight palette only — primary sage green (#5FB98C), pale mint/celadon
-(#BCE3CB), deep forest green (#1B3A2A), and pure white reserved for inner
-highlights and small curved "shine" strokes. Each major shape casts ONE flat,
-hard-edged offset drop shadow (no blur, no gradient) in a darker green, offset
-slightly down and to the right. Rounded, friendly, organic forms with soft
-corners. Completely flat shading: no gradients, no directional lighting, no
-texture, no 3D. Straight-on 2D perspective. Square 1:1 composition. Friendly,
-trustworthy, approachable tone.
+of even medium-heavy weight in deep navy (#0A1628), with the occasional doubled
+"ghost" outline stroke for a sketched feel. Flat color fills from a strict
+four-value palette only — primary brand mint/cyan (#00E5A0), card navy
+(#1E293B), and almost-white (#F8FAFC) reserved for inner highlights and small
+curved "shine" strokes. Each major shape casts ONE flat, hard-edged offset
+drop shadow (no blur, no gradient) in the card navy (#1E293B), offset slightly
+down and to the right. Rounded, friendly, organic forms with soft corners.
+Completely flat shading: no gradients, no directional lighting, no texture,
+no 3D. Straight-on 2D perspective. Square 1:1 composition. Modern, confident,
+trustworthy tone.
 
 Negative: no black or colored background, no photorealism, no gradients, no
-ambient occlusion, no neon, no colors outside the green palette plus white,
+ambient occlusion, no neon, no colors outside the four-color palette above,
 no lettering or numbers, no eyes / surveillance-camera / spying imagery."""
 
 # === Block B — Subject library ===

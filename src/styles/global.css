@@ -1,44 +1,53 @@
 @import "tailwindcss";
 
 @theme {
-  /* === Corporate palette (lifted from consentresolve.com) === */
+  /* === Locked palette (updated 2026-06-02) === */
 
-  /* Brand navy scale (dark sections, text on light) */
-  --color-navy-900: #0a1628;
+  /* Navy scale (backgrounds, cards) */
+  --color-navy-900: #0a1628; /* primary dark bg */
   --color-navy-800: #0d1b2a;
-  --color-navy-700: #0f2030;
-  --color-navy-600: #0f2744;
+  --color-navy-700: #1e293b; /* card / secondary surface */
+  --color-navy-600: #1e293b;
 
-  /* Brand mint scale (accent) */
+  /* Mint scale (brand) */
   --color-mint-300: #00f5b0;
-  --color-mint-400: #00e5a0; /* live-site primary, low-contrast on white */
+  --color-mint-400: #00e5a0; /* brand primary */
   --color-mint-500: #00d090;
-  --color-mint-600: #00c080; /* AA-safe on white for CTAs / text */
+  --color-mint-600: #00c080;
   --color-mint-700: #00a86e;
 
   /* Neutrals */
-  --color-paper: #f9f9f9;
+  --color-paper: #f8fafc;    /* primary light bg / foreground */
   --color-white: #ffffff;
-  --color-ink: #0a1628;
-  --color-ink-2: #2e3a4a;
-  --color-ink-muted: #4a5568;
-  --color-rule: #e6e6e6;
+  --color-foreground: #f8fafc;
+  --color-ink: #0a1628;      /* primary text on light */
+  --color-ink-2: #475569;    /* secondary text on light */
+  --color-ink-muted: #94a3b8;
+  --color-rule: #e2e8f0;
 
   /* Semantic */
-  --color-danger: #ef4444;
+  --color-danger: #7f1d1d;
+  --color-danger-bright: #fca5a5; /* danger text on dark surfaces */
   --color-danger-soft: #fee2e2;
+
+  /* Chart palette */
+  --color-chart-blue:   #3b82f6;
+  --color-chart-green:  #10b981;
+  --color-chart-orange: #f59e0b;
+  --color-chart-purple: #a855f7;
+  --color-chart-pink:   #ec4899;
 
   /* === Semantic aliases consumed by components === */
   --color-bg: var(--color-paper);
   --color-bg-alt: var(--color-white);
   --color-bg-inverse: var(--color-navy-900);
   --color-bg-inverse-alt: var(--color-navy-700);
-  --color-brand: var(--color-mint-600);
+  --color-brand: var(--color-mint-400);
   --color-brand-bright: var(--color-mint-400);
   --color-brand-pressed: var(--color-mint-700);
-  --color-brand-soft: #e6faf3;
-  --color-on-brand: #ffffff;
-  --color-on-inverse: #ffffff;
+  --color-brand-soft: rgba(0, 229, 160, 0.12);
+  --color-on-brand: #0a1628;       /* navy text on bright mint = 11:1 */
+  --color-on-inverse: #f8fafc;
   --color-on-inverse-muted: #94a3b8;
 
   /* Type */
@@ -91,6 +100,7 @@
     --color-bg-alt: var(--color-bg-inverse-alt);
     --color-brand: var(--color-mint-400);
     --color-brand-soft: rgba(0, 229, 160, 0.12);
+    --color-danger: var(--color-danger-bright); /* bright red for visibility on navy */
   }
 }
 

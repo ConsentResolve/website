@@ -48,9 +48,9 @@ const monogram = initials ?? brand.split(/\s+/).map((s) => s[0]).slice(0, 2).joi
 // score colors
 const sv = score ?? 0;
 const scoreColor =
-  sv >= 80 ? "#00C080" :
-  sv >= 60 ? "#3b82f6" :
-  sv >= 40 ? "#f59e0b" : "#dc2626";
+  sv >= 80 ? "#00E5A0" :
+  sv >= 60 ? "#3B82F6" :
+  sv >= 40 ? "#F59E0B" : "#EC4899";
 const scoreGrade =
   sv >= 90 ? "A+" :
   sv >= 80 ? "A"  :
@@ -199,7 +199,7 @@ const scoreGrade =
         class:list={[
           "inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-4 text-base font-black uppercase tracking-[0.08em] transition-all",
           featured
-            ? "bg-[color:var(--color-brand)] text-white hover:bg-[color:var(--color-brand-pressed)] hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-12px_rgba(0,192,128,0.55)]"
+            ? "bg-[color:var(--color-brand)] text-[color:var(--color-on-brand)] hover:bg-[color:var(--color-brand-pressed)] hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-12px_rgba(0,192,128,0.55)]"
             : "bg-[color:var(--color-navy-900)] text-white hover:bg-[color:var(--color-navy-700)]"
         ]}
       >

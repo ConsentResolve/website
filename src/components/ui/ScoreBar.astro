@@ -7,12 +7,12 @@ interface Props {
 }
 const { value, label, size = "md", showValue = true } = Astro.props as Props;
 const v = Math.max(0, Math.min(100, value));
-// Color zones
+// Color zones (chart palette)
 const color =
-  v >= 80 ? "#00C080" :    // mint
-  v >= 60 ? "#3b82f6" :    // blue (not a brand color, but standard "good")
-  v >= 40 ? "#f59e0b" :    // amber
-  "#dc2626";               // red
+  v >= 80 ? "#00E5A0" :    // brand mint
+  v >= 60 ? "#3B82F6" :    // chart blue
+  v >= 40 ? "#F59E0B" :    // chart orange
+  "#EC4899";               // chart pink
 const grade =
   v >= 90 ? "A+" :
   v >= 80 ? "A"  :
