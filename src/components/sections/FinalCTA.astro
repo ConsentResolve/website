@@ -13,28 +13,32 @@ const {
 } = Astro.props as Props;
 ---
 
-<section class="px-6 py-24 bg-[color:var(--color-paper)]">
-  <div class="mx-auto max-w-[1000px]">
-    <div class="relative overflow-hidden rounded-[2rem] border border-[color:var(--color-rule)] bg-white p-12 text-center shadow-[0_24px_60px_-32px_rgba(19,22,17,0.18)]">
-      <div class="absolute left-0 top-0 h-1 w-full bg-[color:var(--color-vermilion)]"></div>
+<section class="section-dark px-6 py-24">
+  <div class="container-content">
+    <div class="relative overflow-hidden rounded-[2rem] border border-[color:var(--color-rule)] bg-[color:var(--color-bg-inverse-alt)] p-12">
+      <div class="absolute left-0 top-0 h-1 w-full bg-[color:var(--color-brand)]"></div>
       <div class="grid items-center gap-12 md:grid-cols-2">
         <div class="text-left">
-          <h2 class="mb-6 text-4xl font-black text-[color:var(--color-ink)]">{heading}</h2>
-          <p class="mb-8 text-lg text-[color:var(--color-ink-2)]">{body}</p>
-          <a href={ctaHref} class="btn-primary w-full px-10 py-5 text-xl glow-hover sm:w-auto">
+          <h2 class="mb-6 text-4xl font-black text-[color:var(--color-on-inverse)] md:text-5xl">{heading}</h2>
+          <p class="mb-8 text-lg text-slate-300">{body}</p>
+          <a
+            href={ctaHref}
+            class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[color:var(--color-brand)] px-10 py-5 text-xl font-black text-[color:var(--color-navy-900)] transition-all hover:bg-[color:var(--color-mint-300)] hover:shadow-[0_8px_32px_-8px_rgba(0,229,160,0.55)] sm:w-auto"
+          >
             {ctaLabel}
+            <span class="material-symbols-outlined !text-[color:var(--color-navy-900)]">arrow_forward</span>
           </a>
         </div>
         <div class="space-y-4">
-          <div class="flex items-center justify-between rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-paper)] p-6">
-            <span class="text-[color:var(--color-ink-2)]">Monthly Trial Fee</span>
-            <span class="text-2xl font-black text-[color:var(--color-vermilion)]">$10</span>
+          <div class="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-6">
+            <span class="text-slate-300">Monthly Trial Fee</span>
+            <span class="text-2xl font-black text-[color:var(--color-brand)]">$10</span>
           </div>
-          <div class="flex items-center justify-between rounded-2xl border border-[color:var(--color-danger)]/30 bg-[color:var(--color-danger)]/5 p-6">
-            <span class="text-[color:var(--color-ink-2)]">Potential Legal Fine</span>
+          <div class="flex items-center justify-between rounded-2xl border border-[color:var(--color-danger)]/30 bg-[color:var(--color-danger)]/10 p-6">
+            <span class="text-slate-300">Potential Legal Fine</span>
             <span class="text-2xl font-black text-[color:var(--color-danger)]">$50,000+</span>
           </div>
-          <div class="pt-4 flex items-center justify-center gap-2 text-xs text-[color:var(--color-ink-muted)]">
+          <div class="pt-4 flex items-center justify-center gap-2 text-xs text-slate-400">
             <span class="material-symbols-outlined !text-sm">lock</span> 256-bit Encrypted Dashboard · Cancel Anytime
           </div>
         </div>

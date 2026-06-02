@@ -34,12 +34,12 @@ export default function LiveTrafficStream() {
 
   return (
     <div className="relative">
-      <div className="absolute -inset-6 rounded-[2rem] bg-[color:var(--color-vermilion)]/10 blur-3xl" />
+      <div className="absolute -inset-6 rounded-[2rem] bg-[color:var(--color-brand)]/10 blur-3xl" />
       <div className="relative overflow-hidden rounded-2xl border border-[color:var(--color-rule)] bg-white p-8 shadow-[0_24px_48px_-24px_rgba(19,22,17,0.18)]">
         <div className="mb-8 flex items-center justify-between">
           <h3 className="font-bold text-[color:var(--color-ink)]">Live Lead Stream</h3>
-          <span className="flex items-center gap-2 rounded-full bg-[color:var(--color-vermilion-soft)] px-3 py-1 text-xs font-bold uppercase tracking-widest text-[color:var(--color-vermilion)]">
-            <span className="size-1.5 rounded-full bg-[color:var(--color-vermilion)] animate-pulse" />
+          <span className="flex items-center gap-2 rounded-full bg-[color:var(--color-brand-soft)] px-3 py-1 text-xs font-bold uppercase tracking-widest text-[color:var(--color-brand)]">
+            <span className="size-1.5 rounded-full bg-[color:var(--color-brand)] animate-pulse" />
             Live
           </span>
         </div>
@@ -48,7 +48,7 @@ export default function LiveTrafficStream() {
             row.kind === "anon" ? (
               <div
                 key={i}
-                className="flex items-center gap-4 rounded-lg border border-dashed border-[color:var(--color-rule)] bg-[color:var(--color-paper-2)] p-4 opacity-70"
+                className="flex items-center gap-4 rounded-lg border border-dashed border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] p-4 opacity-70"
               >
                 <span className="material-symbols-outlined !text-[color:var(--color-ink-muted)]">
                   person_off
@@ -59,12 +59,12 @@ export default function LiveTrafficStream() {
             ) : (
               <div
                 key={i}
-                className="flex items-center gap-4 rounded-lg border border-[color:var(--color-vermilion)]/30 bg-[color:var(--color-vermilion-soft)] p-4 transition-all"
+                className="flex items-center gap-4 rounded-lg border border-[color:var(--color-brand)]/30 bg-[color:var(--color-brand-soft)] p-4 transition-all"
               >
                 <span className="material-symbols-outlined">person_check</span>
                 <div className="flex-1">
                   <div className="text-sm font-bold text-[color:var(--color-ink)]">
-                    {row.name} <span className="text-[color:var(--color-vermilion)]">· consented</span>
+                    {row.name} <span className="text-[color:var(--color-brand)]">· consented</span>
                   </div>
                   <div className="text-xs text-[color:var(--color-ink-2)]">
                     {row.phone} • {row.intent}

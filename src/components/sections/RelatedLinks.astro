@@ -6,12 +6,12 @@ const { heading = "Related", links } = Astro.props as Props;
 
 {
   links.length > 0 && (
-    <section class="px-6 py-16 border-t border-[color:var(--color-rule)] bg-[color:var(--color-paper)]">
+    <section class="px-6 py-16 border-t border-[color:var(--color-rule)] bg-[color:var(--color-bg)]">
       <div class="container-content">
         <h2 class="mb-8 text-2xl font-bold text-[color:var(--color-ink)]">{heading}</h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {links.map((l) => (
-            <a href={l.href} class="card p-5 hover:border-[color:var(--color-vermilion)]/40 transition-colors">
+            <a href={l.href} class="card p-5 hover:border-[color:var(--color-brand)]/40 transition-colors">
               <div class="font-bold text-[color:var(--color-ink)]">{l.label}</div>
               {l.note && <div class="mt-1 text-sm text-[color:var(--color-ink-2)]">{l.note}</div>}
             </a>
