@@ -135,9 +135,9 @@
   .display-1 {
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: clamp(2.5rem, 5.5vw, 4.75rem);
-    line-height: 1.02;
-    letter-spacing: -0.035em;
+    font-size: clamp(1.25rem, 2.75vw, 2.375rem);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
   }
   .display-2 {
     font-family: var(--font-display);
