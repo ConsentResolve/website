@@ -1,48 +1,69 @@
 ---
-import Illustration from "~/components/Illustration.astro";
+import Funnel from "~/components/ui/Funnel.astro";
+import AnimatedStat from "~/components/ui/AnimatedStat.tsx";
 import { IconUserOff, IconUsersGroup, IconCoin } from "@tabler/icons-react";
-
-interface Stat { label: string; value: string; tone: "danger" | "primary" | "neutral"; note: string; Icon: any; }
-const stats: Stat[] = [
-  { label: "Walk away anonymous", value: "98%", tone: "danger", Icon: IconUserOff, note: "Homeowners price-shop your site, then call a competitor you'll never know existed." },
-  { label: "Shared-lead resell rate", value: "4–6×", tone: "primary", Icon: IconUsersGroup, note: "Thumbtack and Angi auction the same lead to four other shops. You're paying to compete." },
-  { label: "Jobs left on the table", value: "$XX,XXX", tone: "neutral", Icon: IconCoin, note: "Monthly revenue lost to whichever contractor calls back first." },
-];
-
-const toneClass = (t: Stat["tone"]) =>
-  t === "danger" ? "text-[color:var(--color-danger)]"
-  : t === "primary" ? "text-[color:var(--color-brand)]"
-  : "text-[color:var(--color-ink)]";
 ---
 
 <section class="section section-dark">
-  <div class="container-content grid items-center gap-16 lg:grid-cols-[0.9fr_1.1fr]">
-    <!-- Illustration slot -->
-    <div class="relative">
-      <Illustration name="anonymous-traffic" alt="Anonymous website visitors walking away" class="w-full h-auto max-w-md mx-auto" />
+  <div class="container-content">
+    <div class="mb-14 max-w-2xl">
+      <p class="eyebrow mb-5" style="color:var(--color-mint-400)">The Problem</p>
+      <h2 class="display-2 text-white">
+        Every anonymous visitor is a job you didn't win.
+      </h2>
+      <p class="mt-4 text-lg leading-relaxed text-slate-300">
+        Here's what happens to 1,000 homeowners shopping your service area on a typical month.
+      </p>
     </div>
 
-    <div>
-      <p class="eyebrow mb-5">The Problem</p>
-      <h2 class="display-2 mb-10 text-[color:var(--color-ink)]">
-        Every anonymous visitor is a job you<br class="hidden md:block"/> didn't win.
-      </h2>
-      <div class="space-y-3">
-        {stats.map((s) => (
-          <div class="flex items-start gap-5 py-5 border-t border-[color:var(--color-rule)]">
-            <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-bg)]">
-              <s.Icon size={20} stroke={1.75} />
-            </div>
-            <div class="flex-1">
-              <div class="flex items-baseline gap-4">
-                <span class={`text-[2rem] font-bold tracking-tight font-display ${toneClass(s.tone)}`}>{s.value}</span>
-                <span class="text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">{s.label}</span>
-              </div>
-              <p class="mt-1.5 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{s.note}</p>
-            </div>
+    <div class="grid items-start gap-12 lg:grid-cols-[1.1fr_1fr]">
+      <!-- Funnel -->
+      <div class="rounded-2xl bg-white/[0.03] p-7 ring-1 ring-inset ring-white/10">
+        <p class="mb-5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Visitor funnel · typical contractor site</p>
+        <div style="--color-bg: rgba(255,255,255,0.08); --color-ink: #ffffff; --color-ink-muted: #94a3b8;">
+          <Funnel
+            stages={[
+              { label: "Site visitors", value: 1000 },
+              { label: "Stayed >30s", value: 420 },
+              { label: "Viewed pricing", value: 180 },
+              { label: "Filled a form", value: 22 },
+              { label: "Answered the phone", value: 9 },
+              { label: "Booked a job", value: 3 },
+            ]}
+          />
+        </div>
+      </div>
+
+      <!-- Animated stats -->
+      <div class="space-y-4">
+        <div class="rounded-2xl bg-white/[0.03] p-6 ring-1 ring-inset ring-white/10">
+          <div class="mb-3 inline-flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-danger)]/15">
+            <IconUserOff size={20} stroke={1.75} color="#fca5a5" />
           </div>
-        ))}
+          <AnimatedStat client:visible value={98} suffix="%" tone="danger" size="lg" />
+          <p class="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Walk away anonymous</p>
+          <p class="mt-2 text-sm leading-relaxed text-slate-300">Homeowners who price-shop your site, then call a competitor you'll never know existed.</p>
+        </div>
+
+        <div class="rounded-2xl bg-white/[0.03] p-6 ring-1 ring-inset ring-white/10">
+          <div class="mb-3 inline-flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]/15">
+            <IconUsersGroup size={20} stroke={1.75} color="#00E5A0" />
+          </div>
+          <div class="font-display text-4xl md:text-5xl font-bold leading-none tracking-tight text-[color:var(--color-mint-400)]">4–6×</div>
+          <p class="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Shared-lead resell rate</p>
+          <p class="mt-2 text-sm leading-relaxed text-slate-300">Thumbtack and Angi auction the same lead to four other shops. You're paying to compete.</p>
+        </div>
+
+        <div class="rounded-2xl bg-white/[0.03] p-6 ring-1 ring-inset ring-white/10">
+          <div class="mb-3 inline-flex size-10 items-center justify-center rounded-xl bg-white/10">
+            <IconCoin size={20} stroke={1.75} color="#cbd5e1" />
+          </div>
+          <AnimatedStat client:visible value={12400} prefix="$" tone="ink" size="lg" />
+          <p class="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Monthly revenue left on the table</p>
+          <p class="mt-2 text-sm leading-relaxed text-slate-300">Average across 60-job/mo contractors using shared-lead platforms.</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
+
