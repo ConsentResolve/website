@@ -11,46 +11,36 @@ import {
   IconRefresh,
   IconBolt,
 } from "@tabler/icons-react";
+
+const features = [
+  { Icon: IconUserCheck,      title: "Real names. Real numbers.",     body: "First name, last name, mobile phone. The actual homeowner — not a household label, not a P.O. box, not a stale lead." },
+  { Icon: IconMapPin,         title: "Mapped to your zip.",           body: "Every lead drops a pin on your service area map. Filter by zip, route, or radius from your shop." },
+  { Icon: IconClipboardCheck, title: "Why they're shopping.",         body: "'AC tune-up', 'water heater quote', 'roof inspection' — intent captured at the moment of consent." },
+  { Icon: IconBellRinging,    title: "On your phone in five.",        body: "Slack, SMS, or email the second a homeowner consents. First contractor to call wins the job." },
+  { Icon: IconPlugConnected,  title: "Lands in your CRM.",            body: "Native push to Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo — anything via webhook." },
+  { Icon: IconRefresh,        title: "They came back? You'll know.",  body: "Return-visit alerts fire when an identified lead returns to your site. Time the follow-up." },
+  { Icon: IconLock,           title: "Yours alone. Never resold.",    body: "Not auctioned to four other shops. Not flipped next week. One consent, one contractor — you." },
+  { Icon: IconShieldCheck,    title: "Audit-ready by default.",       body: "GDPR, CCPA, and CPA compliant from day one. Iron-clad audit trail backed by Termageddon." },
+  { Icon: IconBolt,           title: "Set up in ten minutes.",        body: "Paste one line of code. Works on WordPress, Wix, Squarespace, ServiceTitan websites — anything." },
+];
 ---
 
 <section class="section">
   <div class="container-content">
-    <div class="mb-14 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-      <div class="max-w-2xl">
-        <p class="eyebrow mb-5">Tools included</p>
-        <h2 class="display-2 text-[color:var(--color-ink)]">Everything in your toolbox.</h2>
-      </div>
-      <p class="max-w-md text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+    <div class="mx-auto mb-16 max-w-3xl text-center">
+      <p class="eyebrow mb-5 justify-center">Tools included</p>
+      <h2 class="display-2 text-[color:var(--color-ink)]">
+        Everything in your toolbox.
+      </h2>
+      <p class="mt-4 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
         What lands in your dashboard the moment a homeowner consents.
       </p>
     </div>
 
-    <!-- Bento grid: 1 featured (lg, 2-col) + 6 regular -->
-    <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-      <!-- Featured card spans 2 columns -->
-      <div class="md:col-span-2 lg:col-span-2 lg:row-span-2">
-        <FeatureCard
-          size="lg"
-          variant="featured"
-          icon={IconBolt}
-          title="The unfair advantage"
-          body="Identify the homeowners shopping your service area — only after they consent. First contractor to call wins. We get you on the phone in under five minutes, with a name, number, and what they need."
-          badge="Best for service pros"
-        />
-      </div>
-
-      <FeatureCard variant="lift" icon={IconUserCheck} title="Verified name & phone" body="The actual homeowner — first, last, mobile. Not a household label." />
-      <FeatureCard variant="lift" icon={IconMapPin} title="Service area pin" body="Drops on your map. Filter by zip, route, or radius from your shop." />
-      <FeatureCard variant="lift" icon={IconClipboardCheck} title="Captured intent" body="'AC tune-up', 'roof inspection', 'water heater quote' — at the moment of consent." />
-      <FeatureCard variant="lift" icon={IconBellRinging} title="Sub-5-min alerts" body="Slack, SMS, or email the second consent fires. First to call wins." />
-      <FeatureCard variant="lift" icon={IconPlugConnected} title="CRM & dispatch sync" body="Pushes to Jobber, Housecall Pro, ServiceTitan, HubSpot, or your sheet." />
-      <FeatureCard variant="lift" icon={IconRefresh} title="Return-visit alerts" body="If a homeowner comes back to your site, you know. Time it right." />
-    </div>
-
-    <!-- Footer row: compliance + exclusivity in accent-bar style -->
-    <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
-      <FeatureCard variant="accent-bar" icon={IconShieldCheck} title="Compliant by default" body="GDPR, CCPA, CPA. Iron-clad audit trail via Termageddon. Auditor-ready from day one." />
-      <FeatureCard variant="accent-bar" icon={IconLock} title="Never shared" body="Goes to you only. Not auctioned to three other shops. Not resold next week." />
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {features.map((f) => (
+        <FeatureCard variant="showcase" icon={f.Icon} title={f.title} body={f.body} />
+      ))}
     </div>
   </div>
 </section>

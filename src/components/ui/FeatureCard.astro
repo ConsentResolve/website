@@ -6,6 +6,8 @@ interface Props {
   title: string;
   body: string;
   variant?:
+    | "showcase"
+    | "showcase-dark"
     | "default"
     | "lift"
     | "minimal"
@@ -18,6 +20,7 @@ interface Props {
   badge?: string;
   href?: string;
   size?: "md" | "lg";
+  accent?: string; // override mint glow color (hex)
 }
 
 const {
@@ -29,14 +32,21 @@ const {
   badge,
   href,
   size = "md",
+  accent,
 } = Astro.props as Props;
 
 const Tag = (href ? "a" : "div") as "a" | "div";
 
 const padding = size === "lg" ? "p-8" : "p-6";
 
+const isShowcase = variant === "showcase" || variant === "showcase-dark";
+
 // Visual variants. We compose Tailwind classes per variant.
 const variantClass: Record<string, string> = {
+  showcase:
+    "group relative overflow-hidden bg-[color:var(--color-bg-alt)] rounded-2xl shadow-[0_1px_0_rgba(10,22,40,0.04),0_0_0_1px_rgba(10,22,40,0.06)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-24px_rgba(0,192,128,0.28),0_0_0_1px_rgba(0,192,128,0.25)]",
+  "showcase-dark":
+    "group relative overflow-hidden bg-[color:var(--color-navy-900)] text-white rounded-2xl shadow-[0_1px_0_rgba(255,255,255,0.04),0_0_0_1px_rgba(255,255,255,0.08)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-24px_rgba(0,229,160,0.35),0_0_0_1px_rgba(0,229,160,0.3)]",
   default:
     "relative bg-[color:var(--color-bg-alt)] rounded-2xl shadow-[0_1px_0_rgba(10,22,40,0.04),0_0_0_1px_rgba(10,22,40,0.06)] transition-all",
   lift:
@@ -56,6 +66,8 @@ const variantClass: Record<string, string> = {
 };
 
 const iconWellClass: Record<string, string> = {
+  showcase: "inline-flex size-[72px] items-center justify-center rounded-2xl bg-[color:var(--color-brand)] text-white transition-transform duration-300 group-hover:scale-[1.06]",
+  "showcase-dark": "inline-flex size-[72px] items-center justify-center rounded-2xl bg-[color:var(--color-mint-400)] text-[color:var(--color-navy-900)] transition-transform duration-300 group-hover:scale-[1.06]",
   default: "inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-pressed)]",
   lift: "inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-pressed)]",
   minimal: "text-[color:var(--color-brand-pressed)]",
@@ -67,6 +79,8 @@ const iconWellClass: Record<string, string> = {
 };
 
 const titleClass: Record<string, string> = {
+  showcase: "text-[color:var(--color-ink)]",
+  "showcase-dark": "text-white",
   default: "text-[color:var(--color-ink)]",
   lift: "text-[color:var(--color-ink)]",
   minimal: "text-[color:var(--color-ink)]",
@@ -78,6 +92,8 @@ const titleClass: Record<string, string> = {
 };
 
 const bodyClass: Record<string, string> = {
+  showcase: "text-[color:var(--color-ink-2)]",
+  "showcase-dark": "text-slate-300",
   default: "text-[color:var(--color-ink-2)]",
   lift: "text-[color:var(--color-ink-2)]",
   minimal: "text-[color:var(--color-ink-2)]",
@@ -95,7 +111,23 @@ const iconSize = size === "lg" ? 24 : 20;
 const minimalIconSize = size === "lg" ? 36 : 30;
 ---
 
-<Tag {...linkAttrs} class:list={[variantClass[variant], padding, interactive]}>
+<Tag
+  {...linkAttrs}
+  class:list={[
+    variantClass[variant],
+    isShowcase ? "p-8 md:p-9 min-h-[300px] flex flex-col" : padding,
+    interactive,
+  ]}
+>
+  {/* Showcase corner glow */}
+  {isShowcase && (
+    <span
+      aria-hidden="true"
+      class="pointer-events-none absolute -right-12 -top-12 size-40 rounded-full opacity-50 blur-2xl transition-opacity duration-300 group-hover:opacity-90"
+      style={`background: radial-gradient(circle, ${accent ?? "rgba(0,229,160,0.4)"}, transparent 70%);`}
+    ></span>
+  )}
+
   {/* Accent bar */}
   {variant === "accent-bar" && (
     <span class="absolute inset-y-0 left-0 w-1 bg-[color:var(--color-brand)]"></span>
@@ -118,7 +150,11 @@ const minimalIconSize = size === "lg" ? 36 : 30;
 
   {/* Icon */}
   {Icon && (
-    variant === "minimal" ? (
+    isShowcase ? (
+      <div class:list={["relative z-10", iconWellClass[variant]]}>
+        <Icon size={34} stroke={1.75} />
+      </div>
+    ) : variant === "minimal" ? (
       <div class={iconWellClass[variant]}>
         <Icon size={minimalIconSize} stroke={1.5} />
       </div>
@@ -129,8 +165,24 @@ const minimalIconSize = size === "lg" ? 36 : 30;
     )
   )}
 
-  <h3 class:list={["mt-5 font-semibold tracking-tight", titleClass[variant], size === "lg" ? "text-lg" : "text-[15px]"]}>{title}</h3>
-  <p class:list={["mt-2 leading-relaxed", bodyClass[variant], size === "lg" ? "text-[15px]" : "text-[14px]"]}>{body}</p>
+  {isShowcase ? (
+    <>
+      <h3 class:list={[
+        "relative z-10 font-display font-bold tracking-tight leading-[1.1] mt-7",
+        "text-2xl md:text-[1.6rem]",
+        titleClass[variant],
+      ]}>{title}</h3>
+      <p class:list={[
+        "relative z-10 mt-3 text-[15px] leading-[1.65]",
+        bodyClass[variant],
+      ]}>{body}</p>
+    </>
+  ) : (
+    <>
+      <h3 class:list={["mt-5 font-semibold tracking-tight", titleClass[variant], size === "lg" ? "text-lg" : "text-[15px]"]}>{title}</h3>
+      <p class:list={["mt-2 leading-relaxed", bodyClass[variant], size === "lg" ? "text-[15px]" : "text-[14px]"]}>{body}</p>
+    </>
+  )}
 
   {/* External link arrow */}
   {href && (

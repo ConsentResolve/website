@@ -22,6 +22,30 @@ import {
   description="Eight variants of a single FeatureCard primitive. Use them on industry pages, location pages, the homepage, comparison pages — anywhere a tile with icon + title + body is needed."
 >
   <section class="sg-section">
+    <h2>Showcase (recommended for landing-page feature grids)</h2>
+    <p class="sg-lede">Uniform, attention-grabbing. Big mint icon well, display-font title, generous padding, mint corner-glow that intensifies on hover. Use these where you need to <em>sell</em> the product.</p>
+    <div class="sg-preview">
+      <div class="grid gap-6 md:grid-cols-3">
+        <FeatureCard variant="showcase" icon={IconUserCheck} title="Real names. Real numbers." body="First name, last name, mobile phone. The actual homeowner — not a household label." />
+        <FeatureCard variant="showcase" icon={IconMapPin} title="Mapped to your zip." body="Every lead drops a pin on your service area map. Filter by zip, route, or radius." />
+        <FeatureCard variant="showcase" icon={IconBellRinging} title="On your phone in five." body="Slack, SMS, or email the second a homeowner consents. First contractor to call wins." />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Showcase (dark)</h2>
+    <p class="sg-lede">Same shape, navy fill, white type, bright-mint icon well. Use inside dark sections.</p>
+    <div class="sg-preview sg-preview-dark">
+      <div class="grid gap-6 md:grid-cols-3">
+        <FeatureCard variant="showcase-dark" icon={IconShieldCheck} title="Audit-ready by default." body="GDPR, CCPA, and CPA compliant from day one. Iron-clad audit trail via Termageddon." />
+        <FeatureCard variant="showcase-dark" icon={IconLock} title="Yours alone. Never resold." body="Not auctioned to four other shops. Not flipped next week. One consent, one contractor — you." />
+        <FeatureCard variant="showcase-dark" icon={IconBolt} title="Set up in ten minutes." body="Paste one line of code. Works on WordPress, Wix, Squarespace, ServiceTitan sites." />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
     <h2>Default</h2>
     <p class="sg-lede">Clean light card with mint icon-well. Use for standard feature grids.</p>
     <div class="sg-preview">
