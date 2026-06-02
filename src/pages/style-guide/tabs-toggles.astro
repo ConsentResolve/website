@@ -3,7 +3,7 @@ import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
 import Tabs from "~/components/ui/Tabs.tsx";
 import Toggle from "~/components/ui/Toggle.tsx";
 
-const sample = [
+const card = [
   {
     label: "For Plumbers",
     content: "Identify homeowners actively researching water heater replacements, drain repairs, and emergency leaks in your zip codes.",
@@ -17,13 +17,6 @@ const sample = [
     content: "Heat-wave and cold-snap demand spikes converted into named leads with phone numbers and service intent.",
   },
 ];
-
-const card = sample.map((s) => ({
-  label: s.label,
-  content: (
-    <div className="text-[15px] leading-relaxed text-[#3d4338]">{s.content}</div>
-  ),
-}));
 ---
 
 <StyleGuideLayout slug="tabs-toggles" title="Tabs & Toggles" description="Tabs for switching content panels. Toggles for binary on/off settings.">
