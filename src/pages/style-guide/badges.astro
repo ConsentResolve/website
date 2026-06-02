@@ -1,0 +1,190 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
+import {
+  IconCheck,
+  IconSparkles,
+  IconBolt,
+  IconShieldCheck,
+  IconAlertTriangle,
+  IconLock,
+  IconStar,
+} from "@tabler/icons-react";
+
+const tones = ["brand", "neutral", "success", "warning", "danger", "info"] as const;
+const variants = ["solid", "soft", "outline"] as const;
+---
+
+<StyleGuideLayout
+  slug="badges"
+  title="Badges"
+  description="Pill labels for tags, statuses, counts, and category chips. Six tones (brand, neutral, success, warning, danger, info), three variants (solid, soft, outline), three sizes, and two surface modes so the same badge looks right on light and dark sections."
+>
+  <!-- LIGHT SURFACE -->
+  <section class="sg-section">
+    <h2>Light section</h2>
+    <p class="sg-lede">Pass <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">surface="light"</code> (default) on light backgrounds. Solid for high emphasis, soft for general use, outline for low emphasis.</p>
+
+    <p class="sg-label">Tones × variants</p>
+    <div class="sg-preview">
+      <div class="grid gap-4 sm:grid-cols-3">
+        {variants.map((variant) => (
+          <div>
+            <p class="sg-label">{variant}</p>
+            <div class="flex flex-wrap items-center gap-2">
+              {tones.map((tone) => (
+                <Badge tone={tone} variant={variant} surface="light">
+                  {tone.charAt(0).toUpperCase() + tone.slice(1)}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <p class="sg-label">Sizes</p>
+    <div class="sg-preview">
+      <div class="sg-row">
+        <Badge tone="brand" size="sm">Small</Badge>
+        <Badge tone="brand" size="md">Medium</Badge>
+        <Badge tone="brand" size="lg">Large</Badge>
+      </div>
+    </div>
+
+    <p class="sg-label">With status dot</p>
+    <div class="sg-preview">
+      <div class="sg-row">
+        <Badge tone="success" dot>Live</Badge>
+        <Badge tone="warning" dot>Pending</Badge>
+        <Badge tone="danger"  dot>Action required</Badge>
+        <Badge tone="info"    dot>Beta</Badge>
+        <Badge tone="neutral" dot>Draft</Badge>
+      </div>
+    </div>
+
+    <p class="sg-label">With icon</p>
+    <div class="sg-preview">
+      <div class="sg-row">
+        <Badge tone="brand"   icon={IconSparkles}>Editor's pick</Badge>
+        <Badge tone="success" icon={IconCheck}>Verified</Badge>
+        <Badge tone="brand"   icon={IconBolt} variant="solid">Instant</Badge>
+        <Badge tone="info"    icon={IconShieldCheck} variant="outline">GDPR + CCPA</Badge>
+        <Badge tone="warning" icon={IconAlertTriangle}>Limit nearing</Badge>
+      </div>
+    </div>
+
+    <p class="sg-label">Uppercase / chip style (good for eyebrows & category tags)</p>
+    <div class="sg-preview">
+      <div class="sg-row">
+        <Badge tone="brand"   uppercase>Compliance</Badge>
+        <Badge tone="brand"   uppercase variant="solid">Featured</Badge>
+        <Badge tone="neutral" uppercase>Policy</Badge>
+        <Badge tone="info"    uppercase variant="outline">Operations</Badge>
+      </div>
+    </div>
+
+    <p class="sg-label">Real usage in copy</p>
+    <div class="sg-preview">
+      <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+        Exclusive leads <Badge tone="success" size="sm" icon={IconCheck}>Yours alone</Badge> never sold to anyone else. Our compliance pipeline <Badge tone="info" size="sm" icon={IconShieldCheck}>GDPR + CCPA</Badge> logs every consent with a timestamp.
+      </p>
+    </div>
+  </section>
+
+  <!-- DARK SURFACE -->
+  <section class="sg-section">
+    <h2>Dark section</h2>
+    <p class="sg-lede">Pass <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">surface="dark"</code> on navy / dark sections. Soft and outline switch to translucent-mint and slate-on-white tints so they read against the dark background without losing the tone.</p>
+
+    <p class="sg-label">Tones × variants</p>
+    <div class="sg-preview sg-preview-dark">
+      <div class="grid gap-4 sm:grid-cols-3">
+        {variants.map((variant) => (
+          <div>
+            <p class="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-slate-400 mb-2">{variant}</p>
+            <div class="flex flex-wrap items-center gap-2">
+              {tones.map((tone) => (
+                <Badge tone={tone} variant={variant} surface="dark">
+                  {tone.charAt(0).toUpperCase() + tone.slice(1)}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <p class="sg-label">Sizes</p>
+    <div class="sg-preview sg-preview-dark">
+      <div class="sg-row">
+        <Badge tone="brand" size="sm" surface="dark">Small</Badge>
+        <Badge tone="brand" size="md" surface="dark">Medium</Badge>
+        <Badge tone="brand" size="lg" surface="dark">Large</Badge>
+      </div>
+    </div>
+
+    <p class="sg-label">With status dot</p>
+    <div class="sg-preview sg-preview-dark">
+      <div class="sg-row">
+        <Badge tone="success" surface="dark" dot>Live</Badge>
+        <Badge tone="warning" surface="dark" dot>Pending</Badge>
+        <Badge tone="danger"  surface="dark" dot>Action required</Badge>
+        <Badge tone="info"    surface="dark" dot>Beta</Badge>
+        <Badge tone="neutral" surface="dark" dot>Draft</Badge>
+      </div>
+    </div>
+
+    <p class="sg-label">With icon</p>
+    <div class="sg-preview sg-preview-dark">
+      <div class="sg-row">
+        <Badge tone="brand"   surface="dark" icon={IconSparkles}>Editor's pick</Badge>
+        <Badge tone="success" surface="dark" icon={IconCheck}>Verified</Badge>
+        <Badge tone="brand"   surface="dark" icon={IconBolt} variant="solid">Instant</Badge>
+        <Badge tone="info"    surface="dark" icon={IconShieldCheck} variant="outline">GDPR + CCPA</Badge>
+        <Badge tone="warning" surface="dark" icon={IconAlertTriangle}>Limit nearing</Badge>
+      </div>
+    </div>
+
+    <p class="sg-label">Uppercase / chip style</p>
+    <div class="sg-preview sg-preview-dark">
+      <div class="sg-row">
+        <Badge tone="brand"   surface="dark" uppercase>Compliance</Badge>
+        <Badge tone="brand"   surface="dark" uppercase variant="solid">Featured</Badge>
+        <Badge tone="neutral" surface="dark" uppercase>Policy</Badge>
+        <Badge tone="info"    surface="dark" uppercase variant="outline">Operations</Badge>
+      </div>
+    </div>
+
+    <p class="sg-label">Real usage in copy</p>
+    <div class="sg-preview sg-preview-dark">
+      <p class="text-[15px] leading-relaxed text-slate-200">
+        One consent, one contractor <Badge tone="success" size="sm" surface="dark" icon={IconLock}>Exclusive</Badge> — never resold. Surfaced first when the visitor checks pricing twice <Badge tone="brand" size="sm" surface="dark" icon={IconStar}>High intent</Badge>.
+      </p>
+    </div>
+  </section>
+
+  <!-- USAGE -->
+  <section class="sg-section">
+    <h2>Usage</h2>
+    <p class="sg-lede">Importing and rendering. Defaults are <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">tone="brand"</code>, <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">variant="soft"</code>, <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">size="md"</code>, <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">surface="light"</code>.</p>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`---
+import Badge from "~/components/ui/Badge.astro";
+import { IconCheck } from "@tabler/icons-react";
+---
+
+<!-- Light section (default) -->
+<Badge tone="success" icon={IconCheck}>Verified</Badge>
+
+<!-- Dark section: flip surface so contrast adjusts -->
+<Badge tone="brand" variant="soft" surface="dark">Featured</Badge>
+
+<!-- Status dot, no text styling -->
+<Badge tone="warning" dot>Pending</Badge>
+
+<!-- Eyebrow-style chip -->
+<Badge tone="brand" uppercase variant="solid">New</Badge>`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

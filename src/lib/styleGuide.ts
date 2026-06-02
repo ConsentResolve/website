@@ -9,6 +9,7 @@ export const STYLE_GUIDE: StyleGuideEntry[] = [
   { slug: "buttons", title: "Buttons", description: "Variants, sizes, with-icon, link buttons." },
   { slug: "icons", title: "Icon Styles", description: "Tabler icon library presets and sizing." },
   { slug: "alerts", title: "Alert Messages", description: "Info, success, warning, danger." },
+  { slug: "badges", title: "Badges", description: "Pill tags for status, category, and metadata — light and dark surface renditions." },
   { slug: "accordion", title: "Accordion", description: "Single and grouped collapsible panels." },
   { slug: "tabs-toggles", title: "Tabs & Toggles", description: "Tabbed content + binary toggles." },
   { slug: "lists", title: "List Styles", description: "Ordered, unordered, checklist, feature lists." },

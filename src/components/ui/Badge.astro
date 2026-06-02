@@ -1,0 +1,148 @@
+---
+/**
+ * Badge — small pill label for tags, statuses, counts, and category chips.
+ *
+ * Tones map to the brand palette and have light + dark renditions:
+ *   - brand   → mint
+ *   - neutral → slate
+ *   - success → green
+ *   - warning → amber
+ *   - danger  → red
+ *   - info    → blue
+ *
+ * Styles ("variants"):
+ *   - solid   — filled background, contrasting text (high emphasis)
+ *   - soft    — tinted background, colored text (default; works light + dark)
+ *   - outline — transparent, ringed (low emphasis, works light + dark)
+ *
+ * Use `surface="dark"` on dark sections so contrast flips automatically.
+ */
+import type { ComponentType } from "react";
+
+export type BadgeTone = "brand" | "neutral" | "success" | "warning" | "danger" | "info";
+export type BadgeVariant = "solid" | "soft" | "outline";
+export type BadgeSize = "sm" | "md" | "lg";
+export type BadgeSurface = "light" | "dark";
+
+interface Props {
+  tone?: BadgeTone;
+  variant?: BadgeVariant;
+  size?: BadgeSize;
+  surface?: BadgeSurface;
+  icon?: ComponentType<any>;
+  /** Show a leading status dot (the colored circle). */
+  dot?: boolean;
+  /** Uppercase + wide letter-spacing (chip-style). */
+  uppercase?: boolean;
+  class?: string;
+}
+
+const {
+  tone = "brand",
+  variant = "soft",
+  size = "md",
+  surface = "light",
+  icon: Icon,
+  dot = false,
+  uppercase = false,
+  class: cls = "",
+} = Astro.props as Props;
+
+const sizeMap: Record<BadgeSize, string> = {
+  sm: "px-2 py-0.5 text-[10px] gap-1",
+  md: "px-2.5 py-1 text-[11px] gap-1.5",
+  lg: "px-3 py-1.5 text-xs gap-1.5",
+};
+const iconSize: Record<BadgeSize, number> = { sm: 10, md: 12, lg: 14 };
+const dotSize: Record<BadgeSize, string> = { sm: "size-1.5", md: "size-2", lg: "size-2" };
+
+// tone × variant × surface → class string
+// Light surface
+const lightStyles: Record<BadgeTone, Record<BadgeVariant, string>> = {
+  brand: {
+    solid:   "bg-[color:var(--color-brand)] text-[color:var(--color-navy-900)]",
+    soft:    "bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-pressed)]",
+    outline: "text-[color:var(--color-brand-pressed)] ring-1 ring-inset ring-[color:var(--color-brand)]/45",
+  },
+  neutral: {
+    solid:   "bg-[color:var(--color-navy-900)] text-white",
+    soft:    "bg-[color:var(--color-bg-alt)] text-[color:var(--color-ink-2)]",
+    outline: "text-[color:var(--color-ink-2)] ring-1 ring-inset ring-[color:var(--color-rule)]",
+  },
+  success: {
+    solid:   "bg-emerald-600 text-white",
+    soft:    "bg-emerald-50 text-emerald-700",
+    outline: "text-emerald-700 ring-1 ring-inset ring-emerald-300",
+  },
+  warning: {
+    solid:   "bg-amber-500 text-[color:var(--color-navy-900)]",
+    soft:    "bg-amber-50 text-amber-700",
+    outline: "text-amber-700 ring-1 ring-inset ring-amber-300",
+  },
+  danger: {
+    solid:   "bg-red-600 text-white",
+    soft:    "bg-red-50 text-red-700",
+    outline: "text-red-700 ring-1 ring-inset ring-red-300",
+  },
+  info: {
+    solid:   "bg-sky-600 text-white",
+    soft:    "bg-sky-50 text-sky-700",
+    outline: "text-sky-700 ring-1 ring-inset ring-sky-300",
+  },
+};
+
+// Dark surface
+const darkStyles: Record<BadgeTone, Record<BadgeVariant, string>> = {
+  brand: {
+    solid:   "bg-[color:var(--color-brand)] text-[color:var(--color-navy-900)]",
+    soft:    "bg-[color:var(--color-mint-400)]/15 text-[color:var(--color-mint-400)]",
+    outline: "text-[color:var(--color-mint-400)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/45",
+  },
+  neutral: {
+    solid:   "bg-white text-[color:var(--color-navy-900)]",
+    soft:    "bg-white/10 text-slate-200",
+    outline: "text-slate-200 ring-1 ring-inset ring-white/25",
+  },
+  success: {
+    solid:   "bg-emerald-400 text-[color:var(--color-navy-900)]",
+    soft:    "bg-emerald-400/15 text-emerald-300",
+    outline: "text-emerald-300 ring-1 ring-inset ring-emerald-400/40",
+  },
+  warning: {
+    solid:   "bg-amber-400 text-[color:var(--color-navy-900)]",
+    soft:    "bg-amber-400/15 text-amber-300",
+    outline: "text-amber-300 ring-1 ring-inset ring-amber-400/40",
+  },
+  danger: {
+    solid:   "bg-red-500 text-white",
+    soft:    "bg-red-500/15 text-red-300",
+    outline: "text-red-300 ring-1 ring-inset ring-red-400/40",
+  },
+  info: {
+    solid:   "bg-sky-400 text-[color:var(--color-navy-900)]",
+    soft:    "bg-sky-400/15 text-sky-300",
+    outline: "text-sky-300 ring-1 ring-inset ring-sky-400/40",
+  },
+};
+
+// Solid dot colors (used by the dot indicator)
+const dotColor: Record<BadgeTone, string> = {
+  brand: "bg-[color:var(--color-brand)]",
+  neutral: "bg-slate-400",
+  success: "bg-emerald-500",
+  warning: "bg-amber-500",
+  danger: "bg-red-500",
+  info: "bg-sky-500",
+};
+
+const toneClass = (surface === "dark" ? darkStyles : lightStyles)[tone][variant];
+const base = "inline-flex items-center rounded-full font-bold whitespace-nowrap align-middle";
+const tracking = uppercase ? "uppercase tracking-[0.14em]" : "tracking-tight";
+const classes = `${base} ${sizeMap[size]} ${toneClass} ${tracking} ${cls}`;
+---
+
+<span class={classes}>
+  {dot && <span class:list={["inline-block rounded-full", dotSize[size], dotColor[tone]]} aria-hidden="true"></span>}
+  {Icon && <Icon size={iconSize[size]} stroke={2.25} />}
+  <slot />
+</span>
