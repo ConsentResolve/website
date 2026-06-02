@@ -29,6 +29,7 @@ export const STYLE_GUIDE: StyleGuideEntry[] = [
   { slug: "feature-cards", title: "Feature Cards", description: "Eight variants of an icon + title + body tile primitive." },
   { slug: "comparison-tables", title: "Comparison Tables", description: "Mattress-site-style product cards + dense feature × brand matrix." },
   { slug: "product-demo", title: "Product Demo Screens", description: "Anonymized HTML/CSS replicas of the dashboard for landing-page use." },
+  { slug: "illustrations", title: "Illustrations", description: "Locked hand-drawn sage-palette icon system with OpenAI regeneration script." },
   { slug: "pricing-table", title: "Pricing Table", description: "Tiered pricing card layout." },
   { slug: "testimonials", title: "Testimonials", description: "Customer testimonial card variants." },
 ];

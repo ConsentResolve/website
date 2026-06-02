@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- tray shadow -->
+  <path d="M32 124 l24 -28 h92 l24 28 v32 q0 8 -8 8 h-124 q-8 0 -8 -8 z" fill="#1B3A2A" transform="translate(0,4)"/>
+  <!-- tray -->
+  <path d="M28 120 l24 -28 h92 l24 28 v32 q0 8 -8 8 h-124 q-8 0 -8 -8 z" fill="#5FB98C" stroke="#14271C" stroke-width="5" stroke-linejoin="round"/>
+  <!-- tray inner cradle -->
+  <path d="M28 120 h44 q4 12 14 12 h28 q10 0 14 -12 h44" stroke="#14271C" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- card sliding in (above) shadow -->
+  <rect x="68" y="36" width="68" height="58" rx="6" fill="#1B3A2A" transform="translate(3,3)"/>
+  <!-- card -->
+  <rect x="68" y="36" width="68" height="58" rx="6" fill="#BCE3CB" stroke="#14271C" stroke-width="5"/>
+  <!-- card lines -->
+  <line x1="78" y1="52" x2="126" y2="52" stroke="#14271C" stroke-width="4" stroke-linecap="round"/>
+  <line x1="78" y1="64" x2="116" y2="64" stroke="#14271C" stroke-width="4" stroke-linecap="round"/>
+  <line x1="78" y1="76" x2="120" y2="76" stroke="#14271C" stroke-width="4" stroke-linecap="round"/>
+  <!-- arrow into tray -->
+  <path d="M102 100 l0 -8 m-6 4 l6 4 l6 -4" stroke="#14271C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

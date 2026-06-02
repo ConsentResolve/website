@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- bubble shadow -->
+  <path d="M40 50 q0 -14 14 -14 h96 q14 0 14 14 v64 q0 14 -14 14 h-44 l-22 22 v-22 h-30 q-14 0 -14 -14 z" fill="#1B3A2A" transform="translate(4,4)"/>
+  <!-- bubble -->
+  <path d="M40 50 q0 -14 14 -14 h96 q14 0 14 14 v64 q0 14 -14 14 h-44 l-22 22 v-22 h-30 q-14 0 -14 -14 z" fill="#BCE3CB" stroke="#14271C" stroke-width="5" stroke-linejoin="round"/>
+  <!-- wrench shadow -->
+  <g transform="translate(3,3) rotate(-30 100 80)">
+    <circle cx="74" cy="80" r="16" fill="#1B3A2A"/>
+    <rect x="84" y="74" width="50" height="12" rx="3" fill="#1B3A2A"/>
+  </g>
+  <!-- wrench -->
+  <g transform="rotate(-30 100 80)">
+    <path d="M74 64 a16 16 0 1 1 -10 28 l-6 6 v6 h6 l6 -6 a16 16 0 0 0 24 -22 l-6 6 l-10 -10 z" fill="#5FB98C" stroke="#14271C" stroke-width="5" stroke-linejoin="round"/>
+    <rect x="84" y="74" width="50" height="12" rx="3" fill="#5FB98C" stroke="#14271C" stroke-width="5"/>
+    <!-- shine -->
+    <path d="M62 70 q6 -6 14 -4" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/>
+  </g>
+</svg>
