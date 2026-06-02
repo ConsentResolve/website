@@ -1,0 +1,44 @@
+---
+interface Props {
+  heading?: string;
+  body?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+const {
+  heading = "Start small. Stay safe.",
+  body = "Why risk a $50,000 lawsuit for unconsented data when you can start identifying legally for just $10?",
+  ctaLabel = "Start $10 Trial Today",
+  ctaHref = "/get-started/",
+} = Astro.props as Props;
+---
+
+<section class="px-6 py-24">
+  <div class="mx-auto max-w-[1000px]">
+    <div class="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[color:var(--color-background-dark)] to-slate-900 p-12 text-center">
+      <div class="absolute left-0 top-0 h-1 w-full bg-[color:var(--color-primary)]"></div>
+      <div class="grid items-center gap-12 md:grid-cols-2">
+        <div class="text-left">
+          <h2 class="mb-6 text-4xl font-black">{heading}</h2>
+          <p class="mb-8 text-lg text-slate-400">{body}</p>
+          <a href={ctaHref} class="inline-block w-full rounded-xl bg-[color:var(--color-primary)] px-10 py-5 text-xl font-black text-[color:var(--color-background-dark)] glow-hover transition-all sm:w-auto">
+            {ctaLabel}
+          </a>
+        </div>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-6">
+            <span class="text-slate-400">Monthly Trial Fee</span>
+            <span class="text-2xl font-black text-[color:var(--color-primary)]">$10</span>
+          </div>
+          <div class="flex items-center justify-between rounded-2xl border border-red-500/20 bg-red-500/10 p-6">
+            <span class="text-slate-400">Potential Legal Fine</span>
+            <span class="text-2xl font-black text-red-500">$50,000+</span>
+          </div>
+          <div class="pt-4 flex items-center justify-center gap-2 text-xs text-slate-500">
+            <span class="material-symbols-outlined !text-sm">lock</span> 256-bit Encrypted Dashboard · Cancel Anytime
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

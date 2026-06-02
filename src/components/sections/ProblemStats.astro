@@ -1,0 +1,33 @@
+---
+interface Stat { label: string; value: string; tone: "danger" | "primary" | "neutral"; note: string; }
+interface Props {
+  heading?: string;
+  stats?: Stat[];
+}
+const {
+  heading = "Anonymous traffic is silent waste.",
+  stats = [
+    { label: "Bounce Rate", value: "98%", tone: "danger", note: "Visitors who leave without converting or being identified." },
+    { label: "Lead Decay", value: "0%", tone: "primary", note: "Information captured because you didn't have consent." },
+    { label: "Missed Opportunity", value: "$XX,XXX", tone: "neutral", note: "Monthly revenue lost to competitors who follow up faster." },
+  ],
+} = Astro.props as Props;
+
+const toneClass = (t: Stat["tone"]) =>
+  t === "danger" ? "text-red-500" : t === "primary" ? "text-[color:var(--color-primary)]" : "text-white";
+---
+
+<section class="bg-white/5 py-20">
+  <div class="mx-auto max-w-[960px] px-6 text-center">
+    <h2 class="mb-12 text-3xl font-bold md:text-4xl">{heading}</h2>
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+      {stats.map((s) => (
+        <div class="rounded-2xl border border-white/10 bg-[color:var(--color-background-dark)] p-8">
+          <p class="mb-2 text-sm font-medium uppercase tracking-widest text-slate-400">{s.label}</p>
+          <p class={`text-5xl font-black ${toneClass(s.tone)}`}>{s.value}</p>
+          <p class="mt-4 text-sm text-slate-500">{s.note}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

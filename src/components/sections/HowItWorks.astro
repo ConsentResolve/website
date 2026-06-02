@@ -1,0 +1,32 @@
+---
+interface Step { icon: string; title: string; body: string; }
+interface Props { steps?: Step[]; }
+const {
+  steps = [
+    { icon: "code", title: "1. Install Banner", body: "Add our 1-line script to your existing site or app." },
+    { icon: "touch_app", title: "2. Visitor Consents", body: "Users opt-in via a compliant, high-converting banner." },
+    { icon: "contact_page", title: "3. See Contact Info", body: "Unlock full profiles directly in your dashboard or CRM." },
+  ],
+} = Astro.props as Props;
+---
+
+<section class="bg-[color:var(--color-card-dark)] py-20">
+  <div class="mx-auto max-w-[1000px] px-6">
+    <div class="flex flex-col items-center justify-between gap-12 text-center md:flex-row">
+      {steps.map((s, i) => (
+        <>
+          <div class="group flex-1">
+            <div class="mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl border border-white/10 bg-[color:var(--color-background-dark)] transition-all group-hover:border-[color:var(--color-primary)]">
+              <span class="material-symbols-outlined !text-3xl">{s.icon}</span>
+            </div>
+            <h4 class="mb-2 text-lg font-bold">{s.title}</h4>
+            <p class="text-sm text-slate-400">{s.body}</p>
+          </div>
+          {i < steps.length - 1 && (
+            <span class="material-symbols-outlined hidden opacity-20 md:block">arrow_forward</span>
+          )}
+        </>
+      ))}
+    </div>
+  </div>
+</section>

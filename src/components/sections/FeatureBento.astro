@@ -1,0 +1,36 @@
+---
+interface Feature { icon: string; title: string; body: string; }
+interface Props { heading?: string; subhead?: string; features?: Feature[]; }
+const {
+  heading = "Outcome-Focused Identity",
+  subhead = "Everything you need to grow safely without the legal headache.",
+  features = [
+    { icon: "radar", title: "Anonymous Detection", body: "See the companies and locations of those who haven't opted in yet." },
+    { icon: "person_search", title: "Identity Reveal", body: "Unmask the individuals visiting your site after they give permission." },
+    { icon: "alternate_email", title: "Email Capture (No Forms)", body: "Capture emails with a single click—no tedious form-filling required." },
+    { icon: "account_circle", title: "Verified Profiles", body: "Real names, phone numbers, and LinkedIn profiles for every reveal." },
+    { icon: "history", title: "Return Recognition", body: "Get notified the second a high-value lead returns to your site." },
+    { icon: "visibility", title: "Page View Tracking", body: "See the exact journey and pages your prospects are interested in." },
+    { icon: "notifications_active", title: "Real-Time Alerts", body: "Instant Slack or Email alerts when a decision maker lands on your site." },
+    { icon: "sync_alt", title: "CRM & Email Sync", body: "Push data directly into HubSpot, Salesforce, or Klaviyo automatically." },
+  ],
+} = Astro.props as Props;
+---
+
+<section class="bg-[color:var(--color-background-dark)] px-6 py-24">
+  <div class="container-content">
+    <div class="mb-16">
+      <h2 class="mb-4 text-3xl font-bold">{heading}</h2>
+      <p class="text-slate-400">{subhead}</p>
+    </div>
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {features.map((f) => (
+        <div class="group rounded-2xl border border-white/5 bg-white/[0.02] p-6 transition-all hover:bg-white/[0.05]">
+          <span class="material-symbols-outlined !text-3xl mb-4">{f.icon}</span>
+          <h5 class="mb-2 font-bold">{f.title}</h5>
+          <p class="text-sm text-slate-400">{f.body}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

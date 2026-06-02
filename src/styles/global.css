@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand palette — lifted from skeleton */
+  --color-primary: #2fe4ab;
+  --color-primary-glow: rgba(47, 228, 171, 0.4);
+  --color-background-light: #f6f8f7;
+  --color-background-dark: #071423;
+  --color-card-dark: #11211c;
+  --color-ink: #f6f8f7;
+  --color-ink-muted: #94a3b8;
+
+  /* Type */
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Radii */
+  --radius-DEFAULT: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Content max-width */
+  --container-content: 1200px;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-background-dark);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply antialiased;
+  }
+  /* Material Symbols icon defaults */
+  .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 200, "GRAD" 0, "opsz" 24;
+    color: var(--color-primary);
+  }
+  /* Skip link */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[color:var(--color-primary)] focus:px-4 focus:py-2 focus:font-bold focus:text-[color:var(--color-background-dark)];
+  }
+}
+
+@layer components {
+  .glow-hover {
+    transition: box-shadow 0.2s ease;
+  }
+  .glow-hover:hover {
+    box-shadow: 0 0 15px var(--color-primary-glow);
+  }
+  .container-content {
+    @apply mx-auto px-6;
+    max-width: var(--container-content);
+  }
+  .eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full border border-[color:var(--color-primary)]/20 bg-[color:var(--color-primary)]/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[color:var(--color-primary)];
+  }
+}

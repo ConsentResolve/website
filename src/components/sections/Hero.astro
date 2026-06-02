@@ -1,0 +1,49 @@
+---
+import LiveTrafficStream from "~/components/islands/LiveTrafficStream.tsx";
+
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  titleAccent?: string;
+  subhead?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  showPanel?: boolean;
+}
+const {
+  eyebrow,
+  title = "98% of Your Visitors Leave.",
+  titleAccent = "You Never Know Who They Were.",
+  subhead = "Your competitors follow up. You guess. Identify visitors only after consent. No lawsuits. No risk.",
+  ctaLabel = "Start $10 Trial",
+  ctaHref = "/get-started/",
+  showPanel = true,
+} = Astro.props as Props;
+---
+
+<section class="relative overflow-hidden px-6 pb-16 pt-20">
+  <div class="container-content grid items-center gap-12 lg:grid-cols-2">
+    <div class="z-10">
+      {eyebrow && <p class="eyebrow mb-6">{eyebrow}</p>}
+      <h1 class="mb-6 text-5xl font-black leading-[1.1] tracking-tight md:text-6xl">
+        {title} <br />
+        <span class="italic text-[color:var(--color-primary)]">{titleAccent}</span>
+      </h1>
+      <p class="mb-8 max-w-xl text-lg text-slate-400">{subhead}</p>
+      <div class="flex flex-col gap-4 sm:flex-row">
+        <a
+          href={ctaHref}
+          class="flex items-center justify-center gap-2 rounded-xl bg-[color:var(--color-primary)] px-8 py-4 text-lg font-black text-[color:var(--color-background-dark)] glow-hover transition-all"
+        >
+          {ctaLabel}
+          <span class="material-symbols-outlined !text-[color:var(--color-background-dark)]">arrow_forward</span>
+        </a>
+        <div class="flex items-center gap-3 px-4">
+          <span class="material-symbols-outlined">verified_user</span>
+          <span class="text-sm font-medium leading-tight opacity-80">GDPR &amp; CCPA <br />Compliant Tracking</span>
+        </div>
+      </div>
+    </div>
+    {showPanel && <LiveTrafficStream client:visible />}
+  </div>
+</section>

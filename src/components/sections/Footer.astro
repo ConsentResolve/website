@@ -1,0 +1,32 @@
+---
+import { FOOTER_NAV } from "~/lib/site";
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-white/5 py-16 px-6">
+  <div class="container-content grid gap-12 md:grid-cols-5">
+    <div class="md:col-span-1">
+      <div class="flex items-center gap-2">
+        <div class="size-6 rounded bg-[color:var(--color-primary)] flex items-center justify-center">
+          <span class="material-symbols-outlined !text-[color:var(--color-background-dark)] !text-xs">security</span>
+        </div>
+        <h2 class="text-lg font-bold tracking-tight">Consent Resolve</h2>
+      </div>
+      <p class="mt-4 text-sm text-slate-500">Identify visitors after consent. No lawsuits, no risk.</p>
+    </div>
+    {Object.entries(FOOTER_NAV).map(([heading, links]) => (
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-widest text-slate-300 mb-4">{heading}</h3>
+        <ul class="space-y-2 text-sm text-slate-500">
+          {links.map((l) => (
+            <li><a class="hover:text-[color:var(--color-primary)]" href={l.href}>{l.label}</a></li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+  <div class="container-content mt-12 pt-8 border-t border-white/5 text-xs text-slate-600 flex flex-col md:flex-row justify-between gap-2">
+    <p>© {year} Consent Resolve. All rights reserved.</p>
+    <p>GDPR · CCPA · CPA compliant</p>
+  </div>
+</footer>

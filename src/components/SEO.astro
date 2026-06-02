@@ -1,0 +1,54 @@
+---
+import { SITE } from "~/lib/site";
+import { buildCanonical, organizationSchema, websiteSchema } from "~/lib/seo";
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  noindex?: boolean;
+  ogImage?: string;
+  ogType?: "website" | "article";
+  schema?: unknown[];
+}
+
+const {
+  title,
+  description,
+  canonical,
+  noindex = false,
+  ogImage = SITE.defaultOgImage,
+  ogType = "website",
+  schema = [],
+} = Astro.props as Props;
+
+const fullCanonical = canonical ?? buildCanonical(Astro.url.pathname);
+const ogImageUrl = new URL(ogImage, SITE.url).toString();
+const allSchema = [organizationSchema, websiteSchema, ...schema];
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={fullCanonical} />
+{noindex && <meta name="robots" content="noindex,follow" />}
+
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={fullCanonical} />
+<meta property="og:image" content={ogImageUrl} />
+<meta property="og:site_name" content={SITE.name} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImageUrl} />
+
+{
+  allSchema.map((s) => (
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(s)}
+    />
+  ))
+}
