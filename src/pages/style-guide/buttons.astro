@@ -1,0 +1,72 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import Button from "~/components/ui/Button.astro";
+import { IconArrowRight, IconDownload, IconBolt } from "@tabler/icons-react";
+---
+
+<StyleGuideLayout slug="buttons" title="Buttons" description="Six variants, three sizes, optional icons, full-width and disabled states.">
+  <section class="sg-section">
+    <h2>Variants</h2>
+    <div class="sg-preview">
+      <div class="sg-row">
+        <Button variant="primary">Primary</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Button variant="ghost">Ghost</Button>
+        <Button variant="outline">Outline</Button>
+        <Button variant="link">Link button</Button>
+        <Button variant="danger">Danger</Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Sizes</h2>
+    <div class="sg-preview">
+      <div class="sg-row">
+        <Button variant="primary" size="sm">Small</Button>
+        <Button variant="primary" size="md">Medium</Button>
+        <Button variant="primary" size="lg">Large</Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>With icons</h2>
+    <div class="sg-preview">
+      <div class="sg-row">
+        <Button variant="primary"><IconBolt size={16} stroke={2.25} />Get started</Button>
+        <Button variant="primary">Continue <IconArrowRight size={16} stroke={2.25} /></Button>
+        <Button variant="outline"><IconDownload size={16} stroke={2} />Download PDF</Button>
+        <Button variant="secondary"><IconArrowRight size={16} stroke={2.25} /></Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>States</h2>
+    <div class="sg-preview">
+      <div class="sg-row">
+        <Button variant="primary" disabled>Disabled</Button>
+        <Button variant="outline" disabled>Disabled</Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Full width</h2>
+    <div class="sg-preview">
+      <Button variant="primary" fullWidth>Full-width primary</Button>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>On dark</h2>
+    <div class="sg-preview sg-preview-dark">
+      <div class="sg-row">
+        <Button variant="primary">Primary</Button>
+        <Button variant="outline" class="!ring-white/20 !text-white hover:!bg-white/10">Outline</Button>
+        <Button variant="ghost" class="!text-white hover:!bg-white/10">Ghost</Button>
+      </div>
+    </div>
+  </section>
+</StyleGuideLayout>

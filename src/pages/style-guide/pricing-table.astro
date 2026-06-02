@@ -1,0 +1,70 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import PricingTable from "~/components/ui/PricingTable.astro";
+
+const tiers = [
+  {
+    name: "Trial",
+    price: "$10",
+    period: "first month",
+    blurb: "Kick the tires before you commit.",
+    features: [
+      { label: "Up to 25 identified leads", included: true },
+      { label: "Slack & email alerts", included: true },
+      { label: "Termageddon privacy policy", included: true },
+      { label: "CRM sync", included: false },
+      { label: "Return-visit alerts", included: false },
+    ],
+    cta: { label: "Start trial", href: "/get-started/" },
+  },
+  {
+    name: "Pro",
+    price: "$249",
+    period: "mo",
+    blurb: "For single-shop operators.",
+    features: [
+      { label: "Up to 200 identified leads/mo", included: true },
+      { label: "Slack, SMS & email alerts", included: true },
+      { label: "Termageddon privacy policy", included: true },
+      { label: "CRM sync (Jobber, HCP, ST)", included: true },
+      { label: "Return-visit alerts", included: true },
+    ],
+    cta: { label: "Get Pro", href: "/get-started/?plan=pro" },
+    featured: true,
+    badge: "Most popular",
+  },
+  {
+    name: "Multi-location",
+    price: "$649",
+    period: "mo",
+    blurb: "Multiple shops, territories, brands.",
+    features: [
+      { label: "Unlimited identified leads", included: true },
+      { label: "Territory routing rules", included: true },
+      { label: "Multi-CRM sync", included: true },
+      { label: "Dedicated CSM", included: true },
+      { label: "Custom integrations", included: true },
+    ],
+    cta: { label: "Talk to sales", href: "/contact/" },
+  },
+];
+---
+
+<StyleGuideLayout slug="pricing-table" title="Pricing Table" description="Three-tier pricing layout. The featured tier inverts to dark navy.">
+  <section class="sg-section">
+    <h2>Three tiers</h2>
+    <div class="sg-preview">
+      <PricingTable tiers={tiers} />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Two tiers (free + paid)</h2>
+    <div class="sg-preview">
+      <PricingTable tiers={[
+        { name: "Free trial", price: "$10", period: "first month", features: [{ label: "25 leads", included: true }, { label: "Email alerts", included: true }, { label: "CRM sync", included: false }], cta: { label: "Start", href: "#" } },
+        { name: "Pro", price: "$249", period: "mo", features: [{ label: "200 leads/mo", included: true }, { label: "All alerts", included: true }, { label: "CRM sync", included: true }], cta: { label: "Upgrade", href: "#" }, featured: true, badge: "Best value" },
+      ]} />
+    </div>
+  </section>
+</StyleGuideLayout>

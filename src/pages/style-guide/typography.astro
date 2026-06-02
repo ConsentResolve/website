@@ -1,0 +1,53 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import Typography from "~/components/ui/Typography.astro";
+---
+
+<StyleGuideLayout slug="typography" title="Dropcaps, Ampersand & Highlighter" description="Decorative type treatments for editorial pages — pull-quote dropcaps, branded ampersand, and three highlighter styles.">
+  <section class="sg-section">
+    <h2>Dropcap</h2>
+    <div class="sg-preview">
+      <Typography variant="dropcap">
+        <p class="font-display text-lg leading-relaxed text-[color:var(--color-ink)] max-w-2xl">
+          Most home service businesses pay for leads twice: once when they buy them shared from Angi or Thumbtack, and again in time wasted calling tire-kickers. Consent Resolve flips the model — homeowners come to your site, raise their hand, and become your lead alone. No auction. No competition. No surprise invoices.
+        </p>
+      </Typography>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Ampersand</h2>
+    <div class="sg-preview">
+      <p class="font-display text-4xl font-bold tracking-tight text-[color:var(--color-ink)]">
+        Built for contractors <Typography variant="ampersand">&amp;</Typography> tradespeople.
+      </p>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Highlight — pill</h2>
+    <div class="sg-preview">
+      <p class="font-display text-2xl leading-snug text-[color:var(--color-ink)] max-w-2xl">
+        Most visitor-ID tools <Typography variant="highlight">violate GDPR</Typography>. Ours doesn't.
+      </p>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Highlight — mint underline</h2>
+    <div class="sg-preview">
+      <p class="font-display text-2xl leading-snug text-[color:var(--color-ink)] max-w-2xl">
+        Identify <Typography variant="highlight-mint">98% of your visitors</Typography> — only after consent.
+      </p>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Highlight — angled mark</h2>
+    <div class="sg-preview">
+      <p class="font-display text-2xl leading-snug text-[color:var(--color-ink)] max-w-2xl">
+        The first contractor to call <Typography variant="highlight-mark">wins the job</Typography>.
+      </p>
+    </div>
+  </section>
+</StyleGuideLayout>

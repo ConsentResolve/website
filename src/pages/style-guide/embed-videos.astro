@@ -1,0 +1,42 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import VideoEmbed from "~/components/ui/VideoEmbed.astro";
+---
+
+<StyleGuideLayout slug="embed-videos" title="Embedded Videos" description="Responsive video embeds. Drop any YouTube or Vimeo URL.">
+  <section class="sg-section">
+    <h2>16:9 (default)</h2>
+    <div class="sg-preview">
+      <div class="max-w-2xl">
+        <VideoEmbed src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Sample" />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>4:3</h2>
+    <div class="sg-preview">
+      <div class="max-w-md">
+        <VideoEmbed src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Sample" aspect="4/3" />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Square</h2>
+    <div class="sg-preview">
+      <div class="max-w-md">
+        <VideoEmbed src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Sample" aspect="1/1" />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>No rounded corners</h2>
+    <div class="sg-preview">
+      <div class="max-w-2xl">
+        <VideoEmbed src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Sample" rounded={false} />
+      </div>
+    </div>
+  </section>
+</StyleGuideLayout>

@@ -51,5 +51,6 @@ export const FOOTER_NAV = {
     { label: "Cookie Policy", href: "/cookie-policy/" },
     { label: "GDPR", href: "/gdpr/" },
     { label: "CCPA", href: "/ccpa/" },
+    { label: "Style Guide", href: "/style-guide/" },
   ],
 } as const;

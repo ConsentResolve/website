@@ -1,0 +1,72 @@
+---
+interface Props {
+  data: { label: string; value: number }[];
+  max?: number;
+  tone?: "brand" | "navy";
+}
+const { data, max, tone = "brand" } = Astro.props as Props;
+const peak = max ?? Math.max(...data.map((d) => d.value));
+const fill = tone === "navy" ? "var(--color-navy-900)" : "var(--color-brand)";
+const w = 480;
+const h = 260;
+const padL = 36, padB = 30, padT = 8, padR = 8;
+const chartW = w - padL - padR;
+const chartH = h - padT - padB;
+const barW = chartW / data.length;
+---
+
+<div class="relative w-full overflow-hidden rounded-2xl ring-1 ring-inset ring-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] p-4">
+  <svg viewBox={`0 0 ${w} ${h}`} class="w-full h-auto">
+    <!-- gridlines -->
+    {[0, 0.25, 0.5, 0.75, 1].map((p) => (
+      <g>
+        <line
+          x1={padL}
+          x2={w - padR}
+          y1={padT + chartH * (1 - p)}
+          y2={padT + chartH * (1 - p)}
+          stroke="var(--color-rule)"
+          stroke-dasharray={p === 0 ? "0" : "2 4"}
+        />
+        <text
+          x={padL - 6}
+          y={padT + chartH * (1 - p) + 4}
+          text-anchor="end"
+          font-family="JetBrains Mono, monospace"
+          font-size="10"
+          fill="var(--color-ink-muted)"
+        >{Math.round(peak * p)}</text>
+      </g>
+    ))}
+    <!-- bars -->
+    {data.map((d, i) => {
+      const bh = (d.value / peak) * chartH;
+      const x = padL + i * barW + barW * 0.15;
+      const y = padT + chartH - bh;
+      const bw = barW * 0.7;
+      return (
+        <g>
+          <rect x={x} y={y} width={bw} height={bh} rx="4" fill={fill} />
+          <text
+            x={x + bw / 2}
+            y={padT + chartH + 18}
+            text-anchor="middle"
+            font-family="Hanken Grotesk, sans-serif"
+            font-size="10"
+            font-weight="600"
+            fill="var(--color-ink-2)"
+          >{d.label}</text>
+          <text
+            x={x + bw / 2}
+            y={y - 6}
+            text-anchor="middle"
+            font-family="JetBrains Mono, monospace"
+            font-size="10"
+            font-weight="700"
+            fill="var(--color-ink)"
+          >{d.value}</text>
+        </g>
+      );
+    })}
+  </svg>
+</div>

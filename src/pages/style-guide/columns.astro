@@ -1,0 +1,54 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+
+const cols = ["First column content. Identify homeowners after consent. Real-time push to your CRM.", "Second column content. No shared leads. Not auctioned to other shops.", "Third column content. Compliant with GDPR, CCPA, and CPA out of the box."];
+---
+
+<StyleGuideLayout slug="columns" title="Columns Layouts" description="Standard 2- and 3-column content patterns for blog posts, marketing pages, and feature lists.">
+  <section class="sg-section">
+    <h2>Two columns — equal</h2>
+    <div class="sg-preview">
+      <div class="grid gap-8 md:grid-cols-2">
+        {cols.slice(0, 2).map((c) => <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{c}</p>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Two columns — 1/3 + 2/3</h2>
+    <div class="sg-preview">
+      <div class="grid gap-8 md:grid-cols-3">
+        <aside class="md:col-span-1">
+          <p class="sg-label">Sidebar</p>
+          <p class="text-[14px] leading-relaxed text-[color:var(--color-ink-2)]">Narrow column for metadata, callouts, or a sticky table of contents.</p>
+        </aside>
+        <div class="md:col-span-2">
+          <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">Wide column for the main editorial content. Most blog posts and resources use this asymmetric split so the sidebar holds breadcrumbs, share buttons, or a brand pitch.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Three columns — equal</h2>
+    <div class="sg-preview">
+      <div class="grid gap-8 md:grid-cols-3">
+        {cols.map((c) => <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{c}</p>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Four columns — feature row</h2>
+    <div class="sg-preview">
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div class="rounded-xl bg-[color:var(--color-bg)] p-5">
+            <p class="sg-label">Feature {i}</p>
+            <p class="mt-1 text-[14px] text-[color:var(--color-ink-2)]">Short description of the feature in this column.</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</StyleGuideLayout>

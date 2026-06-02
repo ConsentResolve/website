@@ -1,0 +1,38 @@
+---
+interface Props {
+  value: number;
+  label?: string;
+  size?: number;
+  thickness?: number;
+  tone?: "brand" | "navy" | "danger";
+}
+const { value, label, size = 120, thickness = 10, tone = "brand" } = Astro.props as Props;
+const v = Math.max(0, Math.min(100, value));
+const r = size / 2 - thickness;
+const c = 2 * Math.PI * r;
+const dash = (v / 100) * c;
+const color = tone === "navy" ? "#0A1628" : tone === "danger" ? "#dc2626" : "#00C080";
+---
+
+<div class="inline-flex flex-col items-center gap-2">
+  <div class="relative" style={`width:${size}px;height:${size}px`}>
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} class="-rotate-90">
+      <circle cx={size / 2} cy={size / 2} r={r} stroke="var(--color-rule)" stroke-width={thickness} fill="none" />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        stroke={color}
+        stroke-width={thickness}
+        stroke-linecap="round"
+        fill="none"
+        stroke-dasharray={`${dash} ${c}`}
+        style="transition: stroke-dasharray 0.7s ease;"
+      />
+    </svg>
+    <div class="absolute inset-0 flex items-center justify-center">
+      <span class="font-display text-2xl font-bold tracking-tight text-[color:var(--color-ink)]">{v}%</span>
+    </div>
+  </div>
+  {label && <p class="text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">{label}</p>}
+</div>

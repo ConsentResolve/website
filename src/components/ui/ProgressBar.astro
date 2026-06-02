@@ -1,0 +1,25 @@
+---
+interface Props {
+  value: number; // 0-100
+  label?: string;
+  showValue?: boolean;
+  tone?: "brand" | "navy" | "danger";
+  size?: "sm" | "md";
+}
+const { value, label, showValue = true, tone = "brand", size = "md" } = Astro.props as Props;
+const v = Math.max(0, Math.min(100, value));
+const toneClass = tone === "navy" ? "bg-[color:var(--color-navy-900)]" : tone === "danger" ? "bg-[color:var(--color-danger)]" : "bg-[color:var(--color-brand)]";
+const h = size === "sm" ? "h-1.5" : "h-2.5";
+---
+
+<div>
+  {(label || showValue) && (
+    <div class="mb-2 flex items-baseline justify-between text-sm">
+      {label && <span class="font-medium text-[color:var(--color-ink-2)]">{label}</span>}
+      {showValue && <span class="font-mono font-semibold text-[color:var(--color-ink)]">{v}%</span>}
+    </div>
+  )}
+  <div class:list={["w-full rounded-full bg-[color:var(--color-rule)] overflow-hidden", h]}>
+    <div class:list={["rounded-full transition-[width] duration-700", toneClass, h]} style={`width:${v}%`}></div>
+  </div>
+</div>

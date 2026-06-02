@@ -1,0 +1,42 @@
+---
+import { IconCheck, IconX, IconArrowRight, IconCircleCheckFilled, IconChevronRight } from "@tabler/icons-react";
+
+interface Props {
+  items: string[];
+  variant?: "check" | "x" | "arrow" | "filled-check" | "chevron" | "numbered" | "bullets";
+  tone?: "default" | "brand" | "danger";
+}
+const { items, variant = "check", tone = "default" } = Astro.props as Props;
+
+const toneColor = tone === "brand" ? "#00A86E" : tone === "danger" ? "#dc2626" : "#0A1628";
+---
+
+{variant === "numbered" ? (
+  <ol class="space-y-3">
+    {items.map((t, i) => (
+      <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink-2)]">
+        <span class="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-mono text-[11px] font-bold text-[color:var(--color-mint-400)]">{i + 1}</span>
+        <span>{t}</span>
+      </li>
+    ))}
+  </ol>
+) : variant === "bullets" ? (
+  <ul class="space-y-2 list-disc list-inside text-[15px] text-[color:var(--color-ink-2)] marker:text-[color:var(--color-brand)]">
+    {items.map((t) => <li>{t}</li>)}
+  </ul>
+) : (
+  <ul class="space-y-3">
+    {items.map((t) => (
+      <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink-2)]">
+        <span class="mt-0.5 shrink-0">
+          {variant === "check" && <IconCheck size={18} stroke={2.5} color={toneColor} />}
+          {variant === "x" && <IconX size={18} stroke={2.5} color={toneColor} />}
+          {variant === "arrow" && <IconArrowRight size={18} stroke={2} color={toneColor} />}
+          {variant === "filled-check" && <IconCircleCheckFilled size={18} color={toneColor} />}
+          {variant === "chevron" && <IconChevronRight size={18} stroke={2} color={toneColor} />}
+        </span>
+        <span>{t}</span>
+      </li>
+    ))}
+  </ul>
+)}

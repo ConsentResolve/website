@@ -1,0 +1,137 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import { STYLE_GUIDE, getNeighbors } from "~/lib/styleGuide";
+import { IconArrowLeft, IconArrowRight, IconHash } from "@tabler/icons-react";
+
+interface Props {
+  title: string;
+  description: string;
+  slug?: string; // omit for hub
+  eyebrow?: string;
+}
+const { title, description, slug, eyebrow = "Style Guide" } = Astro.props as Props;
+const neighbors = slug ? getNeighbors(slug) : { prev: null, next: null };
+---
+
+<BaseLayout title={`${title} · Consent Resolve Style Guide`} description={description}>
+  <div class="bg-[color:var(--color-bg)]">
+    <div class="mx-auto grid max-w-[1320px] gap-12 px-6 py-12 lg:grid-cols-[260px_1fr]">
+      <!-- Sidebar -->
+      <aside class="lg:sticky lg:top-[88px] lg:self-start lg:max-h-[calc(100vh-104px)] lg:overflow-y-auto">
+        <div class="mb-6">
+          <a href="/style-guide/" class="text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--color-brand)]">{eyebrow}</a>
+          <h2 class="mt-1 text-lg font-bold tracking-tight text-[color:var(--color-ink)]">Components</h2>
+        </div>
+        <nav aria-label="Style guide">
+          <ul class="space-y-0.5 text-sm">
+            <li>
+              <a
+                href="/style-guide/"
+                class:list={[
+                  "block rounded-md px-3 py-2 transition-colors",
+                  !slug
+                    ? "bg-[color:var(--color-brand-soft)] font-semibold text-[color:var(--color-brand-pressed)]"
+                    : "text-[color:var(--color-ink-2)] hover:bg-[color:var(--color-bg-alt)] hover:text-[color:var(--color-ink)]",
+                ]}
+              >
+                Overview
+              </a>
+            </li>
+            {STYLE_GUIDE.map((e) => (
+              <li>
+                <a
+                  href={`/style-guide/${e.slug}/`}
+                  class:list={[
+                    "block rounded-md px-3 py-2 transition-colors",
+                    slug === e.slug
+                      ? "bg-[color:var(--color-brand-soft)] font-semibold text-[color:var(--color-brand-pressed)]"
+                      : "text-[color:var(--color-ink-2)] hover:bg-[color:var(--color-bg-alt)] hover:text-[color:var(--color-ink)]",
+                  ]}
+                >
+                  {e.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Content -->
+      <article class="min-w-0">
+        <header class="mb-10 border-b border-[color:var(--color-rule)] pb-8">
+          <p class="eyebrow mb-3">{eyebrow}</p>
+          <h1 class="font-display text-4xl font-bold tracking-tight text-[color:var(--color-ink)] md:text-5xl">{title}</h1>
+          <p class="mt-3 max-w-2xl text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{description}</p>
+        </header>
+
+        <div class="sg-content">
+          <slot />
+        </div>
+
+        {slug && (
+          <nav class="mt-16 grid gap-3 border-t border-[color:var(--color-rule)] pt-8 sm:grid-cols-2" aria-label="Pagination">
+            {neighbors.prev ? (
+              <a href={`/style-guide/${neighbors.prev.slug}/`} class="group flex items-center gap-3 rounded-xl p-4 transition-colors hover:bg-[color:var(--color-bg-alt)]">
+                <IconArrowLeft size={20} stroke={1.75} className="text-[color:var(--color-ink-muted)] group-hover:text-[color:var(--color-brand)] transition-colors" />
+                <div>
+                  <div class="text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Previous</div>
+                  <div class="font-semibold text-[color:var(--color-ink)]">{neighbors.prev.title}</div>
+                </div>
+              </a>
+            ) : <div />}
+            {neighbors.next ? (
+              <a href={`/style-guide/${neighbors.next.slug}/`} class="group flex items-center justify-end gap-3 rounded-xl p-4 text-right transition-colors hover:bg-[color:var(--color-bg-alt)]">
+                <div>
+                  <div class="text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Next</div>
+                  <div class="font-semibold text-[color:var(--color-ink)]">{neighbors.next.title}</div>
+                </div>
+                <IconArrowRight size={20} stroke={1.75} className="text-[color:var(--color-ink-muted)] group-hover:text-[color:var(--color-brand)] transition-colors" />
+              </a>
+            ) : <div />}
+          </nav>
+        )}
+      </article>
+    </div>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  .sg-content section.sg-section { margin-bottom: 3.5rem; }
+  .sg-content section.sg-section > h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .sg-content section.sg-section > p.sg-lede {
+    color: var(--color-ink-2);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+  .sg-preview {
+    border-radius: 1rem;
+    padding: 2rem;
+    background: var(--color-bg-alt);
+    box-shadow: 0 0 0 1px rgba(10, 22, 40, 0.06), 0 1px 0 rgba(10, 22, 40, 0.04);
+    margin-bottom: 0.75rem;
+  }
+  .sg-preview-dark {
+    background: var(--color-navy-900);
+    color: white;
+  }
+  .sg-stack { display: flex; flex-direction: column; gap: 1rem; }
+  .sg-row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+  .sg-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-ink-muted);
+    margin-bottom: 0.5rem;
+  }
+</style>

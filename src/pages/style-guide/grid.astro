@@ -1,0 +1,50 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+---
+
+<StyleGuideLayout slug="grid" title="Column Grid Layout" description="12-column responsive grid system. Tailwind-driven, used for any custom layout that doesn't fit a standard column pattern.">
+  <section class="sg-section">
+    <h2>12-column reference</h2>
+    <div class="sg-preview">
+      <div class="grid grid-cols-12 gap-2">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <div class="flex h-12 items-center justify-center rounded-md bg-[color:var(--color-brand-soft)] font-mono text-xs font-semibold text-[color:var(--color-brand-pressed)]">{i + 1}</div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Asymmetric layout — 8 / 4</h2>
+    <div class="sg-preview">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-12 md:col-span-8 rounded-xl bg-[color:var(--color-bg)] p-5 text-sm text-[color:var(--color-ink-2)]">8 columns — primary content</div>
+        <div class="col-span-12 md:col-span-4 rounded-xl bg-[color:var(--color-bg)] p-5 text-sm text-[color:var(--color-ink-2)]">4 cols — sidebar</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Sidebar + content + secondary — 3 / 6 / 3</h2>
+    <div class="sg-preview">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-12 md:col-span-3 rounded-xl bg-[color:var(--color-bg)] p-5 text-sm text-[color:var(--color-ink-2)]">3 — nav</div>
+        <div class="col-span-12 md:col-span-6 rounded-xl bg-[color:var(--color-bg)] p-5 text-sm text-[color:var(--color-ink-2)]">6 — main</div>
+        <div class="col-span-12 md:col-span-3 rounded-xl bg-[color:var(--color-bg)] p-5 text-sm text-[color:var(--color-ink-2)]">3 — aside</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Card grid — responsive</h2>
+    <div class="sg-preview">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div class="aspect-square rounded-xl bg-[color:var(--color-bg)] p-4">
+            <p class="sg-label">Card {i + 1}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</StyleGuideLayout>

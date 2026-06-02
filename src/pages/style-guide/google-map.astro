@@ -1,0 +1,27 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import GoogleMap from "~/components/ui/GoogleMap.astro";
+---
+
+<StyleGuideLayout slug="google-map" title="Google Map" description="Responsive Google Maps embed. Pass any place name, address, or coordinates as the query.">
+  <section class="sg-section">
+    <h2>Default — Austin, TX</h2>
+    <div class="sg-preview">
+      <GoogleMap query="Austin, TX" height={400} />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Service area — Phoenix metro</h2>
+    <div class="sg-preview">
+      <GoogleMap query="Phoenix metro area Arizona" height={360} />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Compact — square corners</h2>
+    <div class="sg-preview">
+      <GoogleMap query="Miami Beach, FL" height={280} rounded={false} />
+    </div>
+  </section>
+</StyleGuideLayout>

@@ -1,0 +1,19 @@
+---
+interface Props {
+  query?: string;
+  height?: number;
+  rounded?: boolean;
+}
+const { query = "Austin, TX", height = 360, rounded = true } = Astro.props as Props;
+const src = `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`;
+---
+
+<div class:list={["relative w-full overflow-hidden", rounded ? "rounded-2xl" : ""]} style={`height:${height}px`}>
+  <iframe
+    src={src}
+    title={`Map of ${query}`}
+    class="absolute inset-0 h-full w-full grayscale-[15%]"
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+  ></iframe>
+</div>

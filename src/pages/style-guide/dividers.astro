@@ -1,0 +1,51 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import Divider from "~/components/ui/Divider.astro";
+---
+
+<StyleGuideLayout slug="dividers" title="Dividers" description="Horizontal rules for separating paragraphs, sections, and labeled segments.">
+  <section class="sg-section">
+    <h2>Line</h2>
+    <div class="sg-preview">
+      <p class="text-[color:var(--color-ink-2)]">Above the divider.</p>
+      <Divider variant="line" />
+      <p class="text-[color:var(--color-ink-2)]">Below the divider.</p>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Dotted</h2>
+    <div class="sg-preview">
+      <p class="text-[color:var(--color-ink-2)]">Above the divider.</p>
+      <Divider variant="dotted" />
+      <p class="text-[color:var(--color-ink-2)]">Below the divider.</p>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Double</h2>
+    <div class="sg-preview">
+      <p class="text-[color:var(--color-ink-2)]">Above the divider.</p>
+      <Divider variant="double" />
+      <p class="text-[color:var(--color-ink-2)]">Below the divider.</p>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Decorative</h2>
+    <div class="sg-preview">
+      <p class="text-[color:var(--color-ink-2)]">Above the divider.</p>
+      <Divider variant="decorative" />
+      <p class="text-[color:var(--color-ink-2)]">Below the divider.</p>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Labeled</h2>
+    <div class="sg-preview">
+      <p class="text-[color:var(--color-ink-2)]">Above the divider.</p>
+      <Divider variant="label" label="Or" />
+      <p class="text-[color:var(--color-ink-2)]">Below the divider.</p>
+    </div>
+  </section>
+</StyleGuideLayout>

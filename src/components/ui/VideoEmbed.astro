@@ -1,0 +1,22 @@
+---
+interface Props {
+  src: string;
+  title?: string;
+  aspect?: "16/9" | "4/3" | "1/1";
+  rounded?: boolean;
+}
+const { src, title = "Embedded video", aspect = "16/9", rounded = true } = Astro.props as Props;
+const aspectClass = aspect === "4/3" ? "aspect-[4/3]" : aspect === "1/1" ? "aspect-square" : "aspect-video";
+---
+
+<div class:list={["relative w-full overflow-hidden bg-[color:var(--color-navy-900)]", aspectClass, rounded ? "rounded-2xl" : ""]}>
+  <iframe
+    src={src}
+    title={title}
+    class="absolute inset-0 h-full w-full"
+    loading="lazy"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+    referrerpolicy="strict-origin-when-cross-origin"
+  ></iframe>
+</div>

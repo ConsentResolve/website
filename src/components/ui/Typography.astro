@@ -1,0 +1,52 @@
+---
+interface Props {
+  variant: "dropcap" | "ampersand" | "highlight" | "highlight-mint" | "highlight-mark";
+}
+const { variant } = Astro.props as Props;
+---
+
+{variant === "dropcap" && (
+  <span class="dropcap">
+    <slot />
+  </span>
+)}
+
+{variant === "ampersand" && (
+  <span class="font-display italic font-normal text-[color:var(--color-brand)]" style="font-feature-settings:'ss01' on;">
+    <slot />
+  </span>
+)}
+
+{variant === "highlight" && (
+  <mark class="bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-pressed)] rounded px-1 py-0.5">
+    <slot />
+  </mark>
+)}
+
+{variant === "highlight-mint" && (
+  <span class="relative inline-block">
+    <span class="absolute inset-x-0 bottom-0.5 h-[0.45em] bg-[color:var(--color-mint-400)]/40 -z-10"></span>
+    <span class="relative"><slot /></span>
+  </span>
+)}
+
+{variant === "highlight-mark" && (
+  <span class="relative inline-block">
+    <span class="absolute -inset-x-1 inset-y-0 -skew-y-2 rounded-sm bg-[color:var(--color-brand-soft)]"></span>
+    <span class="relative font-semibold text-[color:var(--color-brand-pressed)]"><slot /></span>
+  </span>
+)}
+
+<style is:global>
+  .dropcap::first-letter,
+  .dropcap > *::first-letter {
+    float: left;
+    font-family: var(--font-display);
+    font-size: 4.5rem;
+    line-height: 0.85;
+    font-weight: 700;
+    color: var(--color-brand);
+    margin: 0.05em 0.12em 0 0;
+    padding-top: 0.05em;
+  }
+</style>

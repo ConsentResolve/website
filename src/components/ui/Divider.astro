@@ -1,0 +1,40 @@
+---
+interface Props {
+  variant?: "line" | "dotted" | "double" | "decorative" | "label";
+  label?: string;
+}
+const { variant = "line", label } = Astro.props as Props;
+---
+
+{variant === "line" && (
+  <hr class="my-8 border-0 border-t border-[color:var(--color-rule)]" />
+)}
+
+{variant === "dotted" && (
+  <hr class="my-8 border-0 border-t border-dashed border-[color:var(--color-rule)]" />
+)}
+
+{variant === "double" && (
+  <div class="my-8 space-y-1">
+    <hr class="border-0 border-t border-[color:var(--color-rule)]" />
+    <hr class="border-0 border-t border-[color:var(--color-rule)]" />
+  </div>
+)}
+
+{variant === "decorative" && (
+  <div class="my-10 flex items-center justify-center gap-3">
+    <span class="h-px w-16 bg-[color:var(--color-rule)]"></span>
+    <span class="size-1.5 rounded-full bg-[color:var(--color-brand)]"></span>
+    <span class="size-1.5 rounded-full bg-[color:var(--color-brand)]"></span>
+    <span class="size-1.5 rounded-full bg-[color:var(--color-brand)]"></span>
+    <span class="h-px w-16 bg-[color:var(--color-rule)]"></span>
+  </div>
+)}
+
+{variant === "label" && (
+  <div class="my-10 flex items-center gap-4">
+    <span class="h-px flex-1 bg-[color:var(--color-rule)]"></span>
+    <span class="text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)]">{label ?? "Section"}</span>
+    <span class="h-px flex-1 bg-[color:var(--color-rule)]"></span>
+  </div>
+)}

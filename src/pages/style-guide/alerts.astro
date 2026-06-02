@@ -1,0 +1,31 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import Alert from "~/components/ui/Alert.astro";
+---
+
+<StyleGuideLayout slug="alerts" title="Alert Messages" description="Inline contextual alerts. Info, success, warning, and danger variants — with or without title, optionally dismissible.">
+  <section class="sg-section">
+    <h2>Default (titled)</h2>
+    <div class="sg-preview sg-stack">
+      <Alert variant="info" title="Heads up">A new lead just consented in your service area. Check your inbox.</Alert>
+      <Alert variant="success" title="Snippet installed">Your tracking pixel is live on consentresolve.com. We'll start identifying visitors immediately.</Alert>
+      <Alert variant="warning" title="Approaching your monthly limit">You've used 87% of your lead allotment. Upgrade to keep receiving leads after the 28th.</Alert>
+      <Alert variant="danger" title="Compliance check failed">Your privacy policy hasn't been updated in 90 days. Termageddon refresh required.</Alert>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Without title</h2>
+    <div class="sg-preview sg-stack">
+      <Alert variant="info">Inline message without a leading title — useful for compact contextual feedback.</Alert>
+      <Alert variant="success">Saved. Your changes are live across all 35 city pages.</Alert>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Dismissible</h2>
+    <div class="sg-preview sg-stack">
+      <Alert variant="info" title="Tip" dismissible>Calls placed within the first 5 minutes convert 4× more often than calls placed in the next hour.</Alert>
+    </div>
+  </section>
+</StyleGuideLayout>

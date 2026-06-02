@@ -1,0 +1,60 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import Tabs from "~/components/ui/Tabs.tsx";
+import Toggle from "~/components/ui/Toggle.tsx";
+
+const sample = [
+  {
+    label: "For Plumbers",
+    content: "Identify homeowners actively researching water heater replacements, drain repairs, and emergency leaks in your zip codes.",
+  },
+  {
+    label: "For Roofers",
+    content: "Catch storm-damage shoppers before they fill out an Angi form. Storm-season alerting included.",
+  },
+  {
+    label: "For HVAC",
+    content: "Heat-wave and cold-snap demand spikes converted into named leads with phone numbers and service intent.",
+  },
+];
+
+const card = sample.map((s) => ({
+  label: s.label,
+  content: (
+    <div className="text-[15px] leading-relaxed text-[#3d4338]">{s.content}</div>
+  ),
+}));
+---
+
+<StyleGuideLayout slug="tabs-toggles" title="Tabs & Toggles" description="Tabs for switching content panels. Toggles for binary on/off settings.">
+  <section class="sg-section">
+    <h2>Underline tabs</h2>
+    <div class="sg-preview">
+      <Tabs client:load tabs={card} variant="underline" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Pill tabs</h2>
+    <div class="sg-preview">
+      <Tabs client:load tabs={card} variant="pill" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Boxed tabs</h2>
+    <div class="sg-preview">
+      <Tabs client:load tabs={card} variant="boxed" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Toggles</h2>
+    <div class="sg-preview sg-stack">
+      <Toggle client:load label="Real-time Slack alerts" description="Ping #leads the moment a homeowner consents." defaultOn />
+      <Toggle client:load label="CRM auto-sync" description="Push every lead to HubSpot, Jobber, or Housecall Pro." />
+      <Toggle client:load label="Return-visit alerts" description="Tell me when an identified lead comes back to my site." defaultOn />
+      <Toggle client:load size="sm" label="Compact toggle" description="Smaller form factor for tight UIs." />
+    </div>
+  </section>
+</StyleGuideLayout>

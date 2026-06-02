@@ -1,0 +1,36 @@
+---
+import { IconBulb, IconAlertTriangle, IconNotes, IconSparkles, IconShieldCheck, IconBolt } from "@tabler/icons-react";
+
+interface Props {
+  variant?: "tip" | "warn" | "note" | "premium" | "trust" | "fast";
+  title?: string;
+}
+const { variant = "tip", title } = Astro.props as Props;
+
+const map = {
+  tip:     { bg: "bg-[color:var(--color-brand-soft)]", border: "border-[color:var(--color-brand)]/25", ribbon: "var(--color-brand)",         Icon: IconBulb,         iconColor: "#00A86E", label: "Tip" },
+  warn:    { bg: "bg-amber-50",                        border: "border-amber-200",                    ribbon: "#d97706",                    Icon: IconAlertTriangle,iconColor: "#d97706", label: "Warning" },
+  note:    { bg: "bg-[color:var(--color-bg)]",         border: "border-[color:var(--color-rule)]",    ribbon: "var(--color-ink-2)",        Icon: IconNotes,        iconColor: "#3d4338", label: "Note" },
+  premium: { bg: "bg-[color:var(--color-navy-900)]",   border: "border-[color:var(--color-mint-400)]/25", ribbon: "var(--color-mint-400)", Icon: IconSparkles,     iconColor: "#00E5A0", label: "Premium" },
+  trust:   { bg: "bg-sky-50",                          border: "border-sky-200",                      ribbon: "#0284c7",                    Icon: IconShieldCheck,  iconColor: "#0284c7", label: "Trust" },
+  fast:    { bg: "bg-violet-50",                       border: "border-violet-200",                   ribbon: "#7c3aed",                    Icon: IconBolt,         iconColor: "#7c3aed", label: "Fast" },
+} as const;
+
+const v = map[variant];
+const isDark = variant === "premium";
+---
+
+<div class:list={["relative overflow-hidden rounded-xl border p-5 pl-6", v.bg, v.border]}>
+  <div class="absolute inset-y-0 left-0 w-1" style={`background:${v.ribbon}`}></div>
+  <div class="flex items-start gap-3">
+    <v.Icon size={20} stroke={1.75} color={v.iconColor} className="shrink-0 mt-0.5" />
+    <div class="flex-1 min-w-0">
+      <p class:list={["mb-1 text-xs font-semibold uppercase tracking-[0.14em]", isDark ? "text-[color:var(--color-mint-400)]" : ""]} style={!isDark ? `color:${v.iconColor}` : ""}>
+        {title ?? v.label}
+      </p>
+      <div class:list={["text-sm leading-relaxed", isDark ? "text-slate-200" : "text-[color:var(--color-ink-2)]"]}>
+        <slot />
+      </div>
+    </div>
+  </div>
+</div>

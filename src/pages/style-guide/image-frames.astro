@@ -1,0 +1,60 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import ImageFrame from "~/components/ui/ImageFrame.astro";
+
+const sample = "/illustrations/anonymous-traffic.svg";
+---
+
+<StyleGuideLayout slug="image-frames" title="Image Frames" description="Six visual treatments for image presentation: plain, bordered, shadowed, polaroid, browser chrome, phone mockup.">
+  <section class="sg-section">
+    <h2>Plain</h2>
+    <div class="sg-preview">
+      <div class="max-w-md">
+        <ImageFrame src={sample} alt="Sample" variant="plain" caption="A homeowner consented just now." />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Bordered</h2>
+    <div class="sg-preview">
+      <div class="max-w-md">
+        <ImageFrame src={sample} alt="Sample" variant="bordered" caption="Bordered: 1px ring for subtle definition." />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Shadow</h2>
+    <div class="sg-preview">
+      <div class="max-w-md">
+        <ImageFrame src={sample} alt="Sample" variant="shadow" caption="Elevated for hero placements." />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Polaroid</h2>
+    <div class="sg-preview">
+      <div class="max-w-sm">
+        <ImageFrame src={sample} alt="Sample" variant="polaroid" caption="June 2026" />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Browser chrome</h2>
+    <div class="sg-preview">
+      <div class="max-w-2xl">
+        <ImageFrame src={sample} alt="Sample" variant="browser" />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Phone mockup</h2>
+    <div class="sg-preview">
+      <ImageFrame src={sample} alt="Sample" variant="phone" ratio="4/3" caption="Mobile-first preview" />
+    </div>
+  </section>
+</StyleGuideLayout>

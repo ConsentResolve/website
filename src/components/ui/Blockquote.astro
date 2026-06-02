@@ -1,0 +1,54 @@
+---
+import { IconQuote } from "@tabler/icons-react";
+
+interface Props {
+  cite?: string;
+  source?: string;
+  variant?: "default" | "bordered" | "card";
+}
+const { cite, source, variant = "default" } = Astro.props as Props;
+---
+
+{variant === "default" && (
+  <blockquote class="relative pl-6 border-l-4 border-[color:var(--color-brand)]">
+    <p class="font-display text-xl leading-snug text-[color:var(--color-ink)]">
+      <slot />
+    </p>
+    {(cite || source) && (
+      <footer class="mt-3 text-sm text-[color:var(--color-ink-2)]">
+        {cite && <span class="font-semibold">— {cite}</span>}
+        {source && <span class="ml-2 text-[color:var(--color-ink-muted)]">{source}</span>}
+      </footer>
+    )}
+  </blockquote>
+)}
+
+{variant === "bordered" && (
+  <blockquote class="relative rounded-2xl border border-[color:var(--color-rule)] px-7 py-6">
+    <IconQuote size={24} stroke={1.5} color="var(--color-brand)" className="mb-3 opacity-60" />
+    <p class="font-display text-xl leading-snug text-[color:var(--color-ink)]">
+      <slot />
+    </p>
+    {(cite || source) && (
+      <footer class="mt-4 flex items-center gap-2 text-sm text-[color:var(--color-ink-2)]">
+        {cite && <span class="font-semibold">{cite}</span>}
+        {source && <span class="text-[color:var(--color-ink-muted)]">· {source}</span>}
+      </footer>
+    )}
+  </blockquote>
+)}
+
+{variant === "card" && (
+  <blockquote class="relative rounded-2xl bg-[color:var(--color-navy-900)] px-7 py-7 text-white">
+    <IconQuote size={28} stroke={1.5} color="#00E5A0" className="mb-4" />
+    <p class="font-display text-2xl leading-tight">
+      <slot />
+    </p>
+    {(cite || source) && (
+      <footer class="mt-5 flex items-center gap-2 text-sm">
+        {cite && <span class="font-semibold text-[color:var(--color-mint-400)]">{cite}</span>}
+        {source && <span class="text-slate-400">· {source}</span>}
+      </footer>
+    )}
+  </blockquote>
+)}

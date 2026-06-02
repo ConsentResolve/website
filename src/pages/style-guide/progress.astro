@@ -1,0 +1,45 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import ProgressBar from "~/components/ui/ProgressBar.astro";
+import RingProgress from "~/components/ui/RingProgress.astro";
+import BarChart from "~/components/ui/BarChart.astro";
+
+const chartData = [
+  { label: "Jan", value: 22 },
+  { label: "Feb", value: 34 },
+  { label: "Mar", value: 48 },
+  { label: "Apr", value: 67 },
+  { label: "May", value: 89 },
+  { label: "Jun", value: 124 },
+];
+---
+
+<StyleGuideLayout slug="progress" title="Progress Bars & Charts" description="Linear progress, ring progress, and a simple SVG bar chart.">
+  <section class="sg-section">
+    <h2>Linear progress</h2>
+    <div class="sg-preview sg-stack">
+      <ProgressBar value={32} label="Trial month progress" />
+      <ProgressBar value={67} label="Lead allotment used" tone="brand" />
+      <ProgressBar value={92} label="Approaching limit" tone="danger" />
+      <ProgressBar value={50} label="Compact" size="sm" tone="navy" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Ring progress</h2>
+    <div class="sg-preview">
+      <div class="flex flex-wrap items-end gap-10">
+        <RingProgress value={68} label="Leads converted" />
+        <RingProgress value={42} label="Open rate" tone="navy" size={100} thickness={8} />
+        <RingProgress value={91} label="Compliance score" tone="brand" size={140} thickness={12} />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Bar chart</h2>
+    <div class="sg-preview">
+      <BarChart data={chartData} />
+    </div>
+  </section>
+</StyleGuideLayout>

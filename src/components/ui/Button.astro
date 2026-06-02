@@ -1,0 +1,47 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"a"> {
+  variant?: "primary" | "secondary" | "ghost" | "outline" | "link" | "danger";
+  size?: "sm" | "md" | "lg";
+  href?: string;
+  fullWidth?: boolean;
+}
+
+const {
+  variant = "primary",
+  size = "md",
+  href,
+  fullWidth = false,
+  class: cls = "",
+  ...rest
+} = Astro.props as Props;
+
+const sizeMap = {
+  sm: "px-3 py-1.5 text-xs",
+  md: "px-5 py-2.5 text-sm",
+  lg: "px-7 py-4 text-base",
+};
+
+const variantMap = {
+  primary: "bg-[color:var(--color-brand)] text-[color:var(--color-on-brand)] hover:bg-[color:var(--color-brand-pressed)]",
+  secondary: "bg-[color:var(--color-navy-900)] text-white hover:bg-[color:var(--color-navy-700)]",
+  ghost: "bg-transparent text-[color:var(--color-ink)] hover:bg-[color:var(--color-bg-alt)]",
+  outline: "bg-transparent text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] hover:bg-[color:var(--color-bg-alt)]",
+  link: "bg-transparent text-[color:var(--color-brand-pressed)] underline-offset-4 hover:underline px-0 py-0",
+  danger: "bg-[color:var(--color-danger)] text-white hover:opacity-90",
+};
+
+const base = "inline-flex items-center justify-center gap-1.5 font-semibold transition-all duration-150 rounded-lg disabled:opacity-50 disabled:pointer-events-none";
+const classes = `${base} ${variant !== "link" ? sizeMap[size] : "text-sm"} ${variantMap[variant]} ${fullWidth ? "w-full" : ""} ${cls}`;
+---
+
+{href ? (
+  <a href={href} class={classes} {...rest}>
+    <slot />
+  </a>
+) : (
+  <button class={classes} {...rest as any}>
+    <slot />
+  </button>
+)}

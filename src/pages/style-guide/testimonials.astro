@@ -1,0 +1,74 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import Testimonial from "~/components/ui/Testimonial.astro";
+---
+
+<StyleGuideLayout slug="testimonials" title="Testimonials" description="Four card styles: full card, compact inline, dark featured, and minimal pull-quote.">
+  <section class="sg-section">
+    <h2>Card</h2>
+    <div class="sg-preview">
+      <div class="grid gap-6 md:grid-cols-2">
+        <Testimonial
+          quote="We killed our Thumbtack budget in 90 days and tripled our booked-job rate. The phone-number capture is the unfair advantage."
+          name="Carlos Mendez"
+          role="Owner"
+          company="Mendez Plumbing · Phoenix, AZ"
+          rating={5}
+        />
+        <Testimonial
+          quote="First contractor on the phone wins. Consent Resolve gets us on the phone in two minutes. We win way more often now."
+          name="Tina Roberts"
+          role="GC"
+          company="Roberts Roofing · Tampa, FL"
+          rating={5}
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Compact (inline)</h2>
+    <div class="sg-preview sg-stack">
+      <Testimonial
+        variant="compact"
+        quote="Best $10 I ever spent. Three weeks in we had to upgrade because we couldn't keep up with the call volume."
+        name="Devon Park"
+        role="HVAC owner"
+        company="Park Climate · Austin, TX"
+      />
+      <Testimonial
+        variant="compact"
+        quote="The CRM sync is what sold me. Lead drops straight into Housecall Pro with the right tags. Dispatch handles it."
+        name="Priya Singh"
+        role="Operations"
+        company="ClearPath Electrical · Raleigh, NC"
+      />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Dark featured</h2>
+    <div class="sg-preview" style="background:transparent;box-shadow:none;padding:0">
+      <Testimonial
+        variant="dark"
+        quote="The shared-lead model is broken. We pay the same for an Angi lead that's been sold to four other shops. Consent Resolve gave us back exclusive leads at a tenth of the cost."
+        name="Marcus Tate"
+        role="VP Operations"
+        company="Tate Home Services · Atlanta, GA"
+      />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Minimal pull-quote</h2>
+    <div class="sg-preview">
+      <Testimonial
+        variant="minimal"
+        quote="We turned off three lead-gen vendors. Now we just send people to our site."
+        name="Sarah Jenkins"
+        role="Marketing Director"
+        company="GreenLine HVAC"
+      />
+    </div>
+  </section>
+</StyleGuideLayout>

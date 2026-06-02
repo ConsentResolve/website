@@ -1,0 +1,25 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import Callout from "~/components/ui/Callout.astro";
+---
+
+<StyleGuideLayout slug="callouts" title="Content & Callout Boxes" description="Sidebar-style highlights for tips, warnings, notes, and premium callouts.">
+  <section class="sg-section">
+    <h2>Variants</h2>
+    <div class="sg-preview sg-stack">
+      <Callout variant="tip">Calls placed within the first 5 minutes convert 4× more often than calls placed later in the day.</Callout>
+      <Callout variant="warn">Don't run visitor-identification without an updated privacy policy. Consent Resolve handles this for you via Termageddon.</Callout>
+      <Callout variant="note">Compliance Resolve auto-redacts personal data for visitors under 16 — required under GDPR and CCPA.</Callout>
+      <Callout variant="premium">Multi-location operators get free routing rules and territory-overlap detection on Pro plans.</Callout>
+      <Callout variant="trust">Independently audited by Termageddon. Every consented record carries a verifiable audit trail.</Callout>
+      <Callout variant="fast">Leads land in your inbox in under 5 seconds. First contractor on the phone wins.</Callout>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Custom title</h2>
+    <div class="sg-preview">
+      <Callout variant="tip" title="Storm season">During Q3 storm season, roof-inspection leads spike 4–7×. Make sure your dispatch is staffed.</Callout>
+    </div>
+  </section>
+</StyleGuideLayout>

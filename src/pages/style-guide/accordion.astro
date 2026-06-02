@@ -1,0 +1,35 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import Accordion from "~/components/ui/Accordion.tsx";
+
+const faqs = [
+  { question: "Is visitor identification legal?", answer: "Yes — when identification happens only after explicit consent, as Consent Resolve does. We integrate with Termageddon to keep your privacy policy, cookie banner, and data-handling disclosures in sync." },
+  { question: "Do I need to update my privacy policy?", answer: "We handle this for you via Termageddon. Your policy auto-updates with every change to your data practices." },
+  { question: "What happens if a homeowner doesn't consent?", answer: "Nothing identifying is captured. Anonymous visitors stay anonymous. You only ever see leads who explicitly opted in." },
+  { question: "How fast does a lead arrive?", answer: "Real-time. The moment a homeowner taps Yes, the lead is pushed to your CRM, Slack, or email — typically within 2 seconds." },
+  { question: "Can I cancel anytime?", answer: "Yes. Month-to-month, no commitment. Cancel from your dashboard with one click." },
+];
+---
+
+<StyleGuideLayout slug="accordion" title="Accordion" description="Single-open and multi-open collapsibles. Three visual variants: chevron, plus/minus, and boxed.">
+  <section class="sg-section">
+    <h2>Chevron (default)</h2>
+    <div class="sg-preview">
+      <Accordion client:load items={faqs} variant="chevron" defaultOpen={0} />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Plus / minus</h2>
+    <div class="sg-preview">
+      <Accordion client:load items={faqs} variant="plus" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Boxed (multi-open)</h2>
+    <div class="sg-preview">
+      <Accordion client:load items={faqs.slice(0, 3)} variant="boxed" allowMultiple />
+    </div>
+  </section>
+</StyleGuideLayout>

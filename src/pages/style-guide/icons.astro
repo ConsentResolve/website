@@ -1,0 +1,105 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import {
+  IconShieldCheck, IconBolt, IconPhone, IconMessage, IconMapPin, IconClock,
+  IconTool, IconHome2, IconDroplet, IconAirConditioning, IconUserSearch, IconArrowRight,
+  IconCheck, IconX, IconAlertTriangle, IconInfoCircle, IconStarFilled, IconSparkles,
+  IconBuilding, IconCalendar, IconChartBar, IconCash, IconCircleCheck, IconGavel,
+} from "@tabler/icons-react";
+
+const icons = [
+  { Icon: IconShieldCheck, name: "ShieldCheck" },
+  { Icon: IconBolt, name: "Bolt" },
+  { Icon: IconPhone, name: "Phone" },
+  { Icon: IconMessage, name: "Message" },
+  { Icon: IconMapPin, name: "MapPin" },
+  { Icon: IconClock, name: "Clock" },
+  { Icon: IconTool, name: "Tool" },
+  { Icon: IconHome2, name: "Home2" },
+  { Icon: IconDroplet, name: "Droplet" },
+  { Icon: IconAirConditioning, name: "AirConditioning" },
+  { Icon: IconUserSearch, name: "UserSearch" },
+  { Icon: IconArrowRight, name: "ArrowRight" },
+  { Icon: IconCheck, name: "Check" },
+  { Icon: IconX, name: "X" },
+  { Icon: IconAlertTriangle, name: "AlertTriangle" },
+  { Icon: IconInfoCircle, name: "InfoCircle" },
+  { Icon: IconStarFilled, name: "StarFilled" },
+  { Icon: IconSparkles, name: "Sparkles" },
+  { Icon: IconBuilding, name: "Building" },
+  { Icon: IconCalendar, name: "Calendar" },
+  { Icon: IconChartBar, name: "ChartBar" },
+  { Icon: IconCash, name: "Cash" },
+  { Icon: IconCircleCheck, name: "CircleCheck" },
+  { Icon: IconGavel, name: "Gavel" },
+];
+---
+
+<StyleGuideLayout slug="icons" title="Icon Styles" description="Tabler Icons React. Default stroke 1.75 at body size, 2.25 at small chips. Color inherits from currentColor unless specified.">
+  <section class="sg-section">
+    <h2>Sizes & strokes</h2>
+    <div class="sg-preview">
+      <div class="flex flex-wrap items-end gap-8">
+        <div class="text-center">
+          <IconShieldCheck size={16} stroke={2.25} color="#0A1628" />
+          <p class="sg-label mt-2">16 / 2.25</p>
+        </div>
+        <div class="text-center">
+          <IconShieldCheck size={20} stroke={1.75} color="#0A1628" />
+          <p class="sg-label mt-2">20 / 1.75</p>
+        </div>
+        <div class="text-center">
+          <IconShieldCheck size={28} stroke={1.75} color="#0A1628" />
+          <p class="sg-label mt-2">28 / 1.75</p>
+        </div>
+        <div class="text-center">
+          <IconShieldCheck size={40} stroke={1.5} color="#0A1628" />
+          <p class="sg-label mt-2">40 / 1.5</p>
+        </div>
+        <div class="text-center">
+          <IconShieldCheck size={56} stroke={1.25} color="#0A1628" />
+          <p class="sg-label mt-2">56 / 1.25</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Color tones</h2>
+    <div class="sg-preview">
+      <div class="flex flex-wrap items-center gap-8">
+        <div class="text-center"><IconBolt size={32} stroke={1.75} color="#0A1628"/><p class="sg-label mt-2">Ink</p></div>
+        <div class="text-center"><IconBolt size={32} stroke={1.75} color="#00C080"/><p class="sg-label mt-2">Brand</p></div>
+        <div class="text-center"><IconBolt size={32} stroke={1.75} color="#00E5A0"/><p class="sg-label mt-2">Brand bright</p></div>
+        <div class="text-center"><IconBolt size={32} stroke={1.75} color="#dc2626"/><p class="sg-label mt-2">Danger</p></div>
+        <div class="text-center"><IconBolt size={32} stroke={1.75} color="#4A5568"/><p class="sg-label mt-2">Muted</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Common icons</h2>
+    <div class="sg-preview">
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        {icons.map(({ Icon, name }) => (
+          <div class="flex flex-col items-center gap-2 rounded-lg bg-[color:var(--color-bg)] p-4">
+            <Icon size={22} stroke={1.75} color="#0A1628" />
+            <code class="text-[10px] font-mono text-[color:var(--color-ink-muted)]">{name}</code>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Icon in chip / well</h2>
+    <div class="sg-preview">
+      <div class="flex flex-wrap gap-4">
+        <div class="flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-brand-soft)]"><IconBolt size={20} stroke={1.75} color="#00A86E"/></div>
+        <div class="flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-navy-900)]"><IconBolt size={20} stroke={2} color="#00E5A0"/></div>
+        <div class="flex size-11 items-center justify-center rounded-xl bg-[color:var(--color-bg)] ring-1 ring-inset ring-[color:var(--color-rule)]"><IconBolt size={20} stroke={1.75} color="#0A1628"/></div>
+        <div class="flex size-11 items-center justify-center rounded-full bg-red-50"><IconBolt size={20} stroke={2} color="#dc2626"/></div>
+      </div>
+    </div>
+  </section>
+</StyleGuideLayout>

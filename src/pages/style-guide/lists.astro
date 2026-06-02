@@ -1,0 +1,82 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import List from "~/components/ui/List.astro";
+
+const features = [
+  "Verified name and mobile phone of every consented visitor",
+  "Real-time push to your CRM, Slack, or email inbox",
+  "Service-area filtering by zip, city, or radius",
+  "Termageddon-backed privacy policy auto-updates",
+];
+
+const ordered = [
+  "Drop our snippet on your site",
+  "Homeowner taps Yes to the consent banner",
+  "Lead lands in your inbox in under 5 seconds",
+  "Call them back before a competitor does",
+];
+
+const dontList = [
+  "Buy shared leads sold to 5+ shops",
+  "Trust your gut about who visited",
+  "Wait for someone to fill out a form",
+];
+---
+
+<StyleGuideLayout slug="lists" title="List Styles" description="Variants for feature lists, checklists, comparisons, and ordered steps.">
+  <section class="sg-section">
+    <h2>Check (brand tone)</h2>
+    <div class="sg-preview">
+      <List items={features} variant="check" tone="brand" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Filled check</h2>
+    <div class="sg-preview">
+      <List items={features} variant="filled-check" tone="brand" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Comparison — Do vs. Don't</h2>
+    <div class="sg-preview grid gap-8 sm:grid-cols-2">
+      <div>
+        <p class="sg-label" style="color:#00A86E">Do</p>
+        <List items={features.slice(0, 3)} variant="check" tone="brand" />
+      </div>
+      <div>
+        <p class="sg-label" style="color:#dc2626">Don't</p>
+        <List items={dontList} variant="x" tone="danger" />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Arrow</h2>
+    <div class="sg-preview">
+      <List items={features} variant="arrow" tone="brand" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Chevron</h2>
+    <div class="sg-preview">
+      <List items={features} variant="chevron" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Numbered</h2>
+    <div class="sg-preview">
+      <List items={ordered} variant="numbered" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Bullets</h2>
+    <div class="sg-preview">
+      <List items={features} variant="bullets" />
+    </div>
+  </section>
+</StyleGuideLayout>
