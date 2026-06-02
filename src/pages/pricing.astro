@@ -2,25 +2,58 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Button from "~/components/ui/Button.astro";
 import Accordion from "~/components/ui/Accordion.tsx";
-import FinalCTA from "~/components/sections/FinalCTA.astro";
-import { IconArrowRight, IconCheck, IconBolt, IconLock } from "@tabler/icons-react";
+import {
+  IconArrowRight, IconCheck, IconBolt, IconLock, IconShieldCheck,
+  IconUserCheck, IconMapPin, IconClipboardCheck, IconBellRinging,
+  IconPlugConnected, IconRefresh, IconHeadset, IconWorld,
+} from "@tabler/icons-react";
 import { breadcrumbSchema, faqSchema } from "~/lib/seo";
 
 const billingFaqs = [
-  { question: "What's the $10 for?", answer: "Your first 10 leads — about a dollar apiece to try us out." },
-  { question: "How much is each lead?", answer: "$7, flat. The same whether it's a tune-up or a re-roof." },
-  { question: "When am I billed?", answer: "$10 up front for your first 10 leads, then $7 per lead after that. [CONFIRM billing cadence]" },
-  { question: "How do I cancel?", answer: "Anytime, from your dashboard. No phone call, no hassle." },
+  { question: "What counts as a lead?", answer: "An identified, consented homeowner — a real first name, last name, and mobile phone, paired with what they were shopping for on your site. You're not billed for anonymous traffic, you're not billed for visitors who don't consent." },
+  { question: "How am I billed?", answer: "$7 per delivered lead. We bill at the end of each week for the leads delivered that week." },
+  { question: "Are there setup fees?", answer: "No. No setup fees, no implementation fees, no \"onboarding\" surcharge. You install the snippet, you start receiving leads, you pay $7 each." },
+  { question: "Is there a contract or minimum?", answer: "No. No annual contract. No monthly minimum. No volume commitment. You pay only for the leads you receive." },
+  { question: "What if a lead is bad?", answer: "Credits issued for unreachable phone numbers and disconnected lines. Tire-kicker risk is on the shared-lead platforms — our model is different. The homeowner saw your site, raised their hand, and asked to be contacted." },
+  { question: "How do I cancel?", answer: "From your dashboard, one click. You'll be charged for any leads already delivered that week and that's the last bill." },
+  { question: "Do you offer enterprise / multi-location pricing?", answer: "Yes — multi-location operators and franchise networks get a custom rate. Email hello@consentresolve.com or call (727) 202-5996." },
 ];
 
-const planFeatures = [
-  "Exclusive leads — yours alone, never resold",
-  "Real homeowner names and mobile numbers",
-  "What they were shopping for, captured at consent",
-  "On your phone in seconds (Slack, SMS, email)",
-  "Lands in your CRM — Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo",
-  "Legal by default — GDPR, CCPA, CPA, Termageddon-backed audit trail",
-  "Live in about 10 minutes — one line of code",
+const featureGroups = [
+  {
+    label: "Lead quality",
+    features: [
+      { Icon: IconUserCheck,      title: "Verified homeowner name + mobile",  desc: "First name, last name, mobile phone. Not a household label, not a P.O. box." },
+      { Icon: IconClipboardCheck, title: "Captured service intent",            desc: "What they were shopping for — 'water heater quote', 'roof inspection', 'AC tune-up'." },
+      { Icon: IconMapPin,         title: "Service-area pin",                   desc: "Every lead drops on your map. Filter by zip, route, or distance." },
+      { Icon: IconLock,           title: "Exclusive — never resold",           desc: "One consent, one contractor. Not auctioned, not flipped, not shared." },
+    ],
+  },
+  {
+    label: "Speed",
+    features: [
+      { Icon: IconBellRinging, title: "Real-time push to your phone",          desc: "Slack, SMS, or email. The lead lands in seconds, not hours." },
+      { Icon: IconRefresh,     title: "Return-visit alerts",                   desc: "When a known homeowner comes back, you know. Time the follow-up right." },
+      { Icon: IconBolt,        title: "10-minute setup",                       desc: "Paste one line of code in your site's header. WordPress, Wix, Squarespace, ServiceTitan — anything." },
+    ],
+  },
+  {
+    label: "CRM & dispatch",
+    features: [
+      { Icon: IconPlugConnected, title: "Native CRM integrations",             desc: "Jobber, Housecall Pro, ServiceTitan, HubSpot, Salesforce, Klaviyo." },
+      { Icon: IconPlugConnected, title: "Webhook to anything else",            desc: "Send leads to any system that accepts a webhook." },
+      { Icon: IconWorld,         title: "Works on any site builder",           desc: "WordPress, Wix, Squarespace, ServiceTitan websites, custom — anywhere you can paste a script tag." },
+    ],
+  },
+  {
+    label: "Compliance & support",
+    features: [
+      { Icon: IconShieldCheck, title: "GDPR / CCPA / CPA compliant",           desc: "Identification only after explicit consent. No shadow-tracking, ever." },
+      { Icon: IconShieldCheck, title: "Termageddon-backed policies",           desc: "Privacy policy and disclosures auto-update with every change." },
+      { Icon: IconShieldCheck, title: "Tamper-evident audit trail",            desc: "Every reveal timestamped and signed. Receipts for every lead, if a regulator asks." },
+      { Icon: IconHeadset,     title: "Email + phone support",                 desc: "Reach a human at hello@consentresolve.com or (727) 202-5996. M–F 9a–6p Eastern." },
+    ],
+  },
 ];
 
 const schemas = [
@@ -33,8 +66,8 @@ const schemas = [
 ---
 
 <BaseLayout
-  title="Pricing — $10 to Start, Then $7 a Lead | Consent Resolve"
-  description="Your first 10 leads cost $10. After that, $7 a lead — flat. Every lead exclusive, never resold. No contract, cancel anytime. Card required."
+  title="Pricing — $7 per Exclusive Lead | Consent Resolve"
+  description="$7 per delivered lead. Exclusive — never resold. No contract, no minimum, no setup fees. See everything included."
   schema={schemas}
 >
   <!-- Hero -->
@@ -44,86 +77,173 @@ const schemas = [
       <div class="mx-auto max-w-3xl text-center">
         <p class="eyebrow mb-7 justify-center">Pricing</p>
         <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
-          Start for $10.<br/>
-          <span class="text-[color:var(--color-brand)]">Pay for leads, not promises.</span>
+          $7 per lead.<br/>
+          <span class="text-[color:var(--color-brand)]">Yours alone.</span>
         </h1>
         <p class="mx-auto max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-          Your first 10 leads cost just $10. After that, it's $7 a lead. No contract, cancel anytime — see what consented leads are worth before you scale.
+          One simple price for an exclusive, consented homeowner with a name and a mobile number. No contracts, no minimums, no setup fees. You only pay when a lead lands in your hands.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- The plan card -->
-  <section class="pb-24">
+  <!-- Plan card -->
+  <section class="pb-20">
     <div class="container-content">
-      <div class="mx-auto max-w-2xl">
+      <div class="mx-auto max-w-lg">
         <div class="relative overflow-hidden rounded-3xl bg-[color:var(--color-bg-alt)] p-8 lg:p-10 shadow-[0_40px_80px_-30px_rgba(0,192,128,0.35)] ring-[3px] ring-[color:var(--color-brand)]">
           <div class="absolute inset-x-0 top-0 h-1.5 rounded-t-3xl bg-gradient-to-r from-[color:var(--color-mint-400)] via-[color:var(--color-brand)] to-[color:var(--color-mint-400)]"></div>
 
-          <p class="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--color-brand-pressed)]">One honest plan</p>
+          <div class="text-center">
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--color-brand-pressed)]">Pay per lead</p>
 
-          <div class="mt-4 grid items-end gap-6 sm:grid-cols-2">
-            <div>
-              <div class="font-display text-6xl font-black tracking-tighter leading-none text-[color:var(--color-ink)]">$10</div>
-              <p class="mt-2 text-sm font-semibold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)]">
-                First 10 leads
-              </p>
-              <p class="mt-1 text-[15px] text-[color:var(--color-ink-2)]">
-                About $1 each. A card is required.
-              </p>
+            <div class="mt-5 flex items-baseline justify-center gap-2">
+              <span class="font-display text-7xl font-black tracking-tighter leading-none text-[color:var(--color-ink)]">$7</span>
+              <span class="text-lg font-semibold text-[color:var(--color-ink-muted)]">/ lead</span>
             </div>
-            <div class="rounded-2xl bg-[color:var(--color-bg)] p-5">
-              <div class="font-display text-4xl font-black tracking-tighter leading-none text-[color:var(--color-brand-pressed)]">$7</div>
-              <p class="mt-2 text-sm font-semibold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)]">
-                Per lead after that
-              </p>
-              <p class="mt-1 text-[15px] text-[color:var(--color-ink-2)]">
-                Flat. No bidding, no surge.
-              </p>
-            </div>
+            <p class="mt-4 text-[15px] text-[color:var(--color-ink-2)]">
+              Each lead is one consented homeowner with name, mobile, and what they were shopping for.
+            </p>
           </div>
 
           <hr class="my-8 border-[color:var(--color-rule)]" />
 
           <ul class="space-y-3">
-            {planFeatures.map((f) => (
-              <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink)]">
-                <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)]">
-                  <IconCheck size={14} stroke={3} color="#00A86E" />
-                </span>
-                {f}
-              </li>
-            ))}
+            <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink)]">
+              <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)]">
+                <IconCheck size={14} stroke={3} color="#00A86E" />
+              </span>
+              <span><strong>Exclusive</strong> — yours alone, never resold</span>
+            </li>
+            <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink)]">
+              <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)]">
+                <IconCheck size={14} stroke={3} color="#00A86E" />
+              </span>
+              <span><strong>No contract</strong> — no minimum, no commitment</span>
+            </li>
+            <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink)]">
+              <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)]">
+                <IconCheck size={14} stroke={3} color="#00A86E" />
+              </span>
+              <span><strong>No setup fees</strong> — pay only when leads land</span>
+            </li>
+            <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink)]">
+              <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)]">
+                <IconCheck size={14} stroke={3} color="#00A86E" />
+              </span>
+              <span><strong>Cancel anytime</strong> — one click, from your dashboard</span>
+            </li>
           </ul>
 
           <Button href="/get-started/" variant="primary" size="lg" class="mt-8 w-full">
             <IconBolt size={18} stroke={2.25} />
-            Start $10 Trial
+            Get started
             <IconArrowRight size={18} stroke={2.25} />
           </Button>
 
           <p class="mt-4 flex items-center justify-center gap-1.5 text-xs text-[color:var(--color-ink-muted)]">
             <IconLock size={12} stroke={1.75} />
-            256-bit encrypted · Card required · Cancel anytime
+            256-bit encrypted · Card required for billing · Cancel anytime
           </p>
         </div>
 
-        <!-- Reassurance row -->
-        <div class="mt-8 grid grid-cols-3 gap-4 text-center">
-          <div class="rounded-xl bg-[color:var(--color-bg-alt)] p-4">
-            <div class="font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">10 leads</div>
-            <div class="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">for $10</div>
+        <p class="mt-8 text-center text-sm text-[color:var(--color-ink-muted)]">
+          Multi-location or franchise? <a href="/contact/" class="font-semibold text-[color:var(--color-brand-pressed)] hover:underline">Talk to us about custom pricing</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features table -->
+  <section class="section bg-[color:var(--color-bg-alt)]">
+    <div class="container-content">
+      <div class="mx-auto mb-14 max-w-2xl text-center">
+        <p class="eyebrow mb-5 justify-center">Everything included</p>
+        <h2 class="display-2 text-[color:var(--color-ink)]">
+          One price. The whole toolbox.
+        </h2>
+        <p class="mt-3 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+          No upsells, no add-ons, no premium tier. Every feature ships with every lead.
+        </p>
+      </div>
+
+      <div class="mx-auto max-w-4xl overflow-hidden rounded-2xl bg-[color:var(--color-bg)] ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)]">
+        <table class="w-full">
+          <thead class="border-b border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Feature</th>
+              <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Included</th>
+            </tr>
+          </thead>
+          <tbody>
+            {featureGroups.map((group) => (
+              <>
+                <tr class="border-t border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]/40">
+                  <td colspan="2" class="px-6 pt-5 pb-3">
+                    <span class="text-xs font-bold uppercase tracking-[0.18em] text-[color:var(--color-brand-pressed)]">{group.label}</span>
+                  </td>
+                </tr>
+                {group.features.map((f) => (
+                  <tr class="border-t border-[color:var(--color-rule)]">
+                    <td class="px-6 py-4">
+                      <div class="flex items-start gap-3">
+                        <span class="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-[color:var(--color-brand-soft)]">
+                          <f.Icon size={16} stroke={1.75} color="#00A86E" />
+                        </span>
+                        <div>
+                          <div class="font-semibold tracking-tight text-[color:var(--color-ink)]">{f.title}</div>
+                          <div class="mt-0.5 text-sm text-[color:var(--color-ink-2)]">{f.desc}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                      <IconCheck size={20} stroke={2.5} color="#00A86E" class="inline" />
+                    </td>
+                  </tr>
+                ))}
+              </>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cost comparison row -->
+  <section class="section">
+    <div class="container-content">
+      <div class="mx-auto max-w-3xl">
+        <div class="mb-10 text-center">
+          <p class="eyebrow mb-5 justify-center">Cost per lead</p>
+          <h2 class="display-2 text-[color:var(--color-ink)]">
+            How $7 stacks up.
+          </h2>
+        </div>
+        <div class="grid gap-4 md:grid-cols-4">
+          <div class="rounded-2xl bg-[color:var(--color-brand-soft)] p-6 text-center ring-1 ring-inset ring-[color:var(--color-brand)]/30">
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--color-brand-pressed)]">Consent Resolve</p>
+            <div class="mt-3 font-display text-4xl font-black tracking-tight text-[color:var(--color-brand-pressed)]">$7</div>
+            <p class="mt-2 text-xs font-semibold text-[color:var(--color-brand-pressed)]">Exclusive, never resold</p>
           </div>
-          <div class="rounded-xl bg-[color:var(--color-bg-alt)] p-4">
-            <div class="font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">$7 / lead</div>
-            <div class="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">after that</div>
+          <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 text-center ring-1 ring-inset ring-[color:var(--color-rule)]">
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)]">Angi</p>
+            <div class="mt-3 font-display text-4xl font-black tracking-tight text-[color:var(--color-ink)]">~$35</div>
+            <p class="mt-2 text-xs text-[color:var(--color-ink-muted)]">Shared with 5+ shops</p>
           </div>
-          <div class="rounded-xl bg-[color:var(--color-bg-alt)] p-4">
-            <div class="font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">Cancel</div>
-            <div class="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">anytime</div>
+          <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 text-center ring-1 ring-inset ring-[color:var(--color-rule)]">
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)]">HomeAdvisor</p>
+            <div class="mt-3 font-display text-4xl font-black tracking-tight text-[color:var(--color-ink)]">Varies</div>
+            <p class="mt-2 text-xs text-[color:var(--color-ink-muted)]">Shared with several pros</p>
+          </div>
+          <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 text-center ring-1 ring-inset ring-[color:var(--color-rule)]">
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)]">Thumbtack</p>
+            <div class="mt-3 font-display text-4xl font-black tracking-tight text-[color:var(--color-ink)]">~$48</div>
+            <p class="mt-2 text-xs text-[color:var(--color-ink-muted)]">Sold to 4–6 shops</p>
           </div>
         </div>
+        <p class="mt-6 text-center text-xs text-[color:var(--color-ink-muted)]">
+          Competitor figures are public-source averages, not Consent Resolve claims. [CONFIRM CPL]
+        </p>
       </div>
     </div>
   </section>
@@ -133,9 +253,9 @@ const schemas = [
     <div class="container-content max-w-3xl">
       <div class="mb-12 text-center">
         <p class="eyebrow mb-5 justify-center">Billing FAQ</p>
-        <h2 class="display-2 text-[color:var(--color-ink)]">The straight answers.</h2>
+        <h2 class="display-2 text-[color:var(--color-ink)]">Straight answers about how you pay.</h2>
       </div>
-      <div class="rounded-2xl bg-[color:var(--color-bg)] p-2">
+      <div class="rounded-2xl bg-[color:var(--color-bg)] p-2 ring-1 ring-inset ring-[color:var(--color-rule)]">
         <div class="px-5">
           <Accordion client:visible items={billingFaqs} variant="chevron" defaultOpen={0} />
         </div>
@@ -143,5 +263,50 @@ const schemas = [
     </div>
   </section>
 
-  <FinalCTA />
+  <!-- Custom Final CTA: $7-focused, no $10 mention anywhere -->
+  <section class="section-dark relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-1/2 size-[480px] -translate-y-1/2 rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
+
+    <div class="container-content section">
+      <div class="grid items-center gap-16 md:grid-cols-[1.1fr_1fr]">
+        <div>
+          <p class="eyebrow mb-6">Get started today</p>
+          <h2 class="display-1 mb-7 text-white">
+            One price. One lead. Yours alone.
+          </h2>
+          <p class="mb-10 max-w-xl text-lg leading-relaxed text-slate-300">
+            $7 per delivered lead. The same price whether it's a tune-up or a re-roof. No contract, no minimum, no setup fees. Get up and running in about 10 minutes.
+          </p>
+          <Button
+            href="/get-started/"
+            size="lg"
+            class="!bg-[color:var(--color-mint-400)] !text-[color:var(--color-navy-900)] hover:!bg-[color:var(--color-mint-300)] hover:shadow-[0_16px_40px_-12px_rgba(0,229,160,0.6)] hover:-translate-y-0.5"
+          >
+            <IconBolt size={18} stroke={2.25} />
+            Get started
+            <IconArrowRight size={18} stroke={2.25} />
+          </Button>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex items-center justify-between rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
+            <span class="text-[15px] text-slate-300">Per delivered lead</span>
+            <span class="font-display text-4xl font-bold tracking-tight text-[color:var(--color-mint-400)]">$7</span>
+          </div>
+          <div class="flex items-center justify-between rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
+            <span class="text-[15px] text-slate-300">Setup fee</span>
+            <span class="font-display text-4xl font-bold tracking-tight text-[color:var(--color-mint-400)]">$0</span>
+          </div>
+          <div class="flex items-center justify-between rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
+            <span class="text-[15px] text-slate-300">Monthly minimum</span>
+            <span class="font-display text-4xl font-bold tracking-tight text-[color:var(--color-mint-400)]">$0</span>
+          </div>
+          <div class="flex items-center justify-center gap-1.5 pt-4 text-xs text-slate-400">
+            <IconLock size={12} stroke={1.75} />
+            256-bit encrypted · No contract · Cancel anytime
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </BaseLayout>
