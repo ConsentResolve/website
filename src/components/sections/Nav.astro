@@ -2,21 +2,37 @@
 import { PRIMARY_NAV } from "~/lib/site";
 ---
 
-<header class="sticky top-0 z-50 w-full border-b border-[color:var(--color-rule)] bg-[color:var(--color-bg)]/85 backdrop-blur-md">
-  <div class="container-content flex h-16 items-center justify-between">
-    <a href="/" class="flex items-center gap-2 group">
-      <div class="size-8 rounded-lg bg-[color:var(--color-brand)] flex items-center justify-center">
-        <span class="material-symbols-outlined !text-[color:var(--color-on-brand)] !text-[20px]">verified_user</span>
+<header class="section-dark sticky top-0 z-50 w-full border-b border-[color:var(--color-brand)]/30 backdrop-blur-md">
+  <div class="container-content flex h-20 items-center justify-between gap-6">
+    <a href="/" class="group flex items-center gap-3">
+      <div class="relative flex size-10 items-center justify-center rounded-lg bg-[color:var(--color-brand)]">
+        <span class="material-symbols-outlined !text-[color:var(--color-navy-900)] !text-[22px]">verified_user</span>
+        <span class="absolute -bottom-1 -right-1 size-3 rounded-full border-2 border-[color:var(--color-navy-900)] bg-[color:var(--color-mint-300)]"></span>
       </div>
-      <h2 class="text-xl font-bold tracking-tight">Consent Resolve</h2>
+      <div class="leading-tight">
+        <div class="text-lg font-bold tracking-tight text-white">Consent Resolve</div>
+        <div class="text-[11px] font-medium uppercase tracking-[0.18em] text-[color:var(--color-brand)]">Leads for Home Service Pros</div>
+      </div>
     </a>
-    <nav class="hidden md:flex items-center gap-8" aria-label="Primary">
+
+    <nav class="hidden md:flex items-center gap-7" aria-label="Primary">
       {PRIMARY_NAV.map((item) => (
-        <a class="text-sm font-medium text-[color:var(--color-ink-2)] hover:text-[color:var(--color-brand)] transition-colors" href={item.href}>{item.label}</a>
+        <a class="text-sm font-medium text-slate-300 hover:text-[color:var(--color-brand)] transition-colors" href={item.href}>{item.label}</a>
       ))}
     </nav>
-    <a href="/get-started/" class="btn-primary px-5 py-2 text-sm glow-hover">
-      Start $10 Trial
-    </a>
+
+    <div class="flex items-center gap-4">
+      <a href="/contact/" class="hidden lg:flex items-center gap-2 text-sm font-medium text-slate-300 hover:text-[color:var(--color-brand)] transition-colors">
+        <span class="material-symbols-outlined !text-[18px]">support_agent</span>
+        Talk to a human
+      </a>
+      <a
+        href="/get-started/"
+        class="inline-flex items-center gap-2 rounded-lg bg-[color:var(--color-brand)] px-5 py-2.5 text-sm font-bold text-[color:var(--color-navy-900)] transition-colors hover:bg-[color:var(--color-mint-300)]"
+      >
+        Start $10 Trial
+        <span class="material-symbols-outlined !text-[color:var(--color-navy-900)] !text-[18px]">arrow_forward</span>
+      </a>
+    </div>
   </div>
 </header>

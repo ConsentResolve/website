@@ -3,9 +3,9 @@ interface Step { icon: string; title: string; body: string; }
 interface Props { steps?: Step[]; }
 const {
   steps = [
-    { icon: "code", title: "1. Install Banner", body: "Add our 1-line script to your existing site or app." },
-    { icon: "touch_app", title: "2. Visitor Consents", body: "Users opt-in via a compliant, high-converting banner." },
-    { icon: "contact_page", title: "3. See Contact Info", body: "Unlock full profiles directly in your dashboard or CRM." },
+    { icon: "integration_instructions", title: "1. Drop in one line of code", body: "Paste our snippet on your site. Works with WordPress, Wix, Squarespace, ServiceTitan websites — anything." },
+    { icon: "touch_app", title: "2. Homeowner taps Yes", body: "A compliant banner asks for consent. The ones ready to hire opt in." },
+    { icon: "phone_in_talk", title: "3. Call them back in 5 minutes", body: "Name, phone, what service they're shopping. Pushed to your CRM, Slack, or email instantly." },
   ],
 } = Astro.props as Props;
 ---
