@@ -2,6 +2,7 @@
 import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
 import DashboardScreen from "~/components/ui/demo/DashboardScreen.astro";
 import VisitorsScreen from "~/components/ui/demo/VisitorsScreen.astro";
+import VisitorDetailScreen from "~/components/ui/demo/VisitorDetailScreen.astro";
 import IntegrationsScreen from "~/components/ui/demo/IntegrationsScreen.astro";
 import ConsentScreen from "~/components/ui/demo/ConsentScreen.astro";
 ---
@@ -24,6 +25,14 @@ import ConsentScreen from "~/components/ui/demo/ConsentScreen.astro";
     <p class="sg-lede">Searchable, filterable visitor intelligence with device, timezone, visit/view counts, and pagination. Identifiers are obfuscated patterns like <code>k7****l@example.com</code>.</p>
     <div class="sg-preview demo-frame">
       <VisitorsScreen />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Single visitor detail</h2>
+    <p class="sg-lede">Drill-down view from the visitors list. Hero with action buttons (Call, Text, Email, Push to CRM), animated lead-score and engagement counters, contact + enrichment cards, a Termageddon-signed consent record with audit ID, and an activity timeline that draws its connecting line and staggers events in on mount.</p>
+    <div class="sg-preview demo-frame">
+      <VisitorDetailScreen />
     </div>
   </section>
 

@@ -1,0 +1,554 @@
+---
+import DemoChrome from "./DemoChrome.astro";
+import AnimatedNumber from "~/components/ui/AnimatedNumber.tsx";
+import {
+  IconChevronRight,
+  IconArrowLeft,
+  IconPhone,
+  IconMessage,
+  IconMail,
+  IconArrowRight,
+  IconDots,
+  IconUserCheck,
+  IconMapPin,
+  IconClipboardCheck,
+  IconShieldCheck,
+  IconCopy,
+  IconHome,
+  IconRefresh,
+  IconEye,
+  IconChartLine,
+  IconCalendar,
+} from "@tabler/icons-react";
+
+const handle = "j*****y@example.com";
+const initials = "JE";
+const consentedAgo = "43m ago";
+const audit = "0x4f9c8a7e2b1d…";
+
+const timeline: { time: string; title: string; meta?: string; icon: any; tone: "default" | "brand" | "muted" }[] = [
+  { time: "12m ago",      title: "Returned to /pricing",                                meta: "Second visit · viewed for 1m 14s", icon: IconRefresh, tone: "default" },
+  { time: "31m ago",      title: "Pushed to CRM (HubSpot)",                             meta: "Contact created · tag: 'water-heater-quote'", icon: IconArrowRight, tone: "brand" },
+  { time: "43m ago",      title: "Consented to identification",                         meta: "Banner v3.2.1 · Termageddon-signed audit trail", icon: IconShieldCheck, tone: "brand" },
+  { time: "44m ago",      title: "Viewed /services/water-heater-replacement",           meta: "1m 47s on page · scrolled to 92%", icon: IconEye, tone: "default" },
+  { time: "47m ago",      title: "Viewed /pricing",                                     meta: "2m 12s on page", icon: IconEye, tone: "default" },
+  { time: "52m ago",      title: "Viewed /services",                                    meta: "48s on page", icon: IconEye, tone: "default" },
+  { time: "1h 8m ago",    title: "First visit · landed on /",                           meta: "Source: Google search · 'austin water heater repair'", icon: IconHome, tone: "muted" },
+];
+---
+
+<DemoChrome active="visitors">
+  <!-- Breadcrumb -->
+  <div class="vd-breadcrumb">
+    <a class="vd-back">
+      <IconArrowLeft size={14} stroke={2.25} />
+      All visitors
+    </a>
+    <IconChevronRight size={12} stroke={1.75} color="#475569" />
+    <span class="vd-crumb-current">{handle}</span>
+  </div>
+
+  <!-- Hero card -->
+  <div class="vd-hero">
+    <div class="vd-hero-main">
+      <div class="vd-hero-id">
+        <div class="vd-avatar-lg">{initials}</div>
+        <div>
+          <div class="vd-handle-row">
+            <h1 class="vd-handle">{handle}</h1>
+            <span class="vd-chip vd-chip-enriched">ENRICHED</span>
+            <span class="vd-chip vd-chip-consented">CONSENTED · {consentedAgo}</span>
+          </div>
+          <div class="vd-handle-meta">
+            <span><IconCalendar size={12} stroke={1.75} /> First visit 1h 8m ago</span>
+            <span><IconRefresh size={12} stroke={1.75} /> 3 visits</span>
+            <span><IconEye size={12} stroke={1.75} /> 12 pages viewed</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="vd-actions">
+        <button class="vd-action vd-action-primary">
+          <IconPhone size={16} stroke={2.25} />
+          Call
+        </button>
+        <button class="vd-action vd-action-secondary">
+          <IconMessage size={16} stroke={2} />
+          Text
+        </button>
+        <button class="vd-action vd-action-secondary">
+          <IconMail size={16} stroke={2} />
+          Email
+        </button>
+        <button class="vd-action vd-action-ghost">
+          <IconDots size={16} stroke={2} />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Engagement metrics row -->
+  <div class="vd-metrics">
+    <div class="vd-metric">
+      <div class="vd-metric-icon"><IconRefresh size={14} stroke={1.75} color="#00E5A0" /></div>
+      <div class="vd-metric-label">Total visits</div>
+      <div class="vd-metric-value"><AnimatedNumber client:visible value={3} /></div>
+    </div>
+    <div class="vd-metric">
+      <div class="vd-metric-icon"><IconEye size={14} stroke={1.75} color="#00E5A0" /></div>
+      <div class="vd-metric-label">Pages viewed</div>
+      <div class="vd-metric-value"><AnimatedNumber client:visible value={12} /></div>
+    </div>
+    <div class="vd-metric">
+      <div class="vd-metric-icon"><IconChartLine size={14} stroke={1.75} color="#00E5A0" /></div>
+      <div class="vd-metric-label">Time on site</div>
+      <div class="vd-metric-value">8<span class="vd-unit">m</span> 42<span class="vd-unit">s</span></div>
+    </div>
+    <div class="vd-metric">
+      <div class="vd-metric-icon"><IconClipboardCheck size={14} stroke={1.75} color="#00E5A0" /></div>
+      <div class="vd-metric-label">Lead score</div>
+      <div class="vd-metric-value vd-score"><AnimatedNumber client:visible value={92} /> <span class="vd-grade">A</span></div>
+    </div>
+  </div>
+
+  <!-- Two-column body -->
+  <div class="vd-body-grid">
+    <!-- Left: contact + enrichment + consent -->
+    <div class="vd-col-left">
+      <!-- Contact card -->
+      <div class="vd-card">
+        <div class="vd-card-head">
+          <IconUserCheck size={14} stroke={1.75} color="#00E5A0" />
+          <span>Contact</span>
+        </div>
+        <dl class="vd-dl">
+          <div>
+            <dt>Name</dt>
+            <dd>J. █████</dd>
+          </div>
+          <div>
+            <dt>Phone</dt>
+            <dd class="vd-dd-mono">
+              (512) 555-0142
+              <button class="vd-copy"><IconCopy size={12} stroke={1.75} /></button>
+            </dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd class="vd-dd-mono">{handle}</dd>
+          </div>
+          <div>
+            <dt>Location</dt>
+            <dd>
+              <IconMapPin size={12} stroke={1.75} color="#94a3b8" />
+              Austin, TX · GMT-05:00
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Enrichment card -->
+      <div class="vd-card">
+        <div class="vd-card-head">
+          <IconClipboardCheck size={14} stroke={1.75} color="#00E5A0" />
+          <span>Enrichment</span>
+        </div>
+        <div class="vd-enr-row">
+          <span class="vd-enr-pill">Homeowner</span>
+          <span class="vd-enr-pill">Service area · 78704</span>
+          <span class="vd-enr-pill">High intent</span>
+        </div>
+        <dl class="vd-dl">
+          <div>
+            <dt>Captured intent</dt>
+            <dd class="vd-intent">Water heater replacement quote</dd>
+          </div>
+          <div>
+            <dt>Source</dt>
+            <dd>Google · "austin water heater repair"</dd>
+          </div>
+          <div>
+            <dt>Device</dt>
+            <dd>Desktop · macOS · Chrome 142</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Consent record -->
+      <div class="vd-card vd-card-consent">
+        <div class="vd-card-head">
+          <IconShieldCheck size={14} stroke={1.75} color="#00E5A0" />
+          <span>Consent record</span>
+          <span class="vd-card-badge">VERIFIED</span>
+        </div>
+        <dl class="vd-dl">
+          <div>
+            <dt>Granted</dt>
+            <dd>43 minutes ago</dd>
+          </div>
+          <div>
+            <dt>Banner version</dt>
+            <dd class="vd-dd-mono">v3.2.1</dd>
+          </div>
+          <div>
+            <dt>Audit ID</dt>
+            <dd class="vd-dd-mono">{audit}</dd>
+          </div>
+          <div>
+            <dt>Policy</dt>
+            <dd>Termageddon-signed · 2026-06-02</dd>
+          </div>
+        </dl>
+        <div class="vd-audit-bar">
+          <IconShieldCheck size={12} stroke={2} color="#00E5A0" />
+          Cryptographic audit trail · Tamper-evident
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: timeline -->
+    <div class="vd-col-right">
+      <div class="vd-card vd-timeline-card">
+        <div class="vd-card-head">
+          <IconChartLine size={14} stroke={1.75} color="#00E5A0" />
+          <span>Activity timeline</span>
+          <span class="vd-card-meta">{timeline.length} events · last 1h 8m</span>
+        </div>
+
+        <ol class="vd-timeline">
+          {timeline.map((t, i) => (
+            <li class="vd-tl-item" style={`animation-delay:${i * 70}ms`}>
+              <div class:list={["vd-tl-marker", `vd-tl-${t.tone}`]}>
+                <t.icon size={14} stroke={2} />
+              </div>
+              <div class="vd-tl-content">
+                <div class="vd-tl-time">{t.time}</div>
+                <div class="vd-tl-title">{t.title}</div>
+                {t.meta && <div class="vd-tl-meta">{t.meta}</div>}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </div>
+</DemoChrome>
+
+<style>
+  /* === Breadcrumb === */
+  .vd-breadcrumb {
+    display: flex; align-items: center; gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    color: #94a3b8;
+    font-size: 0.8rem;
+  }
+  .vd-back {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: #cbd5e1;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .vd-back :global(svg) { color: #cbd5e1; }
+  .vd-crumb-current { color: #fff; font-family: var(--font-mono, monospace); font-size: 0.78rem; }
+
+  /* === Hero card === */
+  .vd-hero {
+    background: rgba(15,32,48,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.875rem;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .vd-hero::before {
+    content: "";
+    position: absolute;
+    top: -60px;
+    right: -60px;
+    width: 220px;
+    height: 220px;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(0,229,160,0.18), transparent 70%);
+    pointer-events: none;
+  }
+  .vd-hero-main {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem;
+    position: relative;
+  }
+  .vd-hero-id { display: flex; align-items: center; gap: 1rem; }
+  .vd-avatar-lg {
+    width: 64px; height: 64px;
+    border-radius: 9999px;
+    background: rgba(0,229,160,0.18);
+    color: #00E5A0;
+    font-family: var(--font-display, serif);
+    font-size: 1.4rem;
+    font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .vd-handle-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .vd-handle {
+    font-family: var(--font-mono, monospace);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .vd-chip {
+    font-size: 9px; font-weight: 800; letter-spacing: 0.12em;
+    padding: 3px 7px;
+    border-radius: 4px;
+  }
+  .vd-chip-enriched { background: rgba(0,229,160,0.18); color: #00E5A0; }
+  .vd-chip-consented { background: rgba(167,139,250,0.18); color: #c4b5fd; }
+
+  .vd-handle-meta {
+    display: flex; flex-wrap: wrap; gap: 1rem;
+    margin-top: 6px;
+    color: #94a3b8;
+    font-size: 0.72rem;
+  }
+  .vd-handle-meta span { display: inline-flex; align-items: center; gap: 0.25rem; }
+
+  /* === Actions === */
+  .vd-actions { display: flex; gap: 0.5rem; }
+  .vd-action {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.5rem 0.875rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem; font-weight: 700;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .vd-action-primary {
+    background: #00E5A0;
+    color: #0a1628;
+    box-shadow: 0 8px 18px -8px rgba(0,229,160,0.55);
+  }
+  .vd-action-secondary {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+  }
+  .vd-action-ghost {
+    background: transparent;
+    border-color: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    padding: 0.5rem;
+  }
+
+  /* === Metric row === */
+  .vd-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.875rem;
+    margin-bottom: 1.25rem;
+  }
+  .vd-metric {
+    background: rgba(15,32,48,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.75rem;
+    padding: 0.875rem 1rem;
+  }
+  .vd-metric-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: rgba(0,229,160,0.12);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+  .vd-metric-label {
+    color: #64748b;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .vd-metric-value {
+    font-family: var(--font-display, serif);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .vd-unit { font-size: 0.85rem; color: #94a3b8; font-weight: 600; margin-left: 1px; }
+  .vd-score { display: flex; align-items: baseline; gap: 0.4rem; }
+  .vd-grade {
+    background: #00E5A0;
+    color: #0a1628;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1;
+  }
+
+  /* === Body grid === */
+  .vd-body-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 1rem;
+  }
+  .vd-col-left { display: flex; flex-direction: column; gap: 0.875rem; }
+
+  .vd-card {
+    background: rgba(15,32,48,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.875rem;
+    padding: 1.125rem 1.25rem;
+  }
+  .vd-card-head {
+    display: flex; align-items: center; gap: 0.5rem;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 0.875rem;
+  }
+  .vd-card-badge {
+    margin-left: auto;
+    background: rgba(0,229,160,0.18);
+    color: #00E5A0;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .vd-card-meta { margin-left: auto; color: #64748b; font-size: 0.72rem; font-weight: 500; }
+
+  .vd-dl { margin: 0; }
+  .vd-dl > div {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .vd-dl > div:last-child { border-bottom: 0; padding-bottom: 0; }
+  .vd-dl dt {
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .vd-dl dd {
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 500;
+    margin: 0;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .vd-dd-mono { font-family: var(--font-mono, monospace); font-size: 0.78rem; }
+  .vd-copy {
+    background: transparent; border: 0;
+    color: #64748b; cursor: pointer;
+    padding: 2px; line-height: 0;
+  }
+
+  .vd-intent { color: #00E5A0; font-weight: 700; }
+
+  .vd-enr-row {
+    display: flex; flex-wrap: wrap; gap: 0.4rem;
+    margin: 0 0 0.875rem;
+  }
+  .vd-enr-pill {
+    background: rgba(0,229,160,0.12);
+    color: #00E5A0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 9999px;
+  }
+
+  .vd-card-consent { background: linear-gradient(180deg, rgba(0,229,160,0.06), rgba(15,32,48,0.6) 60%); }
+  .vd-audit-bar {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    margin-top: 0.875rem;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.25);
+    color: #00E5A0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.4rem 0.625rem;
+    border-radius: 0.5rem;
+  }
+
+  /* === Timeline === */
+  .vd-timeline-card { height: 100%; }
+  .vd-timeline {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+  }
+  .vd-timeline::before {
+    content: "";
+    position: absolute;
+    left: 17px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: rgba(255,255,255,0.08);
+    transform-origin: top;
+    animation: vd-line-draw 1.6s ease-out forwards;
+  }
+  @keyframes vd-line-draw {
+    from { transform: scaleY(0); }
+    to   { transform: scaleY(1); }
+  }
+  .vd-tl-item {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 0.875rem;
+    align-items: flex-start;
+    padding: 0.625rem 0;
+    opacity: 0;
+    transform: translateX(-6px);
+    animation: vd-tl-in 0.4s ease-out forwards;
+  }
+  @keyframes vd-tl-in { to { opacity: 1; transform: translateX(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    .vd-timeline::before { animation: none; transform: scaleY(1); }
+    .vd-tl-item { animation: none; opacity: 1; transform: none; }
+  }
+  .vd-tl-marker {
+    width: 36px; height: 36px;
+    border-radius: 9999px;
+    display: inline-flex; align-items: center; justify-content: center;
+    z-index: 1;
+    border: 2px solid rgba(15,32,48,1);
+  }
+  .vd-tl-default { background: rgba(255,255,255,0.06); color: #cbd5e1; }
+  .vd-tl-default :global(svg) { color: #cbd5e1; }
+  .vd-tl-brand { background: rgba(0,229,160,0.2); color: #00E5A0; }
+  .vd-tl-brand :global(svg) { color: #00E5A0; }
+  .vd-tl-muted { background: rgba(255,255,255,0.04); color: #64748b; }
+  .vd-tl-muted :global(svg) { color: #64748b; }
+
+  .vd-tl-content { padding-top: 4px; }
+  .vd-tl-time {
+    color: #64748b;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .vd-tl-title {
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .vd-tl-meta {
+    color: #94a3b8;
+    font-size: 0.75rem;
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+</style>
