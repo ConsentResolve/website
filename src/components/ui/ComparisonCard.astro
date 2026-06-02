@@ -1,14 +1,13 @@
 ---
 import { IconCheck, IconX, IconArrowRight, IconCrown, IconExternalLink } from "@tabler/icons-react";
 import RatingStars from "./RatingStars.astro";
-import ScoreBar from "./ScoreBar.astro";
 
 interface ScoreItem { label: string; value: number; }
 
 interface Props {
   brand: string;
   initials?: string;
-  logoColor?: string;       // background color of logo box
+  logoColor?: string;
   tagline?: string;
   rating?: number;          // 0-5
   score?: number;           // 0-100
@@ -22,7 +21,7 @@ interface Props {
   ctaHref: string;
   reviewHref?: string;
   featured?: boolean;
-  ribbonLabel?: string;     // e.g. "Editor's Pick"
+  ribbonLabel?: string;
 }
 const {
   brand,
@@ -45,127 +44,178 @@ const {
 } = Astro.props as Props;
 
 const monogram = initials ?? brand.split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase();
+
+// score colors
+const sv = score ?? 0;
+const scoreColor =
+  sv >= 80 ? "#00C080" :
+  sv >= 60 ? "#3b82f6" :
+  sv >= 40 ? "#f59e0b" : "#dc2626";
+const scoreGrade =
+  sv >= 90 ? "A+" :
+  sv >= 80 ? "A"  :
+  sv >= 70 ? "B"  :
+  sv >= 60 ? "C"  :
+  sv >= 40 ? "D"  : "F";
 ---
 
 <article
   class:list={[
-    "relative flex flex-col rounded-2xl bg-[color:var(--color-bg-alt)] p-6 transition-all",
+    "relative flex flex-col rounded-3xl transition-all",
     featured
-      ? "ring-2 ring-[color:var(--color-brand)] shadow-[0_24px_60px_-24px_rgba(0,192,128,0.35)]"
-      : "ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_1px_0_rgba(10,22,40,0.04)]"
+      ? "bg-[color:var(--color-bg-alt)] ring-[3px] ring-[color:var(--color-brand)] shadow-[0_40px_80px_-30px_rgba(0,192,128,0.45)] scale-[1.02] lg:scale-[1.04]"
+      : "bg-[color:var(--color-bg-alt)] ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_1px_0_rgba(10,22,40,0.04),0_18px_40px_-24px_rgba(10,22,40,0.12)]"
   ]}
-  style={featured ? "transform: translateY(-8px);" : ""}
 >
+  {/* Featured top accent bar */}
   {featured && (
-    <div class="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-[color:var(--color-brand)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white shadow-[0_6px_16px_-6px_rgba(0,192,128,0.6)]">
-      <IconCrown size={12} stroke={2.25} />
+    <div class="absolute inset-x-0 top-0 h-1.5 rounded-t-3xl bg-gradient-to-r from-[color:var(--color-mint-400)] via-[color:var(--color-brand)] to-[color:var(--color-mint-400)]"></div>
+  )}
+
+  {/* Editor's pick ribbon */}
+  {featured && (
+    <div class="absolute -top-4 left-1/2 inline-flex -translate-x-1/2 items-center gap-2 rounded-full bg-[color:var(--color-navy-900)] px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-[color:var(--color-mint-400)] shadow-[0_8px_24px_-8px_rgba(10,22,40,0.6)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/40">
+      <IconCrown size={14} stroke={2.25} color="#00E5A0" />
       {ribbonLabel}
     </div>
   )}
 
-  <!-- Logo + name -->
-  <div class="flex items-start gap-3">
-    <div
-      class="flex size-12 shrink-0 items-center justify-center rounded-xl font-display text-[15px] font-black tracking-tight text-white"
-      style={`background:${logoColor}`}
-    >
-      {monogram}
-    </div>
-    <div class="min-w-0 flex-1">
-      <h3 class="font-display text-lg font-bold tracking-tight text-[color:var(--color-ink)] leading-tight">{brand}</h3>
-      {tagline && <p class="mt-0.5 text-xs text-[color:var(--color-ink-muted)]">{tagline}</p>}
-    </div>
-  </div>
-
-  <!-- Rating + Score -->
-  {(rating != null || score != null) && (
-    <div class="mt-5 space-y-3">
-      {rating != null && <RatingStars value={rating} />}
-      {score != null && <ScoreBar value={score} label="Overall score" />}
-    </div>
-  )}
-
-  <!-- Score breakdown -->
-  {scoreBreakdown && scoreBreakdown.length > 0 && (
-    <div class="mt-4 space-y-2.5">
-      {scoreBreakdown.map((s) => <ScoreBar value={s.value} label={s.label} size="sm" />)}
-    </div>
-  )}
-
-  <!-- Price -->
-  {price && (
-    <div class="mt-5 border-t border-[color:var(--color-rule)] pt-4">
-      <div class="flex items-baseline gap-1.5">
-        <span class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-ink)]">{price}</span>
-        {priceSub && <span class="text-sm text-[color:var(--color-ink-muted)]">{priceSub}</span>}
-      </div>
-    </div>
-  )}
-
-  <!-- Best for chip -->
-  {bestFor && (
-    <div class="mt-4">
-      <span class="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-brand-soft)] px-3 py-1 text-[11px] font-semibold text-[color:var(--color-brand-pressed)]">
-        Best for: {bestFor}
-      </span>
-    </div>
-  )}
-
-  <!-- Pros -->
-  {pros.length > 0 && (
-    <div class="mt-5">
-      <p class="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-brand-pressed)]">Pros</p>
-      <ul class="space-y-1.5">
-        {pros.map((p) => (
-          <li class="flex items-start gap-2 text-[13px] text-[color:var(--color-ink-2)]">
-            <IconCheck size={14} stroke={2.5} color="#00A86E" className="mt-0.5 shrink-0" />
-            <span>{p}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )}
-
-  <!-- Cons -->
-  {cons.length > 0 && (
-    <div class="mt-3">
-      <p class="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#dc2626]">Cons</p>
-      <ul class="space-y-1.5">
-        {cons.map((c) => (
-          <li class="flex items-start gap-2 text-[13px] text-[color:var(--color-ink-2)]">
-            <IconX size={14} stroke={2.5} color="#dc2626" className="mt-0.5 shrink-0" />
-            <span>{c}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )}
-
-  <!-- Spacer pushes CTA to bottom -->
-  <div class="flex-1"></div>
-
-  <!-- CTAs -->
-  <div class="mt-6 space-y-2">
-    <a
-      href={ctaHref}
-      class:list={[
-        "inline-flex w-full items-center justify-center gap-1.5 rounded-lg px-4 py-3 text-sm font-semibold transition-all",
-        featured
-          ? "bg-[color:var(--color-brand)] text-white hover:bg-[color:var(--color-brand-pressed)] hover:shadow-[0_12px_28px_-12px_rgba(0,192,128,0.6)]"
-          : "bg-[color:var(--color-navy-900)] text-white hover:bg-[color:var(--color-navy-700)]"
-      ]}
-    >
-      {ctaLabel}
-      <IconArrowRight size={14} stroke={2.25} />
-    </a>
-    {reviewHref && (
-      <a
-        href={reviewHref}
-        class="inline-flex w-full items-center justify-center gap-1 text-xs font-medium text-[color:var(--color-ink-muted)] transition-colors hover:text-[color:var(--color-ink)]"
+  <div class="p-8 lg:p-10 flex flex-col flex-1">
+    <!-- Logo + brand identity -->
+    <div class="flex flex-col items-center text-center mb-6">
+      <div
+        class="flex size-[88px] items-center justify-center rounded-2xl font-display text-2xl font-black tracking-tight text-white mb-5 shadow-[0_8px_24px_-8px_rgba(10,22,40,0.4)]"
+        style={`background:${logoColor}`}
       >
-        Read full review
-        <IconExternalLink size={11} stroke={1.75} />
-      </a>
+        {monogram}
+      </div>
+      <h3 class="font-display text-3xl md:text-[2rem] font-bold tracking-tight text-[color:var(--color-ink)] leading-[1.05]">{brand}</h3>
+      {tagline && <p class="mt-2 text-sm text-[color:var(--color-ink-muted)]">{tagline}</p>}
+    </div>
+
+    <!-- Rating row -->
+    {rating != null && (
+      <div class="mb-5 flex justify-center">
+        <RatingStars value={rating} size={20} />
+      </div>
     )}
+
+    <!-- Big score block -->
+    {score != null && (
+      <div class:list={[
+        "mb-7 rounded-2xl px-5 py-5 text-center",
+        featured ? "bg-[color:var(--color-brand-soft)]" : "bg-[color:var(--color-bg)]"
+      ]}>
+        <div class="flex items-baseline justify-center gap-2">
+          <span class="font-display text-6xl font-black tracking-tighter leading-none" style={`color:${scoreColor}`}>{score}</span>
+          <span class="text-base font-semibold text-[color:var(--color-ink-muted)]">/ 100</span>
+        </div>
+        <div class="mt-2 flex items-center justify-center gap-2">
+          <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)]">Overall Score</span>
+          <span class="rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.14em] text-white" style={`background:${scoreColor}`}>{scoreGrade}</span>
+        </div>
+        <div class="mt-3 h-2 overflow-hidden rounded-full bg-[color:var(--color-rule)]">
+          <div class="h-full rounded-full transition-[width] duration-700" style={`width:${score}%; background:${scoreColor}`}></div>
+        </div>
+      </div>
+    )}
+
+    <!-- Score breakdown (optional) -->
+    {scoreBreakdown && scoreBreakdown.length > 0 && (
+      <div class="mb-7 space-y-3">
+        {scoreBreakdown.map((s) => (
+          <div>
+            <div class="mb-1 flex justify-between text-xs">
+              <span class="font-semibold text-[color:var(--color-ink-2)]">{s.label}</span>
+              <span class="font-mono font-bold text-[color:var(--color-ink)]">{s.value}</span>
+            </div>
+            <div class="h-1.5 overflow-hidden rounded-full bg-[color:var(--color-rule)]">
+              <div class="h-full rounded-full bg-[color:var(--color-brand)]" style={`width:${s.value}%`}></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    <!-- Price block -->
+    {price && (
+      <div class="mb-6 border-y border-[color:var(--color-rule)] py-5 text-center">
+        <div class="font-display text-5xl md:text-6xl font-black tracking-tighter leading-none text-[color:var(--color-ink)]">
+          {price}
+        </div>
+        {priceSub && <div class="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)]">{priceSub}</div>}
+      </div>
+    )}
+
+    <!-- Best for chip -->
+    {bestFor && (
+      <div class="mb-6 text-center">
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-navy-900)] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">
+          ⭐ Best for {bestFor}
+        </span>
+      </div>
+    )}
+
+    <!-- Pros -->
+    {pros.length > 0 && (
+      <div class="mb-5">
+        <p class="mb-3 text-[11px] font-black uppercase tracking-[0.18em] text-[color:var(--color-brand-pressed)]">What you get</p>
+        <ul class="space-y-3">
+          {pros.map((p) => (
+            <li class="flex items-start gap-3 text-[15px] leading-snug text-[color:var(--color-ink)]">
+              <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)]">
+                <IconCheck size={14} stroke={3} color="#00A86E" />
+              </span>
+              <span class="font-medium">{p}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <!-- Cons -->
+    {cons.length > 0 && (
+      <div class="mb-6">
+        <p class="mb-3 text-[11px] font-black uppercase tracking-[0.18em] text-[#dc2626]">Watch out for</p>
+        <ul class="space-y-3">
+          {cons.map((c) => (
+            <li class="flex items-start gap-3 text-[15px] leading-snug text-[color:var(--color-ink-2)]">
+              <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-red-50">
+                <IconX size={14} stroke={3} color="#dc2626" />
+              </span>
+              <span>{c}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <!-- Push CTA to bottom -->
+    <div class="flex-1"></div>
+
+    <!-- CTA block -->
+    <div class="mt-6 space-y-3">
+      <a
+        href={ctaHref}
+        class:list={[
+          "inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-4 text-base font-black uppercase tracking-[0.08em] transition-all",
+          featured
+            ? "bg-[color:var(--color-brand)] text-white hover:bg-[color:var(--color-brand-pressed)] hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-12px_rgba(0,192,128,0.55)]"
+            : "bg-[color:var(--color-navy-900)] text-white hover:bg-[color:var(--color-navy-700)]"
+        ]}
+      >
+        {ctaLabel}
+        <IconArrowRight size={18} stroke={2.5} />
+      </a>
+      {reviewHref && (
+        <a
+          href={reviewHref}
+          class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] transition-colors hover:text-[color:var(--color-ink)]"
+        >
+          Full review
+          <IconExternalLink size={12} stroke={2} />
+        </a>
+      )}
+    </div>
   </div>
 </article>

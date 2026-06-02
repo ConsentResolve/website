@@ -11,12 +11,73 @@ import ScoreBar from "~/components/ui/ScoreBar.astro";
   title="Comparison Tables"
   description="Mattress-site-style comparison: product cards in a row at the top, then a deep feature × brand matrix below. Use these on /compare/, /vs/, and /alternatives/ pages."
 >
-  <!-- Section 1: Card row -->
+  <!-- Section 1a: 3-card high-impact -->
   <section class="sg-section">
-    <h2>Card row · 4 brands</h2>
-    <p class="sg-lede">Featured card lifts and ribbons. Each card has rating, score, price, best-for chip, pros + cons, and CTAs.</p>
+    <h2>Card row · 3 brands (high-impact)</h2>
+    <p class="sg-lede">Recommended for landing pages. Generous padding, oversized scores, dramatic featured card with mint accent bar and crown ribbon.</p>
+    <div class="sg-preview" style="padding:3rem 1.5rem">
+      <div class="grid gap-7 lg:grid-cols-3 items-start pt-6">
+        <ComparisonCard
+          featured
+          ribbonLabel="Editor's Pick"
+          brand="Consent Resolve"
+          tagline="Consent-first visitor ID"
+          logoColor="#0A1628"
+          rating={4.9}
+          score={96}
+          price="$10"
+          priceSub="First month · Cancel anytime"
+          bestFor="owner-operators"
+          pros={[
+            "Exclusive leads — never resold",
+            "Real homeowner names + mobile numbers",
+            "GDPR / CCPA compliant by default",
+          ]}
+          cons={["New platform (founded 2026)"]}
+          ctaLabel="Start $10 Trial"
+          ctaHref="/get-started/"
+          reviewHref="/how-it-works/"
+        />
+        <ComparisonCard
+          brand="Thumbtack"
+          tagline="Shared lead marketplace"
+          logoColor="#04b760"
+          rating={3.4}
+          score={64}
+          price="$48"
+          priceSub="Average per lead"
+          bestFor="high-volume shops"
+          pros={["Large lead volume", "Quick to start"]}
+          cons={["Same lead sold to 4–6 shops", "Tire-kickers billed at full"]}
+          ctaLabel="Compare in detail"
+          ctaHref="/compare/thumbtack/"
+          reviewHref="/vs/thumbtack-vs-consent-resolve/"
+        />
+        <ComparisonCard
+          brand="Angi"
+          tagline="HomeAdvisor reborn"
+          logoColor="#a3151c"
+          rating={2.9}
+          score={52}
+          price="$35"
+          priceSub="Average per lead"
+          bestFor="legacy shops"
+          pros={["Established brand recognition"]}
+          cons={["Shared leads with 5+ shops", "Aggressive sales and hard cancel"]}
+          ctaLabel="Compare in detail"
+          ctaHref="/compare/angi/"
+          reviewHref="/vs/angi-vs-consent-resolve/"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 1b: Card row 4 brands -->
+  <section class="sg-section">
+    <h2>Card row · 4 brands (compact)</h2>
+    <p class="sg-lede">For comparison hubs that need to fit four brands side by side. Slightly denser; same primitive.</p>
     <div class="sg-preview" style="padding:2.5rem 2rem">
-      <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4 items-start pt-6">
         <ComparisonCard
           featured
           ribbonLabel="Editor's Pick"

@@ -4,19 +4,24 @@ import Button from "~/components/ui/Button.astro";
 import { IconArrowRight } from "@tabler/icons-react";
 ---
 
-<section class="section">
-  <div class="container-content">
-    <div class="mx-auto mb-14 max-w-3xl text-center">
-      <p class="eyebrow mb-5 justify-center">Stacked against the alternatives</p>
-      <h2 class="display-2 text-[color:var(--color-ink)]">
-        We don't sell leads. We unlock them.
+<section class="section section-dark relative overflow-hidden">
+  <!-- Ambient mint glow -->
+  <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-1/3 size-[520px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
+  <div aria-hidden="true" class="pointer-events-none absolute -left-32 bottom-1/4 size-[420px] rounded-full bg-[color:var(--color-mint-400)]/10 blur-[100px]"></div>
+
+  <div class="container-content relative">
+    <div class="mx-auto mb-16 max-w-3xl text-center">
+      <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">Stacked against the alternatives</p>
+      <h2 class="font-display text-4xl md:text-6xl font-black tracking-tight leading-[1.02] text-white">
+        We don't sell leads.<br/>
+        <span class="text-[color:var(--color-mint-400)]">We unlock them.</span>
       </h2>
-      <p class="mt-4 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-        Why service pros are switching from shared-lead platforms and ad networks.
+      <p class="mt-5 text-lg leading-relaxed text-slate-300">
+        Why service pros are walking away from shared-lead platforms.
       </p>
     </div>
 
-    <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+    <div class="grid gap-7 md:gap-8 lg:grid-cols-3 items-start pt-6">
       <ComparisonCard
         featured
         ribbonLabel="Editor's Pick"
@@ -26,15 +31,14 @@ import { IconArrowRight } from "@tabler/icons-react";
         rating={4.9}
         score={96}
         price="$10"
-        priceSub="/ first month"
+        priceSub="First month · Cancel anytime"
         bestFor="owner-operators"
         pros={[
           "Exclusive leads — never resold",
-          "Real homeowner names + phones",
-          "GDPR / CCPA compliant",
-          "In your CRM in 5 seconds",
+          "Real homeowner names + mobile numbers",
+          "GDPR / CCPA compliant by default",
         ]}
-        cons={["New platform (2026)", "7 states at launch"]}
+        cons={["New platform (founded 2026)"]}
         ctaLabel="Start $10 Trial"
         ctaHref="/get-started/"
         reviewHref="/how-it-works/"
@@ -46,10 +50,13 @@ import { IconArrowRight } from "@tabler/icons-react";
         rating={3.4}
         score={64}
         price="$48"
-        priceSub="/ avg lead"
+        priceSub="Average per lead"
         bestFor="high-volume shops"
         pros={["Large lead volume", "Quick to start"]}
-        cons={["Same lead sold to 4–6 shops", "Tire-kickers charged full", "No exclusivity"]}
+        cons={[
+          "Same lead sold to 4–6 shops",
+          "Tire-kickers billed at full price",
+        ]}
         ctaLabel="Compare in detail"
         ctaHref="/compare/thumbtack/"
         reviewHref="/vs/thumbtack-vs-consent-resolve/"
@@ -61,36 +68,27 @@ import { IconArrowRight } from "@tabler/icons-react";
         rating={2.9}
         score={52}
         price="$35"
-        priceSub="/ avg lead"
+        priceSub="Average per lead"
         bestFor="legacy shops"
-        pros={["Established brand", "Vetted-pro badge"]}
-        cons={["Shared leads", "Hard cancel terms", "Aggressive sales"]}
+        pros={["Established brand recognition"]}
+        cons={[
+          "Shared leads with 5+ competitors",
+          "Aggressive sales and hard cancel",
+        ]}
         ctaLabel="Compare in detail"
         ctaHref="/compare/angi/"
         reviewHref="/vs/angi-vs-consent-resolve/"
       />
-      <ComparisonCard
-        brand="Google LSA"
-        tagline="Local Service Ads"
-        logoColor="#1a73e8"
-        rating={4.1}
-        score={78}
-        price="$40"
-        priceSub="/ avg lead"
-        bestFor="local SEO believers"
-        pros={["Pay per booked lead", "Google trust badge"]}
-        cons={["Strict eligibility", "ZIP price varies", "Limited trades"]}
-        ctaLabel="Compare in detail"
-        ctaHref="/compare/google-local-service-ads/"
-        reviewHref="/vs/google-lsa-vs-consent-resolve/"
-      />
     </div>
 
-    <div class="mt-12 text-center">
-      <Button href="/compare/" variant="ghost">
-        See full comparison (11 platforms)
+    <div class="mt-14 text-center">
+      <a
+        href="/compare/"
+        class="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/25 transition-all hover:bg-white/10 hover:ring-[color:var(--color-mint-400)]/50"
+      >
+        See all 11 platforms compared
         <IconArrowRight size={16} stroke={2.25} />
-      </Button>
+      </a>
     </div>
   </div>
 </section>
