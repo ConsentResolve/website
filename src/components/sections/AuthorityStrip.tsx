@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { IconCheck, IconBrandLinkedin, IconX } from "@tabler/icons-react";
 import { TEAM, getInitials, type TeamMember, type Credential } from "~/data/team";
 
