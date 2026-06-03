@@ -1,0 +1,353 @@
+---
+/**
+ * HowItWorks4Step — PREVIEW variant.
+ *
+ * 4-step rework of the canonical comet (HowItWorks.astro). NOT wired
+ * into any page — only previewed in /style-guide/how-it-works/ so the
+ * copy + timing + visual treatment can be reviewed before swapping the
+ * production component sitewide.
+ *
+ * Differences from the 3-step canonical:
+ *   - 4 columns instead of 3 (and stacked single-column on mobile).
+ *   - Track + comet retimed for 4 nodes.
+ *   - Step 1 now anchors the "anonymous" moment (was the install step).
+ *   - Step 3 keeps the photo-reveal treatment (the dramatic moment).
+ *   - Step 4 is new: the contractor's call.
+ */
+import { IconEyeOff, IconShieldCheck, IconPhoneCall } from "@tabler/icons-react";
+---
+
+<section class="hiw4">
+  <div class="hiw4-orb hiw4-orb-a" aria-hidden="true"></div>
+  <div class="hiw4-orb hiw4-orb-b" aria-hidden="true"></div>
+
+  <div class="container-content relative">
+    <header class="hiw4-head">
+      <h2>From a stranger on your site to a job in the books — in four steps.</h2>
+    </header>
+
+    <ol class="hiw4-steps">
+      <div class="hiw4-track" aria-hidden="true">
+        <span class="hiw4-comet"></span>
+      </div>
+
+      <li class="hiw4-step" data-idx="0" style="--delay:0s">
+        <div class="hiw4-node hiw4-node-icon">
+          <IconEyeOff size={52} stroke={1.5} color="#00A86E" />
+        </div>
+        <div class="hiw4-badge">Step 01</div>
+        <h3>Anonymous Homeowner Visits</h3>
+        <p>A homeowner lands on your website looking for help, but you have no idea who they are yet.</p>
+      </li>
+
+      <li class="hiw4-step" data-idx="1" style="--delay:0.16s">
+        <div class="hiw4-node hiw4-node-icon">
+          <IconShieldCheck size={52} stroke={1.5} color="#00A86E" />
+        </div>
+        <div class="hiw4-badge">Step 02</div>
+        <h3>They Say Yes</h3>
+        <p>The homeowner grants permission to be contacted and requests more information.</p>
+      </li>
+
+      <li class="hiw4-step" data-idx="2" style="--delay:0.32s">
+        <div class="hiw4-node hiw4-node-photo">
+          <span class="hiw4-help-pill">Identified</span>
+          <img src="/images/homeowner.svg" alt="" />
+        </div>
+        <div class="hiw4-badge">Step 03</div>
+        <h3>Warm Lead Revealed</h3>
+        <p>Consent Resolve identifies and delivers the homeowner's contact information in real time.</p>
+      </li>
+
+      <li class="hiw4-step" data-idx="3" style="--delay:0.48s">
+        <div class="hiw4-node hiw4-node-icon">
+          <IconPhoneCall size={50} stroke={1.5} color="#00A86E" />
+        </div>
+        <div class="hiw4-badge">Step 04</div>
+        <h3>You Call & Close</h3>
+        <p>Reach out while they're actively shopping, build trust, and win the job before your competitors do.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<style>
+  .hiw4 {
+    position: relative;
+    overflow: hidden;
+    background: #0a1628;
+    color: #fff;
+    padding-block: 6rem;
+  }
+
+  /* Ambient floating orbs */
+  .hiw4-orb {
+    position: absolute;
+    width: 540px;
+    height: 540px;
+    border-radius: 9999px;
+    pointer-events: none;
+    filter: blur(40px);
+  }
+  .hiw4-orb-a {
+    top: -180px;
+    left: -160px;
+    background: radial-gradient(closest-side, rgba(0, 229, 160, 0.18), transparent 70%);
+    animation: hiw4-orb-a 16s ease-in-out infinite alternate;
+  }
+  .hiw4-orb-b {
+    bottom: -200px;
+    right: -180px;
+    background: radial-gradient(closest-side, rgba(0, 229, 160, 0.12), transparent 70%);
+    animation: hiw4-orb-b 21s ease-in-out infinite alternate;
+  }
+  @keyframes hiw4-orb-a { from { transform: translate(0, 0); } to { transform: translate(60px, 40px); } }
+  @keyframes hiw4-orb-b { from { transform: translate(0, 0); } to { transform: translate(-50px, -30px); } }
+
+  .hiw4-head { text-align: center; max-width: 820px; margin: 0 auto 3rem; }
+  .hiw4-head h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    font-size: clamp(1.875rem, 3.5vw, 2.5rem);
+    color: #fff;
+    line-height: 1.05;
+  }
+
+  /* Steps */
+  .hiw4-steps {
+    position: relative;
+    max-width: 1140px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    list-style: none;
+    padding: 0;
+  }
+  @media (min-width: 768px) {
+    .hiw4-steps { grid-template-columns: repeat(2, 1fr); gap: 2.5rem 1.5rem; }
+  }
+  @media (min-width: 1024px) {
+    .hiw4-steps { grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+  }
+
+  .hiw4-step {
+    position: relative;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(14px);
+    animation: hiw4-step-in 0.55s ease-out forwards;
+    animation-delay: var(--delay, 0s);
+  }
+  @keyframes hiw4-step-in { to { opacity: 1; transform: translateY(0); } }
+
+  /* Node circles */
+  .hiw4-node {
+    position: relative;
+    width: 92px;
+    height: 92px;
+    border-radius: 9999px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .hiw4-node-icon {
+    background: #ffffff;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+  .hiw4-node-icon :global(svg) { transition: color 0.3s ease, stroke 0.3s ease; }
+
+  /* Photo node (step 3) */
+  .hiw4-node-photo {
+    background: transparent;
+    overflow: hidden;
+    box-shadow: 0 0 0 2px rgba(0, 229, 160, 0.35);
+  }
+  .hiw4-node-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(10px) grayscale(60%);
+    transform: scale(1.08);
+    transition: filter 0.65s ease, transform 0.65s ease;
+  }
+  .hiw4-step[data-idx="2"].cr-hiw4-lit .hiw4-node-photo img {
+    filter: blur(0) grayscale(0);
+    transform: scale(1);
+  }
+
+  /* Identified pill on the photo node */
+  .hiw4-help-pill {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #00E5A0;
+    color: #0a1628;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 9999px;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px -4px rgba(0, 229, 160, 0.55);
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .hiw4-step[data-idx="2"].cr-hiw4-lit .hiw4-help-pill { opacity: 1; }
+
+  /* Lit state for icon nodes */
+  .hiw4-step:not([data-idx="2"]).cr-hiw4-lit .hiw4-node {
+    background-color: #00E5A0 !important;
+    animation: hiw4-pulse 1.3s ease-in-out infinite;
+  }
+  .hiw4-step:not([data-idx="2"]).cr-hiw4-lit .hiw4-node :global(svg) {
+    color: #062418 !important;
+    stroke: #062418 !important;
+  }
+  @keyframes hiw4-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 229, 160, 0); }
+    50%      { box-shadow: 0 0 14px rgba(0, 229, 160, 0.55); }
+  }
+
+  /* Lit state for photo node */
+  .hiw4-step[data-idx="2"].cr-hiw4-lit .hiw4-node {
+    animation: hiw4-ring-pulse 1.3s ease-in-out infinite;
+  }
+  @keyframes hiw4-ring-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.9), 0 0 0 0 rgba(0, 229, 160, 0); }
+    50%      { box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.9), 0 0 0 18px rgba(0, 229, 160, 0); }
+  }
+
+  /* Step badge */
+  .hiw4-badge {
+    display: inline-block;
+    margin-top: 1.5rem;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.7rem;
+    border-radius: 9999px;
+    transition: all 0.3s ease;
+  }
+  .hiw4-step.cr-hiw4-lit .hiw4-badge {
+    background: #00E5A0;
+    color: #062418;
+    border-color: #00E5A0;
+    box-shadow: 0 0 14px rgba(0, 229, 160, 0.45);
+  }
+
+  .hiw4-step h3 {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: #fff;
+    margin-top: 0.875rem;
+  }
+  .hiw4-step p {
+    color: #a1a1aa;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    margin-top: 0.4rem;
+    max-width: 220px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Progress track — 4 nodes at 12.5%, 37.5%, 62.5%, 87.5% of the row */
+  .hiw4-track {
+    position: absolute;
+    top: 46px;
+    left: 12.5%;
+    right: 12.5%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 9999px;
+    overflow: hidden;
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .hiw4-track { display: block; }
+  }
+  .hiw4-comet {
+    position: absolute;
+    inset: 0 auto;
+    left: 0;
+    width: 25%;
+    background: #00E5A0;
+    border-radius: 9999px;
+    transform: translateX(-120%);
+  }
+  .hiw4-comet.cr-hiw4-comet-run {
+    animation: cr-hiw4-comet 5s linear forwards;
+  }
+  @keyframes cr-hiw4-comet {
+    0%   { transform: translateX(-120%); }
+    100% { transform: translateX(420%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hiw4-step { animation: none; opacity: 1; transform: none; }
+    .hiw4-orb-a, .hiw4-orb-b { animation: none; }
+    .hiw4-comet { display: none; }
+  }
+</style>
+
+<script>
+  (function () {
+    const section = document.querySelector<HTMLElement>(".hiw4");
+    if (!section) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const nodes = Array.from(section.querySelectorAll<HTMLElement>(".hiw4-step"));
+    const comet = section.querySelector<HTMLElement>(".hiw4-comet");
+    if (!comet || nodes.length !== 4) return;
+
+    // 5s comet sweep, four equally-spaced light windows
+    const S1_ON = 250;
+    const S1_OFF = 1050;
+    const S2_ON = 1450;
+    const S2_OFF = 2250;
+    const S3_ON = 2650;
+    const S3_OFF = 3450;
+    const S4_ON = 3850;
+    const HOLD = 4500;
+    const CYCLE = S4_ON + HOLD + 500;
+
+    let timers: number[] = [];
+    const clear = () => { timers.forEach((t) => clearTimeout(t)); timers = []; };
+    const lit = (i: number) => nodes[i].classList.add("cr-hiw4-lit");
+    const unlit = (i: number) => nodes[i].classList.remove("cr-hiw4-lit");
+    const unlitAll = () => nodes.forEach((n) => n.classList.remove("cr-hiw4-lit"));
+
+    function run() {
+      clear();
+      unlitAll();
+      comet.classList.remove("cr-hiw4-comet-run");
+      void comet.offsetWidth;
+      comet.classList.add("cr-hiw4-comet-run");
+
+      timers.push(window.setTimeout(() => lit(0), S1_ON));
+      timers.push(window.setTimeout(() => unlit(0), S1_OFF));
+      timers.push(window.setTimeout(() => lit(1), S2_ON));
+      timers.push(window.setTimeout(() => unlit(1), S2_OFF));
+      timers.push(window.setTimeout(() => lit(2), S3_ON));
+      timers.push(window.setTimeout(() => unlit(2), S3_OFF));
+      timers.push(window.setTimeout(() => lit(3), S4_ON));
+      timers.push(window.setTimeout(() => unlit(3), S4_ON + HOLD));
+      timers.push(window.setTimeout(run, CYCLE));
+    }
+
+    window.setTimeout(run, 800);
+  })();
+</script>

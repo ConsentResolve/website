@@ -1,18 +1,71 @@
 ---
 import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
 import HowItWorks from "~/components/sections/HowItWorks.astro";
+import HowItWorks4Step from "~/components/sections/HowItWorks4Step.astro";
+import Badge from "~/components/ui/Badge.astro";
 ---
 
 <StyleGuideLayout
   slug="how-it-works"
   title="How It Works (Comet)"
-  description="The default 'How it works' section. Dark theme, three-step horizontal layout (stacked on mobile), with an animated comet sweeping the progress track and lighting each step in sequence."
+  description="The default 'How it works' section. Dark theme, animated comet sweeping the progress track and lighting each step in sequence. Two variants live here: the 3-step canonical (in production sitewide) and a 4-step preview (NOT deployed — waiting on sign-off)."
 >
   <section class="sg-section">
-    <h2>Default — live preview</h2>
-    <p class="sg-lede">Hover or scroll into view; the comet kicks off ~800ms after the section enters the viewport and loops continuously. The 3rd node uses a photo (homeowner placeholder) that sharpens and de-saturates when lit; steps 1 &amp; 2 are icon circles that fill with mint.</p>
+    <div class="flex items-center gap-3 flex-wrap">
+      <h2 class="!mb-0">3-step (canonical)</h2>
+      <Badge tone="success" variant="soft" size="sm" uppercase>In production</Badge>
+    </div>
+    <p class="sg-lede">Used on / (homepage), /how-it-works/, and every industry page. Three nodes, comet sweeps the track once every ~7.7s, lighting each in turn. Step 3 uses a homeowner photo that sharpens when lit; steps 1 &amp; 2 are icon nodes that fill with mint.</p>
     <div class="sg-preview" style="padding:0;background:transparent;box-shadow:none;overflow:hidden;border-radius:1rem">
       <HowItWorks />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <div class="flex items-center gap-3 flex-wrap">
+      <h2 class="!mb-0">4-step (preview)</h2>
+      <Badge tone="warning" variant="soft" size="sm" uppercase>Review only — not deployed</Badge>
+    </div>
+    <p class="sg-lede">Rework with four nodes and new copy. Step 1 anchors the anonymous moment (was "install"); step 3 keeps the dramatic reveal treatment; step 4 is new ("You Call &amp; Close"). Comet is retimed for four equally-spaced light windows over a 5s sweep, ~8.4s full cycle. <strong class="text-[color:var(--color-ink)]">Sitewide swap is gated on review.</strong></p>
+    <div class="sg-preview" style="padding:0;background:transparent;box-shadow:none;overflow:hidden;border-radius:1rem">
+      <HowItWorks4Step />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>4-step copy</h2>
+    <p class="sg-lede">Source of truth for the preview variant. Final copy lives in <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">src/components/sections/HowItWorks4Step.astro</code>.</p>
+    <div class="sg-preview">
+      <ol class="list-none m-0 p-0 space-y-5">
+        <li class="grid grid-cols-[auto_1fr] gap-4 items-start">
+          <span class="rounded-full bg-[color:var(--color-brand-soft)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] whitespace-nowrap">Step 01</span>
+          <div>
+            <p class="font-display text-base font-bold tracking-tight text-[color:var(--color-ink)]">Anonymous Homeowner Visits</p>
+            <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">A homeowner lands on your website looking for help, but you have no idea who they are yet.</p>
+          </div>
+        </li>
+        <li class="grid grid-cols-[auto_1fr] gap-4 items-start">
+          <span class="rounded-full bg-[color:var(--color-brand-soft)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] whitespace-nowrap">Step 02</span>
+          <div>
+            <p class="font-display text-base font-bold tracking-tight text-[color:var(--color-ink)]">They Say Yes</p>
+            <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">The homeowner grants permission to be contacted and requests more information.</p>
+          </div>
+        </li>
+        <li class="grid grid-cols-[auto_1fr] gap-4 items-start">
+          <span class="rounded-full bg-[color:var(--color-brand-soft)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] whitespace-nowrap">Step 03</span>
+          <div>
+            <p class="font-display text-base font-bold tracking-tight text-[color:var(--color-ink)]">Warm Lead Revealed</p>
+            <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">Consent Resolve identifies and delivers the homeowner's contact information in real time.</p>
+          </div>
+        </li>
+        <li class="grid grid-cols-[auto_1fr] gap-4 items-start">
+          <span class="rounded-full bg-[color:var(--color-brand-soft)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] whitespace-nowrap">Step 04</span>
+          <div>
+            <p class="font-display text-base font-bold tracking-tight text-[color:var(--color-ink)]">You Call &amp; Close</p>
+            <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">Reach out while they're actively shopping, build trust, and win the job before your competitors do.</p>
+          </div>
+        </li>
+      </ol>
     </div>
   </section>
 
@@ -20,16 +73,45 @@ import HowItWorks from "~/components/sections/HowItWorks.astro";
     <h2>Mechanics</h2>
     <p class="sg-lede">Vanilla-JS timing logic; no React island.</p>
     <div class="sg-preview">
-      <dl class="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 font-mono text-sm">
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Comet duration:</dt> <dd class="inline text-[color:var(--color-ink-2)]">4s linear</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Comet range:</dt> <dd class="inline text-[color:var(--color-ink-2)]">−120% → 360%</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 1 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">167ms → 1000ms</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 2 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">1417ms → 2250ms</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 3 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">2667ms (holds 4500ms)</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Cycle length:</dt> <dd class="inline text-[color:var(--color-ink-2)]">~7.7s</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Initial delay:</dt> <dd class="inline text-[color:var(--color-ink-2)]">800ms</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Reduced motion:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Comet hidden, no orbs, instant fade-in</dd></div>
-      </dl>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <p class="sg-label">3-step (canonical)</p>
+          <dl class="grid grid-cols-1 gap-y-2 font-mono text-sm">
+            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Comet duration:</dt> <dd class="inline text-[color:var(--color-ink-2)]">4s linear</dd></div>
+            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Comet range:</dt> <dd class="inline text-[color:var(--color-ink-2)]">−120% → 360%</dd></div>
+            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 1 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">167ms → 1000ms</dd></div>
+            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 2 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">1417ms → 2250ms</dd></div>
+            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 3 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">2667ms (holds 4500ms)</dd></div>
+            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Cycle length:</dt> <dd class="inline text-[color:var(--color-ink-2)]">~7.7s</dd></div>
+          </dl>
+        </div>
+        <div>
+          <p class="sg-label">4-step (preview)</p>
+          <dl class="grid grid-cols-1 gap-y-2 font-mono text-sm">
+            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Comet duration:</dt> <dd class="inline text-[color:var(--color-ink-2)]">5s linear</dd></div>
+            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Comet range:</dt> <dd class="inline text-[color:var(--color-ink-2)]">−120% → 420%</dd></div>
+            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 1 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">250ms → 1050ms</dd></div>
+            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 2 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">1450ms → 2250ms</dd></div>
+            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 3 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">2650ms → 3450ms</dd></div>
+            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 4 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">3850ms (holds 4500ms)</dd></div>
+            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Cycle length:</dt> <dd class="inline text-[color:var(--color-ink-2)]">~8.4s</dd></div>
+          </dl>
+        </div>
+      </div>
+      <p class="sg-label mt-6">Reduced-motion behavior (both)</p>
+      <p class="font-mono text-sm text-[color:var(--color-ink-2)]">Comet hidden, orbs frozen, steps fade in instantly.</p>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Icons used (4-step preview)</h2>
+    <div class="sg-preview">
+      <ul class="grid grid-cols-1 gap-3 sm:grid-cols-2 font-mono text-sm text-[color:var(--color-ink-2)]">
+        <li><strong class="text-[color:var(--color-ink)]">Step 01:</strong> <code>IconEyeOff</code> — anonymous, no identity</li>
+        <li><strong class="text-[color:var(--color-ink)]">Step 02:</strong> <code>IconShieldCheck</code> — consent granted</li>
+        <li><strong class="text-[color:var(--color-ink)]">Step 03:</strong> photo node — reuses the homeowner.svg blur-to-clear reveal from the canonical, with the pill relabelled <code>"Identified"</code></li>
+        <li><strong class="text-[color:var(--color-ink)]">Step 04:</strong> <code>IconPhoneCall</code> — contractor reaches out</li>
+      </ul>
     </div>
   </section>
 
@@ -42,6 +124,20 @@ import HowItWorks from "~/components/sections/HowItWorks.astro";
         <li><span class="inline-block size-4 align-middle rounded mr-2" style="background:#062418"></span> Ink on lit · <code>#062418</code></li>
         <li><span class="inline-block size-4 align-middle rounded mr-2" style="background:#00A86E"></span> Icon at rest · <code>#00A86E</code></li>
       </ul>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Promotion checklist</h2>
+    <p class="sg-lede">When the 4-step variant is approved, swap is one rename + one import update.</p>
+    <div class="sg-preview">
+      <ol class="list-decimal pl-5 space-y-2 text-sm text-[color:var(--color-ink-2)]">
+        <li>Replace the contents of <code class="font-mono text-[color:var(--color-brand-pressed)]">src/components/sections/HowItWorks.astro</code> with the body of <code class="font-mono text-[color:var(--color-brand-pressed)]">HowItWorks4Step.astro</code> (or delete the old and rename the new — same component name expected by all callers).</li>
+        <li>Search for class names: <code class="font-mono">.hiw4</code> → <code class="font-mono">.hiw</code>, <code class="font-mono">cr-hiw4-lit</code> → <code class="font-mono">cr-hiw-lit</code>, <code class="font-mono">cr-hiw4-comet-run</code> → <code class="font-mono">cr-hiw-comet-run</code>. (Or keep them — they don't collide with the canonical once it's gone.)</li>
+        <li>Remove the "4-step preview" section from this style-guide page.</li>
+        <li>Update the page-level heading copy on <code class="font-mono">src/pages/how-it-works.astro</code> ("in three steps" → "in four steps").</li>
+        <li>Delete <code class="font-mono">HowItWorks4Step.astro</code>.</li>
+      </ol>
     </div>
   </section>
 </StyleGuideLayout>
