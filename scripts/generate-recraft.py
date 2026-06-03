@@ -79,7 +79,7 @@ SUBJECTS = [
 FEATURES_SUBJECTS = [
     ("02", "consent-checkmark",  "Consent-First Identification", "a friendly hand pressing a large rounded checkmark button inside a small consent dialog card with a thumbs-up symbol floating beside it"),
     ("03", "channel-recovery",   "Channel Recovery",             "a wide safety net catching three falling arrows from above, with a tiny browser window at the top releasing the arrows"),
-    ("06", "formless-capture",   "Formless Contact Capture",     "a clean contact card with three horizontal lines for name phone and email floating upward out of a small webpage that has no input fields"),
+    ("06", "formless-capture",   "Formless Contact Capture",     "a paper-style web contact form with three rectangular input fields stacked vertically and a submit button at the bottom, with a large thick diagonal X drawn boldly across the entire form from corner to corner, indicating no form needed"),
     ("07", "verified-data",      "Verified Contact Data",        "a contact card stamped with a circular badge that contains a checkmark, with a small ribbon underneath suggesting verification"),
     ("08", "instant-connect",    "Instant Connect",              "a phone handset with a lightning bolt next to it and three short curved motion lines indicating fast outgoing call"),
     ("10", "lead-scoring",       "Lead Scoring",                 "three rectangular lead cards stacked at three different heights like a podium, with a large star floating above the tallest one"),

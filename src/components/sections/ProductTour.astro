@@ -224,7 +224,6 @@ const stages: Stage[] = [
             data-tour-tab={stage.slug}
             class={`tour-nav-tab ${i === 0 ? "is-active" : ""}`}
           >
-            <span class="tour-nav-tab-n">{stage.n}</span>
             <span class="tour-nav-tab-label">{stage.eyebrow}</span>
           </button>
         ))}
@@ -529,22 +528,15 @@ const stages: Stage[] = [
     color: var(--color-ink-2);
     background: rgba(0, 229, 160, 0.07);
   }
-  .tour-nav-tab-n {
-    font-family: var(--font-mono, ui-monospace, monospace);
-    color: var(--color-brand-pressed);
-    transition: color 0.25s ease;
-  }
   .tour-nav-tab.is-active {
     background: var(--color-navy-900);
     color: white;
     box-shadow: 0 10px 24px -12px rgba(10, 22, 40, 0.45);
   }
-  .tour-nav-tab.is-active .tour-nav-tab-n { color: var(--color-brand); }
 
-  /* Below 720px: hide the label on the tab buttons, just show the number. */
+  /* Below 720px: tighten tab padding so all five labels fit. */
   @media (max-width: 720px) {
-    .tour-nav-tab-label { display: none; }
-    .tour-nav-tab { padding: 0.6rem 0.85rem; }
+    .tour-nav-tab { padding: 0.55rem 0.7rem; font-size: 10px; }
   }
 
   /* Reduced motion */

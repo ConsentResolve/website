@@ -1071,7 +1071,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     title: "Your leads. Nobody else's.",
     blurb:
       "The people we identify came to your website — so the lead is yours alone. Never resold, never shared, never auctioned.",
-    features: [exclusiveLeads, consentFirstIdentification, channelRecovery],
+    features: [exclusiveLeads, consentFirstIdentification, formlessContactCapture],
   },
   {
     slug: "see-who-is-there",
@@ -1082,7 +1082,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     features: [
       easySetupWithOneScript,
       visitorIdentification,
-      formlessContactCapture,
+      channelRecovery,
       verifiedContactData,
       instantConnect,
       realTimeMobileAlerts,
