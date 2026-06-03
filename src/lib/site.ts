@@ -54,6 +54,7 @@ export const FOOTER_NAV = {
   company: [
     { label: "About", href: "/about/" },
     { label: "Contact", href: "/contact/" },
+    { label: "Stats & Sources", href: "/stats/" },
     { label: "Blog", href: "/blog/" },
     { label: "FAQ", href: "/faq/" },
   ],

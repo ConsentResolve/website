@@ -1,0 +1,90 @@
+---
+/**
+ * StatCard — dashboard tile for the /stats/ page.
+ *
+ * Renders a big number, a label, a one-line description, and a
+ * source-attribution chip that links to the underlying citation.
+ * Tone drives the accent bar + numeric color so each section reads
+ * as its own "filter" within the dashboard.
+ */
+import AnimatedNumber from "~/components/ui/AnimatedNumber.tsx";
+import { IconExternalLink } from "@tabler/icons-react";
+import type { Stat, StatTone } from "~/data/stats";
+
+interface Props {
+  stat: Stat;
+  tone?: StatTone;
+  /** Compact tile (used in hero strip). */
+  compact?: boolean;
+}
+
+const { stat, tone = "brand", compact = false } = Astro.props as Props;
+
+const toneClass: Record<StatTone, { num: string; bar: string; chip: string }> = {
+  brand:   { num: "text-[color:var(--color-brand-pressed)]", bar: "bg-[color:var(--color-brand)]",   chip: "bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-pressed)]" },
+  danger:  { num: "text-red-600",                             bar: "bg-red-500",                     chip: "bg-red-50 text-red-700" },
+  warning: { num: "text-amber-600",                           bar: "bg-amber-500",                   chip: "bg-amber-50 text-amber-700" },
+  info:    { num: "text-sky-700",                             bar: "bg-sky-500",                     chip: "bg-sky-50 text-sky-700" },
+  neutral: { num: "text-[color:var(--color-ink)]",            bar: "bg-[color:var(--color-rule)]",   chip: "bg-[color:var(--color-bg-alt)] text-[color:var(--color-ink-2)]" },
+};
+const t = toneClass[tone];
+---
+
+<article
+  class:list={[
+    "group relative flex h-full flex-col overflow-hidden rounded-2xl bg-[color:var(--color-bg)] ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-0.5 hover:shadow-[0_24px_48px_-24px_rgba(10,22,40,0.18)] hover:ring-[color:var(--color-brand)]/40",
+    compact ? "p-6" : "p-7",
+  ]}
+>
+  {/* Top accent bar */}
+  <span class:list={["absolute inset-x-0 top-0 h-1", t.bar]} aria-hidden="true"></span>
+
+  <div class={compact ? "" : "flex-1"}>
+    <div
+      class:list={[
+        "font-display font-black leading-none tracking-tight",
+        t.num,
+        compact ? "text-4xl md:text-5xl" : "text-5xl md:text-6xl",
+      ]}
+    >
+      {stat.numeric ? (
+        <AnimatedNumber
+          client:visible
+          value={stat.numeric.value}
+          prefix={stat.numeric.prefix}
+          suffix={stat.numeric.suffix}
+          decimals={stat.numeric.decimals ?? 0}
+        />
+      ) : (
+        <span>{stat.value}</span>
+      )}
+    </div>
+
+    <p
+      class:list={[
+        "font-display font-bold tracking-tight text-[color:var(--color-ink)]",
+        compact ? "mt-4 text-base" : "mt-5 text-lg",
+      ]}
+    >
+      {stat.label}
+    </p>
+
+    {!compact && (
+      <p class="mt-2 text-sm leading-relaxed text-[color:var(--color-ink-2)]">{stat.description}</p>
+    )}
+  </div>
+
+  {/* Source attribution */}
+  <a
+    href={stat.source.url}
+    target="_blank"
+    rel="noreferrer noopener"
+    class:list={[
+      "mt-5 inline-flex items-center gap-1.5 self-start rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] transition-opacity hover:opacity-80",
+      t.chip,
+    ]}
+  >
+    {stat.source.name}
+    <IconExternalLink size={11} stroke={2.25} />
+  </a>
+</article>
