@@ -77,7 +77,7 @@ SUBJECTS = [
 # symbols a contractor reads instantly: unknown visitor → consent →
 # reveal → call & close.
 HIW_SUBJECTS = [
-    ("01", "anonymous-visit",  "Anonymous Visits",      "a friendly cloud-shaped silhouette of a faceless person standing next to a small house, with a single floating question mark symbol above them, suggesting an unidentified visitor"),
+    ("01", "anonymous-visit",  "Anonymous Visits",      "a faceless cute ghost (rounded shape with a wavy bottom, no facial features) floating centered inside a stylized rounded browser window that has three traffic-light dots and a small address bar pill at the top"),
     ("02", "say-yes",          "They Say Yes",          "a hand giving a confident thumbs-up next to a small rounded consent dialog card displaying a single large checkmark in its center"),
     ("03", "lead-revealed",    "Warm Lead Revealed",    "a clean rounded contact card with an abstract circular avatar shape at the top and two horizontal lines beneath it for name and number, with two small four-point spark marks rising from the card to suggest the moment of reveal"),
     ("04", "call-and-close",   "You Call & Close",      "a phone handset on the left connected by a single curved arc to two clasped hands forming a handshake on the right, with a small checkmark badge floating just above the handshake"),
