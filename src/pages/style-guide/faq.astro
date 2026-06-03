@@ -1,0 +1,87 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import FAQ from "~/components/sections/FAQ.astro";
+
+const standardItems = [
+  { question: "Is this legal?", answer: "Yes — because a homeowner's name shows up only after they consent. We keep your privacy policy, cookie banner, and disclosures in sync through Termageddon. The shady tools that track people in secret are the illegal ones. We're not one." },
+  { question: "What if a homeowner doesn't consent?", answer: "Then you get nothing on them — and that's the point. No consent, no data. That's what keeps you safe." },
+  { question: "How fast does a lead reach me?", answer: "Seconds. A Slack, text, or email fires the moment they consent, and it lands in your CRM at the same time." },
+  { question: "Can I cancel anytime?", answer: "Yes. Flat $7 a lead — card required, no contract, cancel whenever you want." },
+];
+
+const tradeItems = [
+  { question: "How do plumbers get exclusive leads?", answer: "You identify homeowners already pricing a job on your site. When they consent, you get their name and number — yours alone, never shared." },
+  { question: "Will I know what they're calling about?", answer: "Yes. You see what they were shopping for, so you walk into the call already knowing it's a water-heater quote or a re-pipe." },
+  { question: "How much does it cost?", answer: "Flat $7 per exclusive plumber lead. Card required, cancel anytime." },
+];
+---
+
+<StyleGuideLayout
+  slug="faq"
+  title="FAQ Section"
+  description="The canonical site-wide FAQ section. Dark navy band, mint eyebrow, display-2 white headline, accordion sitting on a rounded white card. Every FAQ on the site uses this primitive so the visual treatment stays locked."
+>
+  <section class="sg-section">
+    <h2>Default (homepage / how-it-works)</h2>
+    <p class="sg-lede">Eyebrow defaults to <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">"Common questions"</code>. Pass <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">headline</code> and <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">items</code>; everything else is locked.</p>
+    <div class="sg-preview" style="padding:0;background:transparent;box-shadow:none;overflow:hidden;border-radius:1rem">
+      <FAQ headline="What pros ask before they start." items={standardItems} />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>With custom eyebrow (per-trade / per-feature / billing)</h2>
+    <p class="sg-lede">Pages with their own contextual FAQ scope pass an <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">eyebrow</code> override — "Billing FAQ" on <code class="font-mono">/pricing/</code>, "FAQ" on feature pages, etc.</p>
+    <div class="sg-preview" style="padding:0;background:transparent;box-shadow:none;overflow:hidden;border-radius:1rem">
+      <FAQ
+        eyebrow="Plumber FAQ"
+        headline="What plumbers ask before they start."
+        items={tradeItems}
+        defaultOpen={0}
+      />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Props</h2>
+    <div class="sg-preview">
+      <dl class="grid grid-cols-1 gap-x-8 gap-y-3 font-mono text-sm">
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">headline:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Required. The display-2 headline, white, centered.</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">items:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Required. Array of <code>{`{ question, answer }`}</code>. Rendered through the Accordion primitive.</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">eyebrow?:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Mint uppercase chip above the headline. Default: <code>"Common questions"</code>.</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">defaultOpen?:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Index of the question that's open on first render. <code>-1</code> for all collapsed. Default: <code>0</code>.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Used in</h2>
+    <div class="sg-preview">
+      <ul class="grid grid-cols-1 gap-2 font-mono text-sm text-[color:var(--color-ink-2)]">
+        <li><strong class="text-[color:var(--color-ink)]">/</strong> (homepage) — via <code>FAQSection.astro</code> wrapper with the 6 universal questions.</li>
+        <li><strong class="text-[color:var(--color-ink)]">/how-it-works/</strong> — same wrapper, same 6 questions.</li>
+        <li><strong class="text-[color:var(--color-ink)]">/faq/</strong> — full 9-question list with eyebrow <code>"Every question, answered"</code>.</li>
+        <li><strong class="text-[color:var(--color-ink)]">/pricing/</strong> — 7 billing-specific questions, eyebrow <code>"Billing FAQ"</code>.</li>
+        <li><strong class="text-[color:var(--color-ink)]">/&lt;trade&gt;-leads/</strong> (17 pages) — 3-question per-industry FAQ, headline interpolated from trade name.</li>
+        <li><strong class="text-[color:var(--color-ink)]">/features/&lt;slug&gt;/</strong> (17 pages) — 4-question per-feature FAQ, eyebrow <code>"FAQ"</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Style tokens</h2>
+    <div class="sg-preview">
+      <ul class="grid grid-cols-1 gap-3 sm:grid-cols-2 font-mono text-sm text-[color:var(--color-ink-2)]">
+        <li><span class="inline-block size-4 align-middle rounded mr-2" style="background:#0a1628"></span> Section bg · <code>section-dark</code></li>
+        <li><span class="inline-block size-4 align-middle rounded mr-2" style="background:#00E5A0"></span> Eyebrow color · <code>--color-mint-400</code></li>
+        <li><span class="inline-block size-4 align-middle rounded mr-2" style="background:#ffffff"></span> Card bg · <code>bg-white</code></li>
+        <li><span class="inline-block size-4 align-middle rounded mr-2 ring-1 ring-inset ring-black/20" style="background:#ffffff"></span> Card radius · <code>rounded-2xl</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>FAQPage schema</h2>
+    <p class="sg-lede">The component does NOT emit JSON-LD itself. The parent page is responsible for passing <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">faqSchema(items)</code> into <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">&lt;BaseLayout schema={"{[...]}"}&gt;</code>. This keeps schema generation explicit at the page level and avoids duplicate emission when an FAQ block isn't the canonical FAQPage for that URL (e.g. the homepage FAQ shouldn't claim to be the canonical FAQPage entity — that's <code>/faq/</code>'s job).</p>
+  </section>
+</StyleGuideLayout>

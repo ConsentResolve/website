@@ -11,6 +11,7 @@ export const STYLE_GUIDE: StyleGuideEntry[] = [
   { slug: "alerts", title: "Alert Messages", description: "Info, success, warning, danger." },
   { slug: "badges", title: "Badges", description: "Pill tags for status, category, and metadata — light and dark surface renditions." },
   { slug: "accordion", title: "Accordion", description: "Single and grouped collapsible panels." },
+  { slug: "faq", title: "FAQ Section", description: "The canonical FAQ section — dark band, mint eyebrow, white accordion card. Used on homepage, /faq/, /pricing/, /how-it-works/, every industry page, and every feature page." },
   { slug: "tabs-toggles", title: "Tabs & Toggles", description: "Tabbed content + binary toggles." },
   { slug: "lists", title: "List Styles", description: "Ordered, unordered, checklist, feature lists." },
   { slug: "blockquote", title: "Blockquote", description: "Pull quotes and citations." },

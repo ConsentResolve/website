@@ -5,7 +5,7 @@ import FeatureCard from "~/components/ui/FeatureCard.astro";
 import HowItWorks from "~/components/sections/HowItWorks.astro";
 import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
-import Accordion from "~/components/ui/Accordion.tsx";
+import FAQ from "~/components/sections/FAQ.astro";
 import LeadROICalculator from "~/components/ui/LeadROICalculator.tsx";
 import { INDUSTRIES, type Industry } from "~/data/industries";
 import { breadcrumbSchema, faqSchema, industryServiceSchema } from "~/lib/seo";
@@ -202,21 +202,10 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
   <ComplianceBand />
 
   <!-- Trade FAQ -->
-  <section class="section section-dark">
-    <div class="container-content max-w-3xl">
-      <div class="mb-12 text-center">
-        <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">Common questions</p>
-        <h2 class="display-2 text-white">
-          What {trade.name.toLowerCase()} ask before they start.
-        </h2>
-      </div>
-      <div class="rounded-2xl bg-white p-2">
-        <div class="px-5">
-          <Accordion client:visible items={trade.faqs.map((f) => ({ question: f.q, answer: f.a }))} variant="chevron" defaultOpen={0} />
-        </div>
-      </div>
-    </div>
-  </section>
+  <FAQ
+    headline={`What ${trade.name.toLowerCase()} ask before they start.`}
+    items={trade.faqs.map((f) => ({ question: f.q, answer: f.a }))}
+  />
 
   <FinalCTA heading={trade.finalCtaH2} />
 </BaseLayout>

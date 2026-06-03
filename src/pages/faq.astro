@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import Accordion from "~/components/ui/Accordion.tsx";
+import FAQ from "~/components/sections/FAQ.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import { breadcrumbSchema, faqSchema } from "~/lib/seo";
 
@@ -48,15 +48,11 @@ const schemas = [
     </div>
   </section>
 
-  <section class="pb-24">
-    <div class="container-content max-w-3xl">
-      <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-2 ring-1 ring-inset ring-[color:var(--color-rule)]">
-        <div class="px-5">
-          <Accordion client:visible items={accordionItems} variant="chevron" defaultOpen={0} />
-        </div>
-      </div>
-    </div>
-  </section>
+  <FAQ
+    eyebrow="Every question, answered"
+    headline="What pros ask before they start."
+    items={accordionItems}
+  />
 
   <FinalCTA />
 </BaseLayout>

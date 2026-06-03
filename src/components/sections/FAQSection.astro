@@ -1,5 +1,11 @@
 ---
-import Accordion from "~/components/ui/Accordion.tsx";
+/**
+ * FAQSection — homepage FAQ wrapper with the canonical hard-coded
+ * questions every contractor asks before signing up. Delegates all
+ * styling to the shared <FAQ> primitive so the visual treatment
+ * stays in lockstep with every other FAQ on the site.
+ */
+import FAQ from "~/components/sections/FAQ.astro";
 
 const faqs = [
   {
@@ -29,18 +35,4 @@ const faqs = [
 ];
 ---
 
-<section class="section section-dark">
-  <div class="container-content max-w-3xl">
-    <div class="mb-12 text-center">
-      <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">Common questions</p>
-      <h2 class="display-2 text-white">
-        What pros ask before they start.
-      </h2>
-    </div>
-    <div class="rounded-2xl bg-white p-2">
-      <div class="px-5">
-        <Accordion client:visible items={faqs} variant="chevron" defaultOpen={0} />
-      </div>
-    </div>
-  </div>
-</section>
+<FAQ headline="What pros ask before they start." items={faqs} />

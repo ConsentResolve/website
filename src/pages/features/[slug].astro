@@ -10,7 +10,7 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 import FeatureCard from "~/components/ui/FeatureCard.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import ComplianceBand from "~/components/sections/ComplianceBand.astro";
-import Accordion from "~/components/ui/Accordion.tsx";
+import FAQ from "~/components/sections/FAQ.astro";
 import { ALL_FEATURES, getFeature, getFeatureGroupOf } from "~/data/features";
 import { FEATURE_ICONS } from "~/lib/feature-icons";
 import { breadcrumbSchema, faqSchema } from "~/lib/seo";
@@ -174,24 +174,11 @@ const schemas = [
   </section>
 
   <!-- 8. FAQ -->
-  <section class="section">
-    <div class="container-content max-w-3xl">
-      <div class="mb-12 text-center">
-        <p class="eyebrow mb-5 justify-center">FAQ</p>
-        <h2 class="display-2 text-[color:var(--color-ink)]">{feature.faq.headline}</h2>
-      </div>
-      <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-2 ring-1 ring-inset ring-[color:var(--color-rule)]">
-        <div class="px-5">
-          <Accordion
-            client:visible
-            variant="chevron"
-            defaultOpen={0}
-            items={feature.faq.items.map((f) => ({ question: f.q, answer: f.a }))}
-          />
-        </div>
-      </div>
-    </div>
-  </section>
+  <FAQ
+    eyebrow="FAQ"
+    headline={feature.faq.headline}
+    items={feature.faq.items.map((f) => ({ question: f.q, answer: f.a }))}
+  />
 
   <!-- 9. Compliance (shared) -->
   <ComplianceBand />
