@@ -1,0 +1,37 @@
+---
+/**
+ * Mobile-only sticky bottom action bar. Hidden on lg+. Auto-hides on
+ * /get-started/ (we're already there) and /404 (recovery happens
+ * inline). Pure CSS — no JS island.
+ *
+ * The bar sits in a position:fixed wrapper, padded to clear the
+ * iOS home indicator (env(safe-area-inset-bottom)). Add `cr-no-sticky`
+ * to <body> on any page that should suppress it.
+ */
+const pathname = Astro.url.pathname;
+const suppress = pathname.startsWith("/get-started/") || pathname === "/404/" || pathname === "/404";
+---
+
+{!suppress && (
+  <div
+    aria-hidden="false"
+    class="lg:hidden fixed inset-x-0 bottom-0 z-40 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 px-3 bg-gradient-to-t from-[color:var(--color-bg)] via-[color:var(--color-bg)]/95 to-transparent"
+    role="region"
+    aria-label="Quick actions"
+  >
+    <div class="flex items-center gap-2 rounded-2xl bg-[color:var(--color-navy-900)] p-2 ring-1 ring-inset ring-white/10 shadow-[0_18px_36px_-12px_rgba(10,22,40,0.55)]">
+      <a
+        href="/sample-lead/"
+        class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/15 hover:bg-white/5"
+      >
+        Sample lead
+      </a>
+      <a
+        href="/get-started/"
+        class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[color:var(--color-brand)] px-3 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
+      >
+        Get Started — $7
+      </a>
+    </div>
+  </div>
+)}
