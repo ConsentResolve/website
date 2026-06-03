@@ -1,22 +1,19 @@
 ---
 /**
- * Guided product tour — sticky scroll experience.
+ * Guided product tour — per-step sticky screens.
  *
- * Layout (lg+): a sticky screen pane on the left holds all five demo
- * screens absolutely-stacked on top of each other; the right column is
- * a narrative scroll-track of five annotation blocks. As the reader
- * scrolls, an IntersectionObserver swaps which screen is `is-active`,
- * crossfading the new one in while callout pins fade in on top of it.
+ * Each of the five stages renders its OWN screen as a sticky child inside
+ * its (tall) step container. As the reader scrolls, the active step's
+ * screen sticks to the top while the narrative is read, then naturally
+ * scrolls away as the next step takes over. No JS-driven swap — every
+ * screen is always in the DOM and visible inside its own step.
  *
- * Layout (<lg): the sticky behavior collapses to a normal stack with the
- * screen rendered above each annotation — progressive enhancement.
+ * Pin annotations overlay each screen. A sticky chip nav at the top
+ * tracks the active step via IntersectionObserver, purely for visual
+ * feedback (the layout works fine without it).
  *
- * No internal scrolling — every screen is rendered at the demo's true
- * width inside a fixed-aspect container, scaled down with CSS transform
- * so the visible portion fits the frame with the right content showing.
- *
- * All annotations and pin positions are driven by the single `stages`
- * array — to retune, edit one block.
+ * Mobile: the sticky CSS only activates at lg+, so the layout
+ * gracefully collapses to a normal stack.
  */
 import ConsentScreen from "~/components/ui/demo/ConsentScreen.astro";
 import VisitorsScreen from "~/components/ui/demo/VisitorsScreen.astro";
@@ -27,7 +24,6 @@ import Badge from "~/components/ui/Badge.astro";
 import { IconCheck } from "@tabler/icons-react";
 
 interface Pin { x: number; y: number; label: string }
-
 interface Stage {
   n: string;
   slug: string;
@@ -37,9 +33,8 @@ interface Stage {
   bullets: string[];
   screen: "consent" | "visitors" | "visitor-detail" | "integrations" | "dashboard";
   path: string;
-  /** Scale factor — tuned per screen so its key content fits the frame. */
+  /** Scale factor — tuned per screen so the key content fits. */
   scale: number;
-  /** Callout pins overlaid on the screen (% of the unscaled frame). */
   pins: Pin[];
 }
 
@@ -56,8 +51,8 @@ const stages: Stage[] = [
     ],
     screen: "consent", scale: 0.68,
     pins: [
-      { x: 41, y: 28, label: "One-line install snippet" },
-      { x: 48, y: 62, label: "Termageddon Settings ID" },
+      { x: 38, y: 32, label: "One-line install snippet" },
+      { x: 45, y: 64, label: "Termageddon Settings ID" },
     ],
   },
   {
@@ -73,8 +68,8 @@ const stages: Stage[] = [
     screen: "visitors", scale: 0.62,
     pins: [
       { x: 22, y: 12, label: "Live visitor count" },
-      { x: 35, y: 46, label: "Real names + emails" },
-      { x: 78, y: 46, label: "Device + timezone" },
+      { x: 38, y: 46, label: "Real names + emails" },
+      { x: 76, y: 46, label: "Device + timezone" },
     ],
   },
   {
@@ -89,9 +84,9 @@ const stages: Stage[] = [
     ],
     screen: "visitor-detail", scale: 0.58,
     pins: [
-      { x: 22, y: 18, label: "Identity + score" },
-      { x: 64, y: 18, label: "Call · Text · Email · CRM" },
-      { x: 55, y: 60, label: "Signed consent record" },
+      { x: 24, y: 18, label: "Identity + score" },
+      { x: 65, y: 18, label: "Call · Text · Email · CRM" },
+      { x: 50, y: 58, label: "Signed consent record" },
     ],
   },
   {
@@ -106,7 +101,7 @@ const stages: Stage[] = [
     ],
     screen: "integrations", scale: 0.62,
     pins: [
-      { x: 32, y: 36, label: "One-click connect" },
+      { x: 30, y: 36, label: "One-click connect" },
       { x: 70, y: 62, label: "Status pills per integration" },
     ],
   },
@@ -122,8 +117,8 @@ const stages: Stage[] = [
     ],
     screen: "dashboard", scale: 0.62,
     pins: [
-      { x: 30, y: 22, label: "Live metrics" },
-      { x: 60, y: 50, label: "Trend chart" },
+      { x: 30, y: 24, label: "Live metrics" },
+      { x: 64, y: 48, label: "Trend chart" },
       { x: 32, y: 84, label: "Real-time visitor feed" },
     ],
   },
@@ -139,84 +134,75 @@ const stages: Stage[] = [
       <p class="eyebrow mb-5 justify-center">Guided product tour</p>
       <h2 class="display-2 text-[color:var(--color-ink)]">See exactly what you'll be looking at.</h2>
       <p class="mt-5 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-        Five screens in the order you'll use them — from install to the dashboard that proves it paid off. Scroll the column below and the product follows along.
+        Five screens in the order you'll use them — from install to the dashboard that proves it paid off.
       </p>
     </header>
 
-    <div class="tour-grid">
-      {/* ── Sticky screen pane ─────────────────────────── */}
-      <aside class="tour-sticky" aria-hidden="false">
-        {/* Progress rail */}
-        <ol class="tour-rail" role="tablist" aria-label="Tour stages">
-          {stages.map((s, i) => (
-            <li>
-              <a
-                href={`#tour-${s.slug}`}
-                role="tab"
-                aria-controls={`tour-${s.slug}`}
-                data-rail-stage={s.slug}
-                class={`tour-rail-step ${i === 0 ? "is-active" : ""}`}
-              >
-                <span class="tour-rail-dot" aria-hidden="true"></span>
-                <span class="tour-rail-n">{s.n}</span>
-                <span class="tour-rail-label">{s.eyebrow}</span>
-              </a>
-            </li>
-          ))}
-        </ol>
+    {/* Sticky chip nav */}
+    <nav aria-label="Tour stages" class="tour-chipnav">
+      <ol>
+        {stages.map((s, i) => (
+          <li>
+            <a
+              href={`#tour-${s.slug}`}
+              data-chip={s.slug}
+              class:list={["tour-chip", i === 0 && "is-active"]}
+            >
+              <span class="tour-chip-n">{s.n}</span>
+              <span class="tour-chip-label">{s.eyebrow}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
 
-        {/* Screen shell — all five demo screens stacked, only one active */}
-        <div class="tour-screen-shell">
-          <div class="tour-chrome" aria-hidden="true">
-            <span class="tour-chrome-dot" style="background:#FF5F57"></span>
-            <span class="tour-chrome-dot" style="background:#FEBC2E"></span>
-            <span class="tour-chrome-dot" style="background:#28C840"></span>
-            <span class="tour-chrome-url" data-chrome-url>app.consentresolve.com/{stages[0].path}</span>
-          </div>
-          <div class="tour-screen-stack">
-            {stages.map((s, i) => (
-              <div
-                class={`tour-screen ${i === 0 ? "is-active" : ""}`}
-                data-screen-stage={s.slug}
-                data-path={s.path}
-                style={`--screen-scale:${s.scale}`}
-              >
-                <div class="tour-screen-scale">
-                  {s.screen === "consent"        && <ConsentScreen />}
-                  {s.screen === "visitors"       && <VisitorsScreen />}
-                  {s.screen === "visitor-detail" && <VisitorDetailScreen />}
-                  {s.screen === "integrations"   && <IntegrationsScreen />}
-                  {s.screen === "dashboard"      && <DashboardScreen />}
+    <ol class="tour-steps">
+      {stages.map((stage, i) => (
+        <li id={`tour-${stage.slug}`} class="tour-step" data-step={stage.slug}>
+          <div class="tour-step-grid">
+            {/* Sticky screen column (lg+) — renders once per step, owns its own screen */}
+            <div class="tour-screen-col">
+              <div class="tour-screen-sticky">
+                <div class="tour-frame">
+                  <div class="tour-chrome" aria-hidden="true">
+                    <span class="tour-chrome-dot" style="background:#FF5F57"></span>
+                    <span class="tour-chrome-dot" style="background:#FEBC2E"></span>
+                    <span class="tour-chrome-dot" style="background:#28C840"></span>
+                    <span class="tour-chrome-url">app.consentresolve.com/{stage.path}</span>
+                  </div>
+                  <div class="tour-screen" style={`--screen-scale:${stage.scale}`}>
+                    <div class="tour-screen-scale">
+                      {stage.screen === "consent"        && <ConsentScreen />}
+                      {stage.screen === "visitors"       && <VisitorsScreen />}
+                      {stage.screen === "visitor-detail" && <VisitorDetailScreen />}
+                      {stage.screen === "integrations"   && <IntegrationsScreen />}
+                      {stage.screen === "dashboard"      && <DashboardScreen />}
+                    </div>
+                    {/* Callout pins */}
+                    {stage.pins.map((p, pi) => (
+                      <span
+                        class="tour-pin"
+                        style={`left:${p.x}%;top:${p.y}%;--pin-delay:${pi * 110 + 220}ms`}
+                      >
+                        <span class="tour-pin-dot" aria-hidden="true"></span>
+                        <span class="tour-pin-label">{p.label}</span>
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                {/* Callout pins */}
-                {s.pins.map((p, pi) => (
-                  <span
-                    class="tour-pin"
-                    style={`left:${p.x}%;top:${p.y}%;--pin-delay:${pi * 90}ms`}
-                  >
-                    <span class="tour-pin-dot" aria-hidden="true"></span>
-                    <span class="tour-pin-label">{p.label}</span>
-                  </span>
-                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      </aside>
+            </div>
 
-      {/* ── Narrative scroll column ────────────────────── */}
-      <ol class="tour-narrative">
-        {stages.map((s) => (
-          <li class="tour-step" id={`tour-${s.slug}`} data-stage={s.slug}>
-            <div class="tour-step-inner">
-              <div class="tour-step-meta">
-                <span class="tour-step-n">{s.n}</span>
-                <Badge tone="brand" variant="soft" size="md" uppercase>{s.eyebrow}</Badge>
+            {/* Narrative column */}
+            <div class="tour-narrative">
+              <div class="tour-narrative-meta">
+                <span class="tour-step-n">{stage.n}</span>
+                <Badge tone="brand" variant="soft" size="md" uppercase>{stage.eyebrow}</Badge>
               </div>
-              <h3 class="tour-step-title">{s.headline}</h3>
-              <p class="tour-step-body">{s.body}</p>
+              <h3 class="tour-step-title">{stage.headline}</h3>
+              <p class="tour-step-body">{stage.body}</p>
               <ul class="tour-step-bullets">
-                {s.bullets.map((b) => (
+                {stage.bullets.map((b) => (
                   <li>
                     <span class="tour-step-check" aria-hidden="true">
                       <IconCheck size={12} stroke={3} color="var(--color-brand-pressed)" />
@@ -225,29 +211,11 @@ const stages: Stage[] = [
                   </li>
                 ))}
               </ul>
-              {/* Mobile-only screen (sticky version is hidden under lg) */}
-              <div class="tour-mobile-screen">
-                <div class="tour-chrome" aria-hidden="true">
-                  <span class="tour-chrome-dot" style="background:#FF5F57"></span>
-                  <span class="tour-chrome-dot" style="background:#FEBC2E"></span>
-                  <span class="tour-chrome-dot" style="background:#28C840"></span>
-                  <span class="tour-chrome-url">app.consentresolve.com/{s.path}</span>
-                </div>
-                <div class="tour-screen is-active" style={`--screen-scale:${s.scale}`}>
-                  <div class="tour-screen-scale">
-                    {s.screen === "consent"        && <ConsentScreen />}
-                    {s.screen === "visitors"       && <VisitorsScreen />}
-                    {s.screen === "visitor-detail" && <VisitorDetailScreen />}
-                    {s.screen === "integrations"   && <IntegrationsScreen />}
-                    {s.screen === "dashboard"      && <DashboardScreen />}
-                  </div>
-                </div>
-              </div>
             </div>
-          </li>
-        ))}
-      </ol>
-    </div>
+          </div>
+        </li>
+      ))}
+    </ol>
   </div>
 </section>
 
@@ -258,113 +226,111 @@ const stages: Stage[] = [
     padding-block: 6rem;
     background: var(--color-bg);
   }
-
-  /* Ambient glows behind the section */
   .tour-glow {
     position: absolute;
-    inset: auto;
     width: 620px;
     height: 620px;
     border-radius: 9999px;
     pointer-events: none;
     filter: blur(120px);
   }
-  .tour-glow-a {
-    top: -160px;
-    left: -120px;
-    background: rgba(0, 229, 160, 0.18);
-  }
-  .tour-glow-b {
-    bottom: -200px;
-    right: -120px;
-    background: rgba(0, 229, 160, 0.12);
-  }
+  .tour-glow-a { top: -160px; left: -120px;  background: rgba(0, 229, 160, 0.18); }
+  .tour-glow-b { bottom: -200px; right: -120px; background: rgba(0, 229, 160, 0.12); }
 
-  .tour-header {
-    max-width: 760px;
-    margin: 0 auto 4.5rem;
-    text-align: center;
-  }
+  .tour-header { max-width: 760px; margin: 0 auto 3rem; text-align: center; }
 
-  /* Layout */
-  .tour-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 4rem;
+  /* ── Sticky chip nav ────────────────────────────────── */
+  .tour-chipnav {
+    position: sticky;
+    top: 1rem;
+    z-index: 30;
+    margin: 0 auto 3.5rem;
+    width: fit-content;
+    max-width: calc(100% - 1rem);
   }
-  @media (min-width: 1024px) {
-    .tour-grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 5rem;
-      align-items: start;
-    }
-  }
-
-  /* ── Sticky screen pane ─────────────────────────────── */
-  .tour-sticky { display: none; }
-  @media (min-width: 1024px) {
-    .tour-sticky {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      position: sticky;
-      top: 5rem;
-    }
-  }
-
-  /* Progress rail */
-  .tour-rail {
+  .tour-chipnav > ol {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 0.25rem;
     margin: 0;
-    padding: 0.75rem;
+    padding: 0.4rem;
     list-style: none;
-    background: var(--color-bg-alt);
-    border-radius: 1rem;
-    box-shadow: inset 0 0 0 1px var(--color-rule);
-  }
-  .tour-rail-step {
-    display: grid;
-    grid-template-columns: 18px 32px 1fr;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.55rem 0.85rem;
-    border-radius: 0.625rem;
-    text-decoration: none;
-    color: var(--color-ink-muted);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    transition: background-color 0.2s ease, color 0.2s ease;
-  }
-  .tour-rail-step:hover { color: var(--color-ink-2); background: rgba(0, 229, 160, 0.06); }
-  .tour-rail-dot {
-    width: 9px; height: 9px;
+    overflow-x: auto;
+    background: var(--color-bg);
     border-radius: 9999px;
-    background: var(--color-rule);
-    box-shadow: 0 0 0 3px rgba(10, 22, 40, 0.04);
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    justify-self: center;
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      0 18px 40px -20px rgba(10, 22, 40, 0.28);
+    scrollbar-width: none;
   }
-  .tour-rail-n {
-    font-family: var(--font-mono, ui-monospace, monospace);
+  .tour-chipnav > ol::-webkit-scrollbar { display: none; }
+  .tour-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 0.95rem;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
     color: var(--color-ink-muted);
-    transition: color 0.3s ease;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
-  .tour-rail-step.is-active {
+  .tour-chip-n {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    color: var(--color-brand-pressed);
+  }
+  .tour-chip:hover { color: var(--color-ink-2); background: rgba(0, 229, 160, 0.07); }
+  .tour-chip.is-active {
     background: var(--color-navy-900);
     color: white;
   }
-  .tour-rail-step.is-active .tour-rail-dot {
-    background: var(--color-brand);
-    box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.25);
-  }
-  .tour-rail-step.is-active .tour-rail-n { color: var(--color-brand); }
+  .tour-chip.is-active .tour-chip-n { color: var(--color-brand); }
 
-  /* Screen shell — fixed aspect, no internal scrolling */
-  .tour-screen-shell {
+  /* ── Steps ──────────────────────────────────────────── */
+  .tour-steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+  .tour-step + .tour-step { margin-top: 2rem; }
+
+  .tour-step-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  @media (min-width: 1024px) {
+    .tour-step {
+      /* Tall step so the sticky screen has runway to "stay" while
+         the narrative is being read. */
+      min-height: 110svh;
+    }
+    .tour-step-grid {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 4rem;
+      align-items: start;
+    }
+    /* Alternate which side the screen sits on for visual variety */
+    .tour-step:nth-child(even) .tour-screen-col   { order: 2; }
+    .tour-step:nth-child(even) .tour-narrative    { order: 1; }
+  }
+
+  /* ── Screen column — sticky per step ────────────────── */
+  .tour-screen-col { position: relative; }
+  @media (min-width: 1024px) {
+    .tour-screen-sticky {
+      position: sticky;
+      top: 5.5rem;
+    }
+  }
+
+  /* Frame */
+  .tour-frame {
     position: relative;
     border-radius: 1.25rem;
     overflow: hidden;
@@ -375,7 +341,10 @@ const stages: Stage[] = [
       0 12px 24px -8px rgba(10, 22, 40, 0.22);
     transform: perspective(2400px) rotateY(-3deg) rotateX(2deg);
     transform-origin: center;
+    transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
+  .tour-frame:hover { transform: perspective(2400px) rotateY(-1deg) rotateX(1deg); }
+
   /* Browser chrome */
   .tour-chrome {
     display: flex;
@@ -389,7 +358,7 @@ const stages: Stage[] = [
     display: inline-block;
     width: 11px; height: 11px;
     border-radius: 9999px;
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
   }
   .tour-chrome-url {
     flex: 1;
@@ -408,38 +377,20 @@ const stages: Stage[] = [
     white-space: nowrap;
   }
 
-  /* Stack — fixed aspect ratio, all screens absolutely positioned */
-  .tour-screen-stack {
+  /* Screen — fixed 16:10 aspect, content scaled to fit */
+  .tour-screen {
     position: relative;
     aspect-ratio: 16 / 10;
+    overflow: hidden;
     background: var(--color-bg);
   }
-  .tour-screen {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transform: scale(0.985);
-    transition: opacity 520ms cubic-bezier(0.22, 0.61, 0.36, 1), transform 520ms cubic-bezier(0.22, 0.61, 0.36, 1);
-    pointer-events: none;
-    overflow: hidden;
-  }
-  .tour-screen.is-active {
-    opacity: 1;
-    transform: scale(1);
-    pointer-events: auto;
-  }
-
-  /* The internal scale wrapper — renders the demo at its native width
-     then scales it down so the content fits the fixed-aspect shell
-     without any scrollbars. */
   .tour-screen-scale {
     width: calc(100% / var(--screen-scale, 0.62));
     height: calc(100% / var(--screen-scale, 0.62));
     transform: scale(var(--screen-scale, 0.62));
     transform-origin: top left;
-    pointer-events: none;
+    pointer-events: none; /* let the page scroll past — these are stills */
   }
-  .tour-screen.is-active .tour-screen-scale { pointer-events: auto; }
 
   /* Callout pins */
   .tour-pin {
@@ -449,13 +400,15 @@ const stages: Stage[] = [
     align-items: center;
     gap: 0.55rem;
     opacity: 0;
-    transition: opacity 360ms ease;
-    transition-delay: var(--pin-delay, 0ms);
     pointer-events: none;
+    animation: tour-pin-in 480ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    animation-delay: var(--pin-delay, 0ms);
   }
-  .tour-screen.is-active .tour-pin { opacity: 1; }
+  @keyframes tour-pin-in {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
   .tour-pin-dot {
-    position: relative;
     width: 14px; height: 14px;
     border-radius: 9999px;
     background: var(--color-brand);
@@ -464,20 +417,11 @@ const stages: Stage[] = [
       0 0 0 8px rgba(0, 229, 160, 0.10),
       0 6px 16px -4px rgba(0, 229, 160, 0.55);
     animation: tour-pin-pulse 2.4s ease-in-out infinite;
+    animation-delay: calc(var(--pin-delay, 0ms) + 480ms);
   }
   @keyframes tour-pin-pulse {
-    0%, 100% {
-      box-shadow:
-        0 0 0 4px rgba(0, 229, 160, 0.18),
-        0 0 0 8px rgba(0, 229, 160, 0.10),
-        0 6px 16px -4px rgba(0, 229, 160, 0.55);
-    }
-    50% {
-      box-shadow:
-        0 0 0 6px rgba(0, 229, 160, 0.28),
-        0 0 0 14px rgba(0, 229, 160, 0.06),
-        0 6px 16px -4px rgba(0, 229, 160, 0.55);
-    }
+    0%, 100% { box-shadow: 0 0 0 4px rgba(0, 229, 160, 0.18), 0 0 0 8px rgba(0, 229, 160, 0.10), 0 6px 16px -4px rgba(0, 229, 160, 0.55); }
+    50%      { box-shadow: 0 0 0 6px rgba(0, 229, 160, 0.28), 0 0 0 14px rgba(0, 229, 160, 0.06), 0 6px 16px -4px rgba(0, 229, 160, 0.55); }
   }
   .tour-pin-label {
     background: var(--color-navy-900);
@@ -492,30 +436,12 @@ const stages: Stage[] = [
     box-shadow: 0 10px 24px -10px rgba(10, 22, 40, 0.55);
   }
 
-  /* ── Narrative column ───────────────────────────────── */
-  .tour-narrative {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .tour-step {
-    /* Each step gets a tall scroll runway on desktop so the sticky
-       screen has time to "stay" on it before swapping. */
-    min-height: 60svh;
-    display: flex;
-    align-items: center;
-  }
+  /* ── Narrative ──────────────────────────────────────── */
+  .tour-narrative { padding-top: 0.25rem; }
   @media (min-width: 1024px) {
-    .tour-step { min-height: 78svh; }
-    .tour-step:first-child { padding-top: 1rem; }
-    .tour-step:last-child { padding-bottom: 6rem; }
+    .tour-narrative { padding-top: 3rem; }
   }
-  .tour-step-inner { width: 100%; }
-
-  .tour-step-meta {
+  .tour-narrative-meta {
     display: flex;
     align-items: center;
     gap: 0.85rem;
@@ -569,40 +495,16 @@ const stages: Stage[] = [
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 20px; height: 20px;
     border-radius: 9999px;
     background: var(--color-brand-soft);
   }
 
-  /* Mobile-only inline screen (hidden on lg+) */
-  .tour-mobile-screen {
-    margin-top: 2rem;
-    border-radius: 1.125rem;
-    overflow: hidden;
-    box-shadow:
-      0 0 0 1px rgba(10, 22, 40, 0.08),
-      0 24px 48px -20px rgba(10, 22, 40, 0.32);
-  }
-  .tour-mobile-screen .tour-screen-stack { display: contents; }
-  .tour-mobile-screen .tour-screen {
-    position: relative;
-    inset: auto;
-    aspect-ratio: 16 / 10;
-    opacity: 1;
-    transform: none;
-    pointer-events: auto;
-  }
-  .tour-mobile-screen .tour-pin { display: none; }
-  @media (min-width: 1024px) {
-    .tour-mobile-screen { display: none; }
-  }
-
-  /* Reduced motion: no pulse, no parallax tilt, instant fade */
+  /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
-    .tour-screen-shell { transform: none; }
+    .tour-frame { transform: none; transition: none; }
+    .tour-pin { animation: none; opacity: 1; }
     .tour-pin-dot { animation: none; }
-    .tour-screen { transition: opacity 0.001ms linear; transform: none; }
   }
 </style>
 
@@ -610,64 +512,26 @@ const stages: Stage[] = [
   (function () {
     const section = document.querySelector<HTMLElement>(".tour");
     if (!section) return;
+    const chips = Array.from(section.querySelectorAll<HTMLElement>(".tour-chip"));
+    const steps = Array.from(section.querySelectorAll<HTMLElement>(".tour-step"));
+    if (!chips.length || !steps.length) return;
 
-    const sticky = section.querySelector<HTMLElement>(".tour-sticky");
-    if (!sticky) return;
-
-    const stepEls = Array.from(section.querySelectorAll<HTMLElement>(".tour-step"));
-    const screenEls = Array.from(sticky.querySelectorAll<HTMLElement>(".tour-screen"));
-    const railEls = Array.from(sticky.querySelectorAll<HTMLElement>(".tour-rail-step"));
-    const urlEl = sticky.querySelector<HTMLElement>("[data-chrome-url]");
-    if (!stepEls.length || !screenEls.length || !railEls.length) return;
-
-    // Map slug → path for chrome URL updates (data-path attribute on each screen)
-    const pathBySlug = new Map<string, string>();
-    screenEls.forEach((s) => {
-      const slug = s.dataset.screenStage || "";
-      const path = s.dataset.path || "";
-      if (slug) pathBySlug.set(slug, `app.consentresolve.com/${path}`);
-    });
-
-    let activeSlug = stepEls[0]?.dataset.stage || "";
-
-    const setActive = (slug: string) => {
-      if (slug === activeSlug) return;
-      activeSlug = slug;
-      screenEls.forEach((el) => el.classList.toggle("is-active", el.dataset.screenStage === slug));
-      railEls.forEach((el) => el.classList.toggle("is-active", el.dataset.railStage === slug));
-      if (urlEl && pathBySlug.has(slug)) urlEl.textContent = pathBySlug.get(slug)!;
-    };
-
-    // Observe each step. We want the step that's most centered to be active.
-    // Use rootMargin to bias the activation window toward the viewport center.
     const obs = new IntersectionObserver(
       (entries) => {
-        // Find the most intersecting entry whose target is currently intersecting.
         let best: IntersectionObserverEntry | null = null;
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          if (!best || entry.intersectionRatio > best.intersectionRatio) best = entry;
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          if (!best || e.intersectionRatio > best.intersectionRatio) best = e;
         }
-        if (best) {
-          const slug = (best.target as HTMLElement).dataset.stage;
-          if (slug) setActive(slug);
-        }
+        if (!best) return;
+        const slug = (best.target as HTMLElement).dataset.step;
+        chips.forEach((c) => c.classList.toggle("is-active", c.dataset.chip === slug));
       },
       {
-        // Top/bottom margins narrow the trigger zone to the middle ~40% of the viewport.
-        rootMargin: "-30% 0px -30% 0px",
+        rootMargin: "-35% 0px -45% 0px",
         threshold: [0, 0.25, 0.5, 0.75, 1],
       }
     );
-    stepEls.forEach((el) => obs.observe(el));
-
-    // Smooth scroll for rail clicks (Safari handles scroll-margin via CSS already,
-    // we just want the active state to update immediately for snappy feedback).
-    railEls.forEach((el) => {
-      el.addEventListener("click", () => {
-        const slug = el.dataset.railStage;
-        if (slug) setActive(slug);
-      });
-    });
+    steps.forEach((s) => obs.observe(s));
   })();
 </script>
