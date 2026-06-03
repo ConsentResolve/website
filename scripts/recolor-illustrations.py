@@ -95,15 +95,17 @@ def process(svg_text: str, dry_run: bool = False) -> tuple[str, dict]:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", default="", help="comma-separated indices (e.g. '01,03')")
+    ap.add_argument("--in-dir", default="", help="override input directory; default is public/illustrations/style/")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
-    files = sorted(IN_DIR.glob("*.svg"))
+    in_dir = Path(args.in_dir) if args.in_dir else IN_DIR
+    files = sorted(in_dir.glob("*.svg"))
     if args.only:
         keep = {x.strip() for x in args.only.split(",") if x.strip()}
         files = [f for f in files if any(f.name.startswith(k + "-") for k in keep)]
     if not files:
-        sys.exit(f"No SVGs found in {IN_DIR}")
+        sys.exit(f"No SVGs found in {in_dir}")
 
     print(f"Recoloring {len(files)} SVG(s) → brand palette")
     for f in files:

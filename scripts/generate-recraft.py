@@ -72,6 +72,17 @@ SUBJECTS = [
     ("09", "code-clock",      "Set up in ten minutes",        "a code-tag bracket shape next to a small clock"),
 ]
 
+# 4-step HowItWorks (preview) illustrations — one per node.
+# Subjects deliberately avoid faces/eyes (per STYLE_BASE) and lean on
+# symbols a contractor reads instantly: unknown visitor → consent →
+# reveal → call & close.
+HIW_SUBJECTS = [
+    ("01", "anonymous-visit",  "Anonymous Visits",      "a friendly cloud-shaped silhouette of a faceless person standing next to a small house, with a single floating question mark symbol above them, suggesting an unidentified visitor"),
+    ("02", "say-yes",          "They Say Yes",          "a hand giving a confident thumbs-up next to a small rounded consent dialog card displaying a single large checkmark in its center"),
+    ("03", "lead-revealed",    "Warm Lead Revealed",    "a clean rounded contact card with an abstract circular avatar shape at the top and two horizontal lines beneath it for name and number, with two small four-point spark marks rising from the card to suggest the moment of reveal"),
+    ("04", "call-and-close",   "You Call & Close",      "a phone handset on the left connected by a single curved arc to two clasped hands forming a handshake on the right, with a small checkmark badge floating just above the handshake"),
+]
+
 
 def load_key(p: Path) -> str:
     if not p.exists():
@@ -140,15 +151,24 @@ def main():
                     help="substyle slug for the chosen style; see Recraft docs")
     ap.add_argument("--size", default="1024x1024")
     ap.add_argument("--style-id", default="", help="Recraft custom Brand Style UUID; when set, overrides style/substyle/colors")
+    ap.add_argument("--set", default="style", choices=["style", "hiw"],
+                    help="which subject set: 'style' (9 feature illustrations) or 'hiw' (4 HowItWorks step illustrations)")
+    ap.add_argument("--out-dir", default="",
+                    help="override output directory; default is public/illustrations/<set>/")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    # Pick subject set + output directory
+    subject_set = HIW_SUBJECTS if args.set == "hiw" else SUBJECTS
+    out_dir = Path(args.out_dir) if args.out_dir else (
+        ROOT / "public" / "illustrations" / ("hiw" if args.set == "hiw" else "style")
+    )
+    out_dir.mkdir(parents=True, exist_ok=True)
 
-    items = SUBJECTS
+    items = subject_set
     if args.only:
         keep = {x.strip() for x in args.only.split(",") if x.strip()}
-        items = [s for s in SUBJECTS if s[0] in keep]
+        items = [s for s in subject_set if s[0] in keep]
     if not items:
         sys.exit("No items selected.")
 
@@ -161,7 +181,7 @@ def main():
     default_ext = "svg" if (use_style_id or args.style == "vector_illustration") else "png"
 
     label = f"style_id={args.style_id[:8]}…" if use_style_id else f"{args.style}/{args.substyle or '—'}"
-    print(f"Generating {len(items)} via Recraft ({label})  →  {OUT_DIR.relative_to(ROOT)}")
+    print(f"Generating {len(items)} via Recraft ({label})  →  {out_dir.relative_to(ROOT)}")
     for n, slug, feature, subject in items:
         prompt = build_prompt(subject)
         if args.dry_run:
@@ -174,7 +194,7 @@ def main():
             # Detect SVG vs PNG by content
             head = blob[:8]
             ext = "svg" if head.startswith(b"<svg") or b"<?xml" in head else ("png" if head.startswith(b"\x89PNG") else default_ext)
-            out_path = OUT_DIR / f"{n}-{slug}.{ext}"
+            out_path = out_dir / f"{n}-{slug}.{ext}"
             out_path.write_bytes(blob)
             print(f"ok .{ext} ({len(blob) // 1024} KB)")
         except Exception as e:

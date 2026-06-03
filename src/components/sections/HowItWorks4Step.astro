@@ -13,8 +13,19 @@
  *   - Step 1 now anchors the "anonymous" moment (was the install step).
  *   - Step 3 keeps the photo-reveal treatment (the dramatic moment).
  *   - Step 4 is new: the contractor's call.
+ *
+ * Illustrations: brand-locked SVGs generated via Recraft (custom Brand
+ * Style 214dccd1-…) and HSL-snapped to the 4-color palette.
+ *   01 anonymous-visit  — silhouette + house + question mark
+ *   02 say-yes          — thumbs-up + consent dialog with checkmark
+ *   03 lead-revealed    — contact card with avatar + reveal sparks
+ *   04 call-and-close   — phone arcing to a handshake + checkmark badge
+ * Source files: public/illustrations/hiw/*.svg
+ * Regenerate: python3 scripts/generate-recraft.py --set=hiw \
+ *               --style-id=214dccd1-dca3-43e6-b005-c664e1b33338
+ *             python3 scripts/recolor-illustrations.py \
+ *               --in-dir=public/illustrations/hiw
  */
-import { IconEyeOff, IconShieldCheck, IconPhoneCall } from "@tabler/icons-react";
 ---
 
 <section class="hiw4">
@@ -32,8 +43,8 @@ import { IconEyeOff, IconShieldCheck, IconPhoneCall } from "@tabler/icons-react"
       </div>
 
       <li class="hiw4-step" data-idx="0" style="--delay:0s">
-        <div class="hiw4-node hiw4-node-icon">
-          <IconEyeOff size={52} stroke={1.5} color="#00A86E" />
+        <div class="hiw4-node hiw4-node-illu">
+          <img src="/illustrations/hiw/01-anonymous-visit.svg" alt="" />
         </div>
         <div class="hiw4-badge">Step 01</div>
         <h3>Anonymous Visits</h3>
@@ -41,8 +52,8 @@ import { IconEyeOff, IconShieldCheck, IconPhoneCall } from "@tabler/icons-react"
       </li>
 
       <li class="hiw4-step" data-idx="1" style="--delay:0.16s">
-        <div class="hiw4-node hiw4-node-icon">
-          <IconShieldCheck size={52} stroke={1.5} color="#00A86E" />
+        <div class="hiw4-node hiw4-node-illu">
+          <img src="/illustrations/hiw/02-say-yes.svg" alt="" />
         </div>
         <div class="hiw4-badge">Step 02</div>
         <h3>They Say Yes</h3>
@@ -50,9 +61,8 @@ import { IconEyeOff, IconShieldCheck, IconPhoneCall } from "@tabler/icons-react"
       </li>
 
       <li class="hiw4-step" data-idx="2" style="--delay:0.32s">
-        <div class="hiw4-node hiw4-node-photo">
-          <span class="hiw4-help-pill">Identified</span>
-          <img src="/images/homeowner.svg" alt="" />
+        <div class="hiw4-node hiw4-node-illu">
+          <img src="/illustrations/hiw/03-lead-revealed.svg" alt="" />
         </div>
         <div class="hiw4-badge">Step 03</div>
         <h3>Warm Lead Revealed</h3>
@@ -60,8 +70,8 @@ import { IconEyeOff, IconShieldCheck, IconPhoneCall } from "@tabler/icons-react"
       </li>
 
       <li class="hiw4-step" data-idx="3" style="--delay:0.48s">
-        <div class="hiw4-node hiw4-node-icon">
-          <IconPhoneCall size={50} stroke={1.5} color="#00A86E" />
+        <div class="hiw4-node hiw4-node-illu">
+          <img src="/illustrations/hiw/04-call-and-close.svg" alt="" />
         </div>
         <div class="hiw4-badge">Step 04</div>
         <h3>You Call & Close</h3>
@@ -142,86 +152,53 @@ import { IconEyeOff, IconShieldCheck, IconPhoneCall } from "@tabler/icons-react"
   }
   @keyframes hiw4-step-in { to { opacity: 1; transform: translateY(0); } }
 
-  /* Node circles */
+  /* Node — white circle holding the illustration. Stays white when lit
+     (so the navy outline + mint fills of the illustration remain
+     readable); the "lit" treatment is a halo + scale + saturation
+     boost rather than a background color flip. */
   .hiw4-node {
     position: relative;
-    width: 92px;
-    height: 92px;
+    width: 104px;
+    height: 104px;
     border-radius: 9999px;
     margin: 0 auto;
+    background: #ffffff;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease, transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
-  .hiw4-node-icon {
-    background: #ffffff;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-  }
-  .hiw4-node-icon :global(svg) { transition: color 0.3s ease, stroke 0.3s ease; }
-
-  /* Photo node (step 3) */
-  .hiw4-node-photo {
-    background: transparent;
-    overflow: hidden;
-    box-shadow: 0 0 0 2px rgba(0, 229, 160, 0.35);
-  }
-  .hiw4-node-photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: blur(10px) grayscale(60%);
-    transform: scale(1.08);
-    transition: filter 0.65s ease, transform 0.65s ease;
-  }
-  .hiw4-step[data-idx="2"].cr-hiw4-lit .hiw4-node-photo img {
-    filter: blur(0) grayscale(0);
-    transform: scale(1);
+  .hiw4-node-illu img {
+    width: 78%;
+    height: 78%;
+    object-fit: contain;
+    filter: saturate(0.85);
+    transition: filter 0.4s ease, transform 0.4s ease;
   }
 
-  /* Identified pill on the photo node */
-  .hiw4-help-pill {
-    position: absolute;
-    top: -14px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #00E5A0;
-    color: #0a1628;
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    padding: 4px 8px;
-    border-radius: 9999px;
-    white-space: nowrap;
-    box-shadow: 0 4px 12px -4px rgba(0, 229, 160, 0.55);
-    z-index: 2;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+  /* Lit state: halo ring + pulse + saturated illustration */
+  .hiw4-step.cr-hiw4-lit .hiw4-node {
+    transform: scale(1.06);
+    animation: hiw4-halo 1.5s ease-in-out infinite;
   }
-  .hiw4-step[data-idx="2"].cr-hiw4-lit .hiw4-help-pill { opacity: 1; }
-
-  /* Lit state for icon nodes */
-  .hiw4-step:not([data-idx="2"]).cr-hiw4-lit .hiw4-node {
-    background-color: #00E5A0 !important;
-    animation: hiw4-pulse 1.3s ease-in-out infinite;
+  .hiw4-step.cr-hiw4-lit .hiw4-node-illu img {
+    filter: saturate(1.15);
+    transform: scale(1.04);
   }
-  .hiw4-step:not([data-idx="2"]).cr-hiw4-lit .hiw4-node :global(svg) {
-    color: #062418 !important;
-    stroke: #062418 !important;
-  }
-  @keyframes hiw4-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 229, 160, 0); }
-    50%      { box-shadow: 0 0 14px rgba(0, 229, 160, 0.55); }
-  }
-
-  /* Lit state for photo node */
-  .hiw4-step[data-idx="2"].cr-hiw4-lit .hiw4-node {
-    animation: hiw4-ring-pulse 1.3s ease-in-out infinite;
-  }
-  @keyframes hiw4-ring-pulse {
-    0%, 100% { box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.9), 0 0 0 0 rgba(0, 229, 160, 0); }
-    50%      { box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.9), 0 0 0 18px rgba(0, 229, 160, 0); }
+  @keyframes hiw4-halo {
+    0%, 100% {
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+        0 0 0 4px rgba(0, 229, 160, 0.35),
+        0 0 24px rgba(0, 229, 160, 0.45);
+    }
+    50% {
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+        0 0 0 8px rgba(0, 229, 160, 0.18),
+        0 0 36px rgba(0, 229, 160, 0.55);
+    }
   }
 
   /* Step badge */
@@ -267,7 +244,7 @@ import { IconEyeOff, IconShieldCheck, IconPhoneCall } from "@tabler/icons-react"
   /* Progress track — 4 nodes at 12.5%, 37.5%, 62.5%, 87.5% of the row */
   .hiw4-track {
     position: absolute;
-    top: 46px;
+    top: 52px;
     left: 12.5%;
     right: 12.5%;
     height: 2px;

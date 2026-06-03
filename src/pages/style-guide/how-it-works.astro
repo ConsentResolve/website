@@ -104,14 +104,48 @@ import Badge from "~/components/ui/Badge.astro";
   </section>
 
   <section class="sg-section">
-    <h2>Icons used (4-step preview)</h2>
+    <h2>Illustrations (4-step preview)</h2>
+    <p class="sg-lede">Brand-locked SVGs generated via Recraft (custom Brand Style <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">214dccd1-…</code>) and snapped to the 4-color palette via the HSL bucket pipeline. Source files: <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">public/illustrations/hiw/*.svg</code>.</p>
     <div class="sg-preview">
-      <ul class="grid grid-cols-1 gap-3 sm:grid-cols-2 font-mono text-sm text-[color:var(--color-ink-2)]">
-        <li><strong class="text-[color:var(--color-ink)]">Step 01:</strong> <code>IconEyeOff</code> — anonymous, no identity</li>
-        <li><strong class="text-[color:var(--color-ink)]">Step 02:</strong> <code>IconShieldCheck</code> — consent granted</li>
-        <li><strong class="text-[color:var(--color-ink)]">Step 03:</strong> photo node — reuses the homeowner.svg blur-to-clear reveal from the canonical, with the pill relabelled <code>"Identified"</code></li>
-        <li><strong class="text-[color:var(--color-ink)]">Step 04:</strong> <code>IconPhoneCall</code> — contractor reaches out</li>
-      </ul>
+      <div class="grid grid-cols-2 gap-6 sm:grid-cols-4">
+        <div class="flex flex-col items-center text-center">
+          <div class="flex size-28 items-center justify-center rounded-full bg-[color:var(--color-navy-900)]">
+            <img src="/illustrations/hiw/01-anonymous-visit.svg" alt="" width="80" height="80" class="size-20 object-contain" />
+          </div>
+          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Step 01</p>
+          <p class="text-sm font-semibold text-[color:var(--color-ink)]">Anonymous Visits</p>
+          <p class="mt-1 font-mono text-[11px] text-[color:var(--color-ink-muted)]">01-anonymous-visit.svg</p>
+        </div>
+        <div class="flex flex-col items-center text-center">
+          <div class="flex size-28 items-center justify-center rounded-full bg-[color:var(--color-navy-900)]">
+            <img src="/illustrations/hiw/02-say-yes.svg" alt="" width="80" height="80" class="size-20 object-contain" />
+          </div>
+          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Step 02</p>
+          <p class="text-sm font-semibold text-[color:var(--color-ink)]">They Say Yes</p>
+          <p class="mt-1 font-mono text-[11px] text-[color:var(--color-ink-muted)]">02-say-yes.svg</p>
+        </div>
+        <div class="flex flex-col items-center text-center">
+          <div class="flex size-28 items-center justify-center rounded-full bg-[color:var(--color-navy-900)]">
+            <img src="/illustrations/hiw/03-lead-revealed.svg" alt="" width="80" height="80" class="size-20 object-contain" />
+          </div>
+          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Step 03</p>
+          <p class="text-sm font-semibold text-[color:var(--color-ink)]">Warm Lead Revealed</p>
+          <p class="mt-1 font-mono text-[11px] text-[color:var(--color-ink-muted)]">03-lead-revealed.svg</p>
+        </div>
+        <div class="flex flex-col items-center text-center">
+          <div class="flex size-28 items-center justify-center rounded-full bg-[color:var(--color-navy-900)]">
+            <img src="/illustrations/hiw/04-call-and-close.svg" alt="" width="80" height="80" class="size-20 object-contain" />
+          </div>
+          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Step 04</p>
+          <p class="text-sm font-semibold text-[color:var(--color-ink)]">You Call & Close</p>
+          <p class="mt-1 font-mono text-[11px] text-[color:var(--color-ink-muted)]">04-call-and-close.svg</p>
+        </div>
+      </div>
+      <p class="sg-label mt-6">Regenerate</p>
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`python3 scripts/generate-recraft.py --set=hiw \\
+  --style-id=214dccd1-dca3-43e6-b005-c664e1b33338
+python3 scripts/recolor-illustrations.py \\
+  --in-dir=public/illustrations/hiw`}</code></pre>
     </div>
   </section>
 
