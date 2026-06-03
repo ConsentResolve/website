@@ -1,5 +1,24 @@
 ---
-import { IconGhost, IconShieldCheck } from "@tabler/icons-react";
+/**
+ * HowItWorks — canonical 4-step comet (promoted from preview Nov 2026).
+ *
+ * Dark theme, four-node horizontal layout (stacked on mobile), with an
+ * animated comet sweeping the progress track and lighting each step in
+ * sequence. Used on / (homepage), /how-it-works/, every industry page,
+ * and previewed in /style-guide/how-it-works/.
+ *
+ * Illustrations: brand-locked SVGs generated via Recraft (custom Brand
+ * Style 214dccd1-…) and HSL-snapped to the 4-color palette.
+ *   01 anonymous-visit  — ghost in a browser window
+ *   02 say-yes          — thumbs-up + consent dialog with checkmark
+ *   03 lead-revealed    — contact card with avatar + reveal sparks
+ *   04 call-and-close   — phone arcing to a handshake + checkmark badge
+ * Source files: public/illustrations/hiw/*.svg
+ * Regenerate: python3 scripts/generate-recraft.py --set=hiw \
+ *               --style-id=214dccd1-dca3-43e6-b005-c664e1b33338
+ *             python3 scripts/recolor-illustrations.py \
+ *               --in-dir=public/illustrations/hiw
+ */
 ---
 
 <section class="hiw">
@@ -8,7 +27,7 @@ import { IconGhost, IconShieldCheck } from "@tabler/icons-react";
 
   <div class="container-content relative">
     <header class="hiw-head">
-      <h2>Three steps from a visitor you paid for to a lead that's yours.</h2>
+      <h2>From a stranger on your site to a job in the books — in four steps.</h2>
     </header>
 
     <ol class="hiw-steps">
@@ -17,37 +36,41 @@ import { IconGhost, IconShieldCheck } from "@tabler/icons-react";
       </div>
 
       <li class="hiw-step" data-idx="0" style="--delay:0s">
-        <div class="hiw-node hiw-node-icon">
-          <IconGhost size={56} stroke={1.5} color="#00A86E" />
+        <div class="hiw-node hiw-node-illu">
+          <img src="/illustrations/hiw/01-anonymous-visit.svg" alt="" />
         </div>
         <div class="hiw-badge">Step 01</div>
-        <h3>Drop in one line of code.</h3>
-        <p>Live in about 10 minutes. Works on WordPress, Wix, Squarespace, ServiceTitan — anything.</p>
+        <h3>Anonymous Visits</h3>
+        <p>A homeowner lands on your website looking for help, but you have no idea who they are yet.</p>
       </li>
 
-      <li class="hiw-step" data-idx="1" style="--delay:0.18s">
-        <div class="hiw-node hiw-node-icon">
-          <IconShieldCheck size={56} stroke={1.5} color="#00A86E" />
+      <li class="hiw-step" data-idx="1" style="--delay:0.16s">
+        <div class="hiw-node hiw-node-illu">
+          <img src="/illustrations/hiw/02-say-yes.svg" alt="" />
         </div>
         <div class="hiw-badge">Step 02</div>
-        <h3>A homeowner visits and says yes.</h3>
-        <p>Your consent banner does the asking. Nothing happens until they agree.</p>
+        <h3>They Say Yes</h3>
+        <p>The homeowner grants permission to be contacted and requests more information.</p>
       </li>
 
-      <li class="hiw-step" data-idx="2" style="--delay:0.36s">
-        <div class="hiw-node hiw-node-photo">
-          <span class="hiw-help-pill">I need help</span>
-          <img src="/images/homeowner.svg" alt="" />
+      <li class="hiw-step" data-idx="2" style="--delay:0.32s">
+        <div class="hiw-node hiw-node-illu">
+          <img src="/illustrations/hiw/03-lead-revealed.svg" alt="" />
         </div>
         <div class="hiw-badge">Step 03</div>
-        <h3>You get the name and number.</h3>
-        <p>Call first. Book the job. Yours alone — no sharing, no bidding.</p>
+        <h3>Warm Lead Revealed</h3>
+        <p>Consent Resolve identifies and delivers the homeowner's contact information in real time.</p>
+      </li>
+
+      <li class="hiw-step" data-idx="3" style="--delay:0.48s">
+        <div class="hiw-node hiw-node-illu">
+          <img src="/illustrations/hiw/04-call-and-close.svg" alt="" />
+        </div>
+        <div class="hiw-badge">Step 04</div>
+        <h3>You Call & Close</h3>
+        <p>Reach out while they're actively shopping, build trust, and win the job before your competitors do.</p>
       </li>
     </ol>
-
-    <div class="hiw-cta">
-      <a href="/how-it-works/">See how every platform compares</a>
-    </div>
   </div>
 </section>
 
@@ -81,16 +104,10 @@ import { IconGhost, IconShieldCheck } from "@tabler/icons-react";
     background: radial-gradient(closest-side, rgba(0, 229, 160, 0.12), transparent 70%);
     animation: hiw-orb-b 21s ease-in-out infinite alternate;
   }
-  @keyframes hiw-orb-a {
-    from { transform: translate(0, 0); }
-    to   { transform: translate(60px, 40px); }
-  }
-  @keyframes hiw-orb-b {
-    from { transform: translate(0, 0); }
-    to   { transform: translate(-50px, -30px); }
-  }
+  @keyframes hiw-orb-a { from { transform: translate(0, 0); } to { transform: translate(60px, 40px); } }
+  @keyframes hiw-orb-b { from { transform: translate(0, 0); } to { transform: translate(-50px, -30px); } }
 
-  .hiw-head { text-align: center; max-width: 760px; margin: 0 auto 3rem; }
+  .hiw-head { text-align: center; max-width: 820px; margin: 0 auto 3rem; }
   .hiw-head h2 {
     font-family: var(--font-display);
     font-weight: 700;
@@ -99,17 +116,11 @@ import { IconGhost, IconShieldCheck } from "@tabler/icons-react";
     color: #fff;
     line-height: 1.05;
   }
-  .hiw-head p {
-    margin-top: 0.75rem;
-    color: #d4d4d8;
-    font-size: 1rem;
-    line-height: 1.55;
-  }
 
   /* Steps */
   .hiw-steps {
     position: relative;
-    max-width: 1024px;
+    max-width: 1140px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr;
@@ -118,7 +129,10 @@ import { IconGhost, IconShieldCheck } from "@tabler/icons-react";
     padding: 0;
   }
   @media (min-width: 768px) {
-    .hiw-steps { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .hiw-steps { grid-template-columns: repeat(2, 1fr); gap: 2.5rem 1.5rem; }
+  }
+  @media (min-width: 1024px) {
+    .hiw-steps { grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
   }
 
   .hiw-step {
@@ -129,90 +143,55 @@ import { IconGhost, IconShieldCheck } from "@tabler/icons-react";
     animation: hiw-step-in 0.55s ease-out forwards;
     animation-delay: var(--delay, 0s);
   }
-  @keyframes hiw-step-in {
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes hiw-step-in { to { opacity: 1; transform: translateY(0); } }
 
-  /* Node circles */
+  /* Node — white circle holding the illustration. Stays white when lit
+     (so the navy outline + mint fills of the illustration remain
+     readable); the "lit" treatment is a halo + scale + saturation
+     boost rather than a background color flip. */
   .hiw-node {
     position: relative;
-    width: 96px;
-    height: 96px;
+    width: 156px;
+    height: 156px;
     border-radius: 9999px;
     margin: 0 auto;
+    background: #ffffff;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease, transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
-  .hiw-node-icon {
-    background: #ffffff;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-  }
-  .hiw-node-icon :global(svg) { transition: color 0.3s ease, stroke 0.3s ease; }
-
-  /* Step 3: photo */
-  .hiw-node-photo {
-    background: transparent;
-    overflow: hidden;
-    box-shadow: 0 0 0 2px rgba(0, 229, 160, 0.35);
-  }
-  .hiw-node-photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: blur(10px) grayscale(60%);
-    transform: scale(1.08);
-    transition: filter 0.65s ease, transform 0.65s ease;
-  }
-  .hiw-node-photo.cr-hiw-lit img,
-  .hiw-step[data-idx="2"].cr-hiw-lit .hiw-node-photo img {
-    filter: blur(0) grayscale(0);
-    transform: scale(1);
+  .hiw-node-illu img {
+    width: 88%;
+    height: 88%;
+    object-fit: contain;
+    filter: saturate(0.95);
+    transition: filter 0.4s ease, transform 0.4s ease;
   }
 
-  /* "I need help" floating pill */
-  .hiw-help-pill {
-    position: absolute;
-    top: -14px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #00E5A0;
-    color: #0a1628;
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    padding: 4px 8px;
-    border-radius: 9999px;
-    white-space: nowrap;
-    box-shadow: 0 4px 12px -4px rgba(0, 229, 160, 0.55);
-    z-index: 2;
-    transition: opacity 0.3s ease;
+  /* Lit state: halo ring + pulse + saturated illustration */
+  .hiw-step.cr-hiw-lit .hiw-node {
+    transform: scale(1.06);
+    animation: hiw-halo 1.5s ease-in-out infinite;
   }
-  .hiw-step[data-idx="2"].cr-hiw-lit .hiw-help-pill { opacity: 0; }
-
-  /* Lit state for icon nodes (Step 1 & 2) */
-  .hiw-step:not([data-idx="2"]).cr-hiw-lit .hiw-node {
-    background-color: #00E5A0 !important;
-    animation: hiw-pulse 1.3s ease-in-out infinite;
+  .hiw-step.cr-hiw-lit .hiw-node-illu img {
+    filter: saturate(1.15);
+    transform: scale(1.04);
   }
-  .hiw-step:not([data-idx="2"]).cr-hiw-lit .hiw-node :global(svg) {
-    color: #062418 !important;
-    stroke: #062418 !important;
-  }
-  @keyframes hiw-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 229, 160, 0); }
-    50%      { box-shadow: 0 0 0 14px rgba(0, 229, 160, 0); box-shadow: 0 0 14px rgba(0, 229, 160, 0.55); }
-  }
-
-  /* Lit state for photo node (Step 3) */
-  .hiw-step[data-idx="2"].cr-hiw-lit .hiw-node {
-    animation: hiw-ring-pulse 1.3s ease-in-out infinite;
-  }
-  @keyframes hiw-ring-pulse {
-    0%, 100% { box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.9), 0 0 0 0 rgba(0, 229, 160, 0); }
-    50%      { box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.9), 0 0 0 18px rgba(0, 229, 160, 0); }
+  @keyframes hiw-halo {
+    0%, 100% {
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+        0 0 0 4px rgba(0, 229, 160, 0.35),
+        0 0 24px rgba(0, 229, 160, 0.45);
+    }
+    50% {
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+        0 0 0 8px rgba(0, 229, 160, 0.18),
+        0 0 36px rgba(0, 229, 160, 0.55);
+    }
   }
 
   /* Step badge */
@@ -250,59 +229,42 @@ import { IconGhost, IconShieldCheck } from "@tabler/icons-react";
     font-size: 0.875rem;
     line-height: 1.55;
     margin-top: 0.4rem;
-    max-width: 240px;
+    max-width: 220px;
     margin-left: auto;
     margin-right: auto;
   }
 
-  /* Progress track */
+  /* Progress track — 4 nodes at 12.5%, 37.5%, 62.5%, 87.5% of the row */
   .hiw-track {
     position: absolute;
-    top: 48px;
-    left: 16.67%;
-    right: 16.67%;
+    top: 78px;
+    left: 12.5%;
+    right: 12.5%;
     height: 2px;
     background: rgba(255, 255, 255, 0.12);
     border-radius: 9999px;
     overflow: hidden;
     display: none;
   }
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     .hiw-track { display: block; }
   }
   .hiw-comet {
     position: absolute;
     inset: 0 auto;
     left: 0;
-    width: 33.333%;
+    width: 25%;
     background: #00E5A0;
     border-radius: 9999px;
     transform: translateX(-120%);
   }
   .hiw-comet.cr-hiw-comet-run {
-    animation: cr-hiw-comet 4s linear forwards;
+    animation: cr-hiw-comet 5s linear forwards;
   }
   @keyframes cr-hiw-comet {
     0%   { transform: translateX(-120%); }
-    100% { transform: translateX(360%); }
+    100% { transform: translateX(420%); }
   }
-
-  /* CTA */
-  .hiw-cta { text-align: center; margin-top: 3rem; }
-  .hiw-cta a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    border-radius: 0.5rem;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
-    color: #fff;
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background-color 0.2s ease;
-  }
-  .hiw-cta a:hover { background: rgba(255, 255, 255, 0.1); }
 
   @media (prefers-reduced-motion: reduce) {
     .hiw-step { animation: none; opacity: 1; transform: none; }
@@ -312,6 +274,9 @@ import { IconGhost, IconShieldCheck } from "@tabler/icons-react";
 </style>
 
 <script>
+  // Comet sequencer — 5s sweep, four equally-spaced light windows.
+  // Gated by IntersectionObserver: only runs while the section is on
+  // screen, pauses when offscreen. Saves battery/CPU on long pages.
   (function () {
     const section = document.querySelector<HTMLElement>(".hiw");
     if (!section) return;
@@ -319,26 +284,27 @@ import { IconGhost, IconShieldCheck } from "@tabler/icons-react";
 
     const nodes = Array.from(section.querySelectorAll<HTMLElement>(".hiw-step"));
     const comet = section.querySelector<HTMLElement>(".hiw-comet");
-    if (!comet || nodes.length !== 3) return;
+    if (!comet || nodes.length !== 4) return;
 
-    const S1_ON = 167;
-    const S1_OFF = 1000;
-    const S2_ON = 1417;
+    const S1_ON = 250;
+    const S1_OFF = 1050;
+    const S2_ON = 1450;
     const S2_OFF = 2250;
-    const S3_ON = 2667;
+    const S3_ON = 2650;
+    const S3_OFF = 3450;
+    const S4_ON = 3850;
     const HOLD = 4500;
-    const CYCLE = S3_ON + HOLD + 500;
+    const CYCLE = S4_ON + HOLD + 500;
 
     let timers: number[] = [];
-    const clear = () => {
-      timers.forEach((t) => clearTimeout(t));
-      timers = [];
-    };
+    let running = false;
+    const clear = () => { timers.forEach((t) => clearTimeout(t)); timers = []; };
     const lit = (i: number) => nodes[i].classList.add("cr-hiw-lit");
     const unlit = (i: number) => nodes[i].classList.remove("cr-hiw-lit");
     const unlitAll = () => nodes.forEach((n) => n.classList.remove("cr-hiw-lit"));
 
     function run() {
+      if (!running) return;
       clear();
       unlitAll();
       comet.classList.remove("cr-hiw-comet-run");
@@ -350,10 +316,31 @@ import { IconGhost, IconShieldCheck } from "@tabler/icons-react";
       timers.push(window.setTimeout(() => lit(1), S2_ON));
       timers.push(window.setTimeout(() => unlit(1), S2_OFF));
       timers.push(window.setTimeout(() => lit(2), S3_ON));
-      timers.push(window.setTimeout(() => unlit(2), S3_ON + HOLD));
+      timers.push(window.setTimeout(() => unlit(2), S3_OFF));
+      timers.push(window.setTimeout(() => lit(3), S4_ON));
+      timers.push(window.setTimeout(() => unlit(3), S4_ON + HOLD));
       timers.push(window.setTimeout(run, CYCLE));
     }
 
-    window.setTimeout(run, 800);
+    const start = () => {
+      if (running) return;
+      running = true;
+      window.setTimeout(run, 800);
+    };
+    const stop = () => {
+      running = false;
+      clear();
+      unlitAll();
+      comet.classList.remove("cr-hiw-comet-run");
+    };
+
+    if ("IntersectionObserver" in window) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach((e) => (e.isIntersecting ? start() : stop()));
+      }, { threshold: 0.15 });
+      obs.observe(section);
+    } else {
+      start();
+    }
   })();
 </script>

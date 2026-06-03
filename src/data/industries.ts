@@ -1,7 +1,7 @@
 /**
  * Industry data spine — feeds /industries/ hub and /[trade]-leads/ template.
  * All copy sourced from consent-resolve-industry-pages-seo.md.
- * Voice + facts governed by /docs/voice.md.
+ * Voice + facts governed by /style-guide/voice/ (single source of truth — see src/pages/style-guide/voice.astro).
  */
 
 export interface IndustryFaq {

@@ -1,6 +1,6 @@
 /**
  * Compare-page data spine — feeds /compare/ hub and /compare/[platform]/.
- * Voice/facts: /docs/voice.md. LSA is a complement, never a competitor.
+ * Voice/facts: /style-guide/voice/ (single source of truth — see src/pages/style-guide/voice.astro). LSA is a complement, never a competitor.
  */
 
 export type CompareType = "reseller" | "complement";
