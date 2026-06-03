@@ -46,7 +46,15 @@ export interface Feature {
   slug: string;
   name: string;                        // H1
   iconKey: FeatureIconKey;
-  tagline: string;                     // hero card right panel + cards
+  tagline: string;                     // hero card right panel + (legacy) cards
+  /** 1–3 sentence plain-English benefit. Drives the /features/ hub
+   *  card body — must read like a contractor explaining it to another
+   *  contractor over coffee, NOT like a SaaS feature description. */
+  howItHelps: string;
+  /** Path under /public to the brand-locked SVG illustration shown
+   *  on the /features/ hub card (and as a side accent on the detail
+   *  page hero). */
+  illustration: string;
   subhead: string;                     // hero left body + meta description
   aeoAnswer: string;                   // 40–55-word AEO citation paragraph
   problem: { headline: string; body: string };
@@ -76,6 +84,8 @@ const exclusiveLeads: Feature = {
   name: "Exclusive Leads",
   iconKey: "IconLock",
   tagline: "Yours alone. Never resold.",
+  howItHelps: "Your lead doesn't go to anyone else. The homeowner is calling you, not racing to call back the four other contractors Thumbtack just emailed. One consent, one contractor — you.",
+  illustration: "/illustrations/style/07-lead-house-lock.svg",
   subhead: "The visitors we identify came to your site — so the lead is yours alone. Never shared, never resold, never handed to the contractor down the road.",
   aeoAnswer:
     "Exclusive Leads means every person Consent Resolve identifies belongs to you and only you. Because they visited your website, the lead is never shared, sold, or routed to competing contractors. You get the name, the number, and a clear shot at the job — with no bidding war and no race to call first.",
@@ -131,6 +141,8 @@ const consentFirstIdentification: Feature = {
   name: "Consent-First Identification",
   iconKey: "IconUserCheck",
   tagline: "They opted in. You reach out.",
+  howItHelps: "Every homeowner you reach out to said 'yes' first. Friendlier calls, cleaner conscience, and a paper trail if anyone ever asks how you got their number.",
+  illustration: "/illustrations/features/02-consent-checkmark.svg",
   subhead: "Every person we identify opted in. You're reaching out to someone who already raised their hand — not a cold name off a purchased list.",
   aeoAnswer:
     "Consent-First Identification means Consent Resolve only identifies website visitors who have given permission through your site's consent banner. You receive a name, phone, and email for someone who already agreed to be contacted — a warmer, cleaner lead than any purchased list, and one that keeps your shop on the right side of privacy law.",
@@ -186,6 +198,8 @@ const channelRecovery: Feature = {
   name: "Channel Recovery",
   iconKey: "IconRefresh",
   tagline: "Catch what your ads miss.",
+  howItHelps: "Keep running your Google, LSA, Thumbtack ads — we catch the 98 out of 100 people they send to your site who would've left without a name. You squeeze more jobs out of the same ad budget.",
+  illustration: "/illustrations/features/03-channel-recovery.svg",
   subhead: "Consent Resolve doesn't replace Google, Thumbtack, or Angi. It sits on top of them and catches the customers they send who leave without calling.",
   aeoAnswer:
     "Channel Recovery captures the website visitors your existing ads already paid for but lost. Consent Resolve works on top of Google LSA, Thumbtack, Angi, and your own campaigns — identifying the roughly 98% who visit and leave without converting, then handing them back as named leads. It doesn't compete with your channels; it rescues the traffic they waste.",
@@ -245,6 +259,8 @@ const easySetupWithOneScript: Feature = {
   name: "Easy Setup With One Script",
   iconKey: "IconCode",
   tagline: "Paste once. You're live.",
+  howItHelps: "Paste one line of code into your website. Done. Most pros are live the same afternoon — no developer, no IT bill, no waiting around for setup.",
+  illustration: "/illustrations/style/09-code-clock.svg",
   subhead: "One small piece of code on your site and you're live. No new software to learn, no app to babysit, no IT guy required.",
   aeoAnswer:
     "Easy Setup With One Script means Consent Resolve installs with a single snippet of code on your website. There's no software to learn, no developer needed, and no ongoing maintenance. Paste it once and identification starts the same day — most service pros are capturing leads within hours of signing up.",
@@ -300,6 +316,8 @@ const visitorIdentification: Feature = {
   name: "Visitor Identification",
   iconKey: "IconEye",
   tagline: "Real people, not numbers.",
+  howItHelps: "Stop staring at 'visitors today: 47.' See actual people with actual names and phone numbers you can actually call. A pipeline you can pick up, not a chart you can squint at.",
+  illustration: "/illustrations/style/01-contact-card.svg",
   subhead: "Stop staring at a visitor counter that tells you nothing. See the real people behind your traffic — who came, what they wanted, how to reach them.",
   aeoAnswer:
     "Visitor Identification reveals the actual people browsing your website instead of an anonymous traffic count. Consent Resolve matches consented visitors to a name, phone, and email, plus the pages they viewed. You learn who's interested in your services and exactly how to reach them — turning silent web traffic into a callable list of prospects.",
@@ -355,6 +373,8 @@ const formlessContactCapture: Feature = {
   name: "Formless Contact Capture",
   iconKey: "IconAddressBook",
   tagline: "No form? No problem.",
+  howItHelps: "98 out of 100 homeowners never fill out your contact form. We get you their name, number, and email anyway — without them typing a single field.",
+  illustration: "/illustrations/features/06-formless-capture.svg",
   subhead: "Get a name, phone, and email for visitors who never filled out a single form — the ones who'd normally just disappear.",
   aeoAnswer:
     "Formless Contact Capture collects a visitor's name, phone number, and email without requiring them to fill out any form. Since only about 2% of website visitors ever complete a contact form, Consent Resolve captures the consented contact details of the other 98% automatically — so you reach the customers who would have left no trace.",
@@ -410,6 +430,8 @@ const verifiedContactData: Feature = {
   name: "Verified Contact Data",
   iconKey: "IconShieldCheck",
   tagline: "Reachable, not dead.",
+  howItHelps: "Every number we hand you is one you can actually reach. No dead lines, no bounced emails, no morning burned dialing a stack of garbage.",
+  illustration: "/illustrations/features/07-verified-data.svg",
   subhead: "We only hand you people who are reachable and recently active — so your crew isn't burning the morning dialing dead numbers.",
   aeoAnswer:
     "Verified Contact Data means Consent Resolve only passes you contacts confirmed reachable and recently active. Instead of a list padded with dead numbers and stale emails, you get leads you can actually connect with — so your team spends time talking to real prospects, not listening to disconnected tones.",
@@ -465,6 +487,8 @@ const instantConnect: Feature = {
   name: "Instant Connect",
   iconKey: "IconBolt",
   tagline: "Call while it's hot.",
+  howItHelps: "The phone number lands while the homeowner is still on your site shopping. First contractor to call usually wins the job — that's you, not the guy who checks his email at 5 pm.",
+  illustration: "/illustrations/features/08-instant-connect.svg",
   subhead: "The number's in your hand, ready to dial while they're still deciding who to hire. Strike while the interest is hot.",
   aeoAnswer:
     "Instant Connect puts an identified visitor's phone number in your hands the moment they're captured, so you can call while they're still actively shopping. In home services, the first pro to reach a customer usually wins the job — Instant Connect makes sure that's you, not the contractor down the street.",
@@ -520,6 +544,8 @@ const realTimeMobileAlerts: Feature = {
   name: "Real-Time Mobile Alerts",
   iconKey: "IconBellRinging",
   tagline: "Buzzes the second they're in.",
+  howItHelps: "Your phone buzzes the second a lead is ready. Call from the truck, the roof, the supply yard — wherever you are. No dashboard to babysit, no missed leads sitting in an inbox overnight.",
+  illustration: "/illustrations/style/04-phone-alert.svg",
   subhead: "New leads hit your phone within minutes — on the roof or in the truck — so you reach out before your competitor even knows that customer existed.",
   aeoAnswer:
     "Real-Time Mobile Alerts notify you on your phone the instant a new lead is identified, wherever you are. Instead of checking a dashboard, you get a push the moment a consented visitor is captured — so a contractor in the field can act on a fresh lead within minutes instead of finding it cold the next day.",
@@ -579,6 +605,8 @@ const leadScoring: Feature = {
   name: "Lead Scoring",
   iconKey: "IconStar",
   tagline: "Serious ones first.",
+  howItHelps: "The serious buyers float to the top of your list. Three pricing-page visits beats a one-second bounce every time — so your best hours go to your best leads.",
+  illustration: "/illustrations/features/10-lead-scoring.svg",
   subhead: "Not every visitor is worth a call. We surface the serious ones first — three pricing-page visits beats a one-second bounce every time.",
   aeoAnswer:
     "Lead Scoring ranks your identified visitors by how likely they are to buy, based on what they did on your site. Consent Resolve flags the people who viewed pricing, returned more than once, or spent real time on a service page — so you call your hottest prospects first instead of working a list in random order.",
@@ -634,6 +662,8 @@ const behaviorAndJobTypeInsights: Feature = {
   name: "Behavior & Job-Type Insights",
   iconKey: "IconClipboardCheck",
   tagline: "Know the job before you dial.",
+  howItHelps: "Walk into the call already knowing they're shopping a re-roof, not a patch. You open as the expert who 'read their mind' — and you close more.",
+  illustration: "/illustrations/style/03-speech-wrench.svg",
   subhead: "See which service each visitor looked at and how long they spent. Your first call already knows whether they want a quick repair or a full replacement.",
   aeoAnswer:
     "Behavior and Job-Type Insights show you exactly what each identified visitor did on your site — which service pages they viewed, how long they stayed, and what they came for. Consent Resolve turns that into a clear picture of the job, so your first call is informed and specific instead of a blind \"how can I help you?\"",
@@ -689,6 +719,8 @@ const serviceAreaFiltering: Feature = {
   name: "Service-Area Filtering",
   iconKey: "IconMapPin",
   tagline: "Only your towns.",
+  howItHelps: "Only see homeowners in the zips and towns you actually serve. No more excitement-then-disappointment when the address is three counties away.",
+  illustration: "/illustrations/style/02-map-pin.svg",
   subhead: "Only see visitors in the zip codes and towns you actually serve. No leads from three counties over that you'd never drive to.",
   aeoAnswer:
     "Service-Area Filtering limits your identified leads to the zip codes, cities, and counties you actually work in. Consent Resolve screens out visitors outside your service area before they ever reach your phone, so every lead you see is a job you could realistically drive to and win — no time wasted on out-of-range callers.",
@@ -744,6 +776,8 @@ const qualifiedLeadsOnly: Feature = {
   name: "Qualified Leads Only",
   iconKey: "IconFilter",
   tagline: "Real, identified, in-area. Nothing else.",
+  howItHelps: "Every lead has a real name, a real number, and lives in your service area. The junk gets filtered out before it ever hits your phone — so you trust your list again.",
+  illustration: "/illustrations/features/13-qualified-leads.svg",
   subhead: "You spend your time on real, identified, in-area people — not anonymous clicks that lead nowhere.",
   aeoAnswer:
     "Qualified Leads Only means every lead Consent Resolve hands you is a real, identified person in your service area who showed genuine interest — not an anonymous click or a random form spammer. By screening for identity, location, and intent before delivery, it makes sure your phone time goes only to prospects who could actually become a paying job.",
@@ -803,6 +837,8 @@ const crmDelivery: Feature = {
   name: "CRM Delivery",
   iconKey: "IconPlugConnected",
   tagline: "Straight into your CRM.",
+  howItHelps: "Leads drop straight into Jobber, Housecall Pro, ServiceTitan, GoHighLevel — wherever you already work. Nothing falls into the gap between tools, nothing gets forgotten on a sticky note.",
+  illustration: "/illustrations/style/05-crm-inbox.svg",
   subhead: "Leads flow straight into the tools you already use, routed to the right person on your team automatically. Nothing falls through the cracks.",
   aeoAnswer:
     "CRM Delivery sends every identified lead directly into the tools your team already uses, automatically routed to the right person. Consent Resolve connects with common CRMs and platforms so leads don't sit in a separate dashboard — they land where your follow-up already happens, with nothing slipping through the cracks.",
@@ -858,6 +894,8 @@ const multiChannelFollowUp: Feature = {
   name: "Multi-Channel Follow-Up",
   iconKey: "IconMessage",
   tagline: "Call, text, or email.",
+  howItHelps: "Call doesn't pick up? Text. Text doesn't reply? Email. You catch homeowners however they actually answer — not just one shot in the dark and a missed-call gone forever.",
+  illustration: "/illustrations/features/15-multi-channel.svg",
   subhead: "Reach identified visitors by call, email, or text — not one shot in the dark. Catch them however they're easiest to catch.",
   aeoAnswer:
     "Multi-Channel Follow-Up lets you reach each identified lead by phone, text, or email — whatever they respond to best. Because Consent Resolve captures full contact details, you're not limited to one shot in the dark; you can follow up across channels until you connect, which is how more leads turn into booked jobs.",
@@ -913,6 +951,8 @@ const builtInCompliance: Feature = {
   name: "Built-In Compliance",
   iconKey: "IconCertificate",
   tagline: "Legal, on autopilot.",
+  howItHelps: "Every consent recorded with a timestamp, every opt-out honored automatically. Your shop stays clean across state privacy laws without you ever reading one — Termageddon keeps your policies current in the background.",
+  illustration: "/illustrations/style/08-shield-doc.svg",
   subhead: "Consent gets recorded and opt-outs honored automatically, across every state. You stay covered without becoming a privacy-law expert.",
   aeoAnswer:
     "Built-In Compliance records every visitor's consent and honors opt-outs automatically, across state privacy laws. Working alongside Termageddon for policy coverage, Consent Resolve keeps a timestamped log of every lead's permission — so your shop stays on the right side of the rules without you having to track changing privacy laws yourself.",
@@ -968,6 +1008,8 @@ const roiReporting: Feature = {
   name: "ROI Reporting",
   iconKey: "IconChartHistogram",
   tagline: "Proof in plain dollars.",
+  howItHelps: "See, in plain dollars, what each lead cost and which ones turned into jobs. Marketing you can finally measure — no spreadsheet, no guessing which channel actually paid off this month.",
+  illustration: "/illustrations/features/17-roi-reporting.svg",
   subhead: "See your cost per identified lead against the jobs you actually booked — so you know, in plain dollars, that it's paying for itself.",
   aeoAnswer:
     "ROI Reporting shows what your leads cost against the jobs you actually booked, in plain dollars. Consent Resolve tracks your cost per identified lead and ties it to closed work, so you can see at a glance whether the tool is paying for itself — no spreadsheets, no guesswork, just a clear return number.",

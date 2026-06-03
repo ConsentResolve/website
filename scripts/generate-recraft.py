@@ -72,6 +72,22 @@ SUBJECTS = [
     ("09", "code-clock",      "Set up in ten minutes",        "a code-tag bracket shape next to a small clock"),
 ]
 
+# Feature-hub illustrations — one per Feature in src/data/features.ts.
+# Nine NEW concepts; the other 8 features reuse the existing style/
+# library (mapped in features.ts illustrationPath). Goal: every card
+# on /features/ leads with a brand-locked image instead of an icon.
+FEATURES_SUBJECTS = [
+    ("02", "consent-checkmark",  "Consent-First Identification", "a friendly hand pressing a large rounded checkmark button inside a small consent dialog card with a thumbs-up symbol floating beside it"),
+    ("03", "channel-recovery",   "Channel Recovery",             "a wide safety net catching three falling arrows from above, with a tiny browser window at the top releasing the arrows"),
+    ("06", "formless-capture",   "Formless Contact Capture",     "a clean contact card with three horizontal lines for name phone and email floating upward out of a small webpage that has no input fields"),
+    ("07", "verified-data",      "Verified Contact Data",        "a contact card stamped with a circular badge that contains a checkmark, with a small ribbon underneath suggesting verification"),
+    ("08", "instant-connect",    "Instant Connect",              "a phone handset with a lightning bolt next to it and three short curved motion lines indicating fast outgoing call"),
+    ("10", "lead-scoring",       "Lead Scoring",                 "three rectangular lead cards stacked at three different heights like a podium, with a large star floating above the tallest one"),
+    ("13", "qualified-leads",    "Qualified Leads Only",         "a wide funnel with small messy dot shapes entering at the top and clean larger circles dropping out at the bottom"),
+    ("15", "multi-channel",      "Multi-Channel Follow-Up",      "three small communication shapes fanned out like cards: a phone handset on the left, a rounded chat bubble in the middle, and a sealed envelope on the right"),
+    ("17", "roi-reporting",      "ROI Reporting",                "a small bar chart with four bars of increasing height growing upward, with a single dollar sign floating just above the tallest bar"),
+]
+
 # 4-step HowItWorks (preview) illustrations — one per node.
 # Subjects deliberately avoid faces/eyes (per STYLE_BASE) and lean on
 # symbols a contractor reads instantly: unknown visitor → consent →
@@ -151,18 +167,24 @@ def main():
                     help="substyle slug for the chosen style; see Recraft docs")
     ap.add_argument("--size", default="1024x1024")
     ap.add_argument("--style-id", default="", help="Recraft custom Brand Style UUID; when set, overrides style/substyle/colors")
-    ap.add_argument("--set", default="style", choices=["style", "hiw"],
-                    help="which subject set: 'style' (9 feature illustrations) or 'hiw' (4 HowItWorks step illustrations)")
+    ap.add_argument("--set", default="style", choices=["style", "hiw", "features"],
+                    help="which subject set: 'style' (9 feature illustrations), 'hiw' (4 HowItWorks step illustrations), or 'features' (9 NEW feature-hub illustrations for the slots not covered by 'style')")
     ap.add_argument("--out-dir", default="",
                     help="override output directory; default is public/illustrations/<set>/")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
     # Pick subject set + output directory
-    subject_set = HIW_SUBJECTS if args.set == "hiw" else SUBJECTS
-    out_dir = Path(args.out_dir) if args.out_dir else (
-        ROOT / "public" / "illustrations" / ("hiw" if args.set == "hiw" else "style")
-    )
+    if args.set == "hiw":
+        subject_set = HIW_SUBJECTS
+        default_subdir = "hiw"
+    elif args.set == "features":
+        subject_set = FEATURES_SUBJECTS
+        default_subdir = "features"
+    else:
+        subject_set = SUBJECTS
+        default_subdir = "style"
+    out_dir = Path(args.out_dir) if args.out_dir else (ROOT / "public" / "illustrations" / default_subdir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     items = subject_set

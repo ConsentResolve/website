@@ -75,14 +75,20 @@ const schemas = [
             </a>
           </div>
         </div>
-        <!-- Hero card -->
+        <!-- Hero card — same brand illustration as the /features/ hub -->
         <div class="relative hidden lg:block">
-          <div class="rounded-3xl bg-[color:var(--color-bg-alt)] p-12 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_30px_60px_-30px_rgba(10,22,40,0.18)]">
-            <div class="mx-auto flex size-32 items-center justify-center rounded-2xl bg-[color:var(--color-brand)]">
-              <Icon size={64} stroke={1.5} color="#0A1628" />
-            </div>
-            <p class="mt-6 text-center font-display text-2xl font-bold tracking-tight text-[color:var(--color-ink)]">{feature.name}</p>
-            <p class="mt-2 text-center text-sm text-[color:var(--color-ink-muted)]">{feature.tagline}</p>
+          <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[color:var(--color-brand-soft)] via-[#e9f9f1] to-[color:var(--color-bg-alt)] p-10 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_30px_60px_-30px_rgba(10,22,40,0.18)]">
+            <div aria-hidden="true" class="pointer-events-none absolute -right-12 -top-12 size-48 rounded-full bg-[color:var(--color-mint-400)]/25 blur-3xl"></div>
+            <div aria-hidden="true" class="pointer-events-none absolute -left-12 -bottom-12 size-40 rounded-full bg-[color:var(--color-mint-400)]/15 blur-2xl"></div>
+            <img
+              src={feature.illustration}
+              alt=""
+              class="relative z-10 mx-auto block h-auto w-full max-w-[260px]"
+              loading="eager"
+              decoding="async"
+            />
+            <p class="relative z-10 mt-6 text-center font-display text-2xl font-bold tracking-tight text-[color:var(--color-ink)]">{feature.name}</p>
+            <p class="relative z-10 mt-2 text-center text-sm text-[color:var(--color-ink-muted)]">{feature.tagline}</p>
           </div>
         </div>
       </div>
