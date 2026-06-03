@@ -1,0 +1,253 @@
+---
+/**
+ * Guided product tour — five stages, one per demo screen.
+ *
+ * Renders the existing /style-guide/product-demo/ screens
+ * (ConsentScreen, VisitorsScreen, VisitorDetailScreen, IntegrationsScreen,
+ * DashboardScreen) inside a browser-chrome frame with an annotation
+ * panel that explains what's on the screen. Layout alternates left/right
+ * on desktop, stacks on mobile. A sticky chip nav up top lets visitors
+ * jump between stages.
+ */
+import ConsentScreen from "~/components/ui/demo/ConsentScreen.astro";
+import VisitorsScreen from "~/components/ui/demo/VisitorsScreen.astro";
+import VisitorDetailScreen from "~/components/ui/demo/VisitorDetailScreen.astro";
+import IntegrationsScreen from "~/components/ui/demo/IntegrationsScreen.astro";
+import DashboardScreen from "~/components/ui/demo/DashboardScreen.astro";
+import Badge from "~/components/ui/Badge.astro";
+import { IconCheck, IconArrowDown } from "@tabler/icons-react";
+
+const stages = [
+  {
+    n: "01",
+    slug: "install",
+    eyebrow: "Install",
+    headline: "Paste one line of code.",
+    body:
+      "Drop the Consent Resolve snippet into your site's <head>. Your existing consent banner does the asking — we wire ourselves in alongside Termageddon-backed policies and start identifying the second a homeowner says yes.",
+    bullets: [
+      "One universal script — WordPress, Wix, Squarespace, GHL, ServiceTitan",
+      "No developer required, no app to install",
+      "Termageddon Settings ID auto-configured for legal coverage",
+      "Live the same day you sign up",
+    ],
+    screen: "consent" as const,
+    path: "consent",
+  },
+  {
+    n: "02",
+    slug: "visitors",
+    eyebrow: "Identify",
+    headline: "Watch the visitor list fill in real time.",
+    body:
+      "Every consented visitor lands in your Visitors view with a device, location, view count, and time since visit. Search, filter, and sort to find exactly the homeowners who matter today.",
+    bullets: [
+      "Searchable, filterable visitor intelligence",
+      "Device + timezone shown at a glance",
+      "Visits and pageviews tracked per person",
+      "Consent recorded on every record",
+    ],
+    screen: "visitors" as const,
+    path: "visitors",
+  },
+  {
+    n: "03",
+    slug: "lead-detail",
+    eyebrow: "Reach out",
+    headline: "Open a lead. Call, text, or email — right from the screen.",
+    body:
+      "Click any visitor to see the full lead: animated lead-score, engagement counter, contact and enrichment cards, a Termageddon-signed consent record with audit ID, and a timeline of everything they did on your site. One tap to Call, Text, Email, or push to your CRM.",
+    bullets: [
+      "Real name, real mobile, real email",
+      "Lead score + engagement score, animated on load",
+      "Signed consent record with audit ID",
+      "Activity timeline of every page they viewed",
+    ],
+    screen: "visitor-detail" as const,
+    path: "visitors/k7…l",
+  },
+  {
+    n: "04",
+    slug: "route",
+    eyebrow: "Route",
+    headline: "Send leads where you already work.",
+    body:
+      "Connect Jobber, Housecall Pro, ServiceTitan, HubSpot, GoHighLevel, or pretty much anything else through a webhook. Leads route to the right rep by service area automatically — nothing falls into the gap between tools.",
+    bullets: [
+      "One-click connect to common CRMs",
+      "Auto-route by rep or service area",
+      "Webhook for anything custom",
+      "Full lead detail carried over — no double entry",
+    ],
+    screen: "integrations" as const,
+    path: "integrations",
+  },
+  {
+    n: "05",
+    slug: "measure",
+    eyebrow: "Measure",
+    headline: "See the dollars, every week.",
+    body:
+      "The dashboard ties cost per identified lead to the jobs you booked. Trend lines, time-range selector, live visitor feed — and the numbers count up on load so you actually look at them.",
+    bullets: [
+      "Cost per identified lead",
+      "Jobs booked vs leads delivered",
+      "Trend chart over your chosen range",
+      "Live visitor feed below the metrics",
+    ],
+    screen: "dashboard" as const,
+    path: "dashboard",
+  },
+];
+---
+
+<section class="section bg-[color:var(--color-bg-alt)]" id="product-tour">
+  <div class="container-content">
+    <div class="mx-auto mb-12 max-w-3xl text-center">
+      <p class="eyebrow mb-5 justify-center">Guided product tour</p>
+      <h2 class="display-2 text-[color:var(--color-ink)]">
+        See exactly what you'll be looking at.
+      </h2>
+      <p class="mt-5 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+        Five screens, in the order you'll actually use them — from install to the dashboard that proves it paid off.
+      </p>
+    </div>
+
+    <!-- Sticky chip nav -->
+    <nav aria-label="Tour stages" class="sticky top-4 z-10 mb-12 -mx-2 overflow-x-auto px-2 pb-2 pt-1">
+      <ul class="mx-auto flex w-max items-center gap-2 rounded-full bg-[color:var(--color-bg)] p-1.5 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_10px_30px_-18px_rgba(10,22,40,0.18)]">
+        {stages.map((s) => (
+          <li>
+            <a
+              href={`#tour-${s.slug}`}
+              class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)] transition-all hover:bg-[color:var(--color-bg-alt)] hover:text-[color:var(--color-brand-pressed)]"
+            >
+              <span class="font-mono text-[color:var(--color-brand-pressed)]">{s.n}</span>
+              {s.eyebrow}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <ol class="space-y-24">
+      {stages.map((stage, i) => {
+        const reverse = i % 2 === 1;
+        return (
+          <li id={`tour-${stage.slug}`} class="scroll-mt-24">
+            <div class={`grid items-center gap-10 lg:gap-16 ${reverse ? "lg:grid-cols-[1.1fr_0.9fr]" : "lg:grid-cols-[0.9fr_1.1fr]"}`}>
+              {/* Annotation panel */}
+              <div class={reverse ? "lg:order-2" : "lg:order-1"}>
+                <div class="flex items-center gap-3">
+                  <span class="font-display text-[64px] font-black leading-none tracking-tight text-[color:var(--color-brand)]/85">
+                    {stage.n}
+                  </span>
+                  <Badge tone="brand" variant="soft" size="md" uppercase>{stage.eyebrow}</Badge>
+                </div>
+                <h3 class="mt-5 font-display text-3xl font-black leading-[1.08] tracking-tight text-[color:var(--color-ink)] md:text-4xl">
+                  {stage.headline}
+                </h3>
+                <p class="mt-5 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+                  {stage.body}
+                </p>
+                <ul class="mt-6 space-y-3">
+                  {stage.bullets.map((b) => (
+                    <li class="flex items-start gap-3 text-[15px] leading-snug text-[color:var(--color-ink-2)]">
+                      <span class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)]">
+                        <IconCheck size={12} stroke={3} color="var(--color-brand-pressed)" />
+                      </span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Screen frame */}
+              <div class={reverse ? "lg:order-1" : "lg:order-2"}>
+                <div class="tour-frame">
+                  <div class="tour-frame-bar" aria-hidden="true">
+                    <span class="tour-frame-dot" style="background:#FF5F57"></span>
+                    <span class="tour-frame-dot" style="background:#FEBC2E"></span>
+                    <span class="tour-frame-dot" style="background:#28C840"></span>
+                    <span class="tour-frame-url">app.consentresolve.com/{stage.path}</span>
+                  </div>
+                  <div class="tour-frame-body">
+                    {stage.screen === "consent"        && <ConsentScreen />}
+                    {stage.screen === "visitors"       && <VisitorsScreen />}
+                    {stage.screen === "visitor-detail" && <VisitorDetailScreen />}
+                    {stage.screen === "integrations"   && <IntegrationsScreen />}
+                    {stage.screen === "dashboard"      && <DashboardScreen />}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Connector arrow between stages */}
+            {i < stages.length - 1 && (
+              <div aria-hidden="true" class="mt-16 flex justify-center">
+                <div class="flex size-10 items-center justify-center rounded-full bg-[color:var(--color-bg)] text-[color:var(--color-brand-pressed)] ring-1 ring-inset ring-[color:var(--color-rule)]">
+                  <IconArrowDown size={20} stroke={2} />
+                </div>
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .tour-frame {
+    position: relative;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    background: var(--color-bg);
+    box-shadow:
+      0 0 0 1px rgba(10, 22, 40, 0.08),
+      0 30px 60px -20px rgba(10, 22, 40, 0.28),
+      0 8px 16px -8px rgba(10, 22, 40, 0.18);
+  }
+  .tour-frame-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: #f1f5f9;
+    border-bottom: 1px solid rgba(10, 22, 40, 0.08);
+  }
+  .tour-frame-dot {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    border-radius: 9999px;
+  }
+  .tour-frame-url {
+    flex: 1;
+    margin-left: 0.75rem;
+    text-align: center;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 12px;
+    color: rgba(10, 22, 40, 0.55);
+    background: white;
+    border-radius: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tour-frame-body {
+    position: relative;
+    max-height: 640px;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  /* Scrollbar styling inside the frame */
+  .tour-frame-body::-webkit-scrollbar { width: 8px; height: 8px; }
+  .tour-frame-body::-webkit-scrollbar-thumb {
+    background: rgba(10, 22, 40, 0.18);
+    border-radius: 9999px;
+  }
+  .tour-frame-body::-webkit-scrollbar-track { background: transparent; }
+</style>
