@@ -1,0 +1,262 @@
+---
+/**
+ * /v2/ — Homepage v2 (PREVIEW, NOT LIVE).
+ *
+ * This is a from-scratch redesign of the homepage built on the existing
+ * style-guide primitives + data spines (features.ts, industries.ts,
+ * compare.ts, stats.ts) so every section stays in lockstep with the rest
+ * of the site.
+ *
+ * It is NOT linked from Nav/Footer and is `noindex` so it won't appear
+ * in search until promoted. To go live, copy this file's body into
+ * src/pages/index.astro (replacing the v1 layout) and remove the
+ * noindex banner + meta.
+ *
+ * Funnel intent — top-down:
+ *   1. Hook        — Hero (positioning + 2 CTAs + integration strip)
+ *   2. Pain        — ProblemStats (the 98% leak, sourced)
+ *   3. Reveal      — ProductShowcase (the actual dashboard)
+ *   4. Mechanism   — HowItWorks (3-step explanation)
+ *   5. Value       — FeatureBento (3 pillars + compliance moat)
+ *   6. Compare     — CompareSection (vs Angi/Thumbtack/LSA)
+ *   7. Moat        — RiskVsConsent (consent-first vs scraping)
+ *   8. Fit         — Industries strip (your trade is covered)
+ *   9. Activate    — Pricing teaser ($7 flat, exclusive, never resold)
+ *  10. Trust       — ComplianceBand
+ *  11. Long-tail   — FAQSection (FAQPage schema for AEO)
+ *  12. Cite        — AEOAnswer (LLM-citable paragraph)
+ *  13. Convert     — FinalCTA (last activation push)
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Hero from "~/components/sections/Hero.astro";
+import ProblemStats from "~/components/sections/ProblemStats.astro";
+import ProductShowcase from "~/components/sections/ProductShowcase.astro";
+import HowItWorks from "~/components/sections/HowItWorks.astro";
+import FeatureBento from "~/components/sections/FeatureBento.astro";
+import CompareSection from "~/components/sections/CompareSection.astro";
+import RiskVsConsent from "~/components/sections/RiskVsConsent.astro";
+import ComplianceBand from "~/components/sections/ComplianceBand.astro";
+import FAQSection from "~/components/sections/FAQSection.astro";
+import AEOAnswer from "~/components/sections/AEOAnswer.astro";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+
+import Badge from "~/components/ui/Badge.astro";
+import Button from "~/components/ui/Button.astro";
+import { INDUSTRIES } from "~/data/industries";
+import {
+  organizationSchema,
+  softwareApplicationSchema,
+  websiteSchema,
+  faqSchema,
+} from "~/lib/seo";
+import {
+  IconArrowRight, IconCheck, IconLock, IconUserCheck,
+  IconBuilding, IconTool, IconAirConditioning, IconDroplet, IconBolt,
+  IconHome, IconBrush, IconLayoutBoardSplit, IconBuildingWarehouse, IconHome2,
+  IconSparkles, IconBugOff, IconBath, IconLeaf, IconCar, IconKey,
+} from "@tabler/icons-react";
+
+// Map iconKey -> safe Tabler component (same map as [slug].astro so the chips render consistently)
+const iconMap: Record<string, any> = {
+  IconBuildingCommunity: IconBuilding,
+  IconTool,
+  IconTrees: IconLeaf,
+  IconAirConditioning,
+  IconDroplet,
+  IconKey,
+  IconBolt,
+  IconHome,
+  IconPaint: IconBrush,
+  IconFence: IconLayoutBoardSplit,
+  IconGarage: IconBuildingWarehouse,
+  IconFridge: IconHome2,
+  IconSparkles,
+  IconBug: IconBugOff,
+  IconSpray: IconBath,
+  IconPlant: IconLeaf,
+  IconCar,
+};
+
+// Mirror the canonical FAQ list so we can attach FAQPage schema at the page level.
+const homepageFaqs = [
+  { question: "Is this legal?",                         answer: "Yes — because a homeowner's name shows up only after they consent. We keep your privacy policy, cookie banner, and disclosures in sync through Termageddon. The shady tools that track people in secret are the illegal ones. We're not one." },
+  { question: "Do I have to change my privacy policy?", answer: "We handle it. Termageddon generates and updates the policies for you, so you stay covered without the legwork." },
+  { question: "What if a homeowner doesn't consent?",   answer: "Then you get nothing on them — and that's the point. No consent, no data. That's what keeps you safe." },
+  { question: "How fast does a lead reach me?",         answer: "Seconds. A Slack, text, or email fires the moment they consent, and it lands in your CRM at the same time." },
+  { question: "Which CRMs do you work with?",           answer: "Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, and just about anything else through a webhook." },
+  { question: "Can I cancel anytime?",                  answer: "Yes. Flat $7 a lead — card required, no contract, cancel whenever you want." },
+];
+
+const schemas = [
+  organizationSchema,
+  websiteSchema,
+  softwareApplicationSchema,
+  faqSchema(homepageFaqs),
+];
+
+// AEO citation paragraph — the canonical 55-word answer for LLMs.
+const aeoText =
+  "Consent Resolve is a consent-first ad-spend recovery layer for home-service contractors. It identifies the 98 out of 100 website visitors who would otherwise bounce — only after they accept your consent banner — and feeds them back into the retargeting audiences, email/SMS sequences, and CRM you already run. Same ad budget, more inbound calls. Flat $7 per recovered lead, exclusive, never resold.";
+---
+
+<BaseLayout
+  title="Recover the 98% of Ad-Spend That Bounces — Consent Resolve"
+  description="Consent Resolve is the consent-first ad-spend recovery layer for home-service contractors. Identify the 98% of website visitors who bounce, recover them via your consent banner, and feed them back into the retargeting, email, and CRM you already run. Same ad budget, more inbound calls. Flat $7 per recovered lead."
+  noindex={true}
+  schema={schemas}
+>
+  <!-- Preview banner — visible reminder this is not the live homepage -->
+  <div class="border-b border-amber-200 bg-amber-50">
+    <div class="container-content py-3 text-center text-xs font-bold uppercase tracking-[0.14em] text-amber-800">
+      Homepage v2 — Preview only. Not indexed, not in nav. Replace <code class="font-mono">/index.astro</code> when approved.
+    </div>
+  </div>
+
+  <!-- 1. HOOK — Hero. Reuses the v1 component with a sharpened title pair so we don't fork yet another hero. -->
+  <Hero
+    eyebrow="Built for home-service contractors"
+    title="98 out of 100 visitors leave without a word."
+    titleAccent="Recover the bounce. Same ad budget, more inbound calls."
+    subhead="Consent Resolve is the consent-first ad-spend recovery layer that sits on top of every channel you already run — Google, LSA, Meta, SEO. Recovered visitors flow back into your retargeting audiences, email sequences, and CRM. Flat $7 per recovered lead, exclusive, never resold."
+  />
+
+  <!-- 2. PAIN — The leak, with sourced stats -->
+  <ProblemStats />
+
+  <!-- 3. REVEAL — Sexy product screenshot. The "I get it now" moment. -->
+  <ProductShowcase />
+
+  <!-- 4. MECHANISM — How it actually works, 3 steps -->
+  <HowItWorks />
+
+  <!-- 5. VALUE — The 3 pillars + the compliance moat -->
+  <FeatureBento />
+
+  <!-- 6. COMPARE — Cost-per-booked-job vs Angi / Thumbtack / LSA -->
+  <CompareSection />
+
+  <!-- 7. MOAT — Why consent-first is the durable advantage -->
+  <RiskVsConsent />
+
+  <!-- 8. FIT — Industry strip. Quick visual scan + SEO juice via internal links. -->
+  <section class="section">
+    <div class="container-content">
+      <div class="mx-auto mb-10 max-w-2xl text-center">
+        <Badge tone="brand" variant="soft" size="md" uppercase>Built for your trade</Badge>
+        <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">
+          Plumber, roofer, HVAC, GC — same playbook.
+        </h2>
+        <p class="mt-4 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+          Every home-service trade runs ad spend through the same leaky funnel. Consent Resolve sits on top and recovers the bounce — with playbooks tuned to your trade's average job value and close rate.
+        </p>
+      </div>
+
+      <ul class="mx-auto grid max-w-5xl gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {INDUSTRIES.map((trade) => {
+          const Icon = iconMap[trade.iconKey] ?? IconTool;
+          return (
+            <li>
+              <a
+                href={`/${trade.slug}-leads/`}
+                class="group flex items-center gap-3 rounded-2xl bg-[color:var(--color-bg-alt)] px-4 py-3.5 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-0.5 hover:ring-[color:var(--color-mint-400)]/60 hover:shadow-[0_18px_36px_-22px_rgba(0,229,160,0.4)]"
+              >
+                <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-bg)] ring-1 ring-inset ring-[color:var(--color-rule)] group-hover:ring-[color:var(--color-mint-400)]/40">
+                  <Icon size={18} stroke={1.75} color="#0A1628" />
+                </span>
+                <span class="flex-1 font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">{trade.name}</span>
+                <IconArrowRight size={14} stroke={2.25} class="text-[color:var(--color-ink-muted)] transition-transform group-hover:translate-x-0.5 group-hover:text-[color:var(--color-brand-pressed)]" />
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div class="mt-10 text-center">
+        <a
+          href="/industries/"
+          class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] hover:text-[color:var(--color-ink)]"
+        >
+          See every trade we cover
+          <IconArrowRight size={14} stroke={2.5} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. ACTIVATE — Pricing teaser. One number, one promise, one CTA. Pre-conversion peak. -->
+  <section class="section section-dark relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
+    <div aria-hidden="true" class="pointer-events-none absolute -right-32 -bottom-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/10 blur-[120px]"></div>
+
+    <div class="container-content relative">
+      <div class="mx-auto max-w-4xl">
+        <div class="rounded-3xl bg-white/[0.04] p-10 ring-1 ring-inset ring-white/10 backdrop-blur-sm md:p-12">
+          <div class="grid items-center gap-10 md:grid-cols-[1.1fr_1fr]">
+            <div>
+              <Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>One price. Real math.</Badge>
+              <h2 class="display-2 mt-5 text-white">
+                Flat $7 per recovered lead.<br />
+                <span class="text-[color:var(--color-mint-400)]">No bidding. Never resold.</span>
+              </h2>
+              <p class="mt-5 text-[15px] leading-relaxed text-slate-300">
+                One consent, one contractor. The recovered record is yours alone, fed into the funnels you already run. Card on file, no contract, cancel anytime.
+              </p>
+
+              <ul class="mt-7 space-y-3 text-sm text-slate-200">
+                <li class="flex items-start gap-2.5"><IconCheck size={18} stroke={2.5} color="#00E5A0" class="mt-0.5 shrink-0" /> Exclusive to you — never shared, never auctioned.</li>
+                <li class="flex items-start gap-2.5"><IconCheck size={18} stroke={2.5} color="#00E5A0" class="mt-0.5 shrink-0" /> Pushes into Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, GHL.</li>
+                <li class="flex items-start gap-2.5"><IconCheck size={18} stroke={2.5} color="#00E5A0" class="mt-0.5 shrink-0" /> Consent-first by design — privacy policy & cookie banner handled.</li>
+                <li class="flex items-start gap-2.5"><IconCheck size={18} stroke={2.5} color="#00E5A0" class="mt-0.5 shrink-0" /> Cancel anytime. No minimums, no contract.</li>
+              </ul>
+            </div>
+
+            <div class="relative">
+              <!-- Compact price card -->
+              <div class="rounded-2xl bg-[color:var(--color-navy-900)] p-8 ring-1 ring-inset ring-white/10 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)]">
+                <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">Pay-per-recovered</p>
+                <div class="mt-3 flex items-baseline gap-2">
+                  <span class="font-display text-7xl font-black tracking-tight text-white">$7</span>
+                  <span class="text-sm font-semibold uppercase tracking-[0.14em] text-slate-400">/ lead</span>
+                </div>
+                <p class="mt-3 text-sm leading-relaxed text-slate-300">
+                  Only billed when a consented visitor turns into a real, identified record in your funnel.
+                </p>
+
+                <div class="mt-7 grid gap-3">
+                  <Button href="https://dashboard.consentresolve.com/register" variant="primary" size="lg">
+                    Activate your account
+                    <IconArrowRight size={18} stroke={2.25} />
+                  </Button>
+                  <a
+                    href="/pricing/"
+                    class="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)] hover:text-white"
+                  >
+                    See full pricing & math
+                    <IconArrowRight size={12} stroke={2.5} />
+                  </a>
+                </div>
+
+                <div class="mt-7 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/10 pt-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                  <span class="inline-flex items-center gap-1.5"><IconLock size={12} stroke={2} color="#00E5A0" /> Exclusive</span>
+                  <span class="inline-flex items-center gap-1.5"><IconUserCheck size={12} stroke={2} color="#00E5A0" /> Consent-first</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. TRUST — Compliance band -->
+  <ComplianceBand />
+
+  <!-- 11. LONG-TAIL — Canonical homepage FAQ, FAQPage-schema'd at the page level -->
+  <FAQSection />
+
+  <!-- 12. CITE — LLM-citable 55-word paragraph for AEO -->
+  <AEOAnswer text={aeoText} />
+
+  <!-- 13. CONVERT — Final activation push -->
+  <FinalCTA />
+</BaseLayout>

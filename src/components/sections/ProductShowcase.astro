@@ -1,0 +1,71 @@
+---
+import DashboardScreen from "~/components/ui/demo/DashboardScreen.astro";
+import { IconArrowRight, IconEye, IconShieldCheck, IconBolt } from "@tabler/icons-react";
+---
+
+<section class="section section-dark relative overflow-hidden">
+  <!-- Ambient brand glows matching Hero / ProblemStats so this slots into the homepage flow -->
+  <div aria-hidden="true" class="pointer-events-none absolute -left-40 -top-40 size-[520px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[140px]"></div>
+  <div aria-hidden="true" class="pointer-events-none absolute -right-40 -bottom-40 size-[520px] rounded-full bg-[color:var(--color-mint-400)]/10 blur-[140px]"></div>
+
+  <div class="container-content relative">
+    <!-- Header -->
+    <div class="mx-auto mb-12 max-w-2xl text-center">
+      <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">A look at the dashboard</p>
+      <h2 class="display-2 text-white">
+        See the 98% you'd otherwise lose.
+      </h2>
+      <p class="mt-4 text-lg leading-relaxed text-slate-300">
+        Real homeowners, the pages they were shopping, and the funnel surfaces re-engaging them — all in one place. No spreadsheets, no SQL, no waiting on a marketing agency.
+      </p>
+    </div>
+
+    <!-- Screenshot frame — tilted, glowing, decorative chrome -->
+    <div class="mx-auto max-w-6xl">
+      <div class="relative">
+        <!-- Soft brand glow under the chrome -->
+        <div
+          aria-hidden="true"
+          class="pointer-events-none absolute inset-x-12 -bottom-8 h-24 rounded-full bg-[color:var(--color-mint-400)]/20 blur-3xl"
+        ></div>
+
+        <!-- Subtle holder so the chrome reads as embedded, not floating -->
+        <div class="relative rounded-[1.75rem] bg-white/[0.04] p-2 ring-1 ring-inset ring-white/10 backdrop-blur-sm sm:p-3">
+          <div class="overflow-hidden rounded-[1.5rem] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)]">
+            <DashboardScreen />
+          </div>
+        </div>
+
+        <!-- Floating call-out chips, anchored on the chrome corners on md+ -->
+        <div class="pointer-events-none absolute -left-3 top-10 hidden md:block">
+          <div class="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-[color:var(--color-mint-400)] px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-12px_rgba(0,229,160,0.5)]">
+            <IconBolt size={14} stroke={2.5} /> Live resolutions
+          </div>
+        </div>
+        <div class="pointer-events-none absolute -right-3 top-10 hidden md:block">
+          <div class="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/20 backdrop-blur-sm">
+            <IconShieldCheck size={14} stroke={2} color="#00E5A0" /> Consent-logged
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA strip -->
+    <div class="mx-auto mt-12 flex max-w-2xl flex-col items-center gap-3 sm:flex-row sm:justify-center">
+      <a
+        href="https://dashboard.consentresolve.com/register"
+        class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white sm:w-auto"
+      >
+        Get Started
+        <IconArrowRight size={16} stroke={2.5} />
+      </a>
+      <a
+        href="/how-it-works/"
+        class="inline-flex w-full items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/20 transition-all hover:bg-white/5 sm:w-auto"
+      >
+        <IconEye size={16} stroke={2} />
+        See how it works
+      </a>
+    </div>
+  </div>
+</section>

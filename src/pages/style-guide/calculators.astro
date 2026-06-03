@@ -1,31 +1,22 @@
 ---
 import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
-import LeadROICalculator from "~/components/ui/LeadROICalculator.tsx";
-import LeadCostCalculator from "~/components/ui/LeadCostCalculator.tsx";
+import RecoveryCalculator from "~/components/ui/RecoveryCalculator.tsx";
 ---
 
-<StyleGuideLayout slug="calculators" title="Calculators" description="Interactive ROI calculators built on a single reusable Calculator base component. Slot in any inputs/outputs combination.">
+<StyleGuideLayout slug="calculators" title="Calculators" description="The Recovery Calculator: two sliders, one hero number, a break-even credibility line, and the math constants disclosed in fine print. Per the repositioning brief, this is the only calculator on the site.">
   <section class="sg-section">
-    <h2>Lead ROI calculator</h2>
-    <p class="sg-lede">Slide the inputs — outputs recompute live. No backend, no API calls.</p>
+    <h2>Recovery calculator (light)</h2>
+    <p class="sg-lede">Two inputs (monthly visitors + avg job value), one hero output (recoverable monthly job revenue). Slide and watch it recompute live — no backend, no API calls.</p>
     <div class="sg-preview" style="background:transparent;box-shadow:none;padding:0">
-      <LeadROICalculator client:visible />
-    </div>
-  </section>
-
-  <section class="sg-section">
-    <h2>Lead cost calculator</h2>
-    <p class="sg-lede">Compares shared-lead economics vs. Consent Resolve's flat-fee model.</p>
-    <div class="sg-preview" style="background:transparent;box-shadow:none;padding:0">
-      <LeadCostCalculator client:visible />
+      <RecoveryCalculator client:visible />
     </div>
   </section>
 
   <section class="sg-section">
     <h2>Dark variant</h2>
-    <p class="sg-lede">For embedding in dark hero sections.</p>
+    <p class="sg-lede">For embedding in dark hero sections (e.g. the homepage CalculatorSection).</p>
     <div class="sg-preview" style="background:transparent;box-shadow:none;padding:0">
-      <LeadROICalculator client:visible variant="dark" />
+      <RecoveryCalculator client:visible variant="dark" />
     </div>
   </section>
 </StyleGuideLayout>

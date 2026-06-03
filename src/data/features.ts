@@ -5,10 +5,6 @@
  * Content comes from /Users/aaronphillips/Downloads/consent-resolve-feature-pages.md
  * (the "Copy Deck"). Voice + facts governed by /style-guide/voice/
  * (see src/pages/style-guide/voice.astro).
- *
- * Quote handling: every `quote.isSample === true` is a placeholder.
- * The feature template currently does NOT render the quote section —
- * reintroduce ONLY with real, verifiable testimonials per FTC rules.
  */
 
 export type FeatureIconKey =
@@ -33,14 +29,6 @@ export type FeatureIconKey =
 export interface FeatureStep { title: string; body: string }
 export interface FeatureBenefit { title: string; body: string }
 export interface FeatureFaq { q: string; a: string }
-export interface FeatureQuote {
-  text: string;
-  name: string;
-  shop: string;
-  city: string;
-  /** True until we replace the placeholder with a real testimonial. */
-  isSample: boolean;
-}
 
 export interface Feature {
   slug: string;
@@ -60,7 +48,6 @@ export interface Feature {
   problem: { headline: string; body: string };
   howItWorks: { headline: string; steps: FeatureStep[] };   // length 3
   benefits:   { headline: string; items: FeatureBenefit[] };// length 3
-  quote: FeatureQuote;
   included:   { headline: string; items: string[] };        // length 6
   faq:        { headline: string; items: FeatureFaq[] };    // length 4
   /** 3 sibling feature slugs to surface in the "Pairs Well With" rail. */
@@ -108,10 +95,6 @@ const exclusiveLeads: Feature = {
       { title: "A warmer first call.", body: "The homeowner isn't already buried in calls from your competitors." },
       { title: "Higher close rate.",   body: "When you're the only one calling, \"yes\" comes a lot easier." },
     ],
-  },
-  quote: {
-    text: "On Angi I was racing five other guys to the same phone number. With Consent Resolve, the lead's mine and nobody else is calling. I close way more of them.",
-    name: "Dale R.", shop: "Dale's Roofing", city: "Tyler, TX", isSample: true,
   },
   included: {
     headline: "What \"exclusive\" actually means.",
@@ -166,10 +149,6 @@ const consentFirstIdentification: Feature = {
       { title: "Legal cover.",        body: "Consent is captured and logged from the first click." },
     ],
   },
-  quote: {
-    text: "I quit buying lists years ago — too many angry people asking how I got their number. These folks actually asked to hear from someone. Night and day.",
-    name: "Marcus T.", shop: "Lone Star Exteriors", city: "Huntsville, TX", isSample: true,
-  },
   included: {
     headline: "What consent-first includes.",
     items: [
@@ -223,10 +202,6 @@ const channelRecovery: Feature = {
       { title: "Found money.",              body: "Customers you'd written off become callable leads." },
     ],
   },
-  quote: {
-    text: "I'm not dropping LSA — it works. But for every call I got, a dozen people looked and vanished. Consent Resolve hands those back. It's like getting a refund on the clicks I lost.",
-    name: "Tony G.", shop: "Apex Roofing & Repair", city: "Orlando, FL", isSample: true,
-  },
   included: {
     headline: "What channel recovery covers.",
     items: [
@@ -251,7 +226,7 @@ const channelRecovery: Feature = {
 };
 
 // -----------------------------------------------------------------------
-// THEME B — "See who's there, reach them fast"
+// THEME B — "See who's there, feed the funnel"
 // -----------------------------------------------------------------------
 
 const easySetupWithOneScript: Feature = {
@@ -284,10 +259,6 @@ const easySetupWithOneScript: Feature = {
       { title: "Same-day leads.",        body: "Most pros see their first identified visitor within hours." },
     ],
   },
-  quote: {
-    text: "I'm a roofer, not a computer guy. Pasted the code between two jobs and had leads showing up by that afternoon. That was the whole setup.",
-    name: "Ray D.", shop: "Ray's Quality Roofing", city: "Conroe, TX", isSample: true,
-  },
   included: {
     headline: "What setup includes.",
     items: [
@@ -308,7 +279,7 @@ const easySetupWithOneScript: Feature = {
       { q: "What if I get stuck?",              a: "We'll install it with you on a quick call. No charge." },
     ],
   },
-  pairsWith: ["visitor-identification", "real-time-mobile-alerts", "crm-delivery"],
+  pairsWith: ["visitor-identification", "lead-scoring", "crm-delivery"],
 };
 
 const visitorIdentification: Feature = {
@@ -338,12 +309,8 @@ const visitorIdentification: Feature = {
     items: [
       { title: "Names you can act on.",          body: "Real people instead of a faceless count." },
       { title: "A pipeline that fills itself.",  body: "Every interested visitor becomes a prospect." },
-      { title: "Insight before you dial.",       body: "You see what they came for before you say hello." },
+      { title: "Insight before the call.",       body: "You see what they came for before the inbound rings." },
     ],
-  },
-  quote: {
-    text: "My website got plenty of traffic and I had no idea what to do with it. Now I open my phone and there's a name, a number, and what they were looking at. Game changer.",
-    name: "Will H.", shop: "Hill Country HVAC", city: "Huntsville, TX", isSample: true,
   },
   included: {
     headline: "What identification includes.",
@@ -387,7 +354,7 @@ const formlessContactCapture: Feature = {
     steps: [
       { title: "They browse.",            body: "A consented visitor checks out your services — no form needed." },
       { title: "We capture the contact.", body: "Name, phone, and email come through without a single field filled." },
-      { title: "You reach out.",          body: "You've got what you need to call, with no \"contact us\" page required." },
+      { title: "Funnel takes over.",      body: "The record flows into retargeting, email, and CRM — no \"contact us\" page required." },
     ],
   },
   benefits: {
@@ -397,10 +364,6 @@ const formlessContactCapture: Feature = {
       { title: "No friction for them.",  body: "Nothing to fill out means nothing to abandon." },
       { title: "Complete contact info.", body: "Not just an email — a name and a number too." },
     ],
-  },
-  quote: {
-    text: "I always wondered why a busy site barely produced form fills. Turns out people just don't fill them out. Now I get their info anyway. Doubled my callable leads easy.",
-    name: "Brian K.", shop: "Coastal Contracting", city: "Tampa, FL", isSample: true,
   },
   included: {
     headline: "What formless capture includes.",
@@ -432,32 +395,28 @@ const verifiedContactData: Feature = {
   tagline: "Reachable records only.",
   howItHelps: "Every recovered visitor that enters your funnel is a real, reachable person — verified contact data, recent activity. Your retargeting and email sequences hit deliverable inboxes, not dead ones.",
   illustration: "/illustrations/features/07-verified-data.svg",
-  subhead: "We only hand you people who are reachable and recently active — so your crew isn't burning the morning dialing dead numbers.",
+  subhead: "We only hand your funnel people who are reachable and recently active — so your retargeting and email sequences hit deliverable inboxes, not dead ones.",
   aeoAnswer:
-    "Verified Contact Data means Consent Resolve only passes you contacts confirmed reachable and recently active. Instead of a list padded with dead numbers and stale emails, you get leads you can actually connect with — so your team spends time talking to real prospects, not listening to disconnected tones.",
+    "Verified Contact Data means Consent Resolve only passes your funnel contacts confirmed reachable and recently active. Instead of audiences padded with dead numbers and stale emails, you get records your retargeting, email, and SMS sequences can actually deliver to — so the ad spend behind those audiences works on real homeowners, not bounced records.",
   problem: {
-    headline: "Half the numbers on a cheap list are dead.",
-    body: "Nothing kills a morning faster than a stack of leads where every third number is disconnected and the emails bounce. You paid for those names. Your guy still spent two hours getting nowhere. A lead you can't reach isn't a lead — it's a waste of a phone.",
+    headline: "Half the records on a cheap list are dead.",
+    body: "Nothing kills your sequence faster than audiences where every third email bounces and the SMS opt-outs pile up. You paid to load those names. Your funnel still spent the budget delivering to nobody. A record you can't reach isn't a lead — it's wasted ad spend.",
   },
   howItWorks: {
-    headline: "Checked before it ever reaches you.",
+    headline: "Checked before it ever reaches your funnel.",
     steps: [
       { title: "We identify a visitor.", body: "A consented person is matched to contact info." },
       { title: "We verify it's live.",   body: "The contact is checked for reachability and recent activity." },
-      { title: "You get a real one.",    body: "Only verified, reachable contacts land in your pipeline." },
+      { title: "You get a real one.",    body: "Only verified, reachable contacts flow into your audiences and CRM." },
     ],
   },
   benefits: {
-    headline: "Every lead is one you can actually reach.",
+    headline: "Every record is one your funnel can actually reach.",
     items: [
-      { title: "No wasted dials.",      body: "Your crew talks to people, not voicemail tones." },
-      { title: "Higher connect rate.",  body: "More conversations per hour on the phone." },
-      { title: "Trust in your list.",   body: "When you call, someone picks up." },
+      { title: "No wasted sends.",       body: "Email and SMS hit real inboxes, not bouncebacks." },
+      { title: "Higher deliverability.", body: "Sequences stay healthy and ad audiences stay clean." },
+      { title: "Trust in your list.",    body: "When the sequence runs, real people see it." },
     ],
-  },
-  quote: {
-    text: "Old lists, I'd hit a dead number every couple calls and lose my rhythm. These actually connect. My guy books more because he's talking to people, not redialing.",
-    name: "Sam P.", shop: "Five Star Plumbing", city: "Livingston, TX", isSample: true,
   },
   included: {
     headline: "What verification includes.",
@@ -467,16 +426,16 @@ const verifiedContactData: Feature = {
       "Stale and dead records removed",
       "Phone and email both checked",
       "Fresh data, not a recycled list",
-      "Quality held to a connect standard",
+      "Quality held to a deliverability standard",
     ],
   },
   faq: {
     headline: "What pros ask about verified data.",
     items: [
       { q: "What does \"recently active\" mean?",   a: "The contact shows recent online activity, so they're a live, reachable person — not a years-old record." },
-      { q: "Will every number connect?",             a: "No tool is perfect, but verified contacts connect far more often than a raw purchased list." },
-      { q: "Do you check emails too?",               a: "Yes — both phone and email are screened before you get them." },
-      { q: "Why does this matter?",                  a: "Because your time on the phone is money. Dead numbers waste it." },
+      { q: "Will every record deliver?",             a: "No tool is perfect, but verified contacts hit inboxes far more often than a raw purchased list." },
+      { q: "Do you check emails too?",               a: "Yes — both phone and email are screened before they ever enter your funnel." },
+      { q: "Why does this matter?",                  a: "Because every send is ad spend. Dead records waste it." },
     ],
   },
   pairsWith: ["formless-contact-capture", "qualified-leads-only", "multi-channel-follow-up"],
@@ -486,114 +445,53 @@ const instantConnect: Feature = {
   slug: "instant-connect",
   name: "Instant Connect",
   iconKey: "IconBolt",
-  tagline: "Know the moment they re-engage.",
-  howItHelps: "Funnel timing is everything. The instant a recovered visitor re-engages with your retargeting, your email, or returns to your site, you know — so your follow-up fires at the right beat and the inbound call comes in warm.",
+  tagline: "Funnel fires the moment they re-engage.",
+  howItHelps: "The instant a recovered visitor re-engages — opens your email, clicks a retargeting ad, or returns to your site — your funnel knows. Your follow-up sequence fires at the right beat so the inbound call lands while the homeowner is still actively shopping.",
   illustration: "/illustrations/features/08-instant-connect.svg",
-  subhead: "The number's in your hand, ready to dial while they're still deciding who to hire. Strike while the interest is hot.",
+  subhead: "Recovered visitors don't sit in a queue. The moment they re-engage with your retargeting or email, your funnel fires — and the inbound call comes in warm.",
   aeoAnswer:
-    "Instant Connect puts an identified visitor's phone number in your hands the moment they're captured, so you can call while they're still actively shopping. In home services, the first pro to reach a customer usually wins the job — Instant Connect makes sure that's you, not the contractor down the street.",
+    "Instant Connect signals your retargeting and email funnel the moment a recovered visitor re-engages, so the next message in their sequence fires while interest is still hot. The result is an inbound call from a homeowner who's already been re-warmed by your funnel — not a cold outreach from you.",
   problem: {
     headline: "Funnel timing decides whether they come back.",
-    body: "A homeowner with a leaking roof isn't waiting around. They're calling whoever gets to them first. If your lead sits in an inbox for three hours, the job's already gone. Speed isn't a nice-to-have in this business — it's the whole game.",
+    body: "A homeowner with a leaking roof isn't waiting around. They're contacting whoever shows up in front of them first. If your retargeting and email sequence don't fire at the moment of re-engagement, the job's already gone to whoever did. Speed-to-funnel isn't a nice-to-have — it's the whole game.",
   },
   howItWorks: {
-    headline: "From recovered to in-funnel in seconds.",
+    headline: "From recovered to re-engaged in real time.",
     steps: [
-      { title: "Visitor is identified.",   body: "A consented person shows interest on your site." },
-      { title: "Number hits your phone.",  body: "Their contact info lands with you right away." },
-      { title: "You call now.",            body: "Tap and dial while they're still on the fence." },
+      { title: "Visitor is recovered.",       body: "A consented person is identified on your site and added to your audiences." },
+      { title: "Funnel fires automatically.", body: "Email, SMS, and retargeting ads queue up the moment they re-engage." },
+      { title: "They call you.",              body: "By the time the inbound call hits your line, they're already warm." },
     ],
   },
   benefits: {
-    headline: "Beat every competitor to the phone.",
+    headline: "Inbound calls that close themselves.",
     items: [
-      { title: "First-mover advantage.",  body: "You call before they've talked to anyone else." },
-      { title: "Hotter conversations.",   body: "They're still actively looking when you reach them." },
-      { title: "More booked jobs.",       body: "Speed-to-lead is the number-one predictor of who wins." },
+      { title: "Warm, not cold.",            body: "The homeowner has been touched by your funnel before they ever dial." },
+      { title: "Right-time follow-up.",      body: "Sequences fire on re-engagement, not on a generic drip schedule." },
+      { title: "More booked jobs.",          body: "Speed-to-funnel is the number-one predictor of who wins the call." },
     ],
   },
-  quote: {
-    text: "Used to be I'd see a lead at lunch and call after work — gone. Now it buzzes my phone and I call from the truck. I'm the first voice they hear. Closes itself.",
-    name: "Derek M.", shop: "Reliable Roofing Co.", city: "Cleveland, TX", isSample: true,
-  },
   included: {
-    headline: "What instant connect includes.",
+    headline: "What Instant Connect includes.",
     items: [
-      "Phone number delivered on identification",
-      "Tap-to-call from your phone",
-      "No waiting on a daily export",
-      "Works hand-in-hand with mobile alerts",
-      "Time-stamped so you know how fresh it is",
-      "Ready the moment interest is highest",
+      "Real-time re-engagement signals to your funnel",
+      "Triggers email, SMS, and retargeting automations",
+      "Works with the sequences you already run",
+      "Time-stamped so you know how fresh interest is",
+      "No daily export, no manual list pulls",
+      "Fires the moment intent peaks, not after",
     ],
   },
   faq: {
-    headline: "What pros ask about instant connect.",
+    headline: "What pros ask about Instant Connect.",
     items: [
-      { q: "How fast do I get the number?",         a: "Within minutes of the visitor being identified — while they're still shopping." },
-      { q: "Can I call straight from my phone?",    a: "Yes. Tap the lead and dial." },
-      { q: "What if I can't answer right then?",    a: "The lead's saved in your pipeline, but the sooner you call, the better you do." },
-      { q: "Why does speed matter so much?",        a: "The first pro to call wins most home service jobs. Instant Connect makes that you." },
+      { q: "What actually fires \"instantly\"?",        a: "The signal to your funnel. Your email, SMS, and ad sequences pick it up and queue the right message at the right beat." },
+      { q: "Does this replace my existing automation?", a: "No — it feeds it. Keep the sequences you already run; Instant Connect just makes them fire on real intent." },
+      { q: "Why does speed-to-funnel matter so much?",  a: "The first brand back in front of a re-engaged homeowner usually gets the inbound call. Instant Connect makes that you." },
+      { q: "Can I see when a visitor re-engages?",      a: "Yes — the timeline shows every touch, so you can tune your sequence and your ad spend." },
     ],
   },
-  pairsWith: ["real-time-mobile-alerts", "visitor-identification", "multi-channel-follow-up"],
-};
-
-const realTimeMobileAlerts: Feature = {
-  slug: "real-time-mobile-alerts",
-  name: "Real-Time Mobile Alerts",
-  iconKey: "IconBellRinging",
-  tagline: "Real-time funnel pings.",
-  howItHelps: "When a recovered visitor enters your funnel or re-engages later, your phone gets a push. No dashboard to babysit, no missed re-engagement moments — your follow-up sequence stays in step with what the homeowner is actually doing.",
-  illustration: "/illustrations/style/04-phone-alert.svg",
-  subhead: "New leads hit your phone within minutes — on the roof or in the truck — so you reach out before your competitor even knows that customer existed.",
-  aeoAnswer:
-    "Real-Time Mobile Alerts notify you on your phone the instant a new lead is identified, wherever you are. Instead of checking a dashboard, you get a push the moment a consented visitor is captured — so a contractor in the field can act on a fresh lead within minutes instead of finding it cold the next day.",
-  problem: {
-    headline: "A lead you find tomorrow is a lead you already lost.",
-    body: "You're not sitting at a desk watching a screen — you're on a roof, under a sink, driving between jobs. If your leads pile up in some dashboard you check at night, they're stone cold by the time you see them. The customer already hired someone who answered today.",
-  },
-  howItWorks: {
-    headline: "The lead finds you, wherever you are.",
-    steps: [
-      { title: "A lead comes in.",     body: "A consented visitor is identified on your site." },
-      { title: "Your phone buzzes.",   body: "A push alert hits you in real time — no checking required." },
-      { title: "You act on the spot.", body: "Call or text from the field before the trail goes cold." },
-    ],
-  },
-  benefits: {
-    headline: "Never miss a hot lead again.",
-    items: [
-      { title: "Act from anywhere.",         body: "The roof, the truck, the supply house — doesn't matter." },
-      { title: "No dashboard babysitting.",  body: "The lead comes to you, not the other way around." },
-      { title: "Faster than the competition.", body: "You're calling while they're still asleep at the wheel." },
-    ],
-  },
-  quote: {
-    text: "My phone buzzes, I look down, there's a fresh lead. I call from the ladder if I have to. By the time the next guy checks his email, I've already booked the estimate.",
-    name: "Joe V.", shop: "Vasquez Exteriors", city: "Splendora, TX", isSample: true,
-  },
-  included: {
-    headline: "What alerts include.",
-    items: [
-      "Instant push to your phone",
-      "Lead name and number in the alert",
-      "What they looked at, at a glance",
-      "Works on iPhone and Android",
-      "Alerts for the whole team if you want",
-      "No dashboard check required",
-    ],
-  },
-  faq: {
-    headline: "What pros ask about mobile alerts.",
-    items: [
-      { q: "How do I get the alerts?",       a: "Straight to your phone as a push notification the moment a lead lands." },
-      { q: "Can my team get them too?",      a: "Yes. Route alerts to whoever should make the call." },
-      { q: "Will it blow up my phone?",      a: "You control it — filter by area and intent so you only get the ones worth your time." },
-      { q: "iPhone or Android?",             a: "Both." },
-    ],
-  },
-  pairsWith: ["instant-connect", "easy-setup-with-one-script", "lead-scoring"],
+  pairsWith: ["qualified-leads-only", "visitor-identification", "multi-channel-follow-up"],
 };
 
 // -----------------------------------------------------------------------
@@ -607,32 +505,28 @@ const leadScoring: Feature = {
   tagline: "Score recovered visitors.",
   howItHelps: "Not every recovered visitor is the same — three pricing-page visits beats a one-second bounce every time. Lead scoring ranks your recovered records so your hottest segments get into the warmest retargeting and the most urgent email sequences.",
   illustration: "/illustrations/features/10-lead-scoring.svg",
-  subhead: "Not every visitor is worth a call. We surface the serious ones first — three pricing-page visits beats a one-second bounce every time.",
+  subhead: "Not every visitor is worth the same ad spend. We rank them so your funnel hits the serious ones hardest — three pricing-page visits beats a one-second bounce every time.",
   aeoAnswer:
-    "Lead Scoring ranks your identified visitors by how likely they are to buy, based on what they did on your site. Consent Resolve flags the people who viewed pricing, returned more than once, or spent real time on a service page — so you call your hottest prospects first instead of working a list in random order.",
+    "Lead Scoring ranks your identified visitors by how likely they are to buy, based on what they did on your site. Consent Resolve flags the people who viewed pricing, returned more than once, or spent real time on a service page — so your retargeting audiences and email sequences put the heaviest push on the hottest prospects instead of treating every record the same.",
   problem: {
     headline: "Your funnel is treating every recovered visitor the same.",
-    body: "When every lead looks the same on a list, you waste your best hours on tire-kickers and get to the serious buyer after they've hired someone else. A one-second bounce and a guy who read your whole pricing page three times are not the same lead — but a plain list treats them like they are.",
+    body: "When every record gets the same retargeting bid and the same drip email, you waste budget on tire-kickers and under-spend on the serious buyer. A one-second bounce and a homeowner who read your whole pricing page three times are not the same lead — but a flat audience treats them like they are.",
   },
   howItWorks: {
-    headline: "We rank them so you don't have to.",
+    headline: "We rank them so your funnel doesn't have to.",
     steps: [
-      { title: "We watch behavior.",  body: "Pages viewed, time spent, repeat visits." },
-      { title: "We score each lead.", body: "Stronger buying signals push a lead up the list." },
-      { title: "You work top-down.",  body: "Call the hottest prospects first, every time." },
+      { title: "We watch behavior.",          body: "Pages viewed, time spent, repeat visits." },
+      { title: "We score each record.",       body: "Stronger buying signals push a lead up the list." },
+      { title: "Your funnel works top-down.", body: "Hottest scores get the heaviest retargeting and the warmest email push." },
     ],
   },
   benefits: {
-    headline: "Spend your best hours on your best leads.",
+    headline: "Spend your best ad budget on your best leads.",
     items: [
-      { title: "Call the right ones first.", body: "Hot buyers get reached while they're hot." },
-      { title: "Less wasted time.",          body: "Tire-kickers don't eat your morning." },
-      { title: "More jobs per hour.",        body: "Your phone time goes where the money is." },
+      { title: "Right ones get more spend.", body: "Hot buyers see your ads more often, while they're still hot." },
+      { title: "Less wasted budget.",        body: "Tire-kickers don't burn your retargeting cap." },
+      { title: "More inbound per dollar.",   body: "Funnel pressure goes where the money is." },
     ],
-  },
-  quote: {
-    text: "I've only got so many hours to make calls. Now the serious ones are right at the top. I'm not wasting time on somebody who bounced in two seconds.",
-    name: "Chris L.", shop: "Lakeside Remodeling", city: "Onalaska, TX", isSample: true,
   },
   included: {
     headline: "What scoring looks at.",
@@ -654,7 +548,7 @@ const leadScoring: Feature = {
       { q: "Do I have to do anything?",             a: "No. The ranking is automatic." },
     ],
   },
-  pairsWith: ["behavior-and-job-type-insights", "qualified-leads-only", "real-time-mobile-alerts"],
+  pairsWith: ["behavior-and-job-type-insights", "qualified-leads-only", "roi-reporting"],
 };
 
 const behaviorAndJobTypeInsights: Feature = {
@@ -664,32 +558,28 @@ const behaviorAndJobTypeInsights: Feature = {
   tagline: "Tag visitors by intent.",
   howItHelps: "Each recovered record carries what they were shopping — re-roof vs patch, water-heater quote vs full re-pipe. Your retargeting and email sequences segment by intent so the message that brings them back is the message they came for.",
   illustration: "/illustrations/style/03-speech-wrench.svg",
-  subhead: "See which service each visitor looked at and how long they spent. Your first call already knows whether they want a quick repair or a full replacement.",
+  subhead: "See which service each visitor looked at and how long they spent. Your retargeting ads, email sequences, and the inbound call already know whether they want a quick repair or a full replacement.",
   aeoAnswer:
-    "Behavior and Job-Type Insights show you exactly what each identified visitor did on your site — which service pages they viewed, how long they stayed, and what they came for. Consent Resolve turns that into a clear picture of the job, so your first call is informed and specific instead of a blind \"how can I help you?\"",
+    "Behavior and Job-Type Insights show you exactly what each identified visitor did on your site — which service pages they viewed, how long they stayed, and what they came for. Consent Resolve turns that into a clear picture of the job, so your retargeting message, email sequence, and the eventual inbound call all speak to the work they're actually shopping.",
   problem: {
     headline: "Your retargeting is firing blind.",
-    body: "You dial a lead with no idea what they want. You fumble through \"so what are you looking for?\" while they wonder if you're the right pro. Meanwhile the contractor who opened with \"I see you're looking at a roof replacement\" already sounds like the expert. Information wins jobs.",
+    body: "Generic \"need a roofer?\" ads chase everyone the same way. Meanwhile the shop that retargets with \"we do full re-roofs in your zip code\" speaks directly to the homeowner who was on the replacement page. Information wins funnels — without it, every audience looks identical and converts like spam.",
   },
   howItWorks: {
-    headline: "See the job before you say hello.",
+    headline: "See the job, then segment the funnel.",
     steps: [
       { title: "They browse your services.", body: "Repair, replacement, financing — whatever they look at." },
       { title: "We track what matters.",     body: "Which pages, how long, how many times." },
-      { title: "You call prepared.",         body: "You know the job before they finish saying hi." },
+      { title: "Your funnel adapts.",        body: "Ads and email speak to the exact job they were shopping." },
     ],
   },
   benefits: {
     headline: "Segment every funnel touch by intent.",
     items: [
-      { title: "Sound like the expert.",    body: "Open with exactly what they need." },
-      { title: "Better quotes, faster.",    body: "You're not starting from zero on the phone." },
-      { title: "Higher trust.",              body: "Knowing their problem makes you the obvious choice." },
+      { title: "Sharper retargeting.",    body: "Ads speak to exactly what they came for." },
+      { title: "Better email sequences.", body: "The right message lands at the right moment." },
+      { title: "Warmer inbound calls.",   body: "By the time they dial, they already think you get it." },
     ],
-  },
-  quote: {
-    text: "When I call and say 'looks like you're after a full re-roof, not just a patch,' they think I read their mind. It's right there on my screen. Closes way more.",
-    name: "Pete S.", shop: "Summit Roofing", city: "Lufkin, TX", isSample: true,
   },
   included: {
     headline: "What insights include.",
@@ -706,69 +596,12 @@ const behaviorAndJobTypeInsights: Feature = {
     headline: "What pros ask about behavior insights.",
     items: [
       { q: "What exactly can I see?",            a: "Which of your pages they viewed, how long, and how often — enough to know what job they're after." },
-      { q: "How does this help my call?",        a: "You open knowing their problem, so you sound like the right pro from the first sentence." },
-      { q: "Is this creepy to the customer?",    a: "No — they consented, and you simply use what they showed interest in to help them faster." },
+      { q: "How does this help my funnel?",      a: "Your retargeting and email sequences segment by intent, so each homeowner sees the message that matches the job they were shopping." },
+      { q: "Is this creepy to the customer?",    a: "No — they consented, and the funnel simply uses what they showed interest in to help them faster." },
       { q: "Does it work for any trade?",        a: "Yes. Whatever services your site lists, you'll see what they looked at." },
     ],
   },
-  pairsWith: ["lead-scoring", "visitor-identification", "service-area-filtering"],
-};
-
-const serviceAreaFiltering: Feature = {
-  slug: "service-area-filtering",
-  name: "Service-Area Filtering",
-  iconKey: "IconMapPin",
-  tagline: "Only your towns.",
-  howItHelps: "Only see homeowners in the zips and towns you actually serve. No more excitement-then-disappointment when the address is three counties away.",
-  illustration: "/illustrations/style/02-map-pin.svg",
-  subhead: "Only see visitors in the zip codes and towns you actually serve. No leads from three counties over that you'd never drive to.",
-  aeoAnswer:
-    "Service-Area Filtering limits your identified leads to the zip codes, cities, and counties you actually work in. Consent Resolve screens out visitors outside your service area before they ever reach your phone, so every lead you see is a job you could realistically drive to and win — no time wasted on out-of-range callers.",
-  problem: {
-    headline: "Out-of-area leads waste your whole day.",
-    body: "There's nothing worse than a great-sounding lead three counties away you'd never drive to. You spend the call getting excited, then realize it's a two-hour haul each way. Multiply that by a week and you've lost real hours to jobs you were never going to take.",
-  },
-  howItWorks: {
-    headline: "Draw your map, we handle the rest.",
-    steps: [
-      { title: "You set your area.",        body: "Pick the zips, towns, and counties you serve." },
-      { title: "We filter in real time.",   body: "Visitors outside your range get screened out." },
-      { title: "You only see fits.",        body: "Every lead is one you could actually drive to." },
-    ],
-  },
-  benefits: {
-    headline: "Every lead is one you'd actually take.",
-    items: [
-      { title: "No wasted calls.",   body: "Out-of-range leads never reach you." },
-      { title: "Tighter routes.",    body: "Jobs cluster in the areas you already work." },
-      { title: "Real local focus.",  body: "Your time stays in your territory." },
-    ],
-  },
-  quote: {
-    text: "I kept getting all excited about leads, then they'd be way out past my range. Now I only see my towns. Every name on my phone is somewhere I'd actually go.",
-    name: "Aaron W.", shop: "Hometown Heat & Air", city: "Coldspring, TX", isSample: true,
-  },
-  included: {
-    headline: "What filtering includes.",
-    items: [
-      "Filter by zip code",
-      "Filter by city or town",
-      "Filter by county",
-      "Set multiple areas at once",
-      "Change your range anytime",
-      "Out-of-area leads screened automatically",
-    ],
-  },
-  faq: {
-    headline: "What pros ask about service-area filtering.",
-    items: [
-      { q: "How specific can I get?",                       a: "Down to the zip code, or as wide as multiple counties — your call." },
-      { q: "Can I change my area later?",                   a: "Anytime. Add or drop zips as your business grows or shifts." },
-      { q: "What happens to out-of-area visitors?",         a: "They're screened out, so they never clutter your list." },
-      { q: "Can I cover more than one office's area?",      a: "Yes — set up multiple zones for multiple locations." },
-    ],
-  },
-  pairsWith: ["lead-scoring", "behavior-and-job-type-insights", "qualified-leads-only"],
+  pairsWith: ["lead-scoring", "visitor-identification", "qualified-leads-only"],
 };
 
 const qualifiedLeadsOnly: Feature = {
@@ -776,41 +609,37 @@ const qualifiedLeadsOnly: Feature = {
   name: "Qualified Leads Only",
   iconKey: "IconFilter",
   tagline: "Real, identified, in-area. Nothing else.",
-  howItHelps: "Every recovered record is a real, identified person in your service area who showed real intent. The junk gets filtered out before it ever hits your funnel — so the audiences and lists you build stay clean.",
+  howItHelps: "Every recovered record is a real, identified person inside your service area who showed real intent. The junk gets filtered out before it ever enters your retargeting audiences, email lists, or CRM — so the funnel you already run stays clean and your ad spend chases real homeowners.",
   illustration: "/illustrations/features/13-qualified-leads.svg",
-  subhead: "You spend your time on real, identified, in-area people — not anonymous clicks that lead nowhere.",
+  subhead: "Your retargeting audiences, email lists, and CRM only get real, identified, in-area homeowners — not anonymous clicks, not out-of-range visitors, not bots.",
   aeoAnswer:
-    "Qualified Leads Only means every lead Consent Resolve hands you is a real, identified person in your service area who showed genuine interest — not an anonymous click or a random form spammer. By screening for identity, location, and intent before delivery, it makes sure your phone time goes only to prospects who could actually become a paying job.",
+    "Qualified Leads Only means every record Consent Resolve hands your funnel is a real, identified person inside your service area who showed genuine interest — not an anonymous click, not a bot, not a visitor three counties away. By screening for identity, location, and intent before delivery, it keeps the audiences, email lists, and CRM you already run clean so your ad spend only chases homeowners who could actually book a job.",
   problem: {
     headline: "Most \"leads\" aren't leads at all.",
-    body: "A click isn't a customer. A bot filling out your form isn't a customer. Somebody three counties over isn't a customer. When your list is full of junk, you waste your best hours chasing ghosts — and the real buyers slip past while you're busy with noise.",
+    body: "A click isn't a customer. A bot in your form isn't a customer. A visitor three counties over isn't a customer. When your retargeting audiences and email lists are stuffed with junk, your ad spend chases ghosts and your inbound calls dry up. Clean audiences are what make the funnel pay.",
   },
   howItWorks: {
-    headline: "Three filters before a lead reaches you.",
+    headline: "Three filters before a record hits your funnel.",
     steps: [
-      { title: "Is it a real person?",    body: "We confirm identity, not just a click." },
-      { title: "Are they in your area?",  body: "Out-of-range visitors get screened out." },
-      { title: "Did they show intent?",   body: "Only visitors with real interest come through." },
+      { title: "Is it a real person?",    body: "Identity is confirmed — not just a click or a session." },
+      { title: "Are they in your area?",  body: "Visitors outside your zips, towns, and counties are screened out before delivery." },
+      { title: "Did they show intent?",   body: "Only visitors with genuine interest enter your audiences." },
     ],
   },
   benefits: {
-    headline: "A list with no junk on it.",
+    headline: "Audiences that actually convert.",
     items: [
-      { title: "No anonymous clicks.",              body: "Every lead has a name and a face behind it." },
-      { title: "No out-of-area time-wasters.",      body: "Only people you could actually serve." },
-      { title: "No bots or spam.",                  body: "Real human interest, every time." },
+      { title: "No anonymous clicks.",              body: "Every record has a name and a face behind it." },
+      { title: "No out-of-area noise.",             body: "Retargeting and email only reach homeowners you could actually serve." },
+      { title: "No bots or spam.",                  body: "Real human interest only — the funnel stays clean." },
     ],
-  },
-  quote: {
-    text: "I used to dread my lead list — half of it was garbage. Now there's nothing on there but real people in my area who actually want the work. I trust it now.",
-    name: "Mike B.", shop: "Deuces Contracting", city: "Huntsville, TX", isSample: true,
   },
   included: {
     headline: "What \"qualified\" actually means.",
     items: [
       "Identity confirmed",
-      "In your service area",
-      "Showed real intent",
+      "Inside the zip codes, towns, and counties you serve",
+      "Showed real intent on your site",
       "Consented to contact",
       "Reachable contact info",
       "No bots, no spam, no anonymous clicks",
@@ -819,13 +648,13 @@ const qualifiedLeadsOnly: Feature = {
   faq: {
     headline: "What pros ask about qualified leads only.",
     items: [
-      { q: "What makes a lead \"qualified\"?",                     a: "It's a real, identified person, in your area, who showed genuine interest and opted in." },
-      { q: "How is this different from a shared lead reseller?",   a: "Resellers blast unscreened leads to several pros. We screen for identity, area, and intent, and the lead is yours alone." },
-      { q: "Will I get fewer leads this way?",                     a: "Fewer junk ones, yes. The ones you get are worth your time." },
-      { q: "Can I loosen the filters?",                            a: "You control your area and can adjust what comes through." },
+      { q: "What makes a record \"qualified\"?",                   a: "It's a real, identified person, in your service area, who showed genuine interest on your site and opted in via your consent banner." },
+      { q: "How is this different from a shared lead reseller?",   a: "Resellers blast unscreened leads to several pros. We screen for identity, area, and intent — and every record is yours alone, never resold." },
+      { q: "Can I limit by zip code or town?",                     a: "Yes. You set the zips, cities, and counties you serve, and out-of-area visitors are screened out before they ever reach your funnel." },
+      { q: "Will I get fewer records this way?",                   a: "Fewer junk ones, yes. The ones you get are worth your ad spend." },
     ],
   },
-  pairsWith: ["lead-scoring", "service-area-filtering", "verified-contact-data"],
+  pairsWith: ["lead-scoring", "behavior-and-job-type-insights", "verified-contact-data"],
 };
 
 // -----------------------------------------------------------------------
@@ -862,10 +691,6 @@ const crmDelivery: Feature = {
       { title: "No double entry.",      body: "No copying names between tools." },
     ],
   },
-  quote: {
-    text: "Before, half my leads lived in screenshots on my phone. Now they drop right into my CRM and get assigned. We stopped losing jobs to plain forgetfulness.",
-    name: "Kevin R.", shop: "R&B Mechanical", city: "New Waverly, TX", isSample: true,
-  },
   included: {
     headline: "What delivery includes.",
     items: [
@@ -896,32 +721,28 @@ const multiChannelFollowUp: Feature = {
   tagline: "Hit every funnel surface.",
   howItHelps: "Recovered visitors flow into your retargeting, your email/SMS sequences, and your CRM all at once — so the homeowner sees your message on the next ad they scroll, the next email they open, and the next time they search. The funnel does the work; the inbound call shows up.",
   illustration: "/illustrations/features/15-multi-channel.svg",
-  subhead: "Reach identified visitors by call, email, or text — not one shot in the dark. Catch them however they're easiest to catch.",
+  subhead: "Recovered records flow into every funnel surface you run — retargeting, email, SMS, CRM — so the homeowner is touched wherever they're easiest to re-engage.",
   aeoAnswer:
-    "Multi-Channel Follow-Up lets you reach each identified lead by phone, text, or email — whatever they respond to best. Because Consent Resolve captures full contact details, you're not limited to one shot in the dark; you can follow up across channels until you connect, which is how more leads turn into booked jobs.",
+    "Multi-Channel Follow-Up pipes each identified lead into every funnel channel you run — retargeting audiences, email sequences, SMS, and your CRM. Because Consent Resolve delivers full contact details with consent, your existing automations can re-engage the homeowner wherever they spend their attention — and the inbound call comes in warm.",
   problem: {
     headline: "One funnel surface shouldn't decide whether they come back.",
-    body: "You call once, they don't pick up, and that's the end of it. But people are busy — a missed call isn't a no. If calling is your only move, every unanswered ring is a customer gone. The pros who follow up more than one way book more work. Simple as that.",
+    body: "If retargeting is your only re-engagement move, every homeowner who doesn't scroll past your ad is a lost job. Email-only is no better. People live across surfaces — Facebook, Gmail, SMS, search. The funnels that book more inbound calls hit every surface, not just one.",
   },
   howItWorks: {
-    headline: "Reach them the way they'll answer.",
+    headline: "Every surface picks up the record.",
     steps: [
-      { title: "You get full contact info.", body: "Phone, text, and email — all in hand." },
-      { title: "You pick the channel.",      body: "Call first, then text or email if they're quiet." },
-      { title: "You connect more often.",    body: "More ways to reach them means more answered." },
+      { title: "Full contact, all at once.",  body: "Phone, email, and SMS-eligible number land together." },
+      { title: "Your funnel fans out.",       body: "Retargeting, email, SMS, and CRM all pick up the record." },
+      { title: "Inbound call lands warm.",    body: "By the time they call, they've seen you across surfaces." },
     ],
   },
   benefits: {
-    headline: "More shots on goal, more jobs booked.",
+    headline: "More surfaces, more inbound calls.",
     items: [
-      { title: "Not just one call.",      body: "Follow up by text or email too." },
-      { title: "Meet them where they are.", body: "Some answer texts, not calls." },
-      { title: "Fewer lost leads.",       body: "Persistence across channels wins more work." },
+      { title: "Not just one channel.",      body: "Retargeting and email and SMS — together, not picking one." },
+      { title: "Meet them where they are.",  body: "Some respond to ads, some to email, some to a text." },
+      { title: "Fewer lost records.",        body: "Persistence across surfaces wins more work." },
     ],
-  },
-  quote: {
-    text: "Half these folks won't answer a number they don't know, but they'll text back in a second. Having the call, text, and email means I actually reach 'em.",
-    name: "Luis A.", shop: "All-Pro Fencing", city: "Cleveland, TX", isSample: true,
   },
   included: {
     headline: "What follow-up includes.",
@@ -976,10 +797,6 @@ const builtInCompliance: Feature = {
       { title: "Automatic opt-outs.",       body: "No risk of calling someone who said no." },
     ],
   },
-  quote: {
-    text: "I don't have time to read up on privacy laws in ten states. Knowing every lead's got a signed timestamp behind it lets me sleep at night.",
-    name: "Greg N.", shop: "Northshore Exteriors", city: "Onalaska, TX", isSample: true,
-  },
   included: {
     headline: "What compliance covers.",
     items: [
@@ -1033,10 +850,6 @@ const roiReporting: Feature = {
       { title: "No spreadsheets.",     body: "The math is done for you." },
     ],
   },
-  quote: {
-    text: "I finally see what a lead costs me and what it turned into. Turns out this is the cheapest booked job I've got. Numbers don't lie.",
-    name: "Frank D.", shop: "Diamond Roofing", city: "Tampa, FL", isSample: true,
-  },
   included: {
     headline: "What reporting includes.",
     items: [
@@ -1089,7 +902,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     title: "Turn the bounce into an inbound call.",
     blurb:
       "The recovered visitor comes back on their own time, through your funnel, and calls you — warm, not cold. These features keep the timing right, the area accurate, and the noise out.",
-    features: [instantConnect, realTimeMobileAlerts, serviceAreaFiltering, qualifiedLeadsOnly, roiReporting],
+    features: [instantConnect, qualifiedLeadsOnly, roiReporting],
   },
   {
     slug: "consent-moat",

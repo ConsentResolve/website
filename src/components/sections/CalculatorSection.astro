@@ -1,45 +1,60 @@
 ---
-import LeadROICalculator from "~/components/ui/LeadROICalculator.tsx";
-import MetricCard from "~/components/ui/MetricCard.astro";
-import { IconUserCheck, IconCash, IconClock } from "@tabler/icons-react";
-
-const trend = [12, 18, 24, 28, 34, 38, 47, 52, 58, 66, 72, 84];
-const revTrend = [4, 7, 9, 12, 14, 18, 22, 27, 30, 34, 38, 44];
-const dipTrend = [240, 220, 210, 195, 184, 172, 158, 142, 124, 108, 96, 87];
+import RecoveryCalculator from "~/components/ui/RecoveryCalculator.tsx";
+import { IconRefresh, IconCash, IconBolt } from "@tabler/icons-react";
 ---
 
-<section class="section section-dark">
-  <div class="container-content">
-    <div class="mx-auto mb-10 max-w-2xl text-center">
+<section class="section section-dark relative overflow-hidden">
+  <!-- Ambient brand glows, matched to Hero / ProblemStats -->
+  <div aria-hidden="true" class="pointer-events-none absolute -left-40 -top-40 size-[520px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[140px]"></div>
+  <div aria-hidden="true" class="pointer-events-none absolute -right-40 -bottom-40 size-[520px] rounded-full bg-[color:var(--color-mint-400)]/10 blur-[140px]"></div>
+
+  <div class="container-content relative">
+    <!-- Header -->
+    <div class="mx-auto mb-12 max-w-2xl text-center">
       <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">Run the numbers</p>
       <h2 class="display-2 text-white">
-        See what exclusive leads do to your bottom line.
+        What the 98% you're losing is worth.
       </h2>
-      <p class="mt-3 text-lg leading-relaxed text-slate-300">
-        Put in your real numbers. No email, no signup wall.
+      <p class="mt-4 text-lg leading-relaxed text-slate-300">
+        Two sliders. One honest number. No email, no signup wall — and we show our math.
       </p>
     </div>
 
-    <!-- Network impact -->
-    <div class="mx-auto mb-10 max-w-4xl">
-      <p class="mb-4 text-center text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-        Network impact · last 30 days <span class="ml-1 text-slate-500">[ILLUSTRATIVE — REPLACE]</span>
-      </p>
-      <div class="grid gap-4 md:grid-cols-3">
-        <MetricCard variant="dark" label="Avg leads / shop" value="84"
-          delta={{ direction: "up", value: "+22%", period: "vs last month" }}
-          sparkline={trend} icon={IconUserCheck} />
-        <MetricCard variant="dark" label="Avg booked revenue" value="$28.4k"
-          delta={{ direction: "up", value: "+18%", period: "MoM" }}
-          sparkline={revTrend} icon={IconCash} />
-        <MetricCard variant="dark" label="Avg cost / job" value="$87"
-          delta={{ direction: "down", value: "−63%", period: "vs Thumbtack" }}
-          sparkline={dipTrend} icon={IconClock} />
+    <!-- Calculator card sits on a subtle elevated surface so the home-page section reads as a single composed unit -->
+    <div class="mx-auto max-w-5xl">
+      <div class="rounded-3xl bg-white/[0.03] p-3 ring-1 ring-inset ring-white/10 backdrop-blur-sm sm:p-4">
+        <RecoveryCalculator client:visible variant="dark" />
       </div>
     </div>
 
-    <div class="mx-auto max-w-4xl">
-      <LeadROICalculator client:visible variant="dark" />
+    <!-- Supporting micro-stats: anchor the calculator to the homepage's stat vocabulary -->
+    <div class="mx-auto mt-10 grid max-w-5xl gap-4 sm:grid-cols-3">
+      <div class="rounded-2xl bg-white/[0.03] p-5 ring-1 ring-inset ring-white/10">
+        <div class="mb-3 inline-flex size-9 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]/15">
+          <IconRefresh size={18} stroke={1.75} color="#00E5A0" />
+        </div>
+        <p class="font-display text-2xl font-bold leading-none text-white">98%</p>
+        <p class="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Bounce rate baked in</p>
+        <p class="mt-2 text-[13px] leading-relaxed text-slate-300">Roughly 98 out of every 100 visitors leave without ever calling. That's the pool we recover from.</p>
+      </div>
+
+      <div class="rounded-2xl bg-white/[0.03] p-5 ring-1 ring-inset ring-white/10">
+        <div class="mb-3 inline-flex size-9 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]/15">
+          <IconBolt size={18} stroke={1.75} color="#00E5A0" />
+        </div>
+        <p class="font-display text-2xl font-bold leading-none text-white">15%</p>
+        <p class="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Consent-adjusted recovery</p>
+        <p class="mt-2 text-[13px] leading-relaxed text-slate-300">About 15% of the bounce comes back as a recovered, opted-in record — fuel for your retargeting and email.</p>
+      </div>
+
+      <div class="rounded-2xl bg-white/[0.03] p-5 ring-1 ring-inset ring-white/10">
+        <div class="mb-3 inline-flex size-9 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]/15">
+          <IconCash size={18} stroke={1.75} color="#00E5A0" />
+        </div>
+        <p class="font-display text-2xl font-bold leading-none text-white">$7</p>
+        <p class="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Flat per recovered lead</p>
+        <p class="mt-2 text-[13px] leading-relaxed text-slate-300">No bidding war, no auction, never resold. One consent, one contractor — same ad budget, more inbound calls.</p>
+      </div>
     </div>
   </div>
 </section>
