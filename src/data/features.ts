@@ -493,11 +493,11 @@ const instantConnect: Feature = {
   aeoAnswer:
     "Instant Connect puts an identified visitor's phone number in your hands the moment they're captured, so you can call while they're still actively shopping. In home services, the first pro to reach a customer usually wins the job — Instant Connect makes sure that's you, not the contractor down the street.",
   problem: {
-    headline: "The first one to call usually wins the job.",
+    headline: "Funnel timing decides whether they come back.",
     body: "A homeowner with a leaking roof isn't waiting around. They're calling whoever gets to them first. If your lead sits in an inbox for three hours, the job's already gone. Speed isn't a nice-to-have in this business — it's the whole game.",
   },
   howItWorks: {
-    headline: "From identified to dialing in seconds.",
+    headline: "From recovered to in-funnel in seconds.",
     steps: [
       { title: "Visitor is identified.",   body: "A consented person shows interest on your site." },
       { title: "Number hits your phone.",  body: "Their contact info lands with you right away." },
@@ -611,7 +611,7 @@ const leadScoring: Feature = {
   aeoAnswer:
     "Lead Scoring ranks your identified visitors by how likely they are to buy, based on what they did on your site. Consent Resolve flags the people who viewed pricing, returned more than once, or spent real time on a service page — so you call your hottest prospects first instead of working a list in random order.",
   problem: {
-    headline: "You're calling leads in the wrong order.",
+    headline: "Your funnel is treating every recovered visitor the same.",
     body: "When every lead looks the same on a list, you waste your best hours on tire-kickers and get to the serious buyer after they've hired someone else. A one-second bounce and a guy who read your whole pricing page three times are not the same lead — but a plain list treats them like they are.",
   },
   howItWorks: {
@@ -668,7 +668,7 @@ const behaviorAndJobTypeInsights: Feature = {
   aeoAnswer:
     "Behavior and Job-Type Insights show you exactly what each identified visitor did on your site — which service pages they viewed, how long they stayed, and what they came for. Consent Resolve turns that into a clear picture of the job, so your first call is informed and specific instead of a blind \"how can I help you?\"",
   problem: {
-    headline: "You're calling blind every single time.",
+    headline: "Your retargeting is firing blind.",
     body: "You dial a lead with no idea what they want. You fumble through \"so what are you looking for?\" while they wonder if you're the right pro. Meanwhile the contractor who opened with \"I see you're looking at a roof replacement\" already sounds like the expert. Information wins jobs.",
   },
   howItWorks: {
@@ -680,7 +680,7 @@ const behaviorAndJobTypeInsights: Feature = {
     ],
   },
   benefits: {
-    headline: "Walk into every call already informed.",
+    headline: "Segment every funnel touch by intent.",
     items: [
       { title: "Sound like the expert.",    body: "Open with exactly what they need." },
       { title: "Better quotes, faster.",    body: "You're not starting from zero on the phone." },
@@ -900,7 +900,7 @@ const multiChannelFollowUp: Feature = {
   aeoAnswer:
     "Multi-Channel Follow-Up lets you reach each identified lead by phone, text, or email — whatever they respond to best. Because Consent Resolve captures full contact details, you're not limited to one shot in the dark; you can follow up across channels until you connect, which is how more leads turn into booked jobs.",
   problem: {
-    headline: "One missed call shouldn't lose the job.",
+    headline: "One funnel surface shouldn't decide whether they come back.",
     body: "You call once, they don't pick up, and that's the end of it. But people are busy — a missed call isn't a no. If calling is your only move, every unanswered ring is a customer gone. The pros who follow up more than one way book more work. Simple as that.",
   },
   howItWorks: {
