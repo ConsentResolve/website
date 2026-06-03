@@ -1,5 +1,6 @@
 ---
 import { IconCheck, IconX, IconMinus } from "@tabler/icons-react";
+import Badge from "~/components/ui/Badge.astro";
 
 type CellValue = true | false | "partial" | string | number;
 
@@ -58,7 +59,7 @@ const cols = brands.length;
                 </div>
                 <span class:list={["font-display text-[13px] font-bold tracking-tight", isHi ? "text-[color:var(--color-brand-pressed)]" : "text-[color:var(--color-ink)]"]}>{b.name}</span>
                 {isHi && (
-                  <span class="rounded-full bg-[color:var(--color-brand)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white">Winner</span>
+                  <Badge tone="brand" variant="solid" size="sm" uppercase>Winner</Badge>
                 )}
               </div>
             </th>

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Button from "~/components/ui/Button.astro";
+import Badge from "~/components/ui/Badge.astro";
 import LeadPhone from "~/components/islands/LeadPhone.tsx";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import { IconArrowRight, IconCheck } from "@tabler/icons-react";
@@ -24,7 +25,7 @@ const schemas = [
     <div class="container-content section relative">
       <div class="grid items-center gap-16 lg:grid-cols-[1fr_1fr]">
         <div>
-          <p class="eyebrow mb-7">Sample lead <span class="ml-2 rounded-full bg-[color:var(--color-bg-alt)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)] ring-1 ring-inset ring-[color:var(--color-rule)]">Illustrative</span></p>
+          <p class="eyebrow mb-7">Sample lead <Badge tone="neutral" variant="outline" size="sm" uppercase class="ml-2">Illustrative</Badge></p>
           <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
             Here's exactly what lands<br/>
             <span class="text-[color:var(--color-brand)]">in your hands.</span>

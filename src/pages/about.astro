@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import AuthorityStrip from "~/components/sections/AuthorityStrip.tsx";
 import DidYouKnow from "~/components/sections/DidYouKnow.tsx";
@@ -92,9 +93,7 @@ const schemas = [
                 </div>
               </div>
               <div class="mt-5">
-                <span class="inline-flex items-center rounded-full bg-[color:var(--color-brand-soft)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">
-                  {m.tagline}
-                </span>
+                <Badge tone="brand" size="sm" uppercase>{m.tagline}</Badge>
               </div>
               <p class="mt-5 flex-1 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{m.bio}</p>
               <a

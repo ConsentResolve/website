@@ -1,5 +1,6 @@
 ---
 import List from "~/components/ui/List.astro";
+import Badge from "~/components/ui/Badge.astro";
 import { IconGavel, IconShieldCheck } from "@tabler/icons-react";
 
 const shadow = [
@@ -35,7 +36,7 @@ const consent = [
             </div>
             <h3 class="text-lg font-bold tracking-tight text-[color:var(--color-danger)]">The shadow-tracking way</h3>
           </div>
-          <span class="rounded-full bg-[color:var(--color-danger)]/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-danger)]">Risky</span>
+          <Badge tone="danger" size="sm" uppercase>Risky</Badge>
         </div>
         <List items={shadow} variant="x" tone="danger" />
       </div>
@@ -49,7 +50,7 @@ const consent = [
             </div>
             <h3 class="text-lg font-bold tracking-tight text-[color:var(--color-brand-pressed)]">The consent way</h3>
           </div>
-          <span class="rounded-full bg-[color:var(--color-brand-soft)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Compliant</span>
+          <Badge tone="brand" size="sm" uppercase>Compliant</Badge>
         </div>
         <List items={consent} variant="check" tone="brand" />
       </div>
