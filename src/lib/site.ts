@@ -25,7 +25,7 @@ export const PRIMARY_NAV: NavItem[] = [
   { label: "Features", href: "/features/" },
   { label: "How It Works", href: "/how-it-works/" },
   { label: "Industries", href: "/industries/" },
-  { label: "Compare", href: "/compare/" },
+  { label: "Channel ROI", href: "/compare/" },
   { label: "Pricing", href: "/pricing/" },
 ];
 
@@ -44,12 +44,12 @@ export const FOOTER_NAV = {
     { label: "Electricians", href: "/electrician-leads/" },
     { label: "All industries", href: "/industries/" },
   ],
-  compare: [
-    { label: "vs Google LSA", href: "/compare/google-local-service-ads/" },
-    { label: "vs Thumbtack", href: "/compare/thumbtack/" },
-    { label: "vs Angi", href: "/compare/angi/" },
-    { label: "vs HomeAdvisor", href: "/compare/homeadvisor/" },
-    { label: "All comparisons", href: "/compare/" },
+  channels: [
+    { label: "+ Google LSA", href: "/compare/google-local-service-ads/" },
+    { label: "+ Thumbtack", href: "/compare/thumbtack/" },
+    { label: "+ Angi", href: "/compare/angi/" },
+    { label: "+ HomeAdvisor", href: "/compare/homeadvisor/" },
+    { label: "All channels", href: "/compare/" },
   ],
   company: [
     { label: "About", href: "/about/" },

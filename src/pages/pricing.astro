@@ -66,8 +66,8 @@ const schemas = [
 ---
 
 <BaseLayout
-  title="Pricing — $7 per Exclusive Lead | Consent Resolve"
-  description="$7 per delivered lead. Exclusive — never resold. No contract, no minimum, no setup fees. See everything included."
+  title="Pricing — Flat $7 per Recovered Lead | Consent Resolve"
+  description="Flat $7 per recovered lead. The math that matters is cost-per-booked-job — recovered visitors are incremental on top of the channels you already pay for. No contract, no minimum, no setup fees."
   schema={schemas}
 >
   <!-- Hero -->
@@ -77,11 +77,11 @@ const schemas = [
       <div class="mx-auto max-w-3xl text-center">
         <p class="eyebrow mb-7 justify-center">Pricing</p>
         <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
-          $7 per lead.<br/>
-          <span class="text-[color:var(--color-brand)]">Yours alone.</span>
+          Flat $7 per recovered lead.<br/>
+          <span class="text-[color:var(--color-brand)]">Incremental on every channel you run.</span>
         </h1>
         <p class="mx-auto max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-          One simple price for an exclusive, consented homeowner with a name and a mobile number. No contracts, no minimums, no setup fees. You only pay when a lead lands in your hands.
+          One simple price for a consented homeowner you'd otherwise have lost. The math that matters is cost-per-booked-job — recovered visitors are pure upside on the ad budget you're already spending. No contracts, no minimums, no setup fees.
         </p>
       </div>
     </div>
@@ -92,7 +92,7 @@ const schemas = [
     <div class="container-content py-8">
       <div class="mx-auto max-w-3xl">
         <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
-          Consent Resolve costs a flat $7 per identified lead, with no setup fee, no monthly minimum, and no contract. A valid payment card is required at signup; you're billed only when a consented homeowner is identified on your website. Leads are exclusive to your shop — never resold, never auctioned. Cancel anytime from your dashboard.
+          Consent Resolve costs a flat $7 per recovered lead — a consented homeowner identified from a website visitor who would otherwise have bounced. There's no setup fee, no monthly minimum, no contract. Recovered leads are incremental on top of your existing ad channels, so the right way to measure us is cost-per-booked-job, not cost-per-lead. Card required at signup; cancel anytime.
         </p>
       </div>
     </div>
@@ -220,40 +220,30 @@ const schemas = [
     </div>
   </section>
 
-  <!-- Cost comparison row -->
+  <!-- Channel ROI pointer — no per-lead price compare here; that
+       reopens the apples-to-oranges intent fight. Direct readers to
+       the additive with/without math on the channel-specific pages. -->
   <section class="section">
     <div class="container-content">
-      <div class="mx-auto max-w-3xl">
-        <div class="mb-10 text-center">
-          <p class="eyebrow mb-5 justify-center">Cost per lead</p>
-          <h2 class="display-2 text-[color:var(--color-ink)]">
-            How $7 stacks up.
-          </h2>
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="eyebrow mb-5 justify-center">The right metric</p>
+        <h2 class="display-2 text-[color:var(--color-ink)]">
+          Cost-per-booked-job — not cost-per-lead.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+          $7 isn't competing with a Thumbtack lead or an LSA call — those are how the homeowner found you in the first place. A recovered visitor is incremental on top of every dollar you already spend on Google, LSA, Meta, or SEO. The math that actually moves: same ad budget → more booked jobs → lower blended cost per booked job.
+        </p>
+        <div class="mt-10">
+          <a
+            href="/compare/"
+            class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-navy-900)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)]"
+          >
+            See the with/without math by channel
+            <IconArrowRight size={16} stroke={2.25} />
+          </a>
         </div>
-        <div class="grid gap-4 md:grid-cols-4">
-          <div class="rounded-2xl bg-[color:var(--color-brand-soft)] p-6 text-center ring-1 ring-inset ring-[color:var(--color-brand)]/30">
-            <p class="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--color-brand-pressed)]">Consent Resolve</p>
-            <div class="mt-3 font-display text-4xl font-black tracking-tight text-[color:var(--color-brand-pressed)]">$7</div>
-            <p class="mt-2 text-xs font-semibold text-[color:var(--color-brand-pressed)]">Exclusive, never resold</p>
-          </div>
-          <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 text-center ring-1 ring-inset ring-[color:var(--color-rule)]">
-            <p class="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)]">Angi</p>
-            <div class="mt-3 font-display text-4xl font-black tracking-tight text-[color:var(--color-ink)]">~$50</div>
-            <p class="mt-2 text-xs text-[color:var(--color-ink-muted)]">Shared with 3–8 shops</p>
-          </div>
-          <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 text-center ring-1 ring-inset ring-[color:var(--color-rule)]">
-            <p class="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)]">HomeAdvisor</p>
-            <div class="mt-3 font-display text-4xl font-black tracking-tight text-[color:var(--color-ink)]">~$50</div>
-            <p class="mt-2 text-xs text-[color:var(--color-ink-muted)]">Shared with 3–8 shops</p>
-          </div>
-          <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 text-center ring-1 ring-inset ring-[color:var(--color-rule)]">
-            <p class="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-muted)]">Thumbtack</p>
-            <div class="mt-3 font-display text-4xl font-black tracking-tight text-[color:var(--color-ink)]">~$46</div>
-            <p class="mt-2 text-xs text-[color:var(--color-ink-muted)]">Sold to 4–5 shops</p>
-          </div>
-        </div>
-        <p class="mt-6 text-center text-xs text-[color:var(--color-ink-muted)]">
-          Competitor figures are public-source averages from the Thumbtack, Angi, and HomeAdvisor public pricing pages and contractor reports — not Consent Resolve claims.
+        <p class="mt-6 text-[11px] leading-relaxed text-[color:var(--color-ink-muted)]">
+          Default math constants: bounce 98%, recovery 15% of bounces (consent-adjusted), recovered-to-booked-job ~1%, Consent Resolve cost $7/recovered lead. Real performance varies by trade, traffic quality, close rate, and follow-up speed.
         </p>
       </div>
     </div>

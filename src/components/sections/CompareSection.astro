@@ -1,101 +1,172 @@
 ---
-import ComparisonCard from "~/components/ui/ComparisonCard.astro";
-import { IconArrowRight } from "@tabler/icons-react";
+/**
+ * "Where It Fits" — homepage layered-flow visual.
+ *
+ * Shows Consent Resolve as a layer on top of the contractor's existing
+ * channels. Replaces the previous head-to-head "we beat the shared-lead
+ * crowd" comparison (which is now reframed as additive on the /compare/
+ * pages themselves).
+ *
+ * Reading left-to-right:
+ *   Existing channels → website → 98% bounce → CR recovery → existing
+ *   funnel → inbound call.
+ */
+import Badge from "~/components/ui/Badge.astro";
+import {
+  IconBrandGoogle,
+  IconBrandMeta,
+  IconWorld,
+  IconSearch,
+  IconUserOff,
+  IconRefresh,
+  IconMail,
+  IconBrandSpeedtest,
+  IconDatabase,
+  IconPhone,
+  IconArrowRight,
+} from "@tabler/icons-react";
+
+const channels = [
+  { Icon: IconBrandGoogle,  label: "Google Ads" },
+  { Icon: IconWorld,        label: "Google LSA" },
+  { Icon: IconBrandMeta,    label: "Meta Ads" },
+  { Icon: IconSearch,       label: "SEO" },
+];
+
+const funnel = [
+  { Icon: IconBrandSpeedtest, label: "Retargeting" },
+  { Icon: IconMail,           label: "Email / SMS" },
+  { Icon: IconDatabase,       label: "CRM" },
+];
 ---
 
 <section class="section section-dark relative overflow-hidden">
-  <!-- Ambient mint glow -->
   <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-1/3 size-[520px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
   <div aria-hidden="true" class="pointer-events-none absolute -left-32 bottom-1/4 size-[420px] rounded-full bg-[color:var(--color-mint-400)]/10 blur-[100px]"></div>
 
   <div class="container-content relative">
     <div class="mx-auto mb-16 max-w-3xl text-center">
-      <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">Stacked against the shared-lead crowd</p>
-      <h2 class="font-display text-4xl md:text-6xl font-black tracking-tight leading-[1.02] text-white">
-        We don't sell leads.<br/>
-        <span class="text-[color:var(--color-mint-400)]">We hand them back to you.</span>
+      <Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Where it fits</Badge>
+      <h2 class="mt-5 font-display text-4xl md:text-6xl font-black tracking-tight leading-[1.02] text-white">
+        We don't replace your marketing.<br/>
+        <span class="text-[color:var(--color-mint-400)]">We make it convert.</span>
       </h2>
       <p class="mt-5 text-lg leading-relaxed text-slate-300">
-        Here's why pros are walking away from shared-lead platforms — where the same lead gets sold to four other shops.
+        Consent Resolve is a layer on top of the channels you already run — not another channel to manage. Same ad budget. More inbound calls.
       </p>
     </div>
 
-    <div class="grid gap-7 md:gap-8 lg:grid-cols-3 pt-6">
-      <ComparisonCard
-        featured
-        ribbonLabel="Editor's Pick"
-        brand="Consent Resolve"
-        logoColor="#0A1628"
-        rating={4.9}
-        score={96}
-        price="$7"
-        priceSub="Per lead · Flat, never resold"
-        bestFor="owner-operators"
-        pros={[
-          "Exclusive leads — never resold",
-          "Real homeowner names + numbers",
-          "Legal by default (GDPR / CCPA / CPA)",
-        ]}
-        cons={[
-          "New platform (founded 2026)",
-          "Smaller network than legacy resellers",
-        ]}
-        ctaLabel="Get Started"
-        ctaHref="https://dashboard.consentresolve.com/register"
-        reviewHref="/how-it-works/"
-      />
-      <ComparisonCard
-        brand="Thumbtack"
-        logoColor="#04b760"
-        rating={3.4}
-        score={64}
-        price="$46"
-        priceSub="Avg per lead · range $25–$75"
-        bestFor="high-volume shops"
-        pros={[
-          "High lead volume",
-          "Quick to start",
-          "Mobile dispatch app",
-        ]}
-        cons={[
-          "Same lead sold to 4–5 shops",
-          "Billed for a 'no thanks' reply",
-        ]}
-        ctaLabel="Compare in detail"
-        ctaHref="/compare/thumbtack/"
-        reviewHref="/compare/thumbtack/"
-      />
-      <ComparisonCard
-        brand="Angi"
-        logoColor="#a3151c"
-        rating={2.9}
-        score={52}
-        price="$50"
-        priceSub="Avg per lead · range $15–$100+"
-        bestFor="legacy shops"
-        pros={[
-          "Known brand",
-          "Vetted-pro program",
-          "Wide trade coverage",
-        ]}
-        cons={[
-          "Leads shared with 3–8 shops",
-          "30–35% cancellation penalty",
-        ]}
-        ctaLabel="Compare in detail"
-        ctaHref="/compare/angi/"
-        reviewHref="/compare/angi/"
-      />
-    </div>
+    <!-- Layered flow -->
+    <div class="mx-auto max-w-5xl space-y-5">
 
-    <div class="mt-14 text-center">
-      <a
-        href="/compare/"
-        class="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/25 transition-all hover:bg-white/10 hover:ring-[color:var(--color-mint-400)]/50"
-      >
-        See all platforms compared
-        <IconArrowRight size={16} stroke={2.25} />
-      </a>
+      <!-- Layer 1: existing channels -->
+      <div class="rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Your existing channels</span>
+          <div class="flex-1 h-px bg-white/10 hidden sm:block"></div>
+          <ul class="flex flex-wrap items-center gap-2">
+            {channels.map((c) => (
+              <li class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white">
+                <c.Icon size={14} stroke={2} />
+                {c.label}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p class="mt-3 text-sm leading-relaxed text-slate-300">
+          You already pay to drive traffic. Keep every dollar of it. Consent Resolve doesn't compete with these — it sits on top of them.
+        </p>
+      </div>
+
+      {/* Down arrow */}
+      <div aria-hidden="true" class="flex items-center justify-center">
+        <span class="flex size-8 items-center justify-center rounded-full bg-white/[0.06] text-slate-400">
+          <IconArrowRight size={16} stroke={2} class="rotate-90" />
+        </span>
+      </div>
+
+      <!-- Layer 2: the bounce -->
+      <div class="rounded-2xl bg-[color:var(--color-danger)]/15 p-6 ring-1 ring-inset ring-[color:var(--color-danger)]/30">
+        <div class="flex items-start gap-4">
+          <span class="mt-1 inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-danger)]/25">
+            <IconUserOff size={20} stroke={1.75} color="#fca5a5" />
+          </span>
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[#fca5a5]">The leak</p>
+            <p class="mt-1 text-lg font-bold text-white">98 out of 100 visitors leave without contacting you.</p>
+            <p class="mt-2 text-sm leading-relaxed text-slate-300">Every channel above sends traffic to your site. Most of it bounces. The ad spend that put them there evaporates.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Down arrow */}
+      <div aria-hidden="true" class="flex items-center justify-center">
+        <span class="flex size-8 items-center justify-center rounded-full bg-white/[0.06] text-slate-400">
+          <IconArrowRight size={16} stroke={2} class="rotate-90" />
+        </span>
+      </div>
+
+      <!-- Layer 3: Consent Resolve recovers -->
+      <div class="rounded-2xl bg-[color:var(--color-mint-400)]/15 p-6 ring-1 ring-inset ring-[color:var(--color-mint-400)]/40">
+        <div class="flex items-start gap-4">
+          <span class="mt-1 inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]/25">
+            <IconRefresh size={20} stroke={1.75} color="#00E5A0" />
+          </span>
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">Consent Resolve — the recovery layer</p>
+            <p class="mt-1 text-lg font-bold text-white">Recover the anonymous bounce — with consent.</p>
+            <p class="mt-2 text-sm leading-relaxed text-slate-300">Visitors who said yes to your banner are identified and handed back to the marketing machine you already run. Flat $7 per recovered lead.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Down arrow */}
+      <div aria-hidden="true" class="flex items-center justify-center">
+        <span class="flex size-8 items-center justify-center rounded-full bg-white/[0.06] text-slate-400">
+          <IconArrowRight size={16} stroke={2} class="rotate-90" />
+        </span>
+      </div>
+
+      <!-- Layer 4: existing funnel -->
+      <div class="rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Your existing funnel</span>
+          <div class="flex-1 h-px bg-white/10 hidden sm:block"></div>
+          <ul class="flex flex-wrap items-center gap-2">
+            {funnel.map((c) => (
+              <li class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white">
+                <c.Icon size={14} stroke={2} />
+                {c.label}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p class="mt-3 text-sm leading-relaxed text-slate-300">
+          Recovered visitors flow into the audiences, sequences, and pipelines you've already built. We're an input — not another tool to manage.
+        </p>
+      </div>
+
+      {/* Down arrow */}
+      <div aria-hidden="true" class="flex items-center justify-center">
+        <span class="flex size-8 items-center justify-center rounded-full bg-white/[0.06] text-slate-400">
+          <IconArrowRight size={16} stroke={2} class="rotate-90" />
+        </span>
+      </div>
+
+      <!-- Layer 5: result -->
+      <div class="rounded-2xl bg-gradient-to-br from-[color:var(--color-mint-400)]/25 via-[color:var(--color-mint-400)]/15 to-[color:var(--color-navy-900)]/20 p-6 ring-1 ring-inset ring-[color:var(--color-mint-400)]/50">
+        <div class="flex items-start gap-4">
+          <span class="mt-1 inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]">
+            <IconPhone size={20} stroke={2} color="#0A1628" />
+          </span>
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">The result</p>
+            <p class="mt-1 text-lg font-bold text-white">A warm inbound call from someone you already paid to reach.</p>
+            <p class="mt-2 text-sm leading-relaxed text-slate-300">The homeowner returns on their own time and dials you. Same ad budget, more booked jobs, lower blended cost per booked job.</p>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>

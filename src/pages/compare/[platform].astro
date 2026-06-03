@@ -1,11 +1,11 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Button from "~/components/ui/Button.astro";
-import Alert from "~/components/ui/Alert.astro";
+import Badge from "~/components/ui/Badge.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import { COMPARE_PAGES, type ComparePage } from "~/data/compare";
 import { breadcrumbSchema } from "~/lib/seo";
-import { IconArrowRight, IconCheck, IconX } from "@tabler/icons-react";
+import { IconArrowRight, IconCheck, IconUserOff, IconRefresh, IconPhone } from "@tabler/icons-react";
 
 export async function getStaticPaths() {
   return COMPARE_PAGES.map((p) => ({
@@ -22,10 +22,12 @@ const initials = page.brand.split(/\s+/).map((s) => s[0]).slice(0, 2).join("").t
 const schemas = [
   breadcrumbSchema([
     { name: "Home", href: "/" },
-    { name: "Compare", href: "/compare/" },
+    { name: "Channel ROI", href: "/compare/" },
     { name: page.brand, href: `/compare/${page.slug}/` },
   ]),
 ];
+
+const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
 ---
 
 <BaseLayout
@@ -39,12 +41,12 @@ const schemas = [
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
     <div class="container-content section relative">
       <div class="mx-auto max-w-4xl text-center">
-        <p class="eyebrow mb-7 justify-center">{page.eyebrow}</p>
-        <!-- Logo lockup -->
-        <div class="mb-7 inline-flex items-center gap-4">
-          <div class="flex size-14 items-center justify-center rounded-xl bg-[color:var(--color-navy-900)] font-display text-base font-black text-white">CR</div>
-          <span class="font-display text-2xl font-bold text-[color:var(--color-ink-muted)]">{page.type === "complement" ? "+" : "vs"}</span>
+        <Badge tone="brand" variant="soft" size="md" uppercase>{page.eyebrow}</Badge>
+        {/* Stacked logo lockup: channel + Consent Resolve layer-on-top */}
+        <div class="mb-7 mt-7 inline-flex items-center gap-4">
           <div class="flex size-14 items-center justify-center rounded-xl font-display text-base font-black text-white" style={`background:${page.brandColor}`}>{initials}</div>
+          <span class="font-display text-2xl font-bold text-[color:var(--color-ink-muted)]">+</span>
+          <div class="flex size-14 items-center justify-center rounded-xl bg-[color:var(--color-navy-900)] font-display text-base font-black text-white">CR</div>
         </div>
         <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">{page.h1}</h1>
         <p class="mx-auto max-w-3xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">{page.subhead}</p>
@@ -67,127 +69,146 @@ const schemas = [
     </div>
   </section>
 
-  {/* ============ RESELLER LAYOUT ============ */}
-  {page.type === "reseller" && (
-    <>
-      <!-- What they're good at (honest first) -->
-      <section class="section bg-[color:var(--color-bg-alt)]">
-        <div class="container-content">
-          <div class="grid items-start gap-12 md:grid-cols-[1fr_1fr]">
-            <div>
-              <p class="eyebrow mb-5">What {page.brand} is good at</p>
-              <h2 class="display-2 text-[color:var(--color-ink)]">The honest part first.</h2>
-            </div>
-            <ul class="space-y-4">
-              {page.goodAt?.map((item) => (
-                <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-ink-2)]">
-                  <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-bg)] ring-1 ring-inset ring-[color:var(--color-rule)]">
-                    <IconCheck size={14} stroke={2.5} color="#475569" />
-                  </span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
+  {/* Funnel explanation — REQUIRED on every compare page */}
+  <section class="section section-dark relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-1/2 size-[480px] -translate-y-1/2 rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
+    <div class="container-content relative max-w-4xl">
+      <div class="text-center">
+        <Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Where it fits</Badge>
+        <h2 class="display-2 mt-5 text-white">{page.funnelExplain.headline}</h2>
+        <p class="mt-6 text-lg leading-relaxed text-slate-300">{page.funnelExplain.body}</p>
+      </div>
+    </div>
+  </section>
+
+  {/* What the channel is good at — honest setup */}
+  <section class="section">
+    <div class="container-content">
+      <div class="grid items-start gap-12 md:grid-cols-[1fr_1fr]">
+        <div>
+          <Badge tone="neutral" variant="outline" size="sm" uppercase>What {page.brand} is good at</Badge>
+          <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">The honest part first.</h2>
+          <p class="mt-4 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+            Keep running {page.brand}. We're not asking you to switch — we're showing where the leak is.
+          </p>
+        </div>
+        <ul class="space-y-4">
+          {page.channelGoodAt.map((item) => (
+            <li class="flex items-start gap-3 rounded-xl bg-[color:var(--color-bg-alt)] p-4 ring-1 ring-inset ring-[color:var(--color-rule)]">
+              <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-bg)] ring-1 ring-inset ring-[color:var(--color-rule)]">
+                <IconCheck size={14} stroke={2.5} color="#475569" />
+              </span>
+              <span class="text-[15px] text-[color:var(--color-ink)]">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  {/* The leak — sets up the recovery, not a hit piece */}
+  <section class="section bg-[color:var(--color-bg-alt)]">
+    <div class="container-content max-w-4xl">
+      <div class="text-center mb-12">
+        <Badge tone="warning" variant="soft" size="md" uppercase>The leak</Badge>
+        <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">Where the spend evaporates.</h2>
+        <p class="mt-4 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{page.channelCpl}</p>
+      </div>
+      <ul class="grid gap-4 md:grid-cols-3">
+        {page.channelLeaks.map((leak) => (
+          <li class="rounded-2xl bg-[color:var(--color-bg)] p-6 ring-1 ring-inset ring-amber-200">
+            <IconUserOff size={20} stroke={1.75} color="#b45309" />
+            <p class="mt-3 text-[14px] leading-relaxed text-[color:var(--color-ink-2)]">{leak}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  {/* Booked-job math — cost-per-booked-job framing, NOT per-lead */}
+  <section class="section">
+    <div class="container-content max-w-4xl">
+      <div class="text-center mb-12">
+        <Badge tone="brand" variant="soft" size="md" uppercase>The math</Badge>
+        <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">Same ad budget. More booked jobs.</h2>
+      </div>
+
+      <div class="grid gap-5 md:grid-cols-2">
+        <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)]">
+          <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">{page.brand} alone (today)</p>
+          <p class="mt-3 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{page.bookedJobMath.setup}</p>
+        </div>
+        <div class="rounded-2xl bg-[color:var(--color-brand-soft)] p-7 ring-1 ring-inset ring-[color:var(--color-brand)]/40">
+          <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">{page.brand} + Consent Resolve</p>
+          <p class="mt-3 text-[15px] leading-relaxed text-[color:var(--color-ink)]">{page.bookedJobMath.withCR}</p>
+        </div>
+      </div>
+
+      <div class="mt-6 rounded-2xl bg-[color:var(--color-navy-900)] p-6 text-white">
+        <div class="flex items-start gap-3">
+          <IconRefresh size={22} stroke={1.75} color="#00E5A0" class="mt-1 shrink-0" />
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">Credibility check</p>
+            <p class="mt-2 text-[15px] leading-relaxed text-slate-200">{page.bookedJobMath.breakEven}</p>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- Where it costs you -->
-      <section class="section">
-        <div class="container-content">
-          <div class="mx-auto max-w-2xl text-center mb-12">
-            <p class="eyebrow mb-5 justify-center" style="color:#7F1D1D">Where it costs you</p>
-            <h2 class="display-2 text-[color:var(--color-ink)]">The math nobody puts on the front page.</h2>
-          </div>
-          <div class="mx-auto max-w-3xl">
-            <Alert variant="warning" title="The trade-off">
-              <ul class="mt-2 space-y-2 list-disc list-inside">
-                {page.costsYou?.map((item) => <li>{item}</li>)}
-              </ul>
-            </Alert>
-          </div>
-        </div>
-      </section>
+      {/* Per-trade CPL anchor strip */}
+      <div class="mt-6 rounded-2xl bg-[color:var(--color-bg-alt)] p-5 ring-1 ring-inset ring-[color:var(--color-rule)]">
+        <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-3">{page.brand} cost-per-lead by trade (industry benchmark)</p>
+        <ul class="flex flex-wrap gap-3">
+          {page.trades.map((t) => (
+            <li class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-bg)] px-3.5 py-1.5 text-xs font-semibold text-[color:var(--color-ink-2)] ring-1 ring-inset ring-[color:var(--color-rule)]">
+              <span class="text-[color:var(--color-ink-muted)]">{t.trade}</span>
+              <span class="font-bold text-[color:var(--color-ink)]">{fmtUsd(t.cpl)}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-4 text-[11px] leading-relaxed text-[color:var(--color-ink-muted)]">
+          Benchmarks are channel cost-per-lead anchors. Cost-per-booked-job depends on your close rate and ticket size — recovered visitors are <strong class="text-[color:var(--color-ink-2)]">incremental on top</strong>, never a replacement for these.
+        </p>
+      </div>
+    </div>
+  </section>
 
-      <!-- Side by side -->
-      <section class="section bg-[color:var(--color-bg-alt)]">
-        <div class="container-content">
-          <div class="mx-auto max-w-2xl text-center mb-12">
-            <p class="eyebrow mb-5 justify-center">Side by side</p>
-            <h2 class="display-2 text-[color:var(--color-ink)]">Feature by feature.</h2>
-          </div>
-          <div class="mx-auto max-w-3xl overflow-hidden rounded-2xl bg-[color:var(--color-bg-alt)] ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)]">
-            <table class="w-full">
-              <thead>
-                <tr class="border-b border-[color:var(--color-rule)] bg-[color:var(--color-bg)]">
-                  <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Feature</th>
-                  <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Consent Resolve</th>
-                  <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">{page.brand}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {page.comparisonRows?.map((row, i) => (
-                  <tr class={i % 2 === 1 ? "bg-[color:var(--color-bg)]/40" : ""}>
-                    <td class="px-5 py-3 text-sm font-semibold text-[color:var(--color-ink)]">{row.feature}</td>
-                    <td class="px-5 py-3 text-sm text-[color:var(--color-ink-2)]">
-                      <span class="font-semibold text-[color:var(--color-brand-pressed)]">{row.us}</span>
-                    </td>
-                    <td class="px-5 py-3 text-sm text-[color:var(--color-ink-2)]">{row.them}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-    </>
-  )}
-
-  {/* ============ COMPLEMENT LAYOUT (Google LSA) ============ */}
-  {page.type === "complement" && (
-    <>
-      <!-- Better together — two columns, NOT a comparison table -->
-      <section class="section bg-[color:var(--color-bg-alt)]">
-        <div class="container-content">
-          <div class="mx-auto max-w-2xl text-center mb-12">
-            <p class="eyebrow mb-5 justify-center">Better together</p>
-            <h2 class="display-2 text-[color:var(--color-ink)]">Two tools, two different jobs.</h2>
-          </div>
-          <div class="grid gap-6 md:grid-cols-2">
-            <div class="rounded-2xl bg-[color:var(--color-bg)] p-8 ring-1 ring-inset ring-[color:var(--color-rule)]">
-              <div class="mb-4 flex size-12 items-center justify-center rounded-xl font-display text-base font-black text-white" style={`background:${page.brandColor}`}>{initials}</div>
-              <h3 class="font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)] mb-3">{page.goodAtBlock?.title}</h3>
-              <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{page.goodAtBlock?.body}</p>
-            </div>
-            <div class="rounded-2xl bg-[color:var(--color-navy-900)] p-8 text-white shadow-[0_30px_60px_-30px_rgba(0,192,128,0.35)]">
-              <div class="mb-4 flex size-12 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)] font-display text-base font-black text-[color:var(--color-navy-900)]">CR</div>
-              <h3 class="font-display text-xl font-bold tracking-tight mb-3">{page.weAddBlock?.title}</h3>
-              <p class="text-[15px] leading-relaxed text-slate-300">{page.weAddBlock?.body}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- How they fit -->
-      <section class="section">
-        <div class="container-content">
-          <div class="mx-auto max-w-2xl text-center mb-12">
-            <p class="eyebrow mb-5 justify-center">How they fit</p>
-            <h2 class="display-2 text-[color:var(--color-ink)]">A simple, two-step flow.</h2>
-          </div>
-          <div class="mx-auto max-w-3xl space-y-3">
-            {page.howTheyFit?.map((step, i) => (
-              <div class="flex items-start gap-4 rounded-2xl bg-[color:var(--color-bg-alt)] p-5 ring-1 ring-inset ring-[color:var(--color-rule)]">
-                <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-mono text-[12px] font-bold text-[color:var(--color-mint-400)]">{i + 1}</span>
-                <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{step}</p>
-              </div>
+  {/* WITH / WITHOUT side-by-side */}
+  <section class="section bg-[color:var(--color-bg-alt)]">
+    <div class="container-content">
+      <div class="mx-auto max-w-2xl text-center mb-12">
+        <Badge tone="brand" variant="soft" size="md" uppercase>With / without</Badge>
+        <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">Your channel — same budget, two outcomes.</h2>
+      </div>
+      <div class="mx-auto max-w-4xl overflow-hidden rounded-2xl bg-[color:var(--color-bg)] ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)]">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+              <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]"></th>
+              <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">{page.brand} alone</th>
+              <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">{page.brand} + Consent Resolve</th>
+            </tr>
+          </thead>
+          <tbody>
+            {page.withWithoutRows.map((row, i) => (
+              <tr class={i % 2 === 1 ? "bg-[color:var(--color-bg-alt)]/40" : ""}>
+                <td class="px-5 py-4 text-sm font-semibold text-[color:var(--color-ink)]">{row.feature}</td>
+                <td class="px-5 py-4 text-sm text-[color:var(--color-ink-2)]">{row.without}</td>
+                <td class="px-5 py-4 text-sm">
+                  <span class="font-semibold text-[color:var(--color-brand-pressed)]">{row.with}</span>
+                </td>
+              </tr>
             ))}
-          </div>
-        </div>
-      </section>
-    </>
-  )}
+          </tbody>
+        </table>
+      </div>
 
-  <!-- Final CTA: pull H2 and body from the data, override the default -->
+      {/* Small-print baked assumptions */}
+      <p class="mx-auto mt-6 max-w-4xl text-center text-[11px] leading-relaxed text-[color:var(--color-ink-muted)]">
+        Default math constants — bounce 98%, recovery 15% of bounces (consent-adjusted), recovered-to-booked-job ~1%, Consent Resolve cost $7 per recovered lead. Conservative defaults; real performance varies by trade, traffic quality, close rate, and follow-up speed.
+      </p>
+    </div>
+  </section>
+
+  {/* Final CTA */}
   <FinalCTA heading={page.finalCtaH2} body={page.finalCtaBody} />
 </BaseLayout>

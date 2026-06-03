@@ -1,25 +1,37 @@
 /**
  * Compare-page data spine — feeds /compare/ hub and /compare/[platform]/.
- * Voice/facts: /style-guide/voice/ (single source of truth — see src/pages/style-guide/voice.astro). LSA is a complement, never a competitor.
+ * Voice/facts: /style-guide/voice/ (single source of truth — see src/pages/style-guide/voice.astro).
+ *
+ * Positioning (changed June 2026): every compare page is now ADDITIVE,
+ * never head-to-head. The reader keeps their channel; Consent Resolve
+ * sits on top and recovers the ~98 of 100 visitors that channel sent
+ * who left without contacting them. Cost-per-booked-job is the math
+ * unit, NEVER cost-per-lead — competitor CPL is the anchor, not the
+ * target.
+ *
+ * Baked constants for math (defaults; small-print disclose on the page):
+ *   - Bounce rate: 98%
+ *   - Recovery rate: 15% of bounced visitors (consent-adjusted)
+ *   - Recovered → booked job: 1%
+ *   - Consent Resolve cost: $7 per recovered lead
+ *
+ * Per-trade competitor CPL anchors (from the Consent Resolve Competitor
+ * CPL Matrix): roofing LSA $108, HVAC $78, plumbing $69, electrician
+ * $63, GC $57. Per-platform blended averages live on each page.
  */
 
 export type CompareType = "reseller" | "complement";
 
 export interface CompareTableRow {
   feature: string;
-  us: string;
-  them: string;
-}
-
-export interface CompareFaq {
-  q: string;
-  a: string;
+  with: string;   // with Consent Resolve added on top
+  without: string; // channel alone
 }
 
 export interface ComparePage {
-  slug: string;                   // e.g. "thumbtack"
-  brand: string;                  // "Thumbtack"
-  brandColor: string;             // logo color
+  slug: string;
+  brand: string;
+  brandColor: string;
   type: CompareType;
   // SEO
   titleTag: string;
@@ -29,18 +41,31 @@ export interface ComparePage {
   h1: string;
   subhead: string;
   /** 40–55-word AEO answer paragraph rendered as a citation-ready band
-   *  below the hero. Phrase as the verbatim user query ("Is Thumbtack
-   *  worth it…", "Angi alternative for contractors…"). */
+   *  below the hero. Frames the channel + CR as additive. */
   aeoAnswer: string;
-  // Reseller-only blocks
-  goodAt?: string[];              // "What they're good at" honest list
-  costsYou?: string[];            // "Where it costs you" list
-  cpl?: string;                   // "~$46 a lead (range $25–$75)"
-  comparisonRows?: CompareTableRow[];
-  // Complement-only blocks
-  goodAtBlock?: { title: string; body: string };
-  weAddBlock?: { title: string; body: string };
-  howTheyFit?: string[];
+  /** What this channel is good at. Honest, no slight. */
+  channelGoodAt: string[];
+  /** Where this channel leaks money. The setup for why CR helps —
+   *  NOT a "switch to us" pitch. */
+  channelLeaks: string[];
+  /** Anchor CPL for the channel, displayed in small print and used by
+   *  any math copy. Always range-or-blended; never compared 1:1 to $7. */
+  channelCpl: string;
+  /** Per-trade anchor numbers from the CPL matrix, used by per-page
+   *  math callouts. */
+  trades: { trade: string; cpl: number }[];
+  /** Cost-per-booked-job math — the with/without framing. */
+  bookedJobMath: {
+    setup: string;       // describes the without-CR baseline
+    withCR: string;      // describes the new combined result
+    breakEven: string;   // credibility line — "you only need N booked jobs to cover the cost"
+  };
+  /** Always-required "how CR feeds the funnel" explanation for
+   *  mid-evaluation readers. Page MUST render this. */
+  funnelExplain: { headline: string; body: string };
+  /** Side-by-side WITH/WITHOUT comparison rows (cost-per-booked-job
+   *  oriented, never per-lead). */
+  withWithoutRows: CompareTableRow[];
   // Final CTA
   finalCtaH2: string;
   finalCtaBody: string;
@@ -52,132 +77,200 @@ export const COMPARE_PAGES: ComparePage[] = [
     brand: "Thumbtack",
     brandColor: "#04b760",
     type: "reseller",
-    titleTag: "Consent Resolve vs Thumbtack | Exclusive Leads at $7 vs ~$46 Shared",
-    metaDescription: "Honest head-to-head: $7 exclusive leads vs ~$46 leads sold to 4–5 other shops. You get a real homeowner with a real phone, not a billable 'no thanks' reply.",
-    eyebrow: "Consent Resolve vs Thumbtack",
-    h1: "Consent Resolve vs Thumbtack: exclusive leads vs the same lead sold five times.",
-    subhead: "Both get you leads. Only one keeps them yours. Here's the honest difference.",
-    aeoAnswer: "Thumbtack works if you want volume and don't mind racing four other contractors to the same customer — typical loaded cost runs ~$46 per lead, with the same lead sold to 4–5 pros. Consent Resolve identifies visitors on your own website after they consent, hands you their name and mobile number, and never resells the lead. Flat $7 per lead, exclusive, no contract.",
-    goodAt: [
-      "Big lead volume, fast.",
-      "Quick to set up and a solid mobile app.",
-      "Useful if you want to fill a slow week with whatever comes in.",
+    titleTag: "More Booked Jobs From Your Thumbtack Spend | Consent Resolve",
+    metaDescription: "Thumbtack already sends contractors traffic — about 98 of every 100 of them bounce. Recover the bounce with consent, feed it back into your funnel, and book more jobs on the same Thumbtack budget. Flat $7 per recovered lead.",
+    eyebrow: "Channel ROI · Thumbtack",
+    h1: "More booked jobs from the Thumbtack budget you already spend.",
+    subhead: "Thumbtack drives visitors to your site. About 98 out of 100 of them leave without contacting you. Consent Resolve recovers the bounce — with consent — and feeds it back into the retargeting, email, and CRM funnels you already run.",
+    aeoAnswer: "Thumbtack costs contractors roughly $25–$75 per lead on average (about $46 loaded across most trades). Of the visitors Thumbtack sends to a contractor's website, around 98% leave without contacting them — pure waste on top of the per-lead fee. Consent Resolve recovers those bounced visitors with consent at a flat $7 per recovered lead and feeds them into the contractor's existing funnel, lowering the blended cost per booked job.",
+    channelGoodAt: [
+      "Volume and speed — fills a slow week.",
+      "Mobile dispatch app + quick setup.",
+      "Recognized brand homeowners search for directly.",
     ],
-    costsYou: [
-      "You pay for the contact, not the job — you can be billed when a homeowner just replies, even 'no thanks.'",
-      "Same lead goes to 4–5 other pros — you're racing them.",
-      "Tire-kickers, ghosts, and fake numbers count. Refund requests are often auto-denied.",
-      "Typical loaded cost runs about $46 a lead (range ~$25–$75 most trades) — and it's still shared.",
+    channelLeaks: [
+      "98 of 100 visitors Thumbtack sends to your site leave without contacting you.",
+      "Same lead pings 4–5 other contractors — most of the spend ends up paying for races you lose.",
+      "Loaded cost runs ~$46 per lead before factoring in tire-kickers and denied refunds.",
     ],
-    cpl: "~$46 a lead (range $25–$75 most trades)",
-    comparisonRows: [
-      { feature: "Lead exclusivity",                us: "Yours alone, never resold",  them: "Sold to 4–5 shops" },
-      { feature: "Average cost per lead",           us: "$7",                          them: "~$46 (range $25–$75)" },
-      { feature: "Billed for a 'no thanks' reply",  us: "No",                          them: "Yes" },
-      { feature: "Real name + mobile",              us: "Always",                      them: "Varies" },
-      { feature: "Refund process",                  us: "Credits for unreachable lines", them: "Frequently auto-denied" },
-      { feature: "You own the relationship",        us: "Yes",                         them: "Through Thumbtack" },
-      { feature: "Compliant by default",            us: "Yes (consent-first)",         them: "N/A" },
+    channelCpl: "~$46 average loaded cost per lead (range $25–$75 most trades).",
+    trades: [
+      { trade: "Roofing",     cpl: 108 },
+      { trade: "HVAC",        cpl: 78 },
+      { trade: "Plumbing",    cpl: 69 },
+      { trade: "Electrician", cpl: 63 },
+      { trade: "GC",          cpl: 57 },
     ],
-    finalCtaH2: "Stop paying to race four other shops.",
-    finalCtaBody: "At $7 a lead, every one is yours alone. Try it and see the difference for the cost of lunch.",
+    bookedJobMath: {
+      setup: "You're already paying Thumbtack to send traffic. Whatever your blended cost per booked job is today on Thumbtack alone, that's the baseline.",
+      withCR: "Add Consent Resolve as a recovery layer: ~15% of the bounced 98 become recovered leads at $7 each, and roughly 1% of those book a job. Same Thumbtack budget — more booked jobs at a lower blended $ per booked job.",
+      breakEven: "On a typical 1,000-visitor month, recovered visitors only need ~3 booked jobs (out of ~147 recoveries) to clear the $1,030 in recovery cost.",
+    },
+    funnelExplain: {
+      headline: "You don't choose between us and Thumbtack.",
+      body: "Keep running Thumbtack. Consent Resolve sits on top of your website — it doesn't compete with the leads Thumbtack hands you. It recovers the homeowners Thumbtack already sent to your site who left without contacting you. Those recovered visitors flow into your retargeting audiences, your email sequences, and your CRM. They come back on their own time and call you — a warm inbound, on top of the Thumbtack leads you already get.",
+    },
+    withWithoutRows: [
+      { feature: "Visitors Thumbtack sends to your site",  without: "Most bounce — 98 of 100",            with: "Same — Thumbtack delivery unchanged" },
+      { feature: "Bounced visitors recovered",              without: "0 (lost)",                            with: "~15% of bounces, with consent" },
+      { feature: "Cost of recovery layer",                  without: "—",                                    with: "$7 flat per recovered lead" },
+      { feature: "Where recovered visitors go",             without: "—",                                    with: "Your retargeting, email/SMS, CRM" },
+      { feature: "Result",                                  without: "What Thumbtack books",                with: "Thumbtack bookings + incremental inbound calls" },
+      { feature: "Blended cost per booked job",             without: "Thumbtack-only baseline",             with: "Lower (more jobs on same ad budget)" },
+      { feature: "Compliance",                              without: "On you",                              with: "Consent-first, Termageddon audit trail" },
+    ],
+    finalCtaH2: "Keep Thumbtack. Recover the rest.",
+    finalCtaBody: "Add the recovery layer that turns the 98% you're losing into incremental inbound calls. Flat $7 per recovered lead. No contract.",
   },
   {
     slug: "angi",
     brand: "Angi",
     brandColor: "#a3151c",
     type: "reseller",
-    titleTag: "Consent Resolve vs Angi | $7 Exclusive vs ~$50 Shared 3–8 Ways",
-    metaDescription: "Angi has the name recognition. But the lead you buy gets sold to 3–8 pros and ~30–50% of bad-lead disputes get denied. $7, exclusive, never resold.",
-    eyebrow: "Consent Resolve vs Angi",
-    h1: "Consent Resolve vs Angi: one lead for you, or one lead for everyone.",
-    subhead: "Angi has the name recognition. But the lead you buy isn't only yours. Here's the honest difference.",
-    aeoAnswer: "Angi (formerly Angie's List, parent of HomeAdvisor) charges ~$50 per lead and shares each lead with 3–8 contractors at once, with bad-lead dispute denials around 30–50% and auto-renew contracts that carry a 30–35% cancellation penalty. Consent Resolve identifies the homeowners shopping your own website after they consent — flat $7 per lead, exclusive, no contract, no cancellation penalty.",
-    goodAt: [
-      "A brand homeowners already know.",
-      "A vetted-pro program and wide trade coverage.",
-      "Helpful if you want reach without building your own traffic.",
+    titleTag: "More Booked Jobs From Your Angi Spend | Consent Resolve",
+    metaDescription: "Angi already sends contractors traffic — about 98 of every 100 of them bounce. Recover the bounce with consent, feed it back into your funnel, and book more jobs on the same Angi budget. Flat $7 per recovered lead.",
+    eyebrow: "Channel ROI · Angi",
+    h1: "More booked jobs from the Angi budget you already spend.",
+    subhead: "Angi drives visitors to your site. About 98 out of 100 of them leave without contacting you. Consent Resolve recovers the bounce — with consent — and feeds it back into the retargeting, email, and CRM funnels you already run.",
+    aeoAnswer: "Angi (parent of HomeAdvisor) typically costs contractors $15–$100+ per lead with a ~$50 average, and each lead is shared with 3–8 pros at once. Of the visitors Angi sends to a contractor's website, around 98% leave without contacting them. Consent Resolve recovers those bounced visitors with consent at a flat $7 per recovered lead, feeding them into the contractor's existing funnel and lowering the blended cost per booked job.",
+    channelGoodAt: [
+      "Brand recognition homeowners already trust.",
+      "Vetted-pro program + wide trade coverage.",
+      "Useful when you want reach without building your own traffic.",
     ],
-    costsYou: [
-      "Same lead resold to 3–8 pros — you're racing them all to respond first.",
-      "Bad-lead dispute credits denied roughly 30–50% of the time.",
-      "Auto-renew contracts with 30–35% cancellation penalties.",
-      "Typical loaded cost about $50 a lead (range ~$15–$100+ by trade) — still shared.",
+    channelLeaks: [
+      "98 of 100 visitors Angi sends to your site leave without contacting you.",
+      "Each lead is shared with 3–8 contractors — you're paying to race them.",
+      "Loaded cost averages ~$50 per lead, with bad-lead dispute denials around 30–50% and 30–35% cancellation penalties on auto-renew contracts.",
     ],
-    cpl: "~$50 a lead (range $15–$100+ by trade)",
-    comparisonRows: [
-      { feature: "Lead exclusivity",                us: "Yours alone, never resold",  them: "Shared with 3–8 pros" },
-      { feature: "Average cost per lead",           us: "$7",                          them: "~$50 (range $15–$100+)" },
-      { feature: "Real name + mobile",              us: "Always",                      them: "Varies" },
-      { feature: "Bad-lead dispute denial rate",    us: "Credits issued for unreachable lines", them: "~30–50% denied" },
-      { feature: "Contract",                        us: "No contract, cancel anytime", them: "Auto-renew, 30–35% cancel penalty" },
-      { feature: "You own the relationship",        us: "Yes",                         them: "Through Angi" },
-      { feature: "Compliant by default",            us: "Yes (consent-first)",         them: "N/A" },
+    channelCpl: "~$50 average loaded cost per lead (range $15–$100+ by trade).",
+    trades: [
+      { trade: "Roofing",     cpl: 108 },
+      { trade: "HVAC",        cpl: 78 },
+      { trade: "Plumbing",    cpl: 69 },
+      { trade: "Electrician", cpl: 63 },
+      { trade: "GC",          cpl: 57 },
     ],
-    finalCtaH2: "Keep the lead. Keep the relationship.",
-    finalCtaBody: "At $7 a lead, not one gets sold to the shop down the road. No contract, no cancellation penalty.",
+    bookedJobMath: {
+      setup: "Whatever your blended cost per booked job is today on Angi alone, that's the baseline. You're already paying for the visitors who came and left.",
+      withCR: "Add Consent Resolve as a recovery layer: ~15% of the bounced 98 become recovered leads at $7, and roughly 1% of those book a job. Same Angi budget — more booked jobs at a lower blended $ per booked job.",
+      breakEven: "On a typical 1,000-visitor month, recovered visitors only need ~3 booked jobs (out of ~147 recoveries) to clear the $1,030 in recovery cost.",
+    },
+    funnelExplain: {
+      headline: "You don't choose between us and Angi.",
+      body: "Keep running Angi. Consent Resolve doesn't replace the leads Angi sends you — it recovers the homeowners Angi already drove to your site who left without contacting you. Those recovered visitors flow into your retargeting audiences, your email sequences, and your CRM. They return on their own time and call you. Inbound on top of the Angi leads you already get.",
+    },
+    withWithoutRows: [
+      { feature: "Visitors Angi sends to your site",       without: "Most bounce — 98 of 100",            with: "Same — Angi delivery unchanged" },
+      { feature: "Bounced visitors recovered",              without: "0 (lost)",                            with: "~15% of bounces, with consent" },
+      { feature: "Cost of recovery layer",                  without: "—",                                    with: "$7 flat per recovered lead" },
+      { feature: "Where recovered visitors go",             without: "—",                                    with: "Your retargeting, email/SMS, CRM" },
+      { feature: "Result",                                  without: "What Angi books",                     with: "Angi bookings + incremental inbound calls" },
+      { feature: "Blended cost per booked job",             without: "Angi-only baseline",                  with: "Lower (more jobs on same ad budget)" },
+      { feature: "Compliance",                              without: "On you",                              with: "Consent-first, Termageddon audit trail" },
+    ],
+    finalCtaH2: "Keep Angi. Recover the rest.",
+    finalCtaBody: "Add the recovery layer that turns the 98% you're losing into incremental inbound calls. Flat $7 per recovered lead. No contract.",
   },
   {
     slug: "homeadvisor",
     brand: "HomeAdvisor",
     brandColor: "#f48120",
     type: "reseller",
-    titleTag: "Consent Resolve vs HomeAdvisor | $7 Exclusive vs Shared Leads",
-    metaDescription: "HomeAdvisor (now owned by Angi) sends the same homeowner to several pros and denies most dispute credits. $7 exclusive, never resold.",
-    eyebrow: "Consent Resolve vs HomeAdvisor",
-    h1: "Consent Resolve vs HomeAdvisor: a lead you own vs a lead you share.",
-    subhead: "HomeAdvisor (now owned by Angi) sends volume — and sends the same homeowner to your competitors. Here's the honest difference.",
-    aeoAnswer: "HomeAdvisor (now owned by Angi) typically charges ~$50 per lead and shares each lead with 3–8 contractors at the same time. In 2023 the FTC ordered HomeAdvisor to pay up to $7.2 million to settle charges of deceptive lead-quality claims. Consent Resolve identifies the homeowners on your own website after they consent — flat $7 per lead, exclusive, never resold.",
-    goodAt: [
-      "A large network and instant lead matching.",
+    titleTag: "More Booked Jobs From Your HomeAdvisor Spend | Consent Resolve",
+    metaDescription: "HomeAdvisor already sends contractors traffic — about 98 of every 100 of them bounce. Recover the bounce with consent, feed it back into your funnel, and book more jobs on the same HomeAdvisor budget. Flat $7 per recovered lead.",
+    eyebrow: "Channel ROI · HomeAdvisor",
+    h1: "More booked jobs from the HomeAdvisor budget you already spend.",
+    subhead: "HomeAdvisor (now owned by Angi) drives visitors to your site. About 98 out of 100 of them leave without contacting you. Consent Resolve recovers the bounce — with consent — and feeds it back into the funnel you already run.",
+    aeoAnswer: "HomeAdvisor (now owned by Angi) typically costs contractors ~$50 per lead and shares each lead with 3–8 pros. In 2023 the FTC ordered HomeAdvisor to pay up to $7.2M to settle charges of deceptive lead-quality claims. Of the visitors HomeAdvisor sends to a contractor's website, around 98% leave without contacting them. Consent Resolve recovers those bounced visitors with consent at $7 each, lowering blended cost per booked job.",
+    channelGoodAt: [
+      "Large network and instant lead matching.",
       "Broad category coverage across the trades.",
       "Useful if you want a firehose and don't mind the spray.",
     ],
-    costsYou: [
-      "Same lead resold to 3–8 pros at once — race to respond or lose it.",
-      "Bad-lead dispute credits denied ~30–50% of the time.",
-      "Auto-renew contracts with 30–35% cancellation penalties.",
-      "Typical loaded cost about $50 a lead (range ~$15–$100+ by trade).",
+    channelLeaks: [
+      "98 of 100 visitors HomeAdvisor sends to your site leave without contacting you.",
+      "Each lead is shared with 3–8 contractors at the same time.",
+      "Loaded cost averages ~$50 per lead, dispute denials ~30–50%, auto-renew contracts with 30–35% cancellation penalties.",
     ],
-    cpl: "~$50 a lead (range $15–$100+ by trade)",
-    comparisonRows: [
-      { feature: "Lead exclusivity",                us: "Yours alone, never resold",  them: "Shared with 3–8 pros" },
-      { feature: "Average cost per lead",           us: "$7",                          them: "~$50 (range $15–$100+)" },
-      { feature: "Real name + mobile",              us: "Always",                      them: "Varies" },
-      { feature: "Bad-lead dispute denial rate",    us: "Credits issued for unreachable lines", them: "~30–50% denied" },
-      { feature: "Contract",                        us: "No contract, cancel anytime", them: "Auto-renew, 30–35% cancel penalty" },
-      { feature: "You own the relationship",        us: "Yes",                         them: "Through HomeAdvisor" },
-      { feature: "Compliant by default",            us: "Yes (consent-first)",         them: "N/A" },
+    channelCpl: "~$50 average loaded cost per lead (range $15–$100+ by trade).",
+    trades: [
+      { trade: "Roofing",     cpl: 108 },
+      { trade: "HVAC",        cpl: 78 },
+      { trade: "Plumbing",    cpl: 69 },
+      { trade: "Electrician", cpl: 63 },
+      { trade: "GC",          cpl: 57 },
     ],
-    finalCtaH2: "Pay for leads that are actually yours.",
-    finalCtaBody: "$7 a lead — exclusive, real, no contract, no cancellation penalty. See for yourself.",
+    bookedJobMath: {
+      setup: "Whatever your blended cost per booked job is today on HomeAdvisor alone, that's the baseline. The visitors who arrived and left are already paid for.",
+      withCR: "Add Consent Resolve as a recovery layer: ~15% of the bounced 98 become recovered leads at $7, and roughly 1% of those book a job. Same HomeAdvisor budget — more booked jobs at a lower blended $ per booked job.",
+      breakEven: "On a typical 1,000-visitor month, recovered visitors only need ~3 booked jobs (out of ~147 recoveries) to clear the $1,030 in recovery cost.",
+    },
+    funnelExplain: {
+      headline: "You don't choose between us and HomeAdvisor.",
+      body: "Keep running HomeAdvisor. Consent Resolve doesn't replace the leads HomeAdvisor sends you — it recovers the homeowners HomeAdvisor already drove to your site who left without contacting you. Those recovered visitors flow into your retargeting audiences, your email sequences, and your CRM. They return on their own time and call you.",
+    },
+    withWithoutRows: [
+      { feature: "Visitors HomeAdvisor sends to your site", without: "Most bounce — 98 of 100",            with: "Same — HomeAdvisor delivery unchanged" },
+      { feature: "Bounced visitors recovered",              without: "0 (lost)",                            with: "~15% of bounces, with consent" },
+      { feature: "Cost of recovery layer",                  without: "—",                                    with: "$7 flat per recovered lead" },
+      { feature: "Where recovered visitors go",             without: "—",                                    with: "Your retargeting, email/SMS, CRM" },
+      { feature: "Result",                                  without: "What HomeAdvisor books",              with: "HomeAdvisor bookings + incremental inbound calls" },
+      { feature: "Blended cost per booked job",             without: "HomeAdvisor-only baseline",           with: "Lower (more jobs on same ad budget)" },
+      { feature: "Compliance",                              without: "On you",                              with: "Consent-first, Termageddon audit trail" },
+    ],
+    finalCtaH2: "Keep HomeAdvisor. Recover the rest.",
+    finalCtaBody: "Add the recovery layer that turns the 98% you're losing into incremental inbound calls. Flat $7 per recovered lead. No contract.",
   },
   {
     slug: "google-local-service-ads",
     brand: "Google LSA",
     brandColor: "#1a73e8",
     type: "complement",
-    titleTag: "Consent Resolve + Google LSA | Keep the Calls, Catch the Rest",
-    metaDescription: "LSA is great at one thing — calls from people ready to dial. Consent Resolve catches the homeowners who clicked, looked, and left. Run both.",
-    eyebrow: "Consent Resolve + Google LSA",
-    h1: "Consent Resolve + Google LSA: keep the calls, catch the rest.",
-    subhead: "LSA is great at one thing — calls from people ready to dial. But plenty of homeowners click your ad, look around your site, and leave without calling. Consent Resolve hands you those names. Run both.",
-    aeoAnswer: "Google Local Service Ads (LSA) deliver phone calls from homeowners ready to dial, with a blended cost around $53 per lead and a ~44% book rate — the channel that doesn't share leads. Consent Resolve complements LSA by identifying the homeowners who clicked your ad, browsed your site, and left without calling — flat $7 per lead, exclusive, no contract. Keep LSA running; add Consent Resolve to catch the rest.",
-    goodAtBlock: {
-      title: "What Google LSA does well.",
-      body: "Puts you at the top of search with the Google Verified badge and sends calls from homeowners ready to talk. ~44% of those calls book a job, blended cost around $53. Keep running it.",
-    },
-    weAddBlock: {
-      title: "What Consent Resolve adds.",
-      body: "Catches the homeowners who clicked, visited your site, and left without calling. When they consent, you get their name and number — so you can reach out instead of losing them. And in 2025 Google killed credits for 'wrong-job-type' or 'out-of-area' leads on LSA, so Consent Resolve is the safety net for the ones LSA never connects you with.",
-    },
-    howTheyFit: [
-      "LSA gets the homeowner to your site or on the phone.",
-      "Consent Resolve reveals the ones who visited but didn't call.",
-      "You follow up on both. More of the traffic you already pay for turns into booked jobs.",
+    titleTag: "More Booked Jobs From Your Google LSA Spend | Consent Resolve",
+    metaDescription: "Google LSA already sends contractors calls and visitors — about 98 of every 100 site visitors bounce without dialing. Recover the bounce with consent, feed it back into your funnel, and book more jobs on the same LSA budget.",
+    eyebrow: "Channel ROI · Google LSA",
+    h1: "More booked jobs from the LSA budget you already spend.",
+    subhead: "LSA is great at one thing — calls from people ready to dial. But the homeowners who clicked your ad, looked at your site, and didn't call are still paid for. Consent Resolve recovers them — with consent — and feeds them back into your funnel.",
+    aeoAnswer: "Google Local Service Ads (LSA) deliver calls at a blended ~$53 per lead with a ~44% book rate — the channel that doesn't share leads. But about 98% of the visitors LSA sends to a contractor's website never call. Consent Resolve recovers those bounced visitors with consent at flat $7 per recovered lead, feeding them into the contractor's retargeting and CRM. LSA stays unchanged; recovered visitors are pure incremental upside.",
+    channelGoodAt: [
+      "Calls from people ready to talk — ~44% book rate.",
+      "Google Verified badge places you at the top of search.",
+      "The channel that doesn't share leads — every LSA call is yours.",
     ],
-    finalCtaH2: "Don't replace LSA. Finish the job it starts.",
-    finalCtaBody: "Keep your LSA running. Add Consent Resolve at flat $7 a lead and catch the homeowners LSA never connected you with.",
+    channelLeaks: [
+      "98 of 100 visitors LSA sends to your site never call you.",
+      "In 2025 Google killed credits for 'wrong-job-type' and 'out-of-area' leads.",
+      "Blended cost runs around $53 per lead, with trade ranges from $39 to $162.",
+    ],
+    channelCpl: "~$53 average blended cost per lead (range $39–$162 by trade).",
+    trades: [
+      { trade: "Roofing",     cpl: 108 },
+      { trade: "HVAC",        cpl: 78 },
+      { trade: "Plumbing",    cpl: 69 },
+      { trade: "Electrician", cpl: 63 },
+      { trade: "GC",          cpl: 57 },
+    ],
+    bookedJobMath: {
+      setup: "LSA already books some of the contacts it generates. The visitors who clicked, looked, and didn't call are already paid for.",
+      withCR: "Add Consent Resolve as a recovery layer: ~15% of the bounced 98 become recovered leads at $7, and roughly 1% of those book a job. LSA's book rate stays the same — you just get incremental inbound calls on top.",
+      breakEven: "On a typical 1,000-visitor month, recovered visitors only need ~3 booked jobs (out of ~147 recoveries) to clear the $1,030 in recovery cost.",
+    },
+    funnelExplain: {
+      headline: "Don't replace LSA. Finish the job it starts.",
+      body: "LSA gets the homeowner to your site or on the phone. Consent Resolve handles the ones who visited but didn't call — they flow into your retargeting, your email sequences, your CRM, and return on their own time as inbound calls. You keep LSA running and you keep every LSA call. The recovered visitors are pure additive upside.",
+    },
+    withWithoutRows: [
+      { feature: "Calls LSA generates",                     without: "Same as today",                       with: "Unchanged — LSA stays" },
+      { feature: "Visitors who clicked, didn't call",       without: "Bounce — 98 of 100",                  with: "~15% recovered with consent" },
+      { feature: "Cost of recovery layer",                  without: "—",                                    with: "$7 flat per recovered lead" },
+      { feature: "Where recovered visitors go",             without: "—",                                    with: "Your retargeting, email/SMS, CRM" },
+      { feature: "Result",                                  without: "LSA's book rate",                     with: "LSA bookings + incremental inbound calls" },
+      { feature: "Blended cost per booked job",             without: "LSA-only baseline",                   with: "Lower (more jobs on same ad budget)" },
+      { feature: "Compliance",                              without: "Your responsibility",                  with: "Consent-first, Termageddon audit trail" },
+    ],
+    finalCtaH2: "Keep LSA. Recover the rest.",
+    finalCtaBody: "Add the recovery layer that turns the 98% you're losing into incremental inbound calls. Flat $7 per recovered lead.",
   },
 ];
 

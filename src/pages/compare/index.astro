@@ -1,153 +1,87 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import { COMPARE_PAGES } from "~/data/compare";
 import { breadcrumbSchema, itemListSchema } from "~/lib/seo";
-import { IconArrowRight, IconCheck, IconX, IconMinus } from "@tabler/icons-react";
-
-const resellers = COMPARE_PAGES.filter((p) => p.type === "reseller");
-const complements = COMPARE_PAGES.filter((p) => p.type === "complement");
+import { IconArrowRight, IconRefresh } from "@tabler/icons-react";
 
 const schemas = [
   breadcrumbSchema([
     { name: "Home", href: "/" },
-    { name: "Compare", href: "/compare/" },
+    { name: "Channel ROI", href: "/compare/" },
   ]),
   itemListSchema({
-    name: "Lead generation platforms compared with Consent Resolve",
+    name: "Lead channels — recover more booked jobs from each",
     items: COMPARE_PAGES.map((c) => ({
       name: c.brand,
       url: `https://consentresolve.com/compare/${c.slug}/`,
     })),
   }),
 ];
-
-const matrixRows = [
-  { label: "Exclusive lead",          us: true,  thumbtack: false, angi: false, homeadvisor: false, lsa: "complement" },
-  { label: "Real name + number",      us: true,  thumbtack: "partial", angi: "partial", homeadvisor: "partial", lsa: "partial" },
-  { label: "Compliant by default",    us: true,  thumbtack: "n/a", angi: "n/a", homeadvisor: "n/a", lsa: "n/a" },
-  { label: "Cost per lead",           us: "$7", thumbtack: "~$46", angi: "~$50", homeadvisor: "~$50", lsa: "~$53" },
-  { label: "You own the relationship", us: true,  thumbtack: false, angi: false, homeadvisor: false, lsa: true },
-];
-
-const cell = (v: any) => {
-  if (v === true) return { icon: "check", label: "Yes" };
-  if (v === false) return { icon: "x", label: "No" };
-  if (v === "partial") return { icon: "minus", label: "Varies" };
-  if (v === "n/a") return { icon: "minus", label: "N/A" };
-  if (v === "complement") return { icon: null, label: "Different model" };
-  return { icon: null, label: String(v) };
-};
 ---
 
 <BaseLayout
-  title="How Consent Resolve Compares | Consent Resolve"
-  description="Two honest truths: we replace the shared-lead platforms that sell your lead to four other shops, and we sit alongside the channels that already work for you. Compare $7-per-lead exclusive leads vs the alternatives."
+  title="Channel ROI — Recover More Booked Jobs From Every Ad Source | Consent Resolve"
+  description="Whatever you're spending on Google LSA, Thumbtack, Angi, or HomeAdvisor, about 98 of every 100 visitors leave without contacting you. Consent Resolve recovers the bounce — with consent — and feeds it back into your funnel. Same ad budget, more inbound calls."
   schema={schemas}
 >
   <!-- Hero -->
   <section class="relative overflow-hidden">
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
+    <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-32 size-[420px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
     <div class="container-content section relative">
       <div class="mx-auto max-w-3xl text-center">
-        <p class="eyebrow mb-7 justify-center">Compare</p>
-        <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
-          How Consent Resolve stacks up —<br/>
-          <span class="text-[color:var(--color-brand)]">and where it doesn't compete at all.</span>
+        <Badge tone="brand" variant="soft" size="md" uppercase>Channel ROI</Badge>
+        <h1 class="display-1 mb-7 mt-7 text-[color:var(--color-ink)]">
+          Same ad budget.<br/>
+          <span class="text-[color:var(--color-brand-pressed)]">More booked jobs.</span>
         </h1>
         <p class="mx-auto max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-          Two honest truths: we replace the shared-lead platforms that sell your lead to four other shops, and we sit alongside the channels that already work for you.
+          Whatever you're spending on Google LSA, Thumbtack, Angi, or HomeAdvisor, about 98 of every 100 visitors those channels send to your site leave without contacting you. Consent Resolve recovers the bounce — with consent — and feeds it back into the funnel you already run. Pick your channel below and see the with/without math.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- Two routing groups -->
-  <section class="pb-16">
+  <!-- Channels grid -->
+  <section class="pb-24">
     <div class="container-content">
-      <div class="grid gap-8 md:grid-cols-2">
-        <!-- Replaces -->
-        <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)]">
-          <p class="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--color-danger)]">We replace these</p>
-          <p class="mt-2 text-sm text-[color:var(--color-ink-2)]">Shared-lead resellers — same lead, sold to four other shops.</p>
-          <ul class="mt-6 space-y-3">
-            {resellers.map((r) => (
-              <li>
-                <a href={`/compare/${r.slug}/`} class="group flex items-center gap-4 rounded-xl bg-[color:var(--color-bg)] p-4 transition-all hover:bg-[color:var(--color-brand-soft)] hover:ring-1 hover:ring-inset hover:ring-[color:var(--color-brand)]/30">
-                  <div class="flex size-10 items-center justify-center rounded-lg font-display text-[12px] font-black text-white" style={`background:${r.brandColor}`}>
-                    {r.brand.split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase()}
-                  </div>
-                  <span class="flex-1 font-semibold tracking-tight text-[color:var(--color-ink)]">vs {r.brand}</span>
-                  <IconArrowRight size={16} stroke={2.25} class="text-[color:var(--color-ink-muted)] transition-all group-hover:translate-x-0.5 group-hover:text-[color:var(--color-brand-pressed)]" />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <!-- Complements -->
-        <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)]">
-          <p class="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--color-brand-pressed)]">We work alongside these</p>
-          <p class="mt-2 text-sm text-[color:var(--color-ink-2)]">Channels you already run — your own ads, SEO, and Google LSA.</p>
-          <ul class="mt-6 space-y-3">
-            {complements.map((c) => (
-              <li>
-                <a href={`/compare/${c.slug}/`} class="group flex items-center gap-4 rounded-xl bg-[color:var(--color-bg)] p-4 transition-all hover:bg-[color:var(--color-brand-soft)] hover:ring-1 hover:ring-inset hover:ring-[color:var(--color-brand)]/30">
-                  <div class="flex size-10 items-center justify-center rounded-lg font-display text-[12px] font-black text-white" style={`background:${c.brandColor}`}>
-                    {c.brand.split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase()}
-                  </div>
-                  <span class="flex-1 font-semibold tracking-tight text-[color:var(--color-ink)]">+ {c.brand}</span>
-                  <IconArrowRight size={16} stroke={2.25} class="text-[color:var(--color-ink-muted)] transition-all group-hover:translate-x-0.5 group-hover:text-[color:var(--color-brand-pressed)]" />
-                </a>
-              </li>
-            ))}
-            <li class="rounded-xl bg-[color:var(--color-bg)] p-4 text-sm text-[color:var(--color-ink-muted)]">
-              Your ads · your SEO · any traffic source
-            </li>
-          </ul>
-        </div>
+      <div class="grid gap-6 md:grid-cols-2">
+        {COMPARE_PAGES.map((c) => (
+          <a
+            href={`/compare/${c.slug}/`}
+            class="group flex h-full flex-col overflow-hidden rounded-3xl bg-[color:var(--color-bg)] ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-1 hover:ring-[color:var(--color-brand)]/40 hover:shadow-[0_30px_60px_-28px_rgba(10,22,40,0.25)]"
+          >
+            <div class="flex items-center justify-between gap-4 p-7 pb-0">
+              <div class="flex items-center gap-3">
+                <div class="flex size-12 items-center justify-center rounded-xl font-display text-sm font-black text-white" style={`background:${c.brandColor}`}>
+                  {c.brand.split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase()}
+                </div>
+                <div>
+                  <p class="font-display text-lg font-black tracking-tight text-[color:var(--color-ink)]">{c.brand}</p>
+                  <p class="text-xs text-[color:var(--color-ink-muted)]">{c.channelCpl}</p>
+                </div>
+              </div>
+              <IconRefresh size={20} stroke={1.75} class="text-[color:var(--color-brand-pressed)]" />
+            </div>
+            <div class="flex-1 p-7 pt-5">
+              <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{c.subhead}</p>
+              <span class="mt-6 inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] transition-all group-hover:gap-2.5">
+                See the with/without math
+                <IconArrowRight size={14} stroke={2.5} />
+              </span>
+            </div>
+          </a>
+        ))}
       </div>
-    </div>
-  </section>
 
-  <!-- Master matrix -->
-  <section class="section bg-[color:var(--color-bg-alt)]">
-    <div class="container-content">
-      <div class="mx-auto max-w-2xl text-center mb-12">
-        <p class="eyebrow mb-5 justify-center">Feature matrix</p>
-        <h2 class="display-2 text-[color:var(--color-ink)]">The whole picture, in one table.</h2>
-      </div>
-      <div class="mx-auto max-w-5xl overflow-x-auto rounded-2xl bg-[color:var(--color-bg-alt)] ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)]">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-[color:var(--color-rule)] bg-[color:var(--color-bg)]">
-              <th class="sticky left-0 bg-[color:var(--color-bg)] px-5 py-4 text-left text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Feature</th>
-              <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Consent<br/>Resolve</th>
-              <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Thumbtack</th>
-              <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Angi</th>
-              <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Home<br/>Advisor</th>
-              <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Google<br/>LSA</th>
-            </tr>
-          </thead>
-          <tbody>
-            {matrixRows.map((row, i) => (
-              <tr class={i % 2 === 1 ? "bg-[color:var(--color-bg)]/30" : ""}>
-                <td class="sticky left-0 bg-[color:var(--color-bg-alt)] px-5 py-3 font-semibold text-[color:var(--color-ink)]">{row.label}</td>
-                {[row.us, row.thumbtack, row.angi, row.homeadvisor, row.lsa].map((v, idx) => {
-                  const c = cell(v);
-                  return (
-                    <td class={`px-4 py-3 text-center ${idx === 0 ? "bg-[color:var(--color-brand-soft)]/40 font-semibold text-[color:var(--color-brand-pressed)]" : "text-[color:var(--color-ink-2)]"}`}>
-                      {c.icon === "check" && <IconCheck size={18} stroke={2.5} color="#00A86E" class="inline" />}
-                      {c.icon === "x"     && <IconX size={18} stroke={2.25} color="#7F1D1D" class="inline opacity-70" />}
-                      {c.icon === "minus" && <IconMinus size={18} stroke={2.5} color="#94a3b8" class="inline" />}
-                      {c.icon === null && c.label}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <!-- Universal callout: works on any channel -->
+      <div class="mt-10 rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] text-center">
+        <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">It works on any traffic source</p>
+        <p class="mt-3 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+          Your own Google Ads · Meta Ads · SEO · email · partner referrals · QR codes — wherever the visitor came from, the bounce is recoverable as long as your consent banner is on the page.
+        </p>
       </div>
     </div>
   </section>
