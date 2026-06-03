@@ -1,6 +1,7 @@
 ---
 import { IconCheck, IconX } from "@tabler/icons-react";
 import Button from "./Button.astro";
+import Badge from "./Badge.astro";
 
 export interface Tier {
   name: string;
@@ -30,12 +31,14 @@ const { tiers } = Astro.props as Props;
       ]}
     >
       {t.badge && (
-        <span
-          class:list={[
-            "absolute -top-3 right-6 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em]",
-            t.featured ? "bg-[color:var(--color-mint-400)] text-[color:var(--color-navy-900)]" : "bg-[color:var(--color-navy-900)] text-white",
-          ]}
-        >{t.badge}</span>
+        <span class="absolute -top-3 right-6">
+          <Badge
+            tone={t.featured ? "brand" : "neutral"}
+            variant="solid"
+            size="sm"
+            uppercase
+          >{t.badge}</Badge>
+        </span>
       )}
       <div class="mb-5">
         <p class:list={["text-xs font-semibold uppercase tracking-[0.16em]", t.featured ? "text-[color:var(--color-mint-400)]" : "text-[color:var(--color-brand-pressed)]"]}>{t.name}</p>
