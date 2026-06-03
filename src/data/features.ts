@@ -84,7 +84,7 @@ const exclusiveLeads: Feature = {
   name: "Exclusive Leads",
   iconKey: "IconLock",
   tagline: "Yours alone. Never resold.",
-  howItHelps: "Your lead doesn't go to anyone else. The homeowner is calling you, not racing to call back the four other contractors Thumbtack just emailed. One consent, one contractor — you.",
+  howItHelps: "The visitor came to your website. The recovery is yours — never resold, never shared, never auctioned. One consent, one contractor, one funnel. The recovered records never touch a marketplace.",
   illustration: "/illustrations/style/07-lead-house-lock.svg",
   subhead: "The visitors we identify came to your site — so the lead is yours alone. Never shared, never resold, never handed to the contractor down the road.",
   aeoAnswer:
@@ -140,8 +140,8 @@ const consentFirstIdentification: Feature = {
   slug: "consent-first-identification",
   name: "Consent-First Identification",
   iconKey: "IconUserCheck",
-  tagline: "They opted in. You reach out.",
-  howItHelps: "Every homeowner you reach out to said 'yes' first. Friendlier calls, cleaner conscience, and a paper trail if anyone ever asks how you got their number.",
+  tagline: "Every recovery starts with a yes.",
+  howItHelps: "Every recovered visitor said yes to your consent banner first. The records that enter your funnel are clean, opted-in, and audit-logged — so the people retargeting and email reach are people who already raised a hand.",
   illustration: "/illustrations/features/02-consent-checkmark.svg",
   subhead: "Every person we identify opted in. You're reaching out to someone who already raised their hand — not a cold name off a purchased list.",
   aeoAnswer:
@@ -197,8 +197,8 @@ const channelRecovery: Feature = {
   slug: "channel-recovery",
   name: "Channel Recovery",
   iconKey: "IconRefresh",
-  tagline: "Catch what your ads miss.",
-  howItHelps: "Keep running your Google, LSA, Thumbtack ads — we catch the 98 out of 100 people they send to your site who would've left without a name. You squeeze more jobs out of the same ad budget.",
+  tagline: "Recover the 98% that bounce.",
+  howItHelps: "This is the pillar. Every channel you run — Google, LSA, Meta, Thumbtack, SEO — sends visitors to your site, and about 98 of every 100 leave without contacting you. Channel Recovery turns that bounce into recovered records, fed back into your funnel. Same ad budget, more booked jobs.",
   illustration: "/illustrations/features/03-channel-recovery.svg",
   subhead: "Consent Resolve doesn't replace Google, Thumbtack, or Angi. It sits on top of them and catches the customers they send who leave without calling.",
   aeoAnswer:
@@ -315,8 +315,8 @@ const visitorIdentification: Feature = {
   slug: "visitor-identification",
   name: "Visitor Identification",
   iconKey: "IconEye",
-  tagline: "Real people, not numbers.",
-  howItHelps: "Stop staring at 'visitors today: 47.' See actual people with actual names and phone numbers you can actually call. A pipeline you can pick up, not a chart you can squint at.",
+  tagline: "Real people. Funnel fuel.",
+  howItHelps: "Stop staring at a 'visitors today: 47' counter. See the real people behind your traffic — names, contact details, and what they were shopping — turned into funnel fuel your retargeting and email sequences can act on.",
   illustration: "/illustrations/style/01-contact-card.svg",
   subhead: "Stop staring at a visitor counter that tells you nothing. See the real people behind your traffic — who came, what they wanted, how to reach them.",
   aeoAnswer:
@@ -372,8 +372,8 @@ const formlessContactCapture: Feature = {
   slug: "formless-contact-capture",
   name: "Formless Contact Capture",
   iconKey: "IconAddressBook",
-  tagline: "No form? No problem.",
-  howItHelps: "98 out of 100 homeowners never fill out your contact form. We get you their name, number, and email anyway — without them typing a single field.",
+  tagline: "Recover without a form.",
+  howItHelps: "Only about 2% of website visitors ever fill out your contact form. Formless capture recovers the other 98% — with consent — so they can re-enter your funnel without typing a thing.",
   illustration: "/illustrations/features/06-formless-capture.svg",
   subhead: "Get a name, phone, and email for visitors who never filled out a single form — the ones who'd normally just disappear.",
   aeoAnswer:
@@ -429,8 +429,8 @@ const verifiedContactData: Feature = {
   slug: "verified-contact-data",
   name: "Verified Contact Data",
   iconKey: "IconShieldCheck",
-  tagline: "Reachable, not dead.",
-  howItHelps: "Every number we hand you is one you can actually reach. No dead lines, no bounced emails, no morning burned dialing a stack of garbage.",
+  tagline: "Reachable records only.",
+  howItHelps: "Every recovered visitor that enters your funnel is a real, reachable person — verified contact data, recent activity. Your retargeting and email sequences hit deliverable inboxes, not dead ones.",
   illustration: "/illustrations/features/07-verified-data.svg",
   subhead: "We only hand you people who are reachable and recently active — so your crew isn't burning the morning dialing dead numbers.",
   aeoAnswer:
@@ -486,8 +486,8 @@ const instantConnect: Feature = {
   slug: "instant-connect",
   name: "Instant Connect",
   iconKey: "IconBolt",
-  tagline: "Call while it's hot.",
-  howItHelps: "The phone number lands while the homeowner is still on your site shopping. First contractor to call usually wins the job — that's you, not the guy who checks his email at 5 pm.",
+  tagline: "Know the moment they re-engage.",
+  howItHelps: "Funnel timing is everything. The instant a recovered visitor re-engages with your retargeting, your email, or returns to your site, you know — so your follow-up fires at the right beat and the inbound call comes in warm.",
   illustration: "/illustrations/features/08-instant-connect.svg",
   subhead: "The number's in your hand, ready to dial while they're still deciding who to hire. Strike while the interest is hot.",
   aeoAnswer:
@@ -543,8 +543,8 @@ const realTimeMobileAlerts: Feature = {
   slug: "real-time-mobile-alerts",
   name: "Real-Time Mobile Alerts",
   iconKey: "IconBellRinging",
-  tagline: "Buzzes the second they're in.",
-  howItHelps: "Your phone buzzes the second a lead is ready. Call from the truck, the roof, the supply yard — wherever you are. No dashboard to babysit, no missed leads sitting in an inbox overnight.",
+  tagline: "Real-time funnel pings.",
+  howItHelps: "When a recovered visitor enters your funnel or re-engages later, your phone gets a push. No dashboard to babysit, no missed re-engagement moments — your follow-up sequence stays in step with what the homeowner is actually doing.",
   illustration: "/illustrations/style/04-phone-alert.svg",
   subhead: "New leads hit your phone within minutes — on the roof or in the truck — so you reach out before your competitor even knows that customer existed.",
   aeoAnswer:
@@ -604,8 +604,8 @@ const leadScoring: Feature = {
   slug: "lead-scoring",
   name: "Lead Scoring",
   iconKey: "IconStar",
-  tagline: "Serious ones first.",
-  howItHelps: "The serious buyers float to the top of your list. Three pricing-page visits beats a one-second bounce every time — so your best hours go to your best leads.",
+  tagline: "Score recovered visitors.",
+  howItHelps: "Not every recovered visitor is the same — three pricing-page visits beats a one-second bounce every time. Lead scoring ranks your recovered records so your hottest segments get into the warmest retargeting and the most urgent email sequences.",
   illustration: "/illustrations/features/10-lead-scoring.svg",
   subhead: "Not every visitor is worth a call. We surface the serious ones first — three pricing-page visits beats a one-second bounce every time.",
   aeoAnswer:
@@ -661,8 +661,8 @@ const behaviorAndJobTypeInsights: Feature = {
   slug: "behavior-and-job-type-insights",
   name: "Behavior & Job-Type Insights",
   iconKey: "IconClipboardCheck",
-  tagline: "Know the job before you dial.",
-  howItHelps: "Walk into the call already knowing they're shopping a re-roof, not a patch. You open as the expert who 'read their mind' — and you close more.",
+  tagline: "Tag visitors by intent.",
+  howItHelps: "Each recovered record carries what they were shopping — re-roof vs patch, water-heater quote vs full re-pipe. Your retargeting and email sequences segment by intent so the message that brings them back is the message they came for.",
   illustration: "/illustrations/style/03-speech-wrench.svg",
   subhead: "See which service each visitor looked at and how long they spent. Your first call already knows whether they want a quick repair or a full replacement.",
   aeoAnswer:
@@ -776,7 +776,7 @@ const qualifiedLeadsOnly: Feature = {
   name: "Qualified Leads Only",
   iconKey: "IconFilter",
   tagline: "Real, identified, in-area. Nothing else.",
-  howItHelps: "Every lead has a real name, a real number, and lives in your service area. The junk gets filtered out before it ever hits your phone — so you trust your list again.",
+  howItHelps: "Every recovered record is a real, identified person in your service area who showed real intent. The junk gets filtered out before it ever hits your funnel — so the audiences and lists you build stay clean.",
   illustration: "/illustrations/features/13-qualified-leads.svg",
   subhead: "You spend your time on real, identified, in-area people — not anonymous clicks that lead nowhere.",
   aeoAnswer:
@@ -836,8 +836,8 @@ const crmDelivery: Feature = {
   slug: "crm-delivery",
   name: "CRM Delivery",
   iconKey: "IconPlugConnected",
-  tagline: "Straight into your CRM.",
-  howItHelps: "Leads drop straight into Jobber, Housecall Pro, ServiceTitan, GoHighLevel — wherever you already work. Nothing falls into the gap between tools, nothing gets forgotten on a sticky note.",
+  tagline: "Funnel insertion, automated.",
+  howItHelps: "Recovered records drop straight into Jobber, Housecall Pro, ServiceTitan, GoHighLevel, HubSpot — and into your retargeting audiences. Consent Resolve is an input to the marketing machine you already run, not another tool to manage.",
   illustration: "/illustrations/style/05-crm-inbox.svg",
   subhead: "Leads flow straight into the tools you already use, routed to the right person on your team automatically. Nothing falls through the cracks.",
   aeoAnswer:
@@ -893,8 +893,8 @@ const multiChannelFollowUp: Feature = {
   slug: "multi-channel-follow-up",
   name: "Multi-Channel Follow-Up",
   iconKey: "IconMessage",
-  tagline: "Call, text, or email.",
-  howItHelps: "Call doesn't pick up? Text. Text doesn't reply? Email. You catch homeowners however they actually answer — not just one shot in the dark and a missed-call gone forever.",
+  tagline: "Hit every funnel surface.",
+  howItHelps: "Recovered visitors flow into your retargeting, your email/SMS sequences, and your CRM all at once — so the homeowner sees your message on the next ad they scroll, the next email they open, and the next time they search. The funnel does the work; the inbound call shows up.",
   illustration: "/illustrations/features/15-multi-channel.svg",
   subhead: "Reach identified visitors by call, email, or text — not one shot in the dark. Catch them however they're easiest to catch.",
   aeoAnswer:
@@ -1007,8 +1007,8 @@ const roiReporting: Feature = {
   slug: "roi-reporting",
   name: "ROI Reporting",
   iconKey: "IconChartHistogram",
-  tagline: "Proof in plain dollars.",
-  howItHelps: "See, in plain dollars, what each lead cost and which ones turned into jobs. Marketing you can finally measure — no spreadsheet, no guessing which channel actually paid off this month.",
+  tagline: "Cost-per-booked-job, not cost-per-lead.",
+  howItHelps: "See your recovery spend tied to the jobs your funnel books from recovered visitors. The number that matters — blended cost per booked job — drops on the same ad budget. Marketing you can finally measure.",
   illustration: "/illustrations/features/17-roi-reporting.svg",
   subhead: "See your cost per identified lead against the jobs you actually booked — so you know, in plain dollars, that it's paying for itself.",
   aeoAnswer:
@@ -1064,45 +1064,40 @@ const roiReporting: Feature = {
 // Groups
 // -----------------------------------------------------------------------
 
+// Four feature groups now map to the positioning's three pillars +
+// the compliance moat (June 2026 reposition).
 export const FEATURE_GROUPS: FeatureGroup[] = [
   {
-    slug: "your-leads",
-    eyebrow: "What makes Consent Resolve different",
-    title: "Your leads. Nobody else's.",
+    slug: "ad-recovery",
+    eyebrow: "Pillar 1 — Ad-spend recovery",
+    title: "Recover the 98% that bounce.",
     blurb:
-      "The people we identify came to your website — so the lead is yours alone. Never resold, never shared, never auctioned.",
-    features: [exclusiveLeads, consentFirstIdentification, formlessContactCapture],
+      "Every channel you run sends visitors to your site that mostly leave without contacting you. These features recover the bounce — with consent — so the ad spend you're already making converts to identified records.",
+    features: [channelRecovery, visitorIdentification, formlessContactCapture, verifiedContactData],
   },
   {
-    slug: "see-who-is-there",
-    eyebrow: "See who's there, reach them fast",
-    title: "See who's there. Reach them fast.",
+    slug: "funnel-insertion",
+    eyebrow: "Pillar 2 — Funnel insertion",
+    title: "Drop into the funnel you already run.",
     blurb:
-      "One script, real names, real numbers — and a phone alert the second a homeowner is ready to talk.",
-    features: [
-      easySetupWithOneScript,
-      visitorIdentification,
-      channelRecovery,
-      verifiedContactData,
-      instantConnect,
-      realTimeMobileAlerts,
-    ],
+      "Recovered visitors flow into the retargeting audiences, email/SMS sequences, and CRM you've already built. We're an input to your marketing machine — not another tool to manage.",
+    features: [easySetupWithOneScript, crmDelivery, multiChannelFollowUp, behaviorAndJobTypeInsights, leadScoring],
   },
   {
-    slug: "quality-over-quantity",
-    eyebrow: "Spend your time on the ones that matter",
-    title: "Spend your time on the ones that matter.",
+    slug: "inbound-call",
+    eyebrow: "Pillar 3 — Inbound calls",
+    title: "Turn the bounce into an inbound call.",
     blurb:
-      "Score, segment, and filter so your day goes to the visitors who are actually ready to book.",
-    features: [leadScoring, behaviorAndJobTypeInsights, serviceAreaFiltering, qualifiedLeadsOnly],
+      "The recovered visitor comes back on their own time, through your funnel, and calls you — warm, not cold. These features keep the timing right, the area accurate, and the noise out.",
+    features: [instantConnect, realTimeMobileAlerts, serviceAreaFiltering, qualifiedLeadsOnly, roiReporting],
   },
   {
-    slug: "route-and-prove",
-    eyebrow: "Route it, work it, prove it paid off",
-    title: "Route it, work it, prove it paid off.",
+    slug: "consent-moat",
+    eyebrow: "The moat — consent-first",
+    title: "Compliant by design. Yours alone.",
     blurb:
-      "Leads land in your CRM, your team works them across every channel, and the dashboard shows the dollars.",
-    features: [crmDelivery, multiChannelFollowUp, builtInCompliance, roiReporting],
+      "This is the wall around the funnel insertion. Every recovery starts with an explicit consent capture, every record is timestamped and audit-logged, and every recovered visitor belongs to you and only you — never resold, never shared.",
+    features: [consentFirstIdentification, builtInCompliance, exclusiveLeads],
   },
 ];
 

@@ -15,22 +15,22 @@ const breadcrumbs = breadcrumbSchema([
 ]);
 
 const howTo = howToSchema({
-  name: "How Consent Resolve identifies anonymous website visitors",
+  name: "How Consent Resolve recovers anonymous website visitors and feeds them into the contractor's funnel",
   description:
-    "A four-step process turning anonymous home-service website traffic into named, exclusive leads — only after the homeowner consents.",
+    "A four-step ad-spend recovery flow that turns the ~98% of website visitors who would otherwise bounce into recovered records inside the contractor's existing retargeting, email/SMS, and CRM funnels — only after the homeowner consents — producing inbound calls on the same ad budget.",
   totalTime: "PT10M",
   steps: [
-    { name: "Anonymous visit", text: "A homeowner lands on your website looking for help. You don't yet know who they are." },
-    { name: "They say yes",    text: "The homeowner accepts your site's consent banner, granting permission to be contacted." },
-    { name: "Warm lead revealed", text: "Consent Resolve identifies the consented visitor and delivers their real name and mobile number in real time." },
-    { name: "You call and close", text: "Reach out by phone, text, or email while they're still shopping — and book the job before any competitor knows they existed." },
+    { name: "Anonymous bounce", text: "A homeowner arrives from the contractor's existing paid or organic traffic (Google, LSA, Meta, SEO). Roughly 98 out of 100 visitors leave without contacting the business — that's the bounce Consent Resolve recovers." },
+    { name: "They say yes",      text: "The homeowner accepts the site's consent banner. Identification is now compliant and logged with a Termageddon-signed audit trail." },
+    { name: "Fed into the funnel", text: "The recovered visitor flows into the contractor's retargeting audiences, email/SMS sequences, and CRM — the marketing machine they already run. Consent Resolve is the input, not a replacement." },
+    { name: "Inbound call",       text: "The homeowner re-enters the funnel on their own time and calls the contractor — a warm inbound from a visitor who would otherwise have bounced. Same ad budget, more booked jobs." },
   ],
 });
 ---
 
 <BaseLayout
-  title="How Consent Resolve Works — Guided Product Tour"
-  description="From an anonymous visitor to a booked job. Walk through five product screens — install, identify, reach out, route, measure — in the order you'll actually use them."
+  title="How Consent Resolve Works — Ad-Spend Recovery in Four Steps"
+  description="From an anonymous bounce to an inbound call. Same ad budget, more booked jobs. Walk through the four-step funnel-insertion flow and the five product screens you'll actually use."
   schema={[breadcrumbs, howTo]}
 >
   <!-- Hero -->
@@ -40,11 +40,11 @@ const howTo = howToSchema({
       <div class="mx-auto max-w-3xl text-center">
         <p class="eyebrow mb-7 justify-center">How it works</p>
         <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
-          From an anonymous visitor to a lead you can call —<br/>
-          <span class="text-[color:var(--color-brand)]">in four steps. And five screens.</span>
+          From an anonymous bounce to an inbound call —<br/>
+          <span class="text-[color:var(--color-brand)]">in four steps. No new ad spend.</span>
         </h1>
         <p class="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-          You already pay to get homeowners to your site. The 30-second flow is up top. The guided tour below walks you through every product screen in the order you'll actually use them.
+          You already pay to drive traffic. About 98 of every 100 visitors leave without contacting you. The flow below recovers the bounce, with consent, and feeds it back into the funnel you already run.
         </p>
         <div class="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <a

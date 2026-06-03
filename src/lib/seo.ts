@@ -69,9 +69,9 @@ export const softwareApplicationSchema = {
   "@type": "SoftwareApplication",
   name: SITE.name,
   description:
-    "Consent-first visitor identification for home-service contractors. Identifies website visitors after explicit consent and delivers their real name, mobile number, and email — yours alone, never resold.",
+    "Consent-first ad-spend recovery layer for home-service contractors. Identifies the ~98% of website visitors who would otherwise bounce after they accept a consent banner, then feeds them back into the retargeting, email/SMS, and CRM funnels the contractor already runs. Same ad budget, more inbound calls. Flat $7 per recovered lead, exclusive, never resold.",
   applicationCategory: "BusinessApplication",
-  applicationSubCategory: "Lead Generation",
+  applicationSubCategory: "Marketing Recovery / Visitor Identification",
   operatingSystem: "Web",
   url: SITE.url,
   offers: {
@@ -82,9 +82,9 @@ export const softwareApplicationSchema = {
       "@type": "UnitPriceSpecification",
       price: "7.00",
       priceCurrency: "USD",
-      unitText: "per identified lead",
+      unitText: "per recovered lead",
     },
-    description: "Flat $7 per lead. Card required. No contract, cancel anytime.",
+    description: "Flat $7 per recovered lead. Card required. No contract, cancel anytime.",
   },
   provider: { "@type": "Organization", name: SITE.name, url: SITE.url },
 };
