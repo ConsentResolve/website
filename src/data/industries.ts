@@ -23,7 +23,15 @@ export interface Industry {
   slug: string;                 // URL slug, e.g. "plumber"
   name: string;                 // human label, e.g. "Plumbers"
   shortName: string;            // single-word for card chips, e.g. "Plumbing"
-  iconKey: string;              // Tabler icon name, e.g. "IconDroplet"
+  iconKey: string;              // Tabler icon name, e.g. "IconDroplet" — still used on the per-trade hero panel
+  /** Path under /public to the brand-locked SVG illustration shown
+   *  on the /industries/ hub IllustrationCard. Generated via
+   *  scripts/generate-recraft.py --set=trades. */
+  illustration: string;
+  /** Unique SEO card blurb for /industries/. Keyword-rich, contractor-
+   *  voice, 1–3 sentences. Should NOT be templated — every card
+   *  reads different to a Google or AI engine crawler. */
+  cardCopy: string;
   // SEO
   titleTag: string;
   metaDescription: string;
@@ -52,6 +60,8 @@ export const INDUSTRIES: Industry[] = [
     name: "General Contractors",
     shortName: "Remodeling",
     iconKey: "IconBuildingCommunity",
+    illustration: "/illustrations/trades/01-general-contractor.svg",
+    cardCopy: "Catch the homeowners pricing a remodel, addition, or whole-house renovation before they call three other GCs. Real names, real budgets, $7 per exclusive general-contractor lead — never resold.",
     titleTag: "Exclusive General Contractor Leads | Consent Resolve",
     metaDescription: "Identify the homeowners pricing a remodel or addition on your site — only after they consent. Real names, real numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "general contractor leads, remodeling leads, home addition leads, GC lead generation",
@@ -73,6 +83,8 @@ export const INDUSTRIES: Industry[] = [
     slug: "handyman",
     name: "Handymen",
     shortName: "Handyman",
+    illustration: "/illustrations/trades/02-handyman.svg",
+    cardCopy: "The honey-do list lands in your queue. Identify the homeowners shopping mounts, small repairs, and odd-job punch lists on your site — $7 per exclusive handyman lead, with name and mobile, ready to dial.",
     iconKey: "IconTool",
     titleTag: "Exclusive Handyman Leads, Never Resold | Consent Resolve",
     metaDescription: "See the homeowners shopping your site for repairs and to-do lists — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
@@ -96,6 +108,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Tree Removal",
     shortName: "Tree Services",
     iconKey: "IconTrees",
+    illustration: "/illustrations/trades/03-tree-removal.svg",
+    cardCopy: "Storm cleanup, dead-tree removal, and stump grinding shoppers — identified the moment they consent on your site. One big removal pays for months of $7 exclusive tree-service leads.",
     titleTag: "Exclusive Tree Removal Leads | Consent Resolve",
     metaDescription: "Identify the homeowners pricing tree removal or storm cleanup on your site — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "tree removal leads, tree service leads, storm cleanup leads, arborist lead generation",
@@ -118,6 +132,8 @@ export const INDUSTRIES: Industry[] = [
     name: "HVAC & AC",
     shortName: "HVAC",
     iconKey: "IconAirConditioning",
+    illustration: "/illustrations/trades/04-hvac.svg",
+    cardCopy: "The \"no-cool\" calls before they hit the next contractor's voicemail. Identify the homeowners shopping AC replacement, furnace repair, or maintenance plans — $7 per exclusive HVAC lead, never resold.",
     titleTag: "Exclusive HVAC & AC Leads, Never Resold | Consent Resolve",
     metaDescription: "See the homeowners pricing a new AC, furnace, or no-cool fix on your site — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "HVAC leads, AC repair leads, furnace replacement leads, HVAC lead generation",
@@ -140,6 +156,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Plumbers",
     shortName: "Plumbing",
     iconKey: "IconDroplet",
+    illustration: "/illustrations/trades/05-plumber.svg",
+    cardCopy: "Water heater quotes, re-pipes, and burst-pipe shoppers — captured at consent and handed to you with a phone number. Flat $7 per exclusive plumber lead, never sold to another shop.",
     titleTag: "Exclusive Plumbing Leads, Never Resold | Consent Resolve",
     metaDescription: "See the homeowners pricing a water heater, re-pipe, or burst-pipe fix on your site — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "plumbing leads, plumber leads, water heater leads, plumbing lead generation",
@@ -162,6 +180,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Locksmiths",
     shortName: "Locksmith",
     iconKey: "IconKey",
+    illustration: "/illustrations/trades/06-locksmith.svg",
+    cardCopy: "Lockouts, rekeys, and security-upgrade shoppers — identified the moment they consent on your site. $7 per exclusive locksmith lead, with name and mobile, ready to dispatch.",
     titleTag: "Exclusive Locksmith Leads, Never Resold | Consent Resolve",
     metaDescription: "Identify the homeowners shopping your site for a lockout, rekey, or security upgrade — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "locksmith leads, lockout service leads, rekey leads, locksmith lead generation",
@@ -184,6 +204,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Electricians",
     shortName: "Electrical",
     iconKey: "IconBolt",
+    illustration: "/illustrations/trades/07-electrician.svg",
+    cardCopy: "Panel upgrades, EV-charger installs, and rewire-pricing homeowners delivered to your phone in real time. Real names, real numbers, $7 per exclusive electrician lead — yours alone.",
     titleTag: "Exclusive Electrical Leads, Never Resold | Consent Resolve",
     metaDescription: "See the homeowners pricing a panel upgrade, EV charger, or rewire on your site — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "electrician leads, electrical leads, panel upgrade leads, EV charger install leads",
@@ -206,6 +228,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Roofers",
     shortName: "Roofing",
     iconKey: "IconHome",
+    illustration: "/illustrations/trades/08-roofing.svg",
+    cardCopy: "Homeowners pricing a re-roof, storm damage, or leak repair on your site — captured before any competitor knows they exist. One signed re-roof pays for a year of $7 exclusive roofing leads.",
     titleTag: "Exclusive Roofing Leads, Never Resold | Consent Resolve",
     metaDescription: "See the homeowners pricing a new roof, storm damage, or leak repair on your site — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "roofing leads, roof replacement leads, storm damage roofing leads, roofer lead generation",
@@ -228,6 +252,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Painters",
     shortName: "Painting",
     iconKey: "IconPaint",
+    illustration: "/illustrations/trades/09-painter.svg",
+    cardCopy: "Interior and exterior paint-job shoppers — identified at consent and handed to you with name, phone, and exactly what they're pricing. Flat $7 per exclusive painter lead, never auctioned.",
     titleTag: "Exclusive Painting Leads, Never Resold | Consent Resolve",
     metaDescription: "See the homeowners pricing an interior or exterior paint job on your site — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "painting leads, painter leads, house painting leads, painting lead generation",
@@ -250,6 +276,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Deck & Fence Builders",
     shortName: "Deck & Fence",
     iconKey: "IconFence",
+    illustration: "/illustrations/trades/10-deck-fence.svg",
+    cardCopy: "Deck-build, fence-replace, and pergola shoppers captured the moment they consent. Real names, real budgets, $7 per exclusive deck and fence lead — never blasted to four other crews.",
     titleTag: "Exclusive Deck & Fence Leads | Consent Resolve",
     metaDescription: "See the homeowners pricing a new deck or fence on your site — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "deck building leads, fence installation leads, deck and fence leads, contractor lead generation",
@@ -272,6 +300,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Garage Door Repair",
     shortName: "Garage Doors",
     iconKey: "IconGarage",
+    illustration: "/illustrations/trades/11-garage-door.svg",
+    cardCopy: "Broken-spring, opener-replace, and new-door shoppers identified the second they consent on your site. Flat $7 per exclusive garage-door lead — yours alone, never resold to the shop down the road.",
     titleTag: "Exclusive Garage Door Leads, Never Resold | Consent Resolve",
     metaDescription: "See the homeowners shopping your site for a broken spring, opener, or new door — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "garage door leads, garage door repair leads, garage door opener leads, garage door lead generation",
@@ -294,6 +324,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Appliance Repair",
     shortName: "Appliance Repair",
     iconKey: "IconFridge",
+    illustration: "/illustrations/trades/12-appliance-repair.svg",
+    cardCopy: "Fridge, washer, dryer, and oven-repair homeowners shopping your service area — delivered to your phone the moment they consent. $7 per exclusive appliance-repair lead, never shared.",
     titleTag: "Exclusive Appliance Repair Leads | Consent Resolve",
     metaDescription: "See the homeowners shopping your site for a fridge, washer, or oven repair — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "appliance repair leads, refrigerator repair leads, washer repair leads, appliance lead generation",
@@ -316,6 +348,8 @@ export const INDUSTRIES: Industry[] = [
     name: "House Cleaners",
     shortName: "House Cleaning",
     iconKey: "IconSparkles",
+    illustration: "/illustrations/trades/13-house-cleaning.svg",
+    cardCopy: "Recurring-clean, deep-clean, and move-out shoppers identified the moment they say yes on your site. $7 per exclusive cleaning lead — never auctioned to four other crews racing for the same job.",
     titleTag: "Exclusive House Cleaning Leads | Consent Resolve",
     metaDescription: "See the homeowners shopping your site for a recurring clean, deep clean, or move-out — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "house cleaning leads, maid service leads, recurring cleaning leads, cleaning lead generation",
@@ -338,6 +372,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Pest Control",
     shortName: "Pest Control",
     iconKey: "IconBug",
+    illustration: "/illustrations/trades/14-pest-control.svg",
+    cardCopy: "Termite, rodent, and recurring-treatment shoppers captured at consent on your site. One signed quarterly contract pays for months of $7 exclusive pest-control leads — yours alone.",
     titleTag: "Exclusive Pest Control Leads, Never Resold | Consent Resolve",
     metaDescription: "See the homeowners shopping your site for pest, termite, or rodent control — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "pest control leads, exterminator leads, termite treatment leads, pest control lead generation",
@@ -360,6 +396,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Power Washing",
     shortName: "Power Washing",
     iconKey: "IconSpray",
+    illustration: "/illustrations/trades/15-power-washing.svg",
+    cardCopy: "Driveway, house-wash, deck, and soft-wash-roof shoppers — identified at consent and ready to dial. $7 per exclusive power-washing lead, with a real phone number and a real address pin.",
     titleTag: "Exclusive Power Washing Leads | Consent Resolve",
     metaDescription: "See the homeowners shopping your site for driveway, house, or deck washing — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "power washing leads, pressure washing leads, exterior cleaning leads, power washing lead generation",
@@ -382,6 +420,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Lawn Care",
     shortName: "Lawn Care",
     iconKey: "IconPlant",
+    illustration: "/illustrations/trades/16-lawn-care.svg",
+    cardCopy: "Mowing, treatment, and landscape-pricing homeowners delivered to your phone in real time. $7 per exclusive lawn-care lead — yours alone for the season, never sold to the next outfit.",
     titleTag: "Exclusive Lawn Care Leads, Never Resold | Consent Resolve",
     metaDescription: "See the homeowners shopping your site for mowing, treatment, or landscaping — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "lawn care leads, lawn mowing leads, landscaping leads, lawn care lead generation",
@@ -404,6 +444,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Mobile Car Services",
     shortName: "Mobile Auto",
     iconKey: "IconCar",
+    illustration: "/illustrations/trades/17-mobile-car-service.svg",
+    cardCopy: "Mobile-detail, on-site oil-change, and roadside-repair shoppers — captured the moment they consent on your site. $7 per exclusive mobile-car-service lead, with name, mobile, and service area.",
     titleTag: "Exclusive Mobile Mechanic & Detail Leads | Consent Resolve",
     metaDescription: "See the drivers shopping your site for mobile repair or detailing — only after they consent. Real names and numbers, yours alone. Flat $7 a lead, no contract.",
     keywords: "mobile mechanic leads, mobile detailing leads, mobile car service leads, auto service lead generation",

@@ -88,6 +88,30 @@ FEATURES_SUBJECTS = [
     ("17", "roi-reporting",      "ROI Reporting",                "a small bar chart with four bars of increasing height growing upward, with a single dollar sign floating just above the tallest bar"),
 ]
 
+# Trade illustrations — one per Industry in src/data/industries.ts.
+# Used on the /industries/ hub IllustrationCard grid and (later) as
+# accents on each /<trade>-leads/ hero. Subjects deliberately
+# trade-iconic, no faces, no lettering.
+TRADES_SUBJECTS = [
+    ("01", "general-contractor",  "General Contractors",   "a residential house outline next to a hardhat with a small rolled-up blueprint leaning against it"),
+    ("02", "handyman",            "Handymen",              "an open toolbox with a hammer, screwdriver, and adjustable wrench sticking out of the top"),
+    ("03", "tree-removal",        "Tree Removal",          "a tall pine tree shape with a stylized chainsaw resting against its trunk"),
+    ("04", "hvac",                "HVAC",                  "an outdoor air conditioner condenser unit with a small round thermostat dial floating beside it"),
+    ("05", "plumber",             "Plumbers",              "a curved metal pipe with a wrench gripping it and a single water droplet underneath"),
+    ("06", "locksmith",           "Locksmiths",            "a single rounded padlock with a key partially inserted into its keyhole"),
+    ("07", "electrician",         "Electricians",          "a wall electrical outlet with a small lightning bolt symbol floating above it"),
+    ("08", "roofing",             "Roofers",               "a triangular pitched roof outline with rows of overlapping shingles and a small chimney on the right side"),
+    ("09", "painter",             "Painters",              "a paint roller leaning against an open paint can, with a small brush in front of the can"),
+    ("10", "deck-fence",          "Deck & Fence",          "a section of wooden fence with vertical slats next to a horizontal deck board"),
+    ("11", "garage-door",         "Garage Door",           "a residential sectional garage door, half-raised, with a small remote control next to it"),
+    ("12", "appliance-repair",    "Appliance Repair",      "a front-loading washing machine with a single wrench overlaid diagonally on its door"),
+    ("13", "house-cleaning",      "House Cleaning",        "a spray bottle and a feather duster crossed in front of two small sparkle marks"),
+    ("14", "pest-control",        "Pest Control",          "a stylized rounded bug shape with a spray nozzle pointed at it from the left"),
+    ("15", "power-washing",       "Power Washing",         "a pressure washer wand with three angled jet-spray lines coming out of its nozzle"),
+    ("16", "lawn-care",           "Lawn Care",             "a push lawn mower with two small grass blades in front of it and a small dust puff behind it"),
+    ("17", "mobile-car-service",  "Mobile Car Service",    "a compact car with a wrench overlaid diagonally on its hood and a small toolbox on the ground in front"),
+]
+
 # 4-step HowItWorks (preview) illustrations — one per node.
 # Subjects deliberately avoid faces/eyes (per STYLE_BASE) and lean on
 # symbols a contractor reads instantly: unknown visitor → consent →
@@ -167,8 +191,8 @@ def main():
                     help="substyle slug for the chosen style; see Recraft docs")
     ap.add_argument("--size", default="1024x1024")
     ap.add_argument("--style-id", default="", help="Recraft custom Brand Style UUID; when set, overrides style/substyle/colors")
-    ap.add_argument("--set", default="style", choices=["style", "hiw", "features"],
-                    help="which subject set: 'style' (9 feature illustrations), 'hiw' (4 HowItWorks step illustrations), or 'features' (9 NEW feature-hub illustrations for the slots not covered by 'style')")
+    ap.add_argument("--set", default="style", choices=["style", "hiw", "features", "trades"],
+                    help="which subject set: 'style' (9 feature illustrations), 'hiw' (4 HowItWorks step illustrations), 'features' (9 feature-hub illustrations), or 'trades' (17 industry/trade illustrations)")
     ap.add_argument("--out-dir", default="",
                     help="override output directory; default is public/illustrations/<set>/")
     ap.add_argument("--dry-run", action="store_true")
@@ -181,6 +205,9 @@ def main():
     elif args.set == "features":
         subject_set = FEATURES_SUBJECTS
         default_subdir = "features"
+    elif args.set == "trades":
+        subject_set = TRADES_SUBJECTS
+        default_subdir = "trades"
     else:
         subject_set = SUBJECTS
         default_subdir = "style"
