@@ -4,3 +4,8 @@
 # Trial/account signup lives on the dashboard subdomain.
 /get-started/    https://dashboard.consentresolve.com/register    301
 /get-started     https://dashboard.consentresolve.com/register    301
+
+# /sample-lead/ retired June 2026 (positioning shift — phone field removed from
+# the deliverable, the "what you'll get" curiosity page is now /how-it-works/).
+/sample-lead/    /how-it-works/    301
+/sample-lead     /how-it-works/    301

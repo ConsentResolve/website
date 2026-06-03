@@ -69,16 +69,16 @@ const timeline: { time: string; title: string; meta?: string; icon: any; tone: "
 
       <div class="vd-actions">
         <button class="vd-action vd-action-primary">
-          <IconPhone size={16} stroke={2.25} />
-          Call
-        </button>
-        <button class="vd-action vd-action-secondary">
-          <IconMessage size={16} stroke={2} />
-          Text
+          <IconRefresh size={16} stroke={2.25} />
+          Push to funnel
         </button>
         <button class="vd-action vd-action-secondary">
           <IconMail size={16} stroke={2} />
-          Email
+          Email sequence
+        </button>
+        <button class="vd-action vd-action-secondary">
+          <IconMessage size={16} stroke={2} />
+          Add to retargeting
         </button>
         <button class="vd-action vd-action-ghost">
           <IconDots size={16} stroke={2} />
@@ -127,13 +127,6 @@ const timeline: { time: string; title: string; meta?: string; icon: any; tone: "
             <dd>J. █████</dd>
           </div>
           <div>
-            <dt>Phone</dt>
-            <dd class="vd-dd-mono">
-              (512) 555-0142
-              <button class="vd-copy"><IconCopy size={12} stroke={1.75} /></button>
-            </dd>
-          </div>
-          <div>
             <dt>Email</dt>
             <dd class="vd-dd-mono">{handle}</dd>
           </div>
@@ -143,6 +136,10 @@ const timeline: { time: string; title: string; meta?: string; icon: any; tone: "
               <IconMapPin size={12} stroke={1.75} color="#94a3b8" />
               Austin, TX · GMT-05:00
             </dd>
+          </div>
+          <div>
+            <dt>Source</dt>
+            <dd>Google LSA · Recovered after consent</dd>
           </div>
         </dl>
       </div>

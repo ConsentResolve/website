@@ -26,7 +26,6 @@ export const GET: APIRoute = () => {
     `- [Industries hub](${SITE}/industries/): 17 home-service trades supported`,
     `- [Channel ROI hub](${SITE}/compare/): With/without booked-job math for Google LSA, Thumbtack, Angi, HomeAdvisor`,
     `- [Stats & sources](${SITE}/stats/): Every claim and benchmark — primary-source-cited`,
-    `- [Sample lead](${SITE}/sample-lead/): What a recovered visitor record looks like`,
     `- [About](${SITE}/about/): Founder credentials — Capitol Hill testimony, White House technology advisory, 50+ acquisitions in hosting & SaaS, i2Coalition board`,
     `- [FAQ](${SITE}/faq/): Common questions about legality, CRMs, pricing, and setup`,
     `- [Get started](https://dashboard.consentresolve.com/register): Sign up — about 10 minutes to go live`,

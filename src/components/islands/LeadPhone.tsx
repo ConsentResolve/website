@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import {
   IconShieldCheck,
   IconCircleCheck,
-  IconPhone,
   IconMessage,
-  IconCopy,
+  IconRefresh,
   IconWifi,
   IconAntennaBars5,
   IconBatteryFilled,
@@ -22,15 +21,14 @@ interface Lead {
   address: string;
   trade: string;
   intent: string;
-  phone: string;
   TradeIcon: Icon;
 }
 
 const LEADS: Lead[] = [
-  { initials: "SJ", name: "Sarah J.", address: "1428 Maple Hollow · Austin, TX", trade: "Plumbing", intent: "Water heater replacement", phone: "(512) 555-0142", TradeIcon: IconDroplet },
-  { initials: "MT", name: "Marcus T.", address: "904 Briarcliff Pl · Atlanta, GA", trade: "Roofing", intent: "Storm damage inspection", phone: "(404) 555-0188", TradeIcon: IconHome2 },
-  { initials: "PS", name: "Priya S.", address: "2310 Camelback Ridge · Phoenix, AZ", trade: "HVAC", intent: "AC not cooling, 102° forecast", phone: "(602) 555-0107", TradeIcon: IconAirConditioning },
-  { initials: "DR", name: "Diego R.", address: "517 Coral Way · Miami, FL", trade: "Electrical", intent: "Panel upgrade quote", phone: "(305) 555-0163", TradeIcon: IconBolt },
+  { initials: "SJ", name: "Sarah J.", address: "1428 Maple Hollow · Austin, TX", trade: "Plumbing", intent: "Water heater replacement", TradeIcon: IconDroplet },
+  { initials: "MT", name: "Marcus T.", address: "904 Briarcliff Pl · Atlanta, GA", trade: "Roofing", intent: "Storm damage inspection", TradeIcon: IconHome2 },
+  { initials: "PS", name: "Priya S.", address: "2310 Camelback Ridge · Phoenix, AZ", trade: "HVAC", intent: "AC not cooling, 102° forecast", TradeIcon: IconAirConditioning },
+  { initials: "DR", name: "Diego R.", address: "517 Coral Way · Miami, FL", trade: "Electrical", intent: "Panel upgrade quote", TradeIcon: IconBolt },
 ];
 
 export default function LeadPhone() {
@@ -130,24 +128,24 @@ export default function LeadPhone() {
                 </div>
               </div>
 
-              {/* Phone row */}
-              <div className="mt-2.5 flex items-center justify-between rounded-xl bg-[#0A1628] px-3 py-2.5 font-mono text-[13px] font-semibold tracking-tight text-[#00E5A0]">
-                <span className="flex items-center gap-2">
-                  <IconPhone size={14} stroke={2} />
-                  {lead.phone}
+              {/* Funnel status row — what happens to a recovered visitor */}
+              <div className="mt-2.5 flex items-center justify-between rounded-xl bg-[#0A1628] px-3 py-2.5 font-mono text-[11px] font-semibold tracking-tight text-[#00E5A0]">
+                <span className="flex items-center gap-2 truncate">
+                  <IconRefresh size={14} stroke={2} />
+                  Fed into your funnel
                 </span>
-                <IconCopy size={14} stroke={1.75} className="text-[#00E5A0]/70" />
+                <span className="rounded-full bg-[#00E5A0]/15 px-2 py-0.5 text-[9px] uppercase tracking-[0.12em]">Live</span>
               </div>
 
-              {/* CTAs */}
+              {/* CTAs — funnel actions, not outbound dials */}
               <div className="mt-3 grid grid-cols-2 gap-2">
-                <button className="flex items-center justify-center gap-1.5 rounded-lg bg-[#00C080] py-2.5 text-[12px] font-semibold text-white">
-                  <IconPhone size={14} stroke={2.5} />
-                  Call now
+                <button className="flex items-center justify-center gap-1.5 rounded-lg bg-[#00C080] py-2.5 text-[11px] font-semibold text-white">
+                  <IconMessage size={14} stroke={2.5} />
+                  Email seq.
                 </button>
-                <button className="flex items-center justify-center gap-1.5 rounded-lg bg-white py-2.5 text-[12px] font-semibold text-[#0A1628] ring-1 ring-inset ring-[#e6e6e6]">
-                  <IconMessage size={14} stroke={2} />
-                  Text
+                <button className="flex items-center justify-center gap-1.5 rounded-lg bg-white py-2.5 text-[11px] font-semibold text-[#0A1628] ring-1 ring-inset ring-[#e6e6e6]">
+                  <IconRefresh size={14} stroke={2} />
+                  Retarget
                 </button>
               </div>
             </div>
