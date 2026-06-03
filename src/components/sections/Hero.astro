@@ -1,6 +1,7 @@
 ---
 import LeadPhone from "~/components/islands/LeadPhone.tsx";
 import Button from "~/components/ui/Button.astro";
+import Badge from "~/components/ui/Badge.astro";
 import LogoCarousel from "~/components/ui/LogoCarousel.astro";
 import { IconArrowRight, IconEye, IconCheck } from "@tabler/icons-react";
 
@@ -41,7 +42,7 @@ const {
 
   <div class="container-content section relative grid items-center gap-16 lg:grid-cols-[1.05fr_1fr]">
     <div>
-      {eyebrow && <p class="eyebrow mb-7">{eyebrow}</p>}
+      {eyebrow && <div class="mb-7"><Badge tone="brand" variant="soft" size="md" uppercase>{eyebrow}</Badge></div>}
       <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
         {title}{" "}
         <span class="text-[color:var(--color-brand)] sm:block">{titleAccent}</span>
