@@ -1,0 +1,57 @@
+---
+/**
+ * AEOAnswer — citation-ready definition paragraph.
+ *
+ * Rendered as the second-to-last section on every page that has a
+ * likely AI-engine query (homepage, /pricing/, /compare/<channel>/,
+ * /<trade>-leads/, /features/<slug>/). Positioned right before
+ * <FinalCTA /> so humans see it as a "for the record" definition
+ * after they've read the page, while AI crawlers (Google AI Overviews,
+ * ChatGPT, Claude, Perplexity, Gemini, Brave AI) still get a clean,
+ * extractable 40–55 word paragraph in a plain <p> element near the
+ * end of the main content flow.
+ *
+ * Why "second to last" instead of below the hero (the old placement):
+ * (1) doesn't redundancy-bump the human reader right after the hero,
+ * (2) reads as a "definition wrap-up" before the conversion CTA,
+ * (3) every major AI extractor crawls the whole page DOM — placement
+ * in the body is what matters, not position above the fold.
+ *
+ * Style: card on a soft mint-tinted band with a small eyebrow ("In
+ * plain English") + a single citation-shaped paragraph. NOT a hero,
+ * NOT a footer aside — a clear summary moment.
+ */
+import { IconBook2 } from "@tabler/icons-react";
+
+interface Props {
+  /** The 40–55 word definition paragraph. Plain prose; no markup.
+   *  Comes from the page's data spine (`aeoAnswer` field on
+   *  Industry / Feature / ComparePage). */
+  text: string;
+  /** Override the eyebrow label. Defaults to "In plain English". */
+  eyebrow?: string;
+}
+
+const { text, eyebrow = "In plain English" } = Astro.props as Props;
+---
+
+<section class="section bg-[color:var(--color-bg-alt)]" aria-label="Definition">
+  <div class="container-content">
+    <div class="mx-auto max-w-3xl">
+      <div class="relative overflow-hidden rounded-3xl bg-[color:var(--color-bg)] p-8 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)] md:p-10">
+        <div aria-hidden="true" class="pointer-events-none absolute -right-12 -top-12 size-40 rounded-full bg-[color:var(--color-mint-400)]/15 blur-2xl"></div>
+        <div class="relative">
+          <div class="flex items-center gap-2.5">
+            <span class="inline-flex size-7 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)]">
+              <IconBook2 size={14} stroke={2} color="var(--color-brand-pressed)" />
+            </span>
+            <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-brand-pressed)]">{eyebrow}</span>
+          </div>
+          <p class="mt-5 text-[16px] leading-[1.65] text-[color:var(--color-ink)]">
+            {text}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

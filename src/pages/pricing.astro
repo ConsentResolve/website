@@ -2,6 +2,7 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Button from "~/components/ui/Button.astro";
 import FAQ from "~/components/sections/FAQ.astro";
+import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import {
   IconArrowRight, IconCheck, IconBolt, IconLock, IconShieldCheck,
   IconUserCheck, IconMapPin, IconClipboardCheck, IconBellRinging,
@@ -87,16 +88,6 @@ const schemas = [
     </div>
   </section>
 
-  <!-- AEO answer paragraph -->
-  <section class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
-    <div class="container-content py-8">
-      <div class="mx-auto max-w-3xl">
-        <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
-          Consent Resolve costs a flat $7 per recovered lead — a consented homeowner identified from a website visitor who would otherwise have bounced. There's no setup fee, no monthly minimum, no contract. Recovered leads are incremental on top of your existing ad channels, so the right way to measure us is cost-per-booked-job, not cost-per-lead. Card required at signup; cancel anytime.
-        </p>
-      </div>
-    </div>
-  </section>
 
   <!-- Plan card -->
   <section class="pb-20">
@@ -254,6 +245,10 @@ const schemas = [
     eyebrow="Billing FAQ"
     headline="Straight answers about how you pay."
     items={billingFaqs}
+  />
+
+  <AEOAnswer
+    text="Consent Resolve costs a flat $7 per recovered lead — a consented homeowner identified from a website visitor who would otherwise have bounced. There's no setup fee, no monthly minimum, no contract. Recovered leads are incremental on top of your existing ad channels, so the right way to measure us is cost-per-booked-job, not cost-per-lead. Card required at signup; cancel anytime."
   />
 
   <!-- Custom Final CTA: $7-focused, matches sitewide canon -->

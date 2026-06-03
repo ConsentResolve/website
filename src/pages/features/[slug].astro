@@ -9,6 +9,7 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import FeatureCard from "~/components/ui/FeatureCard.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
+import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FAQ from "~/components/sections/FAQ.astro";
 import { ALL_FEATURES, getFeature, getFeatureGroupOf } from "~/data/features";
@@ -91,15 +92,6 @@ const schemas = [
             <p class="relative z-10 mt-2 text-center text-sm text-[color:var(--color-ink-muted)]">{feature.tagline}</p>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 2. AEO answer paragraph -->
-  <section class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
-    <div class="container-content py-10">
-      <div class="mx-auto max-w-3xl">
-        <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{feature.aeoAnswer}</p>
       </div>
     </div>
   </section>
@@ -216,6 +208,8 @@ const schemas = [
       </div>
     </section>
   )}
+
+  <AEOAnswer text={feature.aeoAnswer} />
 
   <!-- 11. Final CTA (shared) -->
   <FinalCTA />

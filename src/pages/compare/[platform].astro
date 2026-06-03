@@ -2,6 +2,7 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Button from "~/components/ui/Button.astro";
 import Badge from "~/components/ui/Badge.astro";
+import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import { COMPARE_PAGES, type ComparePage } from "~/data/compare";
 import { breadcrumbSchema } from "~/lib/seo";
@@ -56,15 +57,6 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
             <IconArrowRight size={18} stroke={2.25} />
           </Button>
         </div>
-      </div>
-    </div>
-  </section>
-
-  {/* AEO answer paragraph */}
-  <section class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
-    <div class="container-content py-8">
-      <div class="mx-auto max-w-3xl">
-        <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{page.aeoAnswer}</p>
       </div>
     </div>
   </section>
@@ -208,6 +200,8 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
       </p>
     </div>
   </section>
+
+  <AEOAnswer text={page.aeoAnswer} />
 
   {/* Final CTA */}
   <FinalCTA heading={page.finalCtaH2} body={page.finalCtaBody} />

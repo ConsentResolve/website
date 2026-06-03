@@ -5,6 +5,7 @@ import FeatureCard from "~/components/ui/FeatureCard.astro";
 import HowItWorks from "~/components/sections/HowItWorks.astro";
 import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
+import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import FAQ from "~/components/sections/FAQ.astro";
 import LeadROICalculator from "~/components/ui/LeadROICalculator.tsx";
 import { INDUSTRIES, type Industry } from "~/data/industries";
@@ -130,17 +131,6 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
     </div>
   </section>
 
-  <!-- AEO answer paragraph -->
-  <section class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
-    <div class="container-content py-10">
-      <div class="mx-auto max-w-3xl">
-        <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
-          {trade.aeoAnswer}
-        </p>
-      </div>
-    </div>
-  </section>
-
   <!-- Problem + urgency -->
   <section class="section section-dark">
     <div class="container-content">
@@ -207,5 +197,6 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
     items={trade.faqs.map((f) => ({ question: f.q, answer: f.a }))}
   />
 
+  <AEOAnswer text={trade.aeoAnswer} />
   <FinalCTA heading={trade.finalCtaH2} />
 </BaseLayout>

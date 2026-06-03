@@ -9,6 +9,7 @@ import CompareSection from "~/components/sections/CompareSection.astro";
 import CalculatorSection from "~/components/sections/CalculatorSection.astro";
 import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FAQSection from "~/components/sections/FAQSection.astro";
+import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import { softwareApplicationSchema } from "~/lib/seo";
 
@@ -21,18 +22,6 @@ const schemas = [softwareApplicationSchema];
   schema={schemas}
 >
   <Hero />
-
-  <!-- AEO answer paragraph — citable definition for AI engines -->
-  <section class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
-    <div class="container-content py-8">
-      <div class="mx-auto max-w-3xl">
-        <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
-          Consent Resolve is a consent-first ad-spend recovery layer for home-service contractors. It identifies the 98 out of 100 website visitors who would otherwise bounce — only after they accept your consent banner — and feeds them back into the retargeting audiences, email/SMS sequences, and CRM you already run. Same ad budget, more inbound calls. Flat $7 per recovered lead, exclusive, never resold.
-        </p>
-      </div>
-    </div>
-  </section>
-
   <ProblemStats />
   <CompareSection />
   <HowItWorks />
@@ -41,5 +30,8 @@ const schemas = [softwareApplicationSchema];
   <CalculatorSection />
   <ComplianceBand />
   <FAQSection />
+  <AEOAnswer
+    text="Consent Resolve is a consent-first ad-spend recovery layer for home-service contractors. It identifies the 98 out of 100 website visitors who would otherwise bounce — only after they accept your consent banner — and feeds them back into the retargeting audiences, email/SMS sequences, and CRM you already run. Same ad budget, more inbound calls. Flat $7 per recovered lead, exclusive, never resold."
+  />
   <FinalCTA />
 </BaseLayout>
