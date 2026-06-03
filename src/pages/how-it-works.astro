@@ -2,11 +2,11 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import HowItWorks from "~/components/sections/HowItWorks.astro";
 import ProductTour from "~/components/sections/ProductTour.astro";
-import FeatureCard from "~/components/ui/FeatureCard.astro";
+import IllustrationCard from "~/components/ui/IllustrationCard.astro";
 import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FAQSection from "~/components/sections/FAQSection.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
-import { IconArrowRight, IconEye, IconShieldCheck, IconLock, IconStack2 as IconStack } from "@tabler/icons-react";
+import { IconArrowRight, IconEye } from "@tabler/icons-react";
 import { breadcrumbSchema, howToSchema } from "~/lib/seo";
 
 const breadcrumbs = breadcrumbSchema([
@@ -82,23 +82,23 @@ const howTo = howToSchema({
         </h2>
       </div>
       <div class="grid gap-6 md:grid-cols-3">
-        <FeatureCard
-          variant="showcase"
-          icon={IconShieldCheck}
+        <IllustrationCard
+          illustration="/illustrations/features/02-consent-checkmark.svg"
           title="Only after consent."
-          body="No shadow-tracking. A name appears only when a homeowner agrees."
+          body="No shadow-tracking. A name appears only when a homeowner agrees — and every consent gets a timestamp and a signed audit ID."
+          href="/features/consent-first-identification/"
         />
-        <FeatureCard
-          variant="showcase"
-          icon={IconLock}
+        <IllustrationCard
+          illustration="/illustrations/style/07-lead-house-lock.svg"
           title="Yours alone."
-          body="One lead, one shop. Never resold, never auctioned."
+          body="One lead, one shop. Never resold, never auctioned, never shared with three other contractors in your town."
+          href="/features/exclusive-leads/"
         />
-        <FeatureCard
-          variant="showcase"
-          icon={IconStack}
+        <IllustrationCard
+          illustration="/illustrations/features/03-channel-recovery.svg"
           title="Works with what you run now."
           body="Keep your ads, your LSA, your SEO. This catches the visitors they send who'd otherwise leave without a name."
+          href="/features/channel-recovery/"
         />
       </div>
     </div>

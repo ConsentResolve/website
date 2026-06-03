@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Badge from "~/components/ui/Badge.astro";
+import IllustrationCard from "~/components/ui/IllustrationCard.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import { FEATURE_GROUPS, ALL_FEATURES } from "~/data/features";
@@ -86,37 +87,12 @@ const schemas = [
 
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {group.features.map((f) => (
-            <a
+            <IllustrationCard
+              illustration={f.illustration}
+              title={f.name}
+              body={f.howItHelps}
               href={`/features/${f.slug}/`}
-              class="group flex h-full flex-col overflow-hidden rounded-3xl bg-[color:var(--color-bg)] ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-1 hover:ring-[color:var(--color-brand)]/40 hover:shadow-[0_30px_60px_-28px_rgba(10,22,40,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand)] focus-visible:ring-offset-2"
-            >
-              {/* Illustration plate */}
-              <div class="relative flex aspect-[5/3] items-center justify-center overflow-hidden bg-gradient-to-br from-[color:var(--color-brand-soft)] via-[#e9f9f1] to-[color:var(--color-bg-alt)]">
-                <div aria-hidden="true" class="pointer-events-none absolute -right-12 -top-12 size-40 rounded-full bg-[color:var(--color-mint-400)]/20 blur-2xl"></div>
-                <div aria-hidden="true" class="pointer-events-none absolute -left-10 -bottom-10 size-32 rounded-full bg-[color:var(--color-mint-400)]/15 blur-2xl"></div>
-                <img
-                  src={f.illustration}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  class="relative z-10 max-h-[70%] w-auto max-w-[70%] object-contain transition-transform duration-500 group-hover:scale-105"
-                />
-              </div>
-
-              {/* Body */}
-              <div class="flex flex-1 flex-col p-7">
-                <h3 class="font-display text-xl font-black tracking-tight text-[color:var(--color-ink)]">
-                  {f.name}
-                </h3>
-                <p class="mt-3 flex-1 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
-                  {f.howItHelps}
-                </p>
-                <span class="mt-6 inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] transition-all group-hover:gap-2.5">
-                  Learn more
-                  <IconArrowRight size={14} stroke={2.5} />
-                </span>
-              </div>
-            </a>
+            />
           ))}
         </div>
       </div>

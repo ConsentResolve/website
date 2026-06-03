@@ -29,6 +29,7 @@ export const STYLE_GUIDE: StyleGuideEntry[] = [
   { slug: "calculators", title: "Calculators", description: "Interactive ROI and lead-cost calculators." },
   { slug: "how-it-works", title: "How It Works (Comet)", description: "Animated dark-theme 3-step section with a comet that sweeps and lights each node in turn." },
   { slug: "feature-cards", title: "Feature Cards", description: "Eight variants of an icon + title + body tile primitive." },
+  { slug: "illustration-cards", title: "Illustration Cards", description: "Illustration-led card primitive — brand SVG on a mint gradient plate, title, body, optional Learn more chip. Used on /features/ and /how-it-works/." },
   { slug: "comparison-tables", title: "Comparison Tables", description: "Mattress-site-style product cards + dense feature × brand matrix." },
   { slug: "product-demo", title: "Product Demo Screens", description: "Anonymized HTML/CSS replicas of the dashboard for landing-page use." },
   { slug: "illustrations", title: "Illustrations", description: "Locked hand-drawn sage-palette icon system with OpenAI regeneration script." },

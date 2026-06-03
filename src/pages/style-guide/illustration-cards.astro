@@ -1,0 +1,108 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import IllustrationCard from "~/components/ui/IllustrationCard.astro";
+---
+
+<StyleGuideLayout
+  slug="illustration-cards"
+  title="Illustration Cards"
+  description="The illustration-led card primitive used on /features/ and /how-it-works/. Brand-locked SVG on a mint gradient plate, title, body copy, and an optional Learn more chip when href is set."
+>
+  <section class="sg-section">
+    <h2>Default — interactive (href set)</h2>
+    <p class="sg-lede">When <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">href</code> is set, the whole card becomes a link. Hover lifts the card, tightens the ring to brand mint, scales the illustration ~5%, and nudges the arrow on the Learn more chip.</p>
+    <div class="sg-preview">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <IllustrationCard
+          illustration="/illustrations/features/02-consent-checkmark.svg"
+          title="Only after consent."
+          body="No shadow-tracking. A name appears only when a homeowner agrees — and every consent gets a timestamp and a signed audit ID."
+          href="/features/consent-first-identification/"
+        />
+        <IllustrationCard
+          illustration="/illustrations/style/07-lead-house-lock.svg"
+          title="Yours alone."
+          body="One lead, one shop. Never resold, never auctioned, never shared with three other contractors in your town."
+          href="/features/exclusive-leads/"
+        />
+        <IllustrationCard
+          illustration="/illustrations/features/03-channel-recovery.svg"
+          title="Works with what you run now."
+          body="Keep your ads, your LSA, your SEO. This catches the visitors they send who'd otherwise leave without a name."
+          href="/features/channel-recovery/"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Static (no href)</h2>
+    <p class="sg-lede">Drop the <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">href</code> prop to render a non-clickable variant. No Learn more chip, no hover lift. Use for stat-style or definition-style content.</p>
+    <div class="sg-preview">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <IllustrationCard
+          illustration="/illustrations/features/17-roi-reporting.svg"
+          title="ROI Reporting"
+          body="See, in plain dollars, what each lead cost and which ones turned into jobs. Marketing you can finally measure."
+        />
+        <IllustrationCard
+          illustration="/illustrations/hiw/02-say-yes.svg"
+          title="They Say Yes"
+          body="The homeowner grants permission to be contacted and requests more information."
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Custom CTA label</h2>
+    <p class="sg-lede">Override the default Learn more text with <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">ctaLabel</code>.</p>
+    <div class="sg-preview">
+      <div class="mx-auto max-w-sm">
+        <IllustrationCard
+          illustration="/illustrations/features/08-instant-connect.svg"
+          title="Instant Connect"
+          body="The phone number lands while the homeowner is still on your site shopping."
+          href="/features/instant-connect/"
+          ctaLabel="See it work"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Props</h2>
+    <div class="sg-preview">
+      <dl class="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 font-mono text-sm">
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">illustration:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Required. Public path to the SVG, e.g. <code>/illustrations/features/02-consent-checkmark.svg</code>.</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">title:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Required. Short, 1–3 words, sentence case.</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">body:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Required. Plain-English benefit, 1–3 sentences.</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">href?:</dt> <dd class="inline text-[color:var(--color-ink-2)]">When set, whole card becomes a link + Learn more chip appears.</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">ctaLabel?:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Override the chip text. Defaults to <code>"Learn more"</code>.</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">alt?:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Alt text for the SVG. Decorative by default.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Composition</h2>
+    <div class="sg-preview">
+      <ul class="grid grid-cols-1 gap-3 font-mono text-sm text-[color:var(--color-ink-2)]">
+        <li><strong class="text-[color:var(--color-ink)]">Plate:</strong> 5:3 aspect, <code>bg-gradient-to-br</code> from <code>--color-brand-soft</code> through <code>#e9f9f1</code> to <code>--color-bg-alt</code>, with two ambient mint-glow blobs (<code>blur-2xl</code>) behind the illustration.</li>
+        <li><strong class="text-[color:var(--color-ink)]">Illustration:</strong> Centered, <code>max-h-[70%] max-w-[70%]</code>, scales up 5% on hover when linked.</li>
+        <li><strong class="text-[color:var(--color-ink)]">Card:</strong> <code>rounded-3xl</code>, ring-only border at rest, ring shifts to brand mint + card lifts on hover.</li>
+        <li><strong class="text-[color:var(--color-ink)]">Body:</strong> <code>p-7</code>, display H3, body copy, optional brand-pressed Learn more chip with an arrow that nudges on hover.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Used in</h2>
+    <div class="sg-preview">
+      <ul class="grid grid-cols-1 gap-2 font-mono text-sm text-[color:var(--color-ink-2)]">
+        <li><strong class="text-[color:var(--color-ink)]">/features/</strong> — all 17 feature cards (one per Feature in <code>src/data/features.ts</code>).</li>
+        <li><strong class="text-[color:var(--color-ink)]">/how-it-works/</strong> — the three "what makes it different" cards.</li>
+      </ul>
+    </div>
+  </section>
+</StyleGuideLayout>
