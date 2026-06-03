@@ -6,42 +6,44 @@ import { IconUserOff, IconUsersGroup, IconCoin } from "@tabler/icons-react";
 
 <section class="section section-dark relative overflow-hidden">
   <!-- Ambient brand glow behind the illustration -->
-  <div aria-hidden="true" class="pointer-events-none absolute left-1/2 top-0 size-[520px] -translate-x-1/2 rounded-full bg-[color:var(--color-mint-400)]/15 blur-[140px]"></div>
+  <div aria-hidden="true" class="pointer-events-none absolute -right-40 top-0 size-[520px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[140px]"></div>
 
   <div class="container-content relative">
-    <!-- Ghost-in-a-browser Recraft illustration, sitting ABOVE the headline + grid -->
-    <div class="mb-12 flex justify-center">
-      <div class="relative">
-        <!-- Soft glow under the frame -->
-        <div aria-hidden="true" class="pointer-events-none absolute inset-x-10 -bottom-6 h-20 rounded-full bg-[color:var(--color-mint-400)]/25 blur-3xl"></div>
+    <!-- Header row: headline LEFT, ghost-in-a-browser Recraft illustration RIGHT -->
+    <div class="mb-14 grid items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
+      <div class="max-w-2xl">
+        <p class="eyebrow mb-5" style="color:var(--color-mint-400)">The problem</p>
+        <h2 class="display-2 text-white">
+          Every visitor who leaves without a name is a job you didn't win.
+        </h2>
+        <p class="mt-4 text-lg leading-relaxed text-slate-300">
+          You paid to get that homeowner to your site — an ad, a search, a referral. Then most of them leave without a trace. They price-shop, then call the next guy. You never even knew they stopped by.
+        </p>
+      </div>
 
-        <div class="relative rounded-3xl bg-white/[0.04] p-3 ring-1 ring-inset ring-white/10 backdrop-blur-sm sm:p-4">
-          <img
-            src="/illustrations/hiw/01-anonymous-visit.svg"
-            alt="A faceless visitor lingering inside a browser window — the anonymous bounce Consent Resolve recovers"
-            class="mx-auto block h-auto w-full max-w-[320px] md:max-w-[360px]"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
+      <div class="flex justify-center lg:justify-end">
+        <div class="relative">
+          <!-- Soft glow under the frame -->
+          <div aria-hidden="true" class="pointer-events-none absolute inset-x-10 -bottom-6 h-20 rounded-full bg-[color:var(--color-mint-400)]/25 blur-3xl"></div>
 
-        <!-- Floating caption chip pinned to the corner -->
-        <div class="pointer-events-none absolute -left-2 -top-2 hidden md:block">
-          <span class="pointer-events-auto inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-navy-900)] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)] ring-1 ring-inset ring-white/10 shadow-[0_18px_36px_-12px_rgba(0,0,0,0.5)]">
-            <IconUserOff size={12} stroke={2.25} /> Anonymous
-          </span>
+          <div class="relative rounded-3xl bg-white/[0.04] p-3 ring-1 ring-inset ring-white/10 backdrop-blur-sm sm:p-4">
+            <img
+              src="/illustrations/hiw/01-anonymous-visit.svg"
+              alt="A faceless visitor lingering inside a browser window — the anonymous bounce Consent Resolve recovers"
+              class="mx-auto block h-auto w-full max-w-[320px] md:max-w-[360px]"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+
+          <!-- Floating caption chip pinned to the corner -->
+          <div class="pointer-events-none absolute -left-2 -top-2 hidden md:block">
+            <span class="pointer-events-auto inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-navy-900)] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)] ring-1 ring-inset ring-white/10 shadow-[0_18px_36px_-12px_rgba(0,0,0,0.5)]">
+              <IconUserOff size={12} stroke={2.25} /> Anonymous
+            </span>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="mb-14 max-w-2xl">
-      <p class="eyebrow mb-5" style="color:var(--color-mint-400)">The problem</p>
-      <h2 class="display-2 text-white">
-        Every visitor who leaves without a name is a job you didn't win.
-      </h2>
-      <p class="mt-4 text-lg leading-relaxed text-slate-300">
-        You paid to get that homeowner to your site — an ad, a search, a referral. Then most of them leave without a trace. They price-shop, then call the next guy. You never even knew they stopped by.
-      </p>
     </div>
 
     <div class="grid items-start gap-12 lg:grid-cols-[1.1fr_1fr]">
