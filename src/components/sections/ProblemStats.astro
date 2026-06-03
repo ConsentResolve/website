@@ -1,13 +1,39 @@
 ---
+import Funnel from "~/components/ui/Funnel.astro";
 import AnimatedStat from "~/components/ui/AnimatedStat.tsx";
 import { IconUserOff, IconUsersGroup, IconCoin } from "@tabler/icons-react";
 ---
 
 <section class="section section-dark relative overflow-hidden">
   <!-- Ambient brand glow behind the illustration -->
-  <div aria-hidden="true" class="pointer-events-none absolute -right-40 top-1/3 size-[520px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[140px]"></div>
+  <div aria-hidden="true" class="pointer-events-none absolute left-1/2 top-0 size-[520px] -translate-x-1/2 rounded-full bg-[color:var(--color-mint-400)]/15 blur-[140px]"></div>
 
   <div class="container-content relative">
+    <!-- Ghost-in-a-browser Recraft illustration, sitting ABOVE the headline + grid -->
+    <div class="mb-12 flex justify-center">
+      <div class="relative">
+        <!-- Soft glow under the frame -->
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-10 -bottom-6 h-20 rounded-full bg-[color:var(--color-mint-400)]/25 blur-3xl"></div>
+
+        <div class="relative rounded-3xl bg-white/[0.04] p-3 ring-1 ring-inset ring-white/10 backdrop-blur-sm sm:p-4">
+          <img
+            src="/illustrations/hiw/01-anonymous-visit.svg"
+            alt="A faceless visitor lingering inside a browser window — the anonymous bounce Consent Resolve recovers"
+            class="mx-auto block h-auto w-full max-w-[320px] md:max-w-[360px]"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+
+        <!-- Floating caption chip pinned to the corner -->
+        <div class="pointer-events-none absolute -left-2 -top-2 hidden md:block">
+          <span class="pointer-events-auto inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-navy-900)] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)] ring-1 ring-inset ring-white/10 shadow-[0_18px_36px_-12px_rgba(0,0,0,0.5)]">
+            <IconUserOff size={12} stroke={2.25} /> Anonymous
+          </span>
+        </div>
+      </div>
+    </div>
+
     <div class="mb-14 max-w-2xl">
       <p class="eyebrow mb-5" style="color:var(--color-mint-400)">The problem</p>
       <h2 class="display-2 text-white">
@@ -18,8 +44,25 @@ import { IconUserOff, IconUsersGroup, IconCoin } from "@tabler/icons-react";
       </p>
     </div>
 
-    <div class="grid items-center gap-12 lg:grid-cols-[1fr_1.05fr]">
-      <!-- 3 standout stats (now LEFT) -->
+    <div class="grid items-start gap-12 lg:grid-cols-[1.1fr_1fr]">
+      <!-- Funnel -->
+      <div class="rounded-2xl bg-white/[0.03] p-7 ring-1 ring-inset ring-white/10">
+        <p class="mb-5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Typical contractor site · 1,000 visitors / month</p>
+        <div style="--color-bg: rgba(255,255,255,0.08); --color-ink: #ffffff; --color-ink-muted: #94a3b8;">
+          <Funnel
+            stages={[
+              { label: "Site visitors", value: 1000 },
+              { label: "Stayed >30s", value: 420 },
+              { label: "Viewed pricing", value: 180 },
+              { label: "Filled a form", value: 22 },
+              { label: "Answered the phone", value: 9 },
+              { label: "Booked a job", value: 3 },
+            ]}
+          />
+        </div>
+      </div>
+
+      <!-- 3 standout stats -->
       <div class="space-y-4">
         <div class="rounded-2xl bg-white/[0.03] p-6 ring-1 ring-inset ring-white/10">
           <div class="mb-3 inline-flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-danger)]/15">
@@ -46,31 +89,6 @@ import { IconUserOff, IconUsersGroup, IconCoin } from "@tabler/icons-react";
           <div class="font-display text-4xl md:text-5xl font-bold leading-none tracking-tight text-white">~$46</div>
           <p class="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">What you pay Thumbtack per lead</p>
           <p class="mt-2 text-sm leading-relaxed text-slate-300">Industry-average Thumbtack cost-per-lead — for a lead that's also being sold to four other shops. <a href="/stats/#lead-trap" class="text-slate-200 underline-offset-2 hover:underline">Source</a></p>
-        </div>
-      </div>
-
-      <!-- Ghost-in-a-browser illustration (Recraft brand-locked SVG) -->
-      <div class="relative">
-        <!-- Soft glow under the frame -->
-        <div aria-hidden="true" class="pointer-events-none absolute inset-x-8 -bottom-6 h-20 rounded-full bg-[color:var(--color-mint-400)]/25 blur-3xl"></div>
-
-        <div class="relative rounded-3xl bg-white/[0.04] p-3 ring-1 ring-inset ring-white/10 backdrop-blur-sm sm:p-4">
-          <div class="overflow-hidden rounded-2xl bg-gradient-to-br from-white/[0.06] via-white/[0.02] to-transparent ring-1 ring-inset ring-white/5">
-            <img
-              src="/illustrations/hiw/01-anonymous-visit.svg"
-              alt="A faceless visitor lingering inside a browser window — the anonymous bounce Consent Resolve recovers"
-              class="mx-auto block h-auto w-full max-w-[480px]"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-        </div>
-
-        <!-- Floating caption chip pinned to the illustration corner -->
-        <div class="pointer-events-none absolute -left-2 -top-2 hidden md:block">
-          <span class="pointer-events-auto inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-navy-900)] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)] ring-1 ring-inset ring-white/10 shadow-[0_18px_36px_-12px_rgba(0,0,0,0.5)]">
-            <IconUserOff size={12} stroke={2.25} /> Anonymous
-          </span>
         </div>
       </div>
     </div>
