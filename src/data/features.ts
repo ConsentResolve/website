@@ -255,7 +255,7 @@ const easySetupWithOneScript: Feature = {
     "Easy Setup With One Script means Consent Resolve installs with a single snippet of code on your website. There's no software to learn, no developer needed, and no ongoing maintenance. Paste it once and identification starts the same day — most service pros are capturing leads within hours of signing up.",
   problem: {
     headline: "Most marketing tools die in the setup screen.",
-    body: "You signed up for something once, hit a wall of settings and integrations, and quietly gave up two weeks later. Contractors don't have an IT department or a free afternoon to wire up software. If it's not running today, it's not running.",
+    body: "You signed up for something once, hit a wall of settings and integrations, and quietly gave up two weeks later. Contractors don't have an IT department or a spare afternoon to wire up software. If it's not running today, it's not running.",
   },
   howItWorks: {
     headline: "Three minutes, start to finish.",
