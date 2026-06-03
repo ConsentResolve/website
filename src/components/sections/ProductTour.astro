@@ -1,20 +1,20 @@
 ---
 /**
- * Guided product tour — tabbed walkthrough.
+ * Guided product tour — section-per-step layout.
  *
- * Layout per stage (vertical stack):
- *   1. Text block on top — eyebrow + headline + body + bullets.
- *   2. Browser-chrome screen below with 2–3 callout pins overlaid.
- *   3. Numbered navigator (01–05) at the bottom + Prev/Next arrows.
+ * Five full-width sections, each a 2-column grid on desktop:
+ *   - Text column (left): eyebrow + headline + body + 3-bullet checklist
+ *   - Screen column (right): browser chrome + scaled-to-fit demo screen
  *
- * Only one stage is visible at a time; the navigator swaps which by
- * toggling `is-active` on both the stage panel and the matching tab
- * button. ARIA: nav is a `tablist`, each button a `tab`, each panel
- * a `tabpanel`. Inactive panels carry `hidden` so screen readers and
- * crawlers can skip them.
+ * No callout pins / hotspot labels — clean read of each screen.
+ * Sticky chip nav at the top lets the reader jump directly to any
+ * step. Alternating background tints (bg ↔ bg-alt) section to section
+ * for vertical rhythm. The screen column collapses below the text on
+ * mobile.
  *
- * No internal scrolling — every screen is sized at native width inside
- * a fixed-aspect frame, scaled down with CSS transform per screen.
+ * Per-screen scale tuning lives in the `scale` field — the demo screen
+ * renders at native width inside a fixed 16:10 frame with overflow:hidden,
+ * so no internal scrollbars.
  */
 import ConsentScreen from "~/components/ui/demo/ConsentScreen.astro";
 import VisitorsScreen from "~/components/ui/demo/VisitorsScreen.astro";
@@ -22,11 +22,9 @@ import VisitorDetailScreen from "~/components/ui/demo/VisitorDetailScreen.astro"
 import IntegrationsScreen from "~/components/ui/demo/IntegrationsScreen.astro";
 import DashboardScreen from "~/components/ui/demo/DashboardScreen.astro";
 import Badge from "~/components/ui/Badge.astro";
-import { IconCheck, IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
+import { IconCheck } from "@tabler/icons-react";
 
-interface Pin { x: number; y: number; label: string }
 interface Stage {
-  n: string;
   slug: string;
   eyebrow: string;
   headline: string;
@@ -36,14 +34,11 @@ interface Stage {
   path: string;
   /** Scale factor — tuned per screen so its key content fits the frame. */
   scale: number;
-  /** Callout pins overlaid on the screen (% of the unscaled frame).
-   *  Keep to 2–3 per stage for clarity. */
-  pins: Pin[];
 }
 
 const stages: Stage[] = [
   {
-    n: "01", slug: "install", eyebrow: "Install", path: "consent",
+    slug: "install", eyebrow: "Install", path: "consent",
     headline: "Paste one line. Live the same day.",
     body: "Drop the Consent Resolve snippet into your site's <head>. Your existing consent banner does the asking — we wire ourselves in alongside Termageddon-backed policies and start identifying the second a homeowner says yes.",
     bullets: [
@@ -52,13 +47,9 @@ const stages: Stage[] = [
       "Most pros are live within hours of signing up",
     ],
     screen: "consent", scale: 0.68,
-    pins: [
-      { x: 41, y: 28, label: "One-line install snippet" },
-      { x: 48, y: 62, label: "Termageddon Settings ID" },
-    ],
   },
   {
-    n: "02", slug: "visitors", eyebrow: "Identify", path: "visitors",
+    slug: "identify", eyebrow: "Identify", path: "visitors",
     headline: "Real people fill the list in real time.",
     body: "Every consented visitor lands in your Visitors view with a device, location, view count, and time since visit. Search, filter, sort — find exactly the homeowners who matter today.",
     bullets: [
@@ -67,14 +58,9 @@ const stages: Stage[] = [
       "Consent recorded and signed on every record",
     ],
     screen: "visitors", scale: 0.62,
-    pins: [
-      { x: 22, y: 12, label: "Live visitor count" },
-      { x: 38, y: 46, label: "Real names + emails" },
-      { x: 78, y: 46, label: "Device + timezone" },
-    ],
   },
   {
-    n: "03", slug: "lead-detail", eyebrow: "Reach out", path: "visitors/k7…l",
+    slug: "reach-out", eyebrow: "Reach out", path: "visitors/k7…l",
     headline: "Open a lead. Call, text, or push to CRM — right there.",
     body: "Click any visitor for the full lead — animated lead score, contact + enrichment cards, a Termageddon-signed consent record with audit ID, and a timeline of every page they looked at. One tap to act.",
     bullets: [
@@ -83,14 +69,9 @@ const stages: Stage[] = [
       "Activity timeline of every page viewed",
     ],
     screen: "visitor-detail", scale: 0.58,
-    pins: [
-      { x: 24, y: 18, label: "Identity + score" },
-      { x: 65, y: 18, label: "Call · Text · Email · CRM" },
-      { x: 50, y: 60, label: "Signed consent record" },
-    ],
   },
   {
-    n: "04", slug: "route", eyebrow: "Route", path: "integrations",
+    slug: "route", eyebrow: "Route", path: "integrations",
     headline: "Send leads where you already work.",
     body: "Connect Jobber, Housecall Pro, ServiceTitan, HubSpot, GoHighLevel — or anything custom through a webhook. Leads route to the right rep by service area automatically. Nothing falls into the gap between tools.",
     bullets: [
@@ -99,13 +80,9 @@ const stages: Stage[] = [
       "Full lead detail carried over — no double entry",
     ],
     screen: "integrations", scale: 0.62,
-    pins: [
-      { x: 32, y: 36, label: "One-click connect" },
-      { x: 70, y: 62, label: "Status pills per integration" },
-    ],
   },
   {
-    n: "05", slug: "measure", eyebrow: "Measure", path: "dashboard",
+    slug: "measure", eyebrow: "Measure", path: "dashboard",
     headline: "See the dollars, every week.",
     body: "The dashboard ties cost per identified lead to the jobs you booked. Trend chart, time-range selector, live visitor feed — and the numbers count up on load so you actually look at them.",
     bullets: [
@@ -114,11 +91,6 @@ const stages: Stage[] = [
       "Live visitor feed below the metrics",
     ],
     screen: "dashboard", scale: 0.62,
-    pins: [
-      { x: 30, y: 22, label: "Live metrics" },
-      { x: 60, y: 50, label: "Trend chart" },
-      { x: 32, y: 84, label: "Real-time visitor feed" },
-    ],
   },
 ];
 ---
@@ -136,23 +108,29 @@ const stages: Stage[] = [
       </p>
     </header>
 
-    {/* ── Stage panels ────────────────────────────────────────── */}
-    <div class="tour-stages">
-      {stages.map((stage, i) => (
-        <div
-          class={`tour-stage ${i === 0 ? "is-active" : ""}`}
-          data-stage={stage.slug}
-          role="tabpanel"
-          id={`tour-panel-${stage.slug}`}
-          aria-labelledby={`tour-tab-${stage.slug}`}
-          hidden={i !== 0}
-        >
-          {/* Text on top */}
-          <div class="tour-text">
-            <div class="tour-text-meta">
-              <span class="tour-step-n">{stage.n}</span>
-              <Badge tone="brand" variant="soft" size="md" uppercase>{stage.eyebrow}</Badge>
-            </div>
+    {/* Sticky chip nav — anchor-jump to any step */}
+    <nav class="tour-nav" aria-label="Tour stages">
+      <ul>
+        {stages.map((s) => (
+          <li>
+            <a href={`#tour-${s.slug}`} class="tour-nav-chip">{s.eyebrow}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+
+  {/* Sections — alternating background tints */}
+  {stages.map((stage, i) => (
+    <article
+      id={`tour-${stage.slug}`}
+      class:list={["tour-step", i % 2 === 1 && "tour-step-alt"]}
+    >
+      <div class="container-content">
+        <div class="tour-step-grid">
+          {/* Text */}
+          <div class="tour-step-text">
+            <Badge tone="brand" variant="soft" size="md" uppercase>{stage.eyebrow}</Badge>
             <h3 class="tour-step-title">{stage.headline}</h3>
             <p class="tour-step-body">{stage.body}</p>
             <ul class="tour-step-bullets">
@@ -167,8 +145,8 @@ const stages: Stage[] = [
             </ul>
           </div>
 
-          {/* Screen below */}
-          <div class="tour-screen-wrap">
+          {/* Screen */}
+          <div class="tour-step-screen">
             <div class="tour-frame">
               <div class="tour-chrome" aria-hidden="true">
                 <span class="tour-chrome-dot" style="background:#FF5F57"></span>
@@ -184,69 +162,19 @@ const stages: Stage[] = [
                   {stage.screen === "integrations"   && <IntegrationsScreen />}
                   {stage.screen === "dashboard"      && <DashboardScreen />}
                 </div>
-                {/* Callout pins */}
-                {stage.pins.map((p, pi) => (
-                  <span
-                    class="tour-pin"
-                    style={`left:${p.x}%;top:${p.y}%;--pin-delay:${pi * 110 + 220}ms`}
-                  >
-                    <span class="tour-pin-dot" aria-hidden="true"></span>
-                    <span class="tour-pin-label">{p.label}</span>
-                  </span>
-                ))}
               </div>
             </div>
           </div>
         </div>
-      ))}
-    </div>
-
-    {/* ── Stage navigator ─────────────────────────────────────── */}
-    <nav class="tour-nav" role="tablist" aria-label="Tour stages">
-      <button
-        type="button"
-        class="tour-nav-arrow"
-        data-tour-prev
-        aria-label="Previous stage"
-      >
-        <IconArrowLeft size={18} stroke={2.25} />
-        <span class="tour-nav-arrow-label">Prev</span>
-      </button>
-
-      <div class="tour-nav-tabs">
-        {stages.map((stage, i) => (
-          <button
-            type="button"
-            role="tab"
-            id={`tour-tab-${stage.slug}`}
-            aria-controls={`tour-panel-${stage.slug}`}
-            aria-selected={i === 0 ? "true" : "false"}
-            data-tour-tab={stage.slug}
-            class={`tour-nav-tab ${i === 0 ? "is-active" : ""}`}
-          >
-            <span class="tour-nav-tab-label">{stage.eyebrow}</span>
-          </button>
-        ))}
       </div>
-
-      <button
-        type="button"
-        class="tour-nav-arrow"
-        data-tour-next
-        aria-label="Next stage"
-      >
-        <span class="tour-nav-arrow-label">Next</span>
-        <IconArrowRight size={18} stroke={2.25} />
-      </button>
-    </nav>
-  </div>
+    </article>
+  ))}
 </section>
 
 <style>
   .tour {
     position: relative;
     overflow: hidden;
-    padding-block: 6rem;
     background: var(--color-bg);
   }
   .tour-glow {
@@ -262,70 +190,106 @@ const stages: Stage[] = [
 
   .tour-header {
     max-width: 760px;
-    margin: 0 auto 3.5rem;
-    text-align: center;
-  }
-
-  /* ── Stages ─────────────────────────────────────────────────── */
-  .tour-stages {
-    max-width: 1080px;
     margin: 0 auto;
-  }
-  .tour-stage {
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-    animation: tour-stage-in 360ms cubic-bezier(0.22, 0.61, 0.36, 1);
-  }
-  .tour-stage:not(.is-active) { display: none; }
-  @keyframes tour-stage-in {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
+    text-align: center;
+    padding-block: 6rem 3rem;
   }
 
-  /* ── Text on top ────────────────────────────────────────────── */
-  .tour-text {
-    max-width: 760px;
+  /* ── Sticky chip nav ────────────────────────────────────────── */
+  .tour-nav {
+    position: sticky;
+    top: 1rem;
+    z-index: 30;
+    margin: 0 auto;
+    width: fit-content;
+    max-width: calc(100% - 1rem);
   }
-  .tour-text-meta {
+  .tour-nav > ul {
     display: flex;
     align-items: center;
-    gap: 0.85rem;
-    margin-bottom: 1rem;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0.4rem;
+    list-style: none;
+    overflow-x: auto;
+    background: var(--color-bg);
+    border-radius: 9999px;
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      0 18px 40px -20px rgba(10, 22, 40, 0.28);
+    scrollbar-width: none;
   }
-  .tour-step-n {
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-size: clamp(40px, 5vw, 64px);
-    line-height: 0.9;
-    letter-spacing: -0.04em;
-    background: linear-gradient(180deg, #00E5A0 0%, #00A86E 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  .tour-nav > ul::-webkit-scrollbar { display: none; }
+  .tour-nav-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.55rem 1.1rem;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
+  .tour-nav-chip:hover {
+    color: var(--color-ink-2);
+    background: rgba(0, 229, 160, 0.07);
+  }
+  /* Anchor-target highlight: when the URL hash matches, color the chip */
+  .tour-nav-chip:focus {
+    outline: none;
+    color: var(--color-brand-pressed);
+    background: var(--color-brand-soft);
+  }
+
+  /* ── Step sections ──────────────────────────────────────────── */
+  .tour-step {
+    padding-block: 5rem;
+    scroll-margin-top: 5rem;
+  }
+  .tour-step + .tour-step { border-top: 1px solid var(--color-rule); }
+  .tour-step-alt { background: var(--color-bg-alt); }
+
+  .tour-step-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  @media (min-width: 1024px) {
+    .tour-step-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: 4rem;
+    }
+  }
+
+  /* Text column */
+  .tour-step-text { max-width: 36rem; }
   .tour-step-title {
     font-family: var(--font-display);
     font-weight: 900;
-    font-size: clamp(1.5rem, 2.6vw, 2.125rem);
+    font-size: clamp(1.625rem, 2.8vw, 2.25rem);
     line-height: 1.08;
     letter-spacing: -0.025em;
     color: var(--color-ink);
-    margin-bottom: 0.875rem;
+    margin-top: 1.25rem;
+    margin-bottom: 1rem;
   }
   .tour-step-body {
     font-size: 1rem;
     line-height: 1.6;
     color: var(--color-ink-2);
-    max-width: 38rem;
   }
   .tour-step-bullets {
-    margin: 1.25rem 0 0;
+    margin: 1.5rem 0 0;
     padding: 0;
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0.7rem;
   }
   .tour-step-bullets li {
     display: flex;
@@ -347,8 +311,8 @@ const stages: Stage[] = [
     background: var(--color-brand-soft);
   }
 
-  /* ── Screen below ───────────────────────────────────────────── */
-  .tour-screen-wrap { position: relative; }
+  /* Screen column */
+  .tour-step-screen { position: relative; }
   .tour-frame {
     position: relative;
     border-radius: 1.25rem;
@@ -402,208 +366,4 @@ const stages: Stage[] = [
     transform-origin: top left;
     pointer-events: none;
   }
-
-  /* Callout pins */
-  .tour-pin {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    opacity: 0;
-    pointer-events: none;
-    animation: tour-pin-in 480ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-    animation-delay: var(--pin-delay, 0ms);
-  }
-  @keyframes tour-pin-in {
-    from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
-    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  }
-  .tour-pin-dot {
-    width: 14px; height: 14px;
-    border-radius: 9999px;
-    background: var(--color-brand);
-    box-shadow:
-      0 0 0 4px rgba(0, 229, 160, 0.18),
-      0 0 0 8px rgba(0, 229, 160, 0.10),
-      0 6px 16px -4px rgba(0, 229, 160, 0.55);
-    animation: tour-pin-pulse 2.4s ease-in-out infinite;
-    animation-delay: calc(var(--pin-delay, 0ms) + 480ms);
-  }
-  @keyframes tour-pin-pulse {
-    0%, 100% { box-shadow: 0 0 0 4px rgba(0, 229, 160, 0.18), 0 0 0 8px rgba(0, 229, 160, 0.10), 0 6px 16px -4px rgba(0, 229, 160, 0.55); }
-    50%      { box-shadow: 0 0 0 6px rgba(0, 229, 160, 0.28), 0 0 0 14px rgba(0, 229, 160, 0.06), 0 6px 16px -4px rgba(0, 229, 160, 0.55); }
-  }
-  .tour-pin-label {
-    background: var(--color-navy-900);
-    color: white;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 0.4rem 0.7rem;
-    border-radius: 0.5rem;
-    white-space: nowrap;
-    box-shadow: 0 10px 24px -10px rgba(10, 22, 40, 0.55);
-  }
-
-  /* ── Navigator ──────────────────────────────────────────────── */
-  .tour-nav {
-    margin: 3rem auto 0;
-    max-width: 1080px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-  .tour-nav-arrow {
-    appearance: none;
-    border: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.1rem;
-    border-radius: 9999px;
-    background: transparent;
-    color: var(--color-ink-2);
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    box-shadow: inset 0 0 0 1px var(--color-rule);
-    transition: color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-  }
-  .tour-nav-arrow:hover {
-    color: var(--color-brand-pressed);
-    background: var(--color-brand-soft);
-    box-shadow: inset 0 0 0 1px rgba(0, 229, 160, 0.4);
-  }
-  .tour-nav-arrow:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    background: transparent;
-    color: var(--color-ink-muted);
-    box-shadow: inset 0 0 0 1px var(--color-rule);
-  }
-  .tour-nav-arrow-label { display: inline-block; }
-  @media (max-width: 480px) {
-    .tour-nav-arrow-label { display: none; }
-  }
-
-  .tour-nav-tabs {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.4rem;
-    background: var(--color-bg-alt);
-    border-radius: 9999px;
-    box-shadow: inset 0 0 0 1px var(--color-rule);
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .tour-nav-tabs::-webkit-scrollbar { display: none; }
-
-  .tour-nav-tab {
-    appearance: none;
-    border: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.6rem 1rem;
-    border-radius: 9999px;
-    background: transparent;
-    color: var(--color-ink-muted);
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
-  }
-  .tour-nav-tab:hover {
-    color: var(--color-ink-2);
-    background: rgba(0, 229, 160, 0.07);
-  }
-  .tour-nav-tab.is-active {
-    background: var(--color-navy-900);
-    color: white;
-    box-shadow: 0 10px 24px -12px rgba(10, 22, 40, 0.45);
-  }
-
-  /* Below 720px: tighten tab padding so all five labels fit. */
-  @media (max-width: 720px) {
-    .tour-nav-tab { padding: 0.55rem 0.7rem; font-size: 10px; }
-  }
-
-  /* Reduced motion */
-  @media (prefers-reduced-motion: reduce) {
-    .tour-stage { animation: none; }
-    .tour-pin { animation: none; opacity: 1; }
-    .tour-pin-dot { animation: none; }
-  }
 </style>
-
-<script>
-  // Tabbed walkthrough — single source of truth for the active stage
-  // is the data-tour-tab attribute on the navigator buttons. Clicking
-  // any tab (or prev/next) updates the panel + tab states + the
-  // chrome URL on the *active* panel.
-  (function () {
-    const section = document.querySelector<HTMLElement>(".tour");
-    if (!section) return;
-
-    const panels = Array.from(section.querySelectorAll<HTMLElement>(".tour-stage"));
-    const tabs = Array.from(section.querySelectorAll<HTMLElement>("[data-tour-tab]"));
-    const prevBtn = section.querySelector<HTMLButtonElement>("[data-tour-prev]");
-    const nextBtn = section.querySelector<HTMLButtonElement>("[data-tour-next]");
-    if (!panels.length || !tabs.length) return;
-
-    const slugs = tabs.map((t) => t.dataset.tourTab as string);
-    let activeIdx = Math.max(0, slugs.indexOf(panels.find((p) => p.classList.contains("is-active"))?.dataset.stage || slugs[0]));
-
-    const setActive = (i: number) => {
-      const clamped = Math.max(0, Math.min(slugs.length - 1, i));
-      if (clamped === activeIdx) return;
-      const slug = slugs[clamped];
-
-      // Restart the pin/stage enter animation by toggling display.
-      panels.forEach((p) => {
-        const match = p.dataset.stage === slug;
-        p.classList.toggle("is-active", match);
-        if (match) p.removeAttribute("hidden");
-        else p.setAttribute("hidden", "");
-      });
-      tabs.forEach((t) => {
-        const match = t.dataset.tourTab === slug;
-        t.classList.toggle("is-active", match);
-        t.setAttribute("aria-selected", match ? "true" : "false");
-      });
-
-      activeIdx = clamped;
-      syncArrowState();
-    };
-
-    const syncArrowState = () => {
-      if (prevBtn) prevBtn.disabled = activeIdx === 0;
-      if (nextBtn) nextBtn.disabled = activeIdx === slugs.length - 1;
-    };
-    syncArrowState();
-
-    tabs.forEach((t, i) => {
-      t.addEventListener("click", () => setActive(i));
-      // Keyboard: Left/Right arrow keys move between tabs.
-      t.addEventListener("keydown", (e: KeyboardEvent) => {
-        if (e.key === "ArrowRight") { e.preventDefault(); setActive(activeIdx + 1); tabs[Math.min(activeIdx, tabs.length - 1)]?.focus(); }
-        if (e.key === "ArrowLeft")  { e.preventDefault(); setActive(activeIdx - 1); tabs[Math.max(activeIdx, 0)]?.focus(); }
-        if (e.key === "Home")       { e.preventDefault(); setActive(0); tabs[0]?.focus(); }
-        if (e.key === "End")        { e.preventDefault(); setActive(slugs.length - 1); tabs[slugs.length - 1]?.focus(); }
-      });
-    });
-    prevBtn?.addEventListener("click", () => setActive(activeIdx - 1));
-    nextBtn?.addEventListener("click", () => setActive(activeIdx + 1));
-  })();
-</script>
