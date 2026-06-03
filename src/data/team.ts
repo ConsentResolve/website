@@ -85,7 +85,7 @@ export const TEAM: TeamMember[] = [
     role: "Marketing",
     tagline: "Positioning. Calling out the BS.",
     bio: "20+ years marketing hosting, security, and SaaS to people who can smell a sales pitch a mile away. cPanel executive, CMO of an anti-malware platform, enterprise SEO lead — every job he's had has been some version of 'translate complicated tech into plain English without lying about it.' That's what he does here too.",
-    whyItMatters: "Every word on this site is checked against what we actually do. Aaron's job is to make sure the marketing matches the product — no asterisks, no fine-print walk-backs, no 'free' that isn't free.",
+    whyItMatters: "Every word on this site is checked against what we actually do. Aaron's job is to make sure the marketing matches the product — no asterisks, no fine-print walk-backs, no 'no-card-needed' that needs a card.",
     verified: [
       "Executive, cPanel",
       "CMO, anti-malware platform",

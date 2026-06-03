@@ -116,7 +116,7 @@ export function industryServiceSchema(opts: {
         priceCurrency: "USD",
         unitText: "per lead",
       },
-      description: `Exclusive ${opts.tradeName.toLowerCase()} leads. 10 leads for $10 to start, then $7 per lead. Card required.`,
+      description: `Exclusive ${opts.tradeName.toLowerCase()} leads. Flat $7 per lead, never resold. Card required, cancel anytime.`,
     },
     url: `${SITE.url}/${opts.tradeSlug}-leads/`,
   };

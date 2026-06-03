@@ -169,7 +169,7 @@ export const COMPARE_PAGES: ComparePage[] = [
       "You follow up on both. More of the traffic you already pay for turns into booked jobs.",
     ],
     finalCtaH2: "Don't replace LSA. Finish the job it starts.",
-    finalCtaBody: "Keep your LSA running. Add Consent Resolve for $10 (your first 10 leads) and catch the homeowners LSA never connected you with.",
+    finalCtaBody: "Keep your LSA running. Add Consent Resolve at flat $7 a lead and catch the homeowners LSA never connected you with.",
   },
 ];
 

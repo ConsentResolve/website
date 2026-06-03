@@ -1,8 +1,9 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Button from "~/components/ui/Button.astro";
-import { IconArrowRight, IconCheck, IconLock } from "@tabler/icons-react";
+import { IconArrowRight, IconCheck, IconLock, IconBolt, IconShieldCheck, IconMail } from "@tabler/icons-react";
 import { breadcrumbSchema } from "~/lib/seo";
+import { SITE } from "~/lib/site";
 
 const schemas = [
   breadcrumbSchema([
@@ -13,8 +14,8 @@ const schemas = [
 ---
 
 <BaseLayout
-  title="Get Started — $10 for Your First 10 Leads | Consent Resolve"
-  description="Two minutes to set up. Your first 10 leads are just $10. Cancel anytime."
+  title="Get Started — Flat $7 per Lead | Consent Resolve"
+  description="Two minutes to set up. Flat $7 per lead — yours alone, never resold. Card required, cancel anytime."
   schema={schemas}
 >
   <section class="relative overflow-hidden">
@@ -27,30 +28,37 @@ const schemas = [
             Let's get you your first exclusive lead.
           </h1>
           <p class="mb-10 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-            Two minutes to set up. Your first 10 leads are just $10. Cancel anytime.
+            Two minutes to set up. Flat $7 per lead — yours alone, never resold. Cancel anytime.
           </p>
         </div>
 
-        <!-- Signup form (placeholder — wire to real auth later) -->
-        <form class="space-y-4 rounded-2xl bg-[color:var(--color-bg-alt)] p-8 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)]">
+        <!-- Signup form — backend pending. Submissions currently fall back
+             to a mailto with the form payload pre-filled. Replace `action`
+             with the real endpoint when wired up. -->
+        <form
+          action={`mailto:${SITE.email}?subject=New%20signup%20-%20Consent%20Resolve`}
+          method="POST"
+          enctype="text/plain"
+          class="space-y-4 rounded-2xl bg-[color:var(--color-bg-alt)] p-8 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)]"
+        >
           <div>
-            <label class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Shop name</label>
-            <input type="text" placeholder="Mendez Plumbing" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
+            <label for="shop-name" class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Shop name</label>
+            <input id="shop-name" name="shop_name" type="text" autocomplete="organization" required placeholder="Mendez Plumbing" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
           </div>
           <div>
-            <label class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Email</label>
-            <input type="email" placeholder="you@yourshop.com" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
+            <label for="email" class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@yourshop.com" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
           </div>
           <div>
-            <label class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Mobile</label>
-            <input type="tel" placeholder="(512) 555-0100" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
+            <label for="mobile" class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Mobile</label>
+            <input id="mobile" name="mobile" type="tel" autocomplete="tel" required placeholder="(512) 555-0100" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
           </div>
           <div>
-            <label class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Your site</label>
-            <input type="url" placeholder="https://yourshop.com" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
+            <label for="site-url" class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Your site</label>
+            <input id="site-url" name="site_url" type="url" autocomplete="url" required placeholder="https://yourshop.com" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
           </div>
 
-          <Button variant="primary" size="lg" fullWidth>
+          <Button type="submit" variant="primary" size="lg" fullWidth>
             Create account
             <IconArrowRight size={18} stroke={2.25} />
           </Button>
@@ -61,13 +69,45 @@ const schemas = [
           </p>
         </form>
 
+        <!-- What happens next -->
+        <div class="mt-10 rounded-2xl bg-[color:var(--color-bg)] p-8 ring-1 ring-inset ring-[color:var(--color-rule)]">
+          <p class="eyebrow mb-5">What happens next</p>
+          <ol class="space-y-4 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+            <li class="flex items-start gap-3">
+              <span class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)] font-mono text-[11px] font-bold text-[color:var(--color-brand-pressed)]">1</span>
+              <span><strong class="text-[color:var(--color-ink)]">You sign up.</strong> No card charged yet — we don't bill until your first lead lands.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)] font-mono text-[11px] font-bold text-[color:var(--color-brand-pressed)]">2</span>
+              <span><strong class="text-[color:var(--color-ink)]">Paste one line of code</strong> into your site's <code class="rounded bg-[color:var(--color-bg-alt)] px-1 py-0.5 text-[12px] font-mono">&lt;head&gt;</code>. About 10 minutes. We'll help if you get stuck.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)] font-mono text-[11px] font-bold text-[color:var(--color-brand-pressed)]">3</span>
+              <span><strong class="text-[color:var(--color-ink)]">Your first consented lead lands.</strong> Push alert to your phone, lead in your CRM, $7 charged to your card. That's it.</span>
+            </li>
+          </ol>
+        </div>
+
         <!-- Trust list -->
         <ul class="mt-8 space-y-3 text-[15px] text-[color:var(--color-ink-2)]">
-          <li class="flex items-center gap-2.5"><IconCheck size={18} stroke={2.5} color="#00A86E" /> Card required · $10 for your first 10 leads</li>
-          <li class="flex items-center gap-2.5"><IconCheck size={18} stroke={2.5} color="#00A86E" /> $7 per lead after that — flat</li>
+          <li class="flex items-center gap-2.5"><IconCheck size={18} stroke={2.5} color="#00A86E" /> Flat $7 per lead — never resold</li>
+          <li class="flex items-center gap-2.5"><IconCheck size={18} stroke={2.5} color="#00A86E" /> Card required, no contract</li>
           <li class="flex items-center gap-2.5"><IconCheck size={18} stroke={2.5} color="#00A86E" /> Cancel anytime, from your dashboard</li>
           <li class="flex items-center gap-2.5"><IconCheck size={18} stroke={2.5} color="#00A86E" /> Live in about 10 minutes</li>
         </ul>
+
+        <!-- Compliance reassurance -->
+        <div class="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t border-[color:var(--color-rule)] pt-8">
+          <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-[color:var(--color-ink-2)]">
+            <IconShieldCheck size={14} stroke={2} color="var(--color-brand-pressed)" /> GDPR · CCPA · CPA
+          </span>
+          <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-[color:var(--color-ink-2)]">
+            <IconBolt size={14} stroke={2} color="var(--color-brand-pressed)" /> Termageddon-backed
+          </span>
+          <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-[color:var(--color-ink-2)]">
+            <IconMail size={14} stroke={2} color="var(--color-brand-pressed)" /> {SITE.email}
+          </span>
+        </div>
       </div>
     </div>
   </section>

@@ -193,10 +193,10 @@ const channelRecovery: Feature = {
   tagline: "Catch what your ads miss.",
   subhead: "Consent Resolve doesn't replace Google, Thumbtack, or Angi. It sits on top of them and catches the customers they send who leave without calling.",
   aeoAnswer:
-    "Channel Recovery captures the website visitors your existing ads already paid for but lost. Consent Resolve works on top of Google LSA, Thumbtack, Angi, and your own campaigns — identifying the roughly 95% who visit and leave without converting, then handing them back as named leads. It doesn't compete with your channels; it rescues the traffic they waste.",
+    "Channel Recovery captures the website visitors your existing ads already paid for but lost. Consent Resolve works on top of Google LSA, Thumbtack, Angi, and your own campaigns — identifying the roughly 98% who visit and leave without converting, then handing them back as named leads. It doesn't compete with your channels; it rescues the traffic they waste.",
   problem: {
     headline: "You paid for the click. Then you lost the customer.",
-    body: "Every channel you run — LSA, Thumbtack, Angi, Facebook — sends people to your site. About 95 out of 100 look around and leave without calling. You already paid to get them there. Right now that money just evaporates the second they close the tab.",
+    body: "Every channel you run — LSA, Thumbtack, Angi, Facebook — sends people to your site. About 98 out of 100 look around and leave without calling. You already paid to get them there. Right now that money just evaporates the second they close the tab.",
   },
   howItWorks: {
     headline: "One layer over every channel you run.",
@@ -285,7 +285,7 @@ const easySetupWithOneScript: Feature = {
       "No developer required",
       "Step-by-step paste guide",
       "Live the same day",
-      "Free install help if you want it",
+      "No-charge install help if you want it",
     ],
   },
   faq: {

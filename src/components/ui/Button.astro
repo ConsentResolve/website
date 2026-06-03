@@ -1,11 +1,13 @@
 ---
 import type { HTMLAttributes } from "astro/types";
 
-interface Props extends HTMLAttributes<"a"> {
+interface Props extends Omit<HTMLAttributes<"a">, "type"> {
   variant?: "primary" | "secondary" | "ghost" | "outline" | "link" | "danger";
   size?: "sm" | "md" | "lg";
   href?: string;
   fullWidth?: boolean;
+  /** Only honored when rendering as a <button> (no href). */
+  type?: "button" | "submit" | "reset";
 }
 
 const {

@@ -9,6 +9,11 @@ interface Props {
   className?: string;
 }
 
+/**
+ * Animated count-up number. SSR renders the FINAL value so crawlers and
+ * users on slow networks don't see "0" flashes; the effect then resets
+ * to 0 on mount and counts up to `value` once the element is visible.
+ */
 export default function AnimatedNumber({
   value,
   prefix = "",
@@ -17,14 +22,31 @@ export default function AnimatedNumber({
   decimals = 0,
   className,
 }: Props) {
-  const [current, setCurrent] = useState(0);
+  // SSR / first paint: render the final value so crawlers see it.
+  const [current, setCurrent] = useState(value);
   const ref = useRef<HTMLSpanElement>(null);
   const fired = useRef(false);
+  const mounted = useRef(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
+
+    // On first effect run after hydration, reset the displayed value to
+    // 0 so the count-up has somewhere to start. If reduced-motion is on,
+    // or IntersectionObserver isn't available, skip the animation and
+    // leave the final value showing.
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!mounted.current) {
+      mounted.current = true;
+      if (reduceMotion || !("IntersectionObserver" in window)) {
+        setCurrent(value);
+        return;
+      }
+      setCurrent(0);
+    }
+
+    if (!("IntersectionObserver" in window)) {
       setCurrent(value);
       return;
     }
@@ -33,7 +55,6 @@ export default function AnimatedNumber({
         entries.forEach((e) => {
           if (e.isIntersecting && !fired.current) {
             fired.current = true;
-            const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
             if (reduceMotion) {
               setCurrent(value);
               return;

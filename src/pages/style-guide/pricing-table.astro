@@ -2,69 +2,79 @@
 import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
 import PricingTable from "~/components/ui/PricingTable.astro";
 
-const tiers = [
+// Real Consent Resolve pricing is a single $7/lead plan. This page
+// shows the PricingTable primitive at three densities so the component
+// stays drop-in ready for any future plan structure. Examples are
+// labelled HYPOTHETICAL where they don't match production.
+
+const singleTier = [
   {
-    name: "Trial",
-    price: "$10",
-    period: "first month",
-    blurb: "Kick the tires before you commit.",
+    name: "Consent Resolve",
+    price: "$7",
+    period: "per lead",
+    blurb: "Flat per-lead pricing. Exclusive, never resold.",
     features: [
-      { label: "Up to 25 identified leads", included: true },
-      { label: "Slack & email alerts", included: true },
-      { label: "Termageddon privacy policy", included: true },
-      { label: "CRM sync", included: false },
-      { label: "Return-visit alerts", included: false },
-    ],
-    cta: { label: "Start trial", href: "/get-started/" },
-  },
-  {
-    name: "Pro",
-    price: "$249",
-    period: "mo",
-    blurb: "For single-shop operators.",
-    features: [
-      { label: "Up to 200 identified leads/mo", included: true },
-      { label: "Slack, SMS & email alerts", included: true },
-      { label: "Termageddon privacy policy", included: true },
-      { label: "CRM sync (Jobber, HCP, ST)", included: true },
+      { label: "Real name, mobile, and email", included: true },
+      { label: "Slack, SMS, & email alerts", included: true },
+      { label: "Termageddon-backed privacy policy", included: true },
+      { label: "CRM sync (Jobber, HCP, ServiceTitan)", included: true },
       { label: "Return-visit alerts", included: true },
+      { label: "Cancel anytime", included: true },
     ],
-    cta: { label: "Get Pro", href: "/get-started/?plan=pro" },
+    cta: { label: "Get Started", href: "/get-started/" },
     featured: true,
-    badge: "Most popular",
+    badge: "Live pricing",
+  },
+];
+
+const featureMatrix = [
+  {
+    name: "Pay-per-lead",
+    price: "$7",
+    period: "per lead",
+    blurb: "What you pay today.",
+    features: [
+      { label: "Exclusive leads, never resold", included: true },
+      { label: "Real name + mobile + email", included: true },
+      { label: "Push alert to your phone", included: true },
+      { label: "CRM sync included", included: true },
+      { label: "Cancel anytime", included: true },
+    ],
+    cta: { label: "Get Started", href: "/get-started/" },
+    featured: true,
+    badge: "Live",
   },
   {
-    name: "Multi-location",
-    price: "$649",
-    period: "mo",
-    blurb: "Multiple shops, territories, brands.",
+    name: "Shared-lead reseller",
+    price: "~$46",
+    period: "per lead",
+    blurb: "What the other guys charge.",
     features: [
-      { label: "Unlimited identified leads", included: true },
-      { label: "Territory routing rules", included: true },
-      { label: "Multi-CRM sync", included: true },
-      { label: "Dedicated CSM", included: true },
-      { label: "Custom integrations", included: true },
+      { label: "Sold to 4–5 other contractors", included: false },
+      { label: "Billed even for 'no thanks' replies", included: false },
+      { label: "Dispute denial up to 50%", included: false },
+      { label: "Auto-renew contracts", included: false },
+      { label: "Cancel anytime", included: false },
     ],
-    cta: { label: "Talk to sales", href: "/contact/" },
+    cta: { label: "Compare in detail", href: "/compare/thumbtack/" },
   },
 ];
 ---
 
-<StyleGuideLayout slug="pricing-table" title="Pricing Table" description="Three-tier pricing layout. The featured tier inverts to dark navy.">
+<StyleGuideLayout slug="pricing-table" title="Pricing Table" description="Tiered pricing card primitive. Production uses a single $7/lead plan; the component supports 1, 2, or 3 columns for future flexibility.">
   <section class="sg-section">
-    <h2>Three tiers</h2>
+    <h2>Live pricing (one tier — $7/lead)</h2>
+    <p class="sg-lede">What's actually on <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">/pricing/</code> in production. Single-tier renders centered.</p>
     <div class="sg-preview">
-      <PricingTable tiers={tiers} />
+      <PricingTable tiers={singleTier} />
     </div>
   </section>
 
   <section class="sg-section">
-    <h2>Two tiers (free + paid)</h2>
+    <h2>Side-by-side comparison (us vs. shared-lead reseller)</h2>
+    <p class="sg-lede">Two-tier layout used implicitly by the /compare/ page tables. Shows the primitive can carry a head-to-head price comparison.</p>
     <div class="sg-preview">
-      <PricingTable tiers={[
-        { name: "Free trial", price: "$10", period: "first month", features: [{ label: "25 leads", included: true }, { label: "Email alerts", included: true }, { label: "CRM sync", included: false }], cta: { label: "Start", href: "#" } },
-        { name: "Pro", price: "$249", period: "mo", features: [{ label: "200 leads/mo", included: true }, { label: "All alerts", included: true }, { label: "CRM sync", included: true }], cta: { label: "Upgrade", href: "#" }, featured: true, badge: "Best value" },
-      ]} />
+      <PricingTable tiers={featureMatrix} />
     </div>
   </section>
 </StyleGuideLayout>

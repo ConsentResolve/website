@@ -35,25 +35,31 @@ const schemas = [
   <section class="pb-24">
     <div class="container-content max-w-5xl">
       <div class="grid items-start gap-10 md:grid-cols-[1.2fr_1fr]">
-        <!-- Form -->
-        <form class="space-y-4 rounded-2xl bg-[color:var(--color-bg-alt)] p-8 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)]">
+        <!-- Form — backend pending. mailto fallback so submissions reach
+             hello@ until wired to a real endpoint. -->
+        <form
+          action="mailto:hello@consentresolve.com?subject=Contact%20-%20Consent%20Resolve"
+          method="POST"
+          enctype="text/plain"
+          class="space-y-4 rounded-2xl bg-[color:var(--color-bg-alt)] p-8 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)]"
+        >
           <div>
-            <label class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Name</label>
-            <input type="text" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
+            <label for="contact-name" class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Name</label>
+            <input id="contact-name" name="name" type="text" autocomplete="name" required class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
           </div>
           <div>
-            <label class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Email</label>
-            <input type="email" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
+            <label for="contact-email" class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Email</label>
+            <input id="contact-email" name="email" type="email" autocomplete="email" required class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
           </div>
           <div>
-            <label class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Shop name</label>
-            <input type="text" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
+            <label for="contact-shop" class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Shop name</label>
+            <input id="contact-shop" name="shop_name" type="text" autocomplete="organization" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
           </div>
           <div>
-            <label class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Message</label>
-            <textarea rows="5" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]"></textarea>
+            <label for="contact-message" class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Message</label>
+            <textarea id="contact-message" name="message" rows="5" required class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]"></textarea>
           </div>
-          <Button variant="primary" size="lg" fullWidth>
+          <Button type="submit" variant="primary" size="lg" fullWidth>
             Send message
             <IconArrowRight size={18} stroke={2.25} />
           </Button>

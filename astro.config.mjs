@@ -7,7 +7,15 @@ export default defineConfig({
   site: "https://consentresolve.com",
   output: "static",
   trailingSlash: "always",
-  integrations: [react(), sitemap()],
+  integrations: [
+    react(),
+    sitemap({
+      // Exclude internal style-guide routes from sitemap. They're also
+      // noindexed via StyleGuideLayout — this keeps them out of crawler
+      // discovery and preserves crawl budget for marketing pages.
+      filter: (page) => !page.includes("/style-guide/"),
+    }),
+  ],
   vite: { plugins: [tailwindcss()] },
   build: { format: "directory" },
 });

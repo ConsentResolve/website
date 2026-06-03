@@ -1,6 +1,6 @@
 ---
 import Button from "~/components/ui/Button.astro";
-import { IconArrowRight, IconBolt, IconCash, IconLock } from "@tabler/icons-react";
+import { IconArrowRight, IconBolt, IconCash, IconLock, IconCheck } from "@tabler/icons-react";
 
 interface Props {
   heading?: string;
@@ -10,8 +10,8 @@ interface Props {
 }
 const {
   heading = "Your next job is already shopping your site.",
-  body = "Go get it. Your first 10 leads are just $10 — call them, book the jobs, and see what consented leads are worth before you scale up. Legal from the first click.",
-  ctaLabel = "Start $10 Trial",
+  body = "Go get it. Flat $7 per lead — yours alone, never resold. Call them, book the jobs, and see what consented leads are worth. Legal from the first click. Cancel anytime.",
+  ctaLabel = "Get Started",
   ctaHref = "/get-started/",
 } = Astro.props as Props;
 ---
@@ -40,20 +40,20 @@ const {
         <div class="flex items-center justify-between rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
           <span class="flex items-center gap-3 text-[15px] text-slate-300">
             <IconCash size={20} stroke={1.5} color="#00E5A0" />
-            First 10 leads
-          </span>
-          <span class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-mint-400)]">$10</span>
-        </div>
-        <div class="flex items-center justify-between rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
-          <span class="flex items-center gap-3 text-[15px] text-slate-300">
-            <IconCash size={20} stroke={1.5} color="#00E5A0" />
-            Per lead after that
+            Per lead — flat
           </span>
           <span class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-mint-400)]">$7</span>
         </div>
+        <div class="flex items-center justify-between rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
+          <span class="flex items-center gap-3 text-[15px] text-slate-300">
+            <IconCheck size={20} stroke={2} color="#00E5A0" />
+            Exclusive — never resold
+          </span>
+          <span class="font-display text-base font-semibold tracking-tight text-[color:var(--color-mint-400)]">Yours alone</span>
+        </div>
         <div class="flex items-center justify-center gap-1.5 pt-5 text-xs text-slate-400">
           <IconLock size={12} stroke={1.75} />
-          256-bit encrypted · 10 leads for $10 · Cancel anytime
+          256-bit encrypted · Card required · Cancel anytime
         </div>
       </div>
     </div>

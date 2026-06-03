@@ -181,7 +181,7 @@ export const STAT_SECTIONS: StatsSection[] = [
       },
       {
         value: "$7.2M",
-        label: "FTC penalty against Angi's HomeAdvisor",
+        label: "FTC settlement vs Angi's HomeAdvisor",
         description: "For deceptive claims about lead quality and source.",
         numeric: { value: 7.2, prefix: "$", suffix: "M", decimals: 1 },
         source: { name: "FTC", url: "https://www.ftc.gov/news-events/news/press-releases/2023/01/ftc-order-requires-homeadvisor-pay-72-million-stop-deceptively-marketing-its-leads-home-improvement" },
