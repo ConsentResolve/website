@@ -1,21 +1,20 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import Button from "~/components/ui/Button.astro";
-import { IconArrowRight, IconMail, IconPhone, IconClock, IconMapPin } from "@tabler/icons-react";
-import { breadcrumbSchema, localBusinessSchema } from "~/lib/seo";
+import { IconMail, IconPhone, IconClock, IconArrowRight } from "@tabler/icons-react";
+import { breadcrumbSchema } from "~/lib/seo";
+import { SITE } from "~/lib/site";
 
 const schemas = [
   breadcrumbSchema([
     { name: "Home", href: "/" },
     { name: "Contact", href: "/contact/" },
   ]),
-  localBusinessSchema,
 ];
 ---
 
 <BaseLayout
   title="Contact — Talk to a Human at Consent Resolve"
-  description="Questions before you start? We'll give you straight answers — no sales script."
+  description="Questions before you start? Email or call us — no sales script, just straight answers."
   schema={schemas}
 >
   <section class="relative overflow-hidden">
@@ -27,75 +26,54 @@ const schemas = [
           Talk to a human.
         </h1>
         <p class="mx-auto max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-          Questions before you start? We'll give you straight answers — no sales script.
+          Questions before you start? Email or call — no sales script, just straight answers. Or skip ahead and create your account on the dashboard.
         </p>
+
+        <div class="mt-10 flex justify-center">
+          <a
+            href="https://dashboard.consentresolve.com/register"
+            class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
+          >
+            Get Started
+            <IconArrowRight size={16} stroke={2.5} />
+          </a>
+        </div>
       </div>
     </div>
   </section>
 
   <section class="pb-24">
-    <div class="container-content max-w-5xl">
-      <div class="grid items-start gap-10 md:grid-cols-[1.2fr_1fr]">
-        <!-- Form — backend pending. mailto fallback so submissions reach
-             hello@ until wired to a real endpoint. -->
-        <form
-          action="mailto:hello@consentresolve.com?subject=Contact%20-%20Consent%20Resolve"
-          method="POST"
-          enctype="text/plain"
-          class="space-y-4 rounded-2xl bg-[color:var(--color-bg-alt)] p-8 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)]"
+    <div class="container-content max-w-3xl">
+      <div class="grid gap-4 sm:grid-cols-2">
+        <a
+          href={`mailto:${SITE.email}`}
+          class="block rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-0.5 hover:ring-[color:var(--color-brand)]/40 hover:shadow-[0_18px_36px_-18px_rgba(10,22,40,0.18)]"
         >
-          <div>
-            <label for="contact-name" class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Name</label>
-            <input id="contact-name" name="name" type="text" autocomplete="name" required class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
-          </div>
-          <div>
-            <label for="contact-email" class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Email</label>
-            <input id="contact-email" name="email" type="email" autocomplete="email" required class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
-          </div>
-          <div>
-            <label for="contact-shop" class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Shop name</label>
-            <input id="contact-shop" name="shop_name" type="text" autocomplete="organization" class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]" />
-          </div>
-          <div>
-            <label for="contact-message" class="block text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-2">Message</label>
-            <textarea id="contact-message" name="message" rows="5" required class="w-full rounded-lg bg-[color:var(--color-bg)] px-4 py-3 text-[15px] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand)]"></textarea>
-          </div>
-          <Button type="submit" variant="primary" size="lg" fullWidth>
-            Send message
-            <IconArrowRight size={18} stroke={2.25} />
-          </Button>
-        </form>
+          <IconMail size={22} stroke={1.75} color="#00A86E" />
+          <p class="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Email</p>
+          <p class="mt-1 font-mono text-[15px] font-semibold text-[color:var(--color-ink)]">{SITE.email}</p>
+          <p class="mt-3 text-[13px] text-[color:var(--color-ink-muted)]">Best for everything that isn't on fire. Reply usually same day, always within 24h.</p>
+        </a>
+        <a
+          href={`tel:${SITE.phoneE164}`}
+          class="block rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-0.5 hover:ring-[color:var(--color-brand)]/40 hover:shadow-[0_18px_36px_-18px_rgba(10,22,40,0.18)]"
+        >
+          <IconPhone size={22} stroke={1.75} color="#00A86E" />
+          <p class="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Phone</p>
+          <p class="mt-1 font-mono text-[15px] font-semibold text-[color:var(--color-ink)]">{SITE.phone}</p>
+          <p class="mt-3 text-[13px] text-[color:var(--color-ink-muted)]">If you'd rather just talk. Real human picks up during business hours.</p>
+        </a>
+      </div>
 
-        <!-- Direct lines -->
-        <aside class="space-y-4">
-          <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]">
-            <IconMail size={20} stroke={1.75} color="#00A86E" />
-            <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Email</p>
-            <a href="mailto:hello@consentresolve.com" class="mt-1 block font-mono text-[15px] font-semibold text-[color:var(--color-ink)] hover:text-[color:var(--color-brand-pressed)]">
-              hello@consentresolve.com
-            </a>
+      <div class="mt-4 rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)]">
+        <div class="flex items-start gap-3">
+          <IconClock size={22} stroke={1.75} color="#00A86E" class="mt-1 shrink-0" />
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Hours</p>
+            <p class="mt-1 text-[15px] text-[color:var(--color-ink)]">{SITE.hours}</p>
+            <p class="mt-2 text-[13px] text-[color:var(--color-ink-muted)]">Outside hours? Email lands in the same inbox and gets answered first thing in the morning.</p>
           </div>
-          <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]">
-            <IconPhone size={20} stroke={1.75} color="#00A86E" />
-            <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Phone</p>
-            <a href="tel:+17272025996" class="mt-1 block font-mono text-[15px] font-semibold text-[color:var(--color-ink)] hover:text-[color:var(--color-brand-pressed)]">
-              (727) 202-5996
-            </a>
-          </div>
-          <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]">
-            <IconMapPin size={20} stroke={1.75} color="#00A86E" />
-            <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Office</p>
-            <address class="mt-1 text-[15px] not-italic text-[color:var(--color-ink-2)]">
-              1907 Gulf Way #1<br/>
-              St Pete Beach, FL 33706
-            </address>
-          </div>
-          <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]">
-            <IconClock size={20} stroke={1.75} color="#00A86E" />
-            <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Hours</p>
-            <p class="mt-1 text-[15px] text-[color:var(--color-ink-2)]">M–F 9a–6p Eastern</p>
-          </div>
-        </aside>
+        </div>
       </div>
     </div>
   </section>

@@ -49,7 +49,7 @@ export default function LeadCostCalculator({ variant = "default" }: Props) {
           },
         },
       ]}
-      cta={{ label: "Get Started", href: "/get-started/" }}
+      cta={{ label: "Get Started", href: "https://dashboard.consentresolve.com/register" }}
     />
   );
 }

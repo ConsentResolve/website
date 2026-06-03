@@ -3,17 +3,12 @@
  * and the grouped FeatureBento on the homepage. Single source of truth.
  *
  * Content comes from /Users/aaronphillips/Downloads/consent-resolve-feature-pages.md
- * (the "Copy Deck"). Two policy items to confirm BEFORE go-live:
+ * (the "Copy Deck"). Voice + facts governed by /style-guide/voice/
+ * (see src/pages/style-guide/voice.astro).
  *
- *   1. EVERY `quote.isSample === true` is a placeholder. Replace with a
- *      real customer testimonial or remove the quote block — publishing
- *      fabricated testimonials violates FTC rules.
- *
- *   2. Three recurring product claims still need a sign-off from Andy/Jason:
- *        - multi-state consent handling (Built-In Compliance)
- *        - "recently active / verified" contact data (Verified Contact Data)
- *        - the Termageddon partnership wording
- *      Confirm the product actually does what we say before launch.
+ * Quote handling: every `quote.isSample === true` is a placeholder.
+ * The feature template currently does NOT render the quote section —
+ * reintroduce ONLY with real, verifiable testimonials per FTC rules.
  */
 
 export type FeatureIconKey =

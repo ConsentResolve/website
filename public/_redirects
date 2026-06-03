@@ -1,0 +1,6 @@
+# Cloudflare Pages redirects.
+# Format: <from>  <to>  <status>
+
+# Trial/account signup lives on the dashboard subdomain.
+/get-started/    https://dashboard.consentresolve.com/register    301
+/get-started     https://dashboard.consentresolve.com/register    301

@@ -3,36 +3,55 @@ import { IconChevronLeft, IconChevronRight, IconSparkles } from "@tabler/icons-r
 import { DID_YOU_KNOW } from "~/data/team";
 
 const INTERVAL_MS = 4000;
+const FADE_MS = 180;
 
 export default function DidYouKnow() {
   const facts = DID_YOU_KNOW;
   const [idx, setIdx] = useState(0);
   const [fade, setFade] = useState(true);
-  const timer = useRef<number | null>(null);
-  const reducedMotion = useRef(false);
+  const intervalRef = useRef<number | null>(null);
+  const fadeTimerRef = useRef<number | null>(null);
+  const mountedRef = useRef(true);
+  const reducedMotionRef = useRef(false);
 
+  // Track mount state so we don't setState after unmount, and cancel
+  // every pending timer/interval on cleanup. Also cancel any in-flight
+  // fade timer when rapid prev/next clicks fire (rather than queueing).
   useEffect(() => {
-    reducedMotion.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    mountedRef.current = true;
+    reducedMotionRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    return () => {
+      mountedRef.current = false;
+      if (intervalRef.current) { window.clearInterval(intervalRef.current); intervalRef.current = null; }
+      if (fadeTimerRef.current) { window.clearTimeout(fadeTimerRef.current); fadeTimerRef.current = null; }
+    };
   }, []);
 
   const goTo = (next: number) => {
+    // Cancel any pending fade-in from a previous rapid click — otherwise
+    // a fast user can stack timeouts and setState after unmount.
+    if (fadeTimerRef.current) { window.clearTimeout(fadeTimerRef.current); fadeTimerRef.current = null; }
     setFade(false);
-    window.setTimeout(() => {
+    fadeTimerRef.current = window.setTimeout(() => {
+      fadeTimerRef.current = null;
+      if (!mountedRef.current) return;
       setIdx(((next % facts.length) + facts.length) % facts.length);
       setFade(true);
-    }, 180);
+    }, FADE_MS);
   };
 
-  const restart = () => {
-    if (timer.current) window.clearInterval(timer.current);
-    if (reducedMotion.current) return;
-    timer.current = window.setInterval(() => goTo(idx + 1), INTERVAL_MS);
-  };
-
+  // Restart the autoplay interval whenever idx changes (or on first
+  // mount). The cleanup at the top of the effect cancels any prior
+  // interval before we set a new one, so they can't accumulate.
   useEffect(() => {
-    restart();
+    if (intervalRef.current) { window.clearInterval(intervalRef.current); intervalRef.current = null; }
+    if (reducedMotionRef.current) return;
+    intervalRef.current = window.setInterval(() => {
+      if (!mountedRef.current) return;
+      goTo(idx + 1);
+    }, INTERVAL_MS);
     return () => {
-      if (timer.current) window.clearInterval(timer.current);
+      if (intervalRef.current) { window.clearInterval(intervalRef.current); intervalRef.current = null; }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);

@@ -62,7 +62,7 @@ export default function LeadROICalculator({
           format: (v) => fmtUsd(v.leads * (v.closeRate / 100) * v.avgJob * 12),
         },
       ]}
-      cta={{ label: "Get Started", href: "/get-started/" }}
+      cta={{ label: "Get Started", href: "https://dashboard.consentresolve.com/register" }}
     />
   );
 }

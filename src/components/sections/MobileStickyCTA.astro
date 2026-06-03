@@ -1,15 +1,16 @@
 ---
 /**
  * Mobile-only sticky bottom action bar. Hidden on lg+. Auto-hides on
- * /get-started/ (we're already there) and /404 (recovery happens
- * inline). Pure CSS — no JS island.
+ * /404 (recovery happens inline). Pure CSS — no JS island.
+ * The CTA targets the dashboard register URL directly (no /get-started/
+ * landing page exists on this site).
  *
  * The bar sits in a position:fixed wrapper, padded to clear the
  * iOS home indicator (env(safe-area-inset-bottom)). Add `cr-no-sticky`
  * to <body> on any page that should suppress it.
  */
 const pathname = Astro.url.pathname;
-const suppress = pathname.startsWith("/get-started/") || pathname === "/404/" || pathname === "/404";
+const suppress = pathname === "/404/" || pathname === "/404";
 ---
 
 {!suppress && (
@@ -27,7 +28,7 @@ const suppress = pathname.startsWith("/get-started/") || pathname === "/404/" ||
         Sample lead
       </a>
       <a
-        href="/get-started/"
+        href="https://dashboard.consentresolve.com/register"
         class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[color:var(--color-brand)] px-3 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
       >
         Get Started — $7

@@ -66,18 +66,36 @@ export default function AuthorityStrip() {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // Lock scroll while drawer open + close on Escape
+  // Lock scroll while drawer open + close on Escape. We snapshot the
+  // pre-open overflow value on the first activation and restore it on
+  // every cleanup (open-change OR unmount). A second effect below acts
+  // as an unconditional unmount safety net in case the drawer is open
+  // when the component itself goes away.
+  const prevOverflowRef = useRef<string | null>(null);
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
+    if (prevOverflowRef.current === null) prevOverflowRef.current = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(null);
     window.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflowRef.current ?? "";
+      prevOverflowRef.current = null;
     };
   }, [open]);
+
+  // Belt-and-suspenders: if the component unmounts while a drawer is
+  // open AND React skips the per-`open` cleanup for any reason,
+  // restore the body overflow here.
+  useEffect(() => {
+    return () => {
+      if (prevOverflowRef.current !== null) {
+        document.body.style.overflow = prevOverflowRef.current;
+        prevOverflowRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div className="relative">

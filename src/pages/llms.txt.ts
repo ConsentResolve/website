@@ -29,7 +29,7 @@ export const GET: APIRoute = () => {
     `- [Sample lead](${SITE}/sample-lead/): Exactly what lands in your hands when a homeowner consents`,
     `- [About](${SITE}/about/): Who built Consent Resolve — Capitol Hill testimony, White House technology advisory, 50+ acquisitions in hosting & SaaS, i2Coalition board`,
     `- [FAQ](${SITE}/faq/): Common questions about legality, CRMs, pricing, and setup`,
-    `- [Get started](${SITE}/get-started/): Sign up — about 10 minutes to go live`,
+    `- [Get started](https://dashboard.consentresolve.com/register): Sign up — about 10 minutes to go live`,
     `- [Contact](${SITE}/contact/): Talk to a human`,
     "",
     "## Industries",

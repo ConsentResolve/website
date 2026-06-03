@@ -5,7 +5,7 @@ import FinalCTA from "~/components/sections/FinalCTA.astro";
 import AuthorityStrip from "~/components/sections/AuthorityStrip.tsx";
 import DidYouKnow from "~/components/sections/DidYouKnow.tsx";
 import { TEAM, getInitials } from "~/data/team";
-import { breadcrumbSchema, personSchema, localBusinessSchema } from "~/lib/seo";
+import { breadcrumbSchema, personSchema } from "~/lib/seo";
 import { IconArrowRight, IconBrandLinkedin } from "@tabler/icons-react";
 
 const schemas = [
@@ -13,7 +13,6 @@ const schemas = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about/" },
   ]),
-  localBusinessSchema,
   // Person schema per founder — exposes credentials (Capitol Hill, etc.)
   // to entity graphs and AI engines via sameAs LinkedIn.
   ...TEAM.map((m) =>
@@ -49,7 +48,7 @@ const schemas = [
         </p>
         <div class="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <a
-            href="/get-started/"
+            href="https://dashboard.consentresolve.com/register"
             class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
           >
             Get Started

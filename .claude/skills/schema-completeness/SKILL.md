@@ -14,8 +14,8 @@ Every page automatically gets `Organization` + `WebSite` from `src/components/SE
 | `/`                          | `BreadcrumbList` (implicit), `SoftwareApplication` (with Offer)                                      |
 | `/how-it-works/`             | `BreadcrumbList`, `HowTo` (4 steps)                                                                  |
 | `/pricing/`                  | `BreadcrumbList`, `FAQPage` if FAQs render                                                           |
-| `/about/`                    | `BreadcrumbList`, `LocalBusiness`/`ProfessionalService`, one `Person` per founder w/ `sameAs`        |
-| `/contact/`                  | `BreadcrumbList`, `LocalBusiness`                                                                    |
+| `/about/`                    | `BreadcrumbList`, one `Person` per founder w/ `sameAs`                                               |
+| `/contact/`                  | `BreadcrumbList`                                                                                     |
 | `/sample-lead/`              | `BreadcrumbList`                                                                                     |
 | `/stats/`                    | `BreadcrumbList`                                                                                     |
 | `/faq/`                      | `BreadcrumbList`, `FAQPage`                                                                          |
@@ -51,7 +51,6 @@ Helpers live in `src/lib/seo.ts`:
 - `faqSchema(qa[])`
 - `personSchema(p)`
 - `howToSchema(opts)`
-- `localBusinessSchema`
 - `itemListSchema(opts)`
 
 ## Validation

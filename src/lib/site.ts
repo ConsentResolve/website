@@ -35,7 +35,7 @@ export const FOOTER_NAV = {
     { label: "How It Works", href: "/how-it-works/" },
     { label: "Pricing", href: "/pricing/" },
     { label: "Sample Lead", href: "/sample-lead/" },
-    { label: "Get Started", href: "/get-started/" },
+    { label: "Get Started", href: "https://dashboard.consentresolve.com/register" },
   ],
   industries: [
     { label: "Plumbers", href: "/plumber-leads/" },

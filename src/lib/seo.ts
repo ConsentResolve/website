@@ -132,34 +132,6 @@ export function howToSchema(opts: {
   };
 }
 
-/** LocalBusiness — emitted on /about/ and /contact/. */
-export const localBusinessSchema = {
-  "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  name: SITE.name,
-  url: SITE.url,
-  telephone: "+1-727-202-5996",
-  email: "hello@consentresolve.com",
-  priceRange: "$$",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "1907 Gulf Way #1",
-    addressLocality: "St Pete Beach",
-    addressRegion: "FL",
-    postalCode: "33706",
-    addressCountry: "US",
-  },
-  areaServed: { "@type": "Country", name: "United States" },
-  openingHoursSpecification: [
-    {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-      opens: "09:00",
-      closes: "18:00",
-    },
-  ],
-};
-
 /** ItemList — used by hubs (industries, compare, features). */
 export function itemListSchema(opts: {
   name: string;

@@ -30,7 +30,7 @@ const {
   titleAccent = "Now you get their number.",
   subhead = "Unlock the homeowners already shopping your site. When they consent, you get their name and number — warm, and ready for you to call about the quote, the estimate, the job.",
   ctaLabel = "Get Started",
-  ctaHref = "/get-started/",
+  ctaHref = "https://dashboard.consentresolve.com/register",
   showPanel = true,
 } = Astro.props as Props;
 ---
@@ -43,8 +43,8 @@ const {
     <div>
       {eyebrow && <p class="eyebrow mb-7">{eyebrow}</p>}
       <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
-        {title}<br />
-        <span class="text-[color:var(--color-brand)]">{titleAccent}</span>
+        {title}{" "}
+        <span class="text-[color:var(--color-brand)] sm:block">{titleAccent}</span>
       </h1>
       <p class="mb-10 max-w-xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">{subhead}</p>
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
