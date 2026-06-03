@@ -1,8 +1,6 @@
 ---
 import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
-import Badge from "~/components/ui/Badge.astro";
 import FAQ from "~/components/sections/FAQ.astro";
-import FAQPreview from "~/components/sections/FAQPreview.astro";
 
 const standardItems = [
   { question: "Is this legal?", answer: "Yes — because a homeowner's name shows up only after they consent. We keep your privacy policy, cookie banner, and disclosures in sync through Termageddon. The shady tools that track people in secret are the illegal ones. We're not one." },
@@ -21,101 +19,72 @@ const tradeItems = [
 <StyleGuideLayout
   slug="faq"
   title="FAQ Section"
-  description="The site-wide FAQ block. The 3-step canonical version is in production; a larger preview variant with per-row borders is staged below for review."
+  description="The canonical site-wide FAQ block. Dark navy band, mint eyebrow, display-2 white headline, and each Q&A row is its own rounded bordered white card on a soft inner panel."
 >
   <section class="sg-section">
-    <div class="flex items-center gap-3 flex-wrap">
-      <h2 class="!mb-0">Large preview</h2>
-      <Badge tone="warning" variant="soft" size="sm" uppercase>Review only — not deployed</Badge>
-    </div>
-    <p class="sg-lede">Roughly 1.75× the canonical type and padding. Each Q&amp;A row is its own rounded bordered card on a soft inner panel, container grows to <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">max-w-4xl</code>. Question text bumps to <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">display-font 22px bold</code>, answer to <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">17px / 1.6</code>, chevron lives in a 40px chip that mint-shifts on open. <strong class="text-[color:var(--color-ink)]">Sitewide swap is gated on review.</strong></p>
-    <div class="sg-preview" style="padding:0;background:transparent;box-shadow:none;overflow:hidden;border-radius:1rem">
-      <FAQPreview headline="What pros ask before they start." items={standardItems} />
-    </div>
-  </section>
-
-  <section class="sg-section">
-    <div class="flex items-center gap-3 flex-wrap">
-      <h2 class="!mb-0">Large preview — with custom eyebrow</h2>
-      <Badge tone="warning" variant="soft" size="sm" uppercase>Review only</Badge>
-    </div>
-    <p class="sg-lede">Trade / feature / billing variants pass an <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">eyebrow</code> override.</p>
-    <div class="sg-preview" style="padding:0;background:transparent;box-shadow:none;overflow:hidden;border-radius:1rem">
-      <FAQPreview
-        eyebrow="Plumber FAQ"
-        headline="What plumbers ask before they start."
-        items={tradeItems}
-      />
-    </div>
-  </section>
-
-  <section class="sg-section">
-    <div class="flex items-center gap-3 flex-wrap">
-      <h2 class="!mb-0">Canonical (3-step)</h2>
-      <Badge tone="success" variant="soft" size="sm" uppercase>In production</Badge>
-    </div>
-    <p class="sg-lede">What's currently live on every FAQ surface: homepage, <code class="font-mono">/how-it-works/</code>, <code class="font-mono">/faq/</code>, <code class="font-mono">/pricing/</code>, every <code class="font-mono">/&lt;trade&gt;-leads/</code> page, every <code class="font-mono">/features/&lt;slug&gt;/</code> page.</p>
+    <h2>Default</h2>
+    <p class="sg-lede">Eyebrow defaults to <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">"Common questions"</code>. Pass <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">headline</code> and <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">items</code>; everything else is locked.</p>
     <div class="sg-preview" style="padding:0;background:transparent;box-shadow:none;overflow:hidden;border-radius:1rem">
       <FAQ headline="What pros ask before they start." items={standardItems} />
     </div>
   </section>
 
   <section class="sg-section">
-    <h2>Side-by-side spec deltas</h2>
-    <div class="sg-preview">
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div>
-          <p class="sg-label">Canonical</p>
-          <dl class="grid grid-cols-1 gap-y-2 font-mono text-sm">
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Container:</dt> <dd class="inline text-[color:var(--color-ink-2)]"><code>max-w-3xl</code></dd></div>
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Card bg:</dt> <dd class="inline text-[color:var(--color-ink-2)]">white, <code>rounded-2xl</code>, <code>p-2</code></dd></div>
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Row separator:</dt> <dd class="inline text-[color:var(--color-ink-2)]"><code>divide-y</code> between rows</dd></div>
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Question type:</dt> <dd class="inline text-[color:var(--color-ink-2)]"><code>font-semibold</code> · ~14px</dd></div>
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Answer type:</dt> <dd class="inline text-[color:var(--color-ink-2)]"><code>text-[14px]</code> · <code>leading-relaxed</code></dd></div>
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Row padding:</dt> <dd class="inline text-[color:var(--color-ink-2)]"><code>py-4</code></dd></div>
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Chevron:</dt> <dd class="inline text-[color:var(--color-ink-2)]"><code>18px</code>, bare icon</dd></div>
-          </dl>
-        </div>
-        <div>
-          <p class="sg-label">Large preview (≈ 1.75×)</p>
-          <dl class="grid grid-cols-1 gap-y-2 font-mono text-sm">
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Container:</dt> <dd class="inline text-[color:var(--color-ink-2)]"><code>max-w-4xl</code></dd></div>
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Outer card:</dt> <dd class="inline text-[color:var(--color-ink-2)]"><code>bg-alt</code>, <code>rounded-3xl</code>, <code>p-5</code></dd></div>
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Row treatment:</dt> <dd class="inline text-[color:var(--color-ink-2)]">each row is its own <code>rounded-2xl</code> white card with <code>ring-1</code> border</dd></div>
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Question type:</dt> <dd class="inline text-[color:var(--color-ink-2)]"><code>display-font</code> · <code>text-xl/22px</code> · <code>font-bold</code></dd></div>
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Answer type:</dt> <dd class="inline text-[color:var(--color-ink-2)]"><code>text-[17px]</code> · <code>leading-relaxed</code></dd></div>
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Row padding:</dt> <dd class="inline text-[color:var(--color-ink-2)]"><code>px-8 py-7</code></dd></div>
-            <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Chevron:</dt> <dd class="inline text-[color:var(--color-ink-2)]"><code>22px</code> inside a <code>40px</code> chip; mint-shifts on open</dd></div>
-          </dl>
-        </div>
-      </div>
+    <h2>With custom eyebrow (per-trade / per-feature / billing)</h2>
+    <p class="sg-lede">Pages with their own contextual FAQ scope pass an <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">eyebrow</code> override — "Billing FAQ" on <code class="font-mono">/pricing/</code>, "FAQ" on feature pages, etc.</p>
+    <div class="sg-preview" style="padding:0;background:transparent;box-shadow:none;overflow:hidden;border-radius:1rem">
+      <FAQ
+        eyebrow="Plumber FAQ"
+        headline="What plumbers ask before they start."
+        items={tradeItems}
+        defaultOpen={0}
+      />
     </div>
   </section>
 
   <section class="sg-section">
-    <h2>Promotion checklist</h2>
-    <p class="sg-lede">When the large variant is approved, swap is two replacements + one file delete.</p>
+    <h2>Props</h2>
     <div class="sg-preview">
-      <ol class="list-decimal pl-5 space-y-2 text-sm text-[color:var(--color-ink-2)]">
-        <li>Replace the body of <code class="font-mono text-[color:var(--color-brand-pressed)]">src/components/sections/FAQ.astro</code> with the body of <code class="font-mono text-[color:var(--color-brand-pressed)]">FAQPreview.astro</code>.</li>
-        <li>Replace <code class="font-mono">~/components/ui/Accordion.tsx</code> usage inside FAQ with <code class="font-mono">~/components/ui/AccordionLarge.tsx</code> — OR rename AccordionLarge to Accordion and delete the old one if no other consumers remain (style-guide/accordion still uses the smaller Accordion; verify before deleting).</li>
-        <li>Delete <code class="font-mono">FAQPreview.astro</code> and remove the preview sections from this page.</li>
-        <li>Run <code class="font-mono">pre-publish-checklist</code> skill to confirm no regressions before push.</li>
-      </ol>
+      <dl class="grid grid-cols-1 gap-x-8 gap-y-3 font-mono text-sm">
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">headline:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Required. The display-2 headline, white, centered.</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">items:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Required. Array of <code>{`{ question, answer }`}</code>. Rendered through AccordionLarge.</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">eyebrow?:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Mint uppercase chip above the headline. Default: <code>"Common questions"</code>.</dd></div>
+        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">defaultOpen?:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Index of the question that's open on first render. <code>-1</code> for all collapsed. Default: <code>0</code>.</dd></div>
+      </dl>
     </div>
   </section>
 
   <section class="sg-section">
-    <h2>Used in (every FAQ surface flips together)</h2>
+    <h2>Used in</h2>
     <div class="sg-preview">
       <ul class="grid grid-cols-1 gap-2 font-mono text-sm text-[color:var(--color-ink-2)]">
-        <li><strong class="text-[color:var(--color-ink)]">/</strong> homepage · via <code>FAQSection.astro</code> wrapper</li>
-        <li><strong class="text-[color:var(--color-ink)]">/how-it-works/</strong></li>
-        <li><strong class="text-[color:var(--color-ink)]">/faq/</strong> — master FAQ list</li>
-        <li><strong class="text-[color:var(--color-ink)]">/pricing/</strong> — Billing FAQ</li>
-        <li><strong class="text-[color:var(--color-ink)]">/&lt;trade&gt;-leads/</strong> (17 pages)</li>
-        <li><strong class="text-[color:var(--color-ink)]">/features/&lt;slug&gt;/</strong> (17 pages)</li>
+        <li><strong class="text-[color:var(--color-ink)]">/</strong> (homepage) — via <code>FAQSection.astro</code> wrapper with the 6 universal questions.</li>
+        <li><strong class="text-[color:var(--color-ink)]">/how-it-works/</strong> — same wrapper, same 6 questions.</li>
+        <li><strong class="text-[color:var(--color-ink)]">/faq/</strong> — full 9-question list with eyebrow <code>"Every question, answered"</code>.</li>
+        <li><strong class="text-[color:var(--color-ink)]">/pricing/</strong> — 7 billing-specific questions, eyebrow <code>"Billing FAQ"</code>.</li>
+        <li><strong class="text-[color:var(--color-ink)]">/&lt;trade&gt;-leads/</strong> (17 pages) — 3-question per-industry FAQ, headline interpolated from trade name.</li>
+        <li><strong class="text-[color:var(--color-ink)]">/features/&lt;slug&gt;/</strong> (17 pages) — 4-question per-feature FAQ, eyebrow <code>"FAQ"</code>.</li>
       </ul>
     </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Composition</h2>
+    <div class="sg-preview">
+      <ul class="grid grid-cols-1 gap-3 font-mono text-sm text-[color:var(--color-ink-2)]">
+        <li><strong class="text-[color:var(--color-ink)]">Section bg:</strong> <code>section-dark</code> (#0a1628).</li>
+        <li><strong class="text-[color:var(--color-ink)]">Container:</strong> <code>max-w-4xl</code>, centered.</li>
+        <li><strong class="text-[color:var(--color-ink)]">Outer card:</strong> <code>bg-bg-alt</code>, <code>rounded-3xl</code>, <code>p-5</code>, inner ring + drop shadow.</li>
+        <li><strong class="text-[color:var(--color-ink)]">Each Q&amp;A row:</strong> own <code>rounded-2xl</code> white card with <code>ring-1</code> border that darkens on open.</li>
+        <li><strong class="text-[color:var(--color-ink)]">Question type:</strong> display font, 20–22px, bold.</li>
+        <li><strong class="text-[color:var(--color-ink)]">Answer type:</strong> <code>text-[17px]</code>, <code>leading-relaxed</code>.</li>
+        <li><strong class="text-[color:var(--color-ink)]">Chevron:</strong> 22px icon inside a 40px chip that mint-shifts when the row opens.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>FAQPage schema</h2>
+    <p class="sg-lede">The component does NOT emit JSON-LD itself. The parent page is responsible for passing <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">faqSchema(items)</code> into <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">&lt;BaseLayout schema={"{[...]}"}&gt;</code>. This keeps schema generation explicit at the page level and avoids duplicate emission when an FAQ block isn't the canonical FAQPage for that URL (e.g. the homepage FAQ shouldn't claim to be the canonical FAQPage entity — that's <code>/faq/</code>'s job).</p>
   </section>
 </StyleGuideLayout>
