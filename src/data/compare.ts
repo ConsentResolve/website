@@ -28,6 +28,10 @@ export interface ComparePage {
   eyebrow: string;
   h1: string;
   subhead: string;
+  /** 40–55-word AEO answer paragraph rendered as a citation-ready band
+   *  below the hero. Phrase as the verbatim user query ("Is Thumbtack
+   *  worth it…", "Angi alternative for contractors…"). */
+  aeoAnswer: string;
   // Reseller-only blocks
   goodAt?: string[];              // "What they're good at" honest list
   costsYou?: string[];            // "Where it costs you" list
@@ -53,6 +57,7 @@ export const COMPARE_PAGES: ComparePage[] = [
     eyebrow: "Consent Resolve vs Thumbtack",
     h1: "Consent Resolve vs Thumbtack: exclusive leads vs the same lead sold five times.",
     subhead: "Both get you leads. Only one keeps them yours. Here's the honest difference.",
+    aeoAnswer: "Thumbtack works if you want volume and don't mind racing four other contractors to the same customer — typical loaded cost runs ~$46 per lead, with the same lead sold to 4–5 pros. Consent Resolve identifies visitors on your own website after they consent, hands you their name and mobile number, and never resells the lead. Flat $7 per lead, exclusive, no contract.",
     goodAt: [
       "Big lead volume, fast.",
       "Quick to set up and a solid mobile app.",
@@ -87,6 +92,7 @@ export const COMPARE_PAGES: ComparePage[] = [
     eyebrow: "Consent Resolve vs Angi",
     h1: "Consent Resolve vs Angi: one lead for you, or one lead for everyone.",
     subhead: "Angi has the name recognition. But the lead you buy isn't only yours. Here's the honest difference.",
+    aeoAnswer: "Angi (formerly Angie's List, parent of HomeAdvisor) charges ~$50 per lead and shares each lead with 3–8 contractors at once, with bad-lead dispute denials around 30–50% and auto-renew contracts that carry a 30–35% cancellation penalty. Consent Resolve identifies the homeowners shopping your own website after they consent — flat $7 per lead, exclusive, no contract, no cancellation penalty.",
     goodAt: [
       "A brand homeowners already know.",
       "A vetted-pro program and wide trade coverage.",
@@ -121,6 +127,7 @@ export const COMPARE_PAGES: ComparePage[] = [
     eyebrow: "Consent Resolve vs HomeAdvisor",
     h1: "Consent Resolve vs HomeAdvisor: a lead you own vs a lead you share.",
     subhead: "HomeAdvisor (now owned by Angi) sends volume — and sends the same homeowner to your competitors. Here's the honest difference.",
+    aeoAnswer: "HomeAdvisor (now owned by Angi) typically charges ~$50 per lead and shares each lead with 3–8 contractors at the same time. In 2023 the FTC ordered HomeAdvisor to pay up to $7.2 million to settle charges of deceptive lead-quality claims. Consent Resolve identifies the homeowners on your own website after they consent — flat $7 per lead, exclusive, never resold.",
     goodAt: [
       "A large network and instant lead matching.",
       "Broad category coverage across the trades.",
@@ -155,6 +162,7 @@ export const COMPARE_PAGES: ComparePage[] = [
     eyebrow: "Consent Resolve + Google LSA",
     h1: "Consent Resolve + Google LSA: keep the calls, catch the rest.",
     subhead: "LSA is great at one thing — calls from people ready to dial. But plenty of homeowners click your ad, look around your site, and leave without calling. Consent Resolve hands you those names. Run both.",
+    aeoAnswer: "Google Local Service Ads (LSA) deliver phone calls from homeowners ready to dial, with a blended cost around $53 per lead and a ~44% book rate — the channel that doesn't share leads. Consent Resolve complements LSA by identifying the homeowners who clicked your ad, browsed your site, and left without calling — flat $7 per lead, exclusive, no contract. Keep LSA running; add Consent Resolve to catch the rest.",
     goodAtBlock: {
       title: "What Google LSA does well.",
       body: "Puts you at the top of search with the Google Verified badge and sends calls from homeowners ready to talk. ~44% of those calls book a job, blended cost around $53. Keep running it.",

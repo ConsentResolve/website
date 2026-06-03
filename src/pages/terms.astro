@@ -1,0 +1,52 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import LegalPlaceholder from "~/components/sections/LegalPlaceholder.astro";
+import { breadcrumbSchema } from "~/lib/seo";
+
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "Terms of Service", href: "/terms/" },
+  ]),
+];
+---
+
+<BaseLayout
+  title="Terms of Service | Consent Resolve"
+  description="The legal agreement between Consent Resolve and customers who use our consent-first visitor-identification service."
+  schema={schemas}
+>
+  <LegalPlaceholder
+    badge="Legal"
+    title="Terms of Service"
+    intro="These Terms govern your use of Consent Resolve — the consent-first visitor-identification service for home-service contractors. By creating an account, you agree to these Terms."
+    highlights={[
+      {
+        heading: "What we provide",
+        body: "Consent Resolve identifies website visitors after they accept your consent banner, then delivers their real name, mobile, email, and on-site activity to your dashboard and CRM. Each identified lead is exclusive to your account and is never resold.",
+      },
+      {
+        heading: "Your obligations",
+        body: "You must display a valid consent banner on every page where Consent Resolve runs and honor opt-out requests promptly. You may not use Consent Resolve to harass visitors or contact people who have not consented through your banner.",
+      },
+      {
+        heading: "Billing",
+        body: "Flat $7 per identified lead. A valid payment card is required at signup; we charge per lead as they're delivered. No setup fee, no contract, no minimum. Cancel anytime from your dashboard.",
+      },
+      {
+        heading: "Termination",
+        body: "Either party may terminate this agreement at any time. On termination, your access ends and your billing stops; previously delivered leads remain yours to keep and use under applicable privacy law.",
+      },
+      {
+        heading: "Limitation of liability",
+        body: "Consent Resolve is provided as-is. To the extent permitted by law, our liability is limited to fees paid in the prior 12 months. Specific limits and disclaimers appear in the full counsel-reviewed agreement.",
+      },
+    ]}
+    siblings={[
+      { label: "Privacy Policy", href: "/privacy-policy/" },
+      { label: "Cookie Policy", href: "/cookie-policy/" },
+      { label: "GDPR", href: "/gdpr/" },
+      { label: "CCPA", href: "/ccpa/" },
+    ]}
+  />
+</BaseLayout>

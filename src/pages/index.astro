@@ -10,13 +10,29 @@ import CalculatorSection from "~/components/sections/CalculatorSection.astro";
 import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FAQSection from "~/components/sections/FAQSection.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
+import { softwareApplicationSchema } from "~/lib/seo";
+
+const schemas = [softwareApplicationSchema];
 ---
 
 <BaseLayout
   title="Exclusive Leads for Home-Service Pros | Consent Resolve"
   description="98% of website visitors leave without identifying themselves. Consent Resolve gives you their name and number — only after they consent. Yours alone, never resold. Flat $7 per lead."
+  schema={schemas}
 >
   <Hero />
+
+  <!-- AEO answer paragraph — citable definition for AI engines -->
+  <section class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+    <div class="container-content py-8">
+      <div class="mx-auto max-w-3xl">
+        <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+          Consent Resolve is a consent-first visitor-identification layer for home-service contractors — plumbers, roofers, HVAC, electricians, and 13 more trades. It identifies the homeowners shopping your website after they accept your consent banner, hands you their real name and mobile number, and never resells that lead. Flat $7 per lead, card required, cancel anytime.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <ProblemStats />
   <RiskVsConsent />
   <HowItWorks />

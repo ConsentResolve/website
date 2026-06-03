@@ -55,7 +55,7 @@ export const FOOTER_NAV = {
     { label: "About", href: "/about/" },
     { label: "Contact", href: "/contact/" },
     { label: "Stats & Sources", href: "/stats/" },
-    { label: "Blog", href: "/blog/" },
+    { label: "Glossary", href: "/glossary/" },
     { label: "FAQ", href: "/faq/" },
   ],
   legal: [

@@ -2,7 +2,7 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import { COMPARE_PAGES } from "~/data/compare";
-import { breadcrumbSchema } from "~/lib/seo";
+import { breadcrumbSchema, itemListSchema } from "~/lib/seo";
 import { IconArrowRight, IconCheck, IconX, IconMinus } from "@tabler/icons-react";
 
 const resellers = COMPARE_PAGES.filter((p) => p.type === "reseller");
@@ -13,6 +13,13 @@ const schemas = [
     { name: "Home", href: "/" },
     { name: "Compare", href: "/compare/" },
   ]),
+  itemListSchema({
+    name: "Lead generation platforms compared with Consent Resolve",
+    items: COMPARE_PAGES.map((c) => ({
+      name: c.brand,
+      url: `https://consentresolve.com/compare/${c.slug}/`,
+    })),
+  }),
 ];
 
 const matrixRows = [

@@ -5,7 +5,7 @@ import FinalCTA from "~/components/sections/FinalCTA.astro";
 import AuthorityStrip from "~/components/sections/AuthorityStrip.tsx";
 import DidYouKnow from "~/components/sections/DidYouKnow.tsx";
 import { TEAM, getInitials } from "~/data/team";
-import { breadcrumbSchema } from "~/lib/seo";
+import { breadcrumbSchema, personSchema, localBusinessSchema } from "~/lib/seo";
 import { IconArrowRight, IconBrandLinkedin } from "@tabler/icons-react";
 
 const schemas = [
@@ -13,6 +13,18 @@ const schemas = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about/" },
   ]),
+  localBusinessSchema,
+  // Person schema per founder — exposes credentials (Capitol Hill, etc.)
+  // to entity graphs and AI engines via sameAs LinkedIn.
+  ...TEAM.map((m) =>
+    personSchema({
+      name: m.name,
+      role: m.role,
+      bio: m.bio,
+      linkedin: m.linkedin,
+      knowsAbout: m.verified,
+    }),
+  ),
 ];
 ---
 

@@ -7,18 +7,31 @@ import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FAQSection from "~/components/sections/FAQSection.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import { IconArrowRight, IconEye, IconShieldCheck, IconLock, IconStack2 as IconStack } from "@tabler/icons-react";
-import { breadcrumbSchema } from "~/lib/seo";
+import { breadcrumbSchema, howToSchema } from "~/lib/seo";
 
 const breadcrumbs = breadcrumbSchema([
   { name: "Home", href: "/" },
   { name: "How It Works", href: "/how-it-works/" },
 ]);
+
+const howTo = howToSchema({
+  name: "How Consent Resolve identifies anonymous website visitors",
+  description:
+    "A four-step process turning anonymous home-service website traffic into named, exclusive leads — only after the homeowner consents.",
+  totalTime: "PT10M",
+  steps: [
+    { name: "Anonymous visit", text: "A homeowner lands on your website looking for help. You don't yet know who they are." },
+    { name: "They say yes",    text: "The homeowner accepts your site's consent banner, granting permission to be contacted." },
+    { name: "Warm lead revealed", text: "Consent Resolve identifies the consented visitor and delivers their real name and mobile number in real time." },
+    { name: "You call and close", text: "Reach out by phone, text, or email while they're still shopping — and book the job before any competitor knows they existed." },
+  ],
+});
 ---
 
 <BaseLayout
   title="How Consent Resolve Works — Guided Product Tour"
   description="From an anonymous visitor to a booked job. Walk through five product screens — install, identify, reach out, route, measure — in the order you'll actually use them."
-  schema={[breadcrumbs]}
+  schema={[breadcrumbs, howTo]}
 >
   <!-- Hero -->
   <section class="relative overflow-hidden">
@@ -53,7 +66,18 @@ const breadcrumbs = breadcrumbSchema([
     </div>
   </section>
 
-  <!-- Canonical 3-step comet (single source of truth, shared with /style-guide/how-it-works/) -->
+  <!-- AEO answer paragraph — citable for "how does consent resolve work" -->
+  <section class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+    <div class="container-content py-8">
+      <div class="mx-auto max-w-3xl">
+        <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+          Consent Resolve works in four steps: a homeowner visits your website, accepts your existing consent banner, gets identified as a real person with a real name and mobile number, and lands in your CRM with a push alert to your phone so you can call before any competitor knows they existed. Most contractors are live in about 10 minutes — paste one line of code, no developer required.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Canonical 4-step comet (single source of truth, shared with /style-guide/how-it-works/) -->
   <HowItWorks />
 
   <!-- Guided product tour — five product screens with annotations -->

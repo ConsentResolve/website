@@ -1,0 +1,87 @@
+---
+/**
+ * Shared scaffold for /privacy-policy/, /terms/, /cookie-policy/,
+ * /gdpr/, /ccpa/ — until counsel-reviewed copy ships, these pages
+ * exist as live placeholders (HTTP 200) so footer links don't 404
+ * and the site looks trustworthy to crawlers and regulators.
+ *
+ * Each page calls this with its own title, intro, and high-level bullets.
+ */
+import Badge from "~/components/ui/Badge.astro";
+import { SITE } from "~/lib/site";
+import { IconMail, IconArrowRight } from "@tabler/icons-react";
+
+interface Section { heading: string; body: string }
+
+interface Props {
+  badge: string;
+  title: string;
+  intro: string;
+  reviewNote?: string;
+  highlights?: Section[];
+  /** Quick links to sibling legal pages, in display order. */
+  siblings?: { label: string; href: string }[];
+  lastUpdated?: string;
+}
+
+const {
+  badge,
+  title,
+  intro,
+  reviewNote = "The complete, attorney-reviewed version is being finalized with our privacy counsel and Termageddon. While that's wrapping up, the high-level rules are summarized below.",
+  highlights = [],
+  siblings = [],
+  lastUpdated = "June 2026",
+} = Astro.props as Props;
+---
+
+<section class="container-content section max-w-3xl">
+  <Badge tone="brand" variant="soft" size="md" uppercase>{badge}</Badge>
+  <h1 class="display-1 mb-7 mt-7 text-[color:var(--color-ink)]">{title}</h1>
+  <p class="text-[color:var(--color-ink-muted)] text-sm">Last updated: {lastUpdated}</p>
+
+  <div class="mt-10 max-w-none text-[color:var(--color-ink-2)] leading-relaxed">
+    <p class="text-lg">{intro}</p>
+
+    <div class="mt-8 rounded-2xl bg-amber-50 p-6 ring-1 ring-inset ring-amber-200">
+      <p class="text-sm font-bold uppercase tracking-[0.14em] text-amber-700">In legal review</p>
+      <p class="mt-3 text-[15px] leading-relaxed text-amber-900">
+        {reviewNote} For the current draft, a Data Processing Agreement, or any specific question, email
+        <a href={`mailto:${SITE.email}`} class="font-semibold underline-offset-2 hover:underline">{SITE.email}</a>.
+      </p>
+    </div>
+
+    {highlights.map((h) => (
+      <>
+        <h2 class="font-display text-xl font-black tracking-tight text-[color:var(--color-ink)] mt-10 mb-4">{h.heading}</h2>
+        <p>{h.body}</p>
+      </>
+    ))}
+
+    <h2 class="font-display text-xl font-black tracking-tight text-[color:var(--color-ink)] mt-10 mb-4">Contact</h2>
+    <p>
+      Questions about this policy, an opt-out request, or a regulator inquiry:
+    </p>
+    <p class="mt-2">
+      <a href={`mailto:${SITE.email}`} class="inline-flex items-center gap-2 font-semibold text-[color:var(--color-brand-pressed)]">
+        <IconMail size={16} stroke={2} /> {SITE.email}
+      </a>
+    </p>
+    <address class="not-italic mt-3 text-sm text-[color:var(--color-ink-muted)]">
+      Consent Resolve · {SITE.address.street} · {SITE.address.city}, {SITE.address.region} {SITE.address.postalCode}
+    </address>
+  </div>
+
+  {siblings.length > 0 && (
+    <div class="mt-12 flex flex-wrap gap-3">
+      {siblings.map((s) => (
+        <a
+          href={s.href}
+          class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] hover:ring-[color:var(--color-brand)]/50"
+        >
+          {s.label} <IconArrowRight size={12} stroke={2.5} />
+        </a>
+      ))}
+    </div>
+  )}
+</section>

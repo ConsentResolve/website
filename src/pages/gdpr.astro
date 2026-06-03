@@ -1,0 +1,52 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import LegalPlaceholder from "~/components/sections/LegalPlaceholder.astro";
+import { breadcrumbSchema } from "~/lib/seo";
+
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "GDPR", href: "/gdpr/" },
+  ]),
+];
+---
+
+<BaseLayout
+  title="GDPR Compliance | Consent Resolve"
+  description="How Consent Resolve complies with the EU General Data Protection Regulation — consent capture, audit trail, data subject rights, breach reporting."
+  schema={schemas}
+>
+  <LegalPlaceholder
+    badge="GDPR"
+    title="GDPR Compliance"
+    intro="Consent Resolve was built consent-first from day one. This page summarizes how the product satisfies key GDPR obligations for customers operating in (or serving) the European Union."
+    highlights={[
+      {
+        heading: "Lawful basis: consent",
+        body: "We identify a website visitor only after that visitor accepts your consent banner. The consent record — including timestamp, signed audit ID, and exact banner shown — is preserved for the lifetime of the lead.",
+      },
+      {
+        heading: "Data subject rights",
+        body: "Visitors may exercise their right to access, rectification, erasure, restriction, portability, and objection at any time by contacting the controller (the customer whose site they used) or Consent Resolve at hello@consentresolve.com. We respond within 30 days.",
+      },
+      {
+        heading: "Audit trail",
+        body: "Every identified lead carries a signed, timestamped consent record sufficient to demonstrate compliance to a supervisory authority. Working with Termageddon, we keep the consent banner and policies up to date with regulatory change.",
+      },
+      {
+        heading: "Breach notification",
+        body: "If a personal-data breach is detected, we notify the affected customer within 24 hours and assist with the 72-hour supervisory-authority notification required under Article 33.",
+      },
+      {
+        heading: "Data Processing Agreement",
+        body: "We offer a counterparty-ready DPA that names Consent Resolve as a processor. Email hello@consentresolve.com to request the current version.",
+      },
+    ]}
+    siblings={[
+      { label: "Privacy Policy", href: "/privacy-policy/" },
+      { label: "Cookie Policy", href: "/cookie-policy/" },
+      { label: "CCPA", href: "/ccpa/" },
+      { label: "Terms of Service", href: "/terms/" },
+    ]}
+  />
+</BaseLayout>

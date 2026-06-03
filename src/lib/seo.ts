@@ -40,6 +40,10 @@ export const organizationSchema = {
   description: SITE.description,
   email: "hello@consentresolve.com",
   telephone: "+1-727-202-5996",
+  logo: `${SITE.url}/favicon.svg`,
+  sameAs: [
+    "https://www.linkedin.com/company/consentresolve/",
+  ],
   address: {
     "@type": "PostalAddress",
     streetAddress: "1907 Gulf Way #1",
@@ -57,6 +61,122 @@ export const organizationSchema = {
     availableLanguage: ["en"],
   },
 };
+
+/** SoftwareApplication — emitted on the homepage so search engines treat
+ *  Consent Resolve as a citable product, not just a content site. */
+export const softwareApplicationSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: SITE.name,
+  description:
+    "Consent-first visitor identification for home-service contractors. Identifies website visitors after explicit consent and delivers their real name, mobile number, and email — yours alone, never resold.",
+  applicationCategory: "BusinessApplication",
+  applicationSubCategory: "Lead Generation",
+  operatingSystem: "Web",
+  url: SITE.url,
+  offers: {
+    "@type": "Offer",
+    price: "7.00",
+    priceCurrency: "USD",
+    priceSpecification: {
+      "@type": "UnitPriceSpecification",
+      price: "7.00",
+      priceCurrency: "USD",
+      unitText: "per identified lead",
+    },
+    description: "Flat $7 per lead. Card required. No contract, cancel anytime.",
+  },
+  provider: { "@type": "Organization", name: SITE.name, url: SITE.url },
+};
+
+/** Founder Person schema — fed by src/data/team.ts. */
+export interface FounderInput {
+  name: string;
+  role: string;
+  bio?: string;
+  linkedin?: string;
+  knowsAbout?: string[];
+}
+export function personSchema(p: FounderInput) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: p.name,
+    jobTitle: p.role,
+    ...(p.bio ? { description: p.bio } : {}),
+    worksFor: { "@type": "Organization", name: SITE.name, url: SITE.url },
+    ...(p.linkedin ? { sameAs: [p.linkedin] } : {}),
+    ...(p.knowsAbout?.length ? { knowsAbout: p.knowsAbout } : {}),
+  };
+}
+
+/** HowTo schema — emitted on /how-it-works/ for the 4-step product flow. */
+export function howToSchema(opts: {
+  name: string;
+  description: string;
+  steps: { name: string; text: string }[];
+  totalTime?: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: opts.name,
+    description: opts.description,
+    ...(opts.totalTime ? { totalTime: opts.totalTime } : {}),
+    step: opts.steps.map((s, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      name: s.name,
+      text: s.text,
+    })),
+  };
+}
+
+/** LocalBusiness — emitted on /about/ and /contact/. */
+export const localBusinessSchema = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  name: SITE.name,
+  url: SITE.url,
+  telephone: "+1-727-202-5996",
+  email: "hello@consentresolve.com",
+  priceRange: "$$",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "1907 Gulf Way #1",
+    addressLocality: "St Pete Beach",
+    addressRegion: "FL",
+    postalCode: "33706",
+    addressCountry: "US",
+  },
+  areaServed: { "@type": "Country", name: "United States" },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      opens: "09:00",
+      closes: "18:00",
+    },
+  ],
+};
+
+/** ItemList — used by hubs (industries, compare, features). */
+export function itemListSchema(opts: {
+  name: string;
+  items: { name: string; url: string }[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: opts.name,
+    itemListElement: opts.items.map((it, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: it.name,
+      url: it.url,
+    })),
+  };
+}
 
 export const websiteSchema = {
   "@context": "https://schema.org",

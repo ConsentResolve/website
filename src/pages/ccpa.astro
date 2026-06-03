@@ -1,0 +1,52 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import LegalPlaceholder from "~/components/sections/LegalPlaceholder.astro";
+import { breadcrumbSchema } from "~/lib/seo";
+
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "CCPA", href: "/ccpa/" },
+  ]),
+];
+---
+
+<BaseLayout
+  title="CCPA Compliance | Consent Resolve"
+  description="How Consent Resolve handles the rights of California consumers under the California Consumer Privacy Act and CPRA."
+  schema={schemas}
+>
+  <LegalPlaceholder
+    badge="CCPA"
+    title="CCPA Compliance"
+    intro="This page summarizes how Consent Resolve handles the rights of California consumers under the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA)."
+    highlights={[
+      {
+        heading: "Right to know",
+        body: "California consumers have the right to know what personal information is collected, used, shared, or sold. We collect only consented visitor information (name, mobile, email, on-site activity) and do not sell personal information.",
+      },
+      {
+        heading: "Right to delete",
+        body: "Submit a verifiable consumer request to hello@consentresolve.com to have your personal information deleted. We respond within 45 days (extendable by 45 days for complex requests).",
+      },
+      {
+        heading: "Right to opt out",
+        body: "We honor the Global Privacy Control (GPC) signal. Visitors may also opt out at any time through the consent banner on the originating customer site or by emailing us directly.",
+      },
+      {
+        heading: "Non-discrimination",
+        body: "We do not discriminate against any consumer for exercising their CCPA rights. Customers using Consent Resolve agree to the same non-discrimination obligations.",
+      },
+      {
+        heading: "Sensitive personal information",
+        body: "We do not knowingly collect sensitive personal information categories defined under the CPRA. If sensitive information is inadvertently captured, it is purged on detection.",
+      },
+    ]}
+    siblings={[
+      { label: "Privacy Policy", href: "/privacy-policy/" },
+      { label: "GDPR", href: "/gdpr/" },
+      { label: "Cookie Policy", href: "/cookie-policy/" },
+      { label: "Terms of Service", href: "/terms/" },
+    ]}
+  />
+</BaseLayout>

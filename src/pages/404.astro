@@ -1,0 +1,81 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
+import { IconArrowRight, IconHome, IconEye, IconSearch } from "@tabler/icons-react";
+
+const popular = [
+  { label: "How it works", href: "/how-it-works/" },
+  { label: "Pricing — $7 per lead", href: "/pricing/" },
+  { label: "See a sample lead", href: "/sample-lead/" },
+  { label: "Plumber leads", href: "/plumber-leads/" },
+  { label: "Roofing leads", href: "/roofing-leads/" },
+  { label: "HVAC leads", href: "/hvac-leads/" },
+  { label: "vs Thumbtack", href: "/compare/thumbtack/" },
+  { label: "vs Angi", href: "/compare/angi/" },
+  { label: "Stats & sources", href: "/stats/" },
+  { label: "Glossary", href: "/glossary/" },
+];
+---
+
+<BaseLayout
+  title="Page not found | Consent Resolve"
+  description="We couldn't find that page. Try one of the popular destinations below, or head back to the homepage."
+  noindex
+>
+  <section class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
+    <div class="container-content section relative">
+      <div class="mx-auto max-w-3xl text-center">
+        <Badge tone="warning" variant="soft" size="md" uppercase>404</Badge>
+        <h1 class="display-1 mb-7 mt-7 text-[color:var(--color-ink)]">
+          That page wandered off —<br/>
+          <span class="text-[color:var(--color-brand)]">try one of these instead.</span>
+        </h1>
+        <p class="mx-auto max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+          The link you followed might be old, or we may have moved the page. The popular destinations are below.
+        </p>
+
+        <div class="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <a
+            href="/"
+            class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
+          >
+            <IconHome size={16} stroke={2.5} />
+            Back to home
+          </a>
+          <a
+            href="/sample-lead/"
+            class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:ring-[color:var(--color-mint-400)]/60"
+          >
+            <IconEye size={16} stroke={2} />
+            See a sample lead
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section pb-24">
+    <div class="container-content max-w-3xl">
+      <div class="mb-8 text-center">
+        <p class="eyebrow mb-4 justify-center">
+          <IconSearch size={12} stroke={2.25} /> Popular destinations
+        </p>
+        <h2 class="display-2 text-[color:var(--color-ink)]">Or jump straight to one of these.</h2>
+      </div>
+      <ul class="grid gap-3 sm:grid-cols-2">
+        {popular.map((p) => (
+          <li>
+            <a
+              href={p.href}
+              class="flex items-center justify-between rounded-xl bg-[color:var(--color-bg-alt)] px-5 py-4 text-[15px] font-semibold text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-0.5 hover:ring-[color:var(--color-brand)]/40"
+            >
+              <span>{p.label}</span>
+              <IconArrowRight size={16} stroke={2.25} class="text-[color:var(--color-ink-muted)]" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

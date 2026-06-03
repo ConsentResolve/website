@@ -2,13 +2,14 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Button from "~/components/ui/Button.astro";
 import { IconArrowRight, IconMail, IconPhone, IconClock, IconMapPin } from "@tabler/icons-react";
-import { breadcrumbSchema } from "~/lib/seo";
+import { breadcrumbSchema, localBusinessSchema } from "~/lib/seo";
 
 const schemas = [
   breadcrumbSchema([
     { name: "Home", href: "/" },
     { name: "Contact", href: "/contact/" },
   ]),
+  localBusinessSchema,
 ];
 ---
 
