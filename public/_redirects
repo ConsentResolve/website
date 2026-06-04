@@ -9,3 +9,7 @@
 # the deliverable, the "what you'll get" curiosity page is now /how-it-works/).
 /sample-lead/    /how-it-works/    301
 /sample-lead     /how-it-works/    301
+
+# /v2/ promoted to / (June 2026). Bookmarks / external links collapse to /.
+/v2/             /                 301
+/v2              /                 301

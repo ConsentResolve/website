@@ -1,37 +1,622 @@
 ---
+/**
+ * / — Live homepage (StoryBrand SB7).
+ *
+ * Promoted from /v2/ on launch. The previous layout is archived at
+ * /index-v1/ (noindex) as a quick-restore safety net.
+ *
+ * Spine:
+ *   1. CHARACTER       — the contractor (the hero of the story)
+ *   2. PROBLEM         — external (98% bounce), internal (paying twice),
+ *                        philosophical (ad budget shouldn't evaporate)
+ *   3. GUIDE           — Consent Resolve, with empathy + authority
+ *   4. PLAN            — four simple steps (HowItWorks)
+ *   5. DIRECT CTA      — "Activate your account"
+ *   6. TRANSITIONAL    — "See how it works"
+ *   7. AVOIDS FAILURE  — what happens if you do nothing
+ *   8. ENDS IN SUCCESS — same ad budget, more inbound calls
+ *
+ * Voice locked to /style-guide/voice/.
+ */
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Hero from "~/components/sections/Hero.astro";
-import ProblemStats from "~/components/sections/ProblemStats.astro";
-import RiskVsConsent from "~/components/sections/RiskVsConsent.astro";
 import HowItWorks from "~/components/sections/HowItWorks.astro";
-import FeatureBento from "~/components/sections/FeatureBento.astro";
-import CompareSection from "~/components/sections/CompareSection.astro";
-import ProductShowcase from "~/components/sections/ProductShowcase.astro";
 import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FAQSection from "~/components/sections/FAQSection.astro";
 import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
-import { softwareApplicationSchema } from "~/lib/seo";
+import Badge from "~/components/ui/Badge.astro";
+import Button from "~/components/ui/Button.astro";
+import AnimatedStat from "~/components/ui/AnimatedStat.tsx";
+import Sparkline from "~/components/ui/Sparkline.astro";
 
-const schemas = [softwareApplicationSchema];
+import {
+  organizationSchema,
+  softwareApplicationSchema,
+  websiteSchema,
+  faqSchema,
+} from "~/lib/seo";
+
+import {
+  IconArrowRight, IconCheck, IconLock, IconUserCheck, IconBolt,
+  IconUserOff, IconCoin, IconAlertTriangle,
+  IconShieldCheck, IconPlugConnected, IconClipboardCheck,
+  IconRefresh, IconMessage, IconBellRinging,
+  IconX, IconCircleCheck, IconEye, IconBuilding,
+} from "@tabler/icons-react";
+
+// Page-level FAQ schema (mirrors FAQSection's questions)
+const homepageFaqs = [
+  { question: "Is this legal?",                         answer: "Yes — because a homeowner's name shows up only after they consent. We keep your privacy policy, cookie banner, and disclosures in sync through Termageddon. The shady tools that track people in secret are the illegal ones. We're not one." },
+  { question: "Do I have to change my privacy policy?", answer: "We handle it. Termageddon generates and updates the policies for you, so you stay covered without the legwork." },
+  { question: "What if a homeowner doesn't consent?",   answer: "Then you get nothing on them — and that's the point. No consent, no data. That's what keeps you safe." },
+  { question: "How fast does a lead reach me?",         answer: "Seconds. A Slack, text, or email fires the moment they consent, and it lands in your CRM at the same time." },
+  { question: "Which CRMs do you work with?",           answer: "Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, and just about anything else through a webhook." },
+  { question: "Can I cancel anytime?",                  answer: "Yes. Flat $7 a lead — card required, no contract, cancel whenever you want." },
+];
+
+const schemas = [
+  organizationSchema,
+  websiteSchema,
+  softwareApplicationSchema,
+  faqSchema(homepageFaqs),
+];
+
+const aeoText =
+  "Consent Resolve is a consent-first ad-spend recovery layer for home-service contractors. It identifies the 98 out of 100 website visitors who would otherwise bounce — only after they accept your consent banner — and feeds them back into the retargeting audiences, email/SMS sequences, and CRM you already run. Same ad budget, more inbound calls. Flat $7 per recovered lead, exclusive, never resold.";
+
+// Tiny illustrative spark for the compact product peek (NOT a claim)
+const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
 ---
 
 <BaseLayout
-  title="Ad-Spend Recovery for Home-Service Contractors | Consent Resolve"
-  description="98% of website visitors leave without contacting you. Consent Resolve recovers the anonymous bounce — with consent — and feeds it back into the retargeting, email, and CRM funnels you already run. Same ad budget, more inbound calls. Flat $7 per recovered lead."
+  title="Recover the 98% Your Ads Already Paid For — Consent Resolve"
+  description="Consent Resolve is the consent-first ad-spend recovery layer for home-service contractors. Identify the 98 out of 100 visitors who'd otherwise bounce, with consent, and feed them back into the retargeting, email, and CRM you already run. Same ad budget, more inbound calls. Flat $7 per recovered lead."
   schema={schemas}
 >
-  <Hero />
-  <ProblemStats />
-  <CompareSection />
-  <HowItWorks />
-  <FeatureBento />
-  <RiskVsConsent />
-  <ProductShowcase />
-  <ComplianceBand />
-  <FAQSection />
-  <AEOAnswer
-    text="Consent Resolve is a consent-first ad-spend recovery layer for home-service contractors. It identifies the 98 out of 100 website visitors who would otherwise bounce — only after they accept your consent banner — and feeds them back into the retargeting audiences, email/SMS sequences, and CRM you already run. Same ad budget, more inbound calls. Flat $7 per recovered lead, exclusive, never resold."
+  <!-- ============================================================== -->
+  <!-- 1. HERO — character + one-liner + 2 CTAs                      -->
+  <!--    StoryBrand: name the audience, name the problem, hint at   -->
+  <!--    the win. Direct CTA + transitional CTA.                    -->
+  <!-- ============================================================== -->
+  <Hero
+    eyebrow="For ad-buying home-service contractors"
+    title="Turn Anonymous Homeowners"
+    titleAccent="Into New Jobs."
+    subhead="Most of the homeowners you pay for bounce without a trace. Consent Resolve recovers them — name and number, only after they consent — and feeds them straight into the retargeting, email, and CRM you already run. Same ad budget. More booked jobs. Flat $7 a lead, yours alone, never resold."
+    ctaLabel="Activate your account"
+    panelKind="illustration"
+    panelSrc="/illustrations/hero/protagonist.svg"
+    panelAlt="A friendly service pro beside a work truck, holding up a phone showing a recovered lead — beside him an anonymous gray visitor is turning sage-green, while two more anonymous figures drift off a browser window in the background."
+    showTrustLine={false}
+    compact={true}
   />
+
+  <!-- ============================================================== -->
+  <!-- 1.5. THE 5-STEP FLOW — visit → consent → accept → feed → win   -->
+  <!--      Horizontal flow strip a contractor can scan in 5 seconds. -->
+  <!--      5 illustrated nodes, brand-locked Recraft SVGs.           -->
+  <!-- ============================================================== -->
+  <section class="section py-14 md:py-20">
+    <div class="container-content">
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        <Badge tone="brand" variant="soft" size="md" uppercase>How it works in five</Badge>
+        <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">
+          Five steps. One outcome.<br/>
+          <span class="text-[color:var(--color-brand-pressed)]">More calls. More jobs.</span>
+        </h2>
+      </div>
+
+      <ol class="mx-auto grid max-w-6xl items-start gap-y-10 md:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr_auto_1fr] md:gap-y-0">
+
+        {/* Step 1 — Homeowner visits website */}
+        <li class="relative flex flex-col items-center text-center">
+          <div class="relative">
+            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[12px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]">1</span>
+            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-brand-soft)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]">
+              <img src="/illustrations/steps/01-homeowner-visit.svg" alt="A homeowner browsing a contractor's website" class="h-20 w-20" loading="lazy" decoding="async" />
+            </div>
+          </div>
+          <p class="mt-4 font-display text-[15px] font-bold leading-tight tracking-tight text-[color:var(--color-ink)]">Homeowner visits<br/>your website</p>
+          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">From a Google ad, LSA, or just searching your town.</p>
+        </li>
+
+        {/* Connector 1→2 */}
+        <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
+          <IconArrowRight size={24} stroke={2} class="text-[color:var(--color-mint-400)]" />
+        </li>
+
+        {/* Step 2 — We handle consent */}
+        <li class="relative flex flex-col items-center text-center">
+          <div class="relative">
+            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[12px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]">2</span>
+            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-brand-soft)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]">
+              <img src="/illustrations/steps/02-we-handle-consent.svg" alt="A consent banner with a shield checkmark badge" class="h-20 w-20" loading="lazy" decoding="async" />
+            </div>
+          </div>
+          <p class="mt-4 font-display text-[15px] font-bold leading-tight tracking-tight text-[color:var(--color-ink)]">We handle<br/>consent</p>
+          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">Our banner asks. Your privacy policy stays current — Termageddon-backed.</p>
+        </li>
+
+        {/* Connector 2→3 */}
+        <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
+          <IconArrowRight size={24} stroke={2} class="text-[color:var(--color-mint-400)]" />
+        </li>
+
+        {/* Step 3 — Homeowner accepts cookie */}
+        <li class="relative flex flex-col items-center text-center">
+          <div class="relative">
+            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[12px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]">3</span>
+            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-brand-soft)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]">
+              <img src="/illustrations/steps/03-homeowner-accepts.svg" alt="A hand pressing accept on a cookie consent banner" class="h-20 w-20" loading="lazy" decoding="async" />
+            </div>
+          </div>
+          <p class="mt-4 font-display text-[15px] font-bold leading-tight tracking-tight text-[color:var(--color-ink)]">Homeowner<br/>accepts cookie</p>
+          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">No yes, no data. That's what keeps you on the right side of the rules.</p>
+        </li>
+
+        {/* Connector 3→4 */}
+        <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
+          <IconArrowRight size={24} stroke={2} class="text-[color:var(--color-mint-400)]" />
+        </li>
+
+        {/* Step 4 — We feed contact to funnel */}
+        <li class="relative flex flex-col items-center text-center">
+          <div class="relative">
+            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[12px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]">4</span>
+            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-brand-soft)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]">
+              <img src="/illustrations/steps/04-feed-to-funnel.svg" alt="A contact card sliding into a CRM inbox" class="h-20 w-20" loading="lazy" decoding="async" />
+            </div>
+          </div>
+          <p class="mt-4 font-display text-[15px] font-bold leading-tight tracking-tight text-[color:var(--color-ink)]">We feed contact<br/>to your funnel</p>
+          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">Lands in Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo — in seconds.</p>
+        </li>
+
+        {/* Final reward connector — heavier, brand-pressed, signals the payoff */}
+        <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
+          <IconArrowRight size={26} stroke={2.5} class="text-[color:var(--color-brand-pressed)]" />
+        </li>
+
+        {/* Step 5 — Outcome */}
+        <li class="relative flex flex-col items-center text-center">
+          <div class="relative">
+            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-mint-400)] font-display text-[12px] font-black text-[color:var(--color-navy-900)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,229,160,0.5)]">5</span>
+            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-navy-900)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/40 shadow-[0_18px_36px_-18px_rgba(10,22,40,0.45)]">
+              <img src="/illustrations/steps/05-more-calls-more-jobs.svg" alt="A service pro answering a ringing phone" class="h-20 w-20" loading="lazy" decoding="async" />
+            </div>
+          </div>
+          <p class="mt-4 font-display text-[15px] font-black leading-tight tracking-tight text-[color:var(--color-ink)]">More calls.<br/>More jobs.</p>
+          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">Warm inbound calls from homeowners who already saw you in their inbox.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- 2. THE STAKES — external / internal / philosophical problem   -->
+  <!-- ============================================================== -->
+  <section class="section section-dark relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/10 blur-[120px]"></div>
+
+    <div class="container-content relative">
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        <Badge tone="warning" variant="soft" surface="dark" size="md" uppercase>The leak you're paying for</Badge>
+        <h2 class="display-2 mt-5 text-white">
+          Your ad budget hits the site.<br/>
+          <span class="text-[color:var(--color-mint-400)]">Then most of it walks away.</span>
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-slate-300">
+          Every channel you run — Google, LSA, Meta, SEO — drops people on your site. Almost all of them leave without saying a word. Then you pay again to find them on Thumbtack.
+        </p>
+      </div>
+
+      <div class="grid gap-5 md:grid-cols-3">
+        <div class="rounded-2xl bg-white/[0.03] p-7 ring-1 ring-inset ring-white/10">
+          <div class="mb-4 inline-flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-danger)]/15">
+            <IconUserOff size={20} stroke={1.75} color="#fca5a5" />
+          </div>
+          <AnimatedStat client:visible value={98} suffix="%" tone="danger" size="lg" />
+          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Walk away anonymous</p>
+          <p class="mt-2 text-[14px] leading-relaxed text-slate-300">
+            Of every 100 homeowners your ads send to your site, roughly 98 leave without contacting you. They call the next guy instead. <a href="/stats/#anonymous-traffic" class="underline-offset-2 hover:underline">Source</a>
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-white/[0.03] p-7 ring-1 ring-inset ring-white/10">
+          <div class="mb-4 inline-flex size-10 items-center justify-center rounded-xl bg-white/10">
+            <IconCoin size={20} stroke={1.75} color="#cbd5e1" />
+          </div>
+          <div class="font-display text-4xl font-bold leading-none tracking-tight text-white md:text-5xl">~$46</div>
+          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Per Thumbtack lead</p>
+          <p class="mt-2 text-[14px] leading-relaxed text-slate-300">
+            You already paid Google to drive them to your site. Then you pay Thumbtack to find the same shopper — shared with 4 other shops. <a href="/stats/#lead-trap" class="underline-offset-2 hover:underline">Source</a>
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-white/[0.03] p-7 ring-1 ring-inset ring-white/10">
+          <div class="mb-4 inline-flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]/15">
+            <IconAlertTriangle size={20} stroke={1.75} color="#00E5A0" />
+          </div>
+          <div class="font-display text-4xl font-bold leading-none tracking-tight text-[color:var(--color-mint-400)] md:text-5xl">2x</div>
+          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">You pay for the same shopper</p>
+          <p class="mt-2 text-[14px] leading-relaxed text-slate-300">
+            Once on the ad. Once on the reseller. Ad budget isn't supposed to evaporate — and shared leads aren't a fix for the leak. They're a tax on it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- 3. MEET YOUR GUIDE — empathy + authority                      -->
+  <!-- ============================================================== -->
+  <section class="section">
+    <div class="container-content">
+      <div class="mx-auto max-w-4xl">
+        <div class="grid items-center gap-12 md:grid-cols-[1fr_1.2fr]">
+          <div>
+            <Badge tone="brand" variant="soft" size="md" uppercase>Built by people who watched this happen</Badge>
+            <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">
+              You're not the problem.<br/>
+              <span class="text-[color:var(--color-brand-pressed)]">The plumbing is.</span>
+            </h2>
+            <p class="mt-5 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+              We've watched roofers spend $4,000 a month on Google ads, then spend another $2,000 on Thumbtack to fight for the same shoppers their own ads already drove to their site. That's broken. So we built the layer that fixes it.
+            </p>
+            <p class="mt-4 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+              Consent Resolve sits on top of every channel you already run. We don't compete with your ads — we rescue the visitors they paid to send you.
+            </p>
+          </div>
+
+          <ul class="grid grid-cols-2 gap-3">
+            <li class="rounded-xl bg-[color:var(--color-bg-alt)] p-5 ring-1 ring-inset ring-[color:var(--color-rule)]">
+              <span class="inline-flex size-9 items-center justify-center rounded-lg bg-[color:var(--color-brand-soft)]">
+                <IconShieldCheck size={18} stroke={1.75} color="#0A1628" />
+              </span>
+              <p class="mt-3 font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">Consent-first by design</p>
+              <p class="mt-1 text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">No data without a yes. Audit-logged on every reveal.</p>
+            </li>
+            <li class="rounded-xl bg-[color:var(--color-bg-alt)] p-5 ring-1 ring-inset ring-[color:var(--color-rule)]">
+              <span class="inline-flex size-9 items-center justify-center rounded-lg bg-[color:var(--color-brand-soft)]">
+                <IconClipboardCheck size={18} stroke={1.75} color="#0A1628" />
+              </span>
+              <p class="mt-3 font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">17 trades supported</p>
+              <p class="mt-1 text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">Roofing, HVAC, plumbing, GC, electrical, and more.</p>
+            </li>
+            <li class="rounded-xl bg-[color:var(--color-bg-alt)] p-5 ring-1 ring-inset ring-[color:var(--color-rule)]">
+              <span class="inline-flex size-9 items-center justify-center rounded-lg bg-[color:var(--color-brand-soft)]">
+                <IconPlugConnected size={18} stroke={1.75} color="#0A1628" />
+              </span>
+              <p class="mt-3 font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">Drops into your stack</p>
+              <p class="mt-1 text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo.</p>
+            </li>
+            <li class="rounded-xl bg-[color:var(--color-bg-alt)] p-5 ring-1 ring-inset ring-[color:var(--color-rule)]">
+              <span class="inline-flex size-9 items-center justify-center rounded-lg bg-[color:var(--color-brand-soft)]">
+                <IconLock size={18} stroke={1.75} color="#0A1628" />
+              </span>
+              <p class="mt-3 font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">$7 per lead, flat</p>
+              <p class="mt-1 text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">Exclusive. Never resold. Cancel anytime — no contract.</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- 4. THE PLAN — HowItWorks (the four-step comet)                -->
+  <!-- ============================================================== -->
+  <HowItWorks />
+
+  <!-- ============================================================== -->
+  <!-- 5. PRODUCT PEEK — tight, NOT a full dashboard chrome          -->
+  <!-- ============================================================== -->
+  <section class="section bg-[color:var(--color-bg-alt)]">
+    <div class="container-content">
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        <Badge tone="brand" variant="soft" size="md" uppercase>A look at what lands in your hands</Badge>
+        <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">
+          What happens after<br/>
+          <span class="text-[color:var(--color-brand-pressed)]">they say yes.</span>
+        </h2>
+      </div>
+
+      <div class="mx-auto grid max-w-5xl gap-5 md:grid-cols-3">
+        <div class="rounded-2xl bg-white p-6 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_36px_-22px_rgba(10,22,40,0.18)]">
+          <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Real name. Real number.</p>
+          <div class="mt-4 flex items-center gap-3">
+            <span class="inline-flex size-11 items-center justify-center rounded-full bg-[color:var(--color-brand)] font-display text-sm font-black text-[color:var(--color-navy-900)]">MR</span>
+            <div class="flex-1">
+              <p class="font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">Maria R.</p>
+              <p class="text-[12px] text-[color:var(--color-ink-muted)]">Roof replacement · 77584</p>
+            </div>
+            <span class="rounded-full bg-[color:var(--color-brand-soft)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Consented</span>
+          </div>
+          <div class="mt-5 grid grid-cols-2 gap-2 border-t border-[color:var(--color-rule)] pt-4 text-[12px]">
+            <div class="min-w-0">
+              <p class="text-[color:var(--color-ink-muted)]">Email</p>
+              <p class="truncate font-mono text-[color:var(--color-ink)]">maria.r@gmail.com</p>
+            </div>
+            <div>
+              <p class="text-[color:var(--color-ink-muted)]">Last seen</p>
+              <p class="font-semibold text-[color:var(--color-ink)]">6 minutes ago</p>
+            </div>
+          </div>
+          <p class="mt-4 text-[12px] leading-relaxed text-[color:var(--color-ink-2)]">
+            Read your "Storm damage" page twice. Lingered on the financing FAQ.
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-[color:var(--color-navy-900)] p-6 text-white ring-1 ring-inset ring-white/10 shadow-[0_18px_36px_-22px_rgba(0,0,0,0.4)]">
+          <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">Recovered this month</p>
+          <p class="mt-4 font-display text-6xl font-black leading-none tracking-tight tabular-nums text-white">147</p>
+          <p class="mt-3 text-[13px] text-slate-300">Across Google, LSA, Meta and SEO traffic.</p>
+          <div class="mt-5 rounded-xl bg-white/5 p-3 ring-1 ring-inset ring-white/10">
+            <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Last 14 days</p>
+            <div class="mt-2 [&_svg]:!w-full [&_svg]:!h-12">
+              <Sparkline data={peekSpark} width={260} height={48} tone="brand" fill={true} />
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white p-6 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_36px_-22px_rgba(10,22,40,0.18)]">
+          <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Lands in the stack you run</p>
+          <ul class="mt-4 space-y-2.5">
+            {[
+              { name: "Jobber",         status: "Pushed · 6m ago" },
+              { name: "HubSpot",        status: "Pushed · 6m ago" },
+              { name: "Klaviyo",        status: "Synced · 6m ago" },
+              { name: "Meta ads audience", status: "Added · 6m ago" },
+            ].map((row) => (
+              <li class="flex items-center justify-between rounded-lg bg-[color:var(--color-bg-alt)] px-3 py-2.5 ring-1 ring-inset ring-[color:var(--color-rule)]">
+                <span class="flex items-center gap-2.5">
+                  <IconCircleCheck size={16} stroke={2.25} color="#00A86E" />
+                  <span class="text-[13px] font-semibold text-[color:var(--color-ink)]">{row.name}</span>
+                </span>
+                <span class="text-[11px] text-[color:var(--color-ink-muted)]">{row.status}</span>
+              </li>
+            ))}
+          </ul>
+          <p class="mt-4 text-[12px] leading-relaxed text-[color:var(--color-ink-2)]">
+            Every recovery hits your CRM, your ad audiences, and your email tool — at the same time.
+          </p>
+        </div>
+      </div>
+
+      <p class="mx-auto mt-6 max-w-2xl text-center text-[12px] text-[color:var(--color-ink-muted)]">
+        Names and numbers shown are illustrative — your dashboard fills with real homeowners from your traffic.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- 6. WHAT YOU GET — the 3 pillars                                -->
+  <!-- ============================================================== -->
+  <section class="section">
+    <div class="container-content">
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        <Badge tone="brand" variant="soft" size="md" uppercase>What you get</Badge>
+        <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">
+          Three jobs. One layer.<br/>
+          <span class="text-[color:var(--color-brand-pressed)]">Same ad budget, more booked work.</span>
+        </h2>
+      </div>
+
+      <div class="mx-auto grid max-w-5xl gap-5 md:grid-cols-3">
+        <a
+          href="/features/#ad-recovery"
+          class="group block rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-1 hover:ring-[color:var(--color-mint-400)]/60 hover:shadow-[0_30px_60px_-30px_rgba(0,229,160,0.4)]"
+        >
+          <span class="inline-flex size-12 items-center justify-center rounded-xl bg-[color:var(--color-brand)] shadow-[0_10px_24px_-10px_rgba(0,229,160,0.6)]">
+            <IconRefresh size={22} stroke={2} color="#0A1628" />
+          </span>
+          <p class="mt-5 text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Pillar 1 · Recovery</p>
+          <h3 class="mt-2 font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">Recover the 98% that bounce.</h3>
+          <p class="mt-3 text-[14px] leading-relaxed text-[color:var(--color-ink-2)]">
+            The traffic your ads already paid for — Google, LSA, Meta, SEO. We identify the consented ones who'd otherwise leave with no trace.
+          </p>
+          <span class="mt-5 inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] group-hover:gap-2">
+            See the recovery features
+            <IconArrowRight size={12} stroke={2.5} class="transition-transform group-hover:translate-x-0.5" />
+          </span>
+        </a>
+
+        <a
+          href="/features/#funnel-insertion"
+          class="group block rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-1 hover:ring-[color:var(--color-mint-400)]/60 hover:shadow-[0_30px_60px_-30px_rgba(0,229,160,0.4)]"
+        >
+          <span class="inline-flex size-12 items-center justify-center rounded-xl bg-[color:var(--color-brand)] shadow-[0_10px_24px_-10px_rgba(0,229,160,0.6)]">
+            <IconMessage size={22} stroke={2} color="#0A1628" />
+          </span>
+          <p class="mt-5 text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Pillar 2 · Funnel insertion</p>
+          <h3 class="mt-2 font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">Drop into the funnel you already run.</h3>
+          <p class="mt-3 text-[14px] leading-relaxed text-[color:var(--color-ink-2)]">
+            Recovered visitors flow into your retargeting audiences, email/SMS sequences, and CRM. No new app to babysit.
+          </p>
+          <span class="mt-5 inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] group-hover:gap-2">
+            See the funnel features
+            <IconArrowRight size={12} stroke={2.5} class="transition-transform group-hover:translate-x-0.5" />
+          </span>
+        </a>
+
+        <a
+          href="/features/#inbound-call"
+          class="group block rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-1 hover:ring-[color:var(--color-mint-400)]/60 hover:shadow-[0_30px_60px_-30px_rgba(0,229,160,0.4)]"
+        >
+          <span class="inline-flex size-12 items-center justify-center rounded-xl bg-[color:var(--color-brand)] shadow-[0_10px_24px_-10px_rgba(0,229,160,0.6)]">
+            <IconBellRinging size={22} stroke={2} color="#0A1628" />
+          </span>
+          <p class="mt-5 text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Pillar 3 · Inbound calls</p>
+          <h3 class="mt-2 font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">Turn the bounce into an inbound call.</h3>
+          <p class="mt-3 text-[14px] leading-relaxed text-[color:var(--color-ink-2)]">
+            The recovered homeowner comes back on their time — through your funnel — and calls you warm. Not a cold outbound.
+          </p>
+          <span class="mt-5 inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] group-hover:gap-2">
+            See the inbound features
+            <IconArrowRight size={12} stroke={2.5} class="transition-transform group-hover:translate-x-0.5" />
+          </span>
+        </a>
+      </div>
+
+      <div class="mt-10 text-center">
+        <a
+          href="/features/"
+          class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] hover:text-[color:var(--color-ink)]"
+        >
+          See every feature
+          <IconArrowRight size={12} stroke={2.5} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- 7. AVOID FAILURE — what happens if you do nothing             -->
+  <!-- ============================================================== -->
+  <section class="section section-dark relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -right-32 -bottom-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/12 blur-[120px]"></div>
+
+    <div class="container-content relative">
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        <Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>What happens next</Badge>
+        <h2 class="display-2 mt-5 text-white">
+          The next 30 days, two ways.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-slate-300">
+          Pick the column you'd rather live in.
+        </p>
+      </div>
+
+      <div class="mx-auto grid max-w-4xl gap-5 md:grid-cols-2">
+        <div class="rounded-2xl bg-white/[0.03] p-7 ring-1 ring-inset ring-white/10">
+          <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-red-300/80">Without Consent Resolve</p>
+          <h3 class="mt-3 font-display text-xl font-bold tracking-tight text-white">Same leak, more bills.</h3>
+          <ul class="mt-5 space-y-3 text-[14px] text-slate-300">
+            <li class="flex items-start gap-2.5"><IconX size={18} stroke={2.5} color="#fca5a5" class="mt-0.5 shrink-0" /> 98 out of every 100 visitors still walk off anonymous.</li>
+            <li class="flex items-start gap-2.5"><IconX size={18} stroke={2.5} color="#fca5a5" class="mt-0.5 shrink-0" /> Thumbtack invoice keeps growing for shared leads.</li>
+            <li class="flex items-start gap-2.5"><IconX size={18} stroke={2.5} color="#fca5a5" class="mt-0.5 shrink-0" /> Your retargeting audiences sit underfed.</li>
+            <li class="flex items-start gap-2.5"><IconX size={18} stroke={2.5} color="#fca5a5" class="mt-0.5 shrink-0" /> You race four other shops to the phone, every time.</li>
+          </ul>
+        </div>
+
+        <div class="rounded-2xl bg-[color:var(--color-brand-soft)]/10 p-7 ring-1 ring-inset ring-[color:var(--color-brand)]/40">
+          <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">With Consent Resolve</p>
+          <h3 class="mt-3 font-display text-xl font-bold tracking-tight text-white">Same ad budget. More booked jobs.</h3>
+          <ul class="mt-5 space-y-3 text-[14px] text-slate-200">
+            <li class="flex items-start gap-2.5"><IconCircleCheck size={18} stroke={2.25} color="#00E5A0" class="mt-0.5 shrink-0" /> Recovered visitors flow into the funnel you already run.</li>
+            <li class="flex items-start gap-2.5"><IconCircleCheck size={18} stroke={2.25} color="#00E5A0" class="mt-0.5 shrink-0" /> Flat $7 a lead — exclusive, never resold to a competitor.</li>
+            <li class="flex items-start gap-2.5"><IconCircleCheck size={18} stroke={2.25} color="#00E5A0" class="mt-0.5 shrink-0" /> Retargeting audiences and email lists stay fed.</li>
+            <li class="flex items-start gap-2.5"><IconCircleCheck size={18} stroke={2.25} color="#00E5A0" class="mt-0.5 shrink-0" /> Warm inbound calls instead of cold outbound chases.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- 8. SUCCESS — the headline payoff                              -->
+  <!-- ============================================================== -->
+  <section class="section">
+    <div class="container-content">
+      <div class="mx-auto max-w-3xl text-center">
+        <Badge tone="brand" variant="soft" size="md" uppercase>What success looks like</Badge>
+        <h2 class="mx-auto mt-6 max-w-3xl font-display text-4xl font-black leading-[1.05] tracking-tight text-[color:var(--color-ink)] md:text-6xl">
+          Same ad budget.<br/>
+          <span class="text-[color:var(--color-brand-pressed)]">More inbound calls.</span>
+        </h2>
+        <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+          You stop paying twice for the same shopper. You stop racing four other shops to the phone. You spend your morning on warm inbounds — homeowners who already saw you in their inbox and on their feed.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- 9. ACTIVATE — pricing + the direct CTA                         -->
+  <!-- ============================================================== -->
+  <section class="section section-dark relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
+    <div aria-hidden="true" class="pointer-events-none absolute -right-32 -bottom-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/10 blur-[120px]"></div>
+
+    <div class="container-content relative">
+      <div class="mx-auto max-w-4xl">
+        <div class="rounded-3xl bg-white/[0.04] p-8 ring-1 ring-inset ring-white/10 backdrop-blur-sm md:p-12">
+          <div class="grid items-center gap-10 md:grid-cols-[1.1fr_1fr]">
+            <div>
+              <Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Activate today</Badge>
+              <h2 class="display-2 mt-5 text-white">
+                Flat $7 per lead.<br/>
+                <span class="text-[color:var(--color-mint-400)]">Yours alone. Never resold.</span>
+              </h2>
+              <p class="mt-5 text-[15px] leading-relaxed text-slate-300">
+                Card on file, no contract, cancel anytime. Paste one line of code. Live in about 10 minutes.
+              </p>
+
+              <ul class="mt-6 space-y-2.5 text-[14px] text-slate-200">
+                <li class="flex items-start gap-2.5"><IconCheck size={18} stroke={2.5} color="#00E5A0" class="mt-0.5 shrink-0" /> Exclusive — one consent, one contractor.</li>
+                <li class="flex items-start gap-2.5"><IconCheck size={18} stroke={2.5} color="#00E5A0" class="mt-0.5 shrink-0" /> Lands in Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, GHL.</li>
+                <li class="flex items-start gap-2.5"><IconCheck size={18} stroke={2.5} color="#00E5A0" class="mt-0.5 shrink-0" /> Consent-first by design — your privacy policy stays handled.</li>
+              </ul>
+            </div>
+
+            <div class="rounded-2xl bg-[color:var(--color-navy-900)] p-7 ring-1 ring-inset ring-white/10 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)]">
+              <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">Pay per recovered lead</p>
+              <div class="mt-3 flex items-baseline gap-2">
+                <span class="font-display text-7xl font-black tracking-tight text-white">$7</span>
+                <span class="text-sm font-semibold uppercase tracking-[0.14em] text-slate-400">/ lead</span>
+              </div>
+              <p class="mt-3 text-[13px] leading-relaxed text-slate-300">
+                Only billed when a consented visitor becomes a real, identified record in your funnel.
+              </p>
+
+              <Button
+                href="https://dashboard.consentresolve.com/register"
+                variant="primary"
+                size="lg"
+                class="mt-6 !w-full !justify-center"
+              >
+                <IconBolt size={18} stroke={2.25} />
+                Activate your account
+                <IconArrowRight size={18} stroke={2.25} />
+              </Button>
+
+              <a
+                href="/how-it-works/"
+                class="mt-3 inline-flex w-full items-center justify-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-slate-400 hover:text-white"
+              >
+                <IconEye size={12} stroke={2} />
+                Or see how it works first
+              </a>
+
+              <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/10 pt-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                <span class="inline-flex items-center gap-1.5"><IconLock size={12} stroke={2} color="#00E5A0" /> Exclusive</span>
+                <span class="inline-flex items-center gap-1.5"><IconUserCheck size={12} stroke={2} color="#00E5A0" /> Consent-first</span>
+                <span class="inline-flex items-center gap-1.5"><IconBuilding size={12} stroke={2} color="#00E5A0" /> 17 trades</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- 10. TRUST — Compliance band                                    -->
+  <!-- ============================================================== -->
+  <ComplianceBand />
+
+  <!-- ============================================================== -->
+  <!-- 11. FAQ — long-tail SEO + FAQPage schema for AEO              -->
+  <!-- ============================================================== -->
+  <FAQSection />
+
+  <!-- ============================================================== -->
+  <!-- 12. CITE — LLM-citable 55-word paragraph                       -->
+  <!-- ============================================================== -->
+  <AEOAnswer text={aeoText} />
+
+  <!-- ============================================================== -->
+  <!-- 13. CONVERT — Final activation push                            -->
+  <!-- ============================================================== -->
   <FinalCTA />
 </BaseLayout>
