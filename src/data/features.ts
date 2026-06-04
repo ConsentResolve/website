@@ -882,7 +882,7 @@ const roiReporting: Feature = {
 export const FEATURE_GROUPS: FeatureGroup[] = [
   {
     slug: "ad-recovery",
-    eyebrow: "Pillar 1 — Ad-spend recovery",
+    eyebrow: "Ad-spend recovery",
     title: "Recover the 98% that bounce.",
     blurb:
       "Every channel you run sends visitors to your site that mostly leave without contacting you. These features recover the bounce — with consent — so the ad spend you're already making converts to identified records.",
@@ -890,7 +890,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
   },
   {
     slug: "funnel-insertion",
-    eyebrow: "Pillar 2 — Funnel insertion",
+    eyebrow: "Funnel insertion",
     title: "Drop into the funnel you already run.",
     blurb:
       "Recovered visitors flow into the retargeting audiences, email/SMS sequences, and CRM you've already built. We're an input to your marketing machine — not another tool to manage.",
@@ -898,7 +898,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
   },
   {
     slug: "inbound-call",
-    eyebrow: "Pillar 3 — Inbound calls",
+    eyebrow: "Inbound calls",
     title: "Turn the bounce into an inbound call.",
     blurb:
       "The recovered visitor comes back on their own time, through your funnel, and calls you — warm, not cold. These features keep the timing right, the area accurate, and the noise out.",
