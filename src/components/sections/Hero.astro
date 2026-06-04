@@ -35,6 +35,8 @@ interface Props {
   panelSrc?: string;
   /** Alt text for the illustration. */
   panelAlt?: string;
+  /** Render the three-bullet trust line under the CTAs. Default true. */
+  showTrustLine?: boolean;
 }
 const {
   eyebrow = "For ad-buying contractors",
@@ -47,6 +49,7 @@ const {
   panelKind = "lead-phone",
   panelSrc,
   panelAlt = "",
+  showTrustLine = true,
 } = Astro.props as Props;
 ---
 
@@ -73,21 +76,23 @@ const {
         </Button>
       </div>
 
-      <!-- Trust line -->
-      <ul class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[color:var(--color-ink-2)]">
-        <li class="flex items-center gap-1.5">
-          <IconCheck size={16} stroke={2.5} color="#00A86E" />
-          $7 per recovered lead, never resold
-        </li>
-        <li class="flex items-center gap-1.5">
-          <IconCheck size={16} stroke={2.5} color="#00A86E" />
-          Drops into your existing CRM and ad funnels
-        </li>
-        <li class="flex items-center gap-1.5">
-          <IconCheck size={16} stroke={2.5} color="#00A86E" />
-          Consent-first, compliant by default
-        </li>
-      </ul>
+      {showTrustLine && (
+        <!-- Trust line -->
+        <ul class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[color:var(--color-ink-2)]">
+          <li class="flex items-center gap-1.5">
+            <IconCheck size={16} stroke={2.5} color="#00A86E" />
+            $7 per recovered lead, never resold
+          </li>
+          <li class="flex items-center gap-1.5">
+            <IconCheck size={16} stroke={2.5} color="#00A86E" />
+            Drops into your existing CRM and ad funnels
+          </li>
+          <li class="flex items-center gap-1.5">
+            <IconCheck size={16} stroke={2.5} color="#00A86E" />
+            Consent-first, compliant by default
+          </li>
+        </ul>
+      )}
     </div>
 
     {showPanel && (
