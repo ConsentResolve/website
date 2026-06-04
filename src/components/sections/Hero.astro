@@ -37,6 +37,9 @@ interface Props {
   panelAlt?: string;
   /** Render the three-bullet trust line under the CTAs. Default true. */
   showTrustLine?: boolean;
+  /** Tighter vertical rhythm — smaller section padding, smaller gaps,
+   *  smaller margins between hero elements. Default false. */
+  compact?: boolean;
 }
 const {
   eyebrow = "For ad-buying contractors",
@@ -50,21 +53,31 @@ const {
   panelSrc,
   panelAlt = "",
   showTrustLine = true,
+  compact = false,
 } = Astro.props as Props;
+
+// Compact mode trims every vertical rhythm step in the hero.
+const sectionPad   = compact ? "py-12 md:py-16" : "section";
+const gridGap      = compact ? "gap-8 lg:gap-10" : "gap-16";
+const eyebrowMb    = compact ? "mb-4" : "mb-7";
+const titleMb      = compact ? "mb-4" : "mb-7";
+const subheadMb    = compact ? "mb-6" : "mb-10";
+const trustMt      = compact ? "mt-5" : "mt-8";
+const logoStripPad = compact ? "py-5" : "py-10";
 ---
 
 <section class="relative overflow-hidden">
   <!-- Ambient mint glow, top-left -->
   <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
 
-  <div class="container-content section relative grid items-center gap-16 lg:grid-cols-[1.05fr_1fr]">
+  <div class={`container-content ${sectionPad} relative grid items-center ${gridGap} lg:grid-cols-[1.05fr_1fr]`}>
     <div>
-      {eyebrow && <div class="mb-7"><Badge tone="brand" variant="soft" size="md" uppercase>{eyebrow}</Badge></div>}
-      <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
+      {eyebrow && <div class={eyebrowMb}><Badge tone="brand" variant="soft" size="md" uppercase>{eyebrow}</Badge></div>}
+      <h1 class={`display-1 ${titleMb} text-[color:var(--color-ink)]`}>
         {title}{" "}
         <span class="text-[color:var(--color-brand)] sm:block">{titleAccent}</span>
       </h1>
-      <p class="mb-10 max-w-xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">{subhead}</p>
+      <p class={`${subheadMb} max-w-xl text-lg leading-relaxed text-[color:var(--color-ink-2)]`}>{subhead}</p>
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
         <Button href={ctaHref} variant="primary" size="lg">
           {ctaLabel}
@@ -78,7 +91,7 @@ const {
 
       {showTrustLine && (
         <!-- Trust line -->
-        <ul class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[color:var(--color-ink-2)]">
+        <ul class={`${trustMt} flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[color:var(--color-ink-2)]`}>
           <li class="flex items-center gap-1.5">
             <IconCheck size={16} stroke={2.5} color="#00A86E" />
             $7 per recovered lead, never resold
@@ -122,7 +135,7 @@ const {
 
   <!-- Integration logo strip -->
   <div class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg)]">
-    <div class="container-content py-10">
+    <div class={`container-content ${logoStripPad}`}>
       <LogoCarousel logos={integrations} label="Pushes leads straight to" variant="marquee" speed={45} />
     </div>
   </div>
