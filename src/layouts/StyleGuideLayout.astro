@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
 import { STYLE_GUIDE, getNeighbors } from "~/lib/styleGuide";
 import { IconArrowLeft, IconArrowRight, IconHash } from "@tabler/icons-react";
 
@@ -59,7 +60,7 @@ const neighbors = slug ? getNeighbors(slug) : { prev: null, next: null };
       <!-- Content -->
       <article class="min-w-0">
         <header class="mb-10 border-b border-[color:var(--color-rule)] pb-8">
-          <p class="eyebrow mb-3">{eyebrow}</p>
+          <div class="mb-3"><Badge tone="brand" variant="soft" size="md" uppercase>{eyebrow}</Badge></div>
           <h1 class="font-display text-4xl font-bold tracking-tight text-[color:var(--color-ink)] md:text-5xl">{title}</h1>
           <p class="mt-3 max-w-2xl text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{description}</p>
         </header>

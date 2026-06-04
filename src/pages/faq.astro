@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
 import FAQ from "~/components/sections/FAQ.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import { breadcrumbSchema, faqSchema } from "~/lib/seo";
@@ -36,7 +37,7 @@ const schemas = [
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
     <div class="container-content section relative">
       <div class="mx-auto max-w-3xl text-center">
-        <p class="eyebrow mb-7 justify-center">Frequently asked</p>
+        <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Frequently asked</Badge></div>
         <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
           The straight answers,<br/>
           <span class="text-[color:var(--color-brand)]">no sales script.</span>

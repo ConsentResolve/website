@@ -2,12 +2,13 @@
 import Illustration from "~/components/Illustration.astro";
 import List from "~/components/ui/List.astro";
 import Callout from "~/components/ui/Callout.astro";
+import Badge from "~/components/ui/Badge.astro";
 ---
 
 <section class="section bg-[color:var(--color-bg-alt)]">
   <div class="container-content grid items-center gap-16 md:grid-cols-[1fr_1fr]">
     <div>
-      <p class="eyebrow mb-5">Compliance</p>
+      <div class="mb-5"><Badge tone="brand" variant="soft" size="md" uppercase>Compliance</Badge></div>
       <h2 class="display-2 mb-6 text-[color:var(--color-ink)]">
         Legal by default. Receipts for everything.
       </h2>

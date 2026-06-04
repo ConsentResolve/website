@@ -20,6 +20,7 @@
  * keep schema generation explicit at the page level.
  */
 import AccordionLarge from "~/components/ui/AccordionLarge.tsx";
+import Badge from "~/components/ui/Badge.astro";
 
 export interface FAQItem {
   question: string;
@@ -41,7 +42,7 @@ const { eyebrow = "Common questions", headline, items, defaultOpen = 0 } = Astro
 <section class="section section-dark">
   <div class="container-content max-w-4xl">
     <div class="mb-14 text-center">
-      <p class="eyebrow mb-6 justify-center" style="color:var(--color-mint-400)">{eyebrow}</p>
+      <div class="mb-6 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>{eyebrow}</Badge></div>
       <h2 class="display-2 text-white">{headline}</h2>
     </div>
     <div class="rounded-3xl bg-[color:var(--color-bg-alt)] p-5 ring-1 ring-inset ring-white/10 shadow-[0_30px_60px_-30px_rgba(10,22,40,0.6)]">

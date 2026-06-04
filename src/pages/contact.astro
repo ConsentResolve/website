@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
 import { IconMail, IconPhone, IconClock, IconArrowRight } from "@tabler/icons-react";
 import { breadcrumbSchema } from "~/lib/seo";
 import { SITE } from "~/lib/site";
@@ -21,7 +22,7 @@ const schemas = [
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
     <div class="container-content section relative">
       <div class="mx-auto max-w-3xl text-center">
-        <p class="eyebrow mb-7 justify-center">Contact</p>
+        <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Contact</Badge></div>
         <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
           Talk to a human.
         </h1>

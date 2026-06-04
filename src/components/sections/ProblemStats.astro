@@ -1,6 +1,7 @@
 ---
 import Funnel from "~/components/ui/Funnel.astro";
 import AnimatedStat from "~/components/ui/AnimatedStat.tsx";
+import Badge from "~/components/ui/Badge.astro";
 import { IconUserOff, IconUsersGroup, IconCoin } from "@tabler/icons-react";
 ---
 
@@ -12,7 +13,7 @@ import { IconUserOff, IconUsersGroup, IconCoin } from "@tabler/icons-react";
     <!-- Header row: headline LEFT, ghost-in-a-browser Recraft illustration RIGHT -->
     <div class="mb-14 grid items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
       <div class="max-w-2xl">
-        <p class="eyebrow mb-5" style="color:var(--color-mint-400)">The problem</p>
+        <div class="mb-5"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>The problem</Badge></div>
         <h2 class="display-2 text-white">
           Every visitor who leaves without a name is a job you didn't win.
         </h2>

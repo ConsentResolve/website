@@ -1,5 +1,6 @@
 ---
 import DashboardScreen from "~/components/ui/demo/DashboardScreen.astro";
+import Badge from "~/components/ui/Badge.astro";
 import { IconArrowRight, IconEye, IconShieldCheck, IconBolt } from "@tabler/icons-react";
 ---
 
@@ -11,7 +12,7 @@ import { IconArrowRight, IconEye, IconShieldCheck, IconBolt } from "@tabler/icon
   <div class="container-content relative">
     <!-- Header -->
     <div class="mx-auto mb-12 max-w-2xl text-center">
-      <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">A look at the dashboard</p>
+      <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>A look at the dashboard</Badge></div>
       <h2 class="display-2 text-white">
         See the 98% you'd otherwise lose.
       </h2>

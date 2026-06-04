@@ -101,7 +101,7 @@ const schemas = [
   <section class="section section-dark">
     <div class="container-content">
       <div class="mx-auto max-w-3xl text-center">
-        <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">The problem</p>
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>The problem</Badge></div>
         <h2 class="display-2 text-white">{feature.problem.headline}</h2>
         <p class="mt-6 text-lg leading-relaxed text-slate-300">{feature.problem.body}</p>
       </div>
@@ -112,7 +112,7 @@ const schemas = [
   <section class="section">
     <div class="container-content">
       <div class="mx-auto mb-14 max-w-2xl text-center">
-        <p class="eyebrow mb-5 justify-center">How it works</p>
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>How it works</Badge></div>
         <h2 class="display-2 text-[color:var(--color-ink)]">{feature.howItWorks.headline}</h2>
       </div>
       <div class="grid gap-6 md:grid-cols-3">
@@ -131,7 +131,7 @@ const schemas = [
   <section class="section bg-[color:var(--color-bg-alt)]">
     <div class="container-content">
       <div class="mx-auto mb-14 max-w-2xl text-center">
-        <p class="eyebrow mb-5 justify-center">What you get</p>
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>What you get</Badge></div>
         <h2 class="display-2 text-[color:var(--color-ink)]">{feature.benefits.headline}</h2>
       </div>
       <div class="grid gap-6 md:grid-cols-3">
@@ -150,7 +150,7 @@ const schemas = [
   <section class="section section-dark">
     <div class="container-content max-w-4xl">
       <div class="mx-auto mb-12 max-w-2xl text-center">
-        <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">What's included</p>
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>What's included</Badge></div>
         <h2 class="display-2 text-white">{feature.included.headline}</h2>
       </div>
       <ul class="grid gap-4 md:grid-cols-2">
@@ -181,7 +181,7 @@ const schemas = [
     <section class="section bg-[color:var(--color-bg-alt)]">
       <div class="container-content">
         <div class="mx-auto mb-12 max-w-2xl text-center">
-          <p class="eyebrow mb-5 justify-center">Pairs well with</p>
+          <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Pairs well with</Badge></div>
           <h2 class="display-2 text-[color:var(--color-ink)]">Stack {feature.name.toLowerCase()} with these.</h2>
         </div>
         <div class="grid gap-6 md:grid-cols-3">

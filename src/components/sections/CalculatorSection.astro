@@ -1,5 +1,6 @@
 ---
 import RecoveryCalculator from "~/components/ui/RecoveryCalculator.tsx";
+import Badge from "~/components/ui/Badge.astro";
 import { IconRefresh, IconCash, IconBolt } from "@tabler/icons-react";
 ---
 
@@ -11,7 +12,7 @@ import { IconRefresh, IconCash, IconBolt } from "@tabler/icons-react";
   <div class="container-content relative">
     <!-- Header -->
     <div class="mx-auto mb-12 max-w-2xl text-center">
-      <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">Run the numbers</p>
+      <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Run the numbers</Badge></div>
       <h2 class="display-2 text-white">
         What the 98% you're losing is worth.
       </h2>

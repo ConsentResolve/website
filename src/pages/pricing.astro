@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
 import Button from "~/components/ui/Button.astro";
 import FAQ from "~/components/sections/FAQ.astro";
 import AEOAnswer from "~/components/sections/AEOAnswer.astro";
@@ -78,7 +79,7 @@ const schemas = [
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
     <div class="container-content section relative">
       <div class="mx-auto max-w-3xl text-center">
-        <p class="eyebrow mb-7 justify-center">Pricing</p>
+        <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Pricing</Badge></div>
         <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
           Flat $7 per recovered lead.<br/>
           <span class="text-[color:var(--color-brand)]">Incremental on every channel you run.</span>
@@ -162,7 +163,7 @@ const schemas = [
   <section class="section bg-[color:var(--color-bg-alt)]">
     <div class="container-content">
       <div class="mx-auto mb-14 max-w-2xl text-center">
-        <p class="eyebrow mb-5 justify-center">Everything included</p>
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Everything included</Badge></div>
         <h2 class="display-2 text-[color:var(--color-ink)]">
           One price. The whole toolbox.
         </h2>
@@ -181,7 +182,7 @@ const schemas = [
   <section class="section">
     <div class="container-content">
       <div class="mx-auto max-w-3xl text-center">
-        <p class="eyebrow mb-5 justify-center">The right metric</p>
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>The right metric</Badge></div>
         <h2 class="display-2 text-[color:var(--color-ink)]">
           Cost-per-booked-job — not cost-per-lead.
         </h2>
@@ -222,7 +223,7 @@ const schemas = [
     <div class="container-content section">
       <div class="grid items-center gap-16 md:grid-cols-[1.1fr_1fr]">
         <div>
-          <p class="eyebrow mb-6">Get started today</p>
+          <div class="mb-6"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Get started today</Badge></div>
           <h2 class="display-1 mb-7 text-white">
             One price. One lead. Yours alone.
           </h2>

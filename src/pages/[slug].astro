@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
 import Button from "~/components/ui/Button.astro";
 import FeatureCard from "~/components/ui/FeatureCard.astro";
 import HowItWorks from "~/components/sections/HowItWorks.astro";
@@ -93,7 +94,7 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
     <div class="container-content section relative">
       <div class="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
-          <p class="eyebrow mb-7"><TradeIcon size={14} stroke={1.75} /> {trade.name}</p>
+          <div class="mb-7"><Badge tone="brand" variant="soft" size="md" uppercase icon={TradeIcon}>{trade.name}</Badge></div>
           <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
             {trade.heroH1}
           </h1>
@@ -135,7 +136,7 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
   <section class="section section-dark">
     <div class="container-content">
       <div class="mx-auto max-w-3xl text-center">
-        <p class="eyebrow mb-5 justify-center" style="color:var(--color-mint-400)">The problem</p>
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>The problem</Badge></div>
         <h2 class="display-2 text-white">
           {trade.problem}
         </h2>
@@ -153,7 +154,7 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
   <section class="section">
     <div class="container-content">
       <div class="mx-auto mb-10 max-w-2xl text-center">
-        <p class="eyebrow mb-5 justify-center">Trade math</p>
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Trade math</Badge></div>
         <h2 class="display-2 text-[color:var(--color-ink)]">
           The recoverable revenue for a {trade.shortName.toLowerCase()} shop.
         </h2>
@@ -176,7 +177,7 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
   <section class="section bg-[color:var(--color-bg-alt)]">
     <div class="container-content">
       <div class="mx-auto mb-14 max-w-2xl text-center">
-        <p class="eyebrow mb-5 justify-center">Why it fits {trade.name.toLowerCase()}</p>
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Why it fits {trade.name.toLowerCase()}</Badge></div>
         <h2 class="display-2 text-[color:var(--color-ink)]">
           The three things that move the needle for your trade.
         </h2>

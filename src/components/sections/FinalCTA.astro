@@ -1,5 +1,6 @@
 ---
 import Button from "~/components/ui/Button.astro";
+import Badge from "~/components/ui/Badge.astro";
 import { IconArrowRight, IconBolt, IconCash, IconLock, IconCheck } from "@tabler/icons-react";
 
 interface Props {
@@ -22,7 +23,7 @@ const {
   <div class="container-content section">
     <div class="grid items-center gap-16 md:grid-cols-[1.1fr_1fr]">
       <div>
-        <p class="eyebrow mb-6">Get started today</p>
+        <div class="mb-6"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Get started today</Badge></div>
         <h2 class="display-1 mb-7 text-white">{heading}</h2>
         <p class="mb-10 max-w-xl text-lg leading-relaxed text-slate-300">{body}</p>
         <Button

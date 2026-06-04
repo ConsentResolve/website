@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
 import HowItWorks from "~/components/sections/HowItWorks.astro";
 import ProductTour from "~/components/sections/ProductTour.astro";
 import IllustrationCard from "~/components/ui/IllustrationCard.astro";
@@ -38,7 +39,7 @@ const howTo = howToSchema({
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
     <div class="container-content section relative">
       <div class="mx-auto max-w-3xl text-center">
-        <p class="eyebrow mb-7 justify-center">How it works</p>
+        <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>How it works</Badge></div>
         <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
           From an anonymous bounce to an inbound call —<br/>
           <span class="text-[color:var(--color-brand)]">in four steps. No new ad spend.</span>
@@ -76,7 +77,7 @@ const howTo = howToSchema({
   <section class="section">
     <div class="container-content">
       <div class="mb-14 text-center">
-        <p class="eyebrow mb-5 justify-center">What makes it different</p>
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>What makes it different</Badge></div>
         <h2 class="display-2 mx-auto max-w-2xl text-[color:var(--color-ink)]">
           The three things every other lead tool gets wrong.
         </h2>
