@@ -6,15 +6,18 @@ import Badge from "~/components/ui/Badge.astro";
 import LogoCarousel from "~/components/ui/LogoCarousel.astro";
 import { IconArrowRight, IconEye, IconCheck } from "@tabler/icons-react";
 
+// Real SVG wordmarks where we have them (under /public/logos/integrations/);
+// Jobber + Klaviyo don't publish public SVG brand assets, so they render as
+// the LogoCarousel's styled-text fallback (font-display, bold).
 const integrations = [
   { name: "Jobber" },
-  { name: "Housecall Pro" },
-  { name: "ServiceTitan" },
-  { name: "HubSpot" },
-  { name: "Salesforce" },
-  { name: "Slack" },
-  { name: "Zapier" },
+  { name: "Housecall Pro", logo: "/logos/integrations/housecallpro.svg" },
+  { name: "ServiceTitan",  logo: "/logos/integrations/servicetitan.svg" },
+  { name: "HubSpot",       logo: "/logos/integrations/hubspot.svg" },
   { name: "Klaviyo" },
+  { name: "Salesforce",    logo: "/logos/integrations/salesforce.svg" },
+  { name: "Slack",         logo: "/logos/integrations/slack.svg" },
+  { name: "Zapier",        logo: "/logos/integrations/zapier.svg" },
 ];
 
 interface Props {
