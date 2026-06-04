@@ -48,8 +48,8 @@ import {
 
 import {
   IconArrowRight, IconCheck, IconLock, IconUserCheck, IconBolt,
-  IconUserOff, IconCoin, IconAlertTriangle, IconCash,
-  IconShieldCheck, IconPlugConnected, IconClipboardCheck, IconWorld,
+  IconUserOff, IconCoin, IconAlertTriangle,
+  IconShieldCheck, IconPlugConnected, IconClipboardCheck,
   IconRefresh, IconMessage, IconBellRinging,
   IconX, IconCircleCheck, IconEye, IconBuilding,
 } from "@tabler/icons-react";
@@ -124,84 +124,91 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
         </h2>
       </div>
 
-      {/* Steps strip — 5 nodes connected by hairline arrows on desktop;
-          stacks vertically on mobile with a thin connector line. */}
-      <ol class="mx-auto grid max-w-6xl items-start gap-y-8 md:grid-cols-9 md:gap-y-0">
+      {/* Steps strip — 5 illustrated nodes connected by mint arrows on
+          desktop; stacks vertically on mobile (arrows hidden). Each
+          node has a numbered chip, a brand-locked Recraft SVG, a
+          headline label, and a 1-line blurb. */}
+      <ol class="mx-auto grid max-w-6xl items-start gap-y-10 md:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr_auto_1fr] md:gap-y-0">
 
-        {/* Step 1 — Homeowner visits site */}
-        <li class="relative flex flex-col items-center text-center md:col-span-1">
+        {/* Step 1 — Homeowner visits website */}
+        <li class="relative flex flex-col items-center text-center">
           <div class="relative">
-            <span class="absolute -top-2 -right-2 z-10 flex size-6 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[11px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)]">1</span>
-            <div class="inline-flex size-16 items-center justify-center rounded-2xl bg-[color:var(--color-brand)] shadow-[0_18px_36px_-12px_rgba(0,229,160,0.5)]">
-              <IconWorld size={28} stroke={2} color="#0A1628" />
+            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[12px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]">1</span>
+            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-brand-soft)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]">
+              <img src="/illustrations/steps/01-homeowner-visit.svg" alt="A homeowner browsing a contractor's website" class="h-20 w-20" loading="lazy" decoding="async" />
             </div>
           </div>
           <p class="mt-4 font-display text-[15px] font-bold leading-tight tracking-tight text-[color:var(--color-ink)]">Homeowner visits<br/>your website</p>
+          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">From a Google ad, LSA, or just searching your town.</p>
         </li>
 
         {/* Connector 1→2 */}
-        <li aria-hidden="true" class="hidden items-center justify-center md:col-span-1 md:flex">
-          <IconArrowRight size={22} stroke={1.75} class="text-[color:var(--color-mint-400)]" />
+        <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
+          <IconArrowRight size={24} stroke={2} class="text-[color:var(--color-mint-400)]" />
         </li>
 
         {/* Step 2 — We handle consent */}
-        <li class="relative flex flex-col items-center text-center md:col-span-1">
+        <li class="relative flex flex-col items-center text-center">
           <div class="relative">
-            <span class="absolute -top-2 -right-2 z-10 flex size-6 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[11px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)]">2</span>
-            <div class="inline-flex size-16 items-center justify-center rounded-2xl bg-[color:var(--color-brand)] shadow-[0_18px_36px_-12px_rgba(0,229,160,0.5)]">
-              <IconShieldCheck size={28} stroke={2} color="#0A1628" />
+            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[12px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]">2</span>
+            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-brand-soft)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]">
+              <img src="/illustrations/steps/02-we-handle-consent.svg" alt="A consent banner with a shield checkmark badge" class="h-20 w-20" loading="lazy" decoding="async" />
             </div>
           </div>
           <p class="mt-4 font-display text-[15px] font-bold leading-tight tracking-tight text-[color:var(--color-ink)]">We handle<br/>consent</p>
+          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">Our banner asks. Your privacy policy stays current — Termageddon-backed.</p>
         </li>
 
         {/* Connector 2→3 */}
-        <li aria-hidden="true" class="hidden items-center justify-center md:col-span-1 md:flex">
-          <IconArrowRight size={22} stroke={1.75} class="text-[color:var(--color-mint-400)]" />
+        <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
+          <IconArrowRight size={24} stroke={2} class="text-[color:var(--color-mint-400)]" />
         </li>
 
         {/* Step 3 — Homeowner accepts cookie */}
-        <li class="relative flex flex-col items-center text-center md:col-span-1">
+        <li class="relative flex flex-col items-center text-center">
           <div class="relative">
-            <span class="absolute -top-2 -right-2 z-10 flex size-6 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[11px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)]">3</span>
-            <div class="inline-flex size-16 items-center justify-center rounded-2xl bg-[color:var(--color-brand)] shadow-[0_18px_36px_-12px_rgba(0,229,160,0.5)]">
-              <IconCircleCheck size={28} stroke={2} color="#0A1628" />
+            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[12px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]">3</span>
+            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-brand-soft)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]">
+              <img src="/illustrations/steps/03-homeowner-accepts.svg" alt="A hand pressing accept on a cookie consent banner" class="h-20 w-20" loading="lazy" decoding="async" />
             </div>
           </div>
           <p class="mt-4 font-display text-[15px] font-bold leading-tight tracking-tight text-[color:var(--color-ink)]">Homeowner<br/>accepts cookie</p>
+          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">No yes, no data. That's what keeps you on the right side of the rules.</p>
         </li>
 
         {/* Connector 3→4 */}
-        <li aria-hidden="true" class="hidden items-center justify-center md:col-span-1 md:flex">
-          <IconArrowRight size={22} stroke={1.75} class="text-[color:var(--color-mint-400)]" />
+        <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
+          <IconArrowRight size={24} stroke={2} class="text-[color:var(--color-mint-400)]" />
         </li>
 
         {/* Step 4 — We feed contact to funnel */}
-        <li class="relative flex flex-col items-center text-center md:col-span-1">
+        <li class="relative flex flex-col items-center text-center">
           <div class="relative">
-            <span class="absolute -top-2 -right-2 z-10 flex size-6 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[11px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)]">4</span>
-            <div class="inline-flex size-16 items-center justify-center rounded-2xl bg-[color:var(--color-brand)] shadow-[0_18px_36px_-12px_rgba(0,229,160,0.5)]">
-              <IconPlugConnected size={28} stroke={2} color="#0A1628" />
+            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[12px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]">4</span>
+            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-brand-soft)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]">
+              <img src="/illustrations/steps/04-feed-to-funnel.svg" alt="A contact card sliding into a CRM inbox" class="h-20 w-20" loading="lazy" decoding="async" />
             </div>
           </div>
           <p class="mt-4 font-display text-[15px] font-bold leading-tight tracking-tight text-[color:var(--color-ink)]">We feed contact<br/>to your funnel</p>
+          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">Lands in Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo — in seconds.</p>
         </li>
 
-        {/* Final reward connector — slightly heavier, signals payoff */}
-        <li aria-hidden="true" class="hidden items-center justify-center md:col-span-1 md:flex">
-          <IconArrowRight size={22} stroke={2.5} class="text-[color:var(--color-brand-pressed)]" />
+        {/* Final reward connector — heavier, brand-pressed, signals the payoff */}
+        <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
+          <IconArrowRight size={26} stroke={2.5} class="text-[color:var(--color-brand-pressed)]" />
         </li>
 
-        {/* Step 5 — Outcome: more calls, more jobs */}
-        <li class="relative flex flex-col items-center text-center md:col-span-1">
+        {/* Step 5 — Outcome */}
+        <li class="relative flex flex-col items-center text-center">
           <div class="relative">
-            <span class="absolute -top-2 -right-2 z-10 flex size-6 items-center justify-center rounded-full bg-[color:var(--color-mint-400)] font-display text-[11px] font-black text-[color:var(--color-navy-900)] ring-2 ring-[color:var(--color-bg)]">5</span>
-            {/* Inverted look on the final step — solid navy tile with mint icon — signals the payoff */}
-            <div class="inline-flex size-16 items-center justify-center rounded-2xl bg-[color:var(--color-navy-900)] shadow-[0_18px_36px_-12px_rgba(10,22,40,0.45)]">
-              <IconCash size={28} stroke={2} color="#00E5A0" />
+            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-mint-400)] font-display text-[12px] font-black text-[color:var(--color-navy-900)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,229,160,0.5)]">5</span>
+            {/* Inverted tile on the final step — solid navy with a brand-soft inner panel for the illustration to read — signals the payoff. */}
+            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-navy-900)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/40 shadow-[0_18px_36px_-18px_rgba(10,22,40,0.45)]">
+              <img src="/illustrations/steps/05-more-calls-more-jobs.svg" alt="A service pro answering a ringing phone" class="h-20 w-20" loading="lazy" decoding="async" />
             </div>
           </div>
           <p class="mt-4 font-display text-[15px] font-black leading-tight tracking-tight text-[color:var(--color-ink)]">More calls.<br/>More jobs.</p>
+          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">Warm inbound calls from homeowners who already saw you in their inbox.</p>
         </li>
       </ol>
     </div>
