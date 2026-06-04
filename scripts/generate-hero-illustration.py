@@ -9,6 +9,7 @@ linework, substyle, and shading; only the prompt SCENE changes.
 Output: public/illustrations/hero/protagonist.{svg|png}
 """
 import json
+import re
 import sys
 import urllib.request
 import urllib.error
@@ -25,20 +26,21 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 STYLE_ID = "214dccd1-dca3-43e6-b005-c664e1b33338"
 
 PROMPT = (
-    "A friendly service pro in his 30s, ball cap, work shirt, tool belt, "
-    "stands beside a work truck with a ladder rack — mid-stride to the "
-    "driver's door, holding up a smartphone with a confident half-smile. "
-    "The phone screen shows a lead card built from icons only: a round "
-    "person avatar, a phone handset, a map pin, a checkmark badge. "
-    "Floating beside the phone, a faceless silhouette transforming from "
-    "a dim desaturated tone into bright brand color — the recovered "
-    "lead. Far background, small and faint: two faceless silhouettes "
-    "drift off the edge of a browser-window shape — the bounce. A low "
-    "sunrise arc rises behind the truck. Protagonist large and "
-    "dominant, background tiny. Square 1:1 with generous margins.\n\n"
-    "Negative: no text, no numbers, no surveillance imagery, no "
-    "magnifying glass on a person, faceless figures stay faceless, "
-    "only the protagonist has a face, no logos."
+    "Foreground: a friendly service pro in his 30s, ball cap, work shirt, "
+    "tool belt — mid-stride, holding up a smartphone with a confident "
+    "half-smile. The phone screen shows a lead card built from icons "
+    "only: a round person avatar, a phone handset, a map pin, a "
+    "checkmark badge. Beside the phone, a faceless silhouette is "
+    "transforming from a dim tone into bright brand color — the "
+    "recovered lead.\n\n"
+    "Background: a generic service pro work truck (pickup or van with "
+    "ladder rack and side tool box) parked behind the protagonist, "
+    "smaller. Further back, small and faint, two faceless silhouettes "
+    "drift off a browser-window shape — the bounce. A low sunrise arc "
+    "rises behind the truck. Protagonist dominant. Square 1:1.\n\n"
+    "Negative: no text, no numbers, no surveillance, no magnifying "
+    "glass, faceless figures stay faceless, only the protagonist has "
+    "a face, no logos, transparent background."
 )
 
 
@@ -78,6 +80,23 @@ def main():
         blob = r.read()
     head = blob[:8]
     ext = "svg" if head.startswith(b"<svg") or b"<?xml" in head else ("png" if head.startswith(b"\x89PNG") else "bin")
+
+    # Recraft always bakes a full-canvas white rect as the first path
+    # element. Strip it so the SVG can sit on any background colour.
+    if ext == "svg":
+        text = blob.decode("utf-8")
+        # Match any <path ... fill="rgb(255,255,255)" ...></path> whose
+        # d-attribute covers the full 2048×2048 canvas (the canonical
+        # Recraft background path).
+        pat = re.compile(
+            r'<path[^>]*\bd="M\s*0\s+0[^"]+2048[^"]+z"[^>]*fill="rgb\(255,\s*255,\s*255\)"[^>]*></path>\s*',
+            re.IGNORECASE,
+        )
+        new_text, n = pat.subn("", text, count=1)
+        if n:
+            print(f"  stripped {n} white background rect")
+            blob = new_text.encode("utf-8")
+
     out = OUT_DIR / f"protagonist.{ext}"
     out.write_bytes(blob)
     print(f"  saved {out.relative_to(ROOT)} ({len(blob)//1024} KB)")
