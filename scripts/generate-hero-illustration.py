@@ -2,11 +2,11 @@
 """
 One-off Recraft generator for the v2 hero illustration.
 
-Uses the user-provided palette (forest green + sage + pale mint) — NOT the
-live brand mint/navy palette — because the hero illustration is a stylistic
-hero piece, not part of the feature/trade SVG library.
+Uses the LOCKED brand Style ID — same one driving every other site
+illustration (features, trades, HowItWorks). The Brand Style fixes palette,
+linework, substyle, and shading; only the prompt SCENE changes.
 
-Output: public/illustrations/hero/protagonist.svg
+Output: public/illustrations/hero/protagonist.{svg|png}
 """
 import json
 import sys
@@ -19,33 +19,26 @@ KEY = (Path.home() / ".config" / "recraft" / "key").read_text().strip()
 OUT_DIR = ROOT / "public" / "illustrations" / "hero"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# User-specified palette
-PALETTE = [
-    {"rgb": [20, 39, 28]},     # #14271C  near-black forest green (outlines)
-    {"rgb": [95, 185, 140]},   # #5FB98C  primary sage green
-    {"rgb": [188, 227, 203]},  # #BCE3CB  pale mint / celadon
-    {"rgb": [27, 58, 42]},     # #1B3A2A  deep forest green (shadows)
-    {"rgb": [255, 255, 255]},  # white — inner highlights only
-    {"rgb": [156, 163, 175]},  # #9CA3AF  flat neutral gray — anonymous figures only
-]
+# Locked Consent Resolve brand style — same one used by every other
+# Recraft-generated illustration on the site. When style_id is set,
+# Recraft ignores style/substyle/colors and renders in this brand.
+STYLE_ID = "214dccd1-dca3-43e6-b005-c664e1b33338"
 
 PROMPT = (
-    "Hand-inked marker illustration, transparent background. Thick rough "
-    "outlines with occasional doubled 'ghost' strokes. Flat color fills. "
-    "Flat hard-edged drop shadows offset down-right. Rounded organic forms. "
-    "No gradients, no 3D. Square 1:1.\n\n"
-    "Scene: A friendly service pro in his 30s, ball cap and work shirt and "
-    "tool belt, beside a work truck with a ladder rack, mid-stride to the "
+    "A friendly service pro in his 30s, ball cap, work shirt, tool belt, "
+    "stands beside a work truck with a ladder rack — mid-stride to the "
     "driver's door, holding up a smartphone with a confident half-smile. "
-    "Phone screen shows a lead card built from icons only — round person "
-    "avatar, phone handset, map pin, checkmark badge. Beside the phone, a "
-    "faceless gray silhouette transforming into sage green: the recovered "
-    "lead. Far background: two faceless gray silhouettes drifting off a "
-    "small browser-window shape. Low sunrise arc behind the truck. "
-    "Protagonist dominant, background tiny.\n\n"
-    "Negative: no text, no numbers, no logos, no surveillance imagery, no "
-    "magnifying glass, gray figures stay faceless, only the protagonist "
-    "has a face."
+    "The phone screen shows a lead card built from icons only: a round "
+    "person avatar, a phone handset, a map pin, a checkmark badge. "
+    "Floating beside the phone, a faceless silhouette transforming from "
+    "a dim desaturated tone into bright brand color — the recovered "
+    "lead. Far background, small and faint: two faceless silhouettes "
+    "drift off the edge of a browser-window shape — the bounce. A low "
+    "sunrise arc rises behind the truck. Protagonist large and "
+    "dominant, background tiny. Square 1:1 with generous margins.\n\n"
+    "Negative: no text, no numbers, no surveillance imagery, no "
+    "magnifying glass on a person, faceless figures stay faceless, "
+    "only the protagonist has a face, no logos."
 )
 
 
@@ -53,19 +46,14 @@ def main():
     body = {
         "prompt": PROMPT,
         "model": "recraftv3",
-        # digital_illustration + hand_drawn is the closest Recraft substyle
-        # to the user's "hand-inked marker style" brief. (vector_illustration
-        # no longer accepts hand_drawn/marker substyles; allowed vector subs
-        # are line_art / linocut / engraving — none of which match.) Output
-        # is PNG instead of SVG; fine for a single hero asset.
-        "style": "digital_illustration",
-        "substyle": "hand_drawn",
-        "colors": PALETTE,
+        # Locked brand Style ID — same one every other site illustration
+        # uses. Overrides style/substyle/colors with the saved Brand Style.
+        "style_id": STYLE_ID,
         "size": "1024x1024",
         "n": 1,
         "response_format": "url",
     }
-    print("→ POST Recraft (digital_illustration / hand_drawn, custom 6-color palette)...", flush=True)
+    print(f"→ POST Recraft (Brand Style {STYLE_ID[:8]}…)...", flush=True)
     req = urllib.request.Request(
         "https://external.api.recraft.ai/v1/images/generations",
         data=json.dumps(body).encode("utf-8"),
