@@ -1,0 +1,30 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import AuthorityStrip from "~/components/sections/AuthorityStrip.tsx";
+---
+
+<StyleGuideLayout
+  slug="authority-strip"
+  title="Authority Strip"
+  description="Scrolling row of founder credential cards used on /about/. Tap any card to expand it into a drawer with the full credential detail ('Capitol Hill testimony', '50+ acquisitions', etc.) and a LinkedIn link to the source person."
+>
+  <section class="sg-section">
+    <h2>Default</h2>
+    <p class="sg-lede">React island — hydrate with <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">client:visible</code>.</p>
+    <div class="sg-preview" style="padding:0">
+      <AuthorityStrip client:visible />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Usage</h2>
+    <p class="sg-lede">Pulls the credential set from <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">src/data/team.ts</code> (each TeamMember has an <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">authorityCredentials</code> array).</p>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`---
+import AuthorityStrip from "~/components/sections/AuthorityStrip.tsx";
+---
+
+<AuthorityStrip client:visible />`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

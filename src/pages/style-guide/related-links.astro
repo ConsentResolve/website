@@ -1,0 +1,50 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import RelatedLinks from "~/components/sections/RelatedLinks.astro";
+---
+
+<StyleGuideLayout
+  slug="related-links"
+  title="Related Links"
+  description="Small linked-card grid for 'you might also want to read' tail sections. Each card: title + 1-line description + arrow. Used at the bottom of feature, industry, and compare detail pages to keep the visitor moving through the site."
+>
+  <section class="sg-section">
+    <h2>Default — 3-card</h2>
+    <div class="sg-preview" style="padding:0">
+      <RelatedLinks
+        links={[
+          { label: "How it works",     note: "The 4-step recovery flow, from anonymous bounce to inbound call.", href: "/how-it-works/" },
+          { label: "Pricing",          note: "Flat $7 per recovered lead. Card on file, no contract.",          href: "/pricing/" },
+          { label: "Channel ROI math", note: "What recovery does to your cost per booked job, by channel.",     href: "/compare/" },
+        ]}
+      />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Custom heading</h2>
+    <div class="sg-preview" style="padding:0">
+      <RelatedLinks
+        heading="See it for your trade"
+        links={[
+          { label: "Plumber leads",   href: "/plumber-leads/" },
+          { label: "Roofing leads",   href: "/roofing-leads/" },
+          { label: "HVAC leads",      href: "/hvac-leads/" },
+        ]}
+      />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Props</h2>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`<RelatedLinks
+  heading="Related"                      {/* default */}
+  links={[
+    { label: "How it works", note: "…", href: "/how-it-works/" },
+    { label: "Pricing",      note: "…", href: "/pricing/" },
+  ]}
+/>`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

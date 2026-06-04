@@ -1,0 +1,29 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import ProductShowcase from "~/components/sections/ProductShowcase.astro";
+---
+
+<StyleGuideLayout
+  slug="product-showcase"
+  title="Product Showcase"
+  description="Big dashboard-chrome reveal section. Wraps DashboardScreen (which already includes its DemoChrome) in a glass frame with a mint floor-glow + two corner chips ('Live resolutions' + 'Consent-logged'). The 'sexy product visual' moment."
+>
+  <section class="sg-section">
+    <h2>Default</h2>
+    <div class="sg-preview" style="padding:0">
+      <ProductShowcase />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Usage</h2>
+    <p class="sg-lede">No props — composes <a href="/style-guide/product-demo/" class="text-[color:var(--color-brand-pressed)] underline-offset-2 hover:underline">Product Demo Screens</a> internally. The chrome is ~720px tall — consider the compact 3-tile alternative inline if vertical real estate is tight.</p>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`---
+import ProductShowcase from "~/components/sections/ProductShowcase.astro";
+---
+
+<ProductShowcase />`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

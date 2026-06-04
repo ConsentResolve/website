@@ -1,0 +1,40 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+---
+
+<StyleGuideLayout
+  slug="final-cta"
+  title="Final CTA"
+  description="Closing dark section. Two-column layout: headline + body + primary CTA on the left, $7 + 'Exclusive' + 'No contract' metric anchors on the right. Every page ends with this so the activation path is the last thing on screen."
+>
+  <section class="sg-section">
+    <h2>Default</h2>
+    <div class="sg-preview" style="padding:0">
+      <FinalCTA />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Custom heading + body (industry page)</h2>
+    <div class="sg-preview" style="padding:0">
+      <FinalCTA
+        heading="Your next roof job is already pricing on your site."
+        body="Go get it. Flat $7 a lead — yours alone, never resold. Drop into your existing CRM and ad funnels. Cancel anytime."
+        ctaLabel="See my hidden leads"
+      />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Props</h2>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`<FinalCTA
+  heading="Your next job is already shopping your site."
+  body="Go get it. Flat \$7 per lead — yours alone, never resold."
+  ctaLabel="Get Started"
+  ctaHref="https://dashboard.consentresolve.com/register"
+/>`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

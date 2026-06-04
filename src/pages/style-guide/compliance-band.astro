@@ -1,0 +1,29 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import ComplianceBand from "~/components/sections/ComplianceBand.astro";
+---
+
+<StyleGuideLayout
+  slug="compliance-band"
+  title="Compliance Band"
+  description="Trust band that lives near the tail of every page — privacy / consent-first / GDPR + CCPA / Termageddon. Reinforces the legal-defensibility story without scaring anyone (voice canon: opportunity leads, compliance is the relief at the end of the page)."
+>
+  <section class="sg-section">
+    <h2>Default</h2>
+    <div class="sg-preview" style="padding:0">
+      <ComplianceBand />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Usage</h2>
+    <p class="sg-lede">No props — content is hard-coded so the trust story stays identical across the site. Drop it in just before <a href="/style-guide/faq/" class="text-[color:var(--color-brand-pressed)] underline-offset-2 hover:underline">FAQ Section</a> and <a href="/style-guide/aeo-answer/" class="text-[color:var(--color-brand-pressed)] underline-offset-2 hover:underline">AEO Answer</a>.</p>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`---
+import ComplianceBand from "~/components/sections/ComplianceBand.astro";
+---
+
+<ComplianceBand />`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

@@ -1,0 +1,43 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import TeamCard from "~/components/ui/TeamCard.astro";
+import { TEAM } from "~/data/team";
+---
+
+<StyleGuideLayout
+  slug="team-card"
+  title="Team Card"
+  description="Founder / team member card used on /about/. Photo (or initials avatar) + name + role + tagline badge + bio + LinkedIn link. Pass a TeamMember from src/data/team.ts."
+>
+  <section class="sg-section">
+    <h2>Default — site team grid</h2>
+    <p class="sg-lede">Renders the full <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">TEAM[]</code> data in the 1/2/3-column layout used on /about/.</p>
+    <div class="sg-preview">
+      <div class="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+        {TEAM.map((m) => <TeamCard member={m} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Initials fallback</h2>
+    <p class="sg-lede">If <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">member.photo</code> is missing, the card renders a navy initials avatar (mint text on dark background).</p>
+    <div class="sg-preview">
+      <p class="text-sm text-[color:var(--color-ink-2)]">Visible above on any TEAM member whose <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">photo</code> is unset.</p>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Usage</h2>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`---
+import TeamCard from "~/components/ui/TeamCard.astro";
+import { TEAM } from "~/data/team";
+---
+
+<div class="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+  {TEAM.map((m) => <TeamCard member={m} />)}
+</div>`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

@@ -1,0 +1,82 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import StepFlow from "~/components/ui/StepFlow.astro";
+import { IconWorld, IconShieldCheck, IconCircleCheck, IconPlugConnected, IconBellRinging } from "@tabler/icons-react";
+---
+
+<StyleGuideLayout
+  slug="step-flow"
+  title="Step Flow"
+  description="Horizontal numbered step strip with optional illustrated nodes. Reads left-to-right on md+ (step columns + mint arrow connectors); stacks vertically on mobile. Mark the final step `highlight: true` to invert it into a navy 'payoff' tile."
+>
+  <section class="sg-section">
+    <h2>Illustrated (homepage / how-it-works)</h2>
+    <p class="sg-lede">Pass a Recraft SVG path per step. Final step has <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">highlight: true</code> so it inverts to a navy tile + mint chip.</p>
+    <div class="sg-preview">
+      <StepFlow
+        eyebrow="How it works in five"
+        title="Five steps. One outcome."
+        titleAccent="More calls. More jobs."
+        steps={[
+          { illustration: "/illustrations/steps/01-homeowner-visit.svg",        alt: "Homeowner browsing a site",  title: "Homeowner visits<br/>your website", blurb: "From a Google ad, LSA, or just searching your town." },
+          { illustration: "/illustrations/steps/02-we-handle-consent.svg",      alt: "Consent banner",             title: "We handle<br/>consent",             blurb: "Termageddon-backed privacy policy." },
+          { illustration: "/illustrations/steps/03-homeowner-accepts.svg",      alt: "Hand pressing accept",       title: "Homeowner<br/>accepts cookie",      blurb: "No yes, no data." },
+          { illustration: "/illustrations/steps/04-feed-to-funnel.svg",         alt: "Card into inbox",            title: "We feed contact<br/>to your funnel", blurb: "Lands in your CRM in seconds." },
+          { illustration: "/illustrations/steps/05-more-calls-more-jobs.svg",   alt: "Service pro answering call", title: "More calls.<br/>More jobs.",        blurb: "Warm inbound calls.", highlight: true },
+        ]}
+      />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Icon-only (no illustrations available)</h2>
+    <p class="sg-lede">Drop in a Tabler icon per step if you don't have Recraft assets yet.</p>
+    <div class="sg-preview">
+      <StepFlow
+        eyebrow="Quick start"
+        title="Three steps to live."
+        steps={[
+          { Icon: IconWorld,          title: "Paste one<br/>line of code", blurb: "Universal snippet, any site builder." },
+          { Icon: IconShieldCheck,    title: "Banner asks for<br/>consent", blurb: "Privacy policy stays current." },
+          { Icon: IconCircleCheck,    title: "Leads flow<br/>into your funnel", blurb: "Jobber, HubSpot, Klaviyo, more.", highlight: true },
+        ]}
+      />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Bare (no section wrapper)</h2>
+    <p class="sg-lede">Set <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">bare</code> to skip the section + heading. Useful when you already have section chrome.</p>
+    <div class="sg-preview">
+      <StepFlow
+        bare
+        steps={[
+          { Icon: IconWorld,           title: "Visit" },
+          { Icon: IconShieldCheck,     title: "Consent" },
+          { Icon: IconPlugConnected,   title: "Funnel" },
+          { Icon: IconBellRinging,     title: "Call", highlight: true },
+        ]}
+      />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Usage</h2>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`---
+import StepFlow from "~/components/ui/StepFlow.astro";
+---
+
+<StepFlow
+  eyebrow="How it works in five"
+  title="Five steps. One outcome."
+  titleAccent="More calls. More jobs."
+  steps={[
+    { illustration: "/illustrations/steps/01-…svg", alt: "…", title: "Step 1<br/>label", blurb: "…" },
+    { illustration: "/illustrations/steps/02-…svg", alt: "…", title: "Step 2<br/>label" },
+    { illustration: "/illustrations/steps/05-…svg", alt: "…", title: "Payoff",  blurb: "…", highlight: true },
+  ]}
+/>`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

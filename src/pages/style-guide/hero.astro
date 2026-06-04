@@ -1,0 +1,70 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import Hero from "~/components/sections/Hero.astro";
+---
+
+<StyleGuideLayout
+  slug="hero"
+  title="Hero Section"
+  description="The site's primary hero. Two-column layout (text left, illustration / phone / animation panel right) with an eyebrow badge, two-line headline (ink + mint accent), subhead, and two CTAs. Configurable panel kind (lead-phone | lead-visit | illustration), optional trust line, and a compact density mode for tight homepages."
+>
+  <section class="sg-section">
+    <h2>Default (live homepage)</h2>
+    <p class="sg-lede">Illustration panel, compact mode, trust line off.</p>
+    <div class="sg-preview" style="padding:0">
+      <Hero
+        eyebrow="For ad-buying home-service contractors"
+        title="Turn Anonymous Homeowners"
+        titleAccent="Into New Jobs."
+        subhead="Most of the homeowners you pay for bounce without a trace. Consent Resolve recovers them — name and email, only after they consent — and feeds them straight into the retargeting, email, and CRM you already run."
+        ctaLabel="Activate your account"
+        panelKind="illustration"
+        panelSrc="/illustrations/hero/protagonist.svg"
+        panelAlt="A friendly service pro beside a work truck, holding up a phone showing a recovered lead."
+        showTrustLine={false}
+        compact={true}
+      />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Phone panel + trust line (v1 default)</h2>
+    <div class="sg-preview" style="padding:0">
+      <Hero panelKind="lead-phone" />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Animated reveal panel</h2>
+    <p class="sg-lede"><code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">panelKind="lead-visit"</code> — anonymous-browse → consent → contact-reveal 7s loop.</p>
+    <div class="sg-preview" style="padding:0">
+      <Hero
+        title="Recover the 98% your ads paid for."
+        titleAccent="Watch the reveal."
+        panelKind="lead-visit"
+        showTrustLine={false}
+        compact={true}
+      />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Props</h2>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`<Hero
+  eyebrow="…"
+  title="Ink line"
+  titleAccent="Mint accent line"      {/* drops to its own line on sm+ */}
+  subhead="…"
+  ctaLabel="Get Started"
+  ctaHref="https://dashboard.consentresolve.com/register"
+  showPanel={true}                     {/* render the right-side panel */}
+  panelKind="lead-phone"               {/* lead-phone | lead-visit | illustration */}
+  panelSrc="/illustrations/hero/…svg"  {/* only when panelKind="illustration" */}
+  panelAlt="…"
+  showTrustLine={true}                 {/* 3-bullet trust line under the CTAs */}
+  compact={false}                      {/* tighter vertical rhythm */}
+/>`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

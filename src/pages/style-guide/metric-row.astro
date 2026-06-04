@@ -1,0 +1,61 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import MetricRow from "~/components/ui/MetricRow.astro";
+import { IconCash, IconLock, IconCheck } from "@tabler/icons-react";
+---
+
+<StyleGuideLayout
+  slug="metric-row"
+  title="Metric Row"
+  description="Single horizontal row card: label on the left, big display value on the right. Stack 2-3 of them inside a dark CTA section to anchor a price / promise. Different from MetricCard (which is dashboard-oriented with sparkline + delta) — this is the headline-number-on-a-dark-band primitive."
+>
+  <section class="sg-section">
+    <h2>Dark CTA stack (pricing final CTA)</h2>
+    <p class="sg-lede">3 rows on a dark band, mint values — the canonical price-anchor stack.</p>
+    <div class="sg-preview sg-preview-dark">
+      <div class="space-y-3 max-w-md">
+        <MetricRow label="Per delivered lead" value="$7" surface="dark" tone="brand" />
+        <MetricRow label="Setup fee"          value="$0" surface="dark" tone="brand" />
+        <MetricRow label="Monthly minimum"    value="$0" surface="dark" tone="brand" />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>With inline icon</h2>
+    <div class="sg-preview sg-preview-dark">
+      <div class="space-y-3 max-w-md">
+        <MetricRow Icon={IconCash}  label="Per delivered lead"      value="$7" surface="dark" />
+        <MetricRow Icon={IconCheck} label="Exclusive — never resold" value="Yours alone" surface="dark" />
+        <MetricRow Icon={IconLock}  label="Cancel anytime"           value="—" surface="dark" />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Light surface</h2>
+    <p class="sg-lede">Pair with a light section bg.</p>
+    <div class="sg-preview">
+      <div class="space-y-3 max-w-md">
+        <MetricRow label="Per delivered lead" value="$7" surface="light" tone="brand" />
+        <MetricRow label="Setup fee"          value="$0" surface="light" tone="ink" />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Usage</h2>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`---
+import MetricRow from "~/components/ui/MetricRow.astro";
+---
+
+<MetricRow
+  label="Per delivered lead"
+  value="$7"
+  surface="dark"           {/* dark (default) | light */}
+  tone="brand"             {/* brand (default mint) | ink */}
+/>`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

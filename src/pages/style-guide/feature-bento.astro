@@ -1,0 +1,30 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import FeatureBento from "~/components/sections/FeatureBento.astro";
+---
+
+<StyleGuideLayout
+  slug="feature-bento"
+  title="Feature Bento"
+  description="The homepage feature section: section header + N feature groups, each with its own eyebrow + title + blurb + IllustrationCard grid. Pulls every feature from src/data/features.ts (single source of truth) so this stays in lockstep with the dedicated /features/&lt;slug&gt;/ pages."
+>
+  <section class="sg-section">
+    <h2>Default (homepage)</h2>
+    <p class="sg-lede">Renders all FEATURE_GROUPS from the data spine. Cards link through to <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">/features/&lt;slug&gt;/</code>.</p>
+    <div class="sg-preview" style="padding:0">
+      <FeatureBento />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Usage</h2>
+    <p class="sg-lede">No props — content is driven entirely by <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">FEATURE_GROUPS</code> in <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">src/data/features.ts</code>. To add/remove a card, edit that file.</p>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`---
+import FeatureBento from "~/components/sections/FeatureBento.astro";
+---
+
+<FeatureBento />`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

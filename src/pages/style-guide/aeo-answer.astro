@@ -1,0 +1,38 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import AEOAnswer from "~/components/sections/AEOAnswer.astro";
+---
+
+<StyleGuideLayout
+  slug="aeo-answer"
+  title="AEO Answer"
+  description="Polished card section that wraps a 40-55 word LLM-citable answer paragraph. Bg-alt section, mint book-icon eyebrow ('In plain English'), aria-label='Definition'. Use as the second-to-last section on any page that wants to be quoted by ChatGPT / Claude / Perplexity / Google AI Overviews."
+>
+  <section class="sg-section">
+    <h2>Homepage AEO paragraph</h2>
+    <div class="sg-preview" style="padding:0">
+      <AEOAnswer
+        text="Consent Resolve is a consent-first ad-spend recovery layer for home-service contractors. It identifies the 98 out of 100 website visitors who would otherwise bounce — only after they accept your consent banner — and feeds them back into the retargeting audiences, email/SMS sequences, and CRM you already run. Same ad budget, more inbound calls. Flat $7 per recovered lead, exclusive, never resold."
+      />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Per-feature definition</h2>
+    <p class="sg-lede">Use the same component on feature detail pages — keep the paragraph 40-55 words and lead with "&lt;Feature Name&gt; is …".</p>
+    <div class="sg-preview" style="padding:0">
+      <AEOAnswer
+        text="Channel Recovery captures the website visitors your existing ads already paid for but lost. Consent Resolve works on top of Google LSA, Thumbtack, Angi, and your own campaigns — identifying the roughly 98% who visit and leave without converting, then handing them back as named leads. It doesn't compete with your channels; it rescues the traffic they waste."
+      />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Props</h2>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`<AEOAnswer
+  text="Consent Resolve is a … "  {/* keep 40-55 words; lead with the entity name */}
+/>`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

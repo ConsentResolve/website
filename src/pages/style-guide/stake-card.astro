@@ -1,0 +1,98 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import StakeCard from "~/components/ui/StakeCard.astro";
+import { IconUserOff, IconCoin, IconAlertTriangle, IconClock } from "@tabler/icons-react";
+---
+
+<StyleGuideLayout
+  slug="stake-card"
+  title="Stake Card"
+  description="Problem-stat card used in 'what the leak costs you' sections. Layout: icon tile → big stat → tiny label → body → optional source link. Surface-aware (light/dark) + three tones (danger / neutral / brand)."
+>
+  <section class="sg-section">
+    <h2>Dark surface (homepage Stakes)</h2>
+    <div class="sg-preview sg-preview-dark">
+      <div class="grid gap-5 md:grid-cols-3">
+        <StakeCard
+          Icon={IconUserOff}
+          tone="danger"
+          surface="dark"
+          stat={98}
+          statSuffix="%"
+          label="Walk away anonymous"
+          body="Of every 100 homeowners your ads send to your site, roughly 98 leave without contacting you."
+          sourceHref="/stats/#anonymous-traffic"
+        />
+        <StakeCard
+          Icon={IconCoin}
+          tone="neutral"
+          surface="dark"
+          stat="~$46"
+          label="Per Thumbtack lead"
+          body="You already paid Google to drive them. Then you pay Thumbtack to find the same shopper."
+          sourceHref="/stats/#lead-trap"
+        />
+        <StakeCard
+          Icon={IconAlertTriangle}
+          tone="brand"
+          surface="dark"
+          stat="2x"
+          label="You pay for the same shopper"
+          body="Once on the ad. Once on the reseller. Shared leads aren't a fix — they're a tax."
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Light surface</h2>
+    <div class="sg-preview">
+      <div class="grid gap-5 md:grid-cols-3">
+        <StakeCard
+          Icon={IconUserOff}
+          tone="danger"
+          stat={98}
+          statSuffix="%"
+          label="Walk away anonymous"
+          body="Of every 100 homeowners, ~98 leave without contacting you."
+        />
+        <StakeCard
+          Icon={IconClock}
+          tone="brand"
+          stat="<5 min"
+          label="From visit to recovered lead"
+          body="The moment they tap your consent banner, the record lands in your CRM."
+        />
+        <StakeCard
+          Icon={IconCoin}
+          tone="neutral"
+          stat="$7"
+          label="Per recovered lead, flat"
+          body="No bidding. No auction. Yours alone."
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Usage</h2>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`---
+import StakeCard from "~/components/ui/StakeCard.astro";
+import { IconUserOff } from "@tabler/icons-react";
+---
+
+<StakeCard
+  Icon={IconUserOff}
+  tone="danger"            {/* danger | neutral | brand */}
+  surface="dark"           {/* light (default) | dark */}
+  stat={98}
+  statSuffix="%"
+  label="Walk away anonymous"
+  body="Of every 100 homeowners…"
+  sourceHref="/stats/#anonymous-traffic"
+  sourceLabel="Source"     {/* default */}
+/>`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

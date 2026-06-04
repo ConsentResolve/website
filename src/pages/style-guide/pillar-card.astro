@@ -1,0 +1,83 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import PillarCard from "~/components/ui/PillarCard.astro";
+import { IconRefresh, IconMessage, IconBellRinging, IconShieldCheck } from "@tabler/icons-react";
+---
+
+<StyleGuideLayout
+  slug="pillar-card"
+  title="Pillar Card"
+  description="Link card with a big mint icon tile, eyebrow, headline, body, and a 'Learn more →' cap. Use it to surface 2-4 top-level value pillars that lead deeper into a feature group or section."
+>
+  <section class="sg-section">
+    <h2>3-up linked pillars (homepage)</h2>
+    <p class="sg-lede">The full card is the click target; hover lifts + mint glow.</p>
+    <div class="sg-preview">
+      <div class="grid gap-5 md:grid-cols-3">
+        <PillarCard
+          Icon={IconRefresh}
+          eyebrow="Pillar 1 · Recovery"
+          title="Recover the 98% that bounce."
+          body="The traffic your ads already paid for — Google, LSA, Meta, SEO. We identify the consented ones who'd otherwise leave."
+          href="/features/#ad-recovery"
+          cta="See the recovery features"
+        />
+        <PillarCard
+          Icon={IconMessage}
+          eyebrow="Pillar 2 · Funnel insertion"
+          title="Drop into the funnel you already run."
+          body="Recovered visitors flow into your retargeting, email/SMS, and CRM. No new app to babysit."
+          href="/features/#funnel-insertion"
+          cta="See the funnel features"
+        />
+        <PillarCard
+          Icon={IconBellRinging}
+          eyebrow="Pillar 3 · Inbound calls"
+          title="Turn the bounce into an inbound call."
+          body="The recovered homeowner comes back on their time — through your funnel — and calls you warm."
+          href="/features/#inbound-call"
+          cta="See the inbound features"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Non-clickable variant</h2>
+    <p class="sg-lede">Omit <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">href</code> and the card renders as a static <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">&lt;div&gt;</code> (no hover lift, no 'Learn more' chip).</p>
+    <div class="sg-preview">
+      <div class="grid gap-5 md:grid-cols-2 max-w-3xl">
+        <PillarCard
+          Icon={IconShieldCheck}
+          eyebrow="The moat"
+          title="Consent-first by design."
+          body="Every reveal happens after the homeowner taps your consent banner. Audit-logged with date, time, and source."
+        />
+        <PillarCard
+          Icon={IconRefresh}
+          title="Same ad budget."
+          body="No extra spend. We rescue the homeowners your existing channels already paid to send to your site."
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Usage</h2>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`---
+import PillarCard from "~/components/ui/PillarCard.astro";
+import { IconRefresh } from "@tabler/icons-react";
+---
+
+<PillarCard
+  Icon={IconRefresh}
+  eyebrow="Pillar 1 · Recovery"
+  title="Recover the 98% that bounce."
+  body="…"
+  href="/features/#ad-recovery"
+  cta="See the recovery features"   {/* default: "Learn more" */}
+/>`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

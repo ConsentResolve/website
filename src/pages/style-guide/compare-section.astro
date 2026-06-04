@@ -1,0 +1,29 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import CompareSection from "~/components/sections/CompareSection.astro";
+---
+
+<StyleGuideLayout
+  slug="compare-section"
+  title="Compare Section"
+  description="Channel-ROI comparison section used on /compare/ and on the homepage. Shows the additive math: keep your existing channel + add Consent Resolve on top. Surfaces per-trade CPL anchors so the comparison is concrete to the contractor's wallet."
+>
+  <section class="sg-section">
+    <h2>Default</h2>
+    <div class="sg-preview" style="padding:0">
+      <CompareSection />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Usage</h2>
+    <p class="sg-lede">No props — pulls CPL benchmarks from <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">src/data/compare.ts</code> so they stay in lockstep across the site.</p>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`---
+import CompareSection from "~/components/sections/CompareSection.astro";
+---
+
+<CompareSection />`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>

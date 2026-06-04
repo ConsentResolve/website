@@ -1,0 +1,29 @@
+---
+import StyleGuideLayout from "~/layouts/StyleGuideLayout.astro";
+import ProblemStats from "~/components/sections/ProblemStats.astro";
+---
+
+<StyleGuideLayout
+  slug="problem-stats"
+  title="Problem Stats"
+  description="Dark section that frames the leak in numbers. Header (eyebrow + ink + mint headline + subhead) on the left, ghost-in-a-browser Recraft illustration on the right, then a Funnel viz + three AnimatedStat cards below. Used on the homepage to make the 98% bounce visceral."
+>
+  <section class="sg-section">
+    <h2>Default (homepage)</h2>
+    <div class="sg-preview" style="padding:0">
+      <ProblemStats />
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Usage</h2>
+    <p class="sg-lede">No props — content is hard-coded inside the section to keep the stats sourced and consistent across the site. If you need a different shape, compose <a href="/style-guide/stake-card/" class="text-[color:var(--color-brand-pressed)] underline-offset-2 hover:underline">Stake Card</a> directly in your page instead.</p>
+    <div class="sg-preview">
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`---
+import ProblemStats from "~/components/sections/ProblemStats.astro";
+---
+
+<ProblemStats />`}</code></pre>
+    </div>
+  </section>
+</StyleGuideLayout>
