@@ -27,8 +27,10 @@ import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import Badge from "~/components/ui/Badge.astro";
 import Button from "~/components/ui/Button.astro";
-import AnimatedStat from "~/components/ui/AnimatedStat.tsx";
 import Sparkline from "~/components/ui/Sparkline.astro";
+import StepFlow from "~/components/ui/StepFlow.astro";
+import StakeCard from "~/components/ui/StakeCard.astro";
+import PillarCard from "~/components/ui/PillarCard.astro";
 
 import {
   organizationSchema,
@@ -94,103 +96,47 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
 
   <!-- ============================================================== -->
   <!-- 1.5. THE 5-STEP FLOW — visit → consent → accept → feed → win   -->
-  <!--      Horizontal flow strip a contractor can scan in 5 seconds. -->
-  <!--      5 illustrated nodes, brand-locked Recraft SVGs.           -->
+  <!--      Rendered by the StepFlow primitive (src/components/ui/    -->
+  <!--      StepFlow.astro) — see /style-guide/step-flow/.            -->
   <!-- ============================================================== -->
-  <section class="section py-14 md:py-20">
-    <div class="container-content">
-      <div class="mx-auto mb-12 max-w-2xl text-center">
-        <Badge tone="brand" variant="soft" size="md" uppercase>How it works in five</Badge>
-        <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">
-          Five steps. One outcome.<br/>
-          <span class="text-[color:var(--color-brand-pressed)]">More calls. More jobs.</span>
-        </h2>
-      </div>
-
-      <ol class="mx-auto grid max-w-6xl items-start gap-y-10 md:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr_auto_1fr] md:gap-y-0">
-
-        {/* Step 1 — Homeowner visits website */}
-        <li class="relative flex flex-col items-center text-center">
-          <div class="relative">
-            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[12px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]">1</span>
-            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-brand-soft)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]">
-              <img src="/illustrations/steps/01-homeowner-visit.svg" alt="A homeowner browsing a contractor's website" class="h-20 w-20" loading="lazy" decoding="async" />
-            </div>
-          </div>
-          <p class="mt-4 font-display text-[15px] font-bold leading-tight tracking-tight text-[color:var(--color-ink)]">Homeowner visits<br/>your website</p>
-          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">From a Google ad, LSA, or just searching your town.</p>
-        </li>
-
-        {/* Connector 1→2 */}
-        <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
-          <IconArrowRight size={24} stroke={2} class="text-[color:var(--color-mint-400)]" />
-        </li>
-
-        {/* Step 2 — We handle consent */}
-        <li class="relative flex flex-col items-center text-center">
-          <div class="relative">
-            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[12px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]">2</span>
-            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-brand-soft)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]">
-              <img src="/illustrations/steps/02-we-handle-consent.svg" alt="A consent banner with a shield checkmark badge" class="h-20 w-20" loading="lazy" decoding="async" />
-            </div>
-          </div>
-          <p class="mt-4 font-display text-[15px] font-bold leading-tight tracking-tight text-[color:var(--color-ink)]">We handle<br/>consent</p>
-          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">Our banner asks. Your privacy policy stays current — Termageddon-backed.</p>
-        </li>
-
-        {/* Connector 2→3 */}
-        <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
-          <IconArrowRight size={24} stroke={2} class="text-[color:var(--color-mint-400)]" />
-        </li>
-
-        {/* Step 3 — Homeowner accepts cookie */}
-        <li class="relative flex flex-col items-center text-center">
-          <div class="relative">
-            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[12px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]">3</span>
-            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-brand-soft)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]">
-              <img src="/illustrations/steps/03-homeowner-accepts.svg" alt="A hand pressing accept on a cookie consent banner" class="h-20 w-20" loading="lazy" decoding="async" />
-            </div>
-          </div>
-          <p class="mt-4 font-display text-[15px] font-bold leading-tight tracking-tight text-[color:var(--color-ink)]">Homeowner<br/>accepts cookie</p>
-          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">No yes, no data. That's what keeps you on the right side of the rules.</p>
-        </li>
-
-        {/* Connector 3→4 */}
-        <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
-          <IconArrowRight size={24} stroke={2} class="text-[color:var(--color-mint-400)]" />
-        </li>
-
-        {/* Step 4 — We feed contact to funnel */}
-        <li class="relative flex flex-col items-center text-center">
-          <div class="relative">
-            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-[12px] font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]">4</span>
-            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-brand-soft)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]">
-              <img src="/illustrations/steps/04-feed-to-funnel.svg" alt="A contact card sliding into a CRM inbox" class="h-20 w-20" loading="lazy" decoding="async" />
-            </div>
-          </div>
-          <p class="mt-4 font-display text-[15px] font-bold leading-tight tracking-tight text-[color:var(--color-ink)]">We feed contact<br/>to your funnel</p>
-          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">Lands in Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo — in seconds.</p>
-        </li>
-
-        {/* Final reward connector — heavier, brand-pressed, signals the payoff */}
-        <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
-          <IconArrowRight size={26} stroke={2.5} class="text-[color:var(--color-brand-pressed)]" />
-        </li>
-
-        {/* Step 5 — Outcome */}
-        <li class="relative flex flex-col items-center text-center">
-          <div class="relative">
-            <span class="absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full bg-[color:var(--color-mint-400)] font-display text-[12px] font-black text-[color:var(--color-navy-900)] ring-2 ring-[color:var(--color-bg)] shadow-[0_8px_18px_-8px_rgba(0,229,160,0.5)]">5</span>
-            <div class="flex size-28 items-center justify-center rounded-2xl bg-[color:var(--color-navy-900)] ring-1 ring-inset ring-[color:var(--color-mint-400)]/40 shadow-[0_18px_36px_-18px_rgba(10,22,40,0.45)]">
-              <img src="/illustrations/steps/05-more-calls-more-jobs.svg" alt="A service pro answering a ringing phone" class="h-20 w-20" loading="lazy" decoding="async" />
-            </div>
-          </div>
-          <p class="mt-4 font-display text-[15px] font-black leading-tight tracking-tight text-[color:var(--color-ink)]">More calls.<br/>More jobs.</p>
-          <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">Warm inbound calls from homeowners who already saw you in their inbox.</p>
-        </li>
-      </ol>
-    </div>
-  </section>
+  <StepFlow
+    eyebrow="How it works in five"
+    title="Five steps. One outcome."
+    titleAccent="More calls. More jobs."
+    steps={[
+      {
+        illustration: "/illustrations/steps/01-homeowner-visit.svg",
+        alt: "A homeowner browsing a contractor's website",
+        title: "Homeowner visits<br/>your website",
+        blurb: "From a Google ad, LSA, or just searching your town.",
+      },
+      {
+        illustration: "/illustrations/steps/02-we-handle-consent.svg",
+        alt: "A consent banner with a shield checkmark badge",
+        title: "We handle<br/>consent",
+        blurb: "Our banner asks. Your privacy policy stays current — Termageddon-backed.",
+      },
+      {
+        illustration: "/illustrations/steps/03-homeowner-accepts.svg",
+        alt: "A hand pressing accept on a cookie consent banner",
+        title: "Homeowner<br/>accepts cookie",
+        blurb: "No yes, no data. That's what keeps you on the right side of the rules.",
+      },
+      {
+        illustration: "/illustrations/steps/04-feed-to-funnel.svg",
+        alt: "A contact card sliding into a CRM inbox",
+        title: "We feed contact<br/>to your funnel",
+        blurb: "Lands in Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo — in seconds.",
+      },
+      {
+        illustration: "/illustrations/steps/05-more-calls-more-jobs.svg",
+        alt: "A service pro answering a ringing phone",
+        title: "More calls.<br/>More jobs.",
+        blurb: "Warm inbound calls from homeowners who already saw you in their inbox.",
+        highlight: true,
+      },
+    ]}
+  />
 
   <!-- ============================================================== -->
   <!-- 2. THE STAKES — external / internal / philosophical problem   -->
@@ -211,38 +157,33 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
       </div>
 
       <div class="grid gap-5 md:grid-cols-3">
-        <div class="rounded-2xl bg-white/[0.03] p-7 ring-1 ring-inset ring-white/10">
-          <div class="mb-4 inline-flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-danger)]/15">
-            <IconUserOff size={20} stroke={1.75} color="#fca5a5" />
-          </div>
-          <AnimatedStat client:visible value={98} suffix="%" tone="danger" size="lg" />
-          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Walk away anonymous</p>
-          <p class="mt-2 text-[14px] leading-relaxed text-slate-300">
-            Of every 100 homeowners your ads send to your site, roughly 98 leave without contacting you. They call the next guy instead. <a href="/stats/#anonymous-traffic" class="underline-offset-2 hover:underline">Source</a>
-          </p>
-        </div>
-
-        <div class="rounded-2xl bg-white/[0.03] p-7 ring-1 ring-inset ring-white/10">
-          <div class="mb-4 inline-flex size-10 items-center justify-center rounded-xl bg-white/10">
-            <IconCoin size={20} stroke={1.75} color="#cbd5e1" />
-          </div>
-          <div class="font-display text-4xl font-bold leading-none tracking-tight text-white md:text-5xl">~$46</div>
-          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Per Thumbtack lead</p>
-          <p class="mt-2 text-[14px] leading-relaxed text-slate-300">
-            You already paid Google to drive them to your site. Then you pay Thumbtack to find the same shopper — shared with 4 other shops. <a href="/stats/#lead-trap" class="underline-offset-2 hover:underline">Source</a>
-          </p>
-        </div>
-
-        <div class="rounded-2xl bg-white/[0.03] p-7 ring-1 ring-inset ring-white/10">
-          <div class="mb-4 inline-flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]/15">
-            <IconAlertTriangle size={20} stroke={1.75} color="#00E5A0" />
-          </div>
-          <div class="font-display text-4xl font-bold leading-none tracking-tight text-[color:var(--color-mint-400)] md:text-5xl">2x</div>
-          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">You pay for the same shopper</p>
-          <p class="mt-2 text-[14px] leading-relaxed text-slate-300">
-            Once on the ad. Once on the reseller. Ad budget isn't supposed to evaporate — and shared leads aren't a fix for the leak. They're a tax on it.
-          </p>
-        </div>
+        <StakeCard
+          Icon={IconUserOff}
+          tone="danger"
+          surface="dark"
+          stat={98}
+          statSuffix="%"
+          label="Walk away anonymous"
+          body="Of every 100 homeowners your ads send to your site, roughly 98 leave without contacting you. They call the next guy instead."
+          sourceHref="/stats/#anonymous-traffic"
+        />
+        <StakeCard
+          Icon={IconCoin}
+          tone="neutral"
+          surface="dark"
+          stat="~$46"
+          label="Per Thumbtack lead"
+          body="You already paid Google to drive them to your site. Then you pay Thumbtack to find the same shopper — shared with 4 other shops."
+          sourceHref="/stats/#lead-trap"
+        />
+        <StakeCard
+          Icon={IconAlertTriangle}
+          tone="brand"
+          surface="dark"
+          stat="2x"
+          label="You pay for the same shopper"
+          body="Once on the ad. Once on the reseller. Ad budget isn't supposed to evaporate — and shared leads aren't a fix for the leak. They're a tax on it."
+        />
       </div>
     </div>
   </section>
@@ -403,59 +344,30 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
       </div>
 
       <div class="mx-auto grid max-w-5xl gap-5 md:grid-cols-3">
-        <a
+        <PillarCard
+          Icon={IconRefresh}
+          eyebrow="Pillar 1 · Recovery"
+          title="Recover the 98% that bounce."
+          body="The traffic your ads already paid for — Google, LSA, Meta, SEO. We identify the consented ones who'd otherwise leave with no trace."
           href="/features/#ad-recovery"
-          class="group block rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-1 hover:ring-[color:var(--color-mint-400)]/60 hover:shadow-[0_30px_60px_-30px_rgba(0,229,160,0.4)]"
-        >
-          <span class="inline-flex size-12 items-center justify-center rounded-xl bg-[color:var(--color-brand)] shadow-[0_10px_24px_-10px_rgba(0,229,160,0.6)]">
-            <IconRefresh size={22} stroke={2} color="#0A1628" />
-          </span>
-          <p class="mt-5 text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Pillar 1 · Recovery</p>
-          <h3 class="mt-2 font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">Recover the 98% that bounce.</h3>
-          <p class="mt-3 text-[14px] leading-relaxed text-[color:var(--color-ink-2)]">
-            The traffic your ads already paid for — Google, LSA, Meta, SEO. We identify the consented ones who'd otherwise leave with no trace.
-          </p>
-          <span class="mt-5 inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] group-hover:gap-2">
-            See the recovery features
-            <IconArrowRight size={12} stroke={2.5} class="transition-transform group-hover:translate-x-0.5" />
-          </span>
-        </a>
-
-        <a
+          cta="See the recovery features"
+        />
+        <PillarCard
+          Icon={IconMessage}
+          eyebrow="Pillar 2 · Funnel insertion"
+          title="Drop into the funnel you already run."
+          body="Recovered visitors flow into your retargeting audiences, email/SMS sequences, and CRM. No new app to babysit."
           href="/features/#funnel-insertion"
-          class="group block rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-1 hover:ring-[color:var(--color-mint-400)]/60 hover:shadow-[0_30px_60px_-30px_rgba(0,229,160,0.4)]"
-        >
-          <span class="inline-flex size-12 items-center justify-center rounded-xl bg-[color:var(--color-brand)] shadow-[0_10px_24px_-10px_rgba(0,229,160,0.6)]">
-            <IconMessage size={22} stroke={2} color="#0A1628" />
-          </span>
-          <p class="mt-5 text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Pillar 2 · Funnel insertion</p>
-          <h3 class="mt-2 font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">Drop into the funnel you already run.</h3>
-          <p class="mt-3 text-[14px] leading-relaxed text-[color:var(--color-ink-2)]">
-            Recovered visitors flow into your retargeting audiences, email/SMS sequences, and CRM. No new app to babysit.
-          </p>
-          <span class="mt-5 inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] group-hover:gap-2">
-            See the funnel features
-            <IconArrowRight size={12} stroke={2.5} class="transition-transform group-hover:translate-x-0.5" />
-          </span>
-        </a>
-
-        <a
+          cta="See the funnel features"
+        />
+        <PillarCard
+          Icon={IconBellRinging}
+          eyebrow="Pillar 3 · Inbound calls"
+          title="Turn the bounce into an inbound call."
+          body="The recovered homeowner comes back on their time — through your funnel — and calls you warm. Not a cold outbound."
           href="/features/#inbound-call"
-          class="group block rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-1 hover:ring-[color:var(--color-mint-400)]/60 hover:shadow-[0_30px_60px_-30px_rgba(0,229,160,0.4)]"
-        >
-          <span class="inline-flex size-12 items-center justify-center rounded-xl bg-[color:var(--color-brand)] shadow-[0_10px_24px_-10px_rgba(0,229,160,0.6)]">
-            <IconBellRinging size={22} stroke={2} color="#0A1628" />
-          </span>
-          <p class="mt-5 text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Pillar 3 · Inbound calls</p>
-          <h3 class="mt-2 font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">Turn the bounce into an inbound call.</h3>
-          <p class="mt-3 text-[14px] leading-relaxed text-[color:var(--color-ink-2)]">
-            The recovered homeowner comes back on their time — through your funnel — and calls you warm. Not a cold outbound.
-          </p>
-          <span class="mt-5 inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] group-hover:gap-2">
-            See the inbound features
-            <IconArrowRight size={12} stroke={2.5} class="transition-transform group-hover:translate-x-0.5" />
-          </span>
-        </a>
+          cta="See the inbound features"
+        />
       </div>
 
       <div class="mt-10 text-center">

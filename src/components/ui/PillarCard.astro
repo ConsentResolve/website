@@ -1,0 +1,67 @@
+---
+/**
+ * PillarCard — link card with a big mint icon tile, eyebrow, headline,
+ * body, and a "Learn more →" cap. Used to surface a major value pillar
+ * on the homepage and any landing page that wants three top-level
+ * concepts that each lead deeper into a section or feature group.
+ *
+ * Renders as an <a> (full-card click target) when `href` is set,
+ * otherwise as a <div>.
+ */
+import { IconArrowRight, type Icon } from "@tabler/icons-react";
+
+interface Props {
+  /** Tabler icon component for the tile. */
+  Icon: Icon;
+  /** Tiny ALL-CAPS label above the headline. */
+  eyebrow?: string;
+  /** Big tile headline. */
+  title: string;
+  /** 1-3 sentence body. */
+  body: string;
+  /** Linked target. Omit for non-clickable variant. */
+  href?: string;
+  /** CTA label shown next to the arrow when `href` is set. */
+  cta?: string;
+}
+
+const {
+  Icon: IconCmp,
+  eyebrow,
+  title,
+  body,
+  href,
+  cta = "Learn more",
+} = Astro.props as Props;
+
+const baseClass =
+  "group block rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-1 hover:ring-[color:var(--color-mint-400)]/60 hover:shadow-[0_30px_60px_-30px_rgba(0,229,160,0.4)]";
+---
+
+{href ? (
+  <a href={href} class={baseClass}>
+    <span class="inline-flex size-12 items-center justify-center rounded-xl bg-[color:var(--color-brand)] shadow-[0_10px_24px_-10px_rgba(0,229,160,0.6)]">
+      <IconCmp size={22} stroke={2} color="#0A1628" />
+    </span>
+    {eyebrow && (
+      <p class="mt-5 text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">{eyebrow}</p>
+    )}
+    <h3 class="mt-2 font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">{title}</h3>
+    <p class="mt-3 text-[14px] leading-relaxed text-[color:var(--color-ink-2)]">{body}</p>
+    <span class="mt-5 inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] group-hover:gap-2">
+      {cta}
+      <IconArrowRight size={12} stroke={2.5} class="transition-transform group-hover:translate-x-0.5" />
+    </span>
+  </a>
+) : (
+  <div class={baseClass}>
+    <span class="inline-flex size-12 items-center justify-center rounded-xl bg-[color:var(--color-brand)] shadow-[0_10px_24px_-10px_rgba(0,229,160,0.6)]">
+      <IconCmp size={22} stroke={2} color="#0A1628" />
+    </span>
+    {eyebrow && (
+      <p class="mt-5 text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">{eyebrow}</p>
+    )}
+    <h3 class="mt-2 font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">{title}</h3>
+    <p class="mt-3 text-[14px] leading-relaxed text-[color:var(--color-ink-2)]">{body}</p>
+  </div>
+)}

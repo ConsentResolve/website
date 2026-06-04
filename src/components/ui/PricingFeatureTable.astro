@@ -1,0 +1,75 @@
+---
+/**
+ * PricingFeatureTable — the "everything included" feature table used
+ * on /pricing/. Group label rows + alternating feature rows with an
+ * icon-tile + title + description, a Check column on the right.
+ *
+ * Designed for the "one flat price, one toolbox" framing — every
+ * feature ships with every lead, so the right column is just a check.
+ *
+ * Reusable on /pricing/, /compare/[platform]/, or any other "what's
+ * included" surface.
+ */
+import { IconCheck, type Icon } from "@tabler/icons-react";
+import { Fragment } from "astro/jsx-runtime";
+
+export interface FeatureRow {
+  Icon: Icon;
+  title: string;
+  desc: string;
+}
+export interface FeatureGroup {
+  label: string;
+  features: FeatureRow[];
+}
+
+interface Props {
+  groups: FeatureGroup[];
+  /** Right-column header label. Default: "Included". */
+  rightHeader?: string;
+  /** Left-column header label. Default: "Feature". */
+  leftHeader?: string;
+}
+
+const { groups, leftHeader = "Feature", rightHeader = "Included" } = Astro.props as Props;
+---
+
+<div class="mx-auto max-w-4xl overflow-hidden rounded-2xl bg-[color:var(--color-bg)] ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)]">
+  <table class="w-full">
+    <thead class="border-b border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+      <tr>
+        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">{leftHeader}</th>
+        <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">{rightHeader}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {groups.map((group) => (
+        <Fragment>
+          <tr class="border-t border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]/40">
+            <td colspan="2" class="px-6 pt-5 pb-3">
+              <span class="text-xs font-bold uppercase tracking-[0.18em] text-[color:var(--color-brand-pressed)]">{group.label}</span>
+            </td>
+          </tr>
+          {group.features.map((f) => (
+            <tr class="border-t border-[color:var(--color-rule)]">
+              <td class="px-6 py-4">
+                <div class="flex items-start gap-3">
+                  <span class="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-[color:var(--color-brand-soft)]">
+                    <f.Icon size={16} stroke={1.75} color="#00A86E" />
+                  </span>
+                  <div>
+                    <div class="font-semibold tracking-tight text-[color:var(--color-ink)]">{f.title}</div>
+                    <div class="mt-0.5 text-sm text-[color:var(--color-ink-2)]">{f.desc}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <IconCheck size={20} stroke={2.5} color="#00A86E" class="inline" />
+              </td>
+            </tr>
+          ))}
+        </Fragment>
+      ))}
+    </tbody>
+  </table>
+</div>

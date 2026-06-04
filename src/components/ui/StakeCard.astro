@@ -1,0 +1,117 @@
+---
+/**
+ * StakeCard — "what the leak costs you" card used in problem / stakes
+ * sections. Layout: small icon tile → big stat → tiny label → body →
+ * optional source-link chip.
+ *
+ * Surface-aware: pass `surface="dark"` when the section background is
+ * dark (the body text + ring switch to the dark recipe). Tone drives
+ * the icon tile and stat color so a row of three reads as
+ * external/internal/philosophical at a glance.
+ *
+ * Used on / (homepage Stakes section). Reusable on any pricing /
+ * compare / problem page that wants three problem-cards in a row.
+ */
+import { type Icon } from "@tabler/icons-react";
+
+type Surface = "light" | "dark";
+type Tone = "danger" | "neutral" | "brand";
+
+interface Props {
+  Icon: Icon;
+  /** Stat color / icon-tile color. */
+  tone?: Tone;
+  /** Big leading stat (string or number). */
+  stat: string | number;
+  /** Optional suffix appended to the stat (e.g. "%"). */
+  statSuffix?: string;
+  /** Tiny ALL-CAPS label below the stat. */
+  label: string;
+  /** Body copy. */
+  body: string;
+  /** Surface theme (matches the host section bg). */
+  surface?: Surface;
+  /** Source attribution link (renders inside the body). */
+  sourceHref?: string;
+  /** Source link label (default: "Source"). */
+  sourceLabel?: string;
+}
+
+const {
+  Icon: IconCmp,
+  tone = "brand",
+  stat,
+  statSuffix,
+  label,
+  body,
+  surface = "light",
+  sourceHref,
+  sourceLabel = "Source",
+} = Astro.props as Props;
+
+// Surface recipe
+const surfaceClass =
+  surface === "dark"
+    ? "bg-white/[0.03] ring-1 ring-inset ring-white/10"
+    : "bg-[color:var(--color-bg-alt)] ring-1 ring-inset ring-[color:var(--color-rule)]";
+
+const labelClass =
+  surface === "dark"
+    ? "text-slate-400"
+    : "text-[color:var(--color-ink-muted)]";
+
+const bodyClass =
+  surface === "dark"
+    ? "text-slate-300"
+    : "text-[color:var(--color-ink-2)]";
+
+const sourceClass =
+  surface === "dark"
+    ? "text-slate-200"
+    : "text-[color:var(--color-ink-2)]";
+
+// Tone recipe — icon tile bg + icon color + stat color
+const toneRecipe: Record<Tone, { tileBg: string; iconColor: string; statColor: string }> = {
+  danger: {
+    tileBg: "bg-[color:var(--color-danger)]/15",
+    iconColor: "#fca5a5",
+    statColor: surface === "dark" ? "text-red-300" : "text-red-600",
+  },
+  neutral: {
+    tileBg: surface === "dark" ? "bg-white/10" : "bg-[color:var(--color-bg-alt)]",
+    iconColor: surface === "dark" ? "#cbd5e1" : "#64748b",
+    statColor: surface === "dark" ? "text-white" : "text-[color:var(--color-ink)]",
+  },
+  brand: {
+    tileBg: "bg-[color:var(--color-mint-400)]/15",
+    iconColor: "#00E5A0",
+    statColor: surface === "dark" ? "text-[color:var(--color-mint-400)]" : "text-[color:var(--color-brand-pressed)]",
+  },
+};
+const t = toneRecipe[tone];
+---
+
+<div class:list={["rounded-2xl p-7", surfaceClass]}>
+  <div class:list={["mb-4 inline-flex size-10 items-center justify-center rounded-xl", t.tileBg]}>
+    <IconCmp size={20} stroke={1.75} color={t.iconColor} />
+  </div>
+
+  <div class:list={[
+    "font-display text-4xl font-bold leading-none tracking-tight md:text-5xl",
+    t.statColor,
+  ]}>
+    {stat}{statSuffix && <span class="text-3xl md:text-4xl">{statSuffix}</span>}
+  </div>
+
+  <p class:list={["mt-3 text-xs font-bold uppercase tracking-[0.14em]", labelClass]}>{label}</p>
+
+  <p class:list={["mt-2 text-[14px] leading-relaxed", bodyClass]}>
+    {body}
+    {sourceHref && (
+      <>
+        {" "}
+        <a href={sourceHref} class:list={["underline-offset-2 hover:underline", sourceClass]}>{sourceLabel}</a>
+      </>
+    )}
+  </p>
+</div>

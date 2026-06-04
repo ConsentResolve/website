@@ -1,12 +1,12 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import Badge from "~/components/ui/Badge.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import AuthorityStrip from "~/components/sections/AuthorityStrip.tsx";
 import DidYouKnow from "~/components/sections/DidYouKnow.tsx";
-import { TEAM, getInitials } from "~/data/team";
+import TeamCard from "~/components/ui/TeamCard.astro";
+import { TEAM } from "~/data/team";
 import { breadcrumbSchema, personSchema } from "~/lib/seo";
-import { IconArrowRight, IconBrandLinkedin } from "@tabler/icons-react";
+import { IconArrowRight } from "@tabler/icons-react";
 
 const schemas = [
   breadcrumbSchema([
@@ -80,46 +80,7 @@ const schemas = [
         <h2 class="display-2 text-[color:var(--color-ink)]">Meet the people behind Consent Resolve.</h2>
       </div>
       <div class="mx-auto grid max-w-6xl gap-7 sm:grid-cols-2 lg:grid-cols-3">
-        {TEAM.map((m) => {
-          const initials = getInitials(m.name);
-          return (
-            <article class="flex flex-col rounded-2xl bg-[color:var(--color-bg)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_36px_-28px_rgba(10,22,40,0.18)] transition-all hover:-translate-y-0.5 hover:ring-[color:var(--color-mint-400)]/50 hover:shadow-[0_24px_48px_-24px_rgba(10,22,40,0.25)]">
-              <div class="flex items-center gap-4">
-                {m.photo ? (
-                  <img
-                    src={m.photo}
-                    alt={m.name}
-                    width="80"
-                    height="80"
-                    class="size-20 rounded-full object-cover ring-2 ring-[color:var(--color-mint-400)]"
-                  />
-                ) : (
-                  <div class="flex size-20 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] font-display text-2xl font-black text-[color:var(--color-mint-400)] ring-2 ring-[color:var(--color-mint-400)]">
-                    {initials}
-                  </div>
-                )}
-                <div>
-                  <h3 class="font-display text-lg font-black tracking-tight text-[color:var(--color-ink)]">{m.name}</h3>
-                  <p class="text-sm text-[color:var(--color-ink-muted)]">{m.role}</p>
-                </div>
-              </div>
-              <div class="mt-5">
-                <Badge tone="brand" size="sm" uppercase>{m.tagline}</Badge>
-              </div>
-              <p class="mt-5 flex-1 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{m.bio}</p>
-              <a
-                href={m.linkedin}
-                target="_blank"
-                rel="noreferrer noopener"
-                class="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[color:var(--color-brand-pressed)] transition-colors hover:text-[color:var(--color-ink)]"
-              >
-                <IconBrandLinkedin size={16} stroke={2} />
-                Follow on LinkedIn
-                <IconArrowRight size={14} stroke={2.25} />
-              </a>
-            </article>
-          );
-        })}
+        {TEAM.map((m) => <TeamCard member={m} />)}
       </div>
     </div>
   </section>

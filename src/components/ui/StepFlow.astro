@@ -1,0 +1,193 @@
+---
+/**
+ * StepFlow — a horizontal numbered step strip with optional illustrated
+ * nodes. Reads left-to-right on md+ (n step columns + n-1 mint arrow
+ * connectors). Stacks vertically on mobile (connectors hidden).
+ *
+ * Patterns:
+ *  - The final step can opt into an "inverted" tile (navy bg, mint
+ *    icon, mint number chip) by setting `highlight: true` — signals
+ *    the payoff in a process flow.
+ *  - Each step accepts EITHER an illustration path OR a Tabler Icon.
+ *    Illustrations win when both are passed.
+ *
+ * Used on / (homepage "How it works in five") and any future
+ * onboarding / how-it-works style strip.
+ */
+import { Fragment } from "astro/jsx-runtime";
+import Badge from "~/components/ui/Badge.astro";
+import { IconArrowRight, type Icon } from "@tabler/icons-react";
+
+export interface StepFlowStep {
+  illustration?: string;
+  Icon?: Icon;
+  alt?: string;
+  /** Headline label — supports `<br/>` for a natural 2-line wrap. */
+  title: string;
+  blurb?: string;
+  /** Mark this step as the payoff — gets the inverted navy tile. */
+  highlight?: boolean;
+}
+
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  titleAccent?: string;
+  blurb?: string;
+  steps: StepFlowStep[];
+  /** Skip the wrapping <section> + container — render just the strip
+   *  so it can drop into an existing layout. Default false. */
+  bare?: boolean;
+}
+
+const {
+  eyebrow,
+  title,
+  titleAccent,
+  blurb,
+  steps,
+  bare = false,
+} = Astro.props as Props;
+
+// grid-template-columns: 1fr (auto 1fr)* — n step columns, n-1 arrow
+// connector columns of auto width. Inline style so Tailwind doesn't
+// have to enumerate arbitrary lengths.
+const gridTemplateColumns = steps
+  .map((_, i) => (i === 0 ? "1fr" : "auto 1fr"))
+  .join(" ");
+---
+
+{!bare && (
+  <section class="section py-14 md:py-20">
+    <div class="container-content">
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        {eyebrow && <Badge tone="brand" variant="soft" size="md" uppercase>{eyebrow}</Badge>}
+        {title && (
+          <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">
+            {title}
+            {titleAccent && <><br/><span class="text-[color:var(--color-brand-pressed)]">{titleAccent}</span></>}
+          </h2>
+        )}
+        {blurb && (
+          <p class="mt-4 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{blurb}</p>
+        )}
+      </div>
+      <ol
+        class="mx-auto grid max-w-6xl grid-cols-1 items-start gap-y-10 md:gap-y-0"
+        style={`--cols: ${gridTemplateColumns}`}
+        data-cols
+      >
+        {steps.map((s, i) => (
+          <Fragment>
+            {i > 0 && (
+              <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
+                <IconArrowRight
+                  size={s.highlight ? 26 : 24}
+                  stroke={s.highlight ? 2.5 : 2}
+                  class={s.highlight ? "text-[color:var(--color-brand-pressed)]" : "text-[color:var(--color-mint-400)]"}
+                />
+              </li>
+            )}
+            <li class="relative flex flex-col items-center text-center">
+              <div class="relative">
+                <span class:list={[
+                  "absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full font-display text-[12px] font-black ring-2 ring-[color:var(--color-bg)]",
+                  s.highlight
+                    ? "bg-[color:var(--color-mint-400)] text-[color:var(--color-navy-900)] shadow-[0_8px_18px_-8px_rgba(0,229,160,0.5)]"
+                    : "bg-[color:var(--color-navy-900)] text-[color:var(--color-mint-400)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]",
+                ]}>{i + 1}</span>
+                <div class:list={[
+                  "flex size-28 items-center justify-center rounded-2xl ring-1 ring-inset",
+                  s.highlight
+                    ? "bg-[color:var(--color-navy-900)] ring-[color:var(--color-mint-400)]/40 shadow-[0_18px_36px_-18px_rgba(10,22,40,0.45)]"
+                    : "bg-[color:var(--color-brand-soft)] ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]",
+                ]}>
+                  {s.illustration ? (
+                    <img src={s.illustration} alt={s.alt ?? ""} class="h-20 w-20" loading="lazy" decoding="async" />
+                  ) : s.Icon ? (
+                    <s.Icon size={36} stroke={1.75} color={s.highlight ? "#00E5A0" : "#0A1628"} />
+                  ) : null}
+                </div>
+              </div>
+              <p
+                class:list={[
+                  "mt-4 font-display text-[15px] leading-tight tracking-tight text-[color:var(--color-ink)]",
+                  s.highlight ? "font-black" : "font-bold",
+                ]}
+                set:html={s.title}
+              ></p>
+              {s.blurb && (
+                <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">{s.blurb}</p>
+              )}
+            </li>
+          </Fragment>
+        ))}
+      </ol>
+    </div>
+  </section>
+)}
+
+{bare && (
+  <ol
+    class="mx-auto grid max-w-6xl grid-cols-1 items-start gap-y-10 md:gap-y-0"
+    style={`--cols: ${gridTemplateColumns}`}
+    data-cols
+  >
+    {steps.map((s, i) => (
+      <Fragment>
+        {i > 0 && (
+          <li aria-hidden="true" class="hidden items-center justify-center self-center pt-12 md:flex">
+            <IconArrowRight
+              size={s.highlight ? 26 : 24}
+              stroke={s.highlight ? 2.5 : 2}
+              class={s.highlight ? "text-[color:var(--color-brand-pressed)]" : "text-[color:var(--color-mint-400)]"}
+            />
+          </li>
+        )}
+        <li class="relative flex flex-col items-center text-center">
+          <div class="relative">
+            <span class:list={[
+              "absolute -top-1 -right-1 z-10 flex size-7 items-center justify-center rounded-full font-display text-[12px] font-black ring-2 ring-[color:var(--color-bg)]",
+              s.highlight
+                ? "bg-[color:var(--color-mint-400)] text-[color:var(--color-navy-900)] shadow-[0_8px_18px_-8px_rgba(0,229,160,0.5)]"
+                : "bg-[color:var(--color-navy-900)] text-[color:var(--color-mint-400)] shadow-[0_8px_18px_-8px_rgba(0,0,0,0.4)]",
+            ]}>{i + 1}</span>
+            <div class:list={[
+              "flex size-28 items-center justify-center rounded-2xl ring-1 ring-inset",
+              s.highlight
+                ? "bg-[color:var(--color-navy-900)] ring-[color:var(--color-mint-400)]/40 shadow-[0_18px_36px_-18px_rgba(10,22,40,0.45)]"
+                : "bg-[color:var(--color-brand-soft)] ring-[color:var(--color-mint-400)]/30 shadow-[0_18px_36px_-18px_rgba(0,229,160,0.4)]",
+            ]}>
+              {s.illustration ? (
+                <img src={s.illustration} alt={s.alt ?? ""} class="h-20 w-20" loading="lazy" decoding="async" />
+              ) : s.Icon ? (
+                <s.Icon size={36} stroke={1.75} color={s.highlight ? "#00E5A0" : "#0A1628"} />
+              ) : null}
+            </div>
+          </div>
+          <p
+            class:list={[
+              "mt-4 font-display text-[15px] leading-tight tracking-tight text-[color:var(--color-ink)]",
+              s.highlight ? "font-black" : "font-bold",
+            ]}
+            set:html={s.title}
+          ></p>
+          {s.blurb && (
+            <p class="mt-2 max-w-[180px] text-[12px] leading-snug text-[color:var(--color-ink-2)]">{s.blurb}</p>
+          )}
+        </li>
+      </Fragment>
+    ))}
+  </ol>
+)}
+
+<style>
+  ol[data-cols] {
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    ol[data-cols] {
+      grid-template-columns: var(--cols);
+    }
+  }
+</style>

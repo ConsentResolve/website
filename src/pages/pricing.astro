@@ -3,6 +3,8 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 import Button from "~/components/ui/Button.astro";
 import FAQ from "~/components/sections/FAQ.astro";
 import AEOAnswer from "~/components/sections/AEOAnswer.astro";
+import PricingFeatureTable from "~/components/ui/PricingFeatureTable.astro";
+import MetricRow from "~/components/ui/MetricRow.astro";
 import {
   IconArrowRight, IconCheck, IconBolt, IconLock, IconShieldCheck,
   IconUserCheck, IconMapPin, IconClipboardCheck, IconBellRinging,
@@ -169,45 +171,7 @@ const schemas = [
         </p>
       </div>
 
-      <div class="mx-auto max-w-4xl overflow-hidden rounded-2xl bg-[color:var(--color-bg)] ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_40px_-24px_rgba(10,22,40,0.18)]">
-        <table class="w-full">
-          <thead class="border-b border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
-            <tr>
-              <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Feature</th>
-              <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Included</th>
-            </tr>
-          </thead>
-          <tbody>
-            {featureGroups.map((group) => (
-              <>
-                <tr class="border-t border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]/40">
-                  <td colspan="2" class="px-6 pt-5 pb-3">
-                    <span class="text-xs font-bold uppercase tracking-[0.18em] text-[color:var(--color-brand-pressed)]">{group.label}</span>
-                  </td>
-                </tr>
-                {group.features.map((f) => (
-                  <tr class="border-t border-[color:var(--color-rule)]">
-                    <td class="px-6 py-4">
-                      <div class="flex items-start gap-3">
-                        <span class="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-[color:var(--color-brand-soft)]">
-                          <f.Icon size={16} stroke={1.75} color="#00A86E" />
-                        </span>
-                        <div>
-                          <div class="font-semibold tracking-tight text-[color:var(--color-ink)]">{f.title}</div>
-                          <div class="mt-0.5 text-sm text-[color:var(--color-ink-2)]">{f.desc}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                      <IconCheck size={20} stroke={2.5} color="#00A86E" class="inline" />
-                    </td>
-                  </tr>
-                ))}
-              </>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <PricingFeatureTable groups={featureGroups} />
     </div>
   </section>
 
@@ -277,18 +241,9 @@ const schemas = [
         </div>
 
         <div class="space-y-3">
-          <div class="flex items-center justify-between rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
-            <span class="text-[15px] text-slate-300">Per delivered lead</span>
-            <span class="font-display text-4xl font-bold tracking-tight text-[color:var(--color-mint-400)]">$7</span>
-          </div>
-          <div class="flex items-center justify-between rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
-            <span class="text-[15px] text-slate-300">Setup fee</span>
-            <span class="font-display text-4xl font-bold tracking-tight text-[color:var(--color-mint-400)]">$0</span>
-          </div>
-          <div class="flex items-center justify-between rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
-            <span class="text-[15px] text-slate-300">Monthly minimum</span>
-            <span class="font-display text-4xl font-bold tracking-tight text-[color:var(--color-mint-400)]">$0</span>
-          </div>
+          <MetricRow label="Per delivered lead" value="$7" surface="dark" tone="brand" />
+          <MetricRow label="Setup fee"          value="$0" surface="dark" tone="brand" />
+          <MetricRow label="Monthly minimum"    value="$0" surface="dark" tone="brand" />
           <div class="flex items-center justify-center gap-1.5 pt-4 text-xs text-slate-400">
             <IconLock size={12} stroke={1.75} />
             256-bit encrypted · No contract · Cancel anytime

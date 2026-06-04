@@ -1,0 +1,60 @@
+---
+/**
+ * MetricRow — single horizontal row card: label on the left, big
+ * display value on the right. Stack 2-3 of them vertically inside a
+ * dark CTA section to anchor a price / promise (e.g. "$7 / lead",
+ * "$0 setup fee", "$0 monthly minimum").
+ *
+ * Different from MetricCard (which is dashboard-oriented with
+ * sparkline + delta). This is the "headline number on a dark band"
+ * primitive.
+ */
+import { type Icon } from "@tabler/icons-react";
+
+type Surface = "light" | "dark";
+type Tone = "brand" | "ink";
+
+interface Props {
+  label: string;
+  value: string;
+  /** Optional inline icon next to the label. */
+  Icon?: Icon;
+  surface?: Surface;
+  /** Value color. Default: brand. */
+  tone?: Tone;
+}
+
+const {
+  label,
+  value,
+  Icon: IconCmp,
+  surface = "dark",
+  tone = "brand",
+} = Astro.props as Props;
+
+const surfaceClass =
+  surface === "dark"
+    ? "bg-white/[0.04] ring-1 ring-inset ring-white/10"
+    : "bg-[color:var(--color-bg-alt)] ring-1 ring-inset ring-[color:var(--color-rule)]";
+
+const labelClass =
+  surface === "dark" ? "text-slate-300" : "text-[color:var(--color-ink-2)]";
+
+const valueClass =
+  tone === "brand"
+    ? "text-[color:var(--color-mint-400)]"
+    : surface === "dark"
+      ? "text-white"
+      : "text-[color:var(--color-ink)]";
+---
+
+<div class:list={["flex items-center justify-between rounded-2xl p-6", surfaceClass]}>
+  <span class:list={["flex items-center gap-3 text-[15px]", labelClass]}>
+    {IconCmp && <IconCmp size={20} stroke={1.5} color="#00E5A0" />}
+    {label}
+  </span>
+  <span class:list={[
+    "font-display text-4xl font-bold tracking-tight",
+    valueClass,
+  ]}>{value}</span>
+</div>
