@@ -1,5 +1,6 @@
 ---
 import LeadPhone from "~/components/islands/LeadPhone.tsx";
+import LeadVisit from "~/components/islands/LeadVisit.tsx";
 import Button from "~/components/ui/Button.astro";
 import Badge from "~/components/ui/Badge.astro";
 import LogoCarousel from "~/components/ui/LogoCarousel.astro";
@@ -24,6 +25,11 @@ interface Props {
   ctaLabel?: string;
   ctaHref?: string;
   showPanel?: boolean;
+  /** Which island fills the right-hand panel.
+   *   "lead-phone" — static contact card cycling through homeowners (v1)
+   *   "lead-visit" — anonymous-browse → consent → contact-reveal story (v2)
+   */
+  panelKind?: "lead-phone" | "lead-visit";
 }
 const {
   eyebrow = "For ad-buying contractors",
@@ -33,6 +39,7 @@ const {
   ctaLabel = "Get Started",
   ctaHref = "https://dashboard.consentresolve.com/register",
   showPanel = true,
+  panelKind = "lead-phone",
 } = Astro.props as Props;
 ---
 
@@ -78,7 +85,7 @@ const {
 
     {showPanel && (
       <div class="relative">
-        <LeadPhone client:visible />
+        {panelKind === "lead-visit" ? <LeadVisit client:visible /> : <LeadPhone client:visible />}
       </div>
     )}
   </div>
