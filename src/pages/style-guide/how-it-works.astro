@@ -5,48 +5,55 @@ import HowItWorks from "~/components/sections/HowItWorks.astro";
 
 <StyleGuideLayout
   slug="how-it-works"
-  title="How It Works (Comet)"
-  description="The default 'How it works' section. Dark theme, four-step horizontal layout (stacked on mobile), with an animated comet sweeping the progress track and lighting each step in sequence. Brand-locked illustrations per node, IntersectionObserver-gated so it doesn't run when offscreen."
+  title="How It Works (5-step)"
+  description="The canonical 'how it works' section for Consent Resolve. As of June 2026 this is a thin wrapper around the StepFlow primitive that renders the five illustrated recovery steps (visit → consent → accept → feed → win). One call site to maintain; every page that imports it picks up edits automatically."
 >
   <section class="sg-section">
-    <h2>Default — live preview</h2>
-    <p class="sg-lede">Hover or scroll into view; the comet starts ~800ms after the section enters the viewport and loops continuously while visible. Pauses when scrolled offscreen.</p>
+    <h2>Live preview</h2>
+    <p class="sg-lede">This is the exact section that renders on the homepage, <a href="/how-it-works/" class="text-[color:var(--color-brand-pressed)] underline-offset-2 hover:underline">/how-it-works/</a>, and every <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">/[trade]-leads/</code> industry page. Edit the steps in <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">src/components/sections/HowItWorks.astro</code> and every consumer updates.</p>
     <div class="sg-preview" style="padding:0;background:transparent;box-shadow:none;overflow:hidden;border-radius:1rem">
       <HowItWorks />
     </div>
   </section>
 
   <section class="sg-section">
-    <h2>Copy</h2>
-    <p class="sg-lede">Source of truth lives in <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">src/components/sections/HowItWorks.astro</code>.</p>
+    <h2>The canonical five steps</h2>
+    <p class="sg-lede">Locked copy. Change only with a deliberate voice review.</p>
     <div class="sg-preview">
       <ol class="list-none m-0 p-0 space-y-5">
         <li class="grid grid-cols-[auto_1fr] gap-4 items-start">
           <span class="rounded-full bg-[color:var(--color-brand-soft)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] whitespace-nowrap">Step 01</span>
           <div>
-            <p class="font-display text-base font-bold tracking-tight text-[color:var(--color-ink)]">Anonymous Visits</p>
-            <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">A homeowner lands on your website looking for help, but you have no idea who they are yet.</p>
+            <p class="font-display text-base font-bold tracking-tight text-[color:var(--color-ink)]">Homeowner visits your website</p>
+            <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">From a Google ad, LSA, or just searching your town.</p>
           </div>
         </li>
         <li class="grid grid-cols-[auto_1fr] gap-4 items-start">
           <span class="rounded-full bg-[color:var(--color-brand-soft)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] whitespace-nowrap">Step 02</span>
           <div>
-            <p class="font-display text-base font-bold tracking-tight text-[color:var(--color-ink)]">They Say Yes</p>
-            <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">The homeowner grants permission to be contacted and requests more information.</p>
+            <p class="font-display text-base font-bold tracking-tight text-[color:var(--color-ink)]">We handle consent</p>
+            <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">Our banner asks. Your privacy policy stays current — Termageddon-backed.</p>
           </div>
         </li>
         <li class="grid grid-cols-[auto_1fr] gap-4 items-start">
           <span class="rounded-full bg-[color:var(--color-brand-soft)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] whitespace-nowrap">Step 03</span>
           <div>
-            <p class="font-display text-base font-bold tracking-tight text-[color:var(--color-ink)]">Warm Lead Revealed</p>
-            <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">Consent Resolve identifies and delivers the homeowner's contact information in real time.</p>
+            <p class="font-display text-base font-bold tracking-tight text-[color:var(--color-ink)]">Homeowner accepts cookie</p>
+            <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">No yes, no data. That's what keeps you on the right side of the rules.</p>
           </div>
         </li>
         <li class="grid grid-cols-[auto_1fr] gap-4 items-start">
           <span class="rounded-full bg-[color:var(--color-brand-soft)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] whitespace-nowrap">Step 04</span>
           <div>
-            <p class="font-display text-base font-bold tracking-tight text-[color:var(--color-ink)]">You Call &amp; Close</p>
-            <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">Reach out while they're actively shopping, build trust, and win the job before your competitors do.</p>
+            <p class="font-display text-base font-bold tracking-tight text-[color:var(--color-ink)]">We feed contact to your funnel</p>
+            <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">Lands in Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo — in seconds.</p>
+          </div>
+        </li>
+        <li class="grid grid-cols-[auto_1fr] gap-4 items-start">
+          <span class="rounded-full bg-[color:var(--color-mint-400)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] whitespace-nowrap">Step 05 · Payoff</span>
+          <div>
+            <p class="font-display text-base font-black tracking-tight text-[color:var(--color-ink)]">More calls. More jobs.</p>
+            <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">Warm inbound calls from homeowners who already saw you in their inbox.</p>
           </div>
         </li>
       </ol>
@@ -55,77 +62,50 @@ import HowItWorks from "~/components/sections/HowItWorks.astro";
 
   <section class="sg-section">
     <h2>Illustrations</h2>
-    <p class="sg-lede">Brand-locked SVGs generated via Recraft (custom Brand Style <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">214dccd1-…</code>) and snapped to the 4-color palette via the HSL bucket pipeline. Source files: <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">public/illustrations/hiw/*.svg</code>.</p>
+    <p class="sg-lede">Brand-locked Recraft SVGs (custom Brand Style <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">214dccd1-…</code>) themed for service pros — wrench / hardhat / work-truck cues drop into the background of each scene. Source files: <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">public/illustrations/steps/*.svg</code>.</p>
     <div class="sg-preview">
-      <div class="grid grid-cols-2 gap-6 sm:grid-cols-4">
-        <div class="flex flex-col items-center text-center">
-          <div class="flex size-28 items-center justify-center rounded-full bg-[color:var(--color-navy-900)]">
-            <img src="/illustrations/hiw/01-anonymous-visit.svg" alt="" width="80" height="80" class="size-20 object-contain" />
+      <div class="grid grid-cols-2 gap-6 sm:grid-cols-5">
+        {[
+          { n: "01", file: "01-homeowner-visit",      label: "Homeowner visits" },
+          { n: "02", file: "02-we-handle-consent",    label: "We handle consent" },
+          { n: "03", file: "03-homeowner-accepts",    label: "Homeowner accepts" },
+          { n: "04", file: "04-feed-to-funnel",       label: "Feed to funnel" },
+          { n: "05", file: "05-more-calls-more-jobs", label: "More calls, jobs" },
+        ].map((s) => (
+          <div class="flex flex-col items-center text-center">
+            <div class:list={[
+              "flex size-28 items-center justify-center rounded-2xl ring-1 ring-inset",
+              s.n === "05"
+                ? "bg-[color:var(--color-navy-900)] ring-[color:var(--color-mint-400)]/40"
+                : "bg-[color:var(--color-brand-soft)] ring-[color:var(--color-mint-400)]/30",
+            ]}>
+              <img src={`/illustrations/steps/${s.file}.svg`} alt="" width="80" height="80" class="size-20 object-contain" />
+            </div>
+            <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Step {s.n}</p>
+            <p class="text-sm font-semibold text-[color:var(--color-ink)]">{s.label}</p>
+            <p class="mt-1 font-mono text-[11px] text-[color:var(--color-ink-muted)]">{s.file}.svg</p>
           </div>
-          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Step 01</p>
-          <p class="text-sm font-semibold text-[color:var(--color-ink)]">Anonymous Visits</p>
-          <p class="mt-1 font-mono text-[11px] text-[color:var(--color-ink-muted)]">01-anonymous-visit.svg</p>
-        </div>
-        <div class="flex flex-col items-center text-center">
-          <div class="flex size-28 items-center justify-center rounded-full bg-[color:var(--color-navy-900)]">
-            <img src="/illustrations/hiw/02-say-yes.svg" alt="" width="80" height="80" class="size-20 object-contain" />
-          </div>
-          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Step 02</p>
-          <p class="text-sm font-semibold text-[color:var(--color-ink)]">They Say Yes</p>
-          <p class="mt-1 font-mono text-[11px] text-[color:var(--color-ink-muted)]">02-say-yes.svg</p>
-        </div>
-        <div class="flex flex-col items-center text-center">
-          <div class="flex size-28 items-center justify-center rounded-full bg-[color:var(--color-navy-900)]">
-            <img src="/illustrations/hiw/03-lead-revealed.svg" alt="" width="80" height="80" class="size-20 object-contain" />
-          </div>
-          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Step 03</p>
-          <p class="text-sm font-semibold text-[color:var(--color-ink)]">Warm Lead Revealed</p>
-          <p class="mt-1 font-mono text-[11px] text-[color:var(--color-ink-muted)]">03-lead-revealed.svg</p>
-        </div>
-        <div class="flex flex-col items-center text-center">
-          <div class="flex size-28 items-center justify-center rounded-full bg-[color:var(--color-navy-900)]">
-            <img src="/illustrations/hiw/04-call-and-close.svg" alt="" width="80" height="80" class="size-20 object-contain" />
-          </div>
-          <p class="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Step 04</p>
-          <p class="text-sm font-semibold text-[color:var(--color-ink)]">You Call & Close</p>
-          <p class="mt-1 font-mono text-[11px] text-[color:var(--color-ink-muted)]">04-call-and-close.svg</p>
-        </div>
+        ))}
       </div>
       <p class="sg-label mt-6">Regenerate</p>
-      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`python3 scripts/generate-recraft.py --set=hiw \\
-  --style-id=214dccd1-dca3-43e6-b005-c664e1b33338
-python3 scripts/recolor-illustrations.py \\
-  --in-dir=public/illustrations/hiw`}</code></pre>
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`python3 scripts/generate-steps-illustrations.py`}</code></pre>
     </div>
   </section>
 
   <section class="sg-section">
-    <h2>Mechanics</h2>
-    <p class="sg-lede">Vanilla-JS timing logic; no React island. Gated by IntersectionObserver — comet only runs while the section is visible.</p>
+    <h2>Usage</h2>
+    <p class="sg-lede">No props — drop it in. To change the steps, edit the wrapper. To change the layout (tile size, arrow weight, payoff treatment), edit the underlying <a href="/style-guide/step-flow/" class="text-[color:var(--color-brand-pressed)] underline-offset-2 hover:underline">StepFlow</a> primitive.</p>
     <div class="sg-preview">
-      <dl class="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 font-mono text-sm">
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Comet duration:</dt> <dd class="inline text-[color:var(--color-ink-2)]">5s linear</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Comet range:</dt> <dd class="inline text-[color:var(--color-ink-2)]">−120% → 420%</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 1 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">250ms → 1050ms</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 2 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">1450ms → 2250ms</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 3 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">2650ms → 3450ms</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Step 4 lit:</dt> <dd class="inline text-[color:var(--color-ink-2)]">3850ms (holds 4500ms)</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Cycle length:</dt> <dd class="inline text-[color:var(--color-ink-2)]">~8.4s</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Visibility gate:</dt> <dd class="inline text-[color:var(--color-ink-2)]">IntersectionObserver, 15% threshold</dd></div>
-        <div><dt class="inline font-semibold text-[color:var(--color-ink)]">Reduced motion:</dt> <dd class="inline text-[color:var(--color-ink-2)]">Comet hidden, no orbs, instant fade-in</dd></div>
-      </dl>
+      <pre class="overflow-x-auto rounded-lg bg-[color:var(--color-navy-900)] p-4 text-[12.5px] leading-relaxed text-slate-200"><code>{`---
+import HowItWorks from "~/components/sections/HowItWorks.astro";
+---
+
+<HowItWorks />`}</code></pre>
     </div>
   </section>
 
   <section class="sg-section">
-    <h2>Tokens</h2>
-    <div class="sg-preview">
-      <ul class="grid grid-cols-1 gap-3 sm:grid-cols-2 font-mono text-sm text-[color:var(--color-ink-2)]">
-        <li><span class="inline-block size-4 align-middle rounded mr-2" style="background:#0a1628"></span> Section bg · <code>#0a1628</code></li>
-        <li><span class="inline-block size-4 align-middle rounded mr-2" style="background:#00E5A0"></span> Comet / halo · <code>#00E5A0</code></li>
-        <li><span class="inline-block size-4 align-middle rounded mr-2" style="background:#062418"></span> Ink on lit · <code>#062418</code></li>
-        <li><span class="inline-block size-4 align-middle rounded mr-2" style="background:#ffffff"></span> Node bg · <code>#ffffff</code></li>
-      </ul>
-    </div>
+    <h2>Legacy</h2>
+    <p class="sg-lede">The previous four-step animated dark-comet treatment ('From an anonymous bounce to an inbound call — in four steps') was retired June 2026. Implementation preserved in git history at commit <code class="font-mono text-sm text-[color:var(--color-brand-pressed)]">778999b^</code>.</p>
   </section>
 </StyleGuideLayout>

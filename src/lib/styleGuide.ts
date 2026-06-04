@@ -49,7 +49,7 @@ export const STYLE_GUIDE: StyleGuideEntry[] = [
   // Sections — production marketing-page composites
   { slug: "hero", title: "Hero Section", description: "Two-column hero with eyebrow + headline + subhead + CTAs + a configurable right-side panel (lead-phone | lead-visit | illustration)." },
   { slug: "step-flow", title: "Step Flow", description: "Horizontal numbered step strip with optional illustrated nodes and an inverted 'payoff' final step." },
-  { slug: "how-it-works", title: "How It Works (Comet)", description: "Animated dark-theme 4-step section with a comet that sweeps and lights each node in turn." },
+  { slug: "how-it-works", title: "How It Works (5-step)", description: "Canonical 'how it works' section — a thin wrapper around StepFlow that renders the five illustrated recovery steps. Used on /, /how-it-works/, and every industry page." },
   { slug: "feature-bento", title: "Feature Bento", description: "Homepage feature section — 4 feature groups from src/data/features.ts, each rendered as an IllustrationCard grid." },
   { slug: "problem-stats", title: "Problem Stats", description: "Dark 'the leak in numbers' section. Header + ghost-in-browser illustration + Funnel viz + 3 stat cards." },
   { slug: "product-showcase", title: "Product Showcase", description: "Big dashboard-chrome reveal section with a mint glow + corner chips. The 'sexy product visual' moment." },
