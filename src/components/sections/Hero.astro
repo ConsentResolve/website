@@ -25,11 +25,16 @@ interface Props {
   ctaLabel?: string;
   ctaHref?: string;
   showPanel?: boolean;
-  /** Which island fills the right-hand panel.
-   *   "lead-phone" — static contact card cycling through homeowners (v1)
-   *   "lead-visit" — anonymous-browse → consent → contact-reveal story (v2)
+  /** Which visual fills the right-hand panel.
+   *   "lead-phone"   — static contact card cycling through homeowners (v1)
+   *   "lead-visit"   — anonymous-browse → consent → contact-reveal story
+   *   "illustration" — static hand-drawn hero illustration (Recraft asset)
    */
-  panelKind?: "lead-phone" | "lead-visit";
+  panelKind?: "lead-phone" | "lead-visit" | "illustration";
+  /** When panelKind === "illustration", the asset path under /public. */
+  panelSrc?: string;
+  /** Alt text for the illustration. */
+  panelAlt?: string;
 }
 const {
   eyebrow = "For ad-buying contractors",
@@ -40,6 +45,8 @@ const {
   ctaHref = "https://dashboard.consentresolve.com/register",
   showPanel = true,
   panelKind = "lead-phone",
+  panelSrc,
+  panelAlt = "",
 } = Astro.props as Props;
 ---
 
@@ -85,7 +92,25 @@ const {
 
     {showPanel && (
       <div class="relative">
-        {panelKind === "lead-visit" ? <LeadVisit client:visible /> : <LeadPhone client:visible />}
+        {panelKind === "illustration" && panelSrc ? (
+          <div class="relative mx-auto w-full max-w-[520px]">
+            <!-- Soft floor shadow under the illustration -->
+            <div aria-hidden="true" class="pointer-events-none absolute inset-x-10 -bottom-4 h-16 rounded-full bg-[color:var(--color-mint-400)]/20 blur-3xl"></div>
+            <img
+              src={panelSrc}
+              alt={panelAlt}
+              width="1024"
+              height="1024"
+              class="relative mx-auto block h-auto w-full select-none"
+              loading="eager"
+              decoding="async"
+            />
+          </div>
+        ) : panelKind === "lead-visit" ? (
+          <LeadVisit client:visible />
+        ) : (
+          <LeadPhone client:visible />
+        )}
       </div>
     )}
   </div>
