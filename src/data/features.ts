@@ -222,7 +222,7 @@ const cartRecovery: Feature = {
       { q: "Can I use my existing email tool?",                      a: "Yes. We push recovered abandoners straight into Klaviyo, Mailchimp, HubSpot, or any tool that accepts a webhook. No new email platform required." },
     ],
   },
-  pairsWith: ["instant-connect", "verified-contact-data", "multi-channel-follow-up"],
+  pairsWith: ["instant-retarget", "verified-contact-data", "multi-channel-follow-up"],
 };
 
 // -----------------------------------------------------------------------
@@ -332,7 +332,7 @@ const visitorIdentification: Feature = {
       { q: "What info do I actually get?",                 a: "A name, a way to reach them, and what they looked at on your site." },
     ],
   },
-  pairsWith: ["formless-contact-capture", "behavior-and-job-type-insights", "instant-connect"],
+  pairsWith: ["formless-contact-capture", "behavior-and-job-type-insights", "instant-retarget"],
 };
 
 const formlessContactCapture: Feature = {
@@ -385,7 +385,7 @@ const formlessContactCapture: Feature = {
       { q: "What if they only viewed one page?",                 a: "We can still capture a consented visitor even on a short visit." },
     ],
   },
-  pairsWith: ["visitor-identification", "verified-contact-data", "instant-connect"],
+  pairsWith: ["visitor-identification", "verified-contact-data", "instant-retarget"],
 };
 
 const verifiedContactData: Feature = {
@@ -441,57 +441,57 @@ const verifiedContactData: Feature = {
   pairsWith: ["formless-contact-capture", "qualified-leads-only", "multi-channel-follow-up"],
 };
 
-const instantConnect: Feature = {
-  slug: "instant-connect",
-  name: "Instant Connect",
+const instantRetarget: Feature = {
+  slug: "instant-retarget",
+  name: "Instant Retarget",
   iconKey: "IconBolt",
-  tagline: "Funnel fires the moment they re-engage.",
-  howItHelps: "The instant a recovered visitor re-engages — opens your email, clicks a retargeting ad, or returns to your site — your funnel knows. Your follow-up sequence fires at the right beat so the inbound call lands while the homeowner is still actively shopping.",
-  illustration: "/illustrations/features/08-instant-connect.svg",
-  subhead: "Recovered visitors don't sit in a queue. The moment they re-engage with your retargeting or email, your funnel fires — and the inbound call comes in warm.",
+  tagline: "Track every click to customer.",
+  howItHelps: "Every paid click is tagged with its campaign, ad group, and keyword the moment the visitor consents — then tracked all the way to closed deal. Cut the campaigns that don't drive revenue. Scale the ones that do. Defend the budget with data, not vanity metrics.",
+  illustration: "/illustrations/features/08-instant-retarget.svg",
+  subhead: "You're spending thousands on ads with no idea what's actually working. Most visitors don't convert on the first visit — and you lose their trail forever. We tag every consented click, track it through the funnel, and tie real revenue back to the campaign that earned it.",
   aeoAnswer:
-    "Instant Connect signals your retargeting and email funnel the moment a recovered visitor re-engages, so the next message in their sequence fires while interest is still hot. The result is an inbound call from a homeowner who's already been re-warmed by your funnel — not a cold outreach from you.",
+    "Instant Retarget tags every paid click with full campaign attribution (UTM source, ad group, keyword) the moment the visitor consents, then tracks the journey through every funnel step to closed deal. The result is true cost-per-acquisition and ROAS per campaign — so ad budget moves to the campaigns that drive revenue, not the ones that drive clicks.",
   problem: {
-    headline: "Funnel timing decides whether they come back.",
-    body: "A homeowner with a leaking roof isn't waiting around. They're contacting whoever shows up in front of them first. If your retargeting and email sequence don't fire at the moment of re-engagement, the job's already gone to whoever did. Speed-to-funnel isn't a nice-to-have — it's the whole game.",
+    headline: "You're optimizing for clicks while revenue bleeds out.",
+    body: "Your CFO asks 'What's our ROI on ads?' and you're stuck showing click-through rates instead of revenue. You're burning budget on campaigns that look good in dashboards but don't drive actual customers. You can't prove which ads work because most visitors don't convert on the first visit — and you lose the trail forever.",
   },
   howItWorks: {
-    headline: "From recovered to re-engaged in real time.",
+    headline: "Three steps to turn ad clicks into provable revenue.",
     steps: [
-      { title: "Visitor is recovered.",       body: "A consented person is identified on your site and added to your audiences." },
-      { title: "Funnel fires automatically.", body: "Email, SMS, and retargeting ads queue up the moment they re-engage." },
-      { title: "They call you.",              body: "By the time the inbound call hits your line, they're already warm." },
+      { title: "Visitor clicks your ad.",                       body: "Someone clicks your paid ad and lands on your website. UTM parameters are captured and stored automatically." },
+      { title: "We identify and tag with campaign source.",     body: "After consent, our system identifies the visitor and permanently tags them with complete attribution data — campaign, ad group, keyword, everything." },
+      { title: "Track through to revenue.",                     body: "Watch the visitor's complete journey from ad click to customer. Calculate true ROAS. Prove which campaigns drive actual revenue, not just clicks." },
     ],
   },
   benefits: {
-    headline: "Inbound calls that close themselves.",
+    headline: "Stop guessing and start proving which ads drive revenue.",
     items: [
-      { title: "Warm, not cold.",            body: "The homeowner has been touched by your funnel before they ever dial." },
-      { title: "Right-time follow-up.",      body: "Sequences fire on re-engagement, not on a generic drip schedule." },
-      { title: "More booked jobs.",          body: "Speed-to-funnel is the number-one predictor of who wins the call." },
+      { title: "True ROAS measurement.",  body: "Track visitors through to closed deals. Calculate real return on ad spend — not cost per click, not impressions." },
+      { title: "Find underperformers.",   body: "Identify which campaigns drive clicks but not qualified leads. Cut spend on vanity metrics fast." },
+      { title: "Prove ROI to leadership.", body: "Show executives exactly which marketing dollars drive which customers. Defend the budget with data." },
     ],
   },
   included: {
-    headline: "What Instant Connect includes.",
+    headline: "What Instant Retarget includes.",
     items: [
-      "Real-time re-engagement signals to your funnel",
-      "Triggers email, SMS, and retargeting automations",
-      "Works with the sequences you already run",
-      "Time-stamped so you know how fresh interest is",
-      "No daily export, no manual list pulls",
-      "Fires the moment intent peaks, not after",
+      "UTM source / campaign / ad group / keyword capture on every consented click",
+      "Permanent attribution tag — survives across sessions, devices, and visits",
+      "End-to-end visitor journey from ad click to closed deal",
+      "True ROAS per campaign, calculated on revenue not clicks",
+      "Underperformer flagging — campaigns burning spend without driving leads",
+      "Budget-reallocation dashboard the CFO can read in 30 seconds",
     ],
   },
   faq: {
-    headline: "What pros ask about Instant Connect.",
+    headline: "What teams ask about ad attribution.",
     items: [
-      { q: "What actually fires \"instantly\"?",        a: "The signal to your funnel. Your email, SMS, and ad sequences pick it up and queue the right message at the right beat." },
-      { q: "Does this replace my existing automation?", a: "No — it feeds it. Keep the sequences you already run; Instant Connect just makes them fire on real intent." },
-      { q: "Why does speed-to-funnel matter so much?",  a: "The first brand back in front of a re-engaged homeowner usually gets the inbound call. Instant Connect makes that you." },
-      { q: "Can I see when a visitor re-engages?",      a: "Yes — the timeline shows every touch, so you can tune your sequence and your ad spend." },
+      { q: "How is this different from Google Analytics?",                    a: "GA tells you which campaign drove the click. Instant Retarget tells you which campaign drove the customer — the consented visitor tagged at the click is followed all the way through your funnel to closed revenue, so ROAS is measured against actual sales." },
+      { q: "What if visitors clear cookies or switch devices?",               a: "Attribution is bound to the consented identity, not just a cookie. The tag survives clearing browser storage and follows the visitor across devices once they're identified, so cross-device journeys still resolve." },
+      { q: "Can I export the attribution data to my BI tool?",                a: "Yes. Every visitor record exports with full campaign attribution + revenue outcome — push it to BigQuery, Snowflake, Looker, or any tool via webhook." },
+      { q: "How quickly can I see which campaigns are wasting budget?",       a: "From day one. As soon as consented clicks start landing, the dashboard shows you cost-per-identified-lead per campaign — and within two weeks you'll have enough closed-deal data to call winners and losers with confidence." },
     ],
   },
-  pairsWith: ["qualified-leads-only", "visitor-identification", "multi-channel-follow-up"],
+  pairsWith: ["roi-reporting", "lead-scoring", "multi-channel-follow-up"],
 };
 
 // -----------------------------------------------------------------------
@@ -764,7 +764,7 @@ const multiChannelFollowUp: Feature = {
       { q: "What if they opt out?",                a: "They're suppressed automatically across every channel." },
     ],
   },
-  pairsWith: ["instant-connect", "crm-delivery", "verified-contact-data"],
+  pairsWith: ["instant-retarget", "crm-delivery", "verified-contact-data"],
 };
 
 const builtInCompliance: Feature = {
@@ -910,7 +910,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     title: "Turn the bounce into an inbound call.",
     blurb:
       "The recovered visitor comes back on their own time, through your funnel, and calls you — warm, not cold. These features keep the timing right, the area accurate, and the noise out.",
-    features: [instantConnect, qualifiedLeadsOnly, roiReporting],
+    features: [instantRetarget, qualifiedLeadsOnly, roiReporting],
   },
   {
     slug: "consent-moat",
