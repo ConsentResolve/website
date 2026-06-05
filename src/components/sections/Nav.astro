@@ -1,15 +1,12 @@
 ---
 import { PRIMARY_NAV } from "~/lib/site";
-import { IconShieldCheck, IconArrowRight } from "@tabler/icons-react";
+import { IconArrowRight } from "@tabler/icons-react";
 ---
 
 <header class="section-dark sticky top-0 z-50 w-full backdrop-blur-xl bg-[color:var(--color-navy-900)]/90 border-b border-white/[0.06]">
   <div class="container-content flex h-[72px] items-center justify-between gap-8">
-    <a href="/" class="group flex items-center gap-2.5">
-      <div class="flex size-9 items-center justify-center rounded-lg bg-[color:var(--color-mint-400)]">
-        <IconShieldCheck size={20} stroke={2.25} color="#0A1628" />
-      </div>
-      <div class="text-[17px] font-semibold tracking-tight text-white">Consent Resolve</div>
+    <a href="/" class="group flex items-center" aria-label="Consent Resolve home">
+      <img src="/crnewlogo.svg" alt="Consent Resolve" width="212" height="32" class="h-8 w-auto" />
     </a>
 
     <nav class="hidden md:flex items-center gap-8" aria-label="Primary">

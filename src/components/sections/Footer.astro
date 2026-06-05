@@ -1,6 +1,5 @@
 ---
 import { FOOTER_NAV } from "~/lib/site";
-import { IconShieldCheck } from "@tabler/icons-react";
 const year = new Date().getFullYear();
 ---
 
@@ -8,12 +7,9 @@ const year = new Date().getFullYear();
   <div class="container-content py-20">
     <div class="grid gap-12 md:grid-cols-6">
       <div class="md:col-span-2">
-        <div class="flex items-center gap-2.5">
-          <div class="flex size-8 items-center justify-center rounded-lg bg-[color:var(--color-navy-900)]">
-            <IconShieldCheck size={18} stroke={2.25} color="#00E5A0" />
-          </div>
-          <span class="text-base font-semibold tracking-tight text-[color:var(--color-ink)]">Consent Resolve</span>
-        </div>
+        <a href="/" class="inline-flex items-center" aria-label="Consent Resolve home">
+          <img src="/logo-on-light.png" alt="Consent Resolve" width="196" height="30" class="h-7 w-auto" />
+        </a>
         <p class="mt-5 max-w-xs text-sm leading-relaxed text-[color:var(--color-ink-2)]">
           Lead identification for home service businesses. Compliant by default.
         </p>
