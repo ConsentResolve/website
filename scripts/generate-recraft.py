@@ -124,6 +124,14 @@ HIW_SUBJECTS = [
 ]
 
 
+# Homepage hero story illustration — one scene that tells the whole story
+# for a service pro, no text (captions are added in code over/under it).
+# Left→right narrative: consent on the site → verified contact → lands in CRM.
+HERO_SUBJECTS = [
+    ("01", "story", "What Consent Resolve does", "a clean rounded contact card stamped with a small circular checkmark verification badge in its top corner, dropping down along a short curved arrow into an open inbox tray that is catching it, generous space around them"),
+]
+
+
 def load_key(p: Path) -> str:
     if not p.exists():
         sys.exit(f"Key file not found: {p}\nCreate it with:\n  echo YOUR_KEY > {p} && chmod 600 {p}")
@@ -191,8 +199,8 @@ def main():
                     help="substyle slug for the chosen style; see Recraft docs")
     ap.add_argument("--size", default="1024x1024")
     ap.add_argument("--style-id", default="", help="Recraft custom Brand Style UUID; when set, overrides style/substyle/colors")
-    ap.add_argument("--set", default="style", choices=["style", "hiw", "features", "trades"],
-                    help="which subject set: 'style' (9 feature illustrations), 'hiw' (4 HowItWorks step illustrations), 'features' (9 feature-hub illustrations), or 'trades' (17 industry/trade illustrations)")
+    ap.add_argument("--set", default="style", choices=["style", "hiw", "features", "trades", "hero"],
+                    help="which subject set: 'style' (9 feature illustrations), 'hiw' (4 HowItWorks step illustrations), 'features' (9 feature-hub illustrations), 'trades' (17 industry/trade illustrations), or 'hero' (homepage story scene)")
     ap.add_argument("--out-dir", default="",
                     help="override output directory; default is public/illustrations/<set>/")
     ap.add_argument("--dry-run", action="store_true")
@@ -208,6 +216,9 @@ def main():
     elif args.set == "trades":
         subject_set = TRADES_SUBJECTS
         default_subdir = "trades"
+    elif args.set == "hero":
+        subject_set = HERO_SUBJECTS
+        default_subdir = "hero"
     else:
         subject_set = SUBJECTS
         default_subdir = "style"

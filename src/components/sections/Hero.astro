@@ -23,6 +23,14 @@ const integrations = marqueeNames
   .filter((i): i is NonNullable<typeof i> => Boolean(i))
   .map((i) => (i.logo ? { name: i.name, logo: i.logo } : { name: i.name }));
 
+// Caption strip for the "story" hero panel — the 3-beat narrative laid
+// over the Recraft illustration (which carries no text of its own).
+const storySteps = [
+  { title: "Consent banner asks", body: "Your visitor says yes first — no yes, no data." },
+  { title: "Matched to a verified contact", body: "A real email, with name and location where available." },
+  { title: "Lands in your funnel", body: "Into your CRM, retargeting, and email — then they call you." },
+];
+
 interface Props {
   eyebrow?: string;
   title?: string;
@@ -36,7 +44,7 @@ interface Props {
    *   "lead-visit"   — anonymous-browse → consent → contact-reveal story
    *   "illustration" — static hand-drawn hero illustration (Recraft asset)
    */
-  panelKind?: "lead-phone" | "lead-visit" | "illustration";
+  panelKind?: "lead-phone" | "lead-visit" | "illustration" | "story";
   /** When panelKind === "illustration", the asset path under /public. */
   panelSrc?: string;
   /** Alt text for the illustration. */
@@ -116,7 +124,32 @@ const logoStripPad = compact ? "py-5" : "py-10";
 
     {showPanel && (
       <div class="relative">
-        {panelKind === "illustration" && panelSrc ? (
+        {panelKind === "story" && panelSrc ? (
+          <div class="relative mx-auto w-full max-w-[480px]">
+            <!-- Soft floor glow behind the illustration -->
+            <div aria-hidden="true" class="pointer-events-none absolute inset-x-10 top-2 h-40 rounded-full bg-[color:var(--color-mint-400)]/20 blur-3xl"></div>
+            <img
+              src={panelSrc}
+              alt={panelAlt}
+              width="1024"
+              height="1024"
+              class="relative mx-auto block h-auto w-full max-w-[320px] select-none"
+              loading="eager"
+              decoding="async"
+            />
+            <ol class="relative mt-6 space-y-2.5">
+              {storySteps.map((s, i) => (
+                <li class="flex items-start gap-3 rounded-xl bg-[color:var(--color-bg-alt)] p-3.5 ring-1 ring-inset ring-[color:var(--color-rule)]">
+                  <span class="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-lg bg-[color:var(--color-brand-soft)] font-display text-sm font-black text-[color:var(--color-brand-pressed)]">{i + 1}</span>
+                  <div>
+                    <p class="font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">{s.title}</p>
+                    <p class="mt-0.5 text-[12px] leading-relaxed text-[color:var(--color-ink-2)]">{s.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : panelKind === "illustration" && panelSrc ? (
           <div class="relative mx-auto w-full max-w-[520px]">
             <!-- Soft floor shadow under the illustration -->
             <div aria-hidden="true" class="pointer-events-none absolute inset-x-10 -bottom-4 h-16 rounded-full bg-[color:var(--color-mint-400)]/20 blur-3xl"></div>
