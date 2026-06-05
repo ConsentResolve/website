@@ -21,7 +21,7 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Hero from "~/components/sections/Hero.astro";
 import HowItWorks from "~/components/sections/HowItWorks.astro";
-import ComplianceBand from "~/components/sections/ComplianceBand.astro";
+import PrivacyChallenge from "~/components/sections/PrivacyChallenge.astro";
 import FAQSection from "~/components/sections/FAQSection.astro";
 import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
@@ -471,9 +471,11 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
   </section>
 
   <!-- ============================================================== -->
-  <!-- 10. TRUST — Compliance band                                    -->
+  <!-- 10. PRIVACY CHALLENGE — problem framing for compliance.        -->
+  <!--     Homepage-only for now; ComplianceBand still ships on every -->
+  <!--     other page while we iterate on this treatment.             -->
   <!-- ============================================================== -->
-  <ComplianceBand />
+  <PrivacyChallenge />
 
   <!-- ============================================================== -->
   <!-- 11. FAQ — long-tail SEO + FAQPage schema for AEO              -->
