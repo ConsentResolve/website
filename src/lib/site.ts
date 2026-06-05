@@ -25,7 +25,6 @@ export const PRIMARY_NAV: NavItem[] = [
   { label: "Features", href: "/features/" },
   { label: "How It Works", href: "/how-it-works/" },
   { label: "Industries", href: "/industries/" },
-  { label: "Channel ROI", href: "/compare/" },
   { label: "Pricing", href: "/pricing/" },
 ];
 
@@ -33,6 +32,7 @@ export const FOOTER_NAV = {
   product: [
     { label: "Features", href: "/features/" },
     { label: "How It Works", href: "/how-it-works/" },
+    { label: "Channel ROI", href: "/compare/" },
     { label: "Pricing", href: "/pricing/" },
     { label: "Get Started", href: "https://dashboard.consentresolve.com/register" },
   ],

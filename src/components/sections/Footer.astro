@@ -3,32 +3,32 @@ import { FOOTER_NAV } from "~/lib/site";
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-t border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+<footer class="border-t border-white/10 bg-[color:var(--color-navy-900)]">
   <div class="container-content py-20">
     <div class="grid gap-12 md:grid-cols-6">
       <div class="md:col-span-2">
         <a href="/" class="inline-flex items-center" aria-label="Consent Resolve home">
-          <img src="/logo-on-light.png" alt="Consent Resolve" width="196" height="30" class="h-7 w-auto" />
+          <img src="/crnewlogo.svg" alt="Consent Resolve" width="196" height="30" class="h-7 w-auto" />
         </a>
-        <p class="mt-5 max-w-xs text-sm leading-relaxed text-[color:var(--color-ink-2)]">
-          Lead identification for home service businesses. Compliant by default.
+        <p class="mt-5 max-w-xs text-sm leading-relaxed text-slate-400">
+          Lead identification for home service businesses. Consent-first by design.
         </p>
         <!-- NAP block for local SEO + accessibility -->
-        <address class="mt-6 text-xs not-italic leading-relaxed text-[color:var(--color-ink-muted)]">
-          <strong class="text-[color:var(--color-ink-2)]">Consent Resolve</strong><br/>
+        <address class="mt-6 text-xs not-italic leading-relaxed text-slate-500">
+          <strong class="text-slate-300">Consent Resolve</strong><br/>
           1907 Gulf Way #1<br/>
           St Pete Beach, FL 33706<br/>
-          <a href="tel:+17272025996" class="hover:text-[color:var(--color-brand-pressed)]">(727) 202-5996</a><br/>
-          <a href="mailto:hello@consentresolve.com" class="hover:text-[color:var(--color-brand-pressed)]">hello@consentresolve.com</a>
+          <a href="tel:+17272025996" class="hover:text-[color:var(--color-mint-400)]">(727) 202-5996</a><br/>
+          <a href="mailto:hello@consentresolve.com" class="hover:text-[color:var(--color-mint-400)]">hello@consentresolve.com</a>
         </address>
       </div>
       {Object.entries(FOOTER_NAV).map(([heading, links]) => (
         <div>
-          <h3 class="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">{heading}</h3>
+          <h3 class="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{heading}</h3>
           <ul class="space-y-2.5">
             {links.map((l) => (
               <li>
-                <a class="text-sm text-[color:var(--color-ink-2)] transition-colors hover:text-[color:var(--color-brand-pressed)]" href={l.href}>
+                <a class="text-sm text-slate-400 transition-colors hover:text-[color:var(--color-mint-400)]" href={l.href}>
                   {l.label}
                 </a>
               </li>
@@ -37,7 +37,7 @@ const year = new Date().getFullYear();
         </div>
       ))}
     </div>
-    <div class="mt-16 flex flex-col items-start justify-between gap-3 border-t border-[color:var(--color-rule)] pt-8 text-xs text-[color:var(--color-ink-muted)] md:flex-row md:items-center">
+    <div class="mt-16 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-8 text-xs text-slate-500 md:flex-row md:items-center">
       <p>© {year} Consent Resolve. All rights reserved.</p>
       <p>Consent-first by design · Audit trail on every lead</p>
     </div>
