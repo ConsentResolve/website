@@ -19,10 +19,7 @@ import { breadcrumbSchema, faqSchema } from "~/lib/seo";
 import { IconArrowRight, IconCheck, IconEye } from "@tabler/icons-react";
 
 export async function getStaticPaths() {
-  // built-in-compliance has its own static page (src/pages/features/
-  // built-in-compliance.astro) with extra sections — exclude it here
-  // so we don't generate two routes for the same URL.
-  return ALL_FEATURES.filter((f) => f.slug !== "built-in-compliance").map((feature) => ({
+  return ALL_FEATURES.map((feature) => ({
     params: { slug: feature.slug },
     props: { feature },
   }));
