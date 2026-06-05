@@ -33,17 +33,19 @@ import {
   IconArrowRight, IconEye, IconBolt, IconRefresh, IconAddressBook,
   IconMessage, IconStar, IconChartHistogram, IconClipboardCheck,
   IconPlugConnected, IconCode, IconUserCheck, IconCircleCheck,
-  IconShieldCheck, IconCash, IconAlertTriangle, IconUsers,
+  IconShieldCheck, IconCash, IconAlertTriangle, IconPointer, IconMail,
   type Icon,
 } from "@tabler/icons-react";
 
-// Hero "how it works in 3" animated flow (right column). Dark cards,
-// staggered looping reveal. Copy from the user's layout; step 2 phrased
-// to the sanctioned mechanism line (no "device" / fingerprinting).
-const flowSteps: { n: number; hex: string; Icon: Icon; title: string; body: string }[] = [
-  { n: 1, hex: "#00E5A0", Icon: IconCircleCheck, title: "Consent Banner Appears", body: "A privacy-compliant banner asks visitors for permission to identify them." },
-  { n: 2, hex: "#22D3EE", Icon: IconUsers,       title: "Visitor Grants Consent", body: "When they agree, we match them to verified identity data through a trusted, deterministic source." },
-  { n: 3, hex: "#A78BFA", Icon: IconBolt,        title: "You Get the Lead",       body: "Name, email, and contact details sent directly to your CRM." },
+// Hero "how it works in 3" slideshow (right column). Each step carries a
+// small CSS micro-animation: (1) the "I Accept" button scrolls up on the
+// consent banner, (2) a cursor clicks "I Accept", (3) an email flies into
+// the CRM. Copy from the user's layout; step 2 phrased to the sanctioned
+// mechanism line (no "device"/fingerprinting).
+const flowSteps: { n: number; hex: string; kind: "banner" | "cursor" | "crm"; title: string; body: string }[] = [
+  { n: 1, hex: "#00E5A0", kind: "banner", title: "Consent Banner Appears", body: "A privacy-compliant banner asks visitors for permission to identify them." },
+  { n: 2, hex: "#22D3EE", kind: "cursor", title: "Visitor Grants Consent", body: "When they agree, we match them to verified identity data through a trusted, deterministic source." },
+  { n: 3, hex: "#A78BFA", kind: "crm",    title: "You Get the Lead",       body: "Name, email, and contact details sent directly to your CRM." },
 ];
 
 interface Card {
@@ -308,7 +310,28 @@ const cardIconBg = (bg: Part["bg"]) =>
                 <span class="flowcard-num">{s.n}</span>
                 <h3 class="flowcard-title">{s.title}</h3>
                 <p class="flowcard-body">{s.body}</p>
-                <div class="flowcard-iconbar"><s.Icon size={20} stroke={2} /></div>
+                <div class="flowcard-scene">
+                {s.kind === "banner" && (
+                  <div class="sc sc-banner">
+                    <span class="sc-line"></span>
+                    <span class="sc-line sc-line--short"></span>
+                    <span class="sc-accept">I Accept</span>
+                  </div>
+                )}
+                {s.kind === "cursor" && (
+                  <div class="sc sc-cursor">
+                    <span class="sc-accept sc-accept--press">I Accept</span>
+                    <span class="sc-pointer"><IconPointer size={22} stroke={2} /></span>
+                  </div>
+                )}
+                {s.kind === "crm" && (
+                  <div class="sc sc-crm">
+                    <span class="sc-chip sc-chip--from"><IconMail size={13} stroke={2} /> email</span>
+                    <span class="sc-flyer"><IconMail size={14} stroke={2.25} /></span>
+                    <span class="sc-chip sc-chip--to">CRM</span>
+                  </div>
+                )}
+              </div>
               </div>
             ))}
           </div>
@@ -464,16 +487,123 @@ const cardIconBg = (bg: Part["bg"]) =>
     line-height: 1.55;
     color: #94a3b8;
   }
-  .flowcard-iconbar {
+  /* Per-step micro-animation stage at the bottom of each card. */
+  .flowcard-scene {
+    position: relative;
+    overflow: hidden;
     margin-top: 1.2rem;
     height: 3.5rem;
     border-radius: 0.7rem;
-    display: flex;
-    align-items: center;
-    padding: 0 1rem;
+    padding: 0 0.9rem;
     color: var(--accent);
     background: color-mix(in srgb, var(--accent) 10%, rgba(255, 255, 255, 0.02));
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 24%, transparent);
+  }
+  .sc {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    height: 100%;
+  }
+  .sc-accept {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #0a1628;
+    background: var(--accent);
+    padding: 0.34rem 0.7rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  /* (1) BANNER — text lines on the left; "I Accept" scrolls up after a pause */
+  .sc-line {
+    height: 0.4rem;
+    width: 3.6rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+  }
+  .sc-line--short { width: 2rem; }
+  .sc-banner .sc-accept {
+    margin-left: auto;
+    transform: translateY(150%);
+    opacity: 0;
+    animation: acceptRise 9s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 3s);
+  }
+  @keyframes acceptRise {
+    0%, 12%   { transform: translateY(150%); opacity: 0; }
+    19%, 30%  { transform: translateY(0); opacity: 1; }
+    34%, 100% { transform: translateY(150%); opacity: 0; }
+  }
+  /* (2) CURSOR — "I Accept" sits left; pointer moves in and clicks it */
+  .sc-cursor .sc-accept--press {
+    animation: btnPress 9s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 3s);
+  }
+  @keyframes btnPress {
+    0%, 15%   { transform: scale(1); filter: brightness(1); }
+    19%, 23%  { transform: scale(0.92); filter: brightness(1.18); }
+    27%, 100% { transform: scale(1); filter: brightness(1); }
+  }
+  .sc-pointer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #f8fafc;
+    transform: translate(5.4rem, 2.3rem) scale(0.9);
+    opacity: 0;
+    animation: curMove 9s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 3s);
+  }
+  @keyframes curMove {
+    0%        { transform: translate(5.4rem, 2.3rem) scale(0.9); opacity: 0; }
+    7%        { opacity: 1; }
+    17%       { transform: translate(2.1rem, 0.7rem) scale(1); opacity: 1; }
+    19%, 23%  { transform: translate(2.1rem, 0.7rem) scale(0.84); opacity: 1; }
+    27%       { transform: translate(2.1rem, 0.7rem) scale(1); opacity: 1; }
+    31%, 100% { opacity: 0; }
+  }
+  /* (3) CRM — email chip on left, envelope flies to the CRM box on right */
+  .sc-crm { justify-content: space-between; }
+  .sc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    padding: 0.3rem 0.55rem;
+    border-radius: 0.5rem;
+    white-space: nowrap;
+  }
+  .sc-chip--to {
+    animation: crmReceive 9s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 3s);
+  }
+  @keyframes crmReceive {
+    0%, 22%   { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
+    27%       { box-shadow: 0 0 0 2px var(--accent); transform: scale(1.08); }
+    33%, 100% { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
+  }
+  .sc-flyer {
+    position: absolute;
+    left: 3.1rem;
+    top: 50%;
+    color: var(--accent);
+    transform: translateY(-50%) translateX(0);
+    opacity: 0;
+    animation: mailFly 9s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 3s);
+  }
+  @keyframes mailFly {
+    0%, 9%    { transform: translateY(-50%) translateX(0); opacity: 0; }
+    13%       { opacity: 1; }
+    25%       { transform: translateY(-50%) translateX(7.5rem); opacity: 1; }
+    29%, 100% { transform: translateY(-50%) translateX(7.5rem); opacity: 0; }
   }
   .flow-dots {
     display: flex;
@@ -500,10 +630,14 @@ const cardIconBg = (bg: Part["bg"]) =>
     5%, 30%   { width: 1.6rem; background: var(--accent); }
     34%, 100% { width: 0.5rem; background: rgba(255, 255, 255, 0.18); }
   }
-  /* Reduced motion: no slideshow — show the first step, hide the rest. */
+  /* Reduced motion: no slideshow — show the first step, hide the rest,
+     and freeze every inner micro-animation into a static resting state. */
   @media (prefers-reduced-motion: reduce) {
     .flowcard { animation: none; opacity: 0; }
     .flowcard:first-child { opacity: 1; }
     .flow-dots { display: none; }
+    .sc-accept, .sc-pointer, .sc-flyer, .sc-chip--to { animation: none !important; }
+    .sc-banner .sc-accept { transform: none; opacity: 1; }
+    .sc-pointer, .sc-flyer { display: none; }
   }
 </style>
