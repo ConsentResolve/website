@@ -88,8 +88,7 @@ const logoStripPad = compact ? "py-5" : "py-10";
     <div>
       {eyebrow && <div class={eyebrowMb}><Badge tone="brand" variant="soft" size="md" uppercase>{eyebrow}</Badge></div>}
       <h1 class={`display-1 ${titleMb} text-[color:var(--color-ink)]`}>
-        {title}{" "}
-        <span class="text-[color:var(--color-brand)] sm:block">{titleAccent}</span>
+        {title + " "}<span class="text-[color:var(--color-brand)] sm:block">{titleAccent}</span>
       </h1>
       <p class={`${subheadMb} max-w-xl text-lg leading-relaxed text-[color:var(--color-ink-2)]`}>{subhead}</p>
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
