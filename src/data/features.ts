@@ -770,54 +770,54 @@ const multiChannelFollowUp: Feature = {
 const builtInCompliance: Feature = {
   slug: "built-in-compliance",
   name: "Built-In Compliance",
-  iconKey: "IconCertificate",
-  tagline: "Legal, on autopilot.",
-  howItHelps: "Every consent recorded with a timestamp, every opt-out honored automatically. Your shop stays clean across state privacy laws without you ever reading one — Termageddon keeps your policies current in the background.",
+  iconKey: "IconShieldCheck",
+  tagline: "It all starts with consent.",
+  howItHelps: "Every visitor decision is timestamped, logged, and exportable for seven years. Documentation that stands up to GDPR, CCPA, HIPAA, and GLBA audits — so one regulator request, lawsuit, or complaint doesn't put the business at risk.",
   illustration: "/illustrations/style/08-shield-doc.svg",
-  subhead: "Consent gets recorded and opt-outs honored automatically, across every state. You stay covered without becoming a privacy-law expert.",
+  subhead: "Other tools track visitors without clear consent and call it \"identification.\" One audit request, one lawsuit, one regulatory complaint — and you're defending tracking you can't prove was authorized. We start with consent.",
   aeoAnswer:
-    "Built-In Compliance records every visitor's consent and honors opt-outs automatically, across state privacy laws. Working alongside Termageddon for policy coverage, Consent Resolve keeps a timestamped log of every lead's permission — so your shop stays on the right side of the rules without you having to track changing privacy laws yourself.",
+    "Built-In Compliance records every visitor's consent decision (yes, no, or dismiss) with a timestamp, IP, and user agent, then stores the audit trail for seven years. Documentation stands up to GDPR, CCPA, HIPAA, and GLBA audits — so a recovered lead can always be proven authorized, and a single complaint never becomes a multi-million-dollar regulatory event.",
   problem: {
-    headline: "Privacy laws change faster than you can keep up.",
-    body: "New state privacy laws keep landing, each with its own rules about contacting people. You didn't get into the trades to study legislation. But \"I didn't know\" isn't a defense if a complaint lands. You need the compliance handled for you, quietly, in the background.",
+    headline: "Visitor tracking without consent is a legal minefield.",
+    body: "Other tools track first and ask never. One audit request from a regulator, one class-action lawsuit, or one consumer complaint — and you're defending tracking you can't prove was authorized. Higher match rates mean nothing if one violation destroys the business.",
   },
   howItWorks: {
-    headline: "Coverage that runs itself.",
+    headline: "Transparent consent collection in three simple steps.",
     steps: [
-      { title: "Consent is captured.",      body: "Every visitor's permission is recorded at the source." },
-      { title: "It's logged and timestamped.", body: "You get a receipt for every lead." },
-      { title: "Opt-outs are honored.",     body: "Anyone who says no is suppressed automatically." },
+      { title: "Visitor sees clear banner.",       body: "Plain-language banner explains what's tracked and why. No dark patterns. No pre-checked boxes. No hiding the \"no\" button." },
+      { title: "Consent decision logged.",         body: "Every yes, no, or dismiss is timestamped and stored. IP address, user agent, and decision recorded for 7 years." },
+      { title: "Export compliance records.",       body: "Download complete audit trail anytime. Show regulators documented consent for every tracked visitor." },
     ],
   },
   benefits: {
-    headline: "Peace of mind, handled for you.",
+    headline: "Legal protection worth more than higher match rates.",
     items: [
-      { title: "No law degree needed.",     body: "The rules are handled in the background." },
-      { title: "A receipt for everything.", body: "Every consent is timestamped and stored." },
-      { title: "Automatic opt-outs.",       body: "No risk of calling someone who said no." },
+      { title: "7-year audit trail.",     body: "Every consent decision timestamped and stored. Prove authorization for any visitor, anytime." },
+      { title: "Regulatory defense.",     body: "Documentation that stands up to GDPR, CCPA, HIPAA, and GLBA audits." },
+      { title: "Lawsuit protection.",     body: "Documented consent defeats class-action claims of unauthorized tracking." },
     ],
   },
   included: {
-    headline: "What compliance covers.",
+    headline: "What consent-first tracking includes.",
     items: [
-      "Consent recorded at first click",
-      "Timestamped receipt per lead",
-      "Automatic opt-out suppression",
-      "Works with Termageddon policies",
-      "Multi-state coverage",
-      "Audit trail on demand",
+      "7-year audit trail of every consent decision",
+      "Regulatory defense — GDPR, CCPA, HIPAA, GLBA",
+      "Withdrawal tracking — stop tracking the moment someone revokes",
+      "No dark patterns — clear language, obvious decline button",
+      "Exportable consent records — CSV, ready for legal review",
+      "Lawsuit protection — documented consent defeats class-action claims",
     ],
   },
   faq: {
-    headline: "What pros ask about built-in compliance.",
+    headline: "What pros ask about consent-first tracking.",
     items: [
-      { q: "Does this replace my privacy policy?",          a: "No. Consent Resolve handles consent capture and works with Termageddon for your policies — you still keep a policy on your site." },
-      { q: "What if a regulator asks for proof?",           a: "Every consent is timestamped and logged, so you can show exactly what was agreed and when." },
-      { q: "Does it cover my state?",                       a: "It's built for multi-state coverage. Confirm specifics for your state with us and your own advisor." },
-      { q: "What happens when someone opts out?",           a: "They're suppressed automatically and you never get their info." },
+      { q: "How is this different from other visitor-ID tools?", a: "Most identification tools track first and ask never. We ask first and track second. Lower match rates, but every lead is defensible — and one violation can cost more than a lifetime of higher conversion." },
+      { q: "What if a regulator asks for proof?",                a: "Export the complete audit trail in CSV. Every consent decision is timestamped with IP, user agent, and decision recorded for seven years — ready for legal review on demand." },
+      { q: "What happens when someone withdraws consent?",       a: "Tracking stops immediately. The withdrawal is logged with a timestamp so you can prove exactly when it took effect — and the visitor is suppressed across every channel automatically." },
+      { q: "Does this cover GDPR, CCPA, HIPAA, and GLBA?",        a: "Yes. The audit trail format and documentation depth are designed to stand up to all four. Termageddon keeps your underlying privacy policy current as the rules evolve." },
     ],
   },
-  pairsWith: ["consent-first-identification", "multi-channel-follow-up", "roi-reporting"],
+  pairsWith: ["consent-first-identification", "exclusive-leads", "verified-contact-data"],
 };
 
 const roiReporting: Feature = {
@@ -881,6 +881,14 @@ const roiReporting: Feature = {
 // the compliance moat (June 2026 reposition).
 export const FEATURE_GROUPS: FeatureGroup[] = [
   {
+    slug: "consent-foundation",
+    eyebrow: "It all starts with consent",
+    title: "The foundation everything else sits on.",
+    blurb:
+      "Every recovery, every audience, every lead — starts with the homeowner's documented yes. Consent-first tracking is the receipt that keeps the business defensible when a regulator, lawyer, or ad platform asks.",
+    features: [builtInCompliance],
+  },
+  {
     slug: "ad-recovery",
     eyebrow: "Ad-spend recovery",
     title: "Recover the 98% that bounce.",
@@ -910,7 +918,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     title: "Compliant by design. Yours alone.",
     blurb:
       "This is the wall around the funnel insertion. Every recovery starts with an explicit consent capture, every record is timestamped and audit-logged, and every recovered visitor belongs to you and only you — never resold, never shared.",
-    features: [consentFirstIdentification, builtInCompliance, exclusiveLeads],
+    features: [consentFirstIdentification, exclusiveLeads],
   },
 ];
 
