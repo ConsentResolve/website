@@ -1,27 +1,55 @@
 ---
 /**
- * PrivacyChallenge — dark problem-framing section that explains the
+ * PrivacyChallenge — problem-framing section that explains the
  * regulatory reality (GDPR / CCPA require consent) and the cost of
  * getting it wrong. Pairs a stylized "Privacy Laws Impact" dashboard
- * mockup on the left with prose + risk-callout on the right.
+ * mockup on the left (always rendered dark — it's a glass UI panel)
+ * with prose + risk-callout on the right.
  *
  * Different intent from ComplianceBand:
  *   ComplianceBand    — reassurance ("Legal by default. Receipts for
  *                       everything.") — light bg, illustration right.
  *   PrivacyChallenge  — stakes ("Privacy laws make tracking harder.
- *                       Here's what's at risk.") — dark bg, mockup left.
+ *                       Here's what's at risk.") — light OR dark
+ *                       section bg, dark mockup left.
  *
- * Currently wired only on / (homepage). Sitewide promotion to come
+ * Variant prop:
+ *   "light" (default) — light section bg, ink copy, mint accent.
+ *   "dark"            — dark navy bg with red+amber ambient glows.
+ *
+ * Currently wired on / (homepage, light). Sitewide promotion to come
  * after the user iterates.
  */
 import Badge from "~/components/ui/Badge.astro";
 import { IconShield, IconAlertTriangle, IconWorld, IconLock } from "@tabler/icons-react";
+
+interface Props {
+  variant?: "light" | "dark";
+}
+const { variant = "light" } = Astro.props as Props;
+
+const isDark = variant === "dark";
+const sectionClass = isDark ? "section section-dark" : "section bg-[color:var(--color-bg-alt)]";
+// Copy-area treatments — flip ink ↔ white based on section surface.
+const headlineClass     = isDark ? "text-white" : "text-[color:var(--color-ink)]";
+const accentClass       = isDark ? "text-[color:var(--color-mint-400)]" : "text-[color:var(--color-brand-pressed)]";
+const bodyClass         = isDark ? "text-slate-300" : "text-[color:var(--color-ink-2)]";
+const bodyStrongClass   = isDark ? "text-white"    : "text-[color:var(--color-ink)]";
+const calloutBg         = isDark ? "bg-white/[0.03] ring-white/10" : "bg-[color:var(--color-bg)] ring-[color:var(--color-rule)]";
+const calloutTitleClass = isDark ? "text-white"    : "text-[color:var(--color-ink)]";
+const calloutBodyClass  = isDark ? "text-slate-300" : "text-[color:var(--color-ink-2)]";
+// Ambient glows only render on the dark variant (red/amber undertone
+// reads as risk against navy; against the cream bg it'd just look
+// dirty).
 ---
 
-<section class="section section-dark relative overflow-hidden">
-  <!-- Ambient red/orange glow to underscore the risk framing -->
-  <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-red-500/10 blur-[120px]"></div>
-  <div aria-hidden="true" class="pointer-events-none absolute -right-32 -bottom-32 size-[420px] rounded-full bg-amber-500/10 blur-[120px]"></div>
+<section class={`${sectionClass} relative overflow-hidden`}>
+  {isDark && (
+    <>
+      <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-red-500/10 blur-[120px]"></div>
+      <div aria-hidden="true" class="pointer-events-none absolute -right-32 -bottom-32 size-[420px] rounded-full bg-amber-500/10 blur-[120px]"></div>
+    </>
+  )}
 
   <div class="container-content relative">
     <div class="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
@@ -112,28 +140,28 @@ import { IconShield, IconAlertTriangle, IconWorld, IconLock } from "@tabler/icon
 
       <!-- =============== RIGHT: copy + risk callout =============== -->
       <div class="order-1 lg:order-2">
-        <div class="mb-5"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase icon={IconShield}>Privacy challenge</Badge></div>
-        <h2 class="display-2 text-white">
+        <div class="mb-5"><Badge tone="brand" variant="soft" surface={isDark ? "dark" : "light"} size="md" uppercase icon={IconShield}>Privacy challenge</Badge></div>
+        <h2 class:list={["display-2", headlineClass]}>
           Website privacy laws make<br/>
-          <span class="text-[color:var(--color-mint-400)]">tracking harder.</span>
+          <span class={accentClass}>tracking harder.</span>
         </h2>
 
-        <div class="mt-6 space-y-4 text-[15px] leading-relaxed text-slate-300">
+        <div class:list={["mt-6 space-y-4 text-[15px] leading-relaxed", bodyClass]}>
           <p>New privacy rules protect website visitors.</p>
-          <p>Laws like <strong class="text-white">GDPR and CCPA</strong> require asking permission first.</p>
+          <p>Laws like <strong class={bodyStrongClass}>GDPR and CCPA</strong> require asking permission first.</p>
           <p>Without proof of consent, you risk fines and damage customer trust.</p>
           <p>That leaves you blind to half your audience while risking penalties. You lose the ability to understand visitor behavior, follow up effectively, or prove you asked permission properly.</p>
         </div>
 
         <!-- Risk callout card -->
-        <div class="mt-8 rounded-2xl bg-white/[0.03] p-5 ring-1 ring-inset ring-white/10">
+        <div class:list={["mt-8 rounded-2xl p-5 ring-1 ring-inset", calloutBg]}>
           <div class="flex items-start gap-3">
             <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-red-500/15">
               <IconShield size={20} stroke={1.75} color="#fca5a5" />
             </span>
             <div>
-              <p class="font-display text-base font-bold tracking-tight text-white">Compliance risk</p>
-              <p class="mt-1 text-[13px] leading-relaxed text-slate-300">GDPR and CCPA require verifiable consent.</p>
+              <p class:list={["font-display text-base font-bold tracking-tight", calloutTitleClass]}>Compliance risk</p>
+              <p class:list={["mt-1 text-[13px] leading-relaxed", calloutBodyClass]}>GDPR and CCPA require verifiable consent.</p>
             </div>
           </div>
         </div>
