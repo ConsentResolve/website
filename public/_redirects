@@ -13,3 +13,9 @@
 # /v2/ promoted to / (June 2026). Bookmarks / external links collapse to /.
 /v2/             /                 301
 /v2              /                 301
+
+# /features/channel-recovery/ renamed to /features/cart-recovery/ (June 2026)
+# — the feature pivoted from the generic "rescue ad-channel traffic"
+# framing to the more concrete cart-abandonment use case.
+/features/channel-recovery/    /features/cart-recovery/    301
+/features/channel-recovery     /features/cart-recovery/    301

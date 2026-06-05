@@ -116,7 +116,7 @@ const exclusiveLeads: Feature = {
       { q: "Do I own the contact after the trial?",               a: "Yes. Every lead you pull is yours to keep and follow up with." },
     ],
   },
-  pairsWith: ["consent-first-identification", "channel-recovery", "visitor-identification"],
+  pairsWith: ["consent-first-identification", "cart-recovery", "visitor-identification"],
 };
 
 const consentFirstIdentification: Feature = {
@@ -172,57 +172,57 @@ const consentFirstIdentification: Feature = {
   pairsWith: ["exclusive-leads", "built-in-compliance", "verified-contact-data"],
 };
 
-const channelRecovery: Feature = {
-  slug: "channel-recovery",
-  name: "Channel Recovery",
+const cartRecovery: Feature = {
+  slug: "cart-recovery",
+  name: "Cart Recovery",
   iconKey: "IconRefresh",
-  tagline: "Recover the 98% that bounce.",
-  howItHelps: "This is the pillar. Every channel you run — Google, LSA, Meta, Thumbtack, SEO — sends visitors to your site, and about 98 of every 100 leave without contacting you. Channel Recovery turns that bounce into recovered records, fed back into your funnel. Same ad budget, more booked jobs.",
-  illustration: "/illustrations/features/03-channel-recovery.svg",
-  subhead: "Consent Resolve doesn't replace Google, Thumbtack, or Angi. It sits on top of them and catches the customers they send who leave without calling.",
+  tagline: "Bring abandoners back.",
+  howItHelps: "Most shoppers leave before buying. Only the ones who log in can be followed up with. Cart Recovery identifies the anonymous abandoners who consented, resolves their email, and launches an automated recovery sequence — so the carts that walked away come back and close.",
+  illustration: "/illustrations/features/03-cart-recovery.svg",
+  subhead: "Cart abandonment isn't the problem. Anonymity is. Most shoppers leave before buying — only the ones who log in can be followed up with. We identify the rest so you can bring them back automatically.",
   aeoAnswer:
-    "Channel Recovery captures the website visitors your existing ads already paid for but lost. Consent Resolve works on top of Google LSA, Thumbtack, Angi, and your own campaigns — identifying the roughly 98% who visit and leave without converting, then handing them back as named leads. It doesn't compete with your channels; it rescues the traffic they waste.",
+    "Cart Recovery identifies the anonymous shoppers who abandon their carts before checking out, resolves their email through the site's consent banner, and launches a multi-step automated recovery campaign. Even shoppers who never logged in get recovered — turning ~70% of cart abandoners into reachable subscribers without violating consent rules.",
   problem: {
-    headline: "You paid for the click. Then you lost the customer.",
-    body: "Every channel you run — LSA, Thumbtack, Angi, Facebook — sends people to your site. About 98 out of 100 look around and leave without calling. You already paid to get them there. Right now that money just evaporates the second they close the tab.",
+    headline: "You can only email the ones who logged in.",
+    body: "70% of shoppers leave items in their cart. They browsed your products, spent time choosing, then disappeared. If they never logged in or filled in their email at checkout, you have no way to reach them — and the next store with a recovery flow gets the sale instead.",
   },
   howItWorks: {
-    headline: "One layer over every channel you run.",
+    headline: "Three steps to recover abandoned cart revenue.",
     steps: [
-      { title: "Your channels send traffic.", body: "Keep running Google, Thumbtack, Angi — whatever works for you." },
-      { title: "We watch who slips away.",    body: "Consent Resolve identifies the consented visitors who leave without calling." },
-      { title: "You get them back.",          body: "Those lost visitors come back to you as named, reachable leads." },
+      { title: "Shopper adds items and abandons cart.", body: "A visitor browses your store, adds items to their cart, then leaves without completing checkout. They consented when they arrived — so we can identify them." },
+      { title: "We identify them and resolve their email.", body: "Our system matches the abandoner to consented identification data and captures a deliverable email. Logs full consent documentation for compliance." },
+      { title: "Automated recovery campaign launches.", body: "Multi-step sequence fires automatically: 1-hour reminder, 24-hour follow-up with social proof, 7-day last chance with discount. Perfectly timed to maximize recovery." },
     ],
   },
   benefits: {
-    headline: "More out of what you already spend.",
+    headline: "Turn invisible traffic into a revenue-generating list.",
     items: [
-      { title: "Lower real cost per lead.", body: "You squeeze more jobs out of the same ad budget." },
-      { title: "No channel switching.",     body: "Keep every source you already trust." },
-      { title: "Found money.",              body: "Customers you'd written off become callable leads." },
+      { title: "Identify anonymous abandoners.",  body: "Know who abandoned their cart even if they never logged in. ~70% identification rate on consented traffic." },
+      { title: "Automated email sequences.",       body: "Multi-step recovery campaigns launch automatically. Set it once, recover forever." },
+      { title: "Track recovery revenue.",          body: "See exactly how much revenue you recover. Measure direct bottom-line impact week over week." },
     ],
   },
   included: {
-    headline: "What channel recovery covers.",
+    headline: "What Cart Recovery includes.",
     items: [
-      "Works on top of Google LSA",
-      "Works on top of Thumbtack and Angi",
-      "Works with your own paid ads",
-      "Works with organic and direct traffic",
-      "No change to your current setup",
-      "One script covers every channel",
+      "Anonymous cart-abandoner identification",
+      "Automated multi-step email recovery sequences",
+      "Perfectly timed follow-ups — 1 hour, 24 hours, 7 days",
+      "Dynamic discount codes for high-value carts",
+      "Recovery revenue tracking dashboard",
+      "Multi-channel recovery — email, SMS, retargeting",
     ],
   },
   faq: {
-    headline: "What pros ask about channel recovery.",
+    headline: "What stores ask about cart recovery.",
     items: [
-      { q: "Do I have to stop using Angi or LSA?", a: "No. Consent Resolve sits on top of them — keep everything you've got." },
-      { q: "Does it compete with my ads?",         a: "The opposite. It rescues the visitors your ads already paid for and lost." },
-      { q: "Which channels does it work with?",    a: "All of them — paid, organic, social, direct. If traffic hits your site, we can catch it." },
-      { q: "Will it mess with my Google account?", a: "No. It's a script on your site, not a change to your ad platforms." },
+      { q: "How do you identify a shopper who never logged in?",     a: "Through the consent banner on your site. When they accept, we resolve their email from consented identification data — no login, no form, no friction." },
+      { q: "Is this legal?",                                         a: "Yes. Identification happens only after explicit consent via your cookie banner. Every record is timestamped and audit-logged. Termageddon keeps your privacy policy current automatically." },
+      { q: "What if my abandoner email rates are low?",              a: "Abandoned-cart emails average around 45% open rates — well above any cold campaign. Intent is fresh, timing is right, and our deliverability checks make sure the email actually lands." },
+      { q: "Can I use my existing email tool?",                      a: "Yes. We push recovered abandoners straight into Klaviyo, Mailchimp, HubSpot, or any tool that accepts a webhook. No new email platform required." },
     ],
   },
-  pairsWith: ["exclusive-leads", "visitor-identification", "roi-reporting"],
+  pairsWith: ["instant-connect", "verified-contact-data", "multi-channel-follow-up"],
 };
 
 // -----------------------------------------------------------------------
@@ -870,7 +870,7 @@ const roiReporting: Feature = {
       { q: "How fast do I see ROI?",               a: "As soon as you start marking booked jobs — often within the first week of the trial." },
     ],
   },
-  pairsWith: ["channel-recovery", "crm-delivery", "lead-scoring"],
+  pairsWith: ["cart-recovery", "crm-delivery", "lead-scoring"],
 };
 
 // -----------------------------------------------------------------------
@@ -886,7 +886,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     title: "Recover the 98% that bounce.",
     blurb:
       "Every channel you run sends visitors to your site that mostly leave without contacting you. These features recover the bounce — with consent — so the ad spend you're already making converts to identified records.",
-    features: [channelRecovery, visitorIdentification, formlessContactCapture, verifiedContactData],
+    features: [cartRecovery, visitorIdentification, formlessContactCapture, verifiedContactData],
   },
   {
     slug: "funnel-insertion",
