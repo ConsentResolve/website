@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import LegalPlaceholder from "~/components/sections/LegalPlaceholder.astro";
+import Badge from "~/components/ui/Badge.astro";
 import { breadcrumbSchema } from "~/lib/seo";
 
 const schemas = [
@@ -13,36 +13,18 @@ const schemas = [
 
 <BaseLayout
   title="Cookie Policy | Consent Resolve"
-  description="Which cookies Consent Resolve sets, what they do, and how to control them."
+  description="The Consent Resolve Cookie Policy is being finalized and will be published here shortly."
   schema={schemas}
+  noindex={true}
 >
-  <LegalPlaceholder
-    badge="Cookies"
-    title="Cookie Policy"
-    intro="This policy explains the cookies and similar technologies Consent Resolve sets on customer websites and on consentresolve.com itself, along with how to control them."
-    highlights={[
-      {
-        heading: "Functional cookies",
-        body: "We use a minimal set of cookies to keep you signed in to your dashboard, remember your preferences, and ensure security. These cookies are required for the site to work and cannot be disabled.",
-      },
-      {
-        heading: "Identification cookies (on customer sites)",
-        body: "When a homeowner accepts your consent banner on a site running Consent Resolve, we set a consent-anchored cookie used to identify them as a returning visitor and tie them to their consent record. Nothing is set before the visitor accepts the banner.",
-      },
-      {
-        heading: "Analytics",
-        body: "On consentresolve.com we use privacy-respecting analytics to understand traffic patterns. No personal identifiers are stored; you may opt out via your browser's Do Not Track / Global Privacy Control settings, which we honor.",
-      },
-      {
-        heading: "How to control cookies",
-        body: "Most browsers let you block or delete cookies via Settings. Blocking required cookies will prevent dashboard sign-in. Disabling identification cookies on a customer site means you cannot be identified by Consent Resolve.",
-      },
-    ]}
-    siblings={[
-      { label: "Privacy Policy", href: "/privacy-policy/" },
-      { label: "Terms of Service", href: "/terms/" },
-      { label: "GDPR", href: "/gdpr/" },
-      { label: "CCPA", href: "/ccpa/" },
-    ]}
-  />
+  <section class="container-content section">
+    <div class="mx-auto max-w-xl py-24 text-center">
+      <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Cookies</Badge></div>
+      <h1 class="display-1 text-[color:var(--color-ink)]">Coming Soon</h1>
+      <p class="mt-5 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+        Our Cookie Policy is being finalized and will be published here shortly. Questions in the meantime? Email
+        <a class="font-semibold text-[color:var(--color-brand-pressed)] hover:underline" href="mailto:hello@consentresolve.com">hello@consentresolve.com</a>.
+      </p>
+    </div>
+  </section>
 </BaseLayout>

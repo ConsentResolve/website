@@ -2,8 +2,6 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Badge from "~/components/ui/Badge.astro";
 import { breadcrumbSchema } from "~/lib/seo";
-import { SITE } from "~/lib/site";
-import { IconMail, IconArrowRight } from "@tabler/icons-react";
 
 const schemas = [
   breadcrumbSchema([
@@ -11,89 +9,22 @@ const schemas = [
     { name: "Privacy Policy", href: "/privacy-policy/" },
   ]),
 ];
-
-const lastUpdated = "June 2026";
 ---
 
 <BaseLayout
   title="Privacy Policy | Consent Resolve"
-  description="How Consent Resolve handles personal data — collection, use, retention, disclosure, and your rights under GDPR, CCPA, and CPA."
+  description="The Consent Resolve Privacy Policy is being finalized and will be published here shortly."
   schema={schemas}
+  noindex={true}
 >
-  <section class="container-content section max-w-3xl">
-    <Badge tone="brand" variant="soft" size="md" uppercase>Privacy</Badge>
-    <h1 class="display-1 mb-7 mt-7 text-[color:var(--color-ink)]">Privacy Policy</h1>
-    <p class="text-[color:var(--color-ink-muted)] text-sm">Last updated: {lastUpdated}</p>
-
-    <div class="prose mt-10 max-w-none text-[color:var(--color-ink-2)] leading-relaxed">
-      <p class="text-lg">
-        Consent Resolve is a consent-first product. This page explains how we handle personal data — what we collect, why we collect it, how long we keep it, who we share it with (nobody, in the typical case), and what rights you have under GDPR, CCPA, CPA, and similar privacy laws.
+  <section class="container-content section">
+    <div class="mx-auto max-w-xl py-24 text-center">
+      <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Privacy</Badge></div>
+      <h1 class="display-1 text-[color:var(--color-ink)]">Coming Soon</h1>
+      <p class="mt-5 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+        Our Privacy Policy is being finalized and will be published here shortly. Questions in the meantime? Email
+        <a class="font-semibold text-[color:var(--color-brand-pressed)] hover:underline" href="mailto:hello@consentresolve.com">hello@consentresolve.com</a>.
       </p>
-
-      <div class="mt-8 rounded-2xl bg-amber-50 p-6 ring-1 ring-inset ring-amber-200">
-        <p class="text-sm font-bold uppercase tracking-[0.14em] text-amber-700">Final policy in legal review</p>
-        <p class="mt-3 text-[15px] leading-relaxed text-amber-900">
-          The complete, attorney-reviewed Privacy Policy is being finalized with our privacy counsel and Termageddon. While that's wrapping up, the high-level handling rules are summarized below. Email
-          <a href={`mailto:${SITE.email}`} class="font-semibold underline-offset-2 hover:underline">{SITE.email}</a>
-          for the current draft or a Data Processing Agreement.
-        </p>
-      </div>
-
-      <h2 class="font-display text-xl font-black tracking-tight text-[color:var(--color-ink)] mt-12 mb-4">What we collect</h2>
-      <ul class="space-y-2 list-disc pl-6">
-        <li><strong>Consented visitor data</strong> on customer websites — name, email, phone, page activity, and consent record. Only after the visitor accepts the customer's consent banner.</li>
-        <li><strong>Customer account data</strong> — shop name, contact email, billing details, and dashboard usage.</li>
-        <li><strong>Operational logs</strong> — IP address, user agent, and timestamps for security and abuse prevention.</li>
-      </ul>
-
-      <h2 class="font-display text-xl font-black tracking-tight text-[color:var(--color-ink)] mt-10 mb-4">Why we collect it</h2>
-      <ul class="space-y-2 list-disc pl-6">
-        <li>To deliver identified leads to the contractor whose website the visitor consented on. Each lead is exclusive to one contractor and is never resold.</li>
-        <li>To bill customers per lead.</li>
-        <li>To honor opt-out requests across every channel.</li>
-        <li>To prove consent if a regulator or homeowner asks.</li>
-      </ul>
-
-      <h2 class="font-display text-xl font-black tracking-tight text-[color:var(--color-ink)] mt-10 mb-4">Your rights</h2>
-      <p>You have the right to access, correct, delete, port, and object to the processing of your personal data. To exercise any of these rights, email <a href={`mailto:${SITE.email}`} class="font-semibold text-[color:var(--color-brand-pressed)] underline-offset-2 hover:underline">{SITE.email}</a>. We respond within 30 days (or 45 days for complex CCPA verifiable consumer requests).</p>
-
-      <h2 class="font-display text-xl font-black tracking-tight text-[color:var(--color-ink)] mt-10 mb-4">Contact</h2>
-      <p>Privacy questions, opt-out requests, or DPA inquiries:</p>
-      <p class="mt-2">
-        <a href={`mailto:${SITE.email}`} class="inline-flex items-center gap-2 font-semibold text-[color:var(--color-brand-pressed)]">
-          <IconMail size={16} stroke={2} /> {SITE.email}
-        </a>
-      </p>
-      <address class="not-italic mt-3 text-sm text-[color:var(--color-ink-muted)]">
-        Consent Resolve · {SITE.address.street} · {SITE.address.city}, {SITE.address.region} {SITE.address.postalCode}
-      </address>
-    </div>
-
-    <div class="mt-12 flex flex-wrap gap-3">
-      <a
-        href="/terms/"
-        class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] hover:ring-[color:var(--color-brand)]/50"
-      >
-        Terms of Service <IconArrowRight size={12} stroke={2.5} />
-      </a>
-      <a
-        href="/cookie-policy/"
-        class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] hover:ring-[color:var(--color-brand)]/50"
-      >
-        Cookie Policy <IconArrowRight size={12} stroke={2.5} />
-      </a>
-      <a
-        href="/gdpr/"
-        class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] hover:ring-[color:var(--color-brand)]/50"
-      >
-        GDPR <IconArrowRight size={12} stroke={2.5} />
-      </a>
-      <a
-        href="/ccpa/"
-        class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] hover:ring-[color:var(--color-brand)]/50"
-      >
-        CCPA <IconArrowRight size={12} stroke={2.5} />
-      </a>
     </div>
   </section>
 </BaseLayout>
