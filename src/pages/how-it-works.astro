@@ -18,20 +18,21 @@ const breadcrumbs = breadcrumbSchema([
 const howTo = howToSchema({
   name: "How Consent Resolve recovers anonymous website visitors and feeds them into the contractor's funnel",
   description:
-    "A four-step ad-spend recovery flow that turns the ~98% of website visitors who would otherwise bounce into recovered records inside the contractor's existing retargeting, email/SMS, and CRM funnels — only after the homeowner consents — producing inbound calls on the same ad budget.",
+    "A five-step ad-spend recovery flow that turns the ~98% of website visitors who would otherwise bounce into recovered records inside the contractor's existing retargeting, email/SMS, and CRM funnels — only after the homeowner consents — producing inbound calls on the same ad budget.",
   totalTime: "PT10M",
   steps: [
-    { name: "Anonymous bounce", text: "A homeowner arrives from the contractor's existing paid or organic traffic (Google, LSA, Meta, SEO). Roughly 98 out of 100 visitors leave without contacting the business — that's the bounce Consent Resolve recovers." },
-    { name: "They say yes",      text: "The homeowner accepts the site's consent banner. Identification is now compliant and logged with a Termageddon-signed audit trail." },
-    { name: "Fed into the funnel", text: "The recovered visitor flows into the contractor's retargeting audiences, email/SMS sequences, and CRM — the marketing machine they already run. Consent Resolve is the input, not a replacement." },
-    { name: "Inbound call",       text: "The homeowner re-enters the funnel on their own time and calls the contractor — a warm inbound from a visitor who would otherwise have bounced. Same ad budget, more booked jobs." },
+    { name: "Homeowner visits your website", text: "A homeowner arrives from the contractor's existing paid or organic traffic (Google, LSA, Meta, SEO). Roughly 98 out of 100 visitors leave without contacting the business — that's the bounce Consent Resolve recovers." },
+    { name: "We handle consent",   text: "The site's consent banner asks. The contractor's privacy policy stays current through our Termageddon partnership." },
+    { name: "Homeowner accepts",   text: "The homeowner accepts the consent banner. Identification is now compliant and logged with a signed, timestamped consent record. No yes, no data." },
+    { name: "We feed the contact to your funnel", text: "The recovered visitor flows into the contractor's retargeting audiences, email/SMS sequences, and CRM — the marketing machine they already run. Consent Resolve is the input, not a replacement." },
+    { name: "More calls, more jobs", text: "The homeowner re-enters the funnel on their own time and calls the contractor — a warm inbound from a visitor who would otherwise have bounced. Same ad budget, more booked jobs." },
   ],
 });
 ---
 
 <BaseLayout
-  title="How Consent Resolve Works — Ad-Spend Recovery in Four Steps"
-  description="From an anonymous bounce to an inbound call. Same ad budget, more booked jobs. Walk through the four-step funnel-insertion flow and the five product screens you'll actually use."
+  title="How Consent Resolve Works — Ad-Spend Recovery in Five Steps"
+  description="From an anonymous bounce to an inbound call. Same ad budget, more booked jobs. Walk through the five-step funnel-insertion flow and the five product screens you'll actually use."
   schema={[breadcrumbs, howTo]}
 >
   <!-- Hero -->
@@ -42,7 +43,7 @@ const howTo = howToSchema({
         <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>How it works</Badge></div>
         <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
           From an anonymous bounce to an inbound call —<br/>
-          <span class="text-[color:var(--color-brand)]">in four steps. No new ad spend.</span>
+          <span class="text-[color:var(--color-brand)]">in five steps. No new ad spend.</span>
         </h1>
         <p class="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
           You already pay to drive traffic. About 98 of every 100 visitors leave without contacting you. The flow below recovers the bounce, with consent, and feeds it back into the funnel you already run.
@@ -96,10 +97,10 @@ const howTo = howToSchema({
           href="/features/exclusive-leads/"
         />
         <IllustrationCard
-          illustration="/illustrations/features/03-cart-recovery.svg"
-          title="Catches the carts that walk."
-          body="70% of shoppers abandon their cart, most without logging in. We identify the consented ones and launch an automated recovery sequence."
-          href="/features/cart-recovery/"
+          illustration="/illustrations/style/08-shield-doc.svg"
+          title="Audit-ready consent records."
+          body="Every recovery carries a signed, timestamped consent record. One regulator request, one demand letter — and you have the receipt."
+          href="/features/built-in-compliance/"
         />
       </div>
     </div>

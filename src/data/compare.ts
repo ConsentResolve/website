@@ -9,11 +9,11 @@
  * unit, NEVER cost-per-lead — competitor CPL is the anchor, not the
  * target.
  *
- * Baked constants for math (defaults; small-print disclose on the page):
- *   - Bounce rate: 98%
- *   - Recovery rate: 15% of bounced visitors (consent-adjusted)
- *   - Recovered → booked job: 1%
- *   - Consent Resolve cost: $7 per recovered lead
+ * Math posture (June 2026, LOCKED): NO invented recovery/booked-job rate
+ * constants. We do not publish performance claims. Outcomes are stated
+ * qualitatively ("recovered visitors are incremental on the same budget").
+ * The only hard numbers are the sourced competitor CPL anchors and the
+ * flat $7 Consent Resolve cost. Sourced industry data lives on /stats/.
  *
  * Per-trade competitor CPL anchors (from the Consent Resolve Competitor
  * CPL Matrix): roofing LSA $108, HVAC $78, plumbing $69, electrician
@@ -103,8 +103,8 @@ export const COMPARE_PAGES: ComparePage[] = [
     ],
     bookedJobMath: {
       setup: "You're already paying Thumbtack to send traffic. Whatever your blended cost per booked job is today on Thumbtack alone, that's the baseline.",
-      withCR: "Add Consent Resolve as a recovery layer: ~15% of the bounced 98 become recovered leads at $7 each, and roughly 1% of those book a job. Same Thumbtack budget — more booked jobs at a lower blended $ per booked job.",
-      breakEven: "On a typical 1,000-visitor month, recovered visitors only need ~3 booked jobs (out of ~147 recoveries) to clear the $1,030 in recovery cost.",
+      withCR: "Add Consent Resolve as a recovery layer: the bounced visitors who consent become recovered records at $7 each, and a share of those book a job — set your own assumptions. Same Thumbtack budget — more booked jobs at a lower blended $ per booked job.",
+      breakEven: "Recovered visitors are incremental on the same budget — at $7 each, it takes only a handful of booked jobs to cover the recovery cost. We don't publish recovery or close rates; set your own assumptions and see /stats/ for sourced industry data.",
     },
     funnelExplain: {
       headline: "You don't choose between us and Thumbtack.",
@@ -112,12 +112,12 @@ export const COMPARE_PAGES: ComparePage[] = [
     },
     withWithoutRows: [
       { feature: "Visitors Thumbtack sends to your site",  without: "Most bounce — 98 of 100",            with: "Same — Thumbtack delivery unchanged" },
-      { feature: "Bounced visitors recovered",              without: "0 (lost)",                            with: "~15% of bounces, with consent" },
+      { feature: "Bounced visitors recovered",              without: "0 (lost)",                            with: "A share recovered, with consent" },
       { feature: "Cost of recovery layer",                  without: "—",                                    with: "$7 flat per recovered lead" },
       { feature: "Where recovered visitors go",             without: "—",                                    with: "Your retargeting, email/SMS, CRM" },
       { feature: "Result",                                  without: "What Thumbtack books",                with: "Thumbtack bookings + incremental inbound calls" },
       { feature: "Blended cost per booked job",             without: "Thumbtack-only baseline",             with: "Lower (more jobs on same ad budget)" },
-      { feature: "Compliance",                              without: "On you",                              with: "Consent-first, Termageddon audit trail" },
+      { feature: "Compliance",                              without: "On you",                              with: "Consent-first, audit receipt on every lead" },
     ],
     finalCtaH2: "Keep Thumbtack. Recover the rest.",
     finalCtaBody: "Add the recovery layer that turns the 98% you're losing into incremental inbound calls. Flat $7 per recovered lead. No contract.",
@@ -153,8 +153,8 @@ export const COMPARE_PAGES: ComparePage[] = [
     ],
     bookedJobMath: {
       setup: "Whatever your blended cost per booked job is today on Angi alone, that's the baseline. You're already paying for the visitors who came and left.",
-      withCR: "Add Consent Resolve as a recovery layer: ~15% of the bounced 98 become recovered leads at $7, and roughly 1% of those book a job. Same Angi budget — more booked jobs at a lower blended $ per booked job.",
-      breakEven: "On a typical 1,000-visitor month, recovered visitors only need ~3 booked jobs (out of ~147 recoveries) to clear the $1,030 in recovery cost.",
+      withCR: "Add Consent Resolve as a recovery layer: the bounced visitors who consent become recovered records at $7 each, and a share of those book a job — set your own assumptions. Same Angi budget — more booked jobs at a lower blended $ per booked job.",
+      breakEven: "Recovered visitors are incremental on the same budget — at $7 each, it takes only a handful of booked jobs to cover the recovery cost. We don't publish recovery or close rates; set your own assumptions and see /stats/ for sourced industry data.",
     },
     funnelExplain: {
       headline: "You don't choose between us and Angi.",
@@ -162,12 +162,12 @@ export const COMPARE_PAGES: ComparePage[] = [
     },
     withWithoutRows: [
       { feature: "Visitors Angi sends to your site",       without: "Most bounce — 98 of 100",            with: "Same — Angi delivery unchanged" },
-      { feature: "Bounced visitors recovered",              without: "0 (lost)",                            with: "~15% of bounces, with consent" },
+      { feature: "Bounced visitors recovered",              without: "0 (lost)",                            with: "A share recovered, with consent" },
       { feature: "Cost of recovery layer",                  without: "—",                                    with: "$7 flat per recovered lead" },
       { feature: "Where recovered visitors go",             without: "—",                                    with: "Your retargeting, email/SMS, CRM" },
       { feature: "Result",                                  without: "What Angi books",                     with: "Angi bookings + incremental inbound calls" },
       { feature: "Blended cost per booked job",             without: "Angi-only baseline",                  with: "Lower (more jobs on same ad budget)" },
-      { feature: "Compliance",                              without: "On you",                              with: "Consent-first, Termageddon audit trail" },
+      { feature: "Compliance",                              without: "On you",                              with: "Consent-first, audit receipt on every lead" },
     ],
     finalCtaH2: "Keep Angi. Recover the rest.",
     finalCtaBody: "Add the recovery layer that turns the 98% you're losing into incremental inbound calls. Flat $7 per recovered lead. No contract.",
@@ -203,8 +203,8 @@ export const COMPARE_PAGES: ComparePage[] = [
     ],
     bookedJobMath: {
       setup: "Whatever your blended cost per booked job is today on HomeAdvisor alone, that's the baseline. The visitors who arrived and left are already paid for.",
-      withCR: "Add Consent Resolve as a recovery layer: ~15% of the bounced 98 become recovered leads at $7, and roughly 1% of those book a job. Same HomeAdvisor budget — more booked jobs at a lower blended $ per booked job.",
-      breakEven: "On a typical 1,000-visitor month, recovered visitors only need ~3 booked jobs (out of ~147 recoveries) to clear the $1,030 in recovery cost.",
+      withCR: "Add Consent Resolve as a recovery layer: the bounced visitors who consent become recovered records at $7 each, and a share of those book a job — set your own assumptions. Same HomeAdvisor budget — more booked jobs at a lower blended $ per booked job.",
+      breakEven: "Recovered visitors are incremental on the same budget — at $7 each, it takes only a handful of booked jobs to cover the recovery cost. We don't publish recovery or close rates; set your own assumptions and see /stats/ for sourced industry data.",
     },
     funnelExplain: {
       headline: "You don't choose between us and HomeAdvisor.",
@@ -212,12 +212,12 @@ export const COMPARE_PAGES: ComparePage[] = [
     },
     withWithoutRows: [
       { feature: "Visitors HomeAdvisor sends to your site", without: "Most bounce — 98 of 100",            with: "Same — HomeAdvisor delivery unchanged" },
-      { feature: "Bounced visitors recovered",              without: "0 (lost)",                            with: "~15% of bounces, with consent" },
+      { feature: "Bounced visitors recovered",              without: "0 (lost)",                            with: "A share recovered, with consent" },
       { feature: "Cost of recovery layer",                  without: "—",                                    with: "$7 flat per recovered lead" },
       { feature: "Where recovered visitors go",             without: "—",                                    with: "Your retargeting, email/SMS, CRM" },
       { feature: "Result",                                  without: "What HomeAdvisor books",              with: "HomeAdvisor bookings + incremental inbound calls" },
       { feature: "Blended cost per booked job",             without: "HomeAdvisor-only baseline",           with: "Lower (more jobs on same ad budget)" },
-      { feature: "Compliance",                              without: "On you",                              with: "Consent-first, Termageddon audit trail" },
+      { feature: "Compliance",                              without: "On you",                              with: "Consent-first, audit receipt on every lead" },
     ],
     finalCtaH2: "Keep HomeAdvisor. Recover the rest.",
     finalCtaBody: "Add the recovery layer that turns the 98% you're losing into incremental inbound calls. Flat $7 per recovered lead. No contract.",
@@ -253,8 +253,8 @@ export const COMPARE_PAGES: ComparePage[] = [
     ],
     bookedJobMath: {
       setup: "LSA already books some of the contacts it generates. The visitors who clicked, looked, and didn't call are already paid for.",
-      withCR: "Add Consent Resolve as a recovery layer: ~15% of the bounced 98 become recovered leads at $7, and roughly 1% of those book a job. LSA's book rate stays the same — you just get incremental inbound calls on top.",
-      breakEven: "On a typical 1,000-visitor month, recovered visitors only need ~3 booked jobs (out of ~147 recoveries) to clear the $1,030 in recovery cost.",
+      withCR: "Add Consent Resolve as a recovery layer: the bounced visitors who consent become recovered records at $7 each, and a share of those book a job — set your own assumptions. LSA's book rate stays the same — you just get incremental inbound calls on top.",
+      breakEven: "Recovered visitors are incremental on the same budget — at $7 each, it takes only a handful of booked jobs to cover the recovery cost. We don't publish recovery or close rates; set your own assumptions and see /stats/ for sourced industry data.",
     },
     funnelExplain: {
       headline: "Don't replace LSA. Finish the job it starts.",
@@ -262,12 +262,12 @@ export const COMPARE_PAGES: ComparePage[] = [
     },
     withWithoutRows: [
       { feature: "Calls LSA generates",                     without: "Same as today",                       with: "Unchanged — LSA stays" },
-      { feature: "Visitors who clicked, didn't call",       without: "Bounce — 98 of 100",                  with: "~15% recovered with consent" },
+      { feature: "Visitors who clicked, didn't call",       without: "Bounce — 98 of 100",                  with: "A share recovered, with consent" },
       { feature: "Cost of recovery layer",                  without: "—",                                    with: "$7 flat per recovered lead" },
       { feature: "Where recovered visitors go",             without: "—",                                    with: "Your retargeting, email/SMS, CRM" },
       { feature: "Result",                                  without: "LSA's book rate",                     with: "LSA bookings + incremental inbound calls" },
       { feature: "Blended cost per booked job",             without: "LSA-only baseline",                   with: "Lower (more jobs on same ad budget)" },
-      { feature: "Compliance",                              without: "Your responsibility",                  with: "Consent-first, Termageddon audit trail" },
+      { feature: "Compliance",                              without: "Your responsibility",                  with: "Consent-first, audit receipt on every lead" },
     ],
     finalCtaH2: "Keep LSA. Recover the rest.",
     finalCtaBody: "Add the recovery layer that turns the 98% you're losing into incremental inbound calls. Flat $7 per recovered lead.",

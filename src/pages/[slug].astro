@@ -53,13 +53,13 @@ const TradeIcon = iconMap[trade.iconKey] ?? IconTool;
 
 // Card library — the 3 cards each industry page picks from
 const cardLib: Record<string, { Icon: any; title: string; body: string }> = {
-  "on-phone-five":  { Icon: IconBellRinging,    title: "On your phone in five.",       body: "Slack, text, or email the second a homeowner consents. First one to call usually wins the job." },
-  "why-shopping":   { Icon: IconClipboardCheck, title: "Why they're shopping.",         body: "What they were looking for — captured the moment they consent. You walk into the call already knowing the job." },
+  "on-phone-five":  { Icon: IconBellRinging,    title: "On your phone in five.",       body: "Slack, text, or email the second a homeowner consents — so your funnel timing is right and you're ready when the warm inbound comes." },
+  "why-shopping":   { Icon: IconClipboardCheck, title: "Why they're shopping.",         body: "What they were looking for — captured the moment they consent. Your funnel re-engages already knowing the job." },
   "mapped-zip":     { Icon: IconMapPin,         title: "Mapped to your zip.",           body: "Every lead drops a pin on your service-area map. Filter by zip, route, or distance from the shop." },
-  "came-back":      { Icon: IconRefresh,        title: "They came back? You'll know.",  body: "Return-visit alerts fire when a known homeowner is back on your site. Time the follow-up right." },
-  "crm":            { Icon: IconPlugConnected,  title: "Lands in your CRM.",            body: "Pushes straight to Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo — or anything else through a webhook." },
+  "came-back":      { Icon: IconRefresh,        title: "They came back? You'll know.",  body: "Return-visit alerts fire when a known homeowner is back on your site. Time your funnel right." },
+  "crm":            { Icon: IconPlugConnected,  title: "Lands in your CRM.",            body: "Pushes straight to Jobber, Housecall Pro, ServiceTitan, GoHighLevel, HubSpot, Klaviyo — or anything else through a webhook." },
   "yours-alone":    { Icon: IconLock,           title: "Yours alone, never resold.",    body: "Not auctioned to four other shops. Not flipped next week. One consent, one contractor — you." },
-  "real-numbers":   { Icon: IconUserCheck,      title: "Real names. Real numbers.",     body: "First name, last name, mobile phone. The actual homeowner — not a household label, not a P.O. box." },
+  "real-numbers":   { Icon: IconUserCheck,      title: "Real names. Real emails.",      body: "A consented, deliverable email, enriched with name and location where available — the actual homeowner, not a household label, not a P.O. box." },
 };
 const threeCards = trade.cardKeys.map((k) => cardLib[k]).filter(Boolean);
 
@@ -167,7 +167,7 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
           client:visible
           defaults={{ avgJob: trade.math.avgJobValue, visitors: 2000 }}
           title={`${trade.name} recovery calculator`}
-          blurb="Two sliders, one answer. No email, no signup wall."
+          blurb="Set your own assumptions. Illustrative, not a promise."
         />
       </div>
     </div>

@@ -48,11 +48,11 @@ import {
 
 // Page-level FAQ schema (mirrors FAQSection's questions)
 const homepageFaqs = [
-  { question: "Is this legal?",                         answer: "Yes — because a homeowner's name shows up only after they consent. We keep your privacy policy, cookie banner, and disclosures in sync through Termageddon. The shady tools that track people in secret are the illegal ones. We're not one." },
+  { question: "Is this legal?",                         answer: "Here's what actually gets contractors sued: calling or texting people who never opted in (TCPA), and websites that track visitors without asking (CIPA and state privacy laws like the Texas TDPSA, which the Texas AG actively enforces). Consent Resolve is built the other way. A homeowner is identified only after an affirmative yes on your consent banner. Every consent is timestamped with a signed audit ID. Recovered contacts are re-engaged only through the channels that consent covers — your funnel, your tools. And we never hand you a number to cold-call. The tools that track people in secret are the ones writing settlement checks. We built the opposite." },
   { question: "Do I have to change my privacy policy?", answer: "We handle it. Termageddon generates and updates the policies for you, so you stay covered without the legwork." },
   { question: "What if a homeowner doesn't consent?",   answer: "Then you get nothing on them — and that's the point. No consent, no data. That's what keeps you safe." },
   { question: "How fast does a lead reach me?",         answer: "Seconds. A Slack, text, or email fires the moment they consent, and it lands in your CRM at the same time." },
-  { question: "Which CRMs do you work with?",           answer: "Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, and just about anything else through a webhook." },
+  { question: "Which CRMs do you work with?",           answer: "On the trade side: Jobber, Housecall Pro, ServiceTitan, and GoHighLevel. Plus Salesforce, HubSpot, Pipedrive, Zoho CRM, Microsoft Dynamics, ActiveCampaign, Mailchimp, Klaviyo, Marketo, Pardot, Intercom, Segment, Google Sheets, Slack, Zapier, and any tool through a custom API or webhook. Don't see your CRM? We build custom integrations for enterprise customers." },
   { question: "Can I cancel anytime?",                  answer: "Yes. Flat $7 a lead — card required, no contract, cancel whenever you want." },
 ];
 
@@ -84,7 +84,7 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
     eyebrow="For ad-buying home-service contractors"
     title="Turn Anonymous Homeowners"
     titleAccent="Into New Jobs."
-    subhead="Most of the homeowners you pay for bounce without a trace. Consent Resolve recovers them — name and number, only after they consent — and feeds them straight into the retargeting, email, and CRM you already run. Same ad budget. More booked jobs. Flat $7 a lead, yours alone, never resold."
+    subhead="Most of the homeowners you pay for bounce without a trace. Consent Resolve recovers them — name and email, only after they consent — and feeds them straight into the retargeting, email, and CRM you already run. Same ad budget. More booked jobs. Flat $7 a lead, yours alone, never resold."
     ctaLabel="Activate your account"
     panelKind="illustration"
     panelSrc="/illustrations/hero/protagonist.svg"
@@ -222,7 +222,7 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
 
       <div class="mx-auto grid max-w-5xl gap-5 md:grid-cols-3">
         <div class="rounded-2xl bg-white p-6 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_36px_-22px_rgba(10,22,40,0.18)]">
-          <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Real name. Real number.</p>
+          <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Real name. Real email.</p>
           <div class="mt-4 flex items-center gap-3">
             <span class="inline-flex size-11 items-center justify-center rounded-full bg-[color:var(--color-brand)] font-display text-sm font-black text-[color:var(--color-navy-900)]">MR</span>
             <div class="flex-1">
@@ -234,7 +234,7 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
           <div class="mt-5 grid grid-cols-2 gap-2 border-t border-[color:var(--color-rule)] pt-4 text-[12px]">
             <div class="min-w-0">
               <p class="text-[color:var(--color-ink-muted)]">Email</p>
-              <p class="truncate font-mono text-[color:var(--color-ink)]">maria.r@gmail.com</p>
+              <p class="truncate font-mono text-[color:var(--color-ink)]">m****r@gmail.com</p>
             </div>
             <div>
               <p class="text-[color:var(--color-ink-muted)]">Last seen</p>
@@ -283,7 +283,7 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
       </div>
 
       <p class="mx-auto mt-6 max-w-2xl text-center text-[12px] text-[color:var(--color-ink-muted)]">
-        Names and numbers shown are illustrative — your dashboard fills with real homeowners from your traffic.
+        Names and emails shown are illustrative — your dashboard fills with real homeowners from your traffic.
       </p>
     </div>
   </section>

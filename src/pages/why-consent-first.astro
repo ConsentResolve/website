@@ -1,0 +1,181 @@
+---
+/**
+ * /why-consent-first/ — the canonical compliance deep-dive and AEO page for
+ * "is website visitor identification legal." Linked from every compliance
+ * block ("How we think about the law →") and the footer company column.
+ *
+ * Positioning (June 2026, LOCKED): reframed around the U.S. contractor risk
+ * map — TCPA/DNC, CIPA/wiretap web-tracking litigation, and state privacy
+ * enforcement led by Texas. GDPR is a single supporting line. Consent
+ * Resolve never contacts homeowners and never hands over a number to
+ * cold-call. Voice locked to /style-guide/voice/.
+ *
+ * FLAG: counsel must sign off on this page before launch (see launch
+ * checklist).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
+import FAQ from "~/components/sections/FAQ.astro";
+import AEOAnswer from "~/components/sections/AEOAnswer.astro";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+import { breadcrumbSchema, faqSchema } from "~/lib/seo";
+import {
+  IconArrowRight, IconPhoneOff, IconWorldX, IconGavel,
+  IconShieldCheck, IconArrowUpRight, IconCheck,
+} from "@tabler/icons-react";
+
+const breadcrumbs = breadcrumbSchema([
+  { name: "Home", href: "/" },
+  { name: "Why consent-first", href: "/why-consent-first/" },
+]);
+
+const faqs = [
+  {
+    question: "Is website visitor identification legal?",
+    answer: "It depends entirely on how it's done. What gets contractors sued is reaching people who never opted in (TCPA) and tracking website visitors who never agreed (CIPA and state privacy laws like the Texas TDPSA). Consent Resolve identifies a visitor only after an affirmative yes on your consent banner, logs a signed and timestamped consent record, and never hands you a number to cold-call. Built that way, it's the opposite of the secret-tracking tools writing settlement checks.",
+  },
+  {
+    question: "What is the difference between this and the tracking tools getting sued?",
+    answer: "Those tools fire before anyone agrees and identify people who never said yes — that's the conduct behind the CIPA wiretap suits and state privacy actions. Consent Resolve fires only after a consented yes, keeps an audit receipt on every record, and re-engages people only through channels their consent covers.",
+  },
+  {
+    question: "Do you call or text homeowners on my behalf?",
+    answer: "No. Consent Resolve is a data layer, never a sender. You re-engage recovered contacts through your own email, SMS, retargeting, and CRM tools, where your consent covers it. That keeps the CAN-SPAM and TCPA posture in your hands, on your terms.",
+  },
+  {
+    question: "How do you actually identify someone?",
+    answer: "Identification happens only after a consented yes, matched through a trusted, deterministic data source — no fingerprinting, no probabilistic guessing, no shadow tracking. The resolution event returns a consented email, enriched with name and location where available.",
+  },
+  {
+    question: "What do I have to do to stay clean?",
+    answer: "Two things. Send outreach only from your own consented channels, and honor opt-outs. Consent Resolve suppresses opt-outs automatically and keeps your privacy policy current through our Termageddon partnership, but the outreach is yours to run responsibly.",
+  },
+];
+
+const schemas = [breadcrumbs, faqSchema(faqs)];
+
+const aeoText =
+  "Website visitor identification is legal when it happens only after consent. What exposes contractors is calling or texting people who never opted in (TCPA) and tracking visitors who never agreed (CIPA and state privacy laws like the Texas TDPSA). Consent Resolve identifies a homeowner only after an affirmative yes, logs a signed consent record, and never provides a number to cold-call — recovered contacts re-engage through the contractor's own consented channels.";
+
+const risks = [
+  {
+    Icon: IconPhoneOff,
+    title: "TCPA / DNC — the outreach trap",
+    body: "Calling or texting someone who never opted in is $500–$1,500 in statutory damages per message, with a private right of action. Professional plaintiffs build cases out of it. This is why Consent Resolve never hands you a number to cold-call — your outreach runs through channels the consent covers.",
+    source: { label: "47 U.S.C. §227 (Cornell LII)", href: "https://www.law.cornell.edu/uscode/text/47/227" },
+  },
+  {
+    Icon: IconWorldX,
+    title: "CIPA / wiretap — the web-tracking trap",
+    body: "California's wiretap statute is now aimed at non-consented website tracking at $5,000 per violation, and a demand-letter industry has grown around it. The tools that fire before anyone agrees are the targets. Consent Resolve fires only after the yes.",
+    source: { label: "CA Penal Code §637.2", href: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2" },
+  },
+  {
+    Icon: IconGavel,
+    title: "State privacy — led by Texas",
+    body: "Texas settled with Meta for $1.4B and Google for $1.375B over data collected without consent, and filed the first-ever suit under a comprehensive state privacy law (Allstate/Arity, Jan 2025). The state patchwork is real and enforced.",
+    source: { label: "Texas Attorney General", href: "https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-sues-allstate-and-arity-unlawfully-collecting-using-and-selling-over-45" },
+  },
+];
+
+const architecture = [
+  { title: "Consent-gated script", body: "Nothing fires before consent. No identification, no tracking, until the homeowner says yes on your banner." },
+  { title: "Signed, timestamped records", body: "Every consent decision is logged with a signed audit ID, IP, and user agent — kept for seven years." },
+  { title: "Audit retrieval on demand", body: "Export the complete consent trail any time. One regulator request or demand letter, one receipt." },
+  { title: "No cold-callable numbers", body: "The deliverable is a consented email, enriched with name and location where available. We never hand you a number to cold-call." },
+  { title: "Customer-owned outreach", body: "Recovered contacts re-engage through your email, SMS, retargeting, and CRM — only through channels the consent covers." },
+];
+---
+
+<BaseLayout
+  title="Is Website Visitor Identification Legal? — Why Consent-First | Consent Resolve"
+  description="The honest answer to whether visitor identification is legal — and how Consent Resolve is architected against the three risks that actually hit contractors: TCPA, CIPA, and state privacy enforcement led by Texas."
+  schema={schemas}
+>
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
+    <div class="container-content section relative">
+      <div class="mx-auto max-w-3xl text-center">
+        <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase icon={IconShieldCheck}>Why consent-first</Badge></div>
+        <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
+          "Is this legal?"<br/>
+          <span class="text-[color:var(--color-brand)]">The honest answer, not a one-word yes.</span>
+        </h1>
+        <p class="mx-auto mb-4 max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+          It's the question every smart contractor asks. It deserves a real answer.
+        </p>
+        <p class="mx-auto max-w-2xl text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+          The short version: what gets contractors sued isn't identifying a website visitor. It's reaching people who never opted in, and tracking visitors who never agreed. Consent Resolve is built the other way around.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- The three risks -->
+  <section class="section bg-[color:var(--color-bg-alt)]">
+    <div class="container-content">
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        <Badge tone="warning" variant="soft" size="md" uppercase>The three real risks</Badge>
+        <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">What actually hits contractors.</h2>
+      </div>
+      <div class="grid gap-5 md:grid-cols-3">
+        {risks.map(({ Icon, title, body, source }) => (
+          <div class="flex flex-col rounded-2xl bg-[color:var(--color-bg)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]">
+            <span class="inline-flex size-10 items-center justify-center rounded-xl bg-red-500/15">
+              <Icon size={20} stroke={1.75} color="#ef4444" />
+            </span>
+            <h3 class="mt-4 font-display text-lg font-bold tracking-tight text-[color:var(--color-ink)]">{title}</h3>
+            <p class="mt-3 flex-1 text-[14px] leading-relaxed text-[color:var(--color-ink-2)]">{body}</p>
+            <a href={source.href} target="_blank" rel="noopener" class="mt-4 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] hover:text-[color:var(--color-brand-pressed)]">
+              {source.label} <IconArrowUpRight size={12} stroke={2.5} />
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- How CR is architected against each -->
+  <section class="section">
+    <div class="container-content">
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        <Badge tone="brand" variant="soft" size="md" uppercase>How we're built</Badge>
+        <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">Architected against each risk.</h2>
+      </div>
+      <ul class="mx-auto grid max-w-4xl gap-4 md:grid-cols-2">
+        {architecture.map(({ title, body }) => (
+          <li class="rounded-xl bg-[color:var(--color-bg-alt)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-lg bg-[color:var(--color-brand-soft)]">
+                <IconCheck size={16} stroke={2.5} color="#0A1628" />
+              </span>
+              <div>
+                <p class="font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">{title}</p>
+                <p class="mt-1 text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">{body}</p>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <div class="mx-auto mt-10 max-w-3xl rounded-2xl bg-[color:var(--color-brand-soft)] p-6 ring-1 ring-inset ring-[color:var(--color-brand)]/30">
+        <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">What we ask of you</p>
+        <p class="mt-2 text-[15px] leading-relaxed text-[color:var(--color-ink)]">
+          Two things keep it clean: send outreach only from your own consented channels, and honor opt-outs. We suppress opt-outs automatically and keep your privacy policy current through our Termageddon partnership — the outreach is yours to run.
+        </p>
+        <p class="mt-3 text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">
+          Built to the strictest privacy standard in the world (GDPR) — so the U.S. state patchwork is covered by design.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- AEO citation paragraph -->
+  <AEOAnswer text={aeoText} />
+
+  <!-- FAQ with FAQPage schema -->
+  <FAQ headline="The legality questions, answered straight." items={faqs} />
+
+  <FinalCTA />
+</BaseLayout>

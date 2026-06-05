@@ -36,13 +36,13 @@ hero, and Consent Resolve hands them a better tool and a clear plan.
 ### The rules
 - **Reading level:** 6th–7th grade. Most sentences under 15 words. One idea per sentence. Short paragraphs, 1–3 sentences each.
 - **Second person.** "You" and "your shop." Lead with the benefit to them.
-- **Active voice, always.** "You call the homeowner," never "the homeowner is contacted."
+- **Active voice, always.** "The homeowner calls you," never "calls are generated for you."
 - **Concrete over abstract.** Name the trade, the job, the town. "A water-heater quote in your zip" beats "a high-intent lead signal."
 - **Numerals for numbers** (3 jobs, $850, 10 minutes) — they scan faster.
 - **Contractions are good** (you'll, we'll, here's). They sound human.
 - **Money is the through-line.** Tie every section back to jobs won, calls made, or dollars kept. That's the only scoreboard this reader watches.
 - **Confident, not loud.** State the benefit plainly and stop. No exclamation-point salesmanship. No "revolutionary," no "game-changer."
-- **Lead with opportunity, not fear.** Compliance is the reassurance at the end of the sentence ("…and it's fully legal"), never the opening threat.
+- **Lead with opportunity, not fear.** Compliance is the reassurance at the end of the sentence ("…and it's consent-first, with receipts"), never the opening threat. Never guarantee legality outright.
 
 ### Never use (corporate / SaaS fluff)
 leverage · solution(s) · seamless · robust · empower · unlock your potential ·
@@ -53,9 +53,9 @@ level" · "we're excited to announce"
 
 ### Reach for these instead
 win the job · book the job · get paid · on the phone · your service area · the
-homeowner · your shop · your crew · your truck · show up · beat the other guy
-to the call · 10 leads for $10 to start · $7 a lead · real names and real
-numbers · yours alone · the job you didn't even know you lost
+homeowner · your shop · your crew · your truck · show up · warm inbound call ·
+feed your funnel · $7 a lead · real names and consented emails · yours alone ·
+the job you didn't even know you lost
 
 ---
 
@@ -76,7 +76,7 @@ Example:
 Section: Homepage hero
 Job: Make them feel the money walking out the door, then show the fix.
 One idea: The visitors you already paid for leave without a name — now you get
-the phone number.
+the consented email.
 Proof: ~95% of site visitors leave anonymous.
 Action: Start $10 Trial.
 ```
@@ -95,12 +95,14 @@ A consent-first visitor-identification layer for home-service businesses. It is
 **The core mechanic — state it this way every time**
 1. A homeowner visits *your* website (from your ads, your Google listing, search, or any link).
 2. They accept your consent/cookie banner.
-3. Consent Resolve reveals their real name, mobile number, and what they were shopping for.
-4. **You reach out.** You call or text the homeowner. You make the first move. First contractor to call usually wins the job.
+3. Consent Resolve identifies a **consented email**, enriched with name and location where available, plus what they were shopping for.
+4. **The record feeds your funnel** — your retargeting audiences, email/SMS sequences, and CRM. The homeowner comes back on their own time and calls you.
 
-> ⚠️ **Outbound, not inbound.** Consent Resolve does **not** send you inbound
-> calls or form fills. It tells you who already visited so *you* can reach out.
-> Never write copy implying the homeowner calls you first.
+> ⚠️ **Warm inbound, NOT outbound (LOCKED, June 2026).** Consent Resolve is a
+> data layer that fuels the contractor's *own* funnel. It does **not** deliver a
+> phone number, and the contractor never cold-calls or cold-texts a recovered
+> visitor. Never write copy implying "get their number and call/text them
+> first." The only sanctioned call direction is homeowner → contractor.
 
 **Where the lead lands**
 Your phone in seconds (Slack, SMS, or email) and your CRM — Jobber, Housecall
@@ -110,10 +112,19 @@ Pro, ServiceTitan, HubSpot, Klaviyo, or anything via webhook.
 Every lead is yours alone. Never resold, never auctioned, never shared with
 other shops. One consent, one contractor — you.
 
-**Compliance**
-Identification happens **only after explicit consent.** No shadow-tracking.
-GDPR, CCPA, and CPA compliant by default. Every reveal is timestamped and
-logged for a verifiable audit trail. Legal policies stay current via Termageddon.
+**Compliance** *(reframed June 2026 around the U.S. contractor risk map)*
+Identification happens **only after explicit consent,** matched through a
+trusted, deterministic data source — never fingerprinting, never probabilistic,
+never shadow-tracking (and never name the vendor). The story is the U.S. risk
+map: **TCPA** (don't call/text non-consenting people), **CIPA** (don't track
+visitors without asking), and **state privacy** enforcement led by Texas
+(TDPSA, the Meta/Google settlements). Engineered to the strictest standard in
+the world (GDPR) so the U.S. patchwork is covered by design — GDPR is one
+supporting line, not the headline. Every reveal is timestamped and signed for a
+verifiable audit trail; policies stay current via the Termageddon partnership
+(Termageddon manages policies, it does **not** sign consent records). Never
+guarantee legality outright ("consent-first from the first click," not "legal
+from the first click").
 
 **Setup**
 Paste one line of code. Live in about 10 minutes. Works on WordPress, Wix,
@@ -143,7 +154,8 @@ who'd otherwise leave without a name."
   LSA**. Never frame Google LSA as a competitor.
 
 ### Say it this way · never that way
-- ✅ "You get the homeowner's name and number." ❌ "We generate inbound calls for you."
+- ✅ "You get the homeowner's name and email." ❌ "name and number" / "mobile phone" / "we generate calls for you."
+- ✅ "They come back through your funnel and call you." ❌ "Get their number and call them first."
 - ✅ "Only after the homeowner consents." ❌ "We track every visitor." / "anonymous visitor data."
 - ✅ "Yours alone — never resold." ❌ "exclusive-ish" / anything implying limited sharing.
 - ✅ "$10 for your first 10 leads, then $7 a lead." ❌ "first 10 leads free" / "free trial" / "no card to start" (a card IS required).
@@ -153,7 +165,7 @@ who'd otherwise leave without a name."
 
 ## Voice notes (the part that keeps it from drifting)
 
-1. **Hero is the contractor, guide is Consent Resolve.** The contractor wins the jobs; Consent Resolve just hands them the name and number and gets out of the way. Never let the software be the star of a sentence.
+1. **Hero is the contractor, guide is Consent Resolve.** The contractor wins the jobs; Consent Resolve just hands their funnel a consented contact and gets out of the way. Never let the software be the star of a sentence.
 2. **Dial the fear down to a supporting role.** Opportunity sells, fear nags. Lead every section with money on the table; let "and it's fully legal, with receipts" be the relief at the end — not the hook at the front. Use the legal angle once, cleanly, on the Compliance section. Don't repeat the dollar-threat across the page.
 3. **One promise per section.** If a section makes three points it makes none. Pick the one that moves them and cut the rest.
 4. **Numbers must be real or clearly illustrative.** Don't present invented shops or stats as real customers. Label illustrative figures as examples. Trust is the entire product.
