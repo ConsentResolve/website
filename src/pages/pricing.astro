@@ -10,6 +10,8 @@ import {
   IconArrowRight, IconCheck, IconBolt, IconLock, IconShieldCheck,
   IconUserCheck, IconMapPin, IconClipboardCheck, IconBellRinging,
   IconPlugConnected, IconRefresh, IconHeadset, IconWorld,
+  IconEye, IconAddressBook, IconChartHistogram, IconStar, IconCode,
+  IconCircleCheck, IconMessage,
 } from "@tabler/icons-react";
 import { breadcrumbSchema, faqSchema } from "~/lib/seo";
 
@@ -25,39 +27,42 @@ const billingFaqs = [
   { question: "Do you offer enterprise / multi-location pricing?", answer: "Yes — multi-location operators and franchise networks get a custom rate. Email hello@consentresolve.com or call (727) 202-5996." },
 ];
 
+// Mirrors the /features/ page — same capabilities, same groups, so the
+// "everything included" table never drifts from the feature catalog.
 const featureGroups = [
   {
-    label: "Lead quality",
+    label: "See the leads",
     features: [
-      { Icon: IconUserCheck,      title: "Verified contact record",            desc: "A consented, deliverable email, enriched with name and location where available. Never a household label, never a P.O. box." },
-      { Icon: IconClipboardCheck, title: "Captured service intent",            desc: "What they were shopping for — 'water heater quote', 'roof inspection', 'AC tune-up'." },
-      { Icon: IconMapPin,         title: "Service-area pin",                   desc: "Every lead drops on your map. Filter by zip, route, or distance." },
-      { Icon: IconLock,           title: "Exclusive — never resold",           desc: "One consent, one contractor. Not auctioned, not flipped, not shared." },
+      { Icon: IconEye,            title: "Visitor Identification",   desc: "See the real homeowners behind your traffic — name and email, only after they consent." },
+      { Icon: IconBolt,           title: "Instant Retarget",         desc: "Tag every consented ad click and track it all the way to closed revenue." },
+      { Icon: IconRefresh,        title: "Return-Visit Alerts",      desc: "Know when a recovered homeowner is back on your site, so your funnel timing is right." },
+      { Icon: IconAddressBook,    title: "Formless Contact Capture", desc: "Catch the 98% who never fill a form — a consented email, with name and location where available." },
     ],
   },
   {
-    label: "Speed",
+    label: "Sort the serious",
     features: [
-      { Icon: IconBellRinging, title: "Real-time push to your phone",          desc: "Slack, SMS, or email. The lead lands in seconds, not hours." },
-      { Icon: IconRefresh,     title: "Return-visit alerts",                   desc: "When a known homeowner comes back, you know — so your funnel timing is right." },
-      { Icon: IconBolt,        title: "10-minute setup",                       desc: "Paste one line of code in your site's header. WordPress, Wix, Squarespace, ServiceTitan — anything." },
+      { Icon: IconChartHistogram, title: "Browse History",           desc: "Every lead arrives with what they viewed, in what order, and for how long." },
+      { Icon: IconStar,           title: "Lead Sorting",             desc: "Leads ranked hot, warm, or just browsing — work the hot ones first." },
+      { Icon: IconChartHistogram, title: "Most Viewed Pages",        desc: "See which pages real, identified homeowners look at most." },
     ],
   },
   {
-    label: "CRM & dispatch",
+    label: "Book the job",
     features: [
-      { Icon: IconPlugConnected, title: "Native CRM integrations",             desc: "Jobber, Housecall Pro, ServiceTitan, GoHighLevel, plus Salesforce, HubSpot, Klaviyo, Mailchimp, Zapier, and more." },
-      { Icon: IconPlugConnected, title: "Webhook to anything else",            desc: "Send leads to any system that accepts a webhook." },
-      { Icon: IconWorld,         title: "Works on any site builder",           desc: "WordPress, Wix, Squarespace, ServiceTitan websites, custom — anywhere you can paste a script tag." },
+      { Icon: IconRefresh,        title: "Ad Retargeting Audiences", desc: "Push identified visitors into Facebook and Google as ready-made audiences." },
+      { Icon: IconPlugConnected,  title: "Integrations",             desc: "Jobber, Housecall Pro, ServiceTitan, GoHighLevel, HubSpot, Klaviyo, and more." },
+      { Icon: IconCode,           title: "API & Webhooks",           desc: "Send recovered records anywhere your business needs them." },
     ],
   },
   {
-    label: "Compliance & support",
+    label: "Stay legal",
     features: [
-      { Icon: IconShieldCheck, title: "Consent-first by design",               desc: "Identification only after explicit consent. Built for the laws that hit contractors — TCPA, CIPA, state privacy. No shadow-tracking, ever." },
-      { Icon: IconShieldCheck, title: "Termageddon-backed policies",           desc: "Privacy policy and disclosures auto-update with every change." },
-      { Icon: IconShieldCheck, title: "Tamper-evident audit trail",            desc: "Every reveal timestamped and signed. Receipts for every lead, if a regulator asks." },
-      { Icon: IconHeadset,     title: "Email + phone support",                 desc: "Reach a human at hello@consentresolve.com or (727) 202-5996. M–F 9a–6p Eastern." },
+      { Icon: IconUserCheck,      title: "Cookie Consent Banner",    desc: "A clean, compliant banner — and what unlocks every lead." },
+      { Icon: IconCircleCheck,    title: "Consent Records",          desc: "Every lead carries proof they said yes — date, time, and source." },
+      { Icon: IconShieldCheck,    title: "Privacy-Law Compliance",   desc: "Built for TCPA, CIPA, and state privacy laws like the Texas TDPSA." },
+      { Icon: IconMessage,        title: "Law-Change Alerts",        desc: "When a law changes that affects you, we email it in plain English." },
+      { Icon: IconClipboardCheck, title: "Audit-Ready Records",      desc: "Records organized and ready to export if anyone ever asks." },
     ],
   },
 ];
