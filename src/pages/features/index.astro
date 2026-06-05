@@ -246,34 +246,45 @@ const cardIconBg = (bg: Part["bg"]) =>
   schema={schemas}
 >
   <!-- ============================================================== -->
-  <!-- HERO                                                            -->
+  <!-- HERO — leads with the consent foundation feature.              -->
+  <!--   Frames the whole feature deck around the 'it all starts      -->
+  <!--   with consent' message before the four-part breakdown.        -->
+  <!--   Deep dive lives at /features/built-in-compliance/.            -->
   <!-- ============================================================== -->
-  <section class="relative overflow-hidden">
+  <section class="section section-dark relative overflow-hidden">
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
-    <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-32 size-[420px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
-    <div class="container-content section relative">
+    <div aria-hidden="true" class="pointer-events-none absolute -right-32 -bottom-32 size-[420px] rounded-full bg-[color:var(--color-mint-400)]/12 blur-[120px]"></div>
+
+    <div class="container-content relative">
       <div class="mx-auto max-w-3xl text-center">
-        <Badge tone="brand" variant="soft" size="md" uppercase>Features</Badge>
-        <h1 class="display-1 mb-7 mt-7 text-[color:var(--color-ink)]">
-          Your website already has the leads.<br/>
-          <span class="text-[color:var(--color-brand-pressed)]">You just can't see them.</span>
+        <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase icon={IconShieldCheck}>It all starts with consent</Badge></div>
+        <h1 class="display-1 mb-7 text-white">
+          Stop gambling with<br/>
+          <span class="text-[color:var(--color-mint-400)]">million-dollar fines.</span>
         </h1>
-        <p class="mx-auto max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-          Every day, homeowners visit your site, look at your services, and leave without calling. Consent Resolve shows you who they are — only after they tap your consent banner — so you win the job instead of the next shop.
+        <p class="mx-auto max-w-2xl text-lg leading-relaxed text-slate-300">
+          Other tools track first and ask never. Consent Resolve documents every visitor decision with a 7-year audit trail that stands up to GDPR, CCPA, HIPAA, and GLBA audits — so one violation never destroys the business. Every feature in this deck sits on that foundation.
         </p>
+
+        <ul class="mx-auto mt-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-300">
+          <li class="flex items-center gap-1.5"><IconCircleCheck size={16} stroke={2.25} color="#00E5A0" /> 100% documented consent</li>
+          <li class="flex items-center gap-1.5"><IconCircleCheck size={16} stroke={2.25} color="#00E5A0" /> 7-year audit trail</li>
+          <li class="flex items-center gap-1.5"><IconCircleCheck size={16} stroke={2.25} color="#00E5A0" /> Zero legal risk</li>
+        </ul>
+
         <div class="mt-10 flex flex-wrap justify-center gap-3">
           <a
-            href="https://dashboard.consentresolve.com/register"
+            href="/features/built-in-compliance/"
             class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
           >
-            See my hidden leads
+            See how compliance works
             <IconArrowRight size={16} stroke={2.5} />
           </a>
           <a
-            href="/pricing/"
-            class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:ring-[color:var(--color-mint-400)]/60"
+            href="https://dashboard.consentresolve.com/register"
+            class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/20 transition-all hover:bg-white/5"
           >
-            View pricing
+            Get Started
           </a>
         </div>
       </div>
