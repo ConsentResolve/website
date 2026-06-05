@@ -33,9 +33,18 @@ import {
   IconArrowRight, IconEye, IconBolt, IconRefresh, IconAddressBook,
   IconMessage, IconStar, IconChartHistogram, IconClipboardCheck,
   IconPlugConnected, IconCode, IconUserCheck, IconCircleCheck,
-  IconShieldCheck, IconCash, IconAlertTriangle,
+  IconShieldCheck, IconCash, IconAlertTriangle, IconUsers,
   type Icon,
 } from "@tabler/icons-react";
+
+// Hero "how it works in 3" animated flow (right column). Dark cards,
+// staggered looping reveal. Copy from the user's layout; step 2 phrased
+// to the sanctioned mechanism line (no "device" / fingerprinting).
+const flowSteps: { n: number; hex: string; Icon: Icon; title: string; body: string }[] = [
+  { n: 1, hex: "#00E5A0", Icon: IconCircleCheck, title: "Consent Banner Appears", body: "A privacy-compliant banner asks visitors for permission to identify them." },
+  { n: 2, hex: "#22D3EE", Icon: IconUsers,       title: "Visitor Grants Consent", body: "When they agree, we match them to verified identity data through a trusted, deterministic source." },
+  { n: 3, hex: "#A78BFA", Icon: IconBolt,        title: "You Get the Lead",       body: "Name, email, and contact details sent directly to your CRM." },
+];
 
 interface Card {
   Icon: Icon;
@@ -256,36 +265,51 @@ const cardIconBg = (bg: Part["bg"]) =>
     <div aria-hidden="true" class="pointer-events-none absolute -right-32 -bottom-32 size-[420px] rounded-full bg-[color:var(--color-mint-400)]/12 blur-[120px]"></div>
 
     <div class="container-content relative">
-      <div class="mx-auto max-w-3xl text-center">
-        <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase icon={IconShieldCheck}>It all starts with consent</Badge></div>
-        <h1 class="display-1 mb-7 text-white">
-          Stop gambling with<br/>
-          <span class="text-[color:var(--color-mint-400)]">million-dollar fines.</span>
-        </h1>
-        <p class="mx-auto max-w-2xl text-lg leading-relaxed text-slate-300">
-          Other tools track first and ask never. Consent Resolve documents every visitor decision with a 7-year audit trail built for the laws that actually hit contractors — TCPA, CIPA, and state privacy like the Texas TDPSA — so one violation never destroys the business. Every feature in this deck sits on that foundation.
-        </p>
+      <div class="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+        <!-- Left: hero copy -->
+        <div>
+          <div class="mb-7"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase icon={IconShieldCheck}>It all starts with consent</Badge></div>
+          <h1 class="display-1 mb-7 text-white">
+            Stop gambling with<br/>
+            <span class="text-[color:var(--color-mint-400)]">million-dollar fines.</span>
+          </h1>
+          <p class="max-w-xl text-lg leading-relaxed text-slate-300">
+            Other tools track first and ask never. Consent Resolve documents every visitor decision with a 7-year audit trail built for the laws that actually hit contractors — TCPA, CIPA, and state privacy like the Texas TDPSA — so one violation never destroys the business. Every feature in this deck sits on that foundation.
+          </p>
 
-        <ul class="mx-auto mt-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-300">
-          <li class="flex items-center gap-1.5"><IconCircleCheck size={16} stroke={2.25} color="#00E5A0" /> 100% documented consent</li>
-          <li class="flex items-center gap-1.5"><IconCircleCheck size={16} stroke={2.25} color="#00E5A0" /> 7-year audit trail</li>
-          <li class="flex items-center gap-1.5"><IconCircleCheck size={16} stroke={2.25} color="#00E5A0" /> Audit receipt on every lead</li>
-        </ul>
+          <ul class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-300">
+            <li class="flex items-center gap-1.5"><IconCircleCheck size={16} stroke={2.25} color="#00E5A0" /> 100% documented consent</li>
+            <li class="flex items-center gap-1.5"><IconCircleCheck size={16} stroke={2.25} color="#00E5A0" /> 7-year audit trail</li>
+            <li class="flex items-center gap-1.5"><IconCircleCheck size={16} stroke={2.25} color="#00E5A0" /> Audit receipt on every lead</li>
+          </ul>
 
-        <div class="mt-10 flex flex-wrap justify-center gap-3">
-          <a
-            href="/features/built-in-compliance/"
-            class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
-          >
-            See how compliance works
-            <IconArrowRight size={16} stroke={2.5} />
-          </a>
-          <a
-            href="https://dashboard.consentresolve.com/register"
-            class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/20 transition-all hover:bg-white/5"
-          >
-            Get Started
-          </a>
+          <div class="mt-10 flex flex-wrap gap-3">
+            <a
+              href="/features/built-in-compliance/"
+              class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
+            >
+              See how compliance works
+              <IconArrowRight size={16} stroke={2.5} />
+            </a>
+            <a
+              href="https://dashboard.consentresolve.com/register"
+              class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/20 transition-all hover:bg-white/5"
+            >
+              Get Started
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: 3-part animated flow (consent → match → lead) -->
+        <div class="flow-graphic">
+          {flowSteps.map((s, i) => (
+            <div class="flowcard" style={`--accent:${s.hex}; --i:${i};`}>
+              <span class="flowcard-num">{s.n}</span>
+              <h3 class="flowcard-title">{s.title}</h3>
+              <p class="flowcard-body">{s.body}</p>
+              <div class="flowcard-iconbar"><s.Icon size={20} stroke={2} /></div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -382,3 +406,81 @@ const cardIconBg = (bg: Part["bg"]) =>
     ctaLabel="See my hidden leads"
   />
 </BaseLayout>
+
+<style>
+  /* Hero 3-part animated flow — dark cards, staggered looping reveal.
+     The accent color cycles a highlight through steps 1 → 2 → 3. */
+  .flow-graphic {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .flowcard {
+    position: relative;
+    border-radius: 1rem;
+    background: rgba(15, 32, 48, 0.55);
+    padding: 1.25rem 1.5rem 1.4rem;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+    animation: flowIn 0.55s ease-out both, flowPulse 6s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 140ms), calc(var(--i) * 2s);
+  }
+  /* short vertical connector above steps 2 and 3 */
+  .flowcard:not(:first-child)::before {
+    content: "";
+    position: absolute;
+    left: 2.55rem;
+    top: -1rem;
+    width: 2px;
+    height: 1rem;
+    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.18));
+  }
+  .flowcard-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.6rem;
+    font-family: var(--font-display, "Bricolage Grotesque", serif);
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+  .flowcard-title {
+    margin: 0.9rem 0 0;
+    font-family: var(--font-display, "Bricolage Grotesque", serif);
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: -0.01em;
+    color: #fff;
+  }
+  .flowcard-body {
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: #94a3b8;
+  }
+  .flowcard-iconbar {
+    margin-top: 1.1rem;
+    height: 3.25rem;
+    border-radius: 0.7rem;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 9%, rgba(255, 255, 255, 0.02));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  @keyframes flowIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes flowPulse {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06); }
+    8%, 26%  { box-shadow: 0 0 0 1px var(--accent), 0 22px 60px -24px var(--accent); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .flowcard { animation: flowIn 0.01s linear both; }
+  }
+</style>
