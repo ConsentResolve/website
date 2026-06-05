@@ -5,20 +5,23 @@ import Button from "~/components/ui/Button.astro";
 import Badge from "~/components/ui/Badge.astro";
 import LogoCarousel from "~/components/ui/LogoCarousel.astro";
 import { IconArrowRight, IconEye, IconCheck } from "@tabler/icons-react";
+import { INTEGRATIONS } from "~/data/integrations";
 
-// Real SVG wordmarks where we have them (under /public/logos/integrations/);
-// Jobber + Klaviyo don't publish public SVG brand assets, so they render as
-// the LogoCarousel's styled-text fallback (font-display, bold).
-const integrations = [
-  { name: "Jobber" },
-  { name: "Housecall Pro", logo: "/logos/integrations/housecallpro.svg" },
-  { name: "ServiceTitan",  logo: "/logos/integrations/servicetitan.svg" },
-  { name: "HubSpot",       logo: "/logos/integrations/hubspot.svg" },
-  { name: "Klaviyo" },
-  { name: "Salesforce",    logo: "/logos/integrations/salesforce.svg" },
-  { name: "Slack",         logo: "/logos/integrations/slack.svg" },
-  { name: "Zapier",        logo: "/logos/integrations/zapier.svg" },
+// Marquee is driven by the canonical integrations source so it never
+// drifts from the launch list. Trade CRMs lead (the buyer's own tools),
+// then the major platforms. Logos render only where an in-repo SVG asset
+// exists; the rest fall back to LogoCarousel's styled wordmark. Missing
+// assets are tracked in INTEGRATIONS_MISSING_LOGO — Jobber, GoHighLevel,
+// and Klaviyo don't publish public SVG brand assets, so they render as
+// text fallbacks until art ships.
+const marqueeNames = [
+  "Jobber", "Housecall Pro", "ServiceTitan", "GoHighLevel",
+  "HubSpot", "Klaviyo", "Salesforce", "Zapier",
 ];
+const integrations = marqueeNames
+  .map((n) => INTEGRATIONS.find((i) => i.name === n))
+  .filter((i): i is NonNullable<typeof i> => Boolean(i))
+  .map((i) => (i.logo ? { name: i.name, logo: i.logo } : { name: i.name }));
 
 interface Props {
   eyebrow?: string;

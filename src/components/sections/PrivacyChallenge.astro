@@ -1,27 +1,26 @@
 ---
 /**
- * PrivacyChallenge — problem-framing section that explains the
- * regulatory reality (GDPR / CCPA require consent) and the cost of
- * getting it wrong. Pairs a stylized "Privacy Laws Impact" dashboard
- * mockup on the left (always rendered dark — it's a glass UI panel)
- * with prose + risk-callout on the right.
+ * PrivacyChallenge — the homepage compliance stakes, reframed around the
+ * U.S. contractor risk map (June 2026). Replaces the old GDPR/CCPA
+ * "Privacy Laws Impact" gauge. Three sourced risk cards — TCPA, CIPA,
+ * and Texas enforcement — each linking to /stats/#privacy-enforcement,
+ * then the closing line that says how Consent Resolve sidesteps all of it.
  *
- * Different intent from ComplianceBand:
- *   ComplianceBand    — reassurance ("Legal by default. Receipts for
- *                       everything.") — light bg, illustration right.
- *   PrivacyChallenge  — stakes ("Privacy laws make tracking harder.
- *                       Here's what's at risk.") — light OR dark
- *                       section bg, dark mockup left.
+ * Voice locked to /style-guide/voice/. Lead with the risk, close with the
+ * reassurance — never name vendors, never promise a number to cold-call.
  *
  * Variant prop:
  *   "light" (default) — light section bg, ink copy, mint accent.
- *   "dark"            — dark navy bg with red+amber ambient glows.
- *
- * Currently wired on / (homepage, light). Sitewide promotion to come
- * after the user iterates.
+ *   "dark"            — dark navy bg with red/amber ambient glows.
  */
 import Badge from "~/components/ui/Badge.astro";
-import { IconShield, IconAlertTriangle, IconWorld, IconLock } from "@tabler/icons-react";
+import {
+  IconShield,
+  IconPhoneOff,
+  IconWorldX,
+  IconGavel,
+  IconArrowUpRight,
+} from "@tabler/icons-react";
 
 interface Props {
   variant?: "light" | "dark";
@@ -30,17 +29,43 @@ const { variant = "light" } = Astro.props as Props;
 
 const isDark = variant === "dark";
 const sectionClass = isDark ? "section section-dark" : "section bg-[color:var(--color-bg-alt)]";
-// Copy-area treatments — flip ink ↔ white based on section surface.
 const headlineClass     = isDark ? "text-white" : "text-[color:var(--color-ink)]";
 const accentClass       = isDark ? "text-[color:var(--color-mint-400)]" : "text-[color:var(--color-brand-pressed)]";
-const bodyClass         = isDark ? "text-slate-300" : "text-[color:var(--color-ink-2)]";
-const bodyStrongClass   = isDark ? "text-white"    : "text-[color:var(--color-ink)]";
-const calloutBg         = isDark ? "bg-white/[0.03] ring-white/10" : "bg-[color:var(--color-bg)] ring-[color:var(--color-rule)]";
-const calloutTitleClass = isDark ? "text-white"    : "text-[color:var(--color-ink)]";
-const calloutBodyClass  = isDark ? "text-slate-300" : "text-[color:var(--color-ink-2)]";
-// Ambient glows only render on the dark variant (red/amber undertone
-// reads as risk against navy; against the cream bg it'd just look
-// dirty).
+const introClass        = isDark ? "text-slate-300" : "text-[color:var(--color-ink-2)]";
+const cardBg            = isDark ? "bg-white/[0.03] ring-white/10" : "bg-[color:var(--color-bg)] ring-[color:var(--color-rule)]";
+const cardStatClass     = isDark ? "text-white" : "text-[color:var(--color-ink)]";
+const cardLabelClass    = isDark ? "text-slate-200" : "text-[color:var(--color-ink)]";
+const cardBodyClass     = isDark ? "text-slate-400" : "text-[color:var(--color-ink-2)]";
+const sourceClass       = isDark ? "text-slate-400 hover:text-white" : "text-[color:var(--color-ink-muted)] hover:text-[color:var(--color-brand-pressed)]";
+const closeBg           = isDark ? "bg-[color:var(--color-brand-soft)]/10 ring-[color:var(--color-brand)]/40" : "bg-[color:var(--color-brand-soft)] ring-[color:var(--color-brand)]/30";
+const closeTextClass    = isDark ? "text-slate-100" : "text-[color:var(--color-ink)]";
+
+const risks = [
+  {
+    Icon: IconPhoneOff,
+    tone: "#fca5a5",
+    stat: "$500–$1,500",
+    label: "TCPA — per illegal call or text",
+    body: "Marketing calls and texts to people who never opted in carry a private right of action. Every message is its own claim — and the damages stack.",
+    href: "/stats/#privacy-enforcement",
+  },
+  {
+    Icon: IconWorldX,
+    tone: "#fca5a5",
+    stat: "$5,000",
+    label: "CIPA — per tracking violation",
+    body: "Non-consented website tracking is treated like wiretapping. Plaintiffs' firms mass-file against ordinary business websites, one demand letter at a time.",
+    href: "/stats/#privacy-enforcement",
+  },
+  {
+    Icon: IconGavel,
+    tone: "#fbbf24",
+    stat: "$1.4B",
+    label: "Texas is enforcing",
+    body: "Texas settled with Meta for $1.4B and Google for $1.375B over data collected without consent — and filed the first-ever TDPSA suit (Allstate/Arity).",
+    href: "/stats/#privacy-enforcement",
+  },
+];
 ---
 
 <section class={`${sectionClass} relative overflow-hidden`}>
@@ -52,121 +77,37 @@ const calloutBodyClass  = isDark ? "text-slate-300" : "text-[color:var(--color-i
   )}
 
   <div class="container-content relative">
-    <div class="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
+    <div class="mx-auto mb-12 max-w-2xl text-center">
+      <Badge tone="warning" variant="soft" surface={isDark ? "dark" : "light"} size="md" uppercase icon={IconShield}>The real risk</Badge>
+      <h2 class:list={["display-2 mt-5", headlineClass]}>
+        What actually gets<br/>
+        <span class={accentClass}>contractors sued.</span>
+      </h2>
+      <p class:list={["mt-5 text-lg leading-relaxed", introClass]}>
+        It isn't privacy buzzwords. It's how people get reached and how websites get tracked. Three risks do the real damage.
+      </p>
+    </div>
 
-      <!-- =============== LEFT: privacy-laws dashboard mockup ============== -->
-      <div class="order-2 lg:order-1">
-        <div class="relative rounded-2xl bg-[color:var(--color-navy-900)] p-5 ring-1 ring-inset ring-white/10 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)]">
-          <!-- Window header — traffic-light dots -->
-          <div class="mb-5 flex items-center justify-between">
-            <p class="font-display text-sm font-bold tracking-tight text-white">Privacy Laws Impact</p>
-            <div class="flex items-center gap-1.5">
-              <span class="size-2.5 rounded-full bg-red-500/80"></span>
-              <span class="size-2.5 rounded-full bg-amber-400/80"></span>
-              <span class="size-2.5 rounded-full bg-emerald-400/80"></span>
-            </div>
-          </div>
-
-          <!-- Active alert -->
-          <div class="rounded-xl bg-red-500/10 p-4 ring-1 ring-inset ring-red-500/30">
-            <div class="flex items-start gap-2.5">
-              <IconAlertTriangle size={18} stroke={2} color="#fca5a5" class="mt-0.5 shrink-0" />
-              <div>
-                <p class="text-[13px] font-bold uppercase tracking-[0.14em] text-red-300">GDPR / CCPA active</p>
-                <p class="mt-1 text-[12px] text-slate-400">Consent required for tracking</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Two visitor jurisdiction cards -->
-          <div class="mt-3 grid grid-cols-2 gap-3">
-            <div class="rounded-xl bg-white/[0.04] p-4 ring-1 ring-inset ring-white/10">
-              <div class="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                <IconWorld size={14} stroke={1.75} /> EU Visitors
-              </div>
-              <p class="mt-2 font-display text-xl font-black tracking-tight text-white">GDPR</p>
-              <p class="mt-0.5 text-[11px] text-slate-400">Strict consent</p>
-            </div>
-            <div class="rounded-xl bg-white/[0.04] p-4 ring-1 ring-inset ring-white/10">
-              <div class="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                <IconWorld size={14} stroke={1.75} /> CA Visitors
-              </div>
-              <p class="mt-2 font-display text-xl font-black tracking-tight text-white">CCPA</p>
-              <p class="mt-0.5 text-[11px] text-slate-400">Opt-out required</p>
-            </div>
-          </div>
-
-          <!-- Tracking-allowed bar -->
-          <div class="mt-3 rounded-xl bg-white/[0.04] p-4 ring-1 ring-inset ring-white/10">
-            <div class="flex items-center justify-between">
-              <span class="flex items-center gap-1.5 text-[12px] font-semibold text-slate-300">
-                <IconLock size={14} stroke={2} />
-                Tracking allowed
-              </span>
-              <span class="font-display text-sm font-bold text-red-300">28%</span>
-            </div>
-            <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-              <div class="h-full rounded-full bg-red-500" style="width:28%"></div>
-            </div>
-          </div>
-
-          <!-- Consent-required bar -->
-          <div class="mt-3 rounded-xl bg-white/[0.04] p-4 ring-1 ring-inset ring-white/10">
-            <div class="flex items-center justify-between">
-              <span class="flex items-center gap-1.5 text-[12px] font-semibold text-slate-300">
-                <IconShield size={14} stroke={2} />
-                Consent required
-              </span>
-              <span class="font-display text-sm font-bold text-amber-300">72%</span>
-            </div>
-            <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-              <div class="h-full rounded-full bg-amber-500" style="width:72%"></div>
-            </div>
-          </div>
-
-          <!-- Compliance-risk gauge -->
-          <div class="mt-3 rounded-xl bg-red-500/[0.06] p-4 ring-1 ring-inset ring-red-500/30">
-            <div class="flex items-center justify-between">
-              <span class="text-[12px] font-bold uppercase tracking-[0.14em] text-amber-400">Compliance risk</span>
-              <span class="font-display text-sm font-bold text-amber-400">High</span>
-            </div>
-            <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-              <div class="h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-red-500" style="width:88%"></div>
-            </div>
-            <p class="mt-2 text-[11px] text-slate-400">Without verified consent</p>
-          </div>
+    <div class="grid gap-5 md:grid-cols-3">
+      {risks.map(({ Icon, tone, stat, label, body, href }) => (
+        <div class:list={["flex flex-col rounded-2xl p-6 ring-1 ring-inset", cardBg]}>
+          <span class="inline-flex size-10 items-center justify-center rounded-xl bg-red-500/15">
+            <Icon size={20} stroke={1.75} color={tone} />
+          </span>
+          <p class:list={["mt-4 font-display text-3xl font-black tracking-tight tabular-nums", cardStatClass]}>{stat}</p>
+          <p class:list={["mt-1 font-display text-sm font-bold tracking-tight", cardLabelClass]}>{label}</p>
+          <p class:list={["mt-3 flex-1 text-[13px] leading-relaxed", cardBodyClass]}>{body}</p>
+          <a href={href} class:list={["mt-4 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.14em]", sourceClass]}>
+            See the sources <IconArrowUpRight size={12} stroke={2.5} />
+          </a>
         </div>
-      </div>
+      ))}
+    </div>
 
-      <!-- =============== RIGHT: copy + risk callout =============== -->
-      <div class="order-1 lg:order-2">
-        <div class="mb-5"><Badge tone="brand" variant="soft" surface={isDark ? "dark" : "light"} size="md" uppercase icon={IconShield}>Privacy challenge</Badge></div>
-        <h2 class:list={["display-2", headlineClass]}>
-          Privacy laws make<br/>
-          <span class={accentClass}>tracking harder.</span>
-        </h2>
-
-        <div class:list={["mt-6 space-y-4 text-[15px] leading-relaxed", bodyClass]}>
-          <p>New privacy rules protect website visitors.</p>
-          <p>Laws like <strong class={bodyStrongClass}>GDPR and CCPA</strong> require asking permission first.</p>
-          <p>Without proof of consent, you risk fines and damage customer trust.</p>
-          <p>That leaves you blind to half your audience while risking penalties. You lose the ability to understand visitor behavior, follow up effectively, or prove you asked permission properly.</p>
-        </div>
-
-        <!-- Risk callout card -->
-        <div class:list={["mt-8 rounded-2xl p-5 ring-1 ring-inset", calloutBg]}>
-          <div class="flex items-start gap-3">
-            <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-red-500/15">
-              <IconShield size={20} stroke={1.75} color="#fca5a5" />
-            </span>
-            <div>
-              <p class:list={["font-display text-base font-bold tracking-tight", calloutTitleClass]}>Compliance risk</p>
-              <p class:list={["mt-1 text-[13px] leading-relaxed", calloutBodyClass]}>GDPR and CCPA require verifiable consent.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div class:list={["mx-auto mt-8 max-w-3xl rounded-2xl p-6 ring-1 ring-inset", closeBg]}>
+      <p class:list={["text-[15px] leading-relaxed", closeTextClass]}>
+        Consent Resolve is built so none of this touches your shop: identification only after a consented yes, an audit receipt on every record, and we never hand you a number to cold-call. Recovered homeowners come back through your funnel and call you.
+      </p>
     </div>
   </div>
 </section>

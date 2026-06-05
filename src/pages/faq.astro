@@ -6,15 +6,15 @@ import FinalCTA from "~/components/sections/FinalCTA.astro";
 import { breadcrumbSchema, faqSchema } from "~/lib/seo";
 
 const faqs = [
-  { q: "Is this legal?", a: "Yes — because a homeowner's name shows up only after they consent. We keep your privacy policy, cookie banner, and disclosures in sync through Termageddon. The shady tools that track people in secret are the illegal ones. We're not one." },
+  { q: "Is this legal?", a: "Here's what actually gets contractors sued: calling or texting people who never opted in (TCPA), and websites that track visitors without asking (CIPA and state privacy laws like the Texas TDPSA, which the Texas AG actively enforces). Consent Resolve is built the other way. A homeowner is identified only after an affirmative yes on your consent banner, every consent is timestamped with a signed audit ID, recovered contacts are re-engaged only through the channels that consent covers, and we never hand you a number to cold-call. The tools that track people in secret are the ones writing settlement checks. We built the opposite. See our full take at /why-consent-first/." },
   { q: "Do I have to change my privacy policy?", a: "We handle it. Termageddon generates and updates the policies for you, so you stay covered without the legwork." },
   { q: "What if a homeowner doesn't consent?", a: "Then you get nothing on them — and that's the point. No consent, no data. That's what keeps you safe." },
   { q: "How fast does a lead reach me?", a: "Seconds. A Slack, text, or email fires the moment they consent, and it lands in your CRM at the same time." },
-  { q: "Which CRMs do you work with?", a: "Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, and just about anything else through a webhook." },
+  { q: "Which CRMs do you work with?", a: "On the trade side: Jobber, Housecall Pro, ServiceTitan, and GoHighLevel. Plus Salesforce, HubSpot, Pipedrive, Zoho CRM, Microsoft Dynamics, ActiveCampaign, Mailchimp, Klaviyo, Marketo, Pardot, Intercom, Segment, Google Sheets, Slack, Zapier, and any tool through a custom API or webhook. Don't see your CRM? We build custom integrations for enterprise customers." },
   { q: "Can I cancel anytime?", a: "Yes. Flat $7 per lead — card required, no contract, cancel whenever you want from your dashboard." },
   { q: "Do I need a developer?", a: "No. Paste one line of code in your site's header — about 10 minutes, no developer needed. If you can paste a tracking tag, you can do this." },
-  { q: "What does a homeowner see?", a: "Your normal consent banner — the same kind you already have for cookies. They click Accept like always. Nothing strange, nothing intrusive." },
-  { q: "Is my data safe?", a: "Yes. Everything is 256-bit encrypted. Lead data goes to you and you alone — never resold, never auctioned." },
+  { q: "What does a homeowner see?", a: "Your normal consent banner — the same kind you already have for cookies. They click Accept like always. Identification happens only after that consented yes, matched through a trusted, deterministic data source — no fingerprinting, no probabilistic guessing, no shadow tracking." },
+  { q: "Is my data safe?", a: "Yes. Identification happens only after a consented yes, matched through a trusted, deterministic data source — no fingerprinting, no shadow tracking. Data is encrypted in transit and at rest, every consent carries an audit trail, and lead data goes to you alone — never resold, never auctioned." },
 ];
 
 const accordionItems = faqs.map((f) => ({ question: f.q, answer: f.a }));

@@ -6,20 +6,20 @@ import { IconChartBar, IconShield, IconArrowDownRight, IconArrowUpRight } from "
 // Anonymized visitor entries
 const visitors = [
   { initials: "AX", handle: "a*****x@example.com",   page: "Service request page",  time: "43m ago" },
-  { initials: "K7", handle: "k7****l@example.com",   page: "Equipment repair quote", time: "7:26 AM" },
-  { initials: "EM", handle: "em****5@example.com",   page: "Service catalog",       time: "Yesterday, 1:48 PM" },
+  { initials: "K7", handle: "k7****l@example.com",   page: "Water heater replacement quote", time: "7:26 AM" },
+  { initials: "EM", handle: "em****5@example.com",   page: "Roof inspection",       time: "Yesterday, 1:48 PM" },
   { initials: "GY", handle: "gy****6@example.com",   page: "Pricing inquiry",       time: "Yesterday, 11:09 AM" },
-  { initials: "AH", handle: "ah****_99@example.com", page: "Site inspection",       time: "Sun, 7:16 PM" },
+  { initials: "AH", handle: "ah****_99@example.com", page: "AC tune-up",       time: "Sun, 7:16 PM" },
   { initials: "MB", handle: "mb****5@example.com",   page: "Service request page",  time: "Sat, 8:11 PM" },
   { initials: "AT", handle: "at@example.com",        page: "Service quote",         time: "Fri, 1:45 PM" },
   { initials: "AL", handle: "al****1@example.com",   page: "Service quote",         time: "Fri, 1:31 PM" },
-  { initials: "GP", handle: "gp****y@example.com",   page: "Equipment compare",     time: "Fri, 11:57 AM" },
-  { initials: "KA", handle: "ka****l@example.com",   page: "Repair · maintenance",  time: "Thu, 8:57 PM" },
-  { initials: "JS", handle: "js****2@example.com",   page: "Repair · spindle",      time: "Thu, 5:06 PM" },
-  { initials: "DS", handle: "ds****g@example.com",   page: "Repair · maintenance",  time: "Thu, 3:10 PM" },
+  { initials: "GP", handle: "gp****y@example.com",   page: "Panel upgrade estimate",     time: "Fri, 11:57 AM" },
+  { initials: "KA", handle: "ka****l@example.com",   page: "AC maintenance plan",  time: "Thu, 8:57 PM" },
+  { initials: "JS", handle: "js****2@example.com",   page: "Drain repair",      time: "Thu, 5:06 PM" },
+  { initials: "DS", handle: "ds****g@example.com",   page: "Furnace tune-up",  time: "Thu, 3:10 PM" },
   { initials: "IN", handle: "in****y@example.com",   page: "Service request page",  time: "Thu, 12:03 PM" },
   { initials: "PW", handle: "pw****y@example.com",   page: "Service request page",  time: "Wed, 1:00 PM" },
-  { initials: "RE", handle: "re****y@example.com",   page: "Equipment catalog",     time: "Wed, 11:57 AM" },
+  { initials: "RE", handle: "re****y@example.com",   page: "Storm damage assessment",     time: "Wed, 11:57 AM" },
   { initials: "MA", handle: "ma****t@example.com",   page: "Service request page",  time: "Wed, 11:13 AM" },
   { initials: "CC", handle: "cc****n@example.com",   page: "Service quote",         time: "Wed, 10:57 AM", adBlocker: true },
 ];
@@ -87,7 +87,7 @@ const gridYs = [0, 2, 4, 6, 8];
     <div class="dash-card">
       <div class="dash-card-head">
         <IconShield size={14} stroke={1.75} color="#a78bfa" />
-        <span class="dash-card-label">Ad-Blocked Visitors</span>
+        <span class="dash-card-label">Ad-Blocked (excluded)</span>
       </div>
       <div class="dash-card-figure">
         <AnimatedNumber client:visible value={4} className="dash-figure" />
@@ -96,7 +96,7 @@ const gridYs = [0, 2, 4, 6, 8];
           +300%
         </span>
       </div>
-      <p class="dash-card-sub">identified through ad blockers</p>
+      <p class="dash-card-sub">detected and excluded from billing</p>
     </div>
   </div>
 

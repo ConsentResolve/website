@@ -1,6 +1,16 @@
 ---
 import DemoChrome from "./DemoChrome.astro";
-import { IconChevronRight, IconMail, IconArrowRight } from "@tabler/icons-react";
+import { IconChevronRight, IconArrowRight } from "@tabler/icons-react";
+import { INTEGRATIONS } from "~/data/integrations";
+
+// Render the demo from the canonical integrations source so it never
+// drifts from the launch list. Grouped, trade CRMs first.
+const groups = [
+  { label: "Field service & trade CRM", cats: ["trade-crm"], blurb: "Push recovered contacts straight into your dispatch + CRM." },
+  { label: "CRM & sales",               cats: ["crm"],       blurb: "Sync identified visitors as contacts, with field mapping." },
+  { label: "Marketing & email",         cats: ["email", "marketing"], blurb: "Add recovered contacts to the sequences and audiences you run." },
+  { label: "Data & automation",         cats: ["data", "automation"], blurb: "Route records anywhere — Segment, Sheets, Slack, Zapier, or webhook." },
+].map((g) => ({ ...g, items: INTEGRATIONS.filter((i) => g.cats.includes(i.category)) }));
 ---
 
 <DemoChrome active="integrations">
@@ -9,47 +19,31 @@ import { IconChevronRight, IconMail, IconArrowRight } from "@tabler/icons-react"
     <p class="ig-sub">Connect Consent Resolve to the tools you already use.</p>
   </div>
 
-  <section class="ig-section">
-    <h2 class="ig-section-title">CRM &amp; Sales</h2>
-    <div class="ig-grid">
-      <div class="ig-card">
-        <div class="ig-card-head">
-          <span class="ig-logo ig-logo-hubspot" aria-label="HubSpot">H</span>
-          <span class="ig-status">Available</span>
-        </div>
-        <h3 class="ig-card-name">HubSpot</h3>
-        <p class="ig-card-body">Sync identified visitors as contacts to your HubSpot CRM with customizable field mappings.</p>
-        <a class="ig-configure">
-          Configure
-          <IconChevronRight size={14} stroke={2.25} />
-        </a>
+  {groups.map((g) => (
+    <section class="ig-section">
+      <h2 class="ig-section-title">{g.label}</h2>
+      <div class="ig-grid">
+        {g.items.map((it) => (
+          <div class="ig-card">
+            <div class="ig-card-head">
+              <span class="ig-logo ig-logo-generic" aria-label={it.name}>{it.name.charAt(0)}</span>
+              <span class="ig-status">Available</span>
+            </div>
+            <h3 class="ig-card-name">{it.name}</h3>
+            <p class="ig-card-body">{g.blurb}</p>
+            <a class="ig-configure">
+              Configure
+              <IconChevronRight size={14} stroke={2.25} />
+            </a>
+          </div>
+        ))}
       </div>
-    </div>
-  </section>
-
-  <section class="ig-section">
-    <h2 class="ig-section-title">Marketing Automation</h2>
-    <div class="ig-grid">
-      <div class="ig-card">
-        <div class="ig-card-head">
-          <span class="ig-logo ig-logo-mail">
-            <IconMail size={22} stroke={1.75} />
-          </span>
-          <span class="ig-status">Available</span>
-        </div>
-        <h3 class="ig-card-name">Klaviyo</h3>
-        <p class="ig-card-body">Sync identified visitors as Klaviyo profiles every 5 minutes with subscription consent recorded.</p>
-        <a class="ig-configure">
-          Configure
-          <IconChevronRight size={14} stroke={2.25} />
-        </a>
-      </div>
-    </div>
-  </section>
+    </section>
+  ))}
 
   <section class="ig-callout">
     <h3 class="ig-callout-title">Need a Custom Integration?</h3>
-    <p class="ig-callout-body">If you need an integration that is not listed here, let us know. We are always looking to add more integrations based on user feedback.</p>
+    <p class="ig-callout-body">Don't see your CRM? We build custom integrations for enterprise customers. Let us know what you run.</p>
     <button class="ig-callout-btn">
       Request Integration
       <IconArrowRight size={14} stroke={2.25} />
@@ -84,8 +78,7 @@ import { IconChevronRight, IconMail, IconArrowRight } from "@tabler/icons-react"
     width: 40px; height: 40px; border-radius: 9999px;
     display: inline-flex; align-items: center; justify-content: center;
   }
-  .ig-logo-hubspot { background: #ff7a59; color: #fff; font-family: var(--font-display, serif); font-weight: 900; font-size: 1.1rem; line-height: 1; }
-  .ig-logo-mail { background: rgba(255,255,255,0.06); color: #cbd5e1; }
+  .ig-logo-generic { background: rgba(0,229,160,0.14); color: #00E5A0; font-family: var(--font-display, serif); font-weight: 900; font-size: 1.1rem; line-height: 1; text-transform: uppercase; }
   .ig-status {
     color: #94a3b8; font-size: 0.75rem; font-weight: 500;
   }

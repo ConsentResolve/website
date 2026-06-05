@@ -14,11 +14,13 @@ import {
 import { breadcrumbSchema, faqSchema } from "~/lib/seo";
 
 const billingFaqs = [
-  { question: "What counts as a lead?", answer: "An identified, consented homeowner — a real first name, last name, and mobile phone, paired with what they were shopping for on your site. You're not billed for anonymous traffic, you're not billed for visitors who don't consent." },
+  { question: "What counts as a lead?", answer: "An identified, consented contact — a verified email tied to a real person, with what they were shopping for, enriched with name and location where available. You're never billed for anonymous traffic, non-consenting visitors, or ad-blocked records." },
   { question: "How am I billed?", answer: "$7 per delivered lead. We bill at the end of each week for the leads delivered that week." },
   { question: "Are there setup fees?", answer: "No. No setup fees, no implementation fees, no \"onboarding\" surcharge. You install the snippet, you start receiving leads, you pay $7 each." },
   { question: "Is there a contract or minimum?", answer: "No. No annual contract. No monthly minimum. No volume commitment. You pay only for the leads you receive." },
-  { question: "What if a lead is bad?", answer: "Credits issued for unreachable phone numbers and disconnected lines. Tire-kicker risk is on the shared-lead platforms — our model is different. The homeowner saw your site, raised their hand, and asked to be contacted." },
+  { question: "Do you bill for ad-blocked records?", answer: "No. Ad-blocked or zero-engagement records are never billed. You only pay for a consented, deliverable contact." },
+  // TODO: confirm refund/bad-lead policy wording with leadership (launch checklist).
+  { question: "What if a lead is bad?", answer: "Credits are issued for undeliverable records — hard-bounced or invalid emails. Ad-blocked and non-consenting visitors are never billed in the first place. The homeowner saw your site, raised their hand, and consented to be reached." },
   { question: "How do I cancel?", answer: "From your dashboard, one click. You'll be charged for any leads already delivered that week and that's the last bill." },
   { question: "Do you offer enterprise / multi-location pricing?", answer: "Yes — multi-location operators and franchise networks get a custom rate. Email hello@consentresolve.com or call (727) 202-5996." },
 ];
@@ -27,7 +29,7 @@ const featureGroups = [
   {
     label: "Lead quality",
     features: [
-      { Icon: IconUserCheck,      title: "Verified homeowner name + mobile",  desc: "First name, last name, mobile phone. Not a household label, not a P.O. box." },
+      { Icon: IconUserCheck,      title: "Verified contact record",            desc: "A consented, deliverable email, enriched with name and location where available. Never a household label, never a P.O. box." },
       { Icon: IconClipboardCheck, title: "Captured service intent",            desc: "What they were shopping for — 'water heater quote', 'roof inspection', 'AC tune-up'." },
       { Icon: IconMapPin,         title: "Service-area pin",                   desc: "Every lead drops on your map. Filter by zip, route, or distance." },
       { Icon: IconLock,           title: "Exclusive — never resold",           desc: "One consent, one contractor. Not auctioned, not flipped, not shared." },
@@ -37,14 +39,14 @@ const featureGroups = [
     label: "Speed",
     features: [
       { Icon: IconBellRinging, title: "Real-time push to your phone",          desc: "Slack, SMS, or email. The lead lands in seconds, not hours." },
-      { Icon: IconRefresh,     title: "Return-visit alerts",                   desc: "When a known homeowner comes back, you know. Time the follow-up right." },
+      { Icon: IconRefresh,     title: "Return-visit alerts",                   desc: "When a known homeowner comes back, you know — so your funnel timing is right." },
       { Icon: IconBolt,        title: "10-minute setup",                       desc: "Paste one line of code in your site's header. WordPress, Wix, Squarespace, ServiceTitan — anything." },
     ],
   },
   {
     label: "CRM & dispatch",
     features: [
-      { Icon: IconPlugConnected, title: "Native CRM integrations",             desc: "Jobber, Housecall Pro, ServiceTitan, HubSpot, Salesforce, Klaviyo." },
+      { Icon: IconPlugConnected, title: "Native CRM integrations",             desc: "Jobber, Housecall Pro, ServiceTitan, GoHighLevel, plus Salesforce, HubSpot, Klaviyo, Mailchimp, Zapier, and more." },
       { Icon: IconPlugConnected, title: "Webhook to anything else",            desc: "Send leads to any system that accepts a webhook." },
       { Icon: IconWorld,         title: "Works on any site builder",           desc: "WordPress, Wix, Squarespace, ServiceTitan websites, custom — anywhere you can paste a script tag." },
     ],
@@ -52,7 +54,7 @@ const featureGroups = [
   {
     label: "Compliance & support",
     features: [
-      { Icon: IconShieldCheck, title: "GDPR / CCPA / CPA compliant",           desc: "Identification only after explicit consent. No shadow-tracking, ever." },
+      { Icon: IconShieldCheck, title: "Consent-first by design",               desc: "Identification only after explicit consent. Built for the laws that hit contractors — TCPA, CIPA, state privacy. No shadow-tracking, ever." },
       { Icon: IconShieldCheck, title: "Termageddon-backed policies",           desc: "Privacy policy and disclosures auto-update with every change." },
       { Icon: IconShieldCheck, title: "Tamper-evident audit trail",            desc: "Every reveal timestamped and signed. Receipts for every lead, if a regulator asks." },
       { Icon: IconHeadset,     title: "Email + phone support",                 desc: "Reach a human at hello@consentresolve.com or (727) 202-5996. M–F 9a–6p Eastern." },
@@ -107,7 +109,7 @@ const schemas = [
               <span class="text-lg font-semibold text-[color:var(--color-ink-muted)]">/ lead</span>
             </div>
             <p class="mt-4 text-[15px] text-[color:var(--color-ink-2)]">
-              Each lead is one consented homeowner with name, mobile, and what they were shopping for.
+              Each lead is one consented homeowner — a deliverable email, name and location where available, and what they were shopping for.
             </p>
           </div>
 
@@ -148,7 +150,7 @@ const schemas = [
 
           <p class="mt-4 flex items-center justify-center gap-1.5 text-xs text-[color:var(--color-ink-muted)]">
             <IconLock size={12} stroke={1.75} />
-            256-bit encrypted · Card required for billing · Cancel anytime
+            Encrypted in transit and at rest · Card required for billing · Cancel anytime
           </p>
         </div>
 
@@ -199,7 +201,7 @@ const schemas = [
           </a>
         </div>
         <p class="mt-6 text-[11px] leading-relaxed text-[color:var(--color-ink-muted)]">
-          Default math constants: bounce 98%, recovery 15% of bounces (consent-adjusted), recovered-to-booked-job ~1%, Consent Resolve cost $7/recovered lead. Real performance varies by trade, traffic quality, close rate, and follow-up speed.
+          Illustrative only. We don't publish recovery or close rates — set your own assumptions in the calculator. The only fixed number is the flat $7 per recovered lead. Sourced industry data lives on /stats/.
         </p>
       </div>
     </div>
@@ -247,7 +249,7 @@ const schemas = [
           <MetricRow label="Monthly minimum"    value="$0" surface="dark" tone="brand" />
           <div class="flex items-center justify-center gap-1.5 pt-4 text-xs text-slate-400">
             <IconLock size={12} stroke={1.75} />
-            256-bit encrypted · No contract · Cancel anytime
+            Encrypted in transit and at rest · No contract · Cancel anytime
           </div>
         </div>
       </div>

@@ -52,6 +52,7 @@ export const FOOTER_NAV = {
   ],
   company: [
     { label: "About", href: "/about/" },
+    { label: "Why consent-first", href: "/why-consent-first/" },
     { label: "Contact", href: "/contact/" },
     { label: "Stats & Sources", href: "/stats/" },
     { label: "Glossary", href: "/glossary/" },
@@ -63,6 +64,5 @@ export const FOOTER_NAV = {
     { label: "Cookie Policy", href: "/cookie-policy/" },
     { label: "GDPR", href: "/gdpr/" },
     { label: "CCPA", href: "/ccpa/" },
-    { label: "Style Guide", href: "/style-guide/" },
   ],
 } as const;

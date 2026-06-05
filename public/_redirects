@@ -14,11 +14,13 @@
 /v2/             /                 301
 /v2              /                 301
 
-# /features/channel-recovery/ renamed to /features/cart-recovery/ (June 2026)
-# — the feature pivoted from the generic "rescue ad-channel traffic"
-# framing to the more concrete cart-abandonment use case.
-/features/channel-recovery/    /features/cart-recovery/    301
-/features/channel-recovery     /features/cart-recovery/    301
+# /features/cart-recovery/ retired June 2026 — e-commerce residue removed in
+# the warm-inbound reposition. Its predecessor /features/channel-recovery/
+# folds in too. Both point at the funnel re-engagement feature.
+/features/cart-recovery/       /features/multi-channel-follow-up/    301
+/features/cart-recovery        /features/multi-channel-follow-up/    301
+/features/channel-recovery/    /features/multi-channel-follow-up/    301
+/features/channel-recovery     /features/multi-channel-follow-up/    301
 
 # /features/instant-connect/ renamed to /features/instant-retarget/
 # (June 2026) — feature pivoted from re-engagement signals to full

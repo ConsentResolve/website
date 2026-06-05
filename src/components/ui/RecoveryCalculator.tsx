@@ -2,21 +2,15 @@ import { useMemo, useState } from "react";
 import { IconArrowRight, IconCalculator } from "@tabler/icons-react";
 
 /**
- * Recovery Calculator — one job: show a home-service contractor the
- * monthly job-revenue upside of recovering their bounced website
- * traffic.
+ * Recovery Calculator — shows a home-service contractor the illustrative
+ * monthly job-revenue upside of recovering their bounced website traffic.
  *
- * Per the repositioning brief:
- *  - Exactly two inputs (sliders only): monthly visitors, avg job value
- *  - ONE hero output: recoverable monthly job revenue
- *  - A break-even credibility line ("you only need N booked jobs to cover the cost")
- *  - All other math constants baked + disclosed in small-print
- *
- * Baked constants (matches the compare/[platform] page disclosure):
- *  - 98% bounce
- *  - 15% of bouncers are recovered (consent-adjusted)
- *  - 1% of recovered visitors become booked jobs
- *  - $7 per recovered lead (Consent Resolve cost)
+ * June 2026 (LOCKED): there are NO baked recovery/booked-job rate constants
+ * presented as fact. The reader sets every assumption themselves — monthly
+ * visitors, average job value, recovery rate, and recovered-to-booked rate.
+ * The only fixed number is the flat $7 Consent Resolve cost. Everything is
+ * labeled illustrative; we don't publish performance claims. Sourced
+ * industry data lives on /stats/.
  */
 
 interface Props {
@@ -24,14 +18,14 @@ interface Props {
   defaults?: {
     visitors?: number;
     avgJob?: number;
+    recoveryPct?: number;
+    bookedPct?: number;
   };
   title?: string;
   blurb?: string;
 }
 
-const BOUNCE_RATE = 0.98;
-const RECOVERY_RATE = 0.15; // of bounced
-const BOOKED_RATE = 0.01;   // of recovered
+const BOUNCE_RATE = 0.98; // sourced: ~98% of visitors leave without converting (/stats/)
 const COST_PER_RECOVERED = 7;
 
 const fmtUsd0 = (n: number) =>
@@ -45,30 +39,26 @@ export default function RecoveryCalculator({
   variant = "default",
   defaults = {},
   title = "Recoverable revenue calculator",
-  blurb = "Slide your real numbers. Two inputs, one answer.",
+  blurb = "Set your own assumptions. Illustrative, not a promise.",
 }: Props) {
   const [visitors, setVisitors] = useState<number>(defaults.visitors ?? 2_000);
   const [avgJob, setAvgJob] = useState<number>(defaults.avgJob ?? 850);
+  // Assumptions the reader controls — conservative starting points, NOT
+  // published performance claims.
+  const [recoveryPct, setRecoveryPct] = useState<number>(defaults.recoveryPct ?? 10);
+  const [bookedPct, setBookedPct] = useState<number>(defaults.bookedPct ?? 1);
 
   const numbers = useMemo(() => {
     const bouncers = visitors * BOUNCE_RATE;
-    const recovered = bouncers * RECOVERY_RATE;
-    const bookedJobs = recovered * BOOKED_RATE;
+    const recovered = bouncers * (recoveryPct / 100);
+    const bookedJobs = recovered * (bookedPct / 100);
     const monthlyRevenue = bookedJobs * avgJob;
     const monthlyCost = recovered * COST_PER_RECOVERED;
-    const breakEvenJobs = avgJob > 0 ? Math.max(1, Math.ceil(monthlyCost / avgJob)) : 0;
-    return {
-      recovered,
-      bookedJobs,
-      monthlyRevenue,
-      monthlyCost,
-      breakEvenJobs,
-    };
-  }, [visitors, avgJob]);
+    return { recovered, bookedJobs, monthlyRevenue, monthlyCost };
+  }, [visitors, avgJob, recoveryPct, bookedPct]);
 
   const isDark = variant === "dark";
 
-  // Shared surface tokens
   const card = isDark
     ? "bg-[#0A1628] text-white ring-1 ring-inset ring-white/10"
     : "bg-white text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)]";
@@ -133,6 +123,48 @@ export default function RecoveryCalculator({
                 <span>$150</span><span>$25,000</span>
               </div>
             </div>
+
+            {/* Your assumptions — recovery rate */}
+            <div>
+              <div className="mb-2 flex items-baseline justify-between">
+                <label htmlFor="rc-recovery" className="text-sm font-semibold">Recovery rate <span className={`font-normal ${dim}`}>(your assumption)</span></label>
+                <span className="font-display text-lg font-bold tabular-nums">{recoveryPct}%</span>
+              </div>
+              <input
+                id="rc-recovery"
+                type="range"
+                min={1}
+                max={30}
+                step={1}
+                value={recoveryPct}
+                onChange={(e) => setRecoveryPct(Number(e.target.value))}
+                className={`w-full appearance-none rounded-full ${inputTrack} h-2 accent-[color:var(--color-brand)]`}
+              />
+              <div className={`mt-1 flex justify-between text-[11px] ${dim}`}>
+                <span>1%</span><span>of bounced visitors who consent · 30%</span>
+              </div>
+            </div>
+
+            {/* Your assumptions — recovered-to-booked rate */}
+            <div>
+              <div className="mb-2 flex items-baseline justify-between">
+                <label htmlFor="rc-booked" className="text-sm font-semibold">Recovered → booked <span className={`font-normal ${dim}`}>(your assumption)</span></label>
+                <span className="font-display text-lg font-bold tabular-nums">{bookedPct}%</span>
+              </div>
+              <input
+                id="rc-booked"
+                type="range"
+                min={0.5}
+                max={10}
+                step={0.5}
+                value={bookedPct}
+                onChange={(e) => setBookedPct(Number(e.target.value))}
+                className={`w-full appearance-none rounded-full ${inputTrack} h-2 accent-[color:var(--color-brand)]`}
+              />
+              <div className={`mt-1 flex justify-between text-[11px] ${dim}`}>
+                <span>0.5%</span><span>of recovered records · 10%</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -146,40 +178,25 @@ export default function RecoveryCalculator({
               {fmtUsd0(numbers.monthlyRevenue)}
             </p>
             <p className={`mt-2 text-sm ${muted}`}>
-              On the same ad budget you already run — recovered visitors turn into roughly{" "}
+              On the same ad budget you already run — at your assumptions, recovered visitors turn into roughly{" "}
               <strong className={isDark ? "text-white" : "text-[color:var(--color-ink)]"}>
                 {numbers.bookedJobs < 1 ? numbers.bookedJobs.toFixed(1) : Math.round(numbers.bookedJobs)} booked jobs / month
               </strong>{" "}
-              at {fmtUsd0(avgJob)} average.
+              at {fmtUsd0(avgJob)} average, for about{" "}
+              <strong className="tabular-nums">{fmtUsd0(numbers.monthlyCost)}</strong>/mo in recovery cost at $7 per recovered lead.
             </p>
-
-            {/* Break-even credibility line */}
-            <div className={`mt-6 rounded-xl p-4 ${isDark ? "bg-white/5 ring-1 ring-inset ring-white/10" : "bg-[color:var(--color-brand-soft)] ring-1 ring-inset ring-[color:var(--color-brand)]/30"}`}>
-              <p className={`text-[11px] font-bold uppercase tracking-[0.14em] ${isDark ? "text-[color:var(--color-mint-400)]" : "text-[color:var(--color-brand-pressed)]"}`}>
-                Credibility check
-              </p>
-              <p className={`mt-1.5 text-[14px] leading-relaxed ${isDark ? "text-slate-200" : "text-[color:var(--color-ink)]"}`}>
-                Recovery costs roughly <strong className="tabular-nums">{fmtUsd0(numbers.monthlyCost)}</strong>/mo at $7 per recovered lead. You only need{" "}
-                <strong className="tabular-nums">{numbers.breakEvenJobs} booked job{numbers.breakEvenJobs === 1 ? "" : "s"}</strong>{" "}
-                at {fmtUsd0(avgJob)} to cover that.
-              </p>
-            </div>
           </div>
 
           <div className="mt-6 flex flex-col gap-3">
             <a
               href="https://dashboard.consentresolve.com/register"
-              className={`inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] transition-all hover:-translate-y-0.5 ${
-                isDark
-                  ? "bg-[color:var(--color-brand)] text-[color:var(--color-navy-900)] hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
-                  : "bg-[color:var(--color-brand)] text-[color:var(--color-navy-900)] hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
-              }`}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--color-brand)] px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
             >
               Get Started <IconArrowRight size={16} stroke={2.5} />
             </a>
 
             <p className={`text-[11px] leading-relaxed ${dim}`}>
-              Math constants baked in: 98% of visitors bounce, 15% of bouncers are recovered (consent-adjusted), about 1% of recovered visitors become booked jobs, recovery costs $7 per recovered lead. Conservative defaults; real performance varies by trade, traffic quality, close rate, and how fast your funnel re-engages.
+              Illustrative only. Set your own assumptions — results depend on your traffic, close rate, and follow-up speed. We don't publish performance claims; see <a href="/stats/" className="underline">/stats/</a> for sourced industry data. The only fixed number is the flat $7 per recovered lead.
             </p>
           </div>
         </div>

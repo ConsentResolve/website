@@ -75,7 +75,7 @@ const exclusiveLeads: Feature = {
   illustration: "/illustrations/style/07-lead-house-lock.svg",
   subhead: "The visitors we identify came to your site — so the lead is yours alone. Never shared, never resold, never handed to the contractor down the road.",
   aeoAnswer:
-    "Exclusive Leads means every person Consent Resolve identifies belongs to you and only you. Because they visited your website, the lead is never shared, sold, or routed to competing contractors. You get the name, the number, and a clear shot at the job — with no bidding war and no race to call first.",
+    "Exclusive Leads means every person Consent Resolve identifies belongs to you and only you. Because they visited your website, the lead is never shared, sold, or routed to competing contractors. You get a consented contact — name and email — and a clear shot at the job, with no bidding war and no marketplace.",
   problem: {
     headline: "You're paying for leads three other guys already got.",
     body: "On Angi, Thumbtack, and HomeAdvisor, the same lead gets blasted to a handful of pros at once. By the time you call, two competitors already did — and the homeowner's annoyed at all of you. You paid full price to fight over a customer who's already sick of the phone ringing.",
@@ -116,7 +116,7 @@ const exclusiveLeads: Feature = {
       { q: "Do I own the contact after the trial?",               a: "Yes. Every lead you pull is yours to keep and follow up with." },
     ],
   },
-  pairsWith: ["consent-first-identification", "cart-recovery", "visitor-identification"],
+  pairsWith: ["consent-first-identification", "qualified-leads-only", "visitor-identification"],
 };
 
 const consentFirstIdentification: Feature = {
@@ -128,7 +128,7 @@ const consentFirstIdentification: Feature = {
   illustration: "/illustrations/features/02-consent-checkmark.svg",
   subhead: "Every person we identify opted in. You're reaching out to someone who already raised their hand — not a cold name off a purchased list.",
   aeoAnswer:
-    "Consent-First Identification means Consent Resolve only identifies website visitors who have given permission through your site's consent banner. You receive a name, phone, and email for someone who already agreed to be contacted — a warmer, cleaner lead than any purchased list, and one that keeps your shop on the right side of privacy law.",
+    "Consent-First Identification means Consent Resolve only identifies website visitors who have given permission through your site's consent banner. You receive a consented email — enriched with name and location where available — for someone who already agreed to be reached, a warmer, cleaner record than any purchased list, and one that keeps your shop on the right side of privacy law.",
   problem: {
     headline: "Bought lists are cold, stale, and a legal headache.",
     body: "Most \"lead lists\" are scraped names who never heard of you and never agreed to a call. Half the numbers are dead. And in a growing list of states, dialing people who never opted in is how you end up with a fine. There's a better way to get a warm name.",
@@ -146,7 +146,7 @@ const consentFirstIdentification: Feature = {
     items: [
       { title: "Friendlier calls.",   body: "They already showed interest, so you're not interrupting a stranger." },
       { title: "Cleaner conscience.", body: "No sketchy lists, no \"how'd you get my number?\"" },
-      { title: "Legal cover.",        body: "Consent is captured and logged from the first click." },
+      { title: "Consent-first cover.", body: "Consent is captured and logged — consent-first from the first click." },
     ],
   },
   included: {
@@ -172,59 +172,6 @@ const consentFirstIdentification: Feature = {
   pairsWith: ["exclusive-leads", "built-in-compliance", "verified-contact-data"],
 };
 
-const cartRecovery: Feature = {
-  slug: "cart-recovery",
-  name: "Cart Recovery",
-  iconKey: "IconRefresh",
-  tagline: "Bring abandoners back.",
-  howItHelps: "Most shoppers leave before buying. Only the ones who log in can be followed up with. Cart Recovery identifies the anonymous abandoners who consented, resolves their email, and launches an automated recovery sequence — so the carts that walked away come back and close.",
-  illustration: "/illustrations/features/03-cart-recovery.svg",
-  subhead: "Cart abandonment isn't the problem. Anonymity is. Most shoppers leave before buying — only the ones who log in can be followed up with. We identify the rest so you can bring them back automatically.",
-  aeoAnswer:
-    "Cart Recovery identifies the anonymous shoppers who abandon their carts before checking out, resolves their email through the site's consent banner, and launches a multi-step automated recovery campaign. Even shoppers who never logged in get recovered — turning ~70% of cart abandoners into reachable subscribers without violating consent rules.",
-  problem: {
-    headline: "You can only email the ones who logged in.",
-    body: "70% of shoppers leave items in their cart. They browsed your products, spent time choosing, then disappeared. If they never logged in or filled in their email at checkout, you have no way to reach them — and the next store with a recovery flow gets the sale instead.",
-  },
-  howItWorks: {
-    headline: "Three steps to recover abandoned cart revenue.",
-    steps: [
-      { title: "Shopper adds items and abandons cart.", body: "A visitor browses your store, adds items to their cart, then leaves without completing checkout. They consented when they arrived — so we can identify them." },
-      { title: "We identify them and resolve their email.", body: "Our system matches the abandoner to consented identification data and captures a deliverable email. Logs full consent documentation for compliance." },
-      { title: "Automated recovery campaign launches.", body: "Multi-step sequence fires automatically: 1-hour reminder, 24-hour follow-up with social proof, 7-day last chance with discount. Perfectly timed to maximize recovery." },
-    ],
-  },
-  benefits: {
-    headline: "Turn invisible traffic into a revenue-generating list.",
-    items: [
-      { title: "Identify anonymous abandoners.",  body: "Know who abandoned their cart even if they never logged in. ~70% identification rate on consented traffic." },
-      { title: "Automated email sequences.",       body: "Multi-step recovery campaigns launch automatically. Set it once, recover forever." },
-      { title: "Track recovery revenue.",          body: "See exactly how much revenue you recover. Measure direct bottom-line impact week over week." },
-    ],
-  },
-  included: {
-    headline: "What Cart Recovery includes.",
-    items: [
-      "Anonymous cart-abandoner identification",
-      "Automated multi-step email recovery sequences",
-      "Perfectly timed follow-ups — 1 hour, 24 hours, 7 days",
-      "Dynamic discount codes for high-value carts",
-      "Recovery revenue tracking dashboard",
-      "Multi-channel recovery — email, SMS, retargeting",
-    ],
-  },
-  faq: {
-    headline: "What stores ask about cart recovery.",
-    items: [
-      { q: "How do you identify a shopper who never logged in?",     a: "Through the consent banner on your site. When they accept, we resolve their email from consented identification data — no login, no form, no friction." },
-      { q: "Is this legal?",                                         a: "Yes. Identification happens only after explicit consent via your cookie banner. Every record is timestamped and audit-logged. Termageddon keeps your privacy policy current automatically." },
-      { q: "What if my abandoner email rates are low?",              a: "Abandoned-cart emails average around 45% open rates — well above any cold campaign. Intent is fresh, timing is right, and our deliverability checks make sure the email actually lands." },
-      { q: "Can I use my existing email tool?",                      a: "Yes. We push recovered abandoners straight into Klaviyo, Mailchimp, HubSpot, or any tool that accepts a webhook. No new email platform required." },
-    ],
-  },
-  pairsWith: ["instant-retarget", "verified-contact-data", "multi-channel-follow-up"],
-};
-
 // -----------------------------------------------------------------------
 // THEME B — "See who's there, feed the funnel"
 // -----------------------------------------------------------------------
@@ -234,11 +181,11 @@ const easySetupWithOneScript: Feature = {
   name: "Easy Setup With One Script",
   iconKey: "IconCode",
   tagline: "Paste once. You're live.",
-  howItHelps: "Paste one line of code into your website. Done. Most pros are live the same afternoon — no developer, no IT bill, no waiting around for setup.",
+  howItHelps: "Paste one line of code into your website. Done. Most pros are live in about 10 minutes; same day at most — no developer, no IT bill, no waiting around for setup.",
   illustration: "/illustrations/style/09-code-clock.svg",
   subhead: "One small piece of code on your site and you're live. No new software to learn, no app to babysit, no IT guy required.",
   aeoAnswer:
-    "Easy Setup With One Script means Consent Resolve installs with a single snippet of code on your website. There's no software to learn, no developer needed, and no ongoing maintenance. Paste it once and identification starts the same day — most service pros are capturing leads within hours of signing up.",
+    "Easy Setup With One Script means Consent Resolve installs with a single snippet of code on your website. There's no software to learn, no developer needed, and no ongoing maintenance. Paste it once and identification starts immediately — most pros are live in about 10 minutes; same day at most.",
   problem: {
     headline: "Most marketing tools die in the setup screen.",
     body: "You signed up for something once, hit a wall of settings and integrations, and quietly gave up two weeks later. Contractors don't have an IT department or a spare afternoon to wire up software. If it's not running today, it's not running.",
@@ -256,7 +203,7 @@ const easySetupWithOneScript: Feature = {
     items: [
       { title: "No tech skills needed.", body: "If you can copy and paste, you can install it." },
       { title: "No IT bill.",            body: "No developer, no agency setup fee." },
-      { title: "Same-day leads.",        body: "Most pros see their first identified visitor within hours." },
+      { title: "Same-day leads.",        body: "Most pros are live in about 10 minutes and see their first identified visitor the same day." },
     ],
   },
   included: {
@@ -266,7 +213,7 @@ const easySetupWithOneScript: Feature = {
       "Works on Mocha, WordPress, GHL, and more",
       "No developer required",
       "Step-by-step paste guide",
-      "Live the same day",
+      "Live in about 10 minutes",
       "No-charge install help if you want it",
     ],
   },
@@ -275,7 +222,7 @@ const easySetupWithOneScript: Feature = {
     items: [
       { q: "Do I need a developer?",            a: "No. It's copy and paste. If you can edit your site, you can install it." },
       { q: "What platforms does it work on?",   a: "Mocha, WordPress, GoHighLevel, Wix, Squarespace — anywhere you can add a script." },
-      { q: "How long until I see leads?",       a: "Usually the same day, often within hours of pasting the code." },
+      { q: "How long until I see leads?",       a: "You're live in about 10 minutes; same day at most. Leads start landing as consented visitors arrive." },
       { q: "What if I get stuck?",              a: "We'll install it with you on a quick call. No charge." },
     ],
   },
@@ -291,7 +238,7 @@ const visitorIdentification: Feature = {
   illustration: "/illustrations/style/01-contact-card.svg",
   subhead: "Stop staring at a visitor counter that tells you nothing. See the real people behind your traffic — who came, what they wanted, how to reach them.",
   aeoAnswer:
-    "Visitor Identification reveals the actual people browsing your website instead of an anonymous traffic count. Consent Resolve matches consented visitors to a name, phone, and email, plus the pages they viewed. You learn who's interested in your services and exactly how to reach them — turning silent web traffic into a callable list of prospects.",
+    "Visitor Identification reveals the actual people browsing your website instead of an anonymous traffic count. Consent Resolve matches consented visitors to an email — enriched with name and location where available — plus the pages they viewed. You learn who's interested in your services and how to re-engage them, turning silent web traffic into a list of real prospects your funnel can work.",
   problem: {
     headline: "\"47 visitors today\" never booked a single job.",
     body: "Your analytics shows traffic going up and you still have nothing to call. A number on a dashboard doesn't pay payroll. You know people are interested — you just can't see who they are or how to reach them. So they leave, and you're back to waiting for the phone.",
@@ -315,8 +262,8 @@ const visitorIdentification: Feature = {
   included: {
     headline: "What identification includes.",
     items: [
-      "Visitor's full name",
-      "Phone number and email",
+      "Consented email address",
+      "Name and location where available",
       "Pages they viewed",
       "Time spent on site",
       "Repeat-visit tracking",
@@ -342,9 +289,9 @@ const formlessContactCapture: Feature = {
   tagline: "Recover without a form.",
   howItHelps: "Only about 2% of website visitors ever fill out your contact form. Formless capture recovers the other 98% — with consent — so they can re-enter your funnel without typing a thing.",
   illustration: "/illustrations/features/06-formless-capture.svg",
-  subhead: "Get a name, phone, and email for visitors who never filled out a single form — the ones who'd normally just disappear.",
+  subhead: "Get a consented email — with name and location where available — for visitors who never filled out a single form. The ones who'd normally just disappear.",
   aeoAnswer:
-    "Formless Contact Capture collects a visitor's name, phone number, and email without requiring them to fill out any form. Since only about 2% of website visitors ever complete a contact form, Consent Resolve captures the consented contact details of the other 98% automatically — so you reach the customers who would have left no trace.",
+    "Formless Contact Capture gets a visitor's consented email — enriched with name and location where available — without requiring them to fill out any form. Since only about 2% of website visitors ever complete a contact form, Consent Resolve captures the consented record of the other 98% automatically, so your funnel can re-engage the customers who would have left no trace.",
   problem: {
     headline: "Almost nobody fills out your contact form.",
     body: "Out of every 100 people on your site, maybe two fill out the form. The other 98 want the work done — they just don't feel like typing their life story into a box. Then they're gone. Your form is a locked door that most customers walk right past.",
@@ -353,7 +300,7 @@ const formlessContactCapture: Feature = {
     headline: "Skip the form, keep the customer.",
     steps: [
       { title: "They browse.",            body: "A consented visitor checks out your services — no form needed." },
-      { title: "We capture the contact.", body: "Name, phone, and email come through without a single field filled." },
+      { title: "We capture the contact.", body: "A consented email comes through — with name where available — without a single field filled." },
       { title: "Funnel takes over.",      body: "The record flows into retargeting, email, and CRM — no \"contact us\" page required." },
     ],
   },
@@ -362,15 +309,15 @@ const formlessContactCapture: Feature = {
     items: [
       { title: "Way more leads.",        body: "You capture the customers your form was scaring off." },
       { title: "No friction for them.",  body: "Nothing to fill out means nothing to abandon." },
-      { title: "Complete contact info.", body: "Not just an email — a name and a number too." },
+      { title: "A real contact.",        body: "A consented email, enriched with a name where available — not a dead end." },
     ],
   },
   included: {
     headline: "What formless capture includes.",
     items: [
-      "Name captured without a form",
-      "Phone number included",
-      "Email address included",
+      "Consented email captured without a form",
+      "Name where available",
+      "Location where available",
       "Works on every page of your site",
       "No \"contact us\" form required",
       "Consent recorded with each capture",
@@ -380,7 +327,7 @@ const formlessContactCapture: Feature = {
     headline: "What pros ask about formless capture.",
     items: [
       { q: "How do you get their info without a form?",          a: "Through consented identification tied to your site's banner — they opted in, so we can match them." },
-      { q: "Is this just their email?",                          a: "No — name, phone, and email where available, so you can actually call." },
+      { q: "Is this just an email?",                             a: "The consented email is the record. It's enriched with name and location where available, so your funnel knows who it's re-engaging." },
       { q: "Do I still need a contact form on my site?",         a: "You can keep one, but you no longer depend on it to get leads." },
       { q: "What if they only viewed one page?",                 a: "We can still capture a consented visitor even on a short visit." },
     ],
@@ -397,7 +344,7 @@ const verifiedContactData: Feature = {
   illustration: "/illustrations/features/07-verified-data.svg",
   subhead: "We only hand your funnel people who are reachable and recently active — so your retargeting and email sequences hit deliverable inboxes, not dead ones.",
   aeoAnswer:
-    "Verified Contact Data means Consent Resolve only passes your funnel contacts confirmed reachable and recently active. Instead of audiences padded with dead numbers and stale emails, you get records your retargeting, email, and SMS sequences can actually deliver to — so the ad spend behind those audiences works on real homeowners, not bounced records.",
+    "Verified Contact Data means Consent Resolve only passes your funnel contacts confirmed reachable and recently active. Instead of audiences padded with bounced inboxes and stale emails, you get records your retargeting, email, and SMS sequences can actually deliver to — so the ad spend behind those audiences works on real homeowners, not dead records.",
   problem: {
     headline: "Half the records on a cheap list are dead.",
     body: "Nothing kills your sequence faster than audiences where every third email bounces and the SMS opt-outs pile up. You paid to load those names. Your funnel still spent the budget delivering to nobody. A record you can't reach isn't a lead — it's wasted ad spend.",
@@ -421,10 +368,10 @@ const verifiedContactData: Feature = {
   included: {
     headline: "What verification includes.",
     items: [
-      "Reachability check on every contact",
+      "Deliverability check on every email",
       "Recent-activity filter",
       "Stale and dead records removed",
-      "Phone and email both checked",
+      "Hard-bounce risk screened out",
       "Fresh data, not a recycled list",
       "Quality held to a deliverability standard",
     ],
@@ -433,8 +380,8 @@ const verifiedContactData: Feature = {
     headline: "What pros ask about verified data.",
     items: [
       { q: "What does \"recently active\" mean?",   a: "The contact shows recent online activity, so they're a live, reachable person — not a years-old record." },
-      { q: "Will every record deliver?",             a: "No tool is perfect, but verified contacts hit inboxes far more often than a raw purchased list." },
-      { q: "Do you check emails too?",               a: "Yes — both phone and email are screened before they ever enter your funnel." },
+      { q: "Will every record deliver?",             a: "No tool is perfect, but verified emails hit inboxes far more often than a raw purchased list." },
+      { q: "What exactly gets checked?",             a: "Every email is screened for deliverability and recent activity before it ever enters your funnel." },
       { q: "Why does this matter?",                  a: "Because every send is ad spend. Dead records waste it." },
     ],
   },
@@ -731,9 +678,9 @@ const multiChannelFollowUp: Feature = {
   howItWorks: {
     headline: "Every surface picks up the record.",
     steps: [
-      { title: "Full contact, all at once.",  body: "Phone, email, and SMS-eligible number land together." },
-      { title: "Your funnel fans out.",       body: "Retargeting, email, SMS, and CRM all pick up the record." },
-      { title: "Inbound call lands warm.",    body: "By the time they call, they've seen you across surfaces." },
+      { title: "The contact lands ready.",    body: "A consented email drops in, ready for the sequences you already run." },
+      { title: "Your funnel fans out.",       body: "Retargeting, email, and CRM all pick up the record." },
+      { title: "Inbound call lands warm.",    body: "By the time they call you, they've seen you across surfaces." },
     ],
   },
   benefits: {
@@ -747,10 +694,10 @@ const multiChannelFollowUp: Feature = {
   included: {
     headline: "What follow-up includes.",
     items: [
-      "Phone number for calls",
-      "Number for texting",
-      "Email address",
-      "Reach across all three",
+      "Consented email delivered to your funnel",
+      "Feeds your retargeting audiences",
+      "Drops into your email sequences",
+      "Works with the SMS tools you already run",
       "Consent honored on every channel",
       "Opt-outs respected automatically",
     ],
@@ -758,10 +705,10 @@ const multiChannelFollowUp: Feature = {
   faq: {
     headline: "What pros ask about multi-channel follow-up.",
     items: [
-      { q: "Can I text these leads?",              a: "Yes, where they've consented — many people answer a text faster than a call." },
-      { q: "Is texting them legal?",               a: "Consent is captured up front and opt-outs are honored, which is what keeps it clean — see the compliance section." },
+      { q: "Who actually sends the outreach?",     a: "You do — from your own email, SMS, and ad tools. Consent Resolve is the data layer that hands your funnel a consented contact; it never sends a message itself." },
+      { q: "How does this re-engage someone across channels?", a: "The consented email feeds your email sequences and your retargeting audiences, so the homeowner sees you again wherever they pay attention — and comes back to call you." },
       { q: "Do I have to use every channel?",      a: "No. Use what works for you; the options are just there." },
-      { q: "What if they opt out?",                a: "They're suppressed automatically across every channel." },
+      { q: "What if they opt out?",                a: "They're suppressed automatically, and the opt-out is logged." },
     ],
   },
   pairsWith: ["instant-retarget", "crm-delivery", "verified-contact-data"],
@@ -772,11 +719,11 @@ const builtInCompliance: Feature = {
   name: "Built-In Compliance",
   iconKey: "IconShieldCheck",
   tagline: "It all starts with consent.",
-  howItHelps: "Every visitor decision is timestamped, logged, and exportable for seven years. Documentation that stands up to GDPR, CCPA, HIPAA, and GLBA audits — so one regulator request, lawsuit, or complaint doesn't put the business at risk.",
+  howItHelps: "Every visitor decision is timestamped, logged, and exportable for seven years — an audit receipt on every record. So a TCPA or CIPA complaint, a state privacy demand, or a class-action letter doesn't put the business at risk.",
   illustration: "/illustrations/style/08-shield-doc.svg",
   subhead: "Other tools track visitors without clear consent and call it \"identification.\" One audit request, one lawsuit, one regulatory complaint — and you're defending tracking you can't prove was authorized. We start with consent.",
   aeoAnswer:
-    "Built-In Compliance records every visitor's consent decision (yes, no, or dismiss) with a timestamp, IP, and user agent, then stores the audit trail for seven years. Documentation stands up to GDPR, CCPA, HIPAA, and GLBA audits — so a recovered lead can always be proven authorized, and a single complaint never becomes a multi-million-dollar regulatory event.",
+    "Built-In Compliance records every visitor's consent decision (yes, no, or dismiss) with a timestamp, IP, and user agent, then stores the audit trail for seven years. It's built for the laws that actually hit contractors — TCPA, CIPA, and state privacy laws like the Texas TDPSA — so a recovered lead can always be proven authorized, and a single complaint never becomes a multi-million-dollar event.",
   problem: {
     headline: "Visitor tracking without consent is a legal minefield.",
     body: "Other tools track first and ask never. One audit request from a regulator, one class-action lawsuit, or one consumer complaint — and you're defending tracking you can't prove was authorized. Higher match rates mean nothing if one violation destroys the business.",
@@ -793,7 +740,7 @@ const builtInCompliance: Feature = {
     headline: "Legal protection worth more than higher match rates.",
     items: [
       { title: "7-year audit trail.",     body: "Every consent decision timestamped and stored. Prove authorization for any visitor, anytime." },
-      { title: "Regulatory defense.",     body: "Documentation that stands up to GDPR, CCPA, HIPAA, and GLBA audits." },
+      { title: "Built for U.S. risk.",    body: "An audit receipt that answers TCPA, CIPA, and state privacy laws like the Texas TDPSA." },
       { title: "Lawsuit protection.",     body: "Documented consent defeats class-action claims of unauthorized tracking." },
     ],
   },
@@ -801,7 +748,7 @@ const builtInCompliance: Feature = {
     headline: "What consent-first tracking includes.",
     items: [
       "7-year audit trail of every consent decision",
-      "Regulatory defense — GDPR, CCPA, HIPAA, GLBA",
+      "Audit receipt for TCPA, CIPA, and state privacy laws",
       "Withdrawal tracking — stop tracking the moment someone revokes",
       "No dark patterns — clear language, obvious decline button",
       "Exportable consent records — CSV, ready for legal review",
@@ -814,7 +761,7 @@ const builtInCompliance: Feature = {
       { q: "How is this different from other visitor-ID tools?", a: "Most identification tools track first and ask never. We ask first and track second. Lower match rates, but every lead is defensible — and one violation can cost more than a lifetime of higher conversion." },
       { q: "What if a regulator asks for proof?",                a: "Export the complete audit trail in CSV. Every consent decision is timestamped with IP, user agent, and decision recorded for seven years — ready for legal review on demand." },
       { q: "What happens when someone withdraws consent?",       a: "Tracking stops immediately. The withdrawal is logged with a timestamp so you can prove exactly when it took effect — and the visitor is suppressed across every channel automatically." },
-      { q: "Does this cover GDPR, CCPA, HIPAA, and GLBA?",        a: "Yes. The audit trail format and documentation depth are designed to stand up to all four. Termageddon keeps your underlying privacy policy current as the rules evolve." },
+      { q: "Does this cover the laws that actually hit contractors?", a: "Yes — the audit trail is built for TCPA, CIPA, and state privacy laws like the Texas TDPSA. It's engineered to the strictest standard in the world (GDPR), so the U.S. state patchwork is covered by design. Termageddon keeps your underlying privacy policy current as the rules evolve." },
     ],
   },
   pairsWith: ["consent-first-identification", "exclusive-leads", "verified-contact-data"],
@@ -870,7 +817,7 @@ const roiReporting: Feature = {
       { q: "How fast do I see ROI?",               a: "As soon as you start marking booked jobs — often within the first week of the trial." },
     ],
   },
-  pairsWith: ["cart-recovery", "crm-delivery", "lead-scoring"],
+  pairsWith: ["instant-retarget", "crm-delivery", "lead-scoring"],
 };
 
 // -----------------------------------------------------------------------
@@ -894,7 +841,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     title: "Recover the 98% that bounce.",
     blurb:
       "Every channel you run sends visitors to your site that mostly leave without contacting you. These features recover the bounce — with consent — so the ad spend you're already making converts to identified records.",
-    features: [cartRecovery, visitorIdentification, formlessContactCapture, verifiedContactData],
+    features: [visitorIdentification, formlessContactCapture, verifiedContactData],
   },
   {
     slug: "funnel-insertion",

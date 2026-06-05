@@ -213,14 +213,16 @@ export const STAT_SECTIONS: StatsSection[] = [
       items: ["HVAC $45–$85", "Plumbing $35–$65", "Electrical $35–$70", "Roofing $50–$95"],
       source: { name: "HomeServiceDirect", url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/" },
     },
-    note:
-      "Stay factual on the FTC line: the FTC ordered HomeAdvisor to pay up to $7.2M to settle charges. HomeAdvisor settled and stated it was not found to have acted illegally.",
     callout: {
       title: "The lead trap",
       body:
         "You pay $25–$120 for a lead that four other contractors are also calling. Angi charges you whether the homeowner picks up or not — and the FTC ordered HomeAdvisor to pay up to $7.2 million to settle charges of misleading pros about lead quality. Meanwhile, the visitors on your own website — the ones you already paid to get there — leave with no name at all. Those leads would be exclusive. And they'd be yours.",
     },
   },
+  // TODO (WS7 / pre-launch): this section + the "$5.6T lost globally" stat in
+  // anonymous-traffic read DTC/enterprise-sales ("sales reps", "550h per rep"),
+  // not home-services contractor. Sourced, so left in place rather than deleted
+  // — marketing to reframe or cut before launch. Flagged, not silently kept.
   {
     slug: "wasted-effort",
     eyebrow: "The impact",
@@ -320,46 +322,57 @@ export const STAT_SECTIONS: StatsSection[] = [
     },
   },
   {
-    slug: "privacy-risk",
-    eyebrow: "Privacy risk",
-    headline: "But There's a Catch: Privacy Laws",
+    slug: "privacy-enforcement",
+    eyebrow: "Privacy enforcement",
+    headline: "Privacy Enforcement Is Real",
     subhead:
-      "Tracking without consent isn't just wrong — it's expensive. Privacy violations carry steep penalties.",
+      "This isn't theoretical. The laws that hit contractors are about how you reach people and how your website tracks them — and the checks being written are getting bigger.",
     tone: "info",
     stats: [
       {
+        value: "$500–$1,500",
+        label: "TCPA — per call or text",
+        description: "Statutory damages for a marketing call or text to someone who never opted in. Private right of action — they can sue, per message.",
+        source: { name: "47 U.S.C. §227 (Cornell LII)", url: "https://www.law.cornell.edu/uscode/text/47/227" },
+      },
+      {
+        value: "$5,000",
+        label: "CIPA — per violation",
+        description: "California's wiretap statute, now used against non-consented website tracking. Plaintiffs' firms mass-file against ordinary business sites.",
+        source: { name: "CA Penal Code §637.2", url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2" },
+      },
+      {
+        value: "$1.4B",
+        label: "Meta — Texas settlement",
+        description: "The largest privacy settlement a single state has ever obtained, over biometric data captured without consent.",
+        numeric: { value: 1.4, prefix: "$", suffix: "B", decimals: 1 },
+        source: { name: "Texas Attorney General", url: "https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-secures-14-billion-settlement-meta-over-its-unauthorized-capture" },
+      },
+      {
+        value: "$1.375B",
+        label: "Google — Texas settlement",
+        description: "Over location, search, and biometric tracking of Texans without consent.",
+        numeric: { value: 1.375, prefix: "$", suffix: "B", decimals: 3 },
+        source: { name: "Texas Attorney General", url: "https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-secures-historic-1375-billion-settlement-google-related-texans-data" },
+      },
+      {
+        value: "1st",
+        label: "TDPSA enforcement suit",
+        description: "Texas v. Allstate/Arity — the first suit ever filed to enforce a comprehensive state data-privacy law, over driving data collected and sold without consent.",
+        source: { name: "Texas Attorney General", url: "https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-sues-allstate-and-arity-unlawfully-collecting-using-and-selling-over-45" },
+      },
+      {
         value: "€20M",
-        label: "GDPR Max Fine",
-        description: "Maximum penalty for privacy violations in EU (or 4% of global revenue).",
+        label: "GDPR max fine",
+        description: "The strictest privacy standard in the world (or 4% of global revenue) — and the one we engineered to, so the U.S. state patchwork is covered by design.",
         numeric: { value: 20, prefix: "€", suffix: "M" },
         source: { name: "GDPR Info", url: "https://gdpr-info.eu/issues/fines-penalties/" },
       },
-      {
-        value: "$7.5K",
-        label: "Per CCPA Violation",
-        description: "California intentional violation penalty per incident.",
-        numeric: { value: 7.5, prefix: "$", suffix: "K", decimals: 1 },
-        source: { name: "CA Civil Code", url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.155" },
-      },
-      {
-        value: "$50K",
-        label: "HIPAA Penalty",
-        description: "Per violation for healthcare privacy breaches.",
-        numeric: { value: 50, prefix: "$", suffix: "K" },
-        source: { name: "HIPAA Journal", url: "https://www.hipaajournal.com/hipaa-violation-fines/" },
-      },
-      {
-        value: "72h",
-        label: "Breach Reporting",
-        description: "Time to report GDPR data breaches to authorities.",
-        numeric: { value: 72, suffix: "h" },
-        source: { name: "GDPR Article 33", url: "https://gdpr-info.eu/art-33-gdpr/" },
-      },
     ],
     callout: {
-      title: "The compliance requirement",
+      title: "The pattern is clear",
       body:
-        "Organizations must obtain and document consent before tracking. You need proof of when consent was given, what was shown, and how the user responded. Failure to prove consent can result in massive fines.",
+        "The lawsuits and settlements aren't about privacy buzzwords. They're about reaching people who never opted in and tracking visitors who never agreed. Consent Resolve is built the other way — identification only after a consented yes, an audit receipt on every record, and never a number handed to you to cold-call.",
     },
   },
 ];
@@ -415,12 +428,15 @@ export const SOURCE_GROUPS: SourceGroup[] = [
     ],
   },
   {
-    title: "Privacy & compliance documentation",
+    title: "Privacy enforcement & compliance documentation",
     sources: [
+      { name: "47 U.S.C. §227 — TCPA (Cornell LII)", url: "https://www.law.cornell.edu/uscode/text/47/227", note: "Telephone Consumer Protection Act — $500–$1,500 statutory damages per call/text, private right of action." },
+      { name: "CA Penal Code §637.2 — CIPA", url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2", note: "California Invasion of Privacy Act — $5,000 per violation, applied to non-consented website tracking." },
+      { name: "Texas AG — Meta $1.4B settlement", url: "https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-secures-14-billion-settlement-meta-over-its-unauthorized-capture", note: "Largest privacy settlement obtained by a single state, biometric data captured without consent." },
+      { name: "Texas AG — Google $1.375B settlement", url: "https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-secures-historic-1375-billion-settlement-google-related-texans-data", note: "Location, search, and biometric tracking without consent." },
+      { name: "Texas AG — Allstate/Arity TDPSA suit", url: "https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-sues-allstate-and-arity-unlawfully-collecting-using-and-selling-over-45", note: "First-ever enforcement suit under a comprehensive state data-privacy law (Jan 2025)." },
+      { name: "CA Civil Code §1798.155 — CCPA", url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.155" },
       { name: "GDPR Info — Fines", url: "https://gdpr-info.eu/issues/fines-penalties/" },
-      { name: "CA Civil Code §1798.155", url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.155" },
-      { name: "HIPAA Journal", url: "https://www.hipaajournal.com/hipaa-violation-fines/" },
-      { name: "GDPR Article 33", url: "https://gdpr-info.eu/art-33-gdpr/" },
     ],
   },
 ];
