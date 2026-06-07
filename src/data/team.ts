@@ -102,7 +102,7 @@ export const TEAM: TeamMember[] = [
     location: "Cincinnati, OH",
     hook: "The human who answers the phone.",
     bioParas: [
-      "Tyler Spurlock is the Account Manager at Consent Resolve and the person on the team who actually talks to contractors and brands every day. A University of Cincinnati graduate, he came up through financial and data analytics — including reporting for the $92M-per-year food and beverage division at the Hotel del Coronado — before moving into consultative sales and account management.",
+      "Tyler Spurlock is the Account Manager at Consent Resolve and the person on the team who actually talks to contractors every day. A University of Cincinnati graduate, he came up through financial and data analytics — including reporting for the $92M-per-year food and beverage division at the Hotel del Coronado — before moving into consultative sales and account management.",
       "Tyler hears what's working and what isn't directly from customers, and walks it back to engineering before any marketing copy gets written. If a claim survives Tyler, it survives contact with real contractors. When you call (727) 202-5996, he's usually who picks up.",
     ],
     credentials: [

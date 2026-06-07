@@ -389,7 +389,7 @@ export interface SourceGroup {
 
 export const SOURCE_GROUPS: SourceGroup[] = [
   {
-    title: "E-commerce & conversion research",
+    title: "Conversion & funnel research",
     sources: [
       { name: "WordStream", url: "https://www.wordstream.com/blog/conversion-rate-benchmarks" },
       { name: "Baymard Institute", url: "https://baymard.com/lists/cart-abandonment-rate" },

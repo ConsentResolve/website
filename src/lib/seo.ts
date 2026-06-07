@@ -75,8 +75,7 @@ export const organizationSchema = {
   ],
   areaServed: { "@type": "Country", name: "United States" },
   makesOffer: [
-    { "@type": "Offer", name: "Exclusive consented lead", description: "One consented, exclusive lead identified from the customer's own website traffic. Never resold. Includes a timestamped consent record.", price: "7.00", priceCurrency: "USD", url: `${SITE.url}/pricing/` },
-    { "@type": "Offer", name: "Starter — 10 leads for $10", description: "Starter package of 10 consented, exclusive leads for new customers. Cancel anytime.", price: "10.00", priceCurrency: "USD", url: `${SITE.url}/pricing/` },
+    { "@type": "Offer", name: "Exclusive consented lead", description: "One consented, exclusive lead identified from the customer's own website traffic. Never resold. Includes a timestamped consent record. Flat $7, no contract, cancel anytime.", price: "7.00", priceCurrency: "USD", url: `${SITE.url}/pricing/` },
   ],
   knowsAbout: [
     "Website visitor identification", "Identity resolution", "Consent management",

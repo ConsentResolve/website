@@ -7,8 +7,8 @@
  * canonical Organization (#organization) defined in src/lib/seo.ts. Person
  * @ids (/about/#slug) are referenced by the org's founder/employee arrays.
  *
- * Voice: contractor-first, "receipts not slogans". Pricing uses the canonical
- * "$7 flat / $10 for your first 10 leads" framing (never "free trial").
+ * Voice: contractor-first, "receipts not slogans". Pricing is the canonical
+ * flat $7 per exclusive lead (no contract, cancel anytime; never "free").
  */
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Badge from "~/components/ui/Badge.astro";
@@ -36,8 +36,8 @@ const factRows = [
   { k: "Headquarters", v: "1907 Gulf Way #1, St Pete Beach, FL 33706" },
   { k: "Leadership",   v: "Andy Mentges (CEO) · Jason Beyke (COO) · Aaron Phillips (CMO)" },
   { k: "What we do",   v: "Consent-based website visitor identification & lead resolution" },
-  { k: "Who we serve", v: "Home-service contractors & e-commerce brands, US-wide" },
-  { k: "Pricing",      v: "$7 flat per exclusive lead · $10 for your first 10 leads" },
+  { k: "Who we serve", v: "Home-service contractors, US-wide — 17+ trades" },
+  { k: "Pricing",      v: "$7 flat per exclusive lead · no contract, cancel anytime" },
 ];
 
 const notList = [
@@ -50,7 +50,7 @@ const commitments = [
   { title: "Consent before identification. Always.", body: "No visitor is ever identified without an explicit, affirmative opt-in. Not \"implied consent.\" Not a banner nobody reads. A logged yes." },
   { title: "A timestamped audit trail on every lead.", body: "Every lead we deliver includes a record of when and how the person consented. If you're ever asked to prove it, you can." },
   { title: "Exclusive leads, never resold.", body: "A lead goes to one business. We don't sell the same homeowner to you and three competitors. $7 flat, yours alone." },
-  { title: "Plain-English pricing, no contracts.", body: "$7 per lead. $10 gets you your first 10 leads. No setup fees, no monthly minimums, cancel anytime. If the math stops working for you, leaving is one click." },
+  { title: "Plain-English pricing, no contracts.", body: "$7 per lead, flat. No setup fees, no monthly minimums, cancel anytime. If the math stops working for you, leaving is one click." },
   { title: "Our names on the company.", body: "Five real people with public track records run Consent Resolve. When we make a claim, you can check it against our LinkedIn profiles — and we link them right on this page." },
 ];
 
@@ -59,8 +59,8 @@ const aboutFaqs = [
   { question: "Is Consent Resolve a lead marketplace like Angi or HomeAdvisor?", answer: "No. Marketplaces sell the same homeowner to multiple contractors and own the customer relationship. Consent Resolve identifies visitors already on your own website — people who found you — and delivers each one exclusively to you. You are recovering your own traffic, not bidding against four competitors for a stranger." },
   { question: "Is website visitor identification legal?", answer: "It depends entirely on consent. Identifying visitors without their knowledge has triggered wiretapping lawsuits under laws like the California Invasion of Privacy Act. Consent Resolve only identifies visitors who explicitly opt in, and logs every consent with a timestamp — so each lead carries its own proof of lawful collection." },
   { question: "Who founded Consent Resolve?", answer: "Consent Resolve was founded in December 2025 by Andy Mentges (CEO, also CEO of VerticalResponse), Jason Beyke (COO, also COO of VerticalResponse), and Aaron Phillips (CMO, former cPanel executive). The team has 25+ years of experience building internet companies, including 50+ acquisitions and Capitol Hill testimony on internet policy." },
-  { question: "Who does Consent Resolve serve?", answer: "Consent Resolve serves home-service contractors — plumbers, roofers, HVAC companies, electricians, and more than a dozen other trades — plus DTC and e-commerce brands across the United States. Any business losing anonymous website visitors who never call or fill out a form can recover those visitors as consented leads." },
-  { question: "How much does Consent Resolve cost?", answer: "Consent Resolve charges a flat $7 per lead. Every lead is exclusive — sold to one business only, never resold to competitors. There are no contracts, no setup fees, and no monthly minimums; customers can cancel anytime. New customers can start with $10 for their first 10 leads." },
+  { question: "Who does Consent Resolve serve?", answer: "Consent Resolve serves home-service contractors — plumbers, roofers, HVAC companies, electricians, and more than a dozen other trades across the United States. Any contractor losing anonymous website visitors who never call or fill out a form can recover those visitors as consented leads." },
+  { question: "How much does Consent Resolve cost?", answer: "Consent Resolve charges a flat $7 per lead. Every lead is exclusive — sold to one business only, never resold to competitors. There are no contracts, no setup fees, and no monthly minimums; customers can cancel anytime." },
   { question: "Where is Consent Resolve located?", answer: "Consent Resolve is headquartered at 1907 Gulf Way #1, St Pete Beach, Florida 33706. The team works from Florida, Texas, Ohio, and Europe, and serves customers throughout the United States. Reach the company at (727) 202-5996 or hello@consentresolve.com." },
   { question: "How do I talk to a real person at Consent Resolve?", answer: "Call or text (727) 202-5996, or email hello@consentresolve.com. You will reach a named member of the team — usually Tyler Spurlock, our Account Manager — not a phone tree or an offshore script. Every person who works here is listed on this page with a public LinkedIn profile." },
 ];
@@ -97,7 +97,7 @@ const personNodes = [
     "@type": "Person", "@id": `${SITE.url}/about/#tyler-spurlock`, name: "Tyler Spurlock",
     jobTitle: "Account Manager", worksFor: { "@id": ORG },
     workLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: "Cincinnati", addressRegion: "OH", addressCountry: "US" } },
-    description: "Account Manager at Consent Resolve. University of Cincinnati graduate with a background in consultative sales and financial analytics, including financial reporting for the $92M-per-year food and beverage division of the Hotel del Coronado. Talks with contractors and e-commerce brands daily.",
+    description: "Account Manager at Consent Resolve. University of Cincinnati graduate with a background in consultative sales and financial analytics, including financial reporting for the $92M-per-year food and beverage division of the Hotel del Coronado. Talks with contractors every day.",
     url: `${SITE.url}/about/#tyler-spurlock`, image: `${SITE.url}/team/tyler-spurlock.jpg`, sameAs: ["https://www.linkedin.com/in/tylerspurlock-478660276/"],
     alumniOf: [{ "@type": "CollegeOrUniversity", name: "University of Cincinnati" }],
     knowsAbout: ["Account management", "Consultative sales", "Customer success"],
@@ -117,7 +117,7 @@ const aboutPageNode = {
   "@id": `${SITE.url}/about/#webpage`,
   url: `${SITE.url}/about/`,
   name: "About Consent Resolve — The Consent-First Visitor Identification Company",
-  description: "Who Consent Resolve is, why the company exists, and the team behind the consent-first visitor identification platform for home-service contractors and e-commerce brands.",
+  description: "Who Consent Resolve is, why the company exists, and the team behind the consent-first visitor identification platform for home-service contractors.",
   inLanguage: "en-US",
   isPartOf: { "@id": `${SITE.url}/#website` },
   about: { "@id": ORG },
@@ -158,7 +158,7 @@ const schemas = [aboutPageNode, breadcrumbNode, ...personNodes, faqSchema(aboutF
         Real people. Real track records. <span class="text-[color:var(--color-brand)]">Real consent.</span>
       </h1>
       <p class="mt-7 max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-        We're the team that helps contractors and brands turn their own website visitors into exclusive $7 leads — without the sketchy tracking that gets businesses sued. Every name below links to a public LinkedIn profile. Check our work.
+        We're the team that helps contractors turn their own website visitors into exclusive $7 leads — without the sketchy tracking that gets businesses sued. Every name below links to a public LinkedIn profile. Check our work.
       </p>
       <ul class="mt-8 flex flex-wrap items-center gap-x-7 gap-y-2 font-mono text-[13px] text-[color:var(--color-ink-muted)]">
         <li><strong class="text-[color:var(--color-ink)]">Founded Dec 2025</strong> · St Pete Beach, FL</li>
@@ -191,7 +191,7 @@ const schemas = [aboutPageNode, breadcrumbNode, ...personNodes, faqSchema(aboutF
             <strong class="text-white">Consent Resolve is a consent-first website visitor identification platform.</strong> It turns the anonymous visitors already on your website into named, contactable sales leads — but only after each visitor explicitly says yes. Every consent is logged with a timestamp, every lead carries its own audit trail, and every lead is exclusive: sold to one business, never resold.
           </p>
           <p class="mt-4 text-[15px] leading-relaxed text-slate-300">
-            Traditional visitor-ID tools match people against identity databases without their knowledge. That practice has fueled a wave of wiretapping lawsuits under laws like the California Invasion of Privacy Act. We built Consent Resolve so home-service contractors and e-commerce brands can recover lost website traffic <strong class="text-white">without carrying that legal risk</strong> — at a flat <a href="/pricing/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">$7 per lead</a>, cancel anytime. See exactly <a href="/how-it-works/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">how it works</a> or read <a href="/why-consent-first/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">why consent-first matters</a>.
+            Traditional visitor-ID tools match people against identity databases without their knowledge. That practice has fueled a wave of wiretapping lawsuits under laws like the California Invasion of Privacy Act. We built Consent Resolve so home-service contractors can recover lost website traffic <strong class="text-white">without carrying that legal risk</strong> — at a flat <a href="/pricing/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">$7 per lead</a>, cancel anytime. See exactly <a href="/how-it-works/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">how it works</a> or read <a href="/why-consent-first/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">why consent-first matters</a>.
           </p>
         </div>
         <dl class="self-start overflow-hidden rounded-xl font-mono text-[13px] ring-1 ring-inset ring-white/15">
@@ -319,7 +319,7 @@ const schemas = [aboutPageNode, breadcrumbNode, ...personNodes, faqSchema(aboutF
       <div class="mb-6 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Get started today</Badge></div>
       <h2 class="display-2 mx-auto max-w-2xl text-white">Your next job is already shopping your site.</h2>
       <p class="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-slate-300">
-        Go get it. Flat $7 per lead — yours alone, never resold. Or start small: $10 gets you your first 10 consented leads to judge for yourself.
+        Go get it. Flat $7 per lead — yours alone, never resold. No contract, cancel anytime — judge it for yourself.
       </p>
       <div class="mt-9 flex flex-wrap justify-center gap-3">
         <a href="https://dashboard.consentresolve.com/register" class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-mint-400)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-mint-300)]">
