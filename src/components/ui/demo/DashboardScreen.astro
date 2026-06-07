@@ -11,7 +11,7 @@ const visitors = [
   { initials: "GY", handle: "gy****6@example.com",   page: "Pricing inquiry",       time: "Yesterday, 11:09 AM" },
   { initials: "AH", handle: "ah****_99@example.com", page: "AC tune-up",       time: "Sun, 7:16 PM" },
   { initials: "MB", handle: "mb****5@example.com",   page: "Service request page",  time: "Sat, 8:11 PM" },
-  { initials: "AT", handle: "at@example.com",        page: "Service quote",         time: "Fri, 1:45 PM" },
+  { initials: "AT", handle: "a*****t@example.com",   page: "Service quote",         time: "Fri, 1:45 PM" },
   { initials: "AL", handle: "al****1@example.com",   page: "Service quote",         time: "Fri, 1:31 PM" },
   { initials: "GP", handle: "gp****y@example.com",   page: "Panel upgrade estimate",     time: "Fri, 11:57 AM" },
   { initials: "KA", handle: "ka****l@example.com",   page: "AC maintenance plan",  time: "Thu, 8:57 PM" },
@@ -91,10 +91,6 @@ const gridYs = [0, 2, 4, 6, 8];
       </div>
       <div class="dash-card-figure">
         <AnimatedNumber client:visible value={4} className="dash-figure" />
-        <span class="dash-delta dash-delta-up">
-          <IconArrowUpRight size={14} stroke={2.5} />
-          +300%
-        </span>
       </div>
       <p class="dash-card-sub">detected and excluded from billing</p>
     </div>

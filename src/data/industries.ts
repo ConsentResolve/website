@@ -10,14 +10,11 @@ export interface IndustryFaq {
 }
 
 export interface IndustryTradeMath {
+  /** Preloaded average job value — seeds the user-adjustable recovery
+   *  calculator on each /[trade]-leads/ page. (Former competitorCpl and
+   *  closeRatePct fields were removed June 2026 once the calculator became
+   *  fully user-adjustable; they were no longer rendered anywhere.) */
   avgJobValue: number;
-  closeRatePct: number;
-  /** Representative competitor cost-per-lead (Thumbtack-style benchmark).
-   *  NOTE: currently UNUSED — the recovery calculator was reworked to be
-   *  user-adjustable (visitors, avg job, recovery %, booked %) and no longer
-   *  reads this. Kept for reference; not rendered anywhere, so it does not
-   *  conflict with the sourced per-trade CPLs on /stats/ and /compare/. */
-  competitorCpl: number;
 }
 
 export interface Industry {
@@ -71,7 +68,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Big projects get researched for weeks before a homeowner picks up the phone. See who's pricing a remodel or addition on your site, recover the bounce when they consent, and let your retargeting and email keep you in front of them until they call — before three other GCs even know they're shopping.",
     problem: "A remodel is a long, careful decision. Homeowners compare bids for weeks and visit your site more than once. Most leave without a name — and the GC who stays in front of them usually lands the bid.",
     urgencyLine: "The GC who stays in front of them usually lands the bid.",
-    math: { avgJobValue: 25000, closeRatePct: 20, competitorCpl: 144 },
+    math: { avgJobValue: 25000 },
     cardKeys: ["came-back", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do general contractors get exclusive leads?", a: "You identify homeowners already pricing a project on your site. When they consent, you get a recovered record — yours alone, never shared." },
@@ -95,7 +92,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Handyman work runs on volume and speed. See the homeowners shopping your site for a to-do list, recover the bounce when they consent, and let your funnel keep you in front of them so they book with you, not the next guy.",
     problem: "Most handyman jobs start with a quick search and a website peek. The homeowner doesn't call — they keep scrolling. The handyman who stays in front of them usually fills the slot.",
     urgencyLine: "The handyman who stays in front of them usually fills the slot.",
-    math: { avgJobValue: 300, closeRatePct: 40, competitorCpl: 24 },
+    math: { avgJobValue: 300 },
     cardKeys: ["on-phone-five", "crm", "yours-alone"],
     faqs: [
       { q: "How do handymen find local jobs without paying for shared leads?", a: "You identify the homeowners already on your site. When they consent, the lead is yours alone — not auctioned to other handymen." },
@@ -119,7 +116,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A leaning tree or a storm-snapped limb is a \"today\" problem. See who's pricing removal in your area, recover the bounce when they consent, and let your funnel keep you in front of them before the cleanup crews roll in.",
     problem: "After a storm, every homeowner with a downed tree is shopping at once — and they call whoever stayed in front of them. Miss that window and the high-ticket removal goes to another crew.",
     urgencyLine: "After a storm, the crew they remember books the work.",
-    math: { avgJobValue: 1200, closeRatePct: 30, competitorCpl: 36 },
+    math: { avgJobValue: 1200 },
     cardKeys: ["on-phone-five", "mapped-zip", "yours-alone"],
     faqs: [
       { q: "How do tree removal companies get more local jobs after a storm?", a: "You see the homeowners pricing removal in your area in real time. When they consent, the recovered record drops into your retargeting and CRM so they come back through your funnel — inbound, not cold-call." },
@@ -143,7 +140,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A hot house turns a \"someday\" homeowner into a \"right now\" buyer. See who's shopping your site for a new AC or a no-cool fix, recover the bounce when they consent, and let your retargeting + email funnel be the contractor they remember while they're still sweating.",
     problem: "When the AC quits in July, minutes matter. The homeowner checks your site, doesn't call, and dials the next shop. The shop they remember books the install.",
     urgencyLine: "When the AC quits in July, minutes matter.",
-    math: { avgJobValue: 5500, closeRatePct: 28, competitorCpl: 87 },
+    math: { avgJobValue: 5500 },
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "Can I tell a new-system shopper from a repair?", a: "Yes — you get what they were shopping for, so you know if it's a tune-up or a replacement before they ever reach out." },
@@ -167,7 +164,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A burst pipe doesn't wait for a callback. See who's shopping your area for a water heater or a leak fix, recover the bounce when they consent, and let your retargeting and email funnel bring them back to dial you first.",
     problem: "Plumbing problems get searched fast and booked fast. The homeowner checks your site, doesn't call, and dials the next name on the list. You never knew they were there.",
     urgencyLine: "A burst pipe doesn't wait for a callback.",
-    math: { avgJobValue: 450, closeRatePct: 30, competitorCpl: 57 },
+    math: { avgJobValue: 450 },
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "What if it's an emergency, like a burst pipe?", a: "You get the alert in seconds, and the recovered contact feeds your funnel so you stay in front of them before they settle on another plumber." },
@@ -191,7 +188,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A lockout is the definition of \"right now.\" See who's shopping your site for a lockout, rekey, or new locks, recover the bounce when they consent, and let your funnel keep you top of mind so you're the locksmith they call.",
     problem: "Locksmith jobs are won on speed. Someone standing outside a locked door calls the first shop that picks up. If they left your site without calling, you just need a way to stay in front of them.",
     urgencyLine: "Locksmith jobs are won on speed.",
-    math: { avgJobValue: 180, closeRatePct: 45, competitorCpl: 33 },
+    math: { avgJobValue: 180 },
     cardKeys: ["on-phone-five", "mapped-zip", "yours-alone"],
     faqs: [
       { q: "How do locksmiths get more local calls?", a: "You recover the people already on your site for lock work. When they consent, the recovered record feeds your dispatch and retargeting so they come back to you, not another shop." },
@@ -215,7 +212,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Electrical work gets researched before it gets booked. See who's pricing a panel upgrade or EV charger on your site, recover the bounce when they consent, and let your retargeting and email keep you in front of them while it's top of mind.",
     problem: "A homeowner pricing a panel upgrade is ready to buy — they just haven't picked a shop. They read your site, leave, and book whoever stays in front of them.",
     urgencyLine: "A homeowner pricing a panel upgrade is ready to buy now.",
-    math: { avgJobValue: 2000, closeRatePct: 30, competitorCpl: 51 },
+    math: { avgJobValue: 2000 },
     cardKeys: ["why-shopping", "crm", "yours-alone"],
     faqs: [
       { q: "Are these leads ready to buy?", a: "They were on your site pricing the work. Your funnel keeps you in front of them while it's still top of mind." },
@@ -239,7 +236,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "After a storm, the roofer the homeowner remembers wins the call. See who's pricing a new roof or storm repair in your area, recover the bounce when they consent, and stay in front of them through your retargeting until they're ready to dial.",
     problem: "A roof is one of the biggest checks a homeowner ever writes, and they shop it online. They visit your site, leave, and go with whoever stayed in front of them — often a chaser from out of town.",
     urgencyLine: "Storm season — every recovered visitor is one your competitor didn't get.",
-    math: { avgJobValue: 9500, closeRatePct: 25, competitorCpl: 78 },
+    math: { avgJobValue: 9500 },
     cardKeys: ["came-back", "mapped-zip", "yours-alone"],
     faqs: [
       { q: "Do these work for storm and insurance jobs?", a: "Yes. You see who's pricing roof repairs right after a storm, and your retargeting and email keep you in front of them until they call — so you're not racing the chasers on the phone." },
@@ -263,7 +260,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Paint jobs are won at the estimate. See who's pricing interior or exterior work on your site, recover the bounce when they consent, and stay in front of them through retargeting and email until they book the walkthrough with you.",
     problem: "Homeowners gather two or three paint quotes and pick fast. They browse your site, leave without calling, and the painter who books the estimate first usually gets the job.",
     urgencyLine: "Paint jobs are won at the estimate.",
-    math: { avgJobValue: 3500, closeRatePct: 28, competitorCpl: 39 },
+    math: { avgJobValue: 3500 },
     cardKeys: ["why-shopping", "on-phone-five", "yours-alone"],
     faqs: [
       { q: "How do painters get more estimate requests?", a: "You identify the homeowners already pricing a job on your site. When they consent, the recovered contact feeds your funnel so you stay in front of them and book the walkthrough." },
@@ -287,7 +284,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Deck and fence projects are seasonal and quote-driven. See who's pricing a build on your site, recover the bounce when they consent, and let your funnel keep you in front of them so you land the bid before the season fills up.",
     problem: "Spring hits and everyone wants a deck or fence at once. Homeowners compare a few builders and book early. The one who quotes first tends to win — and lock up the calendar.",
     urgencyLine: "Spring hits and everyone wants one at once.",
-    math: { avgJobValue: 6000, closeRatePct: 25, competitorCpl: 42 },
+    math: { avgJobValue: 6000 },
     cardKeys: ["why-shopping", "came-back", "yours-alone"],
     faqs: [
       { q: "How do deck and fence builders get leads in the busy season?", a: "You identify the homeowners already pricing a build on your site and stay in front of them through your funnel, so you land the bid while your calendar still has room." },
@@ -311,7 +308,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A broken spring means a car trapped in the garage — that's a same-day call. See who's shopping your site for a repair or new door, recover the bounce when they consent, and let your funnel keep you the name they call first.",
     problem: "A jammed door or snapped spring is urgent and easy to price online. The homeowner checks your site, doesn't call, and books the next company that stayed in front of them.",
     urgencyLine: "A jammed door is a same-day call.",
-    math: { avgJobValue: 650, closeRatePct: 35, competitorCpl: 42 },
+    math: { avgJobValue: 650 },
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do garage door companies get same-day jobs?", a: "You identify the homeowners already on your site — your alert fires in seconds and your funnel keeps you in front of them while the door's still stuck." },
@@ -335,7 +332,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A dead fridge is a today problem with food on the line. See who's shopping your site for a repair, recover the bounce when they consent, and let your retargeting + email funnel be the shop they call before they keep searching.",
     problem: "When an appliance quits, the homeowner searches, peeks at a site, and calls the next tech. The shop they remember books the diagnostic.",
     urgencyLine: "A dead fridge is a today problem with food on the line.",
-    math: { avgJobValue: 250, closeRatePct: 40, competitorCpl: 24 },
+    math: { avgJobValue: 250 },
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do appliance repair techs get more local calls?", a: "You identify the homeowners already on your site and stay in front of them through your funnel, before they book someone else." },
@@ -359,7 +356,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "One recurring client is months of revenue. See who's shopping your site for a clean, recover the bounce when they consent, and let your retargeting + email funnel land them with you, not the next service they search.",
     problem: "Homeowners shopping for a cleaner compare a few sites and pick fast on trust and response time. Most leave without a name — and the service that follows up first earns the recurring spot.",
     urgencyLine: "First reply earns the recurring spot.",
-    math: { avgJobValue: 180, closeRatePct: 35, competitorCpl: 17 },
+    math: { avgJobValue: 180 },
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do cleaning companies get recurring clients?", a: "You identify the homeowners already shopping your site and stay in front of them through your funnel — recurring clients usually go to the service that stays top of mind." },
@@ -383,7 +380,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "An infestation is an urgent, \"make it stop today\" problem. See who's shopping your site for treatment, recover the bounce when they consent, and stay in front of them through your retargeting and email so they call you, not another company.",
     problem: "Bugs or rodents send a homeowner searching fast. They scan a site, don't call, and book the company they remember — often onto a recurring plan worth far more than one visit.",
     urgencyLine: "Bugs and rodents are a \"make it stop today\" problem.",
-    math: { avgJobValue: 250, closeRatePct: 35, competitorCpl: 32 },
+    math: { avgJobValue: 250 },
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do pest control companies get more local jobs?", a: "You identify the homeowners already shopping your site and stay in front of them through your funnel, while the problem's still driving them crazy." },
@@ -407,7 +404,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Curb-appeal jobs are easy to say yes to and easy to book. See who's pricing a driveway or house wash on your site, recover the bounce when they consent, and let your funnel keep you in front of them so they come back to you for the quote.",
     problem: "Power washing is a quick decision — homeowners see a dirty driveway, search, and want it gone. They browse your site, leave, and book whoever quotes first.",
     urgencyLine: "Quick decisions go to whoever quotes first.",
-    math: { avgJobValue: 350, closeRatePct: 35, competitorCpl: 25 },
+    math: { avgJobValue: 350 },
     cardKeys: ["on-phone-five", "mapped-zip", "yours-alone"],
     faqs: [
       { q: "How do power washing businesses get more jobs?", a: "You identify the homeowners already pricing a wash on your site and stay in front of them through your funnel, before they book another crew." },
@@ -431,7 +428,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "A recurring mowing client is revenue all season. See who's shopping your site for lawn care, recover the bounce when they consent, and let your retargeting and email funnel lock them onto your route — not the next crew they call.",
     problem: "Lawn care lives on recurring routes, and homeowners pick a crew early in the season. They browse your site, don't call, and sign with whoever follows up first.",
     urgencyLine: "Recurring routes go to whoever signs them up early.",
-    math: { avgJobValue: 200, closeRatePct: 35, competitorCpl: 19 },
+    math: { avgJobValue: 200 },
     cardKeys: ["mapped-zip", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do lawn care companies get recurring customers?", a: "You identify the homeowners already shopping your site and stay in front of them through your funnel — recurring routes go to whoever stays top of mind." },
@@ -455,7 +452,7 @@ export const INDUSTRIES: Industry[] = [
     heroSubhead: "Your whole pitch is convenience — you come to them. See who's shopping your site for mobile repair or detailing, recover the bounce when they consent, and let your funnel keep you in front of them so they book the driveway visit with you.",
     problem: "Drivers who want service at home compare a couple of options and book on convenience and speed. They check your site, leave, and schedule with whoever stayed in front of them.",
     urgencyLine: "Drivers book whoever stayed in front of them.",
-    math: { avgJobValue: 250, closeRatePct: 35, competitorCpl: 24 },
+    math: { avgJobValue: 250 },
     cardKeys: ["mapped-zip", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do mobile mechanics and detailers get more bookings?", a: "You identify the drivers already shopping your site and stay in front of them through your funnel, while they're still deciding." },
