@@ -845,7 +845,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
   },
   {
     slug: "funnel-insertion",
-    eyebrow: "Funnel insertion",
+    eyebrow: "Into your funnel",
     title: "Drop into the funnel you already run.",
     blurb:
       "Recovered visitors flow into the retargeting audiences, email/SMS sequences, and CRM you've already built. We're an input to your marketing machine — not another tool to manage.",
