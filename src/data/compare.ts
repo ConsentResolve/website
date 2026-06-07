@@ -15,9 +15,11 @@
  * The only hard numbers are the sourced competitor CPL anchors and the
  * flat $7 Consent Resolve cost. Sourced industry data lives on /stats/.
  *
- * Per-trade competitor CPL anchors (from the Consent Resolve Competitor
- * CPL Matrix): roofing LSA $108, HVAC $78, plumbing $69, electrician
- * $63, GC $57. Per-platform blended averages live on each page.
+ * Per-trade CPL anchors are LSA cost-per-lead by trade, sourced to
+ * HomeServiceDirect (the same ranges shown on /stats/: roofing $50–$95,
+ * HVAC $45–$85, plumbing $35–$65, electrical $35–$70) and displayed here
+ * as single mid-range points so they never exceed the sourced range.
+ * Per-platform blended averages live on each page.
  */
 
 export type CompareType = "reseller" | "complement";
@@ -95,11 +97,10 @@ export const COMPARE_PAGES: ComparePage[] = [
     ],
     channelCpl: "~$46 average loaded cost per lead (range $25–$75 most trades).",
     trades: [
-      { trade: "Roofing",     cpl: 108 },
-      { trade: "HVAC",        cpl: 78 },
-      { trade: "Plumbing",    cpl: 69 },
-      { trade: "Electrician", cpl: 63 },
-      { trade: "GC",          cpl: 57 },
+      { trade: "Roofing",     cpl: 73 },
+      { trade: "HVAC",        cpl: 65 },
+      { trade: "Plumbing",    cpl: 50 },
+      { trade: "Electrician", cpl: 53 },
     ],
     bookedJobMath: {
       setup: "You're already paying Thumbtack to send traffic. Whatever your blended cost per booked job is today on Thumbtack alone, that's the baseline.",
@@ -145,11 +146,10 @@ export const COMPARE_PAGES: ComparePage[] = [
     ],
     channelCpl: "~$50 average loaded cost per lead (range $15–$100+ by trade).",
     trades: [
-      { trade: "Roofing",     cpl: 108 },
-      { trade: "HVAC",        cpl: 78 },
-      { trade: "Plumbing",    cpl: 69 },
-      { trade: "Electrician", cpl: 63 },
-      { trade: "GC",          cpl: 57 },
+      { trade: "Roofing",     cpl: 73 },
+      { trade: "HVAC",        cpl: 65 },
+      { trade: "Plumbing",    cpl: 50 },
+      { trade: "Electrician", cpl: 53 },
     ],
     bookedJobMath: {
       setup: "Whatever your blended cost per booked job is today on Angi alone, that's the baseline. You're already paying for the visitors who came and left.",
@@ -195,11 +195,10 @@ export const COMPARE_PAGES: ComparePage[] = [
     ],
     channelCpl: "~$50 average loaded cost per lead (range $15–$100+ by trade).",
     trades: [
-      { trade: "Roofing",     cpl: 108 },
-      { trade: "HVAC",        cpl: 78 },
-      { trade: "Plumbing",    cpl: 69 },
-      { trade: "Electrician", cpl: 63 },
-      { trade: "GC",          cpl: 57 },
+      { trade: "Roofing",     cpl: 73 },
+      { trade: "HVAC",        cpl: 65 },
+      { trade: "Plumbing",    cpl: 50 },
+      { trade: "Electrician", cpl: 53 },
     ],
     bookedJobMath: {
       setup: "Whatever your blended cost per booked job is today on HomeAdvisor alone, that's the baseline. The visitors who arrived and left are already paid for.",
@@ -245,11 +244,10 @@ export const COMPARE_PAGES: ComparePage[] = [
     ],
     channelCpl: "~$53 average blended cost per lead (range $39–$162 by trade).",
     trades: [
-      { trade: "Roofing",     cpl: 108 },
-      { trade: "HVAC",        cpl: 78 },
-      { trade: "Plumbing",    cpl: 69 },
-      { trade: "Electrician", cpl: 63 },
-      { trade: "GC",          cpl: 57 },
+      { trade: "Roofing",     cpl: 73 },
+      { trade: "HVAC",        cpl: 65 },
+      { trade: "Plumbing",    cpl: 50 },
+      { trade: "Electrician", cpl: 53 },
     ],
     bookedJobMath: {
       setup: "LSA already books some of the contacts it generates. The visitors who clicked, looked, and didn't call are already paid for.",

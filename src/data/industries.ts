@@ -12,10 +12,11 @@ export interface IndustryFaq {
 export interface IndustryTradeMath {
   avgJobValue: number;
   closeRatePct: number;
-  /** Representative competitor cost-per-lead — Thumbtack benchmark from the
-   *  Consent Resolve Competitor CPL Matrix (loaded estimate: avg of researched
-   *  range × 1.2, rounded). Used as the calculator preset for "current cost
-   *  per lead" so the math models a typical reseller spend. */
+  /** Representative competitor cost-per-lead (Thumbtack-style benchmark).
+   *  NOTE: currently UNUSED — the recovery calculator was reworked to be
+   *  user-adjustable (visitors, avg job, recovery %, booked %) and no longer
+   *  reads this. Kept for reference; not rendered anywhere, so it does not
+   *  conflict with the sourced per-trade CPLs on /stats/ and /compare/. */
   competitorCpl: number;
 }
 
@@ -74,7 +75,7 @@ export const INDUSTRIES: Industry[] = [
     cardKeys: ["came-back", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do general contractors get exclusive leads?", a: "You identify homeowners already pricing a project on your site. When they consent, you get a recovered record — yours alone, never shared." },
-      { q: "Will I know what project they want?", a: "Yes. You see what they were shopping for, so you walk into the call already knowing it's a kitchen, a bath, or an addition." },
+      { q: "Will I know what project they want?", a: "Yes. You see what they were shopping for, so when they call you already know it's a kitchen, a bath, or an addition." },
       { q: "What does it cost?", a: "Flat $7 a lead — a rounding error against one signed remodel. Card required, cancel anytime." },
     ],
     finalCtaH2: "Your next remodel is already pricing the job on your site.",
@@ -145,7 +146,7 @@ export const INDUSTRIES: Industry[] = [
     math: { avgJobValue: 5500, closeRatePct: 28, competitorCpl: 87 },
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
-      { q: "Can I tell a new-system shopper from a repair?", a: "Yes — you get what they were shopping for, so you know if it's a tune-up or a replacement before you call." },
+      { q: "Can I tell a new-system shopper from a repair?", a: "Yes — you get what they were shopping for, so you know if it's a tune-up or a replacement before they ever reach out." },
       { q: "How fast does a lead reach me?", a: "Seconds. A text or Slack fires the moment they consent." },
       { q: "Are these leads shared with other shops?", a: "Never. Every HVAC lead is yours alone." },
     ],
@@ -170,7 +171,7 @@ export const INDUSTRIES: Industry[] = [
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "What if it's an emergency, like a burst pipe?", a: "You get the alert in seconds, and the recovered contact feeds your funnel so you stay in front of them before they settle on another plumber." },
-      { q: "Will I know what the job is?", a: "Yes — you see what they were shopping for, so you call ready." },
+      { q: "Will I know what the job is?", a: "Yes — you see what they were shopping for, so your follow-up speaks to the exact job." },
       { q: "How much does it cost?", a: "Flat $7 a lead, no contract. Card required, cancel anytime." },
     ],
     finalCtaH2: "Your next plumbing job is already shopping your site.",
@@ -290,7 +291,7 @@ export const INDUSTRIES: Industry[] = [
     cardKeys: ["why-shopping", "came-back", "yours-alone"],
     faqs: [
       { q: "How do deck and fence builders get leads in the busy season?", a: "You identify the homeowners already pricing a build on your site and stay in front of them through your funnel, so you land the bid while your calendar still has room." },
-      { q: "Will I know the project type?", a: "Yes — you see what they were shopping for before you call." },
+      { q: "Will I know the project type?", a: "Yes — you see what they were shopping for, so your follow-up fits the job." },
       { q: "What's the cost?", a: "Flat $7 a lead — one deck covers a full season of leads. Card required, cancel anytime." },
     ],
     finalCtaH2: "Your next build is already being priced on your site.",
@@ -386,7 +387,7 @@ export const INDUSTRIES: Industry[] = [
     cardKeys: ["on-phone-five", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do pest control companies get more local jobs?", a: "You identify the homeowners already shopping your site and stay in front of them through your funnel, while the problem's still driving them crazy." },
-      { q: "Will I know the pest type?", a: "Yes — you see what they were shopping for, so you call prepared." },
+      { q: "Will I know the pest type?", a: "Yes — you see what they were shopping for, so you're prepared when they reach out." },
       { q: "What's the cost?", a: "Flat $7 a lead — one recurring plan pays for many. Card required, cancel anytime." },
     ],
     finalCtaH2: "Someone's fighting an infestation on your site right now.",
@@ -458,7 +459,7 @@ export const INDUSTRIES: Industry[] = [
     cardKeys: ["mapped-zip", "why-shopping", "yours-alone"],
     faqs: [
       { q: "How do mobile mechanics and detailers get more bookings?", a: "You identify the drivers already shopping your site and stay in front of them through your funnel, while they're still deciding." },
-      { q: "Repair or detail — will I know?", a: "Yes, you see what they were shopping for before you call." },
+      { q: "Repair or detail — will I know?", a: "Yes, you see what they were shopping for, so you're ready when they reach out." },
       { q: "Are these leads exclusive?", a: "Yes — yours alone, never resold." },
     ],
     finalCtaH2: "A driver wants service in their driveway and they're on your site now.",

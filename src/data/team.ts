@@ -32,6 +32,18 @@ export interface TeamMember {
   photo?: string;
 }
 
+// ⚠️ VERIFY BEFORE LAUNCH (FTC / false-advertising exposure) — these bios are
+// published as fact in visible cards, in the /about/ meta description, AND in
+// Person JSON-LD (machine-readable). Every claim below must be independently
+// documentable or it must be softened/removed. Highest-risk specifics to
+// confirm with documentation:
+//   • Andy: "Capitol Hill testimony", "White House technology advisor",
+//     "i2Coalition board", "Led 50+ acquisitions", "CEO VerticalResponse"
+//   • Jason: "COO VerticalResponse", "Director Deluxe", "60+ employees"
+//   • Aaron: "Executive, cPanel", "CMO anti-malware platform", "multiple SaaS exits"
+//   • Tyler: "owned the P&L on a $92M division"
+//   • Stefan: "Co-founder Data Crafted Consulting", "CEO Ensidia Ltd"
+// Confirm each (or tell the copywriter which to soften); do not ship unverified.
 export const TEAM: TeamMember[] = [
   {
     slug: "andy-mentges",

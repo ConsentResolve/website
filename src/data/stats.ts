@@ -65,9 +65,9 @@ export const HERO_STATS: Stat[] = [
     source: { name: "WordStream", url: "https://www.wordstream.com/blog/conversion-rate-benchmarks" },
   },
   {
-    value: "$25–$120",
+    value: "$25–$100+",
     label: "Paid per shared lead",
-    description: "What you pay for a lead 4 other pros also got",
+    description: "What you pay for a lead 4–5 other pros also got",
     source: { name: "Pipeline On", url: "https://pipelineon.com/blog/is-thumbtack-worth-it/" },
   },
   {
@@ -168,7 +168,7 @@ export const STAT_SECTIONS: StatsSection[] = [
         source: { name: "Pipeline On", url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/" },
       },
       {
-        value: "$15–$120",
+        value: "$15–$100+",
         label: "Angi cost per lead",
         description: "Plus a $300–$500 annual membership fee, charged whether the customer answers or not.",
         source: { name: "Pipeline On", url: "https://pipelineon.com/blog/is-thumbtack-worth-it/" },
@@ -216,7 +216,7 @@ export const STAT_SECTIONS: StatsSection[] = [
     callout: {
       title: "The lead trap",
       body:
-        "You pay $25–$120 for a lead that four other contractors are also calling. Angi charges you whether the homeowner picks up or not — and the FTC ordered HomeAdvisor to pay up to $7.2 million to settle charges of misleading pros about lead quality. Meanwhile, the visitors on your own website — the ones you already paid to get there — leave with no name at all. Those leads would be exclusive. And they'd be yours.",
+        "You pay $25–$100+ for a lead that four other contractors are also calling. Angi charges you whether the homeowner picks up or not — and the FTC ordered HomeAdvisor to pay up to $7.2 million to settle charges of misleading pros about lead quality. Meanwhile, the visitors on your own website — the ones you already paid to get there — leave with no name at all. Those leads would be exclusive. And they'd be yours.",
     },
   },
   // TODO (WS7 / pre-launch): this section + the "$5.6T lost globally" stat in
