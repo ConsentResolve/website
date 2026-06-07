@@ -191,7 +191,7 @@ const easySetupWithOneScript: Feature = {
     body: "You signed up for something once, hit a wall of settings and integrations, and quietly gave up two weeks later. Contractors don't have an IT department or a spare afternoon to wire up software. If it's not running today, it's not running.",
   },
   howItWorks: {
-    headline: "Three minutes, start to finish.",
+    headline: "About 10 minutes, start to finish.",
     steps: [
       { title: "Copy the script.",       body: "We give you one small snippet when you sign up." },
       { title: "Paste it on your site.", body: "Drop it into Mocha, WordPress, GHL — wherever your site lives." },
@@ -344,10 +344,10 @@ const verifiedContactData: Feature = {
   illustration: "/illustrations/features/07-verified-data.svg",
   subhead: "We only hand your funnel people who are reachable and recently active — so your retargeting and email sequences hit deliverable inboxes, not dead ones.",
   aeoAnswer:
-    "Verified Contact Data means Consent Resolve only passes your funnel contacts confirmed reachable and recently active. Instead of audiences padded with bounced inboxes and stale emails, you get records your retargeting, email, and SMS sequences can actually deliver to — so the ad spend behind those audiences works on real homeowners, not dead records.",
+    "Verified Contact Data means Consent Resolve only passes your funnel contacts confirmed reachable and recently active. Instead of audiences padded with bounced inboxes and stale emails, you get records your retargeting and email sequences can actually deliver to — so the ad spend behind those audiences works on real homeowners, not dead records.",
   problem: {
     headline: "Half the records on a cheap list are dead.",
-    body: "Nothing kills your sequence faster than audiences where every third email bounces and the SMS opt-outs pile up. You paid to load those names. Your funnel still spent the budget delivering to nobody. A record you can't reach isn't a lead — it's wasted ad spend.",
+    body: "Nothing kills your sequence faster than audiences where every third email bounces and your sends go nowhere. You paid to load those names. Your funnel still spent the budget delivering to nobody. A record you can't reach isn't a lead — it's wasted ad spend.",
   },
   howItWorks: {
     headline: "Checked before it ever reaches your funnel.",
@@ -360,7 +360,7 @@ const verifiedContactData: Feature = {
   benefits: {
     headline: "Every record is one your funnel can actually reach.",
     items: [
-      { title: "No wasted sends.",       body: "Email and SMS hit real inboxes, not bouncebacks." },
+      { title: "No wasted sends.",       body: "Email hits real inboxes and your retargeting audiences stay clean, not padded with bouncebacks." },
       { title: "Higher deliverability.", body: "Sequences stay healthy and ad audiences stay clean." },
       { title: "Trust in your list.",    body: "When the sequence runs, real people see it." },
     ],
