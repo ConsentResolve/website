@@ -1,0 +1,33 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+// Friendly error page for the no-JS form-POST fallback (?reason=).
+const reasons: Record<string, string> = {
+  validation: "Some details were missing or didn't look right. Mind trying again?",
+  turnstile: "The bot check didn't pass. Please try once more.",
+  rate_limited: "That's a few tries in a row — give it a minute and try again.",
+  server: "Something hiccupped on our end. Please try again in a moment.",
+};
+const reason = Astro.url.searchParams.get("reason") || "server";
+const message = reasons[reason] || reasons.server;
+---
+
+<BaseLayout
+  title="Hmm — let's try that again · Consent Resolve"
+  description="The demo registration didn't go through. Try again."
+  noindex
+>
+  <section class="bg-[color:var(--color-bg)]">
+    <div class="mx-auto max-w-xl px-6 py-20 text-center">
+      <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--color-danger-soft)] text-3xl">⚠️</div>
+      <h1 class="mt-6 font-display text-3xl font-bold tracking-tight text-[color:var(--color-ink)]">Let's try that again</h1>
+      <p class="mt-4 text-lg leading-relaxed text-[color:var(--color-ink-2)]">{message}</p>
+      <div class="mt-10">
+        <a href="/demo/"
+          class="inline-flex items-center justify-center rounded-lg bg-[color:var(--color-brand)] px-6 py-3 text-[15px] font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)]">
+          Back to the demo →
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

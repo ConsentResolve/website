@@ -1,0 +1,98 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+// Confirmation screen. Polls /api/status for live funnel progress.
+---
+
+<BaseLayout
+  title="You just consented — check your inbox · Consent Resolve"
+  description="Your consent is recorded. We just emailed you the exact lead notification a business owner receives every time a visitor consents."
+  noindex
+>
+  <section class="bg-[color:var(--color-bg)]">
+    <div class="mx-auto max-w-xl px-6 py-20 text-center">
+      <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)] text-3xl">✅</div>
+      <h1 class="mt-6 font-display text-3xl font-bold tracking-tight text-[color:var(--color-ink)] md:text-4xl">You just consented.</h1>
+      <p class="mt-4 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+        Check your inbox — we sent you the exact "new lead" notification your business would receive every time a visitor consents on your site. That lead is you.
+      </p>
+
+      <ol id="cr-progress" class="mx-auto mt-10 max-w-xs space-y-2 text-left">
+        <li data-step="registered" class="cr-step is-done">Registered</li>
+        <li data-step="visited" class="cr-step is-done">Visited the sample site</li>
+        <li data-step="consented" class="cr-step is-done">Consented</li>
+        <li data-step="emailed" class="cr-step is-pending">Lead email sent</li>
+        <li data-step="enrolled" class="cr-step is-pending">Sales follow-up enrolled</li>
+      </ol>
+
+      <div class="mt-10">
+        <a href="https://consentresolve.com/pricing/"
+          class="inline-flex items-center justify-center rounded-lg bg-[color:var(--color-brand)] px-6 py-3 text-[15px] font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)]">
+          Start getting real leads — flat $7 a lead →
+        </a>
+      </div>
+      <p class="mt-5 text-sm text-[color:var(--color-ink-muted)]">
+        Didn't get the email within 2 minutes? Check spam, or <a class="underline" href="/contact/">tell us</a>.
+      </p>
+    </div>
+  </section>
+
+  <style is:global>
+    .cr-step {
+      position: relative;
+      padding-left: 1.75rem;
+      font-size: 0.95rem;
+      color: var(--color-ink-2);
+    }
+    .cr-step::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.15rem;
+      width: 1.15rem;
+      height: 1.15rem;
+      border-radius: 9999px;
+      border: 2px solid var(--color-rule);
+    }
+    .cr-step.is-done { color: var(--color-ink); font-weight: 600; }
+    .cr-step.is-done::before {
+      content: "✓";
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--color-on-brand);
+      background: var(--color-brand);
+      border-color: var(--color-brand);
+    }
+  </style>
+
+  <script>
+    const dt = new URLSearchParams(location.search).get("dt");
+    if (dt && dt !== "bot") {
+      const mark = (step: string) => {
+        const el = document.querySelector(`#cr-progress [data-step="${step}"]`);
+        if (el) {
+          el.classList.remove("is-pending");
+          el.classList.add("is-done");
+        }
+      };
+      let tries = 0;
+      const poll = async () => {
+        tries++;
+        try {
+          const res = await fetch(`/api/status?dt=${encodeURIComponent(dt)}`, { cache: "no-store" });
+          if (res.ok) {
+            const s = await res.json();
+            if (s.emailed_at) mark("emailed");
+            if (s.enrolled_at) mark("enrolled");
+            if (s.emailed_at && s.enrolled_at) return;
+          }
+        } catch {}
+        if (tries < 12) setTimeout(poll, 1500);
+      };
+      poll();
+    }
+  </script>
+</BaseLayout>

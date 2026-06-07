@@ -1,0 +1,266 @@
+---
+// Sample trades website for the live demo. Deliberately NOT using BaseLayout:
+// it must look like a real, separate local business — no Consent Resolve nav,
+// footer, or visitor-ID tag. Themed client-side from /api/visit by trade.
+// noindex,nofollow — fictional business, must never be indexed.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Summit Home Services — Licensed, Insured, Local</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    <style is:global>
+      :root {
+        --brand: #1d4ed8;
+        --brand-dark: #1e3a8a;
+        --ink: #0f172a;
+        --ink-2: #475569;
+        --line: #e2e8f0;
+        --bg: #ffffff;
+        --bg-soft: #f8fafc;
+        --star: #f59e0b;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        color: var(--ink);
+        background: var(--bg);
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .ribbon {
+        background: #0f172a;
+        color: #cbd5e1;
+        font-size: 13px;
+        text-align: center;
+        padding: 7px 16px;
+        letter-spacing: 0.01em;
+      }
+      .ribbon strong { color: #fff; }
+      .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+      header.site {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; }
+      .logo .mark {
+        width: 34px; height: 34px; border-radius: 9px;
+        background: var(--brand); color: #fff;
+        display: flex; align-items: center; justify-content: center; font-weight: 800;
+      }
+      .nav { display: flex; gap: 22px; align-items: center; font-size: 15px; color: var(--ink-2); }
+      .nav a { color: var(--ink-2); text-decoration: none; }
+      .nav .call {
+        background: var(--brand); color: #fff; padding: 9px 16px; border-radius: 8px;
+        font-weight: 700; text-decoration: none;
+      }
+      @media (max-width: 720px) { .nav .links { display: none; } }
+      .hero { background: linear-gradient(180deg, var(--bg-soft), #fff); padding: 56px 0 48px; }
+      .hero .eyebrow { color: var(--brand); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em; }
+      .hero h1 { font-size: 42px; line-height: 1.1; margin: 12px 0 14px; font-weight: 800; max-width: 16ch; }
+      .hero p { font-size: 18px; color: var(--ink-2); max-width: 52ch; margin: 0 0 26px; }
+      .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+      .btn { padding: 13px 22px; border-radius: 9px; font-weight: 700; font-size: 15px; text-decoration: none; display: inline-block; cursor: pointer; border: none; }
+      .btn-primary { background: var(--brand); color: #fff; }
+      .btn-ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+      .trust { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 26px; color: var(--ink-2); font-size: 14px; }
+      .trust span { display: inline-flex; align-items: center; gap: 6px; }
+      section.block { padding: 52px 0; }
+      h2.section-title { font-size: 28px; font-weight: 800; margin: 0 0 6px; }
+      .section-sub { color: var(--ink-2); margin: 0 0 28px; }
+      .services { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+      .card { border: 1px solid var(--line); border-radius: 14px; padding: 22px; background: #fff; }
+      .card h3 { margin: 0 0 6px; font-size: 17px; }
+      .card p { margin: 0; color: var(--ink-2); font-size: 14px; }
+      .card .ic { width: 40px; height: 40px; border-radius: 10px; background: #eff6ff; color: var(--brand); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 14px; }
+      .reviews { background: var(--bg-soft); }
+      .review-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+      .stars { color: var(--star); letter-spacing: 2px; }
+      .review .name { font-weight: 700; margin-top: 10px; }
+      footer.site { border-top: 1px solid var(--line); padding: 28px 0; color: var(--ink-2); font-size: 14px; }
+
+      /* Consent banner */
+      .consent {
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+        background: #0f172a; color: #e2e8f0;
+        padding: 18px 20px;
+        box-shadow: 0 -8px 30px rgba(0,0,0,0.25);
+        transform: translateY(110%);
+        transition: transform 0.35s ease;
+      }
+      .consent.show { transform: translateY(0); }
+      .consent .inner { max-width: 1080px; margin: 0 auto; display: flex; gap: 18px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+      .consent p { margin: 0; font-size: 14px; max-width: 64ch; }
+      .consent a { color: #7dd3fc; }
+      .consent .actions { display: flex; gap: 10px; align-items: center; }
+      .consent .accept { background: #22c55e; color: #052e16; }
+      .consent .decline { background: transparent; color: #cbd5e1; border: 1px solid #334155; }
+      .consent .accept[disabled] { opacity: 0.6; cursor: progress; }
+    </style>
+  </head>
+  <body>
+    <div class="ribbon">👀 You're browsing as a <strong>visitor</strong> — this is a sample site for the Consent Resolve demo.</div>
+
+    <div class="wrap">
+      <header class="site">
+        <div class="logo"><span class="mark" data-mark>S</span> <span data-biz>Summit Home Services</span></div>
+        <nav class="nav">
+          <span class="links">
+            <a href="#services">Services</a>
+            <a href="#reviews">Reviews</a>
+          </span>
+          <a class="call" data-phone href="#">Call now</a>
+        </nav>
+      </header>
+    </div>
+
+    <section class="hero">
+      <div class="wrap">
+        <div class="eyebrow" data-eyebrow>Licensed · Insured · Locally owned</div>
+        <h1 data-headline>Honest home repair, done right the first time</h1>
+        <p data-sub>Same-week appointments. Up-front pricing. A crew your neighbors already trust.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" data-phone href="#">Call for a free quote</a>
+          <a class="btn btn-ghost" href="#services">See our services</a>
+        </div>
+        <div class="trust">
+          <span>⭐ 4.9 average rating</span>
+          <span>🛡️ Licensed &amp; insured</span>
+          <span>⏱️ Same-week service</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="services">
+      <div class="wrap">
+        <h2 class="section-title">What we do</h2>
+        <p class="section-sub" data-services-sub>Straightforward work, fair prices, no surprises.</p>
+        <div class="services" data-services></div>
+      </div>
+    </section>
+
+    <section class="block reviews" id="reviews">
+      <div class="wrap">
+        <h2 class="section-title">What neighbors say</h2>
+        <p class="section-sub">Real talk from folks down the street.</p>
+        <div class="review-grid" data-reviews></div>
+      </div>
+    </section>
+
+    <footer class="site">
+      <div class="wrap">
+        <span data-biz>Summit Home Services</span> · Licensed &amp; insured · <span data-phone-text>(555) 010-0100</span>
+        <div style="margin-top:6px;font-size:12px;color:#94a3b8">Fictional business for the Consent Resolve live demo.</div>
+      </div>
+    </footer>
+
+    <!-- Consent banner (not pre-checked; consent is the explicit Accept click) -->
+    <div class="consent" id="consent" role="dialog" aria-live="polite" aria-label="Cookie consent">
+      <div class="inner">
+        <p>
+          We use cookies and a consent-first identification tool to recognize returning visitors and improve your experience. Nothing is identified until you accept.
+          <a href="https://consentresolve.com/why-consent-first/" target="_blank" rel="noopener">Learn more</a>.
+        </p>
+        <div class="actions">
+          <button class="btn decline" id="cr-decline" type="button">Decline</button>
+          <button class="btn accept" id="cr-accept" type="button">Accept</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const dt = new URLSearchParams(location.search).get("dt");
+      const $ = (sel: string) => document.querySelector(sel);
+      const $all = (sel: string) => Array.from(document.querySelectorAll(sel));
+
+      function applyProfile(p: any) {
+        if (!p) return;
+        $all("[data-biz]").forEach((el) => (el.textContent = p.biz));
+        const mark = $("[data-mark]");
+        if (mark) mark.textContent = (p.biz || "S").trim().charAt(0).toUpperCase();
+        if (p.hero) {
+          const eb = $("[data-eyebrow]"); if (eb) eb.textContent = p.hero.eyebrow;
+          const hl = $("[data-headline]"); if (hl) hl.textContent = p.hero.headline;
+          const sb = $("[data-sub]"); if (sb) sb.textContent = p.hero.sub;
+        }
+        $all("[data-phone]").forEach((el) => ((el as HTMLAnchorElement).href = "tel:" + (p.phone || "").replace(/[^0-9+]/g, "")));
+        const pt = $("[data-phone-text]"); if (pt) pt.textContent = p.phone;
+        document.title = `${p.biz} — Licensed, Insured, Local`;
+
+        const svc = $("[data-services]");
+        if (svc && Array.isArray(p.services)) {
+          svc.innerHTML = p.services
+            .map(
+              (s: any) =>
+                `<div class="card"><div class="ic">★</div><h3>${esc(s.title)}</h3><p>${esc(s.desc)}</p></div>`
+            )
+            .join("");
+        }
+        const rev = $("[data-reviews]");
+        if (rev && Array.isArray(p.reviews)) {
+          rev.innerHTML = p.reviews
+            .map(
+              (r: any) =>
+                `<div class="card review"><div class="stars">${"★".repeat(r.stars || 5)}</div><p>"${esc(r.text)}"</p><div class="name">${esc(r.name)}</div></div>`
+            )
+            .join("");
+        }
+      }
+
+      function esc(s: string) {
+        return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+      }
+
+      async function init() {
+        try {
+          const res = await fetch("/api/visit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ dt }),
+          });
+          const data = await res.json();
+          applyProfile(data.profile);
+        } catch {}
+        // Reveal the consent banner shortly after the page settles.
+        setTimeout(() => $("#consent")?.classList.add("show"), 900);
+      }
+
+      $("#cr-decline")?.addEventListener("click", () => $("#consent")?.classList.remove("show"));
+
+      $("#cr-accept")?.addEventListener("click", async () => {
+        const btn = $("#cr-accept") as HTMLButtonElement;
+        if (!dt || dt === "bot") {
+          window.location.assign("/demo/");
+          return;
+        }
+        btn.disabled = true;
+        btn.textContent = "One sec…";
+        try {
+          const res = await fetch("/api/consent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ dt }),
+          });
+          if (res.ok) {
+            window.location.assign(`/demo/done/?dt=${encodeURIComponent(dt)}`);
+            return;
+          }
+        } catch {}
+        // On failure, still move them forward — consent intent was given.
+        window.location.assign(`/demo/done/?dt=${encodeURIComponent(dt)}`);
+      });
+
+      init();
+    </script>
+  </body>
+</html>

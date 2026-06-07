@@ -1,0 +1,4 @@
+# Belt-and-suspenders: keep the live demo out of search indexes at the HTTP
+# layer too (pages also carry a noindex meta tag).
+/demo/*
+  X-Robots-Tag: noindex, nofollow

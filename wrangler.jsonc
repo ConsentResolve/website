@@ -2,8 +2,40 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "consentresolve2",
   "compatibility_date": "2024-12-01",
+  // Worker entry handles /api/* (live demo). All other requests fall through to
+  // the static Astro build via the ASSETS binding (asset-first by default), so
+  // the marketing site is served exactly as before.
+  "main": "worker/index.js",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "404-page"
+    "not_found_handling": "404-page",
+    "binding": "ASSETS"
+  },
+  // ── Live demo D1 ──────────────────────────────────────────────────────────
+  // DISABLED until the database exists, so a placeholder id can't fail the whole
+  // site's deploy. To turn the demo backend on:
+  //   1. wrangler d1 create consentresolve-demo
+  //   2. wrangler d1 execute consentresolve-demo --remote --file=./worker/schema.sql
+  //   3. paste the database_id below and uncomment this block, then push.
+  // (Until then /api/* returns a clean 503; the static site is unaffected.)
+  //
+  // "d1_databases": [
+  //   {
+  //     "binding": "DB",
+  //     "database_name": "consentresolve-demo",
+  //     "database_id": "PASTE_D1_DATABASE_ID_HERE"
+  //   }
+  // ],
+  //
+  // Non-secret config. Secrets (RESEND_API_KEY, TURNSTILE_SECRET,
+  // SALES_WEBHOOK_URL, TEAM_NOTIFY_URL) are set via `wrangler secret put` or the
+  // dashboard — never commit them.
+  "vars": {
+    "FROM_EMAIL": "demo@consentresolve.com",
+    "REPLY_TO": "sales@consentresolve.com",
+    "EMAIL_MODE": "owner",
+    "SAMPLE_PATH": "/demo/sample/",
+    "CONSENT_TEXT_VERSION": "v1-2026-06",
+    "ALLOWED_ORIGINS": "https://consentresolve.com,https://www.consentresolve.com"
   }
 }

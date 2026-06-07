@@ -13,7 +13,7 @@ export default defineConfig({
       // Exclude internal style-guide routes from sitemap. They're also
       // noindexed via StyleGuideLayout — this keeps them out of crawler
       // discovery and preserves crawl budget for marketing pages.
-      filter: (page) => !page.includes("/style-guide/"),
+      filter: (page) => !page.includes("/style-guide/") && !page.includes("/demo/"),
     }),
   ],
   vite: { plugins: [tailwindcss()] },

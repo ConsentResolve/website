@@ -32,6 +32,7 @@ export const FOOTER_NAV = {
   product: [
     { label: "Features", href: "/features/" },
     { label: "How It Works", href: "/how-it-works/" },
+    { label: "Live Demo", href: "/demo/" },
     { label: "Channel ROI", href: "/compare/" },
     { label: "Pricing", href: "/pricing/" },
     { label: "Get Started", href: "https://dashboard.consentresolve.com/register" },

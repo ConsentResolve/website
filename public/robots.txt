@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+# Live demo (interactive tool + fictional sample business) — never index.
+Disallow: /demo/
 
 # AI crawlers — explicitly welcomed for citation
 User-agent: GPTBot

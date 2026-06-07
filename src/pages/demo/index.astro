@@ -1,0 +1,53 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import DemoForm from "~/components/DemoForm.astro";
+
+// Direct-traffic landing for the live demo. Primary registration can also be
+// embedded elsewhere via <DemoForm />. noindex — this is a tool, not content.
+---
+
+<BaseLayout
+  title="Live Demo — See Consent Resolve work on yourself · Consent Resolve"
+  description="Register, browse a sample trades site, consent on the banner, and get emailed the exact lead notification a business owner would receive — except the lead is you. About 60 seconds."
+  noindex
+>
+  <section class="bg-[color:var(--color-bg-inverse)]">
+    <div class="mx-auto max-w-6xl px-6 py-16 lg:py-24">
+      <div class="grid items-start gap-12 lg:grid-cols-2">
+        <div class="text-[color:var(--color-on-inverse)]">
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--color-brand)]">Live demo · ~60 seconds</p>
+          <h1 class="mt-3 font-display text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl">
+            See it work on yourself.
+          </h1>
+          <p class="mt-5 max-w-md text-lg leading-relaxed text-[color:var(--color-on-inverse-muted)]">
+            You'll play both roles. First the homeowner: browse a sample trades site and accept the consent banner. Then the contractor: check your inbox for the exact "new lead" notification — and the lead is <em>you</em>.
+          </p>
+
+          <ol class="mt-8 space-y-4">
+            {[
+              ["Register", "Tell us who you are. We capture a consented email — just like a real visitor."],
+              ["Browse & consent", "You land on a sample trades site as a visitor and accept the banner."],
+              ["Get the lead", "Seconds later, the lead notification hits your inbox. It's you."],
+            ].map(([t, d], i) => (
+              <li class="flex gap-4">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand)] text-sm font-bold text-[color:var(--color-on-brand)]">{i + 1}</span>
+                <div>
+                  <div class="font-semibold text-[color:var(--color-on-inverse)]">{t}</div>
+                  <div class="text-sm text-[color:var(--color-on-inverse-muted)]">{d}</div>
+                </div>
+              </li>
+            ))}
+          </ol>
+
+          <p class="mt-8 text-sm text-[color:var(--color-on-inverse-muted)]">
+            Consent-first, the way the product works: nothing is identified until you say yes. Flat $7 a lead when you're ready — yours alone, never resold.
+          </p>
+        </div>
+
+        <div>
+          <DemoForm />
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

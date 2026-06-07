@@ -1,0 +1,156 @@
+---
+// Embeddable live-demo registration form. Same-origin: posts to /api/register.
+// Works with zero JS (native POST -> 302). Progressive enhancement upgrades it
+// to the JSON fetch flow with inline validation + a loading state.
+//
+// Usage:  <DemoForm trade="hvac" />   (drop on any page; pre-fills the trade)
+//
+// Turnstile renders only when PUBLIC_TURNSTILE_SITE_KEY is set, so the form
+// works before the widget is configured.
+const { trade = "", heading = "See it work on yourself", sub = "Register, browse a sample site, consent — and watch the lead notification land in your inbox. The lead is you. About 60 seconds." } = Astro.props as {
+  trade?: string;
+  heading?: string;
+  sub?: string;
+};
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+---
+
+<div class="cr-demo-card rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] p-6 shadow-sm sm:p-8">
+  {heading && <h3 class="font-display text-2xl font-bold tracking-tight text-[color:var(--color-ink)]">{heading}</h3>}
+  {sub && <p class="mt-2 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{sub}</p>}
+
+  <form class="cr-demo-form mt-6 space-y-4" action="/api/register" method="POST" novalidate>
+    <input type="hidden" name="trade" value={trade} />
+    {/* Honeypot — hidden from humans, catches bots. */}
+    <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">
+      <label>Leave this empty <input type="text" name="hp" tabindex="-1" autocomplete="off" /></label>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Your name</span>
+        <input name="name" type="text" required autocomplete="name" placeholder="Jordan Smith"
+          class="w-full rounded-lg border border-[color:var(--color-rule)] bg-white px-3.5 py-2.5 text-[15px] text-[color:var(--color-ink)] outline-none focus:border-[color:var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-brand-soft)]" />
+      </label>
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Work email</span>
+        <input name="email" type="email" required autocomplete="email" placeholder="you@yourshop.com"
+          class="w-full rounded-lg border border-[color:var(--color-rule)] bg-white px-3.5 py-2.5 text-[15px] text-[color:var(--color-ink)] outline-none focus:border-[color:var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-brand-soft)]" />
+      </label>
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Business name</span>
+        <input name="business_name" type="text" autocomplete="organization" placeholder="Smith Plumbing & Air"
+          class="w-full rounded-lg border border-[color:var(--color-rule)] bg-white px-3.5 py-2.5 text-[15px] text-[color:var(--color-ink)] outline-none focus:border-[color:var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-brand-soft)]" />
+      </label>
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Phone <span class="font-normal text-[color:var(--color-ink-muted)]">(optional)</span></span>
+        <input name="phone" type="tel" autocomplete="tel" placeholder="(555) 123-4567"
+          class="w-full rounded-lg border border-[color:var(--color-rule)] bg-white px-3.5 py-2.5 text-[15px] text-[color:var(--color-ink)] outline-none focus:border-[color:var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-brand-soft)]" />
+      </label>
+    </div>
+
+    <label class="flex items-start gap-2.5 text-sm text-[color:var(--color-ink-2)]">
+      <input type="checkbox" name="consent_contact" value="1" required class="mt-0.5 h-4 w-4 rounded border-[color:var(--color-rule)] text-[color:var(--color-brand)] focus:ring-[color:var(--color-brand-soft)]" />
+      <span>I agree Consent Resolve may email me about this demo. No spam, unsubscribe anytime.</span>
+    </label>
+
+    {siteKey && (
+      <div class="cf-turnstile" data-sitekey={siteKey}></div>
+    )}
+
+    <p class="cr-demo-error hidden text-sm font-medium text-[color:var(--color-danger)]" role="alert"></p>
+
+    <button type="submit"
+      class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--color-brand)] px-5 py-3 text-[15px] font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
+      <span class="cr-demo-btn-label">See it work on yourself →</span>
+    </button>
+    <p class="text-xs text-[color:var(--color-ink-muted)]">Consent-first by design: nothing is identified until you accept. This is a demo — the only data we use is yours.</p>
+  </form>
+</div>
+
+{siteKey && (
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+)}
+
+<script>
+  // Progressive enhancement for every <DemoForm> on the page. Falls back to the
+  // native cross-origin-safe POST if fetch fails.
+  function initDemoForms() {
+    document.querySelectorAll<HTMLFormElement>("form.cr-demo-form").forEach((form) => {
+      if (form.dataset.crBound) return;
+      form.dataset.crBound = "1";
+
+      // ?trade= pre-fill (direct traffic to /demo/).
+      const params = new URLSearchParams(location.search);
+      const qTrade = params.get("trade");
+      const tradeInput = form.querySelector<HTMLInputElement>('input[name="trade"]');
+      if (qTrade && tradeInput && !tradeInput.value) tradeInput.value = qTrade;
+
+      const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const label = form.querySelector<HTMLElement>(".cr-demo-btn-label");
+      const errEl = form.querySelector<HTMLElement>(".cr-demo-error");
+
+      const showError = (msg: string) => {
+        if (errEl) {
+          errEl.textContent = msg;
+          errEl.classList.remove("hidden");
+        }
+      };
+
+      form.addEventListener("submit", async (e) => {
+        // Native validation first.
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        e.preventDefault();
+        errEl?.classList.add("hidden");
+
+        const fd = new FormData(form);
+        const payload: Record<string, unknown> = {
+          name: fd.get("name"),
+          email: fd.get("email"),
+          business_name: fd.get("business_name"),
+          phone: fd.get("phone"),
+          trade: fd.get("trade"),
+          consent_contact: fd.get("consent_contact") ? "1" : "",
+          hp: fd.get("hp") || "",
+          turnstileToken: (fd.get("cf-turnstile-response") as string) || "",
+        };
+
+        if (btn) btn.disabled = true;
+        if (label) label.textContent = "Setting up your demo…";
+
+        try {
+          const res = await fetch(form.action, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.message || "Something went wrong. Please try again.");
+          }
+          const data = await res.json();
+          if (data.redirect_url) {
+            window.location.assign(data.redirect_url);
+            return;
+          }
+          throw new Error("No redirect returned.");
+        } catch (err) {
+          // Network/JS failure → let the native POST proceed (Option B).
+          if (err instanceof TypeError) {
+            form.submit();
+            return;
+          }
+          if (btn) btn.disabled = false;
+          if (label) label.textContent = "See it work on yourself →";
+          showError(err instanceof Error ? err.message : "Something went wrong.");
+        }
+      });
+    });
+  }
+
+  initDemoForms();
+  document.addEventListener("astro:page-load", initDemoForms);
+</script>
