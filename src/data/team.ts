@@ -57,6 +57,7 @@ export const TEAM: TeamMember[] = [
       { badge: "COMPLIANCE", headline: "i2Coalition Executive Board, Treasurer (2012–2020)" },
     ],
     linkedin: "https://www.linkedin.com/in/andymentges/",
+    photo: "/team/andy-mentges.jpg",
   },
   {
     slug: "jason-beyke",
@@ -74,6 +75,7 @@ export const TEAM: TeamMember[] = [
       { badge: "COMPLIANCE", headline: "Financial & operational due diligence on 10 acquisition targets" },
     ],
     linkedin: "https://www.linkedin.com/in/jasonbeyke/",
+    photo: "/team/jason-beyke.jpg",
   },
   {
     slug: "aaron-phillips",
@@ -91,6 +93,7 @@ export const TEAM: TeamMember[] = [
       { badge: "MARKETING", headline: "Runs a marketing shop for real contractors in East Texas" },
     ],
     linkedin: "https://www.linkedin.com/in/aaronphillips/",
+    photo: "/team/aaron-phillips.jpg",
   },
   {
     slug: "tyler-spurlock",
@@ -107,6 +110,7 @@ export const TEAM: TeamMember[] = [
       { badge: "CUSTOMER", headline: "Daily conversations with contractors" },
     ],
     linkedin: "https://www.linkedin.com/in/tylerspurlock-478660276/",
+    photo: "/team/tyler-spurlock.jpg",
   },
   {
     slug: "stefan-dimitrov",
@@ -124,6 +128,7 @@ export const TEAM: TeamMember[] = [
       { badge: "COMPLIANCE",  headline: "Built the timestamped consent-logging pipeline" },
     ],
     linkedin: "https://www.linkedin.com/in/stefandimitrov-2486b766/",
+    photo: "/team/stefan-dimitrov.jpg",
   },
 ];
 
