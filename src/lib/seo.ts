@@ -32,18 +32,35 @@ export function breadcrumbSchema(items: BreadcrumbItem[]) {
   };
 }
 
+/** Canonical Organization node — define once here (with a stable @id),
+ *  cite everywhere via "@id": "https://consentresolve.com/#organization".
+ *  Founder/employee @ids resolve to the Person nodes on /about/. */
 export const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": `${SITE.url}/#organization`,
   name: SITE.name,
-  url: SITE.url,
-  description: SITE.description,
+  legalName: SITE.name,
+  url: `${SITE.url}/`,
+  logo: {
+    "@type": "ImageObject",
+    "@id": `${SITE.url}/#logo`,
+    url: `${SITE.url}/crnewlogo.svg`,
+    contentUrl: `${SITE.url}/crnewlogo.svg`,
+    caption: SITE.name,
+  },
+  image: `${SITE.url}/og-default.png`,
+  description:
+    "Consent Resolve is a consent-first website visitor identification platform. It identifies anonymous website visitors as sales leads only after each visitor gives explicit, logged consent — eliminating the wiretapping and privacy-law exposure created by traditional visitor-ID and pixel-tracking tools. Leads come from the customer's own website traffic, are sold exclusively, never resold, at a flat $7 per lead. Not a shared-lead marketplace.",
+  slogan: "Consent-first by design. Audit trail on every lead.",
+  foundingDate: "2025-12",
+  foundingLocation: {
+    "@type": "Place",
+    address: { "@type": "PostalAddress", addressLocality: "St Pete Beach", addressRegion: "FL", addressCountry: "US" },
+  },
+  numberOfEmployees: { "@type": "QuantitativeValue", value: 5 },
   email: "hello@consentresolve.com",
   telephone: "+1-727-202-5996",
-  logo: `${SITE.url}/favicon.svg`,
-  sameAs: [
-    "https://www.linkedin.com/company/consentresolve/",
-  ],
   address: {
     "@type": "PostalAddress",
     streetAddress: "1907 Gulf Way #1",
@@ -52,14 +69,40 @@ export const organizationSchema = {
     postalCode: "33706",
     addressCountry: "US",
   },
-  contactPoint: {
-    "@type": "ContactPoint",
-    telephone: "+1-727-202-5996",
-    email: "hello@consentresolve.com",
-    contactType: "customer service",
-    areaServed: "US",
-    availableLanguage: ["en"],
-  },
+  contactPoint: [
+    { "@type": "ContactPoint", telephone: "+1-727-202-5996", email: "hello@consentresolve.com", contactType: "sales", areaServed: "US", availableLanguage: "English" },
+    { "@type": "ContactPoint", telephone: "+1-727-202-5996", email: "hello@consentresolve.com", contactType: "customer support", areaServed: "US", availableLanguage: "English" },
+  ],
+  areaServed: { "@type": "Country", name: "United States" },
+  makesOffer: [
+    { "@type": "Offer", name: "Exclusive consented lead", description: "One consented, exclusive lead identified from the customer's own website traffic. Never resold. Includes a timestamped consent record.", price: "7.00", priceCurrency: "USD", url: `${SITE.url}/pricing/` },
+    { "@type": "Offer", name: "Starter — 10 leads for $10", description: "Starter package of 10 consented, exclusive leads for new customers. Cancel anytime.", price: "10.00", priceCurrency: "USD", url: `${SITE.url}/pricing/` },
+  ],
+  knowsAbout: [
+    "Website visitor identification", "Identity resolution", "Consent management",
+    "Data privacy compliance", "California Invasion of Privacy Act (CIPA)",
+    "Wiretapping litigation risk", "Lead generation for home service contractors",
+    "GDPR", "CCPA", "First-party data",
+  ],
+  founder: [
+    { "@id": `${SITE.url}/about/#andy-mentges` },
+    { "@id": `${SITE.url}/about/#jason-beyke` },
+    { "@id": `${SITE.url}/about/#aaron-phillips` },
+  ],
+  employee: [
+    { "@id": `${SITE.url}/about/#andy-mentges` },
+    { "@id": `${SITE.url}/about/#jason-beyke` },
+    { "@id": `${SITE.url}/about/#aaron-phillips` },
+    { "@id": `${SITE.url}/about/#tyler-spurlock` },
+    { "@id": `${SITE.url}/about/#stefan-dimitrov` },
+  ],
+  sameAs: [
+    "https://www.linkedin.com/company/consent-resolve/",
+    "https://www.facebook.com/consentresolve",
+    "https://medium.com/@consentresolve",
+    "https://www.instagram.com/consentresolve/",
+    "https://www.youtube.com/@ConsentResolve",
+  ],
 };
 
 /** SoftwareApplication — emitted on the homepage so search engines treat
@@ -153,8 +196,10 @@ export function itemListSchema(opts: {
 export const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": `${SITE.url}/#website`,
   name: SITE.name,
-  url: SITE.url,
+  url: `${SITE.url}/`,
+  publisher: { "@id": `${SITE.url}/#organization` },
 };
 
 export function faqSchema(qa: { question: string; answer: string }[]) {

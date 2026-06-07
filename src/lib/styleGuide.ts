@@ -36,7 +36,6 @@ export const STYLE_GUIDE: StyleGuideEntry[] = [
   { slug: "illustration-cards", title: "Illustration Cards", description: "Illustration-led card primitive — brand SVG on a mint gradient plate, title, body, optional Learn more chip." },
   { slug: "pillar-card", title: "Pillar Card", description: "Mint icon tile + eyebrow + headline + body + Learn-more cap. Used for 2-4 top-level value pillars that lead deeper into a section or feature group." },
   { slug: "stake-card", title: "Stake Card", description: "Problem-stat card with icon + big stat + label + body + optional source link. Surface-aware (light/dark) + tones (danger/neutral/brand)." },
-  { slug: "team-card", title: "Team Card", description: "Founder / team-member card: photo (or initials avatar) + name + role + tagline badge + bio + LinkedIn. Driven by src/data/team.ts." },
   // Tables
   { slug: "comparison-tables", title: "Comparison Tables", description: "Mattress-site-style product cards + dense feature × brand matrix." },
   { slug: "pricing-table", title: "Pricing Table", description: "Tiered pricing card layout." },
@@ -57,8 +56,6 @@ export const STYLE_GUIDE: StyleGuideEntry[] = [
   { slug: "product-tour", title: "Product Tour", description: "Multi-step dashboard walkthrough — steps left, screen mock right. Used on /how-it-works/." },
   { slug: "risk-vs-consent", title: "Risk vs Consent", description: "Two-column moat section: scrape-and-spray tracking (red) vs Consent Resolve's consent-first model (mint)." },
   { slug: "compliance-band", title: "Compliance Band", description: "Trust band near every page tail: privacy / consent-first / GDPR + CCPA / Termageddon." },
-  { slug: "authority-strip", title: "Authority Strip", description: "Scrolling founder-credentials cards on /about/. Tap a card to drawer-expand to the full credential + LinkedIn." },
-  { slug: "did-you-know", title: "Did You Know", description: "Animated fact carousel — rotates through interesting numbers / receipts. Used on /about/." },
   { slug: "faq", title: "FAQ Section", description: "Canonical FAQ section — dark band, mint eyebrow, white accordion card. Used on /, /faq/, /pricing/, /how-it-works/, every industry, every feature." },
   { slug: "aeo-answer", title: "AEO Answer", description: "Polished card section that wraps a 40-55 word LLM-citable answer paragraph. Used as the second-to-last section on every page that wants to be cited by AI engines." },
   { slug: "final-cta", title: "Final CTA", description: "Closing dark section. Two-column: headline + body + primary CTA on the left, $7 + 'Exclusive' + 'No contract' anchors on the right." },

@@ -1,101 +1,342 @@
 ---
+/**
+ * /about/ — rebuilt June 2026 from the About v2 content, ported into the
+ * Consent Resolve design system (navy/mint, BaseLayout, Badge, FAQ).
+ *
+ * Schema: AboutPage › BreadcrumbList › Person ×5 › FAQPage, all citing the
+ * canonical Organization (#organization) defined in src/lib/seo.ts. Person
+ * @ids (/about/#slug) are referenced by the org's founder/employee arrays.
+ *
+ * Voice: contractor-first, "receipts not slogans". Pricing uses the canonical
+ * "$7 flat / $10 for your first 10 leads" framing (never "free trial").
+ */
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Badge from "~/components/ui/Badge.astro";
-import FinalCTA from "~/components/sections/FinalCTA.astro";
-import AuthorityStrip from "~/components/sections/AuthorityStrip.tsx";
-import DidYouKnow from "~/components/sections/DidYouKnow.tsx";
-import TeamCard from "~/components/ui/TeamCard.astro";
-import { TEAM } from "~/data/team";
-import { breadcrumbSchema, personSchema } from "~/lib/seo";
-import { IconArrowRight } from "@tabler/icons-react";
+import FAQ from "~/components/sections/FAQ.astro";
+import { SITE } from "~/lib/site";
+import { faqSchema } from "~/lib/seo";
+import { TEAM, RECEIPTS, getInitials } from "~/data/team";
+import {
+  IconArrowRight, IconArrowUpRight, IconShieldOff,
+  IconEyeOff, IconFileText, IconPhone,
+} from "@tabler/icons-react";
 
-const schemas = [
-  breadcrumbSchema([
-    { name: "Home", href: "/" },
-    { name: "About", href: "/about/" },
-  ]),
-  // Person schema per founder — exposes credentials (Capitol Hill, etc.)
-  // to entity graphs and AI engines via sameAs LinkedIn.
-  ...TEAM.map((m) =>
-    personSchema({
-      name: m.name,
-      role: m.role,
-      bio: m.bio,
-      linkedin: m.linkedin,
-      knowsAbout: m.verified,
-    }),
-  ),
+const ORG = `${SITE.url}/#organization`;
+
+const stats = [
+  { n: "25+",  l: "Years building internet companies" },
+  { n: "50+",  l: "Acquisitions led in hosting & SaaS" },
+  { n: "1999", l: "Year our engineer started shipping web code" },
+  { n: "$7",   l: "Flat per lead — exclusive, never resold" },
+  { n: "100%", l: "Of leads carry a timestamped consent log" },
 ];
+
+const factRows = [
+  { k: "Founded",      v: "December 2025" },
+  { k: "Headquarters", v: "1907 Gulf Way #1, St Pete Beach, FL 33706" },
+  { k: "Leadership",   v: "Andy Mentges (CEO) · Jason Beyke (COO) · Aaron Phillips (CMO)" },
+  { k: "What we do",   v: "Consent-based website visitor identification & lead resolution" },
+  { k: "Who we serve", v: "Home-service contractors & e-commerce brands, US-wide" },
+  { k: "Pricing",      v: "$7 flat per exclusive lead · $10 for your first 10 leads" },
+];
+
+const notList = [
+  { Icon: IconShieldOff, title: "Not a shared-lead marketplace.", body: "We don't sell the same homeowner to you and three competitors. Leads come from your own website traffic and go to you alone." },
+  { Icon: IconEyeOff,    title: "Not a covert tracking pixel.",   body: "No fingerprinting, no shadow identity matching. Nobody gets identified without a logged, timestamped yes." },
+  { Icon: IconFileText,  title: "Not a contract trap.",          body: "No contracts, no setup fees, no monthly minimums. $7 per lead, cancel anytime. If the math stops working, leaving is one click." },
+];
+
+const commitments = [
+  { title: "Consent before identification. Always.", body: "No visitor is ever identified without an explicit, affirmative opt-in. Not \"implied consent.\" Not a banner nobody reads. A logged yes." },
+  { title: "A timestamped audit trail on every lead.", body: "Every lead we deliver includes a record of when and how the person consented. If you're ever asked to prove it, you can." },
+  { title: "Exclusive leads, never resold.", body: "A lead goes to one business. We don't sell the same homeowner to you and three competitors. $7 flat, yours alone." },
+  { title: "Plain-English pricing, no contracts.", body: "$7 per lead. $10 gets you your first 10 leads. No setup fees, no monthly minimums, cancel anytime. If the math stops working for you, leaving is one click." },
+  { title: "Our names on the company.", body: "Five real people with public track records run Consent Resolve. When we make a claim, you can check it against our LinkedIn profiles — and we link them right on this page." },
+];
+
+const aboutFaqs = [
+  { question: "What is Consent Resolve?", answer: "Consent Resolve is a consent-first website visitor identification platform. It turns anonymous visitors on your own website into named, contactable sales leads — but only after each visitor gives explicit consent, which is logged with a timestamp. Leads cost a flat $7 each and are exclusive to one business, never resold." },
+  { question: "Is Consent Resolve a lead marketplace like Angi or HomeAdvisor?", answer: "No. Marketplaces sell the same homeowner to multiple contractors and own the customer relationship. Consent Resolve identifies visitors already on your own website — people who found you — and delivers each one exclusively to you. You are recovering your own traffic, not bidding against four competitors for a stranger." },
+  { question: "Is website visitor identification legal?", answer: "It depends entirely on consent. Identifying visitors without their knowledge has triggered wiretapping lawsuits under laws like the California Invasion of Privacy Act. Consent Resolve only identifies visitors who explicitly opt in, and logs every consent with a timestamp — so each lead carries its own proof of lawful collection." },
+  { question: "Who founded Consent Resolve?", answer: "Consent Resolve was founded in December 2025 by Andy Mentges (CEO, also CEO of VerticalResponse), Jason Beyke (COO, also COO of VerticalResponse), and Aaron Phillips (CMO, former cPanel executive). The team has 25+ years of experience building internet companies, including 50+ acquisitions and Capitol Hill testimony on internet policy." },
+  { question: "Who does Consent Resolve serve?", answer: "Consent Resolve serves home-service contractors — plumbers, roofers, HVAC companies, electricians, and more than a dozen other trades — plus DTC and e-commerce brands across the United States. Any business losing anonymous website visitors who never call or fill out a form can recover those visitors as consented leads." },
+  { question: "How much does Consent Resolve cost?", answer: "Consent Resolve charges a flat $7 per lead. Every lead is exclusive — sold to one business only, never resold to competitors. There are no contracts, no setup fees, and no monthly minimums; customers can cancel anytime. New customers can start with $10 for their first 10 leads." },
+  { question: "Where is Consent Resolve located?", answer: "Consent Resolve is headquartered at 1907 Gulf Way #1, St Pete Beach, Florida 33706. The team works from Florida, Texas, Ohio, and Europe, and serves customers throughout the United States. Reach the company at (727) 202-5996 or hello@consentresolve.com." },
+  { question: "How do I talk to a real person at Consent Resolve?", answer: "Call or text (727) 202-5996, or email hello@consentresolve.com. You will reach a named member of the team — usually Tyler Spurlock, our Account Manager — not a phone tree or an offshore script. Every person who works here is listed on this page with a public LinkedIn profile." },
+];
+
+// ── Schema: AboutPage › Breadcrumb › Person ×5 › FAQPage (org = #organization) ──
+const personNodes = [
+  {
+    "@type": "Person", "@id": `${SITE.url}/about/#andy-mentges`, name: "Andy Mentges",
+    jobTitle: "Chief Executive Officer", worksFor: { "@id": ORG },
+    workLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: "St. Petersburg", addressRegion: "FL", addressCountry: "US" } },
+    description: "CEO of Consent Resolve and CEO of email-marketing platform VerticalResponse. 25+ years in technology; led 50+ acquisitions as General Manager at Deluxe Corporation overseeing a $100M+ portfolio; former i2Coalition Executive Board member and Treasurer who has testified on Capitol Hill and contributed to White House discussions on internet policy.",
+    url: `${SITE.url}/about/#andy-mentges`, sameAs: ["https://www.linkedin.com/in/andymentges/"],
+    alumniOf: [{ "@type": "CollegeOrUniversity", name: "DePaul University" }, { "@type": "CollegeOrUniversity", name: "Ohio Dominican University" }],
+    knowsAbout: ["Email marketing", "Internet policy", "Mergers and acquisitions", "Web hosting", "SEO", "Data privacy"],
+  },
+  {
+    "@type": "Person", "@id": `${SITE.url}/about/#jason-beyke`, name: "Jason Beyke",
+    jobTitle: "Chief Operating Officer", worksFor: { "@id": ORG },
+    workLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: "Fort Myers", addressRegion: "FL", addressCountry: "US" } },
+    description: "COO of Consent Resolve and COO of VerticalResponse. Former Director of Business Operations and Head of Hosting, North America at Deluxe Corporation, where he ran financial and operational due diligence on ten acquisition targets and managed seven business entities, 60+ employees, and four locations across the US and Canada.",
+    url: `${SITE.url}/about/#jason-beyke`, sameAs: ["https://www.linkedin.com/in/jasonbeyke/"],
+    knowsAbout: ["Business operations", "M&A due diligence", "Email marketing", "Web hosting", "Customer support operations"],
+  },
+  {
+    "@type": "Person", "@id": `${SITE.url}/about/#aaron-phillips`, name: "Aaron Phillips",
+    jobTitle: "Chief Marketing Officer", worksFor: { "@id": ORG },
+    workLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: "Coldspring", addressRegion: "TX", addressCountry: "US" } },
+    description: "CMO and co-founder of Consent Resolve. 20+ years marketing web hosting, security, and SaaS, including eight years in executive roles at cPanel (Chief Business Officer, VP of Operations), CMO at anti-malware platform Monarx, business development at WHMCS, and a board seat at the i2Coalition. Founder of Hey Aaron! Marketing, serving home-service contractors in East Texas.",
+    url: `${SITE.url}/about/#aaron-phillips`, sameAs: ["https://www.linkedin.com/in/aaronphillips/"],
+    alumniOf: [{ "@type": "CollegeOrUniversity", name: "University of Northern Iowa" }, { "@type": "CollegeOrUniversity", name: "Hawkeye Community College" }],
+    knowsAbout: ["B2B SaaS marketing", "SEO", "Data privacy risk management", "Privacy law", "Email marketing", "Local marketing for contractors"],
+  },
+  {
+    "@type": "Person", "@id": `${SITE.url}/about/#tyler-spurlock`, name: "Tyler Spurlock",
+    jobTitle: "Account Manager", worksFor: { "@id": ORG },
+    workLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: "Cincinnati", addressRegion: "OH", addressCountry: "US" } },
+    description: "Account Manager at Consent Resolve. University of Cincinnati graduate with a background in consultative sales and financial analytics, including financial reporting for the $92M-per-year food and beverage division of the Hotel del Coronado. Talks with contractors and e-commerce brands daily.",
+    url: `${SITE.url}/about/#tyler-spurlock`, sameAs: ["https://www.linkedin.com/in/tylerspurlock-478660276/"],
+    alumniOf: [{ "@type": "CollegeOrUniversity", name: "University of Cincinnati" }],
+    knowsAbout: ["Account management", "Consultative sales", "Customer success"],
+  },
+  {
+    "@type": "Person", "@id": `${SITE.url}/about/#stefan-dimitrov`, name: "Stefan Dimitrov",
+    jobTitle: "Head of Engineering", worksFor: { "@id": ORG },
+    workLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressCountry: "BG" } },
+    description: "Engineering lead at Consent Resolve. Co-founder of Data Crafted Consulting Ltd. and CEO of Ensidia Ltd., writing production web code since 1999, including nearly a decade as a web application developer at hosting provider Jumpline.com. Builds the consent-logging and audit-trail systems behind every Consent Resolve lead.",
+    url: `${SITE.url}/about/#stefan-dimitrov`, sameAs: ["https://www.linkedin.com/in/stefandimitrov-2486b766/"],
+    knowsAbout: ["Web application development", "Consent logging systems", "Audit pipelines", "IT project management"],
+  },
+];
+
+const aboutPageNode = {
+  "@type": "AboutPage",
+  "@id": `${SITE.url}/about/#webpage`,
+  url: `${SITE.url}/about/`,
+  name: "About Consent Resolve — The Consent-First Visitor Identification Company",
+  description: "Who Consent Resolve is, why the company exists, and the team behind the consent-first visitor identification platform for home-service contractors and e-commerce brands.",
+  inLanguage: "en-US",
+  isPartOf: { "@id": `${SITE.url}/#website` },
+  about: { "@id": ORG },
+  mainEntity: { "@id": ORG },
+  breadcrumb: { "@id": `${SITE.url}/about/#breadcrumb` },
+  dateModified: "2026-06-07",
+};
+
+const breadcrumbNode = {
+  "@type": "BreadcrumbList",
+  "@id": `${SITE.url}/about/#breadcrumb`,
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: `${SITE.url}/` },
+    { "@type": "ListItem", position: 2, name: "About", item: `${SITE.url}/about/` },
+  ],
+};
+
+const schemas = [aboutPageNode, breadcrumbNode, ...personNodes, faqSchema(aboutFaqs)];
 ---
 
 <BaseLayout
-  title="About Consent Resolve — Real People, Real Privacy Values"
-  description="Capitol Hill testimony, 50+ acquisitions, 25+ years building internet companies. Meet the team behind Consent Resolve — the consent-first visitor-identification layer for home-service contractors."
+  title="About Consent Resolve — The Consent-First Visitor Identification Company"
+  description="Consent Resolve is a consent-first website visitor identification platform founded December 2025. Capitol Hill testimony, 50+ acquisitions, 25+ years building internet companies — and a flat $7 exclusive lead. Meet the team and check our work."
+  canonical="https://consentresolve.com/about/"
   schema={schemas}
 >
-  <!-- SECTION 1: Hero -->
+  <!-- HERO -->
   <section class="relative overflow-hidden">
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
-    <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-20 size-[420px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
     <div class="container-content section relative">
-      <div class="mx-auto max-w-[900px] text-center">
-        <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>About</Badge></div>
-        <h1 class="font-display font-black tracking-tight text-[clamp(2.5rem,5.5vw,3.75rem)] leading-[1.02] text-[color:var(--color-ink)]">
-          <span class="text-[color:var(--color-brand-pressed)]">Real people. Real opinions.</span><br/>
-          <span>Real privacy values.</span>
-        </h1>
-        <p class="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-          Consent Resolve recovers the homeowners your ads already paid for — consented leads, $7 each, yours alone. Behind it is a team that's spent careers building and defending internet companies. Other tools hide behind corporate speak; we share what we actually think, where you can see it.
-        </p>
-        <div class="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <a
-            href="https://dashboard.consentresolve.com/register"
-            class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
-          >
-            Get Started
-            <IconArrowRight size={16} stroke={2.5} />
-          </a>
+      <nav aria-label="Breadcrumb" class="mb-7 text-xs font-mono text-[color:var(--color-ink-muted)]">
+        <a href="/" class="hover:text-[color:var(--color-brand-pressed)]">Home</a>
+        <span class="px-2">/</span>
+        <span class="text-[color:var(--color-brand-pressed)]">About</span>
+      </nav>
+      <div class="mb-7"><Badge tone="brand" variant="soft" size="md" uppercase>About</Badge></div>
+      <h1 class="display-1 max-w-4xl text-[color:var(--color-ink)]">
+        Real people. Real track records. <span class="text-[color:var(--color-brand)]">Real consent.</span>
+      </h1>
+      <p class="mt-7 max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+        We're the team that helps contractors and brands turn their own website visitors into exclusive $7 leads — without the sketchy tracking that gets businesses sued. Every name below links to a public LinkedIn profile. Check our work.
+      </p>
+      <ul class="mt-8 flex flex-wrap items-center gap-x-7 gap-y-2 font-mono text-[13px] text-[color:var(--color-ink-muted)]">
+        <li><strong class="text-[color:var(--color-ink)]">Founded Dec 2025</strong> · St Pete Beach, FL</li>
+        <li>Call or text: <a href="tel:+17272025996" class="font-semibold text-[color:var(--color-ink)] hover:text-[color:var(--color-brand-pressed)]">(727) 202-5996</a></li>
+        <li><a href="mailto:hello@consentresolve.com" class="font-semibold text-[color:var(--color-ink)] hover:text-[color:var(--color-brand-pressed)]">hello@consentresolve.com</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- STAT BAND -->
+  <div class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+    <div class="container-content grid grid-cols-2 gap-px md:grid-cols-5">
+      {stats.map((s) => (
+        <div class="px-5 py-7">
+          <div class="font-display text-3xl font-black leading-none text-[color:var(--color-ink)] md:text-4xl">{s.n}</div>
+          <div class="mt-2 font-mono text-[11px] uppercase tracking-[0.1em] text-[color:var(--color-ink-muted)]">{s.l}</div>
         </div>
-      </div>
+      ))}
     </div>
-  </section>
+  </div>
 
-  <!-- SECTION 2: Authority strip -->
-  <section class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg)] py-14">
-    <div class="container-content mb-8">
-      <div class="mx-auto max-w-2xl text-center">
-        <div class="mb-4 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Receipts, not slogans</Badge></div>
-        <h2 class="font-display text-2xl font-black tracking-tight text-[color:var(--color-ink)] md:text-3xl">
-          Tap any card to see the credentials.
-        </h2>
-      </div>
-    </div>
-    <AuthorityStrip client:visible />
-  </section>
-
-  <!-- SECTION 3: Team grid -->
-  <section class="section bg-[color:var(--color-bg-alt)]">
+  <!-- WHAT IS CONSENT RESOLVE -->
+  <section class="section section-dark" id="what-is-consent-resolve">
     <div class="container-content">
-      <div class="mx-auto mb-14 max-w-2xl text-center">
-        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Who you're following</Badge></div>
-        <h2 class="display-2 text-[color:var(--color-ink)]">Meet the people behind Consent Resolve.</h2>
+      <div class="grid gap-12 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
+        <div>
+          <Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>The short version</Badge>
+          <h2 class="display-2 mt-5 text-white">What is Consent Resolve?</h2>
+          <p class="mt-5 text-[15px] leading-relaxed text-slate-300">
+            <strong class="text-white">Consent Resolve is a consent-first website visitor identification platform.</strong> It turns the anonymous visitors already on your website into named, contactable sales leads — but only after each visitor explicitly says yes. Every consent is logged with a timestamp, every lead carries its own audit trail, and every lead is exclusive: sold to one business, never resold.
+          </p>
+          <p class="mt-4 text-[15px] leading-relaxed text-slate-300">
+            Traditional visitor-ID tools match people against identity databases without their knowledge. That practice has fueled a wave of wiretapping lawsuits under laws like the California Invasion of Privacy Act. We built Consent Resolve so home-service contractors and e-commerce brands can recover lost website traffic <strong class="text-white">without carrying that legal risk</strong> — at a flat <a href="/pricing/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">$7 per lead</a>, cancel anytime. See exactly <a href="/how-it-works/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">how it works</a> or read <a href="/why-consent-first/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">why consent-first matters</a>.
+          </p>
+        </div>
+        <dl class="self-start overflow-hidden rounded-xl font-mono text-[13px] ring-1 ring-inset ring-white/15">
+          {factRows.map((r, i) => (
+            <div class:list={["grid grid-cols-[120px_1fr]", i < factRows.length - 1 && "border-b border-white/10"]}>
+              <dt class="border-r border-white/10 px-4 py-3.5 text-[11px] uppercase tracking-[0.08em] text-slate-500">{r.k}</dt>
+              <dd class="px-4 py-3.5 text-slate-200">{r.v}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
-      <div class="mx-auto grid max-w-6xl gap-7 sm:grid-cols-2 lg:grid-cols-3">
-        {TEAM.map((m) => <TeamCard member={m} />)}
+
+      <!-- WHAT WE'RE NOT -->
+      <div class="mt-14 grid gap-px overflow-hidden rounded-xl bg-white/15 ring-1 ring-inset ring-white/15 md:grid-cols-3">
+        {notList.map(({ Icon, title, body }) => (
+          <div class="bg-[color:var(--color-navy-900)] p-6">
+            <span class="inline-flex size-9 items-center justify-center rounded-lg bg-red-500/15">
+              <Icon size={18} stroke={1.75} color="#fca5a5" />
+            </span>
+            <p class="mt-4 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--color-mint-400)]">Not this ✕</p>
+            <p class="mt-1 font-display text-lg font-bold tracking-tight text-white">{title}</p>
+            <p class="mt-2 text-sm leading-relaxed text-slate-400">{body}</p>
+          </div>
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- SECTION 4: Did you know -->
-  <section class="section">
+  <!-- WHY WE EXIST -->
+  <section class="section" id="why-we-exist">
+    <div class="container-content mx-auto max-w-3xl">
+      <Badge tone="brand" variant="soft" size="md" uppercase>Why we exist</Badge>
+      <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">
+        You already paid to get visitors to your website. Then most of them leave without a trace.
+      </h2>
+      <div class="mt-7 space-y-5 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+        <p>If you run a service business, you know the math: you spend real money on ads, SEO, and a decent website — and most of the people who visit never call, never fill out a form, never come back. The lead-gen industry's answer was a new kind of tool that secretly identifies those visitors by fingerprinting them and matching them against massive identity databases. No opt-in. No disclosure. No record.</p>
+        <p>Plaintiffs' attorneys noticed. Lawsuits invoking decades-old wiretapping statutes — like the California Invasion of Privacy Act — started landing on small businesses that thought they'd just bought a marketing tool. The contractor gets the demand letter; the tracking vendor shrugs.</p>
+        <p class="border-l-[3px] border-[color:var(--color-brand)] py-1.5 pl-6 font-display text-2xl font-bold leading-snug text-[color:var(--color-ink)]">
+          The industry's answer was to track harder and disclose less. Ours was to ask permission.
+        </p>
+        <p>In late 2025, the three of us were watching this from different chairs. Andy Mentges and Jason Beyke were running <strong class="text-[color:var(--color-ink)]">VerticalResponse</strong>, an email platform that lives or dies by consent and data hygiene — they'd spent years on the right side of that line. Aaron Phillips had spent 20 years marketing hosting and security companies, including executive roles at <strong class="text-[color:var(--color-ink)]">cPanel</strong>, and was deep in privacy-law research while running a marketing shop for plumbers, roofers, and contractors in East Texas. He kept meeting good businesses unknowingly bolted to legal time bombs.</p>
+        <p>So we founded Consent Resolve in December 2025 around one non-negotiable rule: <strong class="text-[color:var(--color-ink)]">if you're going to identify a website visitor, the visitor has to say yes first.</strong> Stefan Dimitrov — writing production web code since 1999 — engineered the consent log so every single lead carries a timestamped record of exactly when and how that person opted in. It's not a disclaimer buried in a privacy policy. It's a receipt.</p>
+        <p>That decision costs us something. Consent-first identification produces fewer raw names than covert tracking. But the names it produces are people who raised their hand — which is why the leads convert, and why our customers aren't waiting on a process server. The full legal picture is on our <a href="/why-consent-first/" class="font-semibold text-[color:var(--color-ink)] underline decoration-[color:var(--color-brand)] decoration-2 underline-offset-2 hover:text-[color:var(--color-brand-pressed)]">why consent-first</a> page, with sources on our <a href="/stats/" class="font-semibold text-[color:var(--color-ink)] underline decoration-[color:var(--color-brand)] decoration-2 underline-offset-2 hover:text-[color:var(--color-brand-pressed)]">stats &amp; sources</a> page.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- RECEIPTS -->
+  <section class="section border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]" id="receipts">
     <div class="container-content">
-      <div class="mx-auto mb-10 max-w-2xl text-center">
-        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>By the numbers</Badge></div>
-        <h2 class="display-2 text-[color:var(--color-ink)]">A few things worth knowing.</h2>
+      <Badge tone="brand" variant="soft" size="md" uppercase>Receipts, not slogans</Badge>
+      <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">The credentials, in plain text.</h2>
+      <p class="mt-3 max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">No stock-photo "team" here. Every claim below comes from a public LinkedIn profile you can open yourself.</p>
+      <div class="mt-10 grid gap-px overflow-hidden rounded-xl bg-[color:var(--color-rule)] ring-1 ring-inset ring-[color:var(--color-rule)] sm:grid-cols-2 lg:grid-cols-3">
+        {RECEIPTS.map((r) => (
+          <div class="flex flex-col gap-2.5 bg-[color:var(--color-bg)] p-6">
+            <span class="font-mono text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[color:var(--color-brand-pressed)]">{r.badge}</span>
+            <span class="font-semibold leading-snug text-[color:var(--color-ink)]">{r.headline}</span>
+            <span class="font-mono text-[11px] text-[color:var(--color-ink-muted)]">{r.who}</span>
+          </div>
+        ))}
       </div>
-      <DidYouKnow client:visible />
+      <p class="mt-6 font-mono text-[12.5px] text-[color:var(--color-ink-muted)]">Source: public LinkedIn profiles, linked in each bio below. Last reviewed June 7, 2026.</p>
     </div>
   </section>
 
-  <FinalCTA />
+  <!-- TEAM -->
+  <section class="section" id="team">
+    <div class="container-content">
+      <Badge tone="brand" variant="soft" size="md" uppercase>Who you're trusting</Badge>
+      <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">The people behind Consent Resolve.</h2>
+      <div class="mt-6">
+        {TEAM.map((m) => (
+          <article id={m.slug} class="grid gap-6 border-t border-[color:var(--color-rule)] py-12 last:border-b md:grid-cols-[200px_1fr] md:gap-11">
+            <div>
+              <div class="flex size-24 items-center justify-center overflow-hidden rounded-2xl bg-[color:var(--color-bg-alt)] font-display text-2xl font-black text-[color:var(--color-ink)] ring-2 ring-inset ring-[color:var(--color-ink)]">
+                {m.photo ? <img src={m.photo} alt={`${m.name}, ${m.role} of Consent Resolve`} class="h-full w-full object-cover" /> : getInitials(m.name)}
+              </div>
+              <div class="mt-4 font-mono text-[11.5px] font-semibold uppercase tracking-[0.1em] text-[color:var(--color-brand-pressed)]">{m.role}</div>
+              <div class="mt-1.5 font-mono text-[11.5px] text-[color:var(--color-ink-muted)]">{m.location}</div>
+            </div>
+            <div>
+              <h3 class="font-display text-2xl font-bold tracking-tight text-[color:var(--color-ink)]">{m.name}</h3>
+              <p class="mt-1.5 font-display text-lg font-bold text-[color:var(--color-brand-pressed)]">{m.hook}</p>
+              <div class="mt-4 space-y-3.5 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+                {m.bioParas.map((para) => <p>{para}</p>)}
+              </div>
+              <a href={m.linkedin} rel="noopener" class="mt-5 inline-flex items-center gap-2 border-[1.5px] border-[color:var(--color-ink)] px-4 py-2.5 font-mono text-[13px] font-semibold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-ink)] hover:text-[color:var(--color-bg)]">
+                Follow on LinkedIn <IconArrowUpRight size={14} stroke={2.25} />
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMITMENTS -->
+  <section class="section section-dark" id="commitments">
+    <div class="container-content mx-auto max-w-3xl">
+      <Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>In writing</Badge>
+      <h2 class="display-2 mt-5 text-white">Five commitments we'll be held to.</h2>
+      <ol class="mt-8">
+        {commitments.map((c, i) => (
+          <li class="grid grid-cols-[44px_1fr] items-baseline gap-6 border-t border-white/15 py-6">
+            <span class="font-mono text-[15px] font-semibold text-[color:var(--color-mint-400)]">{String(i + 1).padStart(2, "0")}</span>
+            <div>
+              <strong class="block font-display text-lg font-bold text-white">{c.title}</strong>
+              <p class="mt-1.5 text-[15px] leading-relaxed text-slate-300">{c.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <FAQ eyebrow="Quick answers" headline="Questions people ask about us." items={aboutFaqs} />
+
+  <!-- CTA -->
+  <section class="section-dark relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-1/2 size-[480px] -translate-y-1/2 rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
+    <div class="container-content section relative text-center">
+      <div class="mb-6 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Get started today</Badge></div>
+      <h2 class="display-2 mx-auto max-w-2xl text-white">Your next job is already shopping your site.</h2>
+      <p class="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-slate-300">
+        Go get it. Flat $7 per lead — yours alone, never resold. Or start small: $10 gets you your first 10 consented leads to judge for yourself.
+      </p>
+      <div class="mt-9 flex flex-wrap justify-center gap-3">
+        <a href="https://dashboard.consentresolve.com/register" class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-mint-400)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-mint-300)]">
+          Get Started — $7/lead <IconArrowRight size={16} stroke={2.25} />
+        </a>
+        <a href="tel:+17272025996" class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/25 transition-all hover:bg-white/5">
+          <IconPhone size={16} stroke={2} /> Talk to Tyler — (727) 202-5996
+        </a>
+      </div>
+      <p class="mx-auto mt-6 max-w-xl font-mono text-[12.5px] leading-relaxed text-slate-400">
+        No contracts · No setup fees · Cancel anytime · Encrypted in transit and at rest<br/>
+        Consent Resolve · 1907 Gulf Way #1, St Pete Beach, FL 33706
+      </p>
+    </div>
+  </section>
+
+  <p class="container-content py-9 text-center font-mono text-[11.5px] text-[color:var(--color-ink-muted)]">
+    Page last reviewed June 7, 2026 · All credentials verifiable via the LinkedIn profiles linked above.
+  </p>
 </BaseLayout>
