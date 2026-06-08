@@ -536,12 +536,12 @@
         `);
         ($("#j2-next") as HTMLElement)?.addEventListener("click", () => { closeModal(); step3modal(); });
         // Cycle through two sample records, then settle on the participant's own.
-        window.setTimeout(() => { const s = $("#lead-slot"); if (s) s.innerHTML = leadCard(SAMPLE[1], false); }, 850);
+        window.setTimeout(() => { const s = $("#lead-slot"); if (s) s.innerHTML = leadCard(SAMPLE[1], false); }, 1000);
         window.setTimeout(() => {
           const s = $("#lead-slot"); if (s) s.innerHTML = leadCard(LEAD || {}, true);
           ($("#lead-aha") as HTMLElement)?.classList.add("show");
           ($("#lead-next") as HTMLElement)?.classList.add("show");
-        }, 1700);
+        }, 2000);
       }
 
       // ---- Step 3: intro modal, then opens the animated quote page ----
