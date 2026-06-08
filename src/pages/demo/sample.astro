@@ -187,12 +187,34 @@
         margin-top: 12px; padding: 12px 14px; border-left: 4px solid #00e5a0;
         background: #f0fdf9; border-radius: 8px; font-size: 13.5px; line-height: 1.5; color: var(--ink);
       }
+
+      /* Step 3 — funnel visualization (staggered fade-in on open) */
+      .funnelviz { margin: 10px 0 4px; }
+      .fv-node {
+        border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; text-align: center;
+        font-weight: 700; font-size: 14px; background: #fff; line-height: 1.25;
+        opacity: 0; transform: translateY(8px); animation: fv-in 0.5s ease forwards; animation-delay: var(--d, 0s);
+      }
+      .fv-node small { display: block; font-weight: 500; color: var(--ink-2); font-size: 12px; margin-top: 4px; }
+      .fv-source { background: #0a1628; color: #fff; border-color: #0a1628; }
+      .fv-source small { color: #9fb0c4; }
+      .fv-result { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+      .fv-result small { color: #047857; }
+      .fv-fan { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      @media (max-width: 520px) { .fv-fan { grid-template-columns: 1fr; } }
+      .fv-arrow {
+        width: 2px; height: 22px; margin: 7px auto; background: #cbd5e1; position: relative;
+        opacity: 0; animation: fv-in 0.4s ease forwards; animation-delay: var(--d, 0s);
+      }
+      .fv-arrow::after { content: "▼"; position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%); color: #cbd5e1; font-size: 11px; }
+      .fv-cap { text-align: center; font-size: 12px; color: var(--ink-2); margin: 4px 0 2px; opacity: 0; animation: fv-in .4s ease forwards; animation-delay: var(--d, 0s); }
+      @keyframes fv-in { to { opacity: 1; transform: none; } }
     </style>
   </head>
   <body>
     <div class="ribbon">
       <span>👀 You're browsing as a <strong>visitor</strong> — a sample service-pro site.</span>
-      <span class="stepchip" id="stepchip">Guided demo · Step 1 of 2</span>
+      <span class="stepchip" id="stepchip">Guided demo · Step 1 of 3</span>
     </div>
 
     <div class="wrap">
@@ -311,7 +333,7 @@
 
       function setStep(n: number) {
         const chip = $("#stepchip");
-        if (chip) chip.textContent = `Guided demo · Step ${n} of 2`;
+        if (chip) chip.textContent = `Guided demo · Step ${n} of 3`;
       }
 
       function openModal(html: string) {
@@ -329,7 +351,7 @@
         const biz = (PROFILE && PROFILE.biz) || "this business";
         const label = (PROFILE && PROFILE.label) || "home services";
         openModal(`
-          <span class="journey-tag">Step 1 of 2 · Consent</span>
+          <span class="journey-tag">Step 1 of 3 · Consent</span>
           <h2>This is a website like yours.</h2>
           <p>Say hello to <span class="em">${esc(biz)}</span> — a ${esc(label)} site, same as yours. A real homeowner just landed here from an ad, a Google search, or a shared link.</p>
           <div class="point-row">
@@ -380,12 +402,41 @@
       function step2(lead: any, emailed: boolean) {
         setStep(2);
         openModal(`
-          <span class="journey-tag">Step 2 of 2 · The lead lands</span>
+          <span class="journey-tag">Step 2 of 3 · The lead lands</span>
           <h2>That consent just became a lead.</h2>
           <p>Still the same site — nothing switched, nobody got redirected. The moment they accepted, <span class="em">this hit the business owner's inbox</span>:</p>
           ${leadCard(lead)}
           <div class="aha"><strong>Notice anything?</strong> This lead is <em>you</em>. It's a real name and a consented email — not a number to cold-call, not a shared lead. Yours alone.</div>
           <p class="journey-note">${emailed ? "We also sent this to your inbox for real — go check." : "Heads up: the live email didn't send (sending domain may still be verifying), but this is exactly what lands."}</p>
+          <div class="journey-actions">
+            <button class="btn btn-primary" id="j2-next" type="button">Next: where that lead goes →</button>
+            <a class="btn btn-ghost" href="/demo/">Replay</a>
+          </div>
+        `);
+        ($("#j2-next") as HTMLElement)?.addEventListener("click", () => step3(lead, emailed));
+      }
+
+      // ---- Step 3: feed your funnel (the next use case) ----
+      function step3(lead: any, _emailed: boolean) {
+        setStep(3);
+        const biz = (PROFILE && PROFILE.biz) || "your shop";
+        openModal(`
+          <span class="journey-tag">Step 3 of 3 · Feed your funnel</span>
+          <h2>Now that lead goes to work.</h2>
+          <p>It doesn't just sit in an inbox. The consented record flows into the marketing <span class="em">you already run</span> — so the homeowner comes back on their own time and calls you.</p>
+          <div class="funnelviz">
+            <div class="fv-node fv-source" style="--d:0s">📥 Consented lead<small>${esc(lead.name)} · yours alone, never resold</small></div>
+            <div class="fv-arrow" style="--d:.35s"></div>
+            <div class="fv-cap" style="--d:.4s">flows straight into your stack</div>
+            <div class="fv-fan">
+              <div class="fv-node" style="--d:.55s">🗂️ Your CRM<small>Jobber · Housecall Pro · ServiceTitan · HubSpot</small></div>
+              <div class="fv-node" style="--d:.7s">🎯 Retargeting<small>your Google &amp; Meta audiences</small></div>
+              <div class="fv-node" style="--d:.85s">✉️ Email / SMS<small>your follow-up sequence</small></div>
+            </div>
+            <div class="fv-arrow" style="--d:1.05s"></div>
+            <div class="fv-node fv-result" style="--d:1.2s">📞 They come back — and call you<small>warm inbound, on their time</small></div>
+          </div>
+          <div class="aha">Same consented contact, feeding the channels that already work for ${esc(biz)}. You don't cold-call anyone — they reach out to you, ready to book.</div>
           <div class="journey-actions">
             <a class="btn btn-primary" href="https://consentresolve.com/pricing/">Start getting real leads — flat $7 a lead →</a>
             <a class="btn btn-ghost" href="/demo/">Replay the demo</a>
