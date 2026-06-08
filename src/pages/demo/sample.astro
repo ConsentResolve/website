@@ -2,6 +2,13 @@
 // Sample trades website for the live demo. Deliberately NOT using BaseLayout:
 // it must look like a real, separate local business — no Consent Resolve nav,
 // footer, or visitor-ID tag. Themed client-side from /api/visit by trade.
+//
+// Guided journey overlaid on top, in the sample site's own look (we never
+// switch to Consent Resolve branding):
+//   Step 1 — intro modal: "this is a site like yours; the journey starts with
+//            consent" → points to the consent banner.
+//   Step 2 — after Accept: still framed as the same site, show the exact email
+//            that just landed in the owner's inbox.
 // noindex,nofollow — fictional business, must never be indexed.
 ---
 
@@ -25,6 +32,7 @@
         --bg: #ffffff;
         --bg-soft: #f8fafc;
         --star: #f59e0b;
+        --go: #16a34a;
       }
       * { box-sizing: border-box; }
       html, body { margin: 0; padding: 0; }
@@ -42,8 +50,13 @@
         text-align: center;
         padding: 7px 16px;
         letter-spacing: 0.01em;
+        display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
       }
       .ribbon strong { color: #fff; }
+      .ribbon .stepchip {
+        background: #1e293b; color: #7dd3fc; border-radius: 999px;
+        padding: 2px 9px; font-size: 11px; font-weight: 700; letter-spacing: .06em;
+      }
       .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
       header.site {
         display: flex;
@@ -96,20 +109,91 @@
         padding: 18px 20px;
         box-shadow: 0 -8px 30px rgba(0,0,0,0.25);
         transform: translateY(110%);
-        transition: transform 0.35s ease;
+        transition: transform 0.35s ease, box-shadow 0.3s ease;
       }
       .consent.show { transform: translateY(0); }
+      .consent.highlight { box-shadow: 0 -10px 40px rgba(34,197,94,0.35), inset 0 0 0 2px #22c55e; }
       .consent .inner { max-width: 1080px; margin: 0 auto; display: flex; gap: 18px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
       .consent p { margin: 0; font-size: 14px; max-width: 64ch; }
       .consent a { color: #7dd3fc; }
       .consent .actions { display: flex; gap: 10px; align-items: center; }
       .consent .accept { background: #22c55e; color: #052e16; }
+      .consent .accept.pulse { animation: cr-pulse 1.5s infinite; }
+      @keyframes cr-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.55); }
+        50% { box-shadow: 0 0 0 9px rgba(34,197,94,0); }
+      }
       .consent .decline { background: transparent; color: #cbd5e1; border: 1px solid #334155; }
       .consent .accept[disabled] { opacity: 0.6; cursor: progress; }
+      .consent .hint { width: 100%; margin-top: 10px; font-size: 13px; color: #86efac; font-weight: 600; }
+
+      /* Coachmark pointing at the banner (Step 1) */
+      .coach {
+        position: fixed; left: 50%; transform: translateX(-50%);
+        bottom: 96px; z-index: 55;
+        background: #fff; color: var(--ink); border: 1px solid var(--line);
+        padding: 10px 16px; border-radius: 999px; font-weight: 700; font-size: 14px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+        display: none; align-items: center; gap: 8px;
+        animation: cr-bob 1.6s ease-in-out infinite;
+      }
+      .coach.show { display: inline-flex; }
+      @keyframes cr-bob { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(5px); } }
+
+      /* Guided-journey modal (sample-site look, not CR branding) */
+      .journey {
+        position: fixed; inset: 0; z-index: 100;
+        display: none; align-items: center; justify-content: center; padding: 20px;
+        background: rgba(8,15,30,0.55);
+      }
+      .journey.show { display: flex; }
+      .journey-card {
+        background: #fff; border-radius: 18px; max-width: 540px; width: 100%;
+        padding: 30px; box-shadow: 0 30px 70px rgba(0,0,0,0.35);
+        animation: cr-pop 0.28s ease; max-height: 92vh; overflow-y: auto;
+      }
+      @keyframes cr-pop { from { transform: translateY(12px) scale(0.98); opacity: 0; } to { transform: none; opacity: 1; } }
+      .journey-tag {
+        display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+        color: var(--brand); background: #eff6ff; padding: 5px 11px; border-radius: 999px;
+      }
+      .journey-card h2 { font-size: 25px; font-weight: 800; margin: 14px 0 10px; line-height: 1.15; }
+      .journey-card p { color: var(--ink-2); font-size: 15px; margin: 0 0 14px; }
+      .journey-card .em { color: var(--ink); font-weight: 700; }
+      .journey-actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+      .journey-note { font-size: 13px; color: var(--ink-2); margin-top: 12px; }
+      .point-row {
+        display: flex; gap: 12px; align-items: flex-start; margin: 14px 0;
+        background: var(--bg-soft); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+      }
+      .point-row .num {
+        flex: none; width: 26px; height: 26px; border-radius: 999px; background: var(--brand); color: #fff;
+        display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px;
+      }
+      .point-row div { font-size: 14px; }
+      .point-row strong { color: var(--ink); }
+
+      /* The reveal-email preview (this DOES look like the real CR notification) */
+      .emailcard { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin: 6px 0 4px; }
+      .emailcard .eh { background: #0a1628; padding: 15px 18px; }
+      .emailcard .eh .tag { color: #00e5a0; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 800; }
+      .emailcard .eh .subj { color: #fff; font-size: 16px; font-weight: 700; margin-top: 4px; }
+      .emailcard .eb { padding: 14px 18px; }
+      .emailcard table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      .emailcard td.k { color: #64748b; width: 118px; padding: 6px 0; vertical-align: top; }
+      .emailcard td.v { color: #0a1628; font-weight: 600; padding: 6px 0; }
+      .emailcard td.v a { color: #0369a1; }
+      .aha {
+        margin-top: 12px; padding: 12px 14px; border-left: 4px solid #00e5a0;
+        background: #f0fdf9; border-radius: 8px; font-size: 13.5px; line-height: 1.5; color: var(--ink);
+      }
     </style>
   </head>
   <body>
-    <div class="ribbon">👀 You're browsing as a <strong>visitor</strong> — this is a sample site for the Consent Resolve demo.</div>
+    <div class="ribbon">
+      <span>👀 You're browsing as a <strong>visitor</strong> — a sample service-pro site.</span>
+      <span class="stepchip" id="stepchip">Guided demo · Step 1 of 2</span>
+    </div>
 
     <div class="wrap">
       <header class="site">
@@ -164,12 +248,15 @@
       </div>
     </footer>
 
+    <!-- Coachmark for Step 1 -->
+    <div class="coach" id="coach">👇 Step 1 — accept the consent banner, like your customer would</div>
+
     <!-- Consent banner (not pre-checked; consent is the explicit Accept click) -->
     <div class="consent" id="consent" role="dialog" aria-live="polite" aria-label="Cookie consent">
       <div class="inner">
         <p>
           We use cookies and a consent-first identification tool to recognize returning visitors and improve your experience. Nothing is identified until you accept.
-          <a href="https://consentresolve.com/why-consent-first/" target="_blank" rel="noopener">Learn more</a>.
+          <a href="https://consentresolve.com/why-consent-first/" target="_blank" rel="noopener">Our cookie &amp; consent policy</a>.
         </p>
         <div class="actions">
           <button class="btn decline" id="cr-decline" type="button">Decline</button>
@@ -178,13 +265,24 @@
       </div>
     </div>
 
+    <!-- Guided-journey modal -->
+    <div class="journey" id="journey" role="dialog" aria-modal="true" aria-label="Guided demo">
+      <div class="journey-card" id="journey-card"></div>
+    </div>
+
     <script>
       const dt = new URLSearchParams(location.search).get("dt");
       const $ = (sel: string) => document.querySelector(sel);
       const $all = (sel: string) => Array.from(document.querySelectorAll(sel));
+      let PROFILE: any = null;
+
+      function esc(s: string) {
+        return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+      }
 
       function applyProfile(p: any) {
         if (!p) return;
+        PROFILE = p;
         $all("[data-biz]").forEach((el) => (el.textContent = p.biz));
         const mark = $("[data-mark]");
         if (mark) mark.textContent = (p.biz || "S").trim().charAt(0).toUpperCase();
@@ -200,26 +298,132 @@
         const svc = $("[data-services]");
         if (svc && Array.isArray(p.services)) {
           svc.innerHTML = p.services
-            .map(
-              (s: any) =>
-                `<div class="card"><div class="ic">★</div><h3>${esc(s.title)}</h3><p>${esc(s.desc)}</p></div>`
-            )
+            .map((s: any) => `<div class="card"><div class="ic">★</div><h3>${esc(s.title)}</h3><p>${esc(s.desc)}</p></div>`)
             .join("");
         }
         const rev = $("[data-reviews]");
         if (rev && Array.isArray(p.reviews)) {
           rev.innerHTML = p.reviews
-            .map(
-              (r: any) =>
-                `<div class="card review"><div class="stars">${"★".repeat(r.stars || 5)}</div><p>"${esc(r.text)}"</p><div class="name">${esc(r.name)}</div></div>`
-            )
+            .map((r: any) => `<div class="card review"><div class="stars">${"★".repeat(r.stars || 5)}</div><p>"${esc(r.text)}"</p><div class="name">${esc(r.name)}</div></div>`)
             .join("");
         }
       }
 
-      function esc(s: string) {
-        return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+      function setStep(n: number) {
+        const chip = $("#stepchip");
+        if (chip) chip.textContent = `Guided demo · Step ${n} of 2`;
       }
+
+      function openModal(html: string) {
+        const card = $("#journey-card") as HTMLElement;
+        card.innerHTML = html;
+        ($("#journey") as HTMLElement).classList.add("show");
+      }
+      function closeModal() {
+        ($("#journey") as HTMLElement).classList.remove("show");
+      }
+
+      // ---- Step 1: intro ----
+      function step1() {
+        setStep(1);
+        const biz = (PROFILE && PROFILE.biz) || "this business";
+        const label = (PROFILE && PROFILE.label) || "home services";
+        openModal(`
+          <span class="journey-tag">Step 1 of 2 · Consent</span>
+          <h2>This is a website like yours.</h2>
+          <p>Say hello to <span class="em">${esc(biz)}</span> — a ${esc(label)} site, same as yours. A real homeowner just landed here from an ad, a Google search, or a shared link.</p>
+          <div class="point-row">
+            <div class="num">1</div>
+            <div>Their journey starts with one thing: <strong>consent</strong>. See the banner at the bottom? That's the cookie &amp; consent notice your customers see. <strong>Nothing about them is identified until they accept it.</strong></div>
+          </div>
+          <p>Go ahead and accept it — exactly like your customer would. That single click is where every real lead begins.</p>
+          <div class="journey-actions">
+            <button class="btn btn-primary" id="j1-go" type="button">Show me the consent banner →</button>
+          </div>
+          <div class="journey-note">Consent-first, by design. This is a demo — the only person we'll identify is you.</div>
+        `);
+        ($("#j1-go") as HTMLElement)?.addEventListener("click", () => {
+          closeModal();
+          revealBanner();
+        });
+      }
+
+      function revealBanner() {
+        const consent = $("#consent") as HTMLElement;
+        consent.classList.add("show", "highlight");
+        ($("#cr-accept") as HTMLElement)?.classList.add("pulse");
+        ($("#coach") as HTMLElement)?.classList.add("show");
+      }
+
+      // ---- Step 2: the lead that just landed ----
+      function leadCard(lead: any) {
+        const page = lead.sample_page || "/demo/sample/";
+        return `
+          <div class="emailcard">
+            <div class="eh">
+              <div class="tag">Consent Resolve</div>
+              <div class="subj">🎯 New identified lead</div>
+            </div>
+            <div class="eb">
+              <table>
+                <tr><td class="k">Name</td><td class="v">${esc(lead.name)}</td></tr>
+                <tr><td class="k">Email</td><td class="v"><a href="mailto:${esc(lead.email)}">${esc(lead.email)}</a></td></tr>
+                ${lead.business_name ? `<tr><td class="k">Business</td><td class="v">${esc(lead.business_name)}</td></tr>` : ""}
+                <tr><td class="k">Shopping for</td><td class="v">${esc(lead.trade_label || "home services")}</td></tr>
+                <tr><td class="k">Page viewed</td><td class="v">${esc(page)}</td></tr>
+                <tr><td class="k">Consent captured</td><td class="v">${esc(lead.consented_at)}</td></tr>
+              </table>
+            </div>
+          </div>`;
+      }
+
+      function step2(lead: any, emailed: boolean) {
+        setStep(2);
+        openModal(`
+          <span class="journey-tag">Step 2 of 2 · The lead lands</span>
+          <h2>That consent just became a lead.</h2>
+          <p>Still the same site — nothing switched, nobody got redirected. The moment they accepted, <span class="em">this hit the business owner's inbox</span>:</p>
+          ${leadCard(lead)}
+          <div class="aha"><strong>Notice anything?</strong> This lead is <em>you</em>. It's a real name and a consented email — not a number to cold-call, not a shared lead. Yours alone.</div>
+          <p class="journey-note">${emailed ? "We also sent this to your inbox for real — go check." : "Heads up: the live email didn't send (sending domain may still be verifying), but this is exactly what lands."}</p>
+          <div class="journey-actions">
+            <a class="btn btn-primary" href="https://consentresolve.com/pricing/">Start getting real leads — flat $7 a lead →</a>
+            <a class="btn btn-ghost" href="/demo/">Replay the demo</a>
+          </div>
+        `);
+      }
+
+      // ---- wire the banner ----
+      $("#cr-decline")?.addEventListener("click", () => {
+        const p = $("#consent .inner p") as HTMLElement;
+        if (p && !$("#consent .hint")) {
+          const hint = document.createElement("div");
+          hint.className = "hint";
+          hint.textContent = "That's consent-first in action — decline and nothing happens. Accept to see step 2.";
+          ($("#consent .inner") as HTMLElement).appendChild(hint);
+        }
+      });
+
+      $("#cr-accept")?.addEventListener("click", async () => {
+        const btn = $("#cr-accept") as HTMLButtonElement;
+        if (!dt || dt === "bot") { window.location.assign("/demo/"); return; }
+        btn.disabled = true;
+        btn.classList.remove("pulse");
+        btn.textContent = "Identifying…";
+        ($("#coach") as HTMLElement)?.classList.remove("show");
+        try {
+          const res = await fetch("/api/consent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ dt }),
+          });
+          const data = await res.json();
+          ($("#consent") as HTMLElement).classList.remove("show");
+          if (data && data.lead) { step2(data.lead, !!data.emailed); return; }
+        } catch {}
+        // Fallback: send them to the standalone confirmation page.
+        window.location.assign(`/demo/done/?dt=${encodeURIComponent(dt)}`);
+      });
 
       async function init() {
         try {
@@ -231,34 +435,9 @@
           const data = await res.json();
           applyProfile(data.profile);
         } catch {}
-        // Reveal the consent banner shortly after the page settles.
-        setTimeout(() => $("#consent")?.classList.add("show"), 900);
+        // Kick off the guided journey once the page has themed.
+        setTimeout(step1, 700);
       }
-
-      $("#cr-decline")?.addEventListener("click", () => $("#consent")?.classList.remove("show"));
-
-      $("#cr-accept")?.addEventListener("click", async () => {
-        const btn = $("#cr-accept") as HTMLButtonElement;
-        if (!dt || dt === "bot") {
-          window.location.assign("/demo/");
-          return;
-        }
-        btn.disabled = true;
-        btn.textContent = "One sec…";
-        try {
-          const res = await fetch("/api/consent", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ dt }),
-          });
-          if (res.ok) {
-            window.location.assign(`/demo/done/?dt=${encodeURIComponent(dt)}`);
-            return;
-          }
-        } catch {}
-        // On failure, still move them forward — consent intent was given.
-        window.location.assign(`/demo/done/?dt=${encodeURIComponent(dt)}`);
-      });
 
       init();
     </script>

@@ -7,6 +7,7 @@ import { json, clientIp } from "../_lib/http.js";
 import { getParticipant, updateParticipant, logEvent, nowIso } from "../_lib/db.js";
 import { sendRevealEmail } from "../_lib/email.js";
 import { enrollSales } from "../_lib/sales.js";
+import { tradeProfile } from "../_lib/trades.js";
 
 export async function onRequestPost({ request, env }) {
   let dt = "";
@@ -60,5 +61,20 @@ export async function onRequestPost({ request, env }) {
   }
 
   // Always succeed for the UI — the user has consented; the email is in flight.
-  return json({ ok: true, emailed: email.ok, enrolled: sales.ok });
+  // Return the lead fields so the sample page can render the "here's the email
+  // that just landed" preview inline (Step 2 of the guided journey).
+  const t = tradeProfile(p.trade);
+  return json({
+    ok: true,
+    emailed: email.ok,
+    enrolled: sales.ok,
+    lead: {
+      name: p.name,
+      email: p.email,
+      business_name: p.business_name || "",
+      trade_label: t.label,
+      sample_page: enriched.sample_page,
+      consented_at: consentedAt,
+    },
+  });
 }
