@@ -296,6 +296,7 @@
           <span class="links">
             <a href="#services">Services</a>
             <a href="#reviews">Reviews</a>
+            <a data-quote-link href="/demo/sample/quote/">Free Quote</a>
           </span>
           <a class="call" data-phone href="#">Call now</a>
         </nav>
@@ -523,47 +524,21 @@
         `;
       }
 
-      // ---- Step 3: abandoned-quote recovery (backfill) ----
+      // ---- Step 3: opens the dedicated animated quote page ----
       function content3() {
-        const lead = LEAD || {};
-        const name = lead.name || "Jordan Smith";
-        const svc = (PROFILE && PROFILE.label) || lead.trade_label || "home services";
         return `
           <h2>They started a quote — then vanished.</h2>
-          <p>A visitor began your estimate form, got pulled away, and never hit submit. Watch what consent does instead.</p>
-          <div class="qform">
-            <div class="qf-head">
-              <span>Get a free ${esc(svc)} quote</span>
-              <span class="qf-status abandoned" id="qf-status">Abandoned · never submitted</span>
-            </div>
-            <div class="qf-field"><label>Name</label><div class="qf-val">${esc(name)}</div></div>
-            <div class="qf-field"><label>Service needed</label><div class="qf-val">${esc(svc)}</div></div>
-            <div class="qf-field"><label>Email</label><div class="qf-val empty" id="qf-email">— left blank<span class="qf-badge" id="qf-badge">✓ backfilled from consent</span></div></div>
-            <div class="qf-field"><label>Phone</label><div class="qf-val empty">— left blank</div></div>
-            <button class="qf-submit" id="qf-submit" type="button" disabled>Submit quote request</button>
+          <p>Someone began your estimate form and never hit submit. Open your <span class="em">quote page</span> to watch that dead form turn back into a real lead.</p>
+          <div class="journey-actions">
+            <button class="btn btn-primary" id="j3-open" type="button">Open your quote page →</button>
           </div>
-          <div class="aha fade-seq" id="qf-aha"><strong>Recovered.</strong> They already consented, so we backfill the one thing that turns a dead form into a lead: their <strong>verified email</strong>. The phone stays blank on purpose — you don't cold-call anyone. They call you when they're ready.</div>
         `;
       }
 
-      function animateQuoteRecovery() {
-        const email = (LEAD && LEAD.email) || "you@yourshop.com";
-        window.setTimeout(() => {
-          const em = $("#qf-email") as HTMLElement;
-          if (em) {
-            em.classList.remove("empty");
-            em.classList.add("backfill");
-            em.firstChild && (em.firstChild.textContent = email + " ");
-            ($("#qf-badge") as HTMLElement)?.classList.add("show");
-          }
-        }, 1000);
-        window.setTimeout(() => {
-          const st = $("#qf-status") as HTMLElement;
-          if (st) { st.textContent = "Recovered lead"; st.classList.remove("abandoned"); st.classList.add("recovered"); }
-          const sub = $("#qf-submit") as HTMLButtonElement;
-          if (sub) { sub.classList.add("go"); sub.disabled = false; sub.textContent = "Lead recovered ✓"; }
-          ($("#qf-aha") as HTMLElement)?.classList.add("show");
-        }, 1700);
+      function wireQuoteOpen() {
+        ($("#j3-open") as HTMLElement)?.addEventListener("click", () => {
+          window.location.assign("/demo/sample/quote/?dt=" + encodeURIComponent(dt || ""));
+        });
       }
 
       // ---- Step 4: feed your funnel ----
@@ -612,7 +587,7 @@
 
       const TOUR = [
         { chip: "Step 2 of 5 · The lead lands", render: content2, anchor: "#services", pos: "before" },
-        { chip: "Step 3 of 5 · Quote recovery", render: content3, onShow: animateQuoteRecovery, anchor: "#quote", pos: "before", spot: "#quote-card" },
+        { chip: "Step 3 of 5 · Quote recovery", render: content3, onShow: wireQuoteOpen, anchor: "#quote", pos: "before" },
         { chip: "Step 4 of 5 · Feed your funnel", render: content4, anchor: "#quote", pos: "after" },
         { chip: "Step 5 of 5 · It all comes together", render: content5, anchor: "footer.site", pos: "before" },
       ];
@@ -694,7 +669,11 @@
           });
           const data = await res.json();
           ($("#consent") as HTMLElement).classList.remove("show");
-          if (data && data.lead) { startTour(data.lead, !!data.emailed); return; }
+          if (data && data.lead) {
+            // Stash so the lead survives the hop to the quote page and back.
+            try { sessionStorage.setItem("cr_lead", JSON.stringify(data.lead)); sessionStorage.setItem("cr_emailed", data.emailed ? "1" : ""); } catch {}
+            startTour(data.lead, !!data.emailed); return;
+          }
         } catch {}
         // Fallback: send them to the standalone confirmation page.
         window.location.assign(`/demo/done/?dt=${encodeURIComponent(dt)}`);
@@ -720,6 +699,17 @@
           const data = await res.json();
           applyProfile(data.profile);
         } catch {}
+        const ql = $("[data-quote-link]") as HTMLAnchorElement | null;
+        if (ql) ql.href = "/demo/sample/quote/?dt=" + encodeURIComponent(dt || "");
+
+        const params = new URLSearchParams(location.search);
+        // Returning from the quote page → resume the tour at the given step.
+        const resume = params.get("resume");
+        if (resume) {
+          let lead: any = null, emailed = false;
+          try { lead = JSON.parse(sessionStorage.getItem("cr_lead") || "null"); emailed = sessionStorage.getItem("cr_emailed") === "1"; } catch {}
+          if (lead) { LEAD = lead; EMAILED = emailed; gotoTour(Math.max(0, parseInt(resume, 10) - 2)); return; }
+        }
         // Arriving from the nurture email's "Finish your quote" link → skip the
         // guided modal and drop them straight on the quote form.
         if (location.hash === "#quote") {

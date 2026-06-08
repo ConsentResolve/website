@@ -1,0 +1,177 @@
+---
+// Dedicated "Free Quote" page for the sample trades site (part of the live
+// demo). Step 3 of the guided tour opens this page; it animates an abandoned
+// quote being recovered via the consented email, then offers to continue the
+// tour at Step 4. Standalone shell (no Consent Resolve chrome). noindex.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Free Quote — Summit Home Services</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    <style is:global>
+      :root { --brand:#1d4ed8; --ink:#0f172a; --ink-2:#475569; --line:#e2e8f0; --bg:#fff; --bg-soft:#f8fafc; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body { font-family: "Inter", system-ui, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+      .ribbon { background: #0f172a; color: #cbd5e1; font-size: 13px; text-align: center; padding: 7px 16px; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+      .ribbon strong { color: #fff; }
+      .ribbon .stepchip { background: #1e293b; color: #7dd3fc; border-radius: 999px; padding: 2px 9px; font-size: 11px; font-weight: 700; }
+      .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+      header.site { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--line); }
+      .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; }
+      .logo .mark { width: 34px; height: 34px; border-radius: 9px; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+      .nav { display: flex; gap: 22px; align-items: center; font-size: 15px; color: var(--ink-2); }
+      .nav a { color: var(--ink-2); text-decoration: none; }
+      .nav a.active { color: var(--brand); font-weight: 700; }
+      .nav .call { background: var(--brand); color: #fff; padding: 9px 16px; border-radius: 8px; font-weight: 700; }
+      @media (max-width: 720px) { .nav .links { display: none; } }
+      .qhero { background: linear-gradient(180deg, var(--bg-soft), #fff); padding: 48px 0 56px; }
+      .tag { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); background: #eff6ff; padding: 5px 11px; border-radius: 999px; }
+      .qhero h1 { font-size: 34px; font-weight: 800; margin: 14px 0 8px; }
+      .qhero .lede { font-size: 17px; color: var(--ink-2); max-width: 56ch; margin: 0 0 22px; }
+      .btn { padding: 12px 22px; border-radius: 9px; font-weight: 700; font-size: 15px; text-decoration: none; display: inline-block; cursor: pointer; border: none; }
+      .btn-primary { background: var(--brand); color: #fff; }
+      .btn-ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+
+      .qform { max-width: 560px; border: 1px solid var(--line); border-radius: 14px; padding: 20px; background: #fff; box-shadow: 0 8px 24px rgba(8,15,30,0.08); }
+      .qf-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; font-weight: 800; font-size: 16px; flex-wrap: wrap; }
+      .qf-status { font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; transition: all .3s ease; }
+      .qf-status.abandoned { color: #9f1239; background: #ffe4e6; }
+      .qf-status.recovered { color: #065f46; background: #d1fae5; }
+      .qf-field { display: grid; grid-template-columns: 130px 1fr; gap: 10px; align-items: center; margin-bottom: 9px; }
+      @media (max-width: 460px) { .qf-field { grid-template-columns: 1fr; gap: 3px; } }
+      .qf-field > label { font-size: 13px; color: var(--ink-2); font-weight: 600; }
+      .qf-val { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; font-size: 14px; font-weight: 600; min-height: 38px; display: flex; align-items: center; gap: 8px; transition: background .4s ease, border-color .4s ease, color .4s ease; }
+      .qf-val.empty { color: #cbd5e1; font-weight: 500; border-style: dashed; }
+      .qf-val.backfill { border-color: #16a34a; background: #f0fdf4; color: #065f46; }
+      .qf-badge { font-size: 11px; font-weight: 800; color: #16a34a; opacity: 0; transition: opacity .4s ease; white-space: nowrap; }
+      .qf-badge.show { opacity: 1; }
+      .qf-submit { margin-top: 8px; width: 100%; padding: 11px; border-radius: 8px; border: none; background: #cbd5e1; color: #fff; font-weight: 700; font-size: 14px; transition: background .4s ease; }
+      .qf-submit.go { background: var(--brand); }
+      .aha { margin-top: 18px; max-width: 560px; padding: 14px 16px; border-left: 4px solid #16a34a; background: #f0fdf4; border-radius: 8px; font-size: 14px; line-height: 1.55; }
+      .actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+      .fade-seq { opacity: 0; transition: opacity .5s ease; }
+      .fade-seq.show { opacity: 1; }
+      footer.site { border-top: 1px solid var(--line); padding: 28px 0; color: var(--ink-2); font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <div class="ribbon">
+      <span>👀 You're on the <strong>Free Quote</strong> page — a sample service-pro site.</span>
+      <span class="stepchip">Guided demo · Step 3 of 5</span>
+    </div>
+
+    <div class="wrap">
+      <header class="site">
+        <div class="logo"><span class="mark" data-mark>S</span> <span data-biz>Summit Home Services</span></div>
+        <nav class="nav">
+          <span class="links">
+            <a data-link="/demo/sample/" href="/demo/sample/">Home</a>
+            <a data-link="/demo/sample/#services" href="/demo/sample/#services">Services</a>
+            <a class="active" data-link="/demo/sample/quote/" href="/demo/sample/quote/">Free Quote</a>
+          </span>
+          <a class="call" data-phone href="#">Call now</a>
+        </nav>
+      </header>
+    </div>
+
+    <section class="qhero">
+      <div class="wrap">
+        <span class="tag">Quote recovery</span>
+        <h1>An abandoned quote, recovered.</h1>
+        <p class="lede">A visitor started this estimate form, got pulled away, and never hit submit. Normally that's a dead end — but they'd already consented. Watch.</p>
+
+        <div class="qform">
+          <div class="qf-head">
+            <span data-quote-title>Get a free quote</span>
+            <span class="qf-status abandoned" id="qf-status">Abandoned · never submitted</span>
+          </div>
+          <div class="qf-field"><label>Name</label><div class="qf-val" data-qf-name>Jordan Smith</div></div>
+          <div class="qf-field"><label>Service needed</label><div class="qf-val" data-qf-svc>Home services</div></div>
+          <div class="qf-field"><label>Email</label><div class="qf-val empty" id="qf-email">— left blank<span class="qf-badge" id="qf-badge">✓ backfilled from consent</span></div></div>
+          <div class="qf-field"><label>Phone</label><div class="qf-val empty">— left blank</div></div>
+          <button class="qf-submit" id="qf-submit" type="button" disabled>Submit quote request</button>
+        </div>
+
+        <div class="aha fade-seq" id="qf-aha">
+          <strong>Recovered.</strong> They already consented, so we backfill the one thing that turns a dead form into a lead: their <strong>verified email</strong>. The phone stays blank on purpose — you don't cold-call anyone. They come back and call you when they're ready.
+        </div>
+
+        <div class="actions fade-seq" id="qf-actions">
+          <a class="btn btn-primary" id="continue-tour" href="/demo/sample/">Continue the tour →</a>
+          <a class="btn btn-ghost" href="/demo/">Replay the demo</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site">
+      <div class="wrap">
+        <span data-biz>Summit Home Services</span> · Licensed &amp; insured · <span data-phone-text>(555) 010-0100</span>
+        <div style="margin-top:6px;font-size:12px;color:#94a3b8">Fictional business for the Consent Resolve live demo.</div>
+      </div>
+    </footer>
+
+    <script>
+      const dt = new URLSearchParams(location.search).get("dt") || "";
+      const $ = (s: string) => document.querySelector(s);
+      const $all = (s: string) => Array.from(document.querySelectorAll(s));
+
+      let lead: any = {};
+      try { lead = JSON.parse(sessionStorage.getItem("cr_lead") || "{}") || {}; } catch {}
+
+      function cap(s: string) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
+      // Keep dt on the internal links + the continue-tour return (resume at step 4).
+      $all("[data-link]").forEach((a) => {
+        const base = (a as HTMLElement).getAttribute("data-link") || "";
+        const hash = base.indexOf("#") >= 0 ? "" : "";
+        (a as HTMLAnchorElement).href = base + (base.indexOf("#") >= 0 ? "" : "") + (dt ? (base.indexOf("?") >= 0 ? "&" : "?") + "dt=" + encodeURIComponent(dt) : "");
+      });
+      const cont = $("#continue-tour") as HTMLAnchorElement;
+      if (cont) cont.href = "/demo/sample/?dt=" + encodeURIComponent(dt) + "&resume=4";
+
+      async function theme() {
+        try {
+          const res = await fetch("/api/visit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ dt }) });
+          const data = await res.json();
+          const p = data.profile || {};
+          $all("[data-biz]").forEach((el) => (el.textContent = p.biz || "Summit Home Services"));
+          const mk = $("[data-mark]"); if (mk) mk.textContent = (p.biz || "S").trim().charAt(0).toUpperCase();
+          $all("[data-phone]").forEach((el) => ((el as HTMLAnchorElement).href = "tel:" + String(p.phone || "").replace(/[^0-9+]/g, "")));
+          const pt = $("[data-phone-text]"); if (pt) pt.textContent = p.phone || "";
+          const svc = cap(p.label || lead.trade_label || "home services");
+          const ts = $("[data-quote-title]"); if (ts) ts.textContent = `Get a free ${svc.toLowerCase()} quote`;
+          const sv = $("[data-qf-svc]"); if (sv) sv.textContent = svc;
+          const nm = $("[data-qf-name]"); if (nm && (lead.name || data.name)) nm.textContent = lead.name || data.name;
+          document.title = `Free Quote — ${p.biz || "Summit Home Services"}`;
+        } catch {}
+      }
+
+      function animate() {
+        const email = lead.email || "you@yourshop.com";
+        window.setTimeout(() => {
+          const em = $("#qf-email") as HTMLElement;
+          if (em) { em.classList.remove("empty"); em.classList.add("backfill"); em.firstChild && (em.firstChild.textContent = email + " "); ($("#qf-badge") as HTMLElement)?.classList.add("show"); }
+        }, 1100);
+        window.setTimeout(() => {
+          const st = $("#qf-status") as HTMLElement;
+          if (st) { st.textContent = "Recovered lead"; st.classList.remove("abandoned"); st.classList.add("recovered"); }
+          const sub = $("#qf-submit") as HTMLButtonElement;
+          if (sub) { sub.classList.add("go"); sub.disabled = false; sub.textContent = "Lead recovered ✓"; }
+          ($("#qf-aha") as HTMLElement)?.classList.add("show");
+          ($("#qf-actions") as HTMLElement)?.classList.add("show");
+        }, 1900);
+      }
+
+      theme();
+      animate();
+    </script>
+  </body>
+</html>
