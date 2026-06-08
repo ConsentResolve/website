@@ -28,6 +28,9 @@
       .nav { display: flex; gap: 22px; align-items: center; font-size: 15px; color: var(--ink-2); }
       .nav a { color: var(--ink-2); text-decoration: none; white-space: nowrap; }
       .nav .links { display: inline-flex; gap: 22px; align-items: center; }
+      .site-wrap { max-width: none; padding: 0 28px; }
+      .ribbon a { color: #fff; font-weight: 600; text-decoration: none; }
+      .ribbon a:hover { text-decoration: underline; }
       .nav .call { background: var(--brand); color: #fff; padding: 9px 16px; border-radius: 8px; font-weight: 700; }
       @media (max-width: 720px) { .nav .links { display: none; } }
       .qhero { background: linear-gradient(180deg, var(--bg-soft), #fff); padding: 40px 0 56px; }
@@ -54,9 +57,9 @@
     </style>
   </head>
   <body>
-    <div class="ribbon">👋 Welcome back — let's finish your free quote.</div>
+    <div class="ribbon"><a href="https://consentresolve.com/">← Return to consentresolve.com website</a></div>
 
-    <div class="wrap">
+    <div class="wrap site-wrap">
       <header class="site">
         <div class="logo"><span class="mark" data-mark>S</span> <span data-biz>Summit Home Services</span></div>
         <nav class="nav">
