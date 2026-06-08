@@ -563,26 +563,23 @@
         });
       }
 
-      // ---- Step 5: opens the standalone finale page ----
-      function content5() {
-        return `
-          <h2>One last thing — see it all come together.</h2>
-          <p>Every piece firing at once, from anonymous browser to booked job.</p>
+      // ---- Step 5: intro modal, then opens the standalone finale page ----
+      function step5modal() {
+        setStep(5);
+        openModal(`
+          <span class="journey-tag">Step 5 of 5 · It all comes together</span>
+          <h2>Here's the bottom line.</h2>
+          <p>Everything you just saw — consent, the lead, the recovered quote, your funnel — working together. Next, see what it does to your <span class="em">numbers</span>.</p>
           <div class="journey-actions">
-            <button class="btn btn-primary" id="j5-open" type="button">See it all come together →</button>
+            <button class="btn btn-primary" id="j5-next" type="button">Next: see the impact →</button>
           </div>
-        `;
-      }
-
-      function wireFinaleOpen() {
-        ($("#j5-open") as HTMLElement)?.addEventListener("click", () => {
+        `);
+        ($("#j5-next") as HTMLElement)?.addEventListener("click", () => {
           window.location.assign("/demo/sample/together/?dt=" + encodeURIComponent(dt || ""));
         });
       }
 
-      const TOUR = [
-        { num: 5, chip: "Step 5 of 5 · It all comes together", render: content5, onShow: wireFinaleOpen, anchor: "footer.site", pos: "before" },
-      ];
+      const TOUR: any[] = [];
 
       function renderDots() {
         const prog = $("#tour-progress") as HTMLElement;
@@ -689,6 +686,7 @@
           if (lead) { LEAD = lead; EMAILED = emailed; }
           const rn = parseInt(resume, 10);
           if (rn === 4) { step4modal(); return; }
+          if (rn === 5) { step5modal(); return; }
           const idx = TOUR.findIndex((s: any) => s.num === rn);
           if (idx >= 0) { gotoTour(idx); return; }
         }

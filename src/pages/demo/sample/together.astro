@@ -47,6 +47,22 @@
       .payoff { margin-top: 18px; max-width: 620px; padding: 16px 18px; border-radius: 10px; background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; font-size: 15px; font-weight: 600; opacity: 0; animation: fv-in .5s ease forwards; animation-delay: var(--d, 0s); }
       .payoff strong { color: #065f46; }
       .actions { margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; opacity: 0; animation: fv-in .5s ease forwards; animation-delay: 2.2s; }
+      /* Before/after impact: two 100-icon grids */
+      .ba { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; max-width: 640px; margin: 8px 0 4px; }
+      @media (max-width: 560px) { .ba { grid-template-columns: 1fr; } }
+      .ba-col { border: 1px solid var(--line); border-radius: 14px; padding: 16px; background: #fff; }
+      .ba-after { border-color: #6ee7b7; background: #f6fffb; }
+      .ba-h { font-size: 12.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-2); margin-bottom: 10px; }
+      .ba-after .ba-h { color: #047857; }
+      .dotgrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
+      .pdot { width: 100%; aspect-ratio: 1; display: block; fill: #e2e8f0; transition: fill .25s ease; }
+      .pdot.on-before { fill: #1d4ed8; }
+      .pdot.on-after { fill: #16a34a; }
+      .ba-stat { margin-top: 12px; font-size: 14px; color: var(--ink-2); font-weight: 600; }
+      .ba-num { font-size: 30px; font-weight: 800; color: var(--ink); }
+      .ba-after .ba-num { color: #047857; }
+      .ba-cap { margin-top: 4px; font-size: 12.5px; color: var(--ink-2); }
+      .ba-note { font-size: 12px; color: #94a3b8; margin-top: 12px; max-width: 640px; }
       footer.site { border-top: 1px solid var(--line); padding: 28px 0; color: var(--ink-2); font-size: 14px; }
     </style>
   </head>
@@ -72,16 +88,24 @@
     <section class="qhero">
       <div class="wrap">
         <span class="tag">It all comes together</span>
-        <h1>Here's the whole play, working together.</h1>
-        <p class="lede">One consented visitor, every piece firing at once — from anonymous browser to booked job.</p>
+        <h1>Same 100 visitors. A very different month.</h1>
+        <p class="lede">Most of the people you already pay to reach never fill out a form. Watch what changes when you can follow up with the ones who consent.</p>
 
-        <div class="finale">
-          <div class="fin-step" style="--d:.15s"><span class="fc">1</span><div>A homeowner browses <span data-biz>your shop</span><small>traffic you already paid to bring in</small></div></div>
-          <div class="fin-step" style="--d:.45s"><span class="fc">2</span><div>They consent<small>now they're identifiable — real name + email</small></div></div>
-          <div class="fin-step" style="--d:.75s"><span class="fc">3</span><div>Their half-finished quote is recovered<small>email backfilled — no dead form</small></div></div>
-          <div class="fin-step" style="--d:1.05s"><span class="fc">4</span><div>They drop into your funnel<small>CRM + retargeting + your own follow-up</small></div></div>
-          <div class="fin-step" style="--d:1.35s"><span class="fc">5</span><div>They come back and call you<small>warm inbound, ready to book</small></div></div>
+        <div class="ba">
+          <div class="ba-col">
+            <div class="ba-h">Just a form on your site</div>
+            <div class="dotgrid" data-grid="before"></div>
+            <div class="ba-stat"><span class="ba-num" data-num-before>0</span>% become leads</div>
+            <div class="ba-cap">~2 of 100 visitors fill out a form</div>
+          </div>
+          <div class="ba-col ba-after">
+            <div class="ba-h">With Consent Resolve</div>
+            <div class="dotgrid" data-grid="after"></div>
+            <div class="ba-stat"><span class="ba-num" data-num-after>0</span>% resolved</div>
+            <div class="ba-cap">~35 of 100 identified after they consent</div>
+          </div>
         </div>
+        <div class="ba-note">Illustrative — actual rates vary by traffic and trade.</div>
 
         <div class="payoff" style="--d:1.8s">More booked jobs from traffic you already have — at a flat <strong>$7 a lead</strong>, yours alone, never resold.</div>
 
@@ -121,6 +145,57 @@
           document.title = `It all comes together — ${p.biz || "Summit Home Services"}`;
         } catch {}
       })();
+
+      // ---- Before/after impact animation: two 100-icon grids ----
+      const PERSON = '<svg class="pdot" viewBox="0 0 24 24"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-5 0-9 2.5-9 6v2h18v-2c0-3.5-4-6-9-6z"/></svg>';
+
+      function fillGrid(sel: string) {
+        const g = $(sel) as HTMLElement | null;
+        if (g) g.innerHTML = PERSON.repeat(100);
+        return $all(sel + " .pdot") as HTMLElement[];
+      }
+
+      function lightUp(dots: HTMLElement[], count: number, cls: string, perDelay: number, startDelay: number) {
+        for (let k = 0; k < count; k++) {
+          const idx = (k * 37) % 100; // bijective scatter across the 10x10 grid
+          window.setTimeout(() => dots[idx] && dots[idx].classList.add(cls), startDelay + k * perDelay);
+        }
+      }
+
+      function countUp(sel: string, target: number, ms: number, startDelay: number) {
+        const el = $(sel) as HTMLElement | null;
+        if (!el) return;
+        window.setTimeout(() => {
+          let t0 = 0;
+          const step = (now: number) => {
+            if (!t0) t0 = now;
+            const p = Math.min(1, (now - t0) / ms);
+            el.textContent = String(Math.round(p * target));
+            if (p < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        }, startDelay);
+      }
+
+      function runImpact() {
+        const before = fillGrid('[data-grid="before"]');
+        const after = fillGrid('[data-grid="after"]');
+        lightUp(before, 2, "on-before", 220, 500);
+        countUp("[data-num-before]", 2, 700, 500);
+        lightUp(after, 35, "on-after", 45, 1100);
+        countUp("[data-num-after]", 35, 2000, 1100);
+      }
+
+      // Run once the grids scroll into view (or immediately if already visible).
+      const baEl = $(".ba");
+      if (baEl && "IntersectionObserver" in window) {
+        const io = new IntersectionObserver((entries, obs) => {
+          if (entries[0].isIntersecting) { runImpact(); obs.disconnect(); }
+        }, { threshold: 0.3 });
+        io.observe(baEl);
+      } else {
+        window.setTimeout(runImpact, 400);
+      }
     </script>
   </body>
 </html>
