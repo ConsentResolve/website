@@ -235,7 +235,8 @@
 
       /* Sample quote form (lands here from the nurture email's CTA) */
       section.quote { background: var(--bg-soft); }
-      .quote-card { max-width: 640px; margin: 0 auto; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 26px; }
+      .quote-card { max-width: 640px; margin: 0 auto; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 26px; transition: box-shadow 0.4s ease, border-color 0.4s ease; scroll-margin-top: 80px; }
+      .quote-card.spot { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(29,78,216,0.30), 0 18px 40px rgba(29,78,216,0.15); }
       .quote-card h2 { margin: 0 0 4px; font-size: 26px; font-weight: 800; }
       .quote-card .qsub { color: var(--ink-2); margin: 0 0 18px; }
       .qgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -611,11 +612,17 @@
       }
 
       const TOUR = [
-        { chip: "Step 2 of 5 · The lead lands", render: content2 },
-        { chip: "Step 3 of 5 · Quote recovery", render: content3, onShow: animateQuoteRecovery },
-        { chip: "Step 4 of 5 · Feed your funnel", render: content4 },
-        { chip: "Step 5 of 5 · It all comes together", render: content5 },
+        { chip: "Step 2 of 5 · The lead lands", render: content2, scrollTo: "top" },
+        { chip: "Step 3 of 5 · Quote recovery", render: content3, onShow: animateQuoteRecovery, scrollTo: "#quote", spot: "#quote-card" },
+        { chip: "Step 4 of 5 · Feed your funnel", render: content4, scrollTo: "top" },
+        { chip: "Step 5 of 5 · It all comes together", render: content5, scrollTo: "top" },
       ];
+
+      function tourScroll(target: string | undefined) {
+        if (!target) return;
+        if (target === "top") { window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+        document.querySelector(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
 
       function renderDots() {
         const prog = $("#tour-progress") as HTMLElement;
@@ -633,6 +640,11 @@
         setStep(TOURI + 2);
         ($("#tour-back") as HTMLElement).style.visibility = TOURI === 0 ? "hidden" : "visible";
         ($("#tour-next") as HTMLElement).style.display = TOURI === TOUR.length - 1 ? "none" : "";
+        // Narrate against the real page: scroll to the step's anchor and, for the
+        // quote step, spotlight the actual form on the site.
+        document.querySelector("#quote-card")?.classList.remove("spot");
+        tourScroll(step.scrollTo);
+        if (step.spot) window.setTimeout(() => document.querySelector(step.spot)?.classList.add("spot"), 400);
         step.onShow && step.onShow();
       }
 
