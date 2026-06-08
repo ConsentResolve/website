@@ -26,8 +26,8 @@
   // SALES_WEBHOOK_URL, TEAM_NOTIFY_URL) are set via `wrangler secret put` or the
   // dashboard — never commit them.
   "vars": {
-    "FROM_EMAIL": "Tyler Spurlock <sale@getconsentresolve.com>",
-    "REPLY_TO": "sale@getconsentresolve.com",
+    "FROM_EMAIL": "Tyler Spurlock <sales@getconsentresolve.com>",
+    "REPLY_TO": "sales@getconsentresolve.com",
     "EMAIL_MODE": "promo",
     "SAMPLE_PATH": "/demo/sample/",
     "CONSENT_TEXT_VERSION": "v1-2026-06",
