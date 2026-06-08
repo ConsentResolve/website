@@ -20,7 +20,16 @@ function row(label, value) {
   </tr>`;
 }
 
-function ownerHtml(p, env) {
+// CAN-SPAM footer: physical mailing address + one-click-aligned unsubscribe link.
+function unsubUrl(p, env, baseUrl) {
+  const base = (baseUrl || env.BASE_URL || "https://consentresolve.com").replace(/\/$/, "");
+  return `${base}/api/unsubscribe?dt=${encodeURIComponent(p.id || "")}`;
+}
+function unsubFooter(p, env, baseUrl) {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto"><tr><td style="padding:16px 28px 4px;text-align:center;font-size:11px;color:#94a3b8;line-height:1.6">Consent Resolve · 1907 Gulf Way #1, St Pete Beach, FL 33706<br/><a href="${unsubUrl(p, env, baseUrl)}" style="color:#94a3b8;text-decoration:underline">Unsubscribe</a></td></tr></table>`;
+}
+
+function ownerHtml(p, env, baseUrl) {
   const t = tradeProfile(p.trade);
   return `<!doctype html><html><body style="margin:0;padding:24px;background:#f1f5f9;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:${NAVY}">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto">
@@ -46,7 +55,7 @@ function ownerHtml(p, env) {
       </div>
       <p style="margin:22px 0 0;font-size:12px;color:#94a3b8;line-height:1.5">Consent captured ${esc(p.consented_at)} · consent text version ${esc(env.CONSENT_TEXT_VERSION || "v1")}. This is a demo: the only "lead" here is you.</p>
     </td></tr>
-  </table></body></html>`;
+  </table>${unsubFooter(p, env, baseUrl)}</body></html>`;
 }
 
 // Visitor-facing nurture email — this is the message the HOMEOWNER receives, so
@@ -79,10 +88,10 @@ function promoHtml(p, env, baseUrl) {
       <p style="margin:20px 0 0;font-size:13px;color:#64748b;line-height:1.5">No pressure, and no spam — you'll only hear from us because you asked. Reply anytime and a real person answers.</p>
       <p style="margin:14px 0 0;font-size:11px;color:#94a3b8;line-height:1.5">This is a Consent Resolve demo — ${esc(t.biz)} is fictional and the only person we emailed is you. It shows the consented follow-up that pulls a visitor back to call you or finish their quote.</p>
     </td></tr>
-  </table></body></html>`;
+  </table>${unsubFooter(p, env, baseUrl)}</body></html>`;
 }
 
-function customerHtml(p, env) {
+function customerHtml(p, env, baseUrl) {
   const t = tradeProfile(p.trade);
   return `<!doctype html><html><body style="margin:0;padding:24px;background:#f1f5f9;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:${NAVY}">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto">
@@ -95,7 +104,7 @@ function customerHtml(p, env) {
         <a href="https://consentresolve.com/how-it-works/" style="display:inline-block;background:${MINT};color:${NAVY};padding:14px 26px;border-radius:8px;text-decoration:none;font-weight:700">See how it works →</a>
       </div>
     </td></tr>
-  </table></body></html>`;
+  </table>${unsubFooter(p, env, baseUrl)}</body></html>`;
 }
 
 // Build the email (subject + html) for a given mode. Shared by the live send
@@ -107,10 +116,10 @@ export function renderEmail(env, p, baseUrl, modeOverride) {
   const mode = (modeOverride || env.EMAIL_MODE || "promo").toLowerCase();
   const t = tradeProfile(p.trade);
   if (mode === "owner") {
-    return { subject: `🎯 New identified lead: ${p.name} from ${p.business_name || "your demo"}`, html: ownerHtml(p, env) };
+    return { subject: `New identified lead: ${p.name} from ${p.business_name || "your demo"}`, html: ownerHtml(p, env, baseUrl) };
   }
   if (mode === "customer") {
-    return { subject: "Thanks for visiting — your consent is on file", html: customerHtml(p, env) };
+    return { subject: "Thanks for visiting — your consent is on file", html: customerHtml(p, env, baseUrl) };
   }
   return { subject: `Your free ${t.label} quote from ${t.biz} — let's get you booked`, html: promoHtml(p, env, baseUrl) };
 }
@@ -119,6 +128,8 @@ export async function sendRevealEmail(env, p, baseUrl) {
   if (!env.RESEND_API_KEY) return { ok: false, error: "missing_resend_key" };
 
   const { subject, html } = renderEmail(env, p, baseUrl);
+  const base = (baseUrl || env.BASE_URL || "https://consentresolve.com").replace(/\/$/, "");
+  const unsub = `${base}/api/unsubscribe?dt=${encodeURIComponent(p.id || "")}`;
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -132,6 +143,10 @@ export async function sendRevealEmail(env, p, baseUrl) {
       reply_to: env.REPLY_TO || undefined,
       subject,
       html,
+      headers: {
+        "List-Unsubscribe": `<${unsub}>, <mailto:unsubscribe@consentresolve.com?subject=unsubscribe>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
     }),
   });
 

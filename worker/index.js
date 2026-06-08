@@ -13,6 +13,7 @@ import * as visit from "./api/visit.js";
 import * as consent from "./api/consent.js";
 import * as status from "./api/status.js";
 import * as preview from "./api/preview.js";
+import * as unsubscribe from "./api/unsubscribe.js";
 
 const ROUTES = {
   "/api/register": register,
@@ -20,6 +21,7 @@ const ROUTES = {
   "/api/consent": consent,
   "/api/status": status,
   "/api/preview": preview,
+  "/api/unsubscribe": unsubscribe,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
