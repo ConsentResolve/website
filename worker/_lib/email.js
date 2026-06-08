@@ -59,7 +59,7 @@ function promoHtml(p, env, baseUrl) {
   const BLUE = "#1d4ed8";
   const tel = "tel:" + String(t.phone || "").replace(/[^0-9+]/g, "");
   const base = (baseUrl || env.BASE_URL || "https://consentresolve.com").replace(/\/$/, "");
-  const quoteUrl = `${base}/demo/sample/?dt=${encodeURIComponent(p.id || "")}#quote`;
+  const quoteUrl = `${base}/demo/sample/quote/?dt=${encodeURIComponent(p.id || "")}`;
   const first = String(p.name || "there").split(/\s+/)[0];
   return `<!doctype html><html><body style="margin:0;padding:24px;background:#f1f5f9;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#0f172a">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto">

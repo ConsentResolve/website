@@ -336,25 +336,6 @@
       </div>
     </section>
 
-    <section class="block quote" id="quote">
-      <div class="wrap">
-        <div class="quote-card" id="quote-card">
-          <h2>Get your free quote</h2>
-          <p class="qsub">Tell us what you need — we'll get right back to you. No obligation.</p>
-          <form id="quote-form">
-            <div class="qgrid">
-              <div class="qfield"><label for="qname">Name</label><input id="qname" name="qname" type="text" required placeholder="Your name" /></div>
-              <div class="qfield"><label for="qemail">Email</label><input id="qemail" name="qemail" type="email" required placeholder="you@email.com" /></div>
-              <div class="qfield"><label for="qphone">Phone</label><input id="qphone" name="qphone" type="tel" placeholder="(555) 555-5555" /></div>
-              <div class="qfield"><label for="qservice">Service needed</label><input id="qservice" name="qservice" type="text" data-quote-svc placeholder="What can we help with?" /></div>
-              <div class="qfield full"><label for="qdetails">Details</label><textarea id="qdetails" name="qdetails" rows="3" placeholder="Tell us a little about the job"></textarea></div>
-            </div>
-            <button class="quote-submit" type="submit">Request my free quote</button>
-          </form>
-        </div>
-      </div>
-    </section>
-
     <footer class="site">
       <div class="wrap">
         <span data-biz>Summit Home Services</span> · Licensed &amp; insured · <span data-phone-text>(555) 010-0100</span>
@@ -520,7 +501,7 @@
           <h2>That consent just became a lead.</h2>
           <p>The moment they accepted — a real name and a consented email is <span class="em">revealed</span>, yours alone.</p>
           ${leadCard(lead)}
-          <div class="aha"><strong>This lead is you.</strong> Not a number to cold-call, not a shared lead. ${EMAILED ? "We also emailed you the flip side — the friendly nudge your customer gets to call you or finish their quote." : "Your customer gets a friendly nudge to call you or finish their quote."}</div>
+          <div class="aha">For the purposes of this demo you are seeing yourself as a customer. ${EMAILED ? "We also just sent you an email (as a customer) with nudges to call or get a free quote." : "Your customer would also get an email with nudges to call or get a free quote."}</div>
         `;
       }
 
@@ -587,8 +568,8 @@
 
       const TOUR = [
         { chip: "Step 2 of 5 · The lead lands", render: content2, anchor: "#services", pos: "before" },
-        { chip: "Step 3 of 5 · Quote recovery", render: content3, onShow: wireQuoteOpen, anchor: "#quote", pos: "before" },
-        { chip: "Step 4 of 5 · Feed your funnel", render: content4, anchor: "#quote", pos: "after" },
+        { chip: "Step 3 of 5 · Quote recovery", render: content3, onShow: wireQuoteOpen, anchor: "#reviews", pos: "before" },
+        { chip: "Step 4 of 5 · Feed your funnel", render: content4, anchor: "#reviews", pos: "after" },
         { chip: "Step 5 of 5 · It all comes together", render: content5, anchor: "footer.site", pos: "before" },
       ];
 
@@ -679,16 +660,6 @@
         window.location.assign(`/demo/done/?dt=${encodeURIComponent(dt)}`);
       });
 
-      // Sample quote form — submits nowhere (it's a demo); shows a thank-you.
-      $("#quote-form")?.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const form = e.currentTarget as HTMLFormElement;
-        const nm = (form.querySelector('[name="qname"]') as HTMLInputElement)?.value.trim() || "there";
-        const biz = (PROFILE && PROFILE.biz) || "We";
-        ($("#quote-card") as HTMLElement).innerHTML =
-          `<div class="quote-done"><div class="big">✅</div><h2>Thanks, ${esc(nm)}!</h2><p class="qsub">Your request is in — ${esc(biz)} will reach out shortly to get you scheduled.</p></div>`;
-      });
-
       async function init() {
         try {
           const res = await fetch("/api/visit", {
@@ -709,12 +680,6 @@
           let lead: any = null, emailed = false;
           try { lead = JSON.parse(sessionStorage.getItem("cr_lead") || "null"); emailed = sessionStorage.getItem("cr_emailed") === "1"; } catch {}
           if (lead) { LEAD = lead; EMAILED = emailed; gotoTour(Math.max(0, parseInt(resume, 10) - 2)); return; }
-        }
-        // Arriving from the nurture email's "Finish your quote" link → skip the
-        // guided modal and drop them straight on the quote form.
-        if (location.hash === "#quote") {
-          document.getElementById("quote")?.scrollIntoView({ behavior: "smooth" });
-          return;
         }
         // Otherwise kick off the guided journey once the page has themed.
         setTimeout(step1, 700);
