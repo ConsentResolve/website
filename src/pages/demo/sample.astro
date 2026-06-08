@@ -177,7 +177,10 @@
       .point-row strong { color: var(--ink); }
 
       /* The reveal-email preview (this DOES look like the real CR notification) */
-      .emailcard { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin: 6px 0 4px; }
+      .emailcard { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin: 6px 0 4px; transition: outline 0.3s ease; }
+      .emailcard.is-final { outline: 2px solid #00e5a0; outline-offset: 1px; }
+      .lead-reveal { opacity: 0; transition: opacity 0.4s ease; }
+      .lead-reveal.show { opacity: 1; }
       .emailcard .eh { background: #0a1628; padding: 15px 18px; }
       .emailcard .eh .tag { color: #00e5a0; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 800; }
       .emailcard .eh .subj { color: #fff; font-size: 16px; font-weight: 700; margin-top: 4px; }
@@ -481,13 +484,14 @@
       }
 
       // ---- Step 2: the lead that just landed ----
-      function leadCard(lead: any) {
+      function leadCard(lead: any, isFinal: boolean) {
         const page = lead.sample_page || "/demo/sample/";
+        const subj = isFinal ? "🎯 New identified lead" : "🔍 Identifying visitor…";
         return `
-          <div class="emailcard">
+          <div class="emailcard${isFinal ? " is-final" : ""}">
             <div class="eh">
               <div class="tag">Consent Resolve</div>
-              <div class="subj">🎯 New identified lead</div>
+              <div class="subj">${subj}</div>
             </div>
             <div class="eb">
               <table>
@@ -507,28 +511,37 @@
       let EMAILED = false;
       let TOURI = 0;
 
-      // ---- Step 2: the lead that just landed ----
-      function content2() {
-        const lead = LEAD || {};
-        return `
-          <h2>That consent just became a lead.</h2>
-          <p>The moment they accepted — a real name and a consented email is <span class="em">revealed</span>, yours alone.</p>
-          ${leadCard(lead)}
-          <div class="aha">For the purposes of this demo you are seeing yourself as a customer. ${EMAILED ? "We also just sent you an email (as a customer) with nudges to call or get a free quote." : "Your customer would also get an email with nudges to call or get a free quote."}</div>
-        `;
-      }
-
-      // Step 2 is shown as a modal (like Step 1); its Next starts the page tour.
+      // ---- Step 2 modal: scan two sample records, then land on YOU ----
       function step2modal() {
         setStep(2);
+        const label = (LEAD && LEAD.trade_label) || (PROFILE && PROFILE.label) || "home services";
+        const page = (LEAD && LEAD.sample_page) || "/demo/sample/";
+        const when = (LEAD && LEAD.consented_at) || "";
+        const SAMPLE = [
+          { name: "Morgan Lee", email: "morgan.lee@gmail.com", business_name: "", trade_label: label, sample_page: page, consented_at: when },
+          { name: "Chris Daniels", email: "c.daniels@outlook.com", business_name: "", trade_label: label, sample_page: page, consented_at: when },
+        ];
+        const aha = `For the purposes of this demo you are seeing yourself as a customer. ${EMAILED
+          ? "We also just sent you an email (as a customer) with nudges to call or get a free quote, check your inbox for an example."
+          : "Your customer would also get an email with nudges to call or get a free quote, check your inbox for an example."}`;
         openModal(`
           <span class="journey-tag">Step 2 of 5 · The lead lands</span>
-          ${content2()}
-          <div class="journey-actions">
+          <h2>That consent just became a lead.</h2>
+          <p>The moment they accepted — a real name and a consented email is <span class="em">revealed</span>, yours alone.</p>
+          <div id="lead-slot">${leadCard(SAMPLE[0], false)}</div>
+          <div class="aha lead-reveal" id="lead-aha">${aha}</div>
+          <div class="journey-actions lead-reveal" id="lead-next">
             <button class="btn btn-primary" id="j2-next" type="button">Next: recover an abandoned quote →</button>
           </div>
         `);
         ($("#j2-next") as HTMLElement)?.addEventListener("click", () => { closeModal(); step3modal(); });
+        // Cycle through two sample records, then settle on the participant's own.
+        window.setTimeout(() => { const s = $("#lead-slot"); if (s) s.innerHTML = leadCard(SAMPLE[1], false); }, 850);
+        window.setTimeout(() => {
+          const s = $("#lead-slot"); if (s) s.innerHTML = leadCard(LEAD || {}, true);
+          ($("#lead-aha") as HTMLElement)?.classList.add("show");
+          ($("#lead-next") as HTMLElement)?.classList.add("show");
+        }, 1700);
       }
 
       // ---- Step 3: intro modal, then opens the animated quote page ----
