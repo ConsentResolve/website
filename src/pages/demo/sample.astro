@@ -539,32 +539,28 @@
         });
       }
 
-      // ---- Step 5: it all comes together ----
+      // ---- Step 5: opens the standalone finale page ----
       function content5() {
-        const biz = (PROFILE && PROFILE.biz) || "your shop";
         return `
-          <h2>Here's the whole play, working together.</h2>
-          <p>One consented visitor, every piece firing at once — from anonymous browser to booked job.</p>
-          <div class="finale">
-            <div class="fin-step" style="--d:.1s"><span class="fc">1</span><div>A homeowner browses ${esc(biz)}<small>traffic you already paid to bring in</small></div></div>
-            <div class="fin-step" style="--d:.4s"><span class="fc">2</span><div>They consent<small>now they're identifiable — real name + email</small></div></div>
-            <div class="fin-step" style="--d:.7s"><span class="fc">3</span><div>Their half-finished quote is recovered<small>email backfilled — no dead form</small></div></div>
-            <div class="fin-step" style="--d:1s"><span class="fc">4</span><div>They drop into your funnel<small>CRM + retargeting + your own follow-up</small></div></div>
-            <div class="fin-step" style="--d:1.3s"><span class="fc">5</span><div>They come back and call you<small>warm inbound, ready to book</small></div></div>
-          </div>
-          <div class="payoff" style="--d:1.7s">More booked jobs from traffic you already have — at a flat <strong>$7 a lead</strong>, yours alone, never resold.</div>
-          <div class="journey-actions" style="margin-top:16px">
-            <a class="btn btn-primary" href="https://consentresolve.com/pricing/">Start getting real leads — flat $7 a lead →</a>
-            <a class="btn btn-ghost" href="/demo/">Replay the demo</a>
+          <h2>One last thing — see it all come together.</h2>
+          <p>Every piece firing at once, from anonymous browser to booked job.</p>
+          <div class="journey-actions">
+            <button class="btn btn-primary" id="j5-open" type="button">See it all come together →</button>
           </div>
         `;
+      }
+
+      function wireFinaleOpen() {
+        ($("#j5-open") as HTMLElement)?.addEventListener("click", () => {
+          window.location.assign("/demo/sample/together/?dt=" + encodeURIComponent(dt || ""));
+        });
       }
 
       const TOUR = [
         { chip: "Step 2 of 5 · The lead lands", render: content2, anchor: "#services", pos: "before" },
         { chip: "Step 3 of 5 · Quote recovery", render: content3, onShow: wireQuoteOpen, anchor: "#reviews", pos: "before" },
         { chip: "Step 4 of 5 · Feed your funnel", render: content4, onShow: wireFunnelOpen, anchor: "#reviews", pos: "after" },
-        { chip: "Step 5 of 5 · It all comes together", render: content5, anchor: "footer.site", pos: "before" },
+        { chip: "Step 5 of 5 · It all comes together", render: content5, onShow: wireFinaleOpen, anchor: "footer.site", pos: "before" },
       ];
 
       function renderDots() {
