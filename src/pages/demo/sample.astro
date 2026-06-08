@@ -250,10 +250,15 @@
       .quote-done { text-align: center; padding: 26px 10px; }
       .quote-done .big { font-size: 42px; }
 
-      /* On-page guided tour (Steps 2–5) — a docked panel, not a blocking modal */
-      .tour { position: fixed; right: 20px; bottom: 20px; width: 420px; max-width: calc(100vw - 32px); z-index: 90; display: none; }
-      .tour.show { display: block; animation: tour-in 0.3s ease; }
-      @keyframes tour-in { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+      /* On-page guided tour (Steps 2–5) — inline bubbles/callouts anchored to
+         real page elements (JS sets top/left + the pointer). */
+      .tour { position: fixed; top: 20px; left: 20px; width: 380px; max-width: calc(100vw - 28px); z-index: 95; display: none; }
+      .tour.show { display: block; animation: tour-in 0.25s ease; }
+      @keyframes tour-in { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: none; } }
+      .tour-arrow { position: absolute; width: 0; height: 0; left: 24px; }
+      .tour.place-below .tour-arrow { top: -10px; border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 10px solid #fff; filter: drop-shadow(0 -1px 0 var(--line)); }
+      .tour.place-above .tour-arrow { bottom: -10px; border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 10px solid #fff; filter: drop-shadow(0 1px 0 var(--line)); }
+      .tour.dock-bottom .tour-arrow { display: none; }
       .tour-card { background: #fff; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 60px rgba(8,15,30,0.28); display: flex; flex-direction: column; max-height: 86vh; overflow: hidden; }
       .tour-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; border-bottom: 1px solid var(--line); }
       .tour-chip { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); background: #eff6ff; padding: 5px 10px; border-radius: 999px; }
@@ -269,10 +274,9 @@
       .tour-btn { padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
       .tour-btn.back { background: #fff; border: 1px solid var(--line); color: var(--ink); }
       .tour-btn.next { background: var(--brand); border: none; color: #fff; }
-      @media (max-width: 560px) {
-        .tour { left: 0; right: 0; bottom: 0; width: auto; max-width: none; }
-        .tour-card { border-radius: 16px 16px 0 0; max-height: 80vh; }
-      }
+      .tour.dock-bottom { left: 0 !important; right: 0; top: auto !important; bottom: 0; width: auto; max-width: none; }
+      .tour.dock-bottom .tour-card { border-radius: 16px 16px 0 0; max-height: 78vh; }
+      .tour-target-hl { outline: 3px solid rgba(29,78,216,0.55); outline-offset: 4px; border-radius: 10px; transition: outline 0.25s ease; }
 
       /* Step 5 — finale (staggered checklist + payoff) */
       .finale { margin: 6px 0 2px; }
@@ -386,6 +390,7 @@
 
     <!-- Steps 2–5: on-page docked guided tour (non-blocking) -->
     <div class="tour" id="tour" aria-live="polite" aria-label="Guided tour">
+      <div class="tour-arrow" id="tour-arrow"></div>
       <div class="tour-card">
         <div class="tour-head">
           <span class="tour-chip" id="tour-chip">Step 2 of 5</span>
@@ -612,21 +617,51 @@
       }
 
       const TOUR = [
-        { chip: "Step 2 of 5 · The lead lands", render: content2, scrollTo: "top" },
-        { chip: "Step 3 of 5 · Quote recovery", render: content3, onShow: animateQuoteRecovery, scrollTo: "#quote", spot: "#quote-card" },
-        { chip: "Step 4 of 5 · Feed your funnel", render: content4, scrollTo: "top" },
-        { chip: "Step 5 of 5 · It all comes together", render: content5, scrollTo: "top" },
+        { chip: "Step 2 of 5 · The lead lands", render: content2, target: "header.site", place: "below" },
+        { chip: "Step 3 of 5 · Quote recovery", render: content3, onShow: animateQuoteRecovery, target: "#quote-card", place: "above" },
+        { chip: "Step 4 of 5 · Feed your funnel", render: content4, target: "#services .section-title", place: "below" },
+        { chip: "Step 5 of 5 · It all comes together", render: content5, target: "header.site", place: "below" },
       ];
-
-      function tourScroll(target: string | undefined) {
-        if (!target) return;
-        if (target === "top") { window.scrollTo({ top: 0, behavior: "smooth" }); return; }
-        document.querySelector(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
 
       function renderDots() {
         const prog = $("#tour-progress") as HTMLElement;
         if (prog) prog.innerHTML = TOUR.map((_, i) => `<span class="tdot ${i === TOURI ? "on" : ""}"></span>`).join("");
+      }
+
+      function clearHighlight() {
+        $all(".tour-target-hl").forEach((e) => e.classList.remove("tour-target-hl"));
+      }
+
+      // Anchor the bubble next to the current step's target element, with a
+      // pointer; falls back to a bottom sheet on small screens / no target.
+      function positionCurrent() {
+        const bub = $("#tour") as HTMLElement;
+        if (!bub.classList.contains("show")) return;
+        const step = TOUR[TOURI] as any;
+        const t = step.target ? (document.querySelector(step.target) as HTMLElement) : null;
+        if (!t || window.innerWidth < 560) {
+          bub.classList.add("dock-bottom");
+          bub.classList.remove("place-below", "place-above");
+          bub.style.top = ""; bub.style.left = "";
+          return;
+        }
+        bub.classList.remove("dock-bottom");
+        const r = t.getBoundingClientRect();
+        const bw = bub.offsetWidth, bh = bub.offsetHeight, gap = 16, m = 14;
+        let place = step.place || "auto";
+        const below = window.innerHeight - r.bottom, above = r.top;
+        if (place === "auto") place = below > bh + gap + m ? "below" : above > bh + gap + m ? "above" : below >= above ? "below" : "above";
+        let top = place === "below" ? r.bottom + gap : r.top - bh - gap;
+        top = Math.max(m, Math.min(top, window.innerHeight - bh - m));
+        let left = r.left + r.width / 2 - bw / 2;
+        left = Math.max(m, Math.min(left, window.innerWidth - bw - m));
+        bub.style.top = top + "px";
+        bub.style.left = left + "px";
+        bub.classList.toggle("place-below", place === "below");
+        bub.classList.toggle("place-above", place === "above");
+        const arrow = $("#tour-arrow") as HTMLElement;
+        let ax = r.left + r.width / 2 - left;
+        arrow.style.left = Math.max(18, Math.min(ax, bw - 18)) + "px";
       }
 
       function gotoTour(i: number) {
@@ -640,23 +675,33 @@
         setStep(TOURI + 2);
         ($("#tour-back") as HTMLElement).style.visibility = TOURI === 0 ? "hidden" : "visible";
         ($("#tour-next") as HTMLElement).style.display = TOURI === TOUR.length - 1 ? "none" : "";
-        // Narrate against the real page: scroll to the step's anchor and, for the
-        // quote step, spotlight the actual form on the site.
-        document.querySelector("#quote-card")?.classList.remove("spot");
-        tourScroll(step.scrollTo);
-        if (step.spot) window.setTimeout(() => document.querySelector(step.spot)?.classList.add("spot"), 400);
+        clearHighlight();
+        const t = step.target ? (document.querySelector(step.target) as HTMLElement) : null;
+        if (t) { t.classList.add("tour-target-hl"); t.scrollIntoView({ behavior: "smooth", block: "center" }); }
+        positionCurrent();
+        window.setTimeout(positionCurrent, 200);
+        window.setTimeout(positionCurrent, 460);
         step.onShow && step.onShow();
       }
 
       function startTour(lead: any, emailed: boolean) {
         LEAD = lead; EMAILED = emailed; TOURI = 0;
         ($("#tour") as HTMLElement).classList.add("show");
+        window.addEventListener("scroll", positionCurrent, { passive: true });
+        window.addEventListener("resize", positionCurrent);
         gotoTour(0);
+      }
+
+      function endTour() {
+        ($("#tour") as HTMLElement).classList.remove("show");
+        clearHighlight();
+        window.removeEventListener("scroll", positionCurrent);
+        window.removeEventListener("resize", positionCurrent);
       }
 
       $("#tour-back")?.addEventListener("click", () => gotoTour(TOURI - 1));
       $("#tour-next")?.addEventListener("click", () => gotoTour(TOURI + 1));
-      $("#tour-close")?.addEventListener("click", () => ($("#tour") as HTMLElement).classList.remove("show"));
+      $("#tour-close")?.addEventListener("click", endTour);
 
       // ---- wire the banner ----
       $("#cr-decline")?.addEventListener("click", () => {
