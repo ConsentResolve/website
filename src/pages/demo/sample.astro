@@ -523,27 +523,39 @@
           { name: "Morgan Lee", email: "morgan.lee@gmail.com", business_name: "", trade_label: label, sample_page: page, consented_at: when },
           { name: "Chris Daniels", email: "c.daniels@outlook.com", business_name: "", trade_label: label, sample_page: page, consented_at: when },
         ];
-        const aha = `For the purposes of this demo you are seeing yourself as a customer. ${EMAILED
-          ? "We also just sent you an email (as a customer) with nudges to call or get a free quote, check your inbox for an example."
-          : "Your customer would also get an email with nudges to call or get a free quote, check your inbox for an example."}`;
         openModal(`
           <span class="journey-tag">Step 2 of 5 · The lead lands</span>
           <h2>That consent just became a lead.</h2>
           <p>The moment they accepted — a real name and a consented email is <span class="em">revealed</span>, yours alone.</p>
           <div id="lead-slot">${leadCard(SAMPLE[0], false)}</div>
-          <div class="aha lead-reveal" id="lead-aha">${aha}</div>
+          <div class="aha lead-reveal" id="lead-aha">For the purposes of this demo, you're seeing yourself as a customer — that consented record is <strong>you</strong>.</div>
           <div class="journey-actions lead-reveal" id="lead-next">
-            <button class="btn btn-primary" id="j2-next" type="button">Next: recover an abandoned quote →</button>
+            <button class="btn btn-primary" id="j2-next" type="button">Next →</button>
           </div>
         `);
-        ($("#j2-next") as HTMLElement)?.addEventListener("click", () => { closeModal(); step3modal(); });
-        // Cycle through two sample records, then settle on the participant's own.
-        window.setTimeout(() => { const s = $("#lead-slot"); if (s) s.innerHTML = leadCard(SAMPLE[1], false); }, 1000);
+        ($("#j2-next") as HTMLElement)?.addEventListener("click", () => step2inbox());
+        // Cycle through two sample records (slow), then settle on the participant's own.
+        window.setTimeout(() => { const s = $("#lead-slot"); if (s) s.innerHTML = leadCard(SAMPLE[1], false); }, 1500);
         window.setTimeout(() => {
           const s = $("#lead-slot"); if (s) s.innerHTML = leadCard(LEAD || {}, true);
           ($("#lead-aha") as HTMLElement)?.classList.add("show");
           ($("#lead-next") as HTMLElement)?.classList.add("show");
-        }, 2000);
+        }, 3000);
+      }
+
+      // Step 2 final screen: point them to the example email in their inbox.
+      function step2inbox() {
+        setStep(2);
+        openModal(`
+          <span class="journey-tag">Step 2 of 5 · The lead lands</span>
+          <div style="text-align:center"><div style="font-size:46px;line-height:1">📬</div></div>
+          <h2 style="text-align:center">Check your inbox.</h2>
+          <p>${EMAILED ? "We just emailed you" : "Your customer gets"} an example of the message that turns a <span class="em">cold, anonymous website visitor</span> into a warm lead — a friendly nudge to call you or finish their quote.${EMAILED ? " Open it to see exactly what they'd receive." : ""}</p>
+          <div class="journey-actions">
+            <button class="btn btn-primary" id="j2-go" type="button">Next: recover an abandoned quote →</button>
+          </div>
+        `);
+        ($("#j2-go") as HTMLElement)?.addEventListener("click", () => { closeModal(); step3modal(); });
       }
 
       // ---- Step 3: intro modal, then opens the animated quote page ----
