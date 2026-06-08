@@ -12,20 +12,15 @@
     "binding": "ASSETS"
   },
   // ── Live demo D1 ──────────────────────────────────────────────────────────
-  // DISABLED until the database exists, so a placeholder id can't fail the whole
-  // site's deploy. To turn the demo backend on:
-  //   1. wrangler d1 create consentresolve-demo
-  //   2. wrangler d1 execute consentresolve-demo --remote --file=./worker/schema.sql
-  //   3. paste the database_id below and uncomment this block, then push.
-  // (Until then /api/* returns a clean 503; the static site is unaffected.)
-  //
-  // "d1_databases": [
-  //   {
-  //     "binding": "DB",
-  //     "database_name": "consentresolve-demo",
-  //     "database_id": "PASTE_D1_DATABASE_ID_HERE"
-  //   }
-  // ],
+  // Make sure the schema is applied to this database before relying on the API:
+  //   worker/schema.sql  (or paste it into the dashboard D1 console).
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "consentresolve-demo",
+      "database_id": "0ff8ca94-606b-4c17-8549-59fe155b3126"
+    }
+  ],
   //
   // Non-secret config. Secrets (RESEND_API_KEY, TURNSTILE_SECRET,
   // SALES_WEBHOOK_URL, TEAM_NOTIFY_URL) are set via `wrangler secret put` or the
