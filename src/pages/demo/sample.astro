@@ -505,6 +505,19 @@
         `;
       }
 
+      // Step 2 is shown as a modal (like Step 1); its Next starts the page tour.
+      function step2modal() {
+        setStep(2);
+        openModal(`
+          <span class="journey-tag">Step 2 of 5 · The lead lands</span>
+          ${content2()}
+          <div class="journey-actions">
+            <button class="btn btn-primary" id="j2-next" type="button">Next: recover an abandoned quote →</button>
+          </div>
+        `);
+        ($("#j2-next") as HTMLElement)?.addEventListener("click", () => { closeModal(); startTour(); });
+      }
+
       // ---- Step 3: opens the dedicated animated quote page ----
       function content3() {
         return `
@@ -557,7 +570,6 @@
       }
 
       const TOUR = [
-        { chip: "Step 2 of 5 · The lead lands", render: content2, anchor: "#services", pos: "before" },
         { chip: "Step 3 of 5 · Quote recovery", render: content3, onShow: wireQuoteOpen, anchor: "#reviews", pos: "before" },
         { chip: "Step 4 of 5 · Feed your funnel", render: content4, onShow: wireFunnelOpen, anchor: "#reviews", pos: "after" },
         { chip: "Step 5 of 5 · It all comes together", render: content5, onShow: wireFinaleOpen, anchor: "footer.site", pos: "before" },
@@ -589,7 +601,7 @@
         ($("#tour-chip") as HTMLElement).textContent = step.chip;
         ($("#tour-body") as HTMLElement).innerHTML = step.render();
         renderDots();
-        setStep(TOURI + 2);
+        setStep(TOURI + 3);
         ($("#tour-back") as HTMLElement).style.visibility = TOURI === 0 ? "hidden" : "visible";
         ($("#tour-next") as HTMLElement).style.display = TOURI === TOUR.length - 1 ? "none" : "";
         clearHighlight();
@@ -600,8 +612,8 @@
         step.onShow && step.onShow();
       }
 
-      function startTour(lead: any, emailed: boolean) {
-        LEAD = lead; EMAILED = emailed; TOURI = 0;
+      function startTour() {
+        TOURI = 0;
         gotoTour(0);
       }
 
@@ -641,9 +653,10 @@
           const data = await res.json();
           ($("#consent") as HTMLElement).classList.remove("show");
           if (data && data.lead) {
-            // Stash so the lead survives the hop to the quote page and back.
+            LEAD = data.lead; EMAILED = !!data.emailed;
+            // Stash so the lead survives the hop to the quote/funnel pages and back.
             try { sessionStorage.setItem("cr_lead", JSON.stringify(data.lead)); sessionStorage.setItem("cr_emailed", data.emailed ? "1" : ""); } catch {}
-            startTour(data.lead, !!data.emailed); return;
+            step2modal(); return;
           }
         } catch {}
         // Fallback: send them to the standalone confirmation page.
@@ -669,7 +682,7 @@
         if (resume) {
           let lead: any = null, emailed = false;
           try { lead = JSON.parse(sessionStorage.getItem("cr_lead") || "null"); emailed = sessionStorage.getItem("cr_emailed") === "1"; } catch {}
-          if (lead) { LEAD = lead; EMAILED = emailed; gotoTour(Math.max(0, parseInt(resume, 10) - 2)); return; }
+          if (lead) { LEAD = lead; EMAILED = emailed; gotoTour(Math.max(0, parseInt(resume, 10) - 3)); return; }
         }
         // Otherwise kick off the guided journey once the page has themed.
         setTimeout(step1, 700);
