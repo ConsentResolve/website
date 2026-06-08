@@ -42,7 +42,7 @@ function ownerHtml(p, env) {
         <strong>Notice anything?</strong> This lead is <em>you</em>. You just did exactly what your customers do — and this is what hits your inbox every time someone consents on YOUR ${esc(t.label)} site. It's a real name and a consented email, yours alone, never resold.
       </div>
       <div style="margin-top:26px;text-align:center">
-        <a href="https://consentresolve.com/pricing/" style="display:inline-block;background:${MINT};color:${NAVY};padding:14px 26px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">Start getting real leads — flat $7 a lead →</a>
+        <a href="https://consentresolve.com/pricing/" style="display:inline-block;background:${MINT};color:${NAVY};padding:14px 26px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">Get Started</a>
       </div>
       <p style="margin:22px 0 0;font-size:12px;color:#94a3b8;line-height:1.5">Consent captured ${esc(p.consented_at)} · consent text version ${esc(env.CONSENT_TEXT_VERSION || "v1")}. This is a demo: the only "lead" here is you.</p>
     </td></tr>
