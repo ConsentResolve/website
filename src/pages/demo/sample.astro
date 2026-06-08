@@ -210,21 +210,28 @@
       .fv-cap { text-align: center; font-size: 12px; color: var(--ink-2); margin: 4px 0 2px; opacity: 0; animation: fv-in .4s ease forwards; animation-delay: var(--d, 0s); }
       @keyframes fv-in { to { opacity: 1; transform: none; } }
 
-      /* Step 4 — abandoner-recovery visual (100 visitors) */
-      .vizgrid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; margin: 14px 0 8px; }
-      @media (max-width: 520px) { .vizgrid { grid-template-columns: repeat(10, 1fr); } }
-      .dot { aspect-ratio: 1; border-radius: 3px; background: #e2e8f0; opacity: 0; animation: fv-in 0.25s ease forwards; animation-delay: var(--d, 0s); }
-      .dot.lead { background: #16a34a; }
-      .legend { font-size: 12px; color: var(--ink-2); text-align: center; margin-bottom: 2px; }
-      .legend b { font-weight: 700; }
-      .legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin: 0 4px 2px 12px; }
-      .exnote { margin-top: 14px; border: 1px dashed var(--line); border-radius: 10px; padding: 13px 15px; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
-      .exnote b { color: var(--ink); }
-      .exnote .lab {
-        display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
-        color: #92400e; background: #fef3c7; padding: 3px 8px; border-radius: 999px; margin-bottom: 7px;
+      /* Step 4 — abandoned-quote recovery (form backfill) */
+      .qform { border: 1px solid var(--line); border-radius: 14px; padding: 16px; background: var(--bg-soft); margin: 10px 0 4px; }
+      .qf-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; font-weight: 800; font-size: 15px; flex-wrap: wrap; }
+      .qf-status { font-size: 10.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; transition: all 0.3s ease; }
+      .qf-status.abandoned { color: #9f1239; background: #ffe4e6; }
+      .qf-status.recovered { color: #065f46; background: #d1fae5; }
+      .qf-field { display: grid; grid-template-columns: 120px 1fr; gap: 10px; align-items: center; margin-bottom: 9px; }
+      @media (max-width: 460px) { .qf-field { grid-template-columns: 1fr; gap: 3px; } }
+      .qf-field > label { font-size: 13px; color: var(--ink-2); font-weight: 600; }
+      .qf-val {
+        background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px;
+        font-size: 14px; font-weight: 600; min-height: 38px; display: flex; align-items: center; gap: 8px;
+        transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
       }
-      .exnote .src { margin-top: 7px; font-size: 11.5px; color: #94a3b8; }
+      .qf-val.empty { color: #cbd5e1; font-weight: 500; border-style: dashed; }
+      .qf-val.backfill { border-color: #16a34a; background: #f0fdf4; color: #065f46; }
+      .qf-badge { font-size: 11px; font-weight: 800; color: #16a34a; opacity: 0; transition: opacity 0.4s ease; white-space: nowrap; }
+      .qf-badge.show { opacity: 1; }
+      .qf-submit { margin-top: 8px; width: 100%; padding: 11px; border-radius: 8px; border: none; background: #cbd5e1; color: #fff; font-weight: 700; font-size: 14px; transition: background 0.4s ease; }
+      .qf-submit.go { background: var(--brand); }
+      .fade-seq { opacity: 0; transition: opacity 0.5s ease; }
+      .fade-seq.show { opacity: 1; }
     </style>
   </head>
   <body>
@@ -461,31 +468,57 @@
         ($("#j3-next") as HTMLElement)?.addEventListener("click", () => step4(lead));
       }
 
-      // ---- Step 4: the flagship play — service-page abandoner recovery ----
+      // ---- Step 4: the flagship play — abandoned-quote recovery (backfill) ----
       function step4(lead: any) {
         setStep(4);
-        const greens = [12, 29, 53, 81]; // ~4 of 100 fill the form
-        let dots = "";
-        for (let i = 0; i < 100; i++) {
-          dots += `<span class="dot ${greens.includes(i) ? "lead" : ""}" style="--d:${i * 6}ms"></span>`;
-        }
+        const name = lead.name || "Jordan Smith";
+        const email = lead.email || "you@yourshop.com";
+        const svc = (PROFILE && PROFILE.label) || lead.trade_label || "home services";
         openModal(`
-          <span class="journey-tag">Step 4 of 4 · The flagship play</span>
-          <h2>Most buyers leave without a word.</h2>
-          <p>On the average home-service site, only about <span class="em">3–4 of every 100 visitors</span> fill out a form. The other ~96 leave — and you never knew they were there.</p>
-          <div class="vizgrid">${dots}</div>
-          <div class="legend"><span class="sw" style="background:#16a34a"></span><b>filled the form</b><span class="sw" style="background:#e2e8f0"></span>left anonymous</div>
-          <div class="aha">Someone who spends three minutes on your AC-repair page is a real buyer — they're just not ready for a form yet. <strong>Consent-first identification hands you the ones who said yes</strong> — the service-page browsers you already paid to bring to the site.</div>
-          <div class="exnote">
-            <span class="lab">Illustrative example</span><br/>
-            One home-services shop seeing about <b>1,200 visitors and ~18 leads a month</b> added visitor identification and recovered roughly <b>47 more leads in the first month</b> — all from people who browsed service pages but never filled out the form.
-            <div class="src">Self-reported figure relayed online — directionally real, not an audited study.</div>
+          <span class="journey-tag">Step 4 of 4 · Quote recovery</span>
+          <h2>They started a quote — then vanished.</h2>
+          <p>A visitor began your estimate form, got pulled away, and never hit submit. Normally that's a dead end. Watch what consent does instead.</p>
+          <div class="qform">
+            <div class="qf-head">
+              <span>Get a free ${esc(svc)} quote</span>
+              <span class="qf-status abandoned" id="qf-status">Abandoned · never submitted</span>
+            </div>
+            <div class="qf-field"><label>Name</label><div class="qf-val">${esc(name)}</div></div>
+            <div class="qf-field"><label>Service needed</label><div class="qf-val">${esc(svc)} repair</div></div>
+            <div class="qf-field"><label>Email</label><div class="qf-val empty" id="qf-email">— left blank<span class="qf-badge" id="qf-badge">✓ backfilled from consent</span></div></div>
+            <div class="qf-field"><label>Phone</label><div class="qf-val empty" id="qf-phone">— left blank</div></div>
+            <button class="qf-submit" id="qf-submit" type="button" disabled>Submit quote request</button>
           </div>
-          <div class="journey-actions">
+          <div class="aha fade-seq" id="qf-aha">
+            <strong>Recovered.</strong> They already consented, so we backfill the one thing that turns a dead form into a lead: their <strong>verified email</strong>. The phone stays blank on purpose — you don't cold-call anyone. It feeds your funnel, and they call you when they're ready.
+          </div>
+          <div class="journey-actions fade-seq" id="qf-actions">
             <a class="btn btn-primary" href="https://consentresolve.com/pricing/">Start getting real leads — flat $7 a lead →</a>
             <a class="btn btn-ghost" href="/demo/">Replay the demo</a>
           </div>
         `);
+
+        // Animate the backfill: blank email fills from the consent record, then
+        // the form flips from "abandoned" to "recovered".
+        window.setTimeout(() => {
+          const em = $("#qf-email") as HTMLElement;
+          if (em) {
+            em.classList.remove("empty");
+            em.classList.add("backfill");
+            em.firstChild && (em.firstChild.textContent = email + " ");
+            ($("#qf-badge") as HTMLElement)?.classList.add("show");
+          }
+        }, 1100);
+
+        window.setTimeout(() => {
+          const st = $("#qf-status") as HTMLElement;
+          if (st) { st.textContent = "Recovered lead"; st.classList.remove("abandoned"); st.classList.add("recovered"); }
+          ($("#qf-submit") as HTMLElement)?.classList.add("go");
+          const sub = $("#qf-submit") as HTMLButtonElement;
+          if (sub) { sub.disabled = false; sub.textContent = "Lead recovered ✓"; }
+          ($("#qf-aha") as HTMLElement)?.classList.add("show");
+          ($("#qf-actions") as HTMLElement)?.classList.add("show");
+        }, 1800);
       }
 
       // ---- wire the banner ----
