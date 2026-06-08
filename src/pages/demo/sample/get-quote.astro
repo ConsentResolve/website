@@ -84,9 +84,8 @@
               <div class="gqgrid">
                 <div class="gqf"><label for="gq-name">Name</label><input id="gq-name" name="name" type="text" required placeholder="Your name" data-pf="name" /></div>
                 <div class="gqf"><label for="gq-email">Email</label><input id="gq-email" name="email" type="email" required placeholder="you@email.com" data-pf="email" /></div>
-                <div class="gqf"><label for="gq-phone">Phone</label><input id="gq-phone" name="phone" type="tel" placeholder="(555) 555-5555" data-pf="phone" /></div>
-                <div class="gqf"><label for="gq-service">Service needed</label><input id="gq-service" name="service" type="text" placeholder="What can we help with?" data-pf="service" /></div>
-                <div class="gqf full"><label for="gq-details">Details</label><textarea id="gq-details" name="details" rows="3" placeholder="Tell us a little about the job"></textarea></div>
+                <div class="gqf full"><label for="gq-service">Service needed</label><input id="gq-service" name="service" type="text" placeholder="What can we help with?" data-pf="service" /></div>
+                <div class="gqf full"><label for="gq-details">Tell us about your project</label><textarea id="gq-details" name="details" rows="6" required data-pf-ph="request"></textarea></div>
               </div>
               <button class="gq-submit" type="submit">Request my free quote</button>
             </form>
@@ -136,7 +135,6 @@
           const vals: Record<string, string> = {
             name: d.name || "",
             email: d.email || "",
-            phone: d.phone || "",
             service: p.label ? cap(p.label) : "",
           };
           let prefilled = false;
@@ -146,6 +144,29 @@
           });
           if (prefilled) { const n = $("#gq-note") as HTMLElement; if (n) n.style.display = "block"; }
           const fn = $("[data-firstname]"); if (fn && d.name) fn.textContent = String(d.name).split(/\s+/)[0];
+
+          // Industry-specific long-form request prompt on the textarea.
+          const REQ: Record<string, string> = {
+            "general-contractor": "Tell us about your project — e.g., “I want to remodel my kitchen and add an island; hoping to start next month.”",
+            "handyman": "What's on your list? — e.g., “Mount a TV, fix a leaky faucet, and patch some drywall.”",
+            "tree-removal": "Tell us about the trees — e.g., “A large oak is leaning toward the house and needs to come down.”",
+            "hvac": "What's going on? — e.g., “My AC isn't cooling and I'd love someone out today.”",
+            "plumber": "Tell us about the issue — e.g., “My water heater is leaking and needs to be replaced this week.”",
+            "locksmith": "What do you need? — e.g., “I just moved in and want all the locks rekeyed.”",
+            "electrician": "Tell us about the work — e.g., “I need a panel upgrade and an EV charger installed.”",
+            "roofing": "Tell us about your roof — e.g., “I have a leak near the chimney after the last storm.”",
+            "painter": "What are we painting? — e.g., “Interior of a 3-bed house, walls and trim, by the end of the month.”",
+            "deck-fence": "Tell us about the project — e.g., “I'd like a new composite deck off the back patio, about 12x16.”",
+            "garage-door": "What's wrong? — e.g., “My garage door spring snapped and it won't open.”",
+            "appliance-repair": "What needs fixing? — e.g., “My dryer isn't heating; it's a 3-year-old front-loader.”",
+            "house-cleaning": "Tell us what you need — e.g., “Biweekly cleaning for a 4-bed, 2-bath home.”",
+            "pest-control": "What's the problem? — e.g., “Ants in the kitchen and I think we have a mouse.”",
+            "power-washing": "What needs washing? — e.g., “Driveway, sidewalks, and the north side of the house.”",
+            "lawn-care": "Tell us about your yard — e.g., “Weekly mowing for a quarter-acre lot, plus a spring cleanup.”",
+            "mobile-car-service": "What does the car need? — e.g., “Front brakes on a 2018 sedan, done in my driveway.”",
+          };
+          const ta = document.querySelector('[data-pf-ph="request"]') as HTMLTextAreaElement | null;
+          if (ta) ta.placeholder = REQ[p.key] || "Tell us about the job — what's going on, and when you'd like it done?";
         } catch {}
       })();
 
