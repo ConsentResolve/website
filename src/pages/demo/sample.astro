@@ -72,7 +72,8 @@
         display: flex; align-items: center; justify-content: center; font-weight: 800;
       }
       .nav { display: flex; gap: 22px; align-items: center; font-size: 15px; color: var(--ink-2); }
-      .nav a { color: var(--ink-2); text-decoration: none; }
+      .nav a { color: var(--ink-2); text-decoration: none; white-space: nowrap; }
+      .nav .links { display: inline-flex; gap: 22px; align-items: center; }
       .nav .call {
         background: var(--brand); color: #fff; padding: 9px 16px; border-radius: 8px;
         font-weight: 700; text-decoration: none;
@@ -300,9 +301,10 @@
         <div class="logo"><span class="mark" data-mark>S</span> <span data-biz>Summit Home Services</span></div>
         <nav class="nav">
           <span class="links">
-            <a href="#services">Services</a>
-            <a href="#reviews">Reviews</a>
-            <a data-quote-link href="/demo/sample/quote/">Free Quote</a>
+            <a data-link="/demo/sample/" href="/demo/sample/">Home</a>
+            <a data-link="/demo/sample/#services" href="/demo/sample/#services">Services</a>
+            <a data-link="/demo/sample/#reviews" href="/demo/sample/#reviews">Reviews</a>
+            <a data-link="/demo/sample/quote/" href="/demo/sample/quote/">Free Quote</a>
           </span>
           <a class="call" data-phone href="#">Call now</a>
         </nav>
@@ -687,8 +689,13 @@
           const data = await res.json();
           applyProfile(data.profile);
         } catch {}
-        const ql = $("[data-quote-link]") as HTMLAnchorElement | null;
-        if (ql) ql.href = "/demo/sample/quote/?dt=" + encodeURIComponent(dt || "");
+        $all("[data-link]").forEach((a) => {
+          const base = (a as HTMLElement).getAttribute("data-link") || "";
+          const i = base.indexOf("#");
+          const path = i >= 0 ? base.slice(0, i) : base;
+          const frag = i >= 0 ? base.slice(i) : "";
+          (a as HTMLAnchorElement).href = path + (dt ? (path.indexOf("?") >= 0 ? "&" : "?") + "dt=" + encodeURIComponent(dt) : "") + frag;
+        });
 
         const params = new URLSearchParams(location.search);
         // Returning from the quote page → resume the tour at the given step.
