@@ -209,12 +209,28 @@
       .fv-arrow::after { content: "▼"; position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%); color: #cbd5e1; font-size: 11px; }
       .fv-cap { text-align: center; font-size: 12px; color: var(--ink-2); margin: 4px 0 2px; opacity: 0; animation: fv-in .4s ease forwards; animation-delay: var(--d, 0s); }
       @keyframes fv-in { to { opacity: 1; transform: none; } }
+
+      /* Step 4 — abandoner-recovery visual (100 visitors) */
+      .vizgrid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; margin: 14px 0 8px; }
+      @media (max-width: 520px) { .vizgrid { grid-template-columns: repeat(10, 1fr); } }
+      .dot { aspect-ratio: 1; border-radius: 3px; background: #e2e8f0; opacity: 0; animation: fv-in 0.25s ease forwards; animation-delay: var(--d, 0s); }
+      .dot.lead { background: #16a34a; }
+      .legend { font-size: 12px; color: var(--ink-2); text-align: center; margin-bottom: 2px; }
+      .legend b { font-weight: 700; }
+      .legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin: 0 4px 2px 12px; }
+      .exnote { margin-top: 14px; border: 1px dashed var(--line); border-radius: 10px; padding: 13px 15px; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+      .exnote b { color: var(--ink); }
+      .exnote .lab {
+        display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+        color: #92400e; background: #fef3c7; padding: 3px 8px; border-radius: 999px; margin-bottom: 7px;
+      }
+      .exnote .src { margin-top: 7px; font-size: 11.5px; color: #94a3b8; }
     </style>
   </head>
   <body>
     <div class="ribbon">
       <span>👀 You're browsing as a <strong>visitor</strong> — a sample service-pro site.</span>
-      <span class="stepchip" id="stepchip">Guided demo · Step 1 of 3</span>
+      <span class="stepchip" id="stepchip">Guided demo · Step 1 of 4</span>
     </div>
 
     <div class="wrap">
@@ -333,7 +349,7 @@
 
       function setStep(n: number) {
         const chip = $("#stepchip");
-        if (chip) chip.textContent = `Guided demo · Step ${n} of 3`;
+        if (chip) chip.textContent = `Guided demo · Step ${n} of 4`;
       }
 
       function openModal(html: string) {
@@ -351,7 +367,7 @@
         const biz = (PROFILE && PROFILE.biz) || "this business";
         const label = (PROFILE && PROFILE.label) || "home services";
         openModal(`
-          <span class="journey-tag">Step 1 of 3 · Consent</span>
+          <span class="journey-tag">Step 1 of 4 · Consent</span>
           <h2>This is a website like yours.</h2>
           <p>Say hello to <span class="em">${esc(biz)}</span> — a ${esc(label)} site, same as yours. A real homeowner just landed here from an ad, a Google search, or a shared link.</p>
           <div class="point-row">
@@ -402,7 +418,7 @@
       function step2(lead: any, emailed: boolean) {
         setStep(2);
         openModal(`
-          <span class="journey-tag">Step 2 of 3 · The lead lands</span>
+          <span class="journey-tag">Step 2 of 4 · The lead lands</span>
           <h2>That consent just became a lead.</h2>
           <p>Still the same site — nothing switched, nobody got redirected. The moment they accepted, <span class="em">this hit the business owner's inbox</span>:</p>
           ${leadCard(lead)}
@@ -421,7 +437,7 @@
         setStep(3);
         const biz = (PROFILE && PROFILE.biz) || "your shop";
         openModal(`
-          <span class="journey-tag">Step 3 of 3 · Feed your funnel</span>
+          <span class="journey-tag">Step 3 of 4 · Feed your funnel</span>
           <h2>Now that lead goes to work.</h2>
           <p>It doesn't just sit in an inbox. The consented record flows into the marketing <span class="em">you already run</span> — so the homeowner comes back on their own time and calls you.</p>
           <div class="funnelviz">
@@ -437,6 +453,34 @@
             <div class="fv-node fv-result" style="--d:1.2s">📞 They come back — and call you<small>warm inbound, on their time</small></div>
           </div>
           <div class="aha">Same consented contact, feeding the channels that already work for ${esc(biz)}. You don't cold-call anyone — they reach out to you, ready to book.</div>
+          <div class="journey-actions">
+            <button class="btn btn-primary" id="j3-next" type="button">Last one: why it pays off →</button>
+            <a class="btn btn-ghost" href="/demo/">Replay</a>
+          </div>
+        `);
+        ($("#j3-next") as HTMLElement)?.addEventListener("click", () => step4(lead));
+      }
+
+      // ---- Step 4: the flagship play — service-page abandoner recovery ----
+      function step4(lead: any) {
+        setStep(4);
+        const greens = [12, 29, 53, 81]; // ~4 of 100 fill the form
+        let dots = "";
+        for (let i = 0; i < 100; i++) {
+          dots += `<span class="dot ${greens.includes(i) ? "lead" : ""}" style="--d:${i * 6}ms"></span>`;
+        }
+        openModal(`
+          <span class="journey-tag">Step 4 of 4 · The flagship play</span>
+          <h2>Most buyers leave without a word.</h2>
+          <p>On the average home-service site, only about <span class="em">3–4 of every 100 visitors</span> fill out a form. The other ~96 leave — and you never knew they were there.</p>
+          <div class="vizgrid">${dots}</div>
+          <div class="legend"><span class="sw" style="background:#16a34a"></span><b>filled the form</b><span class="sw" style="background:#e2e8f0"></span>left anonymous</div>
+          <div class="aha">Someone who spends three minutes on your AC-repair page is a real buyer — they're just not ready for a form yet. <strong>Consent-first identification hands you the ones who said yes</strong> — the service-page browsers you already paid to bring to the site.</div>
+          <div class="exnote">
+            <span class="lab">Illustrative example</span><br/>
+            One home-services shop seeing about <b>1,200 visitors and ~18 leads a month</b> added visitor identification and recovered roughly <b>47 more leads in the first month</b> — all from people who browsed service pages but never filled out the form.
+            <div class="src">Self-reported figure relayed online — directionally real, not an audited study.</div>
+          </div>
           <div class="journey-actions">
             <a class="btn btn-primary" href="https://consentresolve.com/pricing/">Start getting real leads — flat $7 a lead →</a>
             <a class="btn btn-ghost" href="/demo/">Replay the demo</a>
