@@ -12,6 +12,7 @@ const { trade = "", heading = "See it work on yourself", sub = "Register, browse
   heading?: string;
   sub?: string;
 };
+import { TRADE_OPTIONS } from "../../worker/_lib/trades.js";
 const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 ---
 
@@ -20,11 +21,21 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
   {sub && <p class="mt-2 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{sub}</p>}
 
   <form class="cr-demo-form mt-6 space-y-4" action="/api/register" method="POST" novalidate>
-    <input type="hidden" name="trade" value={trade} />
     {/* Honeypot — hidden from humans, catches bots. */}
     <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">
       <label>Leave this empty <input type="text" name="hp" tabindex="-1" autocomplete="off" /></label>
     </div>
+
+    <label class="block">
+      <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">What's your trade?</span>
+      <select name="trade" required
+        class="w-full rounded-lg border border-[color:var(--color-rule)] bg-white px-3.5 py-2.5 text-[15px] text-[color:var(--color-ink)] outline-none focus:border-[color:var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-brand-soft)]">
+        <option value="" disabled selected={!trade}>Select your trade…</option>
+        {TRADE_OPTIONS.map((o) => (
+          <option value={o.value} selected={o.value === trade}>{o.label}</option>
+        ))}
+      </select>
+    </label>
 
     <div class="grid gap-4 sm:grid-cols-2">
       <label class="block">
@@ -83,7 +94,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
       // ?trade= pre-fill (direct traffic to /demo/).
       const params = new URLSearchParams(location.search);
       const qTrade = params.get("trade");
-      const tradeInput = form.querySelector<HTMLInputElement>('input[name="trade"]');
+      const tradeInput = form.querySelector<HTMLSelectElement>('[name="trade"]');
       if (qTrade && tradeInput && !tradeInput.value) tradeInput.value = qTrade;
 
       const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');

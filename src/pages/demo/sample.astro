@@ -79,6 +79,9 @@
       }
       @media (max-width: 720px) { .nav .links { display: none; } }
       .hero { background: linear-gradient(180deg, var(--bg-soft), #fff); padding: 56px 0 48px; }
+      .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 36px; align-items: center; }
+      @media (max-width: 820px) { .hero-grid { grid-template-columns: 1fr; gap: 26px; } }
+      .hero-media img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 16px; box-shadow: 0 18px 40px rgba(8,15,30,0.16); display: block; }
       .hero .eyebrow { color: var(--brand); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em; }
       .hero h1 { font-size: 42px; line-height: 1.1; margin: 12px 0 14px; font-weight: 800; max-width: 16ch; }
       .hero p { font-size: 18px; color: var(--ink-2); max-width: 52ch; margin: 0 0 26px; }
@@ -304,19 +307,22 @@
     </div>
 
     <section class="hero">
-      <div class="wrap">
-        <div class="eyebrow" data-eyebrow>Licensed · Insured · Locally owned</div>
-        <h1 data-headline>Honest home repair, done right the first time</h1>
-        <p data-sub>Same-week appointments. Up-front pricing. A crew your neighbors already trust.</p>
-        <div class="cta-row">
-          <a class="btn btn-primary" data-phone href="#">Call for a free quote</a>
-          <a class="btn btn-ghost" href="#services">See our services</a>
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow" data-eyebrow>Licensed · Insured · Locally owned</div>
+          <h1 data-headline>Honest home repair, done right the first time</h1>
+          <p data-sub>Same-week appointments. Up-front pricing. A crew your neighbors already trust.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary" data-phone href="#">Call for a free quote</a>
+            <a class="btn btn-ghost" href="#services">See our services</a>
+          </div>
+          <div class="trust">
+            <span>⭐ 4.9 average rating</span>
+            <span>🛡️ Licensed &amp; insured</span>
+            <span>⏱️ Same-week service</span>
+          </div>
         </div>
-        <div class="trust">
-          <span>⭐ 4.9 average rating</span>
-          <span>🛡️ Licensed &amp; insured</span>
-          <span>⏱️ Same-week service</span>
-        </div>
+        <div class="hero-media"><img data-hero-img src="/demo/trades/handyman.jpg" alt="" loading="eager" /></div>
       </div>
     </section>
 
@@ -405,6 +411,13 @@
         $all("[data-phone]").forEach((el) => ((el as HTMLAnchorElement).href = "tel:" + (p.phone || "").replace(/[^0-9+]/g, "")));
         const pt = $("[data-phone-text]"); if (pt) pt.textContent = p.phone;
         const qs = $("[data-quote-svc]"); if (qs && p.label) (qs as HTMLInputElement).value = p.label.charAt(0).toUpperCase() + p.label.slice(1);
+        const img = $("[data-hero-img]") as HTMLImageElement | null;
+        if (img) {
+          img.alt = `${p.biz} — ${p.label}`;
+          // Fall back to a generic photo if this trade's image isn't generated yet.
+          img.onerror = () => { if (!img.src.endsWith("/handyman.jpg")) img.src = "/demo/trades/handyman.jpg"; };
+          if (p.image) img.src = p.image;
+        }
         document.title = `${p.biz} — Licensed, Insured, Local`;
 
         const svc = $("[data-services]");
@@ -443,7 +456,7 @@
         openModal(`
           <span class="journey-tag">Step 1 of 5 · Consent</span>
           <h2>This is a website like yours.</h2>
-          <p>Say hello to <span class="em">${esc(biz)}</span> — a ${esc(label)} site, same as yours. A real homeowner just landed here from an ad, a Google search, or a shared link.</p>
+          <p>Say hello to <span class="em">${esc(biz)}</span> — a home services site, same as yours. A real homeowner (that might have cost you <strong>$8–12 for the click</strong>) just landed here from an ad, a Google search, or a shared link.</p>
           <div class="point-row">
             <div class="num">1</div>
             <div>Their journey starts with one thing: <strong>consent</strong>. See the banner at the bottom? That's the cookie &amp; consent notice your customers see. <strong>Nothing about them is identified until they accept it.</strong></div>

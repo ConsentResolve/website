@@ -16,7 +16,7 @@ export async function onRequestPost({ request, env }) {
 
   const profileFor = (trade) => {
     const t = tradeProfile(trade);
-    return { key: t.key, label: t.label, biz: t.biz, city: t.city, phone: t.phone, hero: t.hero, services: t.services, reviews: t.reviews };
+    return { key: t.key, label: t.label, biz: t.biz, city: t.city, phone: t.phone, image: t.image, hero: t.hero, services: t.services, reviews: t.reviews };
   };
 
   const p = await getParticipant(env, dt);
