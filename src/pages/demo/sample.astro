@@ -534,19 +534,18 @@
         });
       }
 
-      // ---- Step 4: opens the dedicated "Feed your funnel" page ----
-      function content4() {
-        return `
+      // ---- Step 4: intro modal, then opens the "Feed your funnel" page ----
+      function step4modal() {
+        setStep(4);
+        openModal(`
+          <span class="journey-tag">Step 4 of 5 · Feed your funnel</span>
           <h2>Now that lead goes to work.</h2>
-          <p>It doesn't sit in an inbox — it feeds the marketing <span class="em">you already run</span>. Open the page to see where it goes.</p>
+          <p>It doesn't sit in an inbox — it feeds the marketing <span class="em">you already run</span>. Next, see where it goes.</p>
           <div class="journey-actions">
-            <button class="btn btn-primary" id="j4-open" type="button">See your funnel →</button>
+            <button class="btn btn-primary" id="j4-next" type="button">Next: see your funnel →</button>
           </div>
-        `;
-      }
-
-      function wireFunnelOpen() {
-        ($("#j4-open") as HTMLElement)?.addEventListener("click", () => {
+        `);
+        ($("#j4-next") as HTMLElement)?.addEventListener("click", () => {
           window.location.assign("/demo/sample/funnel/?dt=" + encodeURIComponent(dt || ""));
         });
       }
@@ -569,7 +568,6 @@
       }
 
       const TOUR = [
-        { num: 4, chip: "Step 4 of 5 · Feed your funnel", render: content4, onShow: wireFunnelOpen, anchor: "#reviews", pos: "after" },
         { num: 5, chip: "Step 5 of 5 · It all comes together", render: content5, onShow: wireFinaleOpen, anchor: "footer.site", pos: "before" },
       ];
 
@@ -675,11 +673,11 @@
         if (resume) {
           let lead: any = null, emailed = false;
           try { lead = JSON.parse(sessionStorage.getItem("cr_lead") || "null"); emailed = sessionStorage.getItem("cr_emailed") === "1"; } catch {}
-          if (lead) {
-            LEAD = lead; EMAILED = emailed;
-            const idx = TOUR.findIndex((s: any) => s.num === parseInt(resume, 10));
-            if (idx >= 0) { gotoTour(idx); return; }
-          }
+          if (lead) { LEAD = lead; EMAILED = emailed; }
+          const rn = parseInt(resume, 10);
+          if (rn === 4) { step4modal(); return; }
+          const idx = TOUR.findIndex((s: any) => s.num === rn);
+          if (idx >= 0) { gotoTour(idx); return; }
         }
         // Otherwise kick off the guided journey once the page has themed.
         setTimeout(step1, 700);
