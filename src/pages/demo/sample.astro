@@ -248,12 +248,45 @@
       .quote-submit { margin-top: 16px; width: 100%; background: var(--brand); color: #fff; border: none; border-radius: 9px; padding: 13px; font-weight: 700; font-size: 15px; cursor: pointer; }
       .quote-done { text-align: center; padding: 26px 10px; }
       .quote-done .big { font-size: 42px; }
+
+      /* On-page guided tour (Steps 2–5) — a docked panel, not a blocking modal */
+      .tour { position: fixed; right: 20px; bottom: 20px; width: 420px; max-width: calc(100vw - 32px); z-index: 90; display: none; }
+      .tour.show { display: block; animation: tour-in 0.3s ease; }
+      @keyframes tour-in { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+      .tour-card { background: #fff; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 60px rgba(8,15,30,0.28); display: flex; flex-direction: column; max-height: 86vh; overflow: hidden; }
+      .tour-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; border-bottom: 1px solid var(--line); }
+      .tour-chip { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); background: #eff6ff; padding: 5px 10px; border-radius: 999px; }
+      .tour-progress { display: flex; gap: 5px; margin-left: auto; }
+      .tdot { width: 7px; height: 7px; border-radius: 999px; background: var(--line); }
+      .tdot.on { background: var(--brand); }
+      .tour-x { background: none; border: none; font-size: 15px; color: var(--ink-muted); cursor: pointer; line-height: 1; padding: 2px 4px; }
+      .tour-body { padding: 18px; overflow-y: auto; }
+      .tour-body h2 { font-size: 21px; font-weight: 800; margin: 0 0 8px; line-height: 1.18; }
+      .tour-body p { color: var(--ink-2); font-size: 14px; margin: 0 0 12px; line-height: 1.5; }
+      .tour-body .em { color: var(--ink); font-weight: 700; }
+      .tour-nav { display: flex; justify-content: space-between; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--line); }
+      .tour-btn { padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
+      .tour-btn.back { background: #fff; border: 1px solid var(--line); color: var(--ink); }
+      .tour-btn.next { background: var(--brand); border: none; color: #fff; }
+      @media (max-width: 560px) {
+        .tour { left: 0; right: 0; bottom: 0; width: auto; max-width: none; }
+        .tour-card { border-radius: 16px 16px 0 0; max-height: 80vh; }
+      }
+
+      /* Step 5 — finale (staggered checklist + payoff) */
+      .finale { margin: 6px 0 2px; }
+      .fin-step { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 14px; font-weight: 700; opacity: 0; transform: translateY(6px); animation: fv-in 0.5s ease forwards; animation-delay: var(--d, 0s); }
+      .fin-step:last-child { border-bottom: none; }
+      .fin-step small { display: block; font-weight: 500; color: var(--ink-2); font-size: 12px; margin-top: 2px; }
+      .fin-step .fc { flex: none; width: 24px; height: 24px; border-radius: 999px; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; }
+      .payoff { margin-top: 13px; padding: 14px 16px; border-radius: 10px; background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; font-size: 14px; font-weight: 600; opacity: 0; animation: fv-in 0.5s ease forwards; animation-delay: var(--d, 0s); }
+      .payoff strong { color: #065f46; }
     </style>
   </head>
   <body>
     <div class="ribbon">
       <span>👀 You're browsing as a <strong>visitor</strong> — a sample service-pro site.</span>
-      <span class="stepchip" id="stepchip">Guided demo · Step 1 of 4</span>
+      <span class="stepchip" id="stepchip">Guided demo · Step 1 of 5</span>
     </div>
 
     <div class="wrap">
@@ -345,9 +378,25 @@
       </div>
     </div>
 
-    <!-- Guided-journey modal -->
+    <!-- Step 1 only: intro modal -->
     <div class="journey" id="journey" role="dialog" aria-modal="true" aria-label="Guided demo">
       <div class="journey-card" id="journey-card"></div>
+    </div>
+
+    <!-- Steps 2–5: on-page docked guided tour (non-blocking) -->
+    <div class="tour" id="tour" aria-live="polite" aria-label="Guided tour">
+      <div class="tour-card">
+        <div class="tour-head">
+          <span class="tour-chip" id="tour-chip">Step 2 of 5</span>
+          <div class="tour-progress" id="tour-progress"></div>
+          <button class="tour-x" id="tour-close" type="button" aria-label="Close tour">✕</button>
+        </div>
+        <div class="tour-body" id="tour-body"></div>
+        <div class="tour-nav">
+          <button class="tour-btn back" id="tour-back" type="button">← Back</button>
+          <button class="tour-btn next" id="tour-next" type="button">Next →</button>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -392,7 +441,7 @@
 
       function setStep(n: number) {
         const chip = $("#stepchip");
-        if (chip) chip.textContent = `Guided demo · Step ${n} of 4`;
+        if (chip) chip.textContent = `Guided demo · Step ${n} of 5`;
       }
 
       function openModal(html: string) {
@@ -410,7 +459,7 @@
         const biz = (PROFILE && PROFILE.biz) || "this business";
         const label = (PROFILE && PROFILE.label) || "home services";
         openModal(`
-          <span class="journey-tag">Step 1 of 4 · Consent</span>
+          <span class="journey-tag">Step 1 of 5 · Consent</span>
           <h2>This is a website like yours.</h2>
           <p>Say hello to <span class="em">${esc(biz)}</span> — a ${esc(label)} site, same as yours. A real homeowner just landed here from an ad, a Google search, or a shared link.</p>
           <div class="point-row">
@@ -458,33 +507,74 @@
           </div>`;
       }
 
-      function step2(lead: any, emailed: boolean) {
-        setStep(2);
-        openModal(`
-          <span class="journey-tag">Step 2 of 4 · The lead lands</span>
+      // ===== On-page guided tour (Steps 2–5), rendered into the docked panel =====
+      let LEAD: any = null;
+      let EMAILED = false;
+      let TOURI = 0;
+
+      // ---- Step 2: the lead that just landed ----
+      function content2() {
+        const lead = LEAD || {};
+        return `
           <h2>That consent just became a lead.</h2>
-          <p>Still the same site — nothing switched, nobody got redirected. The moment they accepted, <span class="em">this hit the business owner's inbox</span>:</p>
+          <p>The moment they accepted, <span class="em">this hit your inbox</span> — a real name and a consented email, yours alone.</p>
           ${leadCard(lead)}
-          <div class="aha"><strong>Notice anything?</strong> This lead is <em>you</em>. It's a real name and a consented email — not a number to cold-call, not a shared lead. Yours alone.</div>
-          <p class="journey-note">${emailed ? "Check your inbox — we also sent you the flip side: the email your customer gets the moment they consent, nudging them to call you or finish their quote." : "Heads up: the live email didn't send yet (sending domain may still be verifying) — but your customer would get a friendly nudge to call you or finish their quote."}</p>
-          <div class="journey-actions">
-            <button class="btn btn-primary" id="j2-next" type="button">Next: where that lead goes →</button>
-            <a class="btn btn-ghost" href="/demo/">Replay</a>
-          </div>
-        `);
-        ($("#j2-next") as HTMLElement)?.addEventListener("click", () => step3(lead, emailed));
+          <div class="aha"><strong>This lead is you.</strong> Not a number to cold-call, not a shared lead. ${EMAILED ? "We also emailed you the flip side — the friendly nudge your customer gets to call you or finish their quote." : "Your customer gets a friendly nudge to call you or finish their quote."}</div>
+        `;
       }
 
-      // ---- Step 3: feed your funnel (the next use case) ----
-      function step3(lead: any, _emailed: boolean) {
-        setStep(3);
+      // ---- Step 3: abandoned-quote recovery (backfill) ----
+      function content3() {
+        const lead = LEAD || {};
+        const name = lead.name || "Jordan Smith";
+        const svc = (PROFILE && PROFILE.label) || lead.trade_label || "home services";
+        return `
+          <h2>They started a quote — then vanished.</h2>
+          <p>A visitor began your estimate form, got pulled away, and never hit submit. Watch what consent does instead.</p>
+          <div class="qform">
+            <div class="qf-head">
+              <span>Get a free ${esc(svc)} quote</span>
+              <span class="qf-status abandoned" id="qf-status">Abandoned · never submitted</span>
+            </div>
+            <div class="qf-field"><label>Name</label><div class="qf-val">${esc(name)}</div></div>
+            <div class="qf-field"><label>Service needed</label><div class="qf-val">${esc(svc)}</div></div>
+            <div class="qf-field"><label>Email</label><div class="qf-val empty" id="qf-email">— left blank<span class="qf-badge" id="qf-badge">✓ backfilled from consent</span></div></div>
+            <div class="qf-field"><label>Phone</label><div class="qf-val empty">— left blank</div></div>
+            <button class="qf-submit" id="qf-submit" type="button" disabled>Submit quote request</button>
+          </div>
+          <div class="aha fade-seq" id="qf-aha"><strong>Recovered.</strong> They already consented, so we backfill the one thing that turns a dead form into a lead: their <strong>verified email</strong>. The phone stays blank on purpose — you don't cold-call anyone. They call you when they're ready.</div>
+        `;
+      }
+
+      function animateQuoteRecovery() {
+        const email = (LEAD && LEAD.email) || "you@yourshop.com";
+        window.setTimeout(() => {
+          const em = $("#qf-email") as HTMLElement;
+          if (em) {
+            em.classList.remove("empty");
+            em.classList.add("backfill");
+            em.firstChild && (em.firstChild.textContent = email + " ");
+            ($("#qf-badge") as HTMLElement)?.classList.add("show");
+          }
+        }, 1000);
+        window.setTimeout(() => {
+          const st = $("#qf-status") as HTMLElement;
+          if (st) { st.textContent = "Recovered lead"; st.classList.remove("abandoned"); st.classList.add("recovered"); }
+          const sub = $("#qf-submit") as HTMLButtonElement;
+          if (sub) { sub.classList.add("go"); sub.disabled = false; sub.textContent = "Lead recovered ✓"; }
+          ($("#qf-aha") as HTMLElement)?.classList.add("show");
+        }, 1700);
+      }
+
+      // ---- Step 4: feed your funnel ----
+      function content4() {
+        const lead = LEAD || {};
         const biz = (PROFILE && PROFILE.biz) || "your shop";
-        openModal(`
-          <span class="journey-tag">Step 3 of 4 · Feed your funnel</span>
+        return `
           <h2>Now that lead goes to work.</h2>
-          <p>It doesn't just sit in an inbox. The consented record flows into the marketing <span class="em">you already run</span> — so the homeowner comes back on their own time and calls you.</p>
+          <p>It flows into the marketing <span class="em">you already run</span> — so the homeowner comes back on their own time and calls you.</p>
           <div class="funnelviz">
-            <div class="fv-node fv-source" style="--d:0s">📥 Consented lead<small>${esc(lead.name)} · yours alone, never resold</small></div>
+            <div class="fv-node fv-source" style="--d:0s">📥 Consented lead<small>${esc(lead.name || "your visitor")} · yours alone, never resold</small></div>
             <div class="fv-arrow" style="--d:.35s"></div>
             <div class="fv-cap" style="--d:.4s">flows straight into your stack</div>
             <div class="fv-fan">
@@ -496,66 +586,65 @@
             <div class="fv-node fv-result" style="--d:1.2s">📞 They come back — and call you<small>warm inbound, on their time</small></div>
           </div>
           <div class="aha">Same consented contact, feeding the channels that already work for ${esc(biz)}. You don't cold-call anyone — they reach out to you, ready to book.</div>
-          <div class="journey-actions">
-            <button class="btn btn-primary" id="j3-next" type="button">Last one: why it pays off →</button>
-            <a class="btn btn-ghost" href="/demo/">Replay</a>
-          </div>
-        `);
-        ($("#j3-next") as HTMLElement)?.addEventListener("click", () => step4(lead));
+        `;
       }
 
-      // ---- Step 4: the flagship play — abandoned-quote recovery (backfill) ----
-      function step4(lead: any) {
-        setStep(4);
-        const name = lead.name || "Jordan Smith";
-        const email = lead.email || "you@yourshop.com";
-        const svc = (PROFILE && PROFILE.label) || lead.trade_label || "home services";
-        openModal(`
-          <span class="journey-tag">Step 4 of 4 · Quote recovery</span>
-          <h2>They started a quote — then vanished.</h2>
-          <p>A visitor began your estimate form, got pulled away, and never hit submit. Normally that's a dead end. Watch what consent does instead.</p>
-          <div class="qform">
-            <div class="qf-head">
-              <span>Get a free ${esc(svc)} quote</span>
-              <span class="qf-status abandoned" id="qf-status">Abandoned · never submitted</span>
-            </div>
-            <div class="qf-field"><label>Name</label><div class="qf-val">${esc(name)}</div></div>
-            <div class="qf-field"><label>Service needed</label><div class="qf-val">${esc(svc)} repair</div></div>
-            <div class="qf-field"><label>Email</label><div class="qf-val empty" id="qf-email">— left blank<span class="qf-badge" id="qf-badge">✓ backfilled from consent</span></div></div>
-            <div class="qf-field"><label>Phone</label><div class="qf-val empty" id="qf-phone">— left blank</div></div>
-            <button class="qf-submit" id="qf-submit" type="button" disabled>Submit quote request</button>
+      // ---- Step 5: it all comes together ----
+      function content5() {
+        const biz = (PROFILE && PROFILE.biz) || "your shop";
+        return `
+          <h2>Here's the whole play, working together.</h2>
+          <p>One consented visitor, every piece firing at once — from anonymous browser to booked job.</p>
+          <div class="finale">
+            <div class="fin-step" style="--d:.1s"><span class="fc">1</span><div>A homeowner browses ${esc(biz)}<small>traffic you already paid to bring in</small></div></div>
+            <div class="fin-step" style="--d:.4s"><span class="fc">2</span><div>They consent<small>now they're identifiable — real name + email</small></div></div>
+            <div class="fin-step" style="--d:.7s"><span class="fc">3</span><div>Their half-finished quote is recovered<small>email backfilled — no dead form</small></div></div>
+            <div class="fin-step" style="--d:1s"><span class="fc">4</span><div>They drop into your funnel<small>CRM + retargeting + your own follow-up</small></div></div>
+            <div class="fin-step" style="--d:1.3s"><span class="fc">5</span><div>They come back and call you<small>warm inbound, ready to book</small></div></div>
           </div>
-          <div class="aha fade-seq" id="qf-aha">
-            <strong>Recovered.</strong> They already consented, so we backfill the one thing that turns a dead form into a lead: their <strong>verified email</strong>. The phone stays blank on purpose — you don't cold-call anyone. It feeds your funnel, and they call you when they're ready.
-          </div>
-          <div class="journey-actions fade-seq" id="qf-actions">
+          <div class="payoff" style="--d:1.7s">More booked jobs from traffic you already have — at a flat <strong>$7 a lead</strong>, yours alone, never resold.</div>
+          <div class="journey-actions" style="margin-top:16px">
             <a class="btn btn-primary" href="https://consentresolve.com/pricing/">Start getting real leads — flat $7 a lead →</a>
             <a class="btn btn-ghost" href="/demo/">Replay the demo</a>
           </div>
-        `);
-
-        // Animate the backfill: blank email fills from the consent record, then
-        // the form flips from "abandoned" to "recovered".
-        window.setTimeout(() => {
-          const em = $("#qf-email") as HTMLElement;
-          if (em) {
-            em.classList.remove("empty");
-            em.classList.add("backfill");
-            em.firstChild && (em.firstChild.textContent = email + " ");
-            ($("#qf-badge") as HTMLElement)?.classList.add("show");
-          }
-        }, 1100);
-
-        window.setTimeout(() => {
-          const st = $("#qf-status") as HTMLElement;
-          if (st) { st.textContent = "Recovered lead"; st.classList.remove("abandoned"); st.classList.add("recovered"); }
-          ($("#qf-submit") as HTMLElement)?.classList.add("go");
-          const sub = $("#qf-submit") as HTMLButtonElement;
-          if (sub) { sub.disabled = false; sub.textContent = "Lead recovered ✓"; }
-          ($("#qf-aha") as HTMLElement)?.classList.add("show");
-          ($("#qf-actions") as HTMLElement)?.classList.add("show");
-        }, 1800);
+        `;
       }
+
+      const TOUR = [
+        { chip: "Step 2 of 5 · The lead lands", render: content2 },
+        { chip: "Step 3 of 5 · Quote recovery", render: content3, onShow: animateQuoteRecovery },
+        { chip: "Step 4 of 5 · Feed your funnel", render: content4 },
+        { chip: "Step 5 of 5 · It all comes together", render: content5 },
+      ];
+
+      function renderDots() {
+        const prog = $("#tour-progress") as HTMLElement;
+        if (prog) prog.innerHTML = TOUR.map((_, i) => `<span class="tdot ${i === TOURI ? "on" : ""}"></span>`).join("");
+      }
+
+      function gotoTour(i: number) {
+        TOURI = Math.max(0, Math.min(TOUR.length - 1, i));
+        const step = TOUR[TOURI] as any;
+        ($("#tour-chip") as HTMLElement).textContent = step.chip;
+        const body = $("#tour-body") as HTMLElement;
+        body.innerHTML = step.render();
+        body.scrollTop = 0;
+        renderDots();
+        setStep(TOURI + 2);
+        ($("#tour-back") as HTMLElement).style.visibility = TOURI === 0 ? "hidden" : "visible";
+        ($("#tour-next") as HTMLElement).style.display = TOURI === TOUR.length - 1 ? "none" : "";
+        step.onShow && step.onShow();
+      }
+
+      function startTour(lead: any, emailed: boolean) {
+        LEAD = lead; EMAILED = emailed; TOURI = 0;
+        ($("#tour") as HTMLElement).classList.add("show");
+        gotoTour(0);
+      }
+
+      $("#tour-back")?.addEventListener("click", () => gotoTour(TOURI - 1));
+      $("#tour-next")?.addEventListener("click", () => gotoTour(TOURI + 1));
+      $("#tour-close")?.addEventListener("click", () => ($("#tour") as HTMLElement).classList.remove("show"));
 
       // ---- wire the banner ----
       $("#cr-decline")?.addEventListener("click", () => {
@@ -583,7 +672,7 @@
           });
           const data = await res.json();
           ($("#consent") as HTMLElement).classList.remove("show");
-          if (data && data.lead) { step2(data.lead, !!data.emailed); return; }
+          if (data && data.lead) { startTour(data.lead, !!data.emailed); return; }
         } catch {}
         // Fallback: send them to the standalone confirmation page.
         window.location.assign(`/demo/done/?dt=${encodeURIComponent(dt)}`);
