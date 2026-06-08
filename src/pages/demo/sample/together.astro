@@ -32,6 +32,10 @@
       @media (max-width: 720px) { .nav .links { display: none; } }
       .qhero { background: linear-gradient(180deg, var(--bg-soft), #fff); padding: 22px 0; flex: 1; display: flex; align-items: center; }
       .qhero .wrap { text-align: center; }
+      .fgrid { display: grid; grid-template-columns: 0.9fr 1fr; gap: 36px; align-items: center; width: 100%; }
+      @media (max-width: 860px) { .fgrid { grid-template-columns: 1fr; gap: 24px; } }
+      .fcol-left { text-align: center; }
+      .fcol-right { text-align: left; }
       .tag { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); background: #eff6ff; padding: 5px 11px; border-radius: 999px; }
       .qhero h1 { font-size: 26px; font-weight: 800; margin: 10px 0 6px; }
       .qhero .lede { font-size: 15px; color: var(--ink-2); max-width: 60ch; margin: 0 auto 16px; }
@@ -39,17 +43,17 @@
       .btn-primary { background: var(--brand); color: #fff; }
       .btn-ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
 
-      .finale { max-width: 620px; }
-      .fin-step { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-bottom: 1px dashed var(--line); font-size: 15px; font-weight: 700; opacity: 0; transform: translateY(6px); animation: fv-in .5s ease forwards; animation-delay: var(--d, 0s); }
+      .finale { max-width: 100%; }
+      .fin-step { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; font-weight: 700; opacity: 0; transform: translateY(6px); animation: fv-in .5s ease forwards; animation-delay: var(--d, 0s); }
       .fin-step:last-child { border-bottom: none; }
       .fin-step small { display: block; font-weight: 500; color: var(--ink-2); font-size: 12.5px; margin-top: 2px; }
       .fin-step .fc { flex: none; width: 26px; height: 26px; border-radius: 999px; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; }
       @keyframes fv-in { to { opacity: 1; transform: none; } }
-      .payoff { margin: 14px auto 0; max-width: 560px; padding: 12px 16px; border-radius: 10px; background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; font-size: 14px; font-weight: 600; opacity: 0; animation: fv-in .5s ease forwards; animation-delay: var(--d, 0s); }
+      .payoff { margin: 13px 0 0; max-width: 100%; padding: 12px 16px; border-radius: 10px; background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; font-size: 14px; font-weight: 600; opacity: 0; animation: fv-in .5s ease forwards; animation-delay: var(--d, 0s); }
       .payoff strong { color: #065f46; }
-      .actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; opacity: 0; animation: fv-in .5s ease forwards; animation-delay: 2.2s; }
+      .actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-start; opacity: 0; animation: fv-in .5s ease forwards; animation-delay: 2.2s; }
       /* Before/after impact: two 100-icon grids */
-      .ba { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; max-width: 600px; margin: 4px auto; }
+      .ba { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 100%; margin: 0; }
       @media (max-width: 560px) { .ba { grid-template-columns: 1fr; } }
       .ba-col { border: 1px solid var(--line); border-radius: 14px; padding: 12px; background: #fff; }
       .ba-after { border-color: #6ee7b7; background: #f6fffb; }
@@ -87,32 +91,41 @@
     </div>
 
     <section class="qhero">
-      <div class="wrap">
-        <span class="tag">It all comes together</span>
-        <h1>Same 100 visitors. A very different month.</h1>
-        <p class="lede">Most of the people you already pay to reach never fill out a form. Watch what changes when you can follow up with the ones who consent.</p>
-
-        <div class="ba">
-          <div class="ba-col">
-            <div class="ba-h">Just a form on your site</div>
-            <div class="dotgrid" data-grid="before"></div>
-            <div class="ba-stat"><span class="ba-num" data-num-before>0</span>% become leads</div>
-            <div class="ba-cap">~2 of 100 visitors fill out a form</div>
+      <div class="wrap fgrid">
+        <div class="fcol-left">
+          <div class="ba">
+            <div class="ba-col">
+              <div class="ba-h">Just a form on your site</div>
+              <div class="dotgrid" data-grid="before"></div>
+              <div class="ba-stat"><span class="ba-num" data-num-before>0</span>% become leads</div>
+              <div class="ba-cap">~2 of 100 visitors fill out a form</div>
+            </div>
+            <div class="ba-col ba-after">
+              <div class="ba-h">With Consent Resolve</div>
+              <div class="dotgrid" data-grid="after"></div>
+              <div class="ba-stat"><span class="ba-num" data-num-after>0</span>% resolved</div>
+              <div class="ba-cap">~35 of 100 identified after they consent</div>
+            </div>
           </div>
-          <div class="ba-col ba-after">
-            <div class="ba-h">With Consent Resolve</div>
-            <div class="dotgrid" data-grid="after"></div>
-            <div class="ba-stat"><span class="ba-num" data-num-after>0</span>% resolved</div>
-            <div class="ba-cap">~35 of 100 identified after they consent</div>
-          </div>
+          <div class="ba-note">Illustrative — actual rates vary by traffic and trade.</div>
         </div>
-        <div class="ba-note">Illustrative — actual rates vary by traffic and trade.</div>
 
-        <div class="payoff" style="--d:1.8s">More booked jobs from traffic you already have — at a flat <strong>$7 a lead</strong>, yours alone, never resold.</div>
-
-        <div class="actions">
-          <a class="btn btn-primary" href="https://consentresolve.com/pricing/">Start getting real leads — flat $7 a lead →</a>
-          <a class="btn btn-ghost" data-link="/demo/sample/" href="/demo/sample/">Replay the demo</a>
+        <div class="fcol-right">
+          <span class="tag">It all comes together</span>
+          <h1>Here's the whole play, working together.</h1>
+          <p class="lede">One consented visitor, every piece firing at once — from anonymous browser to booked job.</p>
+          <div class="finale">
+            <div class="fin-step" style="--d:.15s"><span class="fc">1</span><div>A homeowner browses <span data-biz>your shop</span><small>traffic you already paid to bring in</small></div></div>
+            <div class="fin-step" style="--d:.45s"><span class="fc">2</span><div>They consent<small>now they're identifiable — real name + email</small></div></div>
+            <div class="fin-step" style="--d:.75s"><span class="fc">3</span><div>Their half-finished quote is recovered<small>email backfilled — no dead form</small></div></div>
+            <div class="fin-step" style="--d:1.05s"><span class="fc">4</span><div>They drop into your funnel<small>CRM + retargeting + your own follow-up</small></div></div>
+            <div class="fin-step" style="--d:1.35s"><span class="fc">5</span><div>They come back and call you<small>warm inbound, ready to book</small></div></div>
+          </div>
+          <div class="payoff" style="--d:1.8s">More booked jobs from traffic you already have — at a flat <strong>$7 a lead</strong>, yours alone, never resold.</div>
+          <div class="actions">
+            <a class="btn btn-primary" href="https://consentresolve.com/pricing/">Start getting real leads — flat $7 a lead →</a>
+            <a class="btn btn-ghost" data-link="/demo/sample/" href="/demo/sample/">Replay the demo</a>
+          </div>
         </div>
       </div>
     </section>
