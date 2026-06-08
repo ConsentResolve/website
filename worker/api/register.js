@@ -67,10 +67,7 @@ export async function onRequestPost({ request, env }) {
   // Turnstile (skipped if no secret configured).
   const ts = await verifyTurnstile(env, turnstileToken, ip);
   if (!ts.ok) {
-    // TEMP DIAGNOSTIC — surfaces the exact siteverify reason, then revert.
-    const codes = (ts.data && ts.data["error-codes"]) || [];
-    const dbg = `codes=${JSON.stringify(codes)} token=${turnstileToken ? "present(" + turnstileToken.length + ")" : "MISSING"} err=${ts.error || "-"} secret=${env.TURNSTILE_SECRET ? "set" : "MISSING"}`;
-    return fail(isForm, origin, cors, "turnstile", "Bot check failed. [" + dbg + "]");
+    return fail(isForm, origin, cors, "turnstile", "Bot check failed. Please try again.");
   }
 
   // Duplicate email -> reuse the existing token (idempotent re-entry).
