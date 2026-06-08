@@ -112,33 +112,33 @@
         transition: transform 0.35s ease, box-shadow 0.3s ease;
       }
       .consent.show { transform: translateY(0); }
-      .consent.highlight { box-shadow: 0 -10px 40px rgba(34,197,94,0.35), inset 0 0 0 2px #22c55e; }
+      .consent.highlight { box-shadow: 0 -10px 40px rgba(29,78,216,0.30), inset 0 0 0 2px #1d4ed8; }
       .consent .inner { max-width: 1080px; margin: 0 auto; display: flex; gap: 18px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
       .consent p { margin: 0; font-size: 14px; max-width: 64ch; }
-      .consent a { color: #7dd3fc; }
-      .consent .actions { display: flex; gap: 10px; align-items: center; }
-      .consent .accept { background: #22c55e; color: #052e16; }
+      .consent a { color: #93c5fd; }
+      .consent .actions { display: flex; gap: 10px; align-items: flex-end; }
+      .consent .accept { background: #1d4ed8; color: #fff; }
       .consent .accept.pulse { animation: cr-pulse 1.5s infinite; }
       @keyframes cr-pulse {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.55); }
-        50% { box-shadow: 0 0 0 9px rgba(34,197,94,0); }
+        0%, 100% { box-shadow: 0 0 0 0 rgba(29,78,216,0.55); }
+        50% { box-shadow: 0 0 0 9px rgba(29,78,216,0); }
       }
       .consent .decline { background: transparent; color: #cbd5e1; border: 1px solid #334155; }
       .consent .accept[disabled] { opacity: 0.6; cursor: progress; }
-      .consent .hint { width: 100%; margin-top: 10px; font-size: 13px; color: #86efac; font-weight: 600; }
+      .consent .hint { width: 100%; margin-top: 10px; font-size: 13px; color: #93c5fd; font-weight: 600; }
 
-      /* Coachmark pointing at the banner (Step 1) */
+      /* Coachmark sits directly above the Accept button (Step 1), all viewports */
+      .accept-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
       .coach {
-        position: fixed; left: 50%; transform: translateX(-50%);
-        bottom: 96px; z-index: 55;
+        display: none; position: relative;
         background: #fff; color: var(--ink); border: 1px solid var(--line);
-        padding: 10px 16px; border-radius: 999px; font-weight: 700; font-size: 14px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-        display: none; align-items: center; gap: 8px;
+        padding: 7px 12px; border-radius: 10px; font-weight: 700; font-size: 13px; line-height: 1.3;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.18); max-width: 240px; text-align: center;
         animation: cr-bob 1.6s ease-in-out infinite;
       }
-      .coach.show { display: inline-flex; }
-      @keyframes cr-bob { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(5px); } }
+      .coach.show { display: block; }
+      .coach::after { content: ""; position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%); border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 8px solid #fff; }
+      @keyframes cr-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
 
       /* Guided-journey modal (sample-site look, not CR branding) */
       .journey {
@@ -343,9 +343,6 @@
       </div>
     </footer>
 
-    <!-- Coachmark for Step 1 -->
-    <div class="coach" id="coach">👇 Step 1 — accept the consent banner, like your customer would</div>
-
     <!-- Consent banner (not pre-checked; consent is the explicit Accept click) -->
     <div class="consent" id="consent" role="dialog" aria-live="polite" aria-label="Cookie consent">
       <div class="inner">
@@ -355,7 +352,10 @@
         </p>
         <div class="actions">
           <button class="btn decline" id="cr-decline" type="button">Decline</button>
-          <button class="btn accept" id="cr-accept" type="button">Accept</button>
+          <div class="accept-wrap">
+            <div class="coach" id="coach">👇 Step 1 — accept the consent banner, like your customer would</div>
+            <button class="btn accept" id="cr-accept" type="button">Accept</button>
+          </div>
         </div>
       </div>
     </div>
