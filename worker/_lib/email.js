@@ -13,6 +13,12 @@ function esc(s) {
   }[c]));
 }
 
+// First name, title-cased, with a graceful fallback (avoids "Hi HELP").
+function firstName(p) {
+  const n = String(p.name || "").trim().split(/\s+/)[0];
+  return n ? n.charAt(0).toUpperCase() + n.slice(1).toLowerCase() : "there";
+}
+
 function row(label, value) {
   return `<tr>
     <td style="padding:9px 0;color:#64748b;font-size:13px;width:140px;vertical-align:top">${esc(label)}</td>
@@ -69,7 +75,7 @@ function promoHtml(p, env, baseUrl) {
   const tel = "tel:" + String(t.phone || "").replace(/[^0-9+]/g, "");
   const base = (baseUrl || env.BASE_URL || "https://consentresolve.com").replace(/\/$/, "");
   const quoteUrl = `${base}/demo/sample/get-quote/?dt=${encodeURIComponent(p.id || "")}`;
-  const first = String(p.name || "there").split(/\s+/)[0];
+  const first = firstName(p);
   return `<!doctype html><html><body style="margin:0;padding:24px;background:#f1f5f9;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#0f172a">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto">
     <tr><td style="padding:22px 28px;background:${BLUE};border-radius:14px 14px 0 0">
