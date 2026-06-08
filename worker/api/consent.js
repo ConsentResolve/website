@@ -3,7 +3,7 @@
 // mark emailed -> enroll in sales -> mark enrolled. Email/webhook failures are
 // logged + retried once but never block the confirmation screen.
 
-import { json, clientIp } from "../_lib/http.js";
+import { json, clientIp, baseOrigin } from "../_lib/http.js";
 import { getParticipant, updateParticipant, logEvent, nowIso } from "../_lib/db.js";
 import { sendRevealEmail } from "../_lib/email.js";
 import { enrollSales } from "../_lib/sales.js";
@@ -37,12 +37,13 @@ export async function onRequestPost({ request, env }) {
   await logEvent(env, p.id, "consented", { version, ip });
 
   const enriched = { ...p, consented_at: consentedAt, sample_page: p.sample_page || env.SAMPLE_PATH || "/demo/sample/" };
+  const baseUrl = baseOrigin(request, env);
 
-  // --- Reveal email (retry once) ---
-  let email = await sendRevealEmail(env, enriched);
+  // --- Email (retry once) ---
+  let email = await sendRevealEmail(env, enriched, baseUrl);
   if (!email.ok) {
     await logEvent(env, p.id, "error", { stage: "email", error: email.error, detail: email.detail });
-    email = await sendRevealEmail(env, enriched);
+    email = await sendRevealEmail(env, enriched, baseUrl);
   }
   if (email.ok) {
     await updateParticipant(env, p.id, { status: "emailed", emailed_at: nowIso() });

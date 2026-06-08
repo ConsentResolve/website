@@ -232,6 +232,22 @@
       .qf-submit.go { background: var(--brand); }
       .fade-seq { opacity: 0; transition: opacity 0.5s ease; }
       .fade-seq.show { opacity: 1; }
+
+      /* Sample quote form (lands here from the nurture email's CTA) */
+      section.quote { background: var(--bg-soft); }
+      .quote-card { max-width: 640px; margin: 0 auto; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 26px; }
+      .quote-card h2 { margin: 0 0 4px; font-size: 26px; font-weight: 800; }
+      .quote-card .qsub { color: var(--ink-2); margin: 0 0 18px; }
+      .qgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      @media (max-width: 560px) { .qgrid { grid-template-columns: 1fr; } }
+      .qfield { display: flex; flex-direction: column; gap: 5px; }
+      .qfield.full { grid-column: 1 / -1; }
+      .qfield label { font-size: 13px; font-weight: 600; color: var(--ink); }
+      .qfield input, .qfield textarea { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font: inherit; font-size: 14px; }
+      .qfield input:focus, .qfield textarea:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(29,78,216,0.12); }
+      .quote-submit { margin-top: 16px; width: 100%; background: var(--brand); color: #fff; border: none; border-radius: 9px; padding: 13px; font-weight: 700; font-size: 15px; cursor: pointer; }
+      .quote-done { text-align: center; padding: 26px 10px; }
+      .quote-done .big { font-size: 42px; }
     </style>
   </head>
   <body>
@@ -283,6 +299,25 @@
         <h2 class="section-title">What neighbors say</h2>
         <p class="section-sub">Real talk from folks down the street.</p>
         <div class="review-grid" data-reviews></div>
+      </div>
+    </section>
+
+    <section class="block quote" id="quote">
+      <div class="wrap">
+        <div class="quote-card" id="quote-card">
+          <h2>Get your free quote</h2>
+          <p class="qsub">Tell us what you need — we'll get right back to you. No obligation.</p>
+          <form id="quote-form">
+            <div class="qgrid">
+              <div class="qfield"><label for="qname">Name</label><input id="qname" name="qname" type="text" required placeholder="Your name" /></div>
+              <div class="qfield"><label for="qemail">Email</label><input id="qemail" name="qemail" type="email" required placeholder="you@email.com" /></div>
+              <div class="qfield"><label for="qphone">Phone</label><input id="qphone" name="qphone" type="tel" placeholder="(555) 555-5555" /></div>
+              <div class="qfield"><label for="qservice">Service needed</label><input id="qservice" name="qservice" type="text" data-quote-svc placeholder="What can we help with?" /></div>
+              <div class="qfield full"><label for="qdetails">Details</label><textarea id="qdetails" name="qdetails" rows="3" placeholder="Tell us a little about the job"></textarea></div>
+            </div>
+            <button class="quote-submit" type="submit">Request my free quote</button>
+          </form>
+        </div>
       </div>
     </section>
 
@@ -338,6 +373,7 @@
         }
         $all("[data-phone]").forEach((el) => ((el as HTMLAnchorElement).href = "tel:" + (p.phone || "").replace(/[^0-9+]/g, "")));
         const pt = $("[data-phone-text]"); if (pt) pt.textContent = p.phone;
+        const qs = $("[data-quote-svc]"); if (qs && p.label) (qs as HTMLInputElement).value = p.label.charAt(0).toUpperCase() + p.label.slice(1);
         document.title = `${p.biz} — Licensed, Insured, Local`;
 
         const svc = $("[data-services]");
@@ -430,7 +466,7 @@
           <p>Still the same site — nothing switched, nobody got redirected. The moment they accepted, <span class="em">this hit the business owner's inbox</span>:</p>
           ${leadCard(lead)}
           <div class="aha"><strong>Notice anything?</strong> This lead is <em>you</em>. It's a real name and a consented email — not a number to cold-call, not a shared lead. Yours alone.</div>
-          <p class="journey-note">${emailed ? "We also sent this to your inbox for real — go check." : "Heads up: the live email didn't send (sending domain may still be verifying), but this is exactly what lands."}</p>
+          <p class="journey-note">${emailed ? "Check your inbox — we also sent you the flip side: the email your customer gets the moment they consent, nudging them to call you or finish their quote." : "Heads up: the live email didn't send yet (sending domain may still be verifying) — but your customer would get a friendly nudge to call you or finish their quote."}</p>
           <div class="journey-actions">
             <button class="btn btn-primary" id="j2-next" type="button">Next: where that lead goes →</button>
             <a class="btn btn-ghost" href="/demo/">Replay</a>
@@ -553,6 +589,16 @@
         window.location.assign(`/demo/done/?dt=${encodeURIComponent(dt)}`);
       });
 
+      // Sample quote form — submits nowhere (it's a demo); shows a thank-you.
+      $("#quote-form")?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const form = e.currentTarget as HTMLFormElement;
+        const nm = (form.querySelector('[name="qname"]') as HTMLInputElement)?.value.trim() || "there";
+        const biz = (PROFILE && PROFILE.biz) || "We";
+        ($("#quote-card") as HTMLElement).innerHTML =
+          `<div class="quote-done"><div class="big">✅</div><h2>Thanks, ${esc(nm)}!</h2><p class="qsub">Your request is in — ${esc(biz)} will reach out shortly to get you scheduled.</p></div>`;
+      });
+
       async function init() {
         try {
           const res = await fetch("/api/visit", {
@@ -563,7 +609,13 @@
           const data = await res.json();
           applyProfile(data.profile);
         } catch {}
-        // Kick off the guided journey once the page has themed.
+        // Arriving from the nurture email's "Finish your quote" link → skip the
+        // guided modal and drop them straight on the quote form.
+        if (location.hash === "#quote") {
+          document.getElementById("quote")?.scrollIntoView({ behavior: "smooth" });
+          return;
+        }
+        // Otherwise kick off the guided journey once the page has themed.
         setTimeout(step1, 700);
       }
 

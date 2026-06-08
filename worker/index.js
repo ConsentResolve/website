@@ -12,13 +12,18 @@ import * as register from "./api/register.js";
 import * as visit from "./api/visit.js";
 import * as consent from "./api/consent.js";
 import * as status from "./api/status.js";
+import * as preview from "./api/preview.js";
 
 const ROUTES = {
   "/api/register": register,
   "/api/visit": visit,
   "/api/consent": consent,
   "/api/status": status,
+  "/api/preview": preview,
 };
+
+// Routes that don't need the D1 binding (so they work even before it's enabled).
+const NO_DB = new Set(["/api/preview"]);
 
 export default {
   async fetch(request, env, ctx) {
@@ -28,7 +33,7 @@ export default {
     if (mod) {
       // Demo backend needs the D1 binding. Until it's enabled in wrangler.jsonc
       // the API answers with a clean 503 (the static site is unaffected).
-      if (!env.DB && request.method.toUpperCase() !== "OPTIONS") {
+      if (!env.DB && !NO_DB.has(url.pathname) && request.method.toUpperCase() !== "OPTIONS") {
         return new Response(
           JSON.stringify({ error: "demo_unconfigured", message: "The live demo backend isn't enabled yet." }),
           { status: 503, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } }

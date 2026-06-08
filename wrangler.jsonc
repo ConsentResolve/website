@@ -28,7 +28,7 @@
   "vars": {
     "FROM_EMAIL": "demo@consentresolve.com",
     "REPLY_TO": "sales@consentresolve.com",
-    "EMAIL_MODE": "owner",
+    "EMAIL_MODE": "promo",
     "SAMPLE_PATH": "/demo/sample/",
     "CONSENT_TEXT_VERSION": "v1-2026-06",
     "ALLOWED_ORIGINS": "https://consentresolve.com,https://www.consentresolve.com"

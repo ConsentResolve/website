@@ -49,6 +49,39 @@ function ownerHtml(p, env) {
   </table></body></html>`;
 }
 
+// Visitor-facing nurture email — this is the message the HOMEOWNER receives, so
+// it's branded as the contractor (the sample business), not Consent Resolve. It
+// drives them back to the contractor: call, or finish the quote. Warm inbound
+// (homeowner -> contractor), never an outbound cold-call. This is the email the
+// demo sends after consent (EMAIL_MODE=promo).
+function promoHtml(p, env, baseUrl) {
+  const t = tradeProfile(p.trade);
+  const BLUE = "#1d4ed8";
+  const tel = "tel:" + String(t.phone || "").replace(/[^0-9+]/g, "");
+  const base = (baseUrl || env.BASE_URL || "https://consentresolve.com").replace(/\/$/, "");
+  const quoteUrl = `${base}/demo/sample/?dt=${encodeURIComponent(p.id || "")}#quote`;
+  const first = String(p.name || "there").split(/\s+/)[0];
+  return `<!doctype html><html><body style="margin:0;padding:24px;background:#f1f5f9;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#0f172a">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto">
+    <tr><td style="padding:22px 28px;background:${BLUE};border-radius:14px 14px 0 0">
+      <div style="font-size:19px;font-weight:800;color:#fff">${esc(t.biz)}</div>
+      <div style="font-size:13px;color:#dbeafe;margin-top:2px">Licensed · Insured · Locally owned</div>
+    </td></tr>
+    <tr><td style="padding:26px 28px;background:#fff;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 14px 14px">
+      <p style="margin:0 0 14px;font-size:16px;line-height:1.5">Hi ${esc(first)}, thanks for stopping by ${esc(t.biz)}.</p>
+      <p style="margin:0 0 18px;font-size:15px;line-height:1.55">Looks like you were checking out ${esc(t.label)}. Want us to take care of it? Two easy ways to get started — whatever's quicker for you:</p>
+      <div style="text-align:center;margin:22px 0 8px">
+        <a href="${quoteUrl}" style="display:inline-block;background:${BLUE};color:#fff;padding:14px 26px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;margin:4px">Finish your free quote →</a>
+      </div>
+      <div style="text-align:center;margin:0 0 8px">
+        <a href="${tel}" style="display:inline-block;background:#fff;color:${BLUE};border:1px solid ${BLUE};padding:13px 26px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;margin:4px">Or call us: ${esc(t.phone)}</a>
+      </div>
+      <p style="margin:20px 0 0;font-size:13px;color:#64748b;line-height:1.5">No pressure, and no spam — you'll only hear from us because you asked. Reply anytime and a real person answers.</p>
+      <p style="margin:14px 0 0;font-size:11px;color:#94a3b8;line-height:1.5">This is a Consent Resolve demo — ${esc(t.biz)} is fictional and the only person we emailed is you. It shows the consented follow-up that pulls a visitor back to call you or finish their quote.</p>
+    </td></tr>
+  </table></body></html>`;
+}
+
 function customerHtml(p, env) {
   const t = tradeProfile(p.trade);
   return `<!doctype html><html><body style="margin:0;padding:24px;background:#f1f5f9;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:${NAVY}">
@@ -65,15 +98,27 @@ function customerHtml(p, env) {
   </table></body></html>`;
 }
 
-export async function sendRevealEmail(env, p) {
+// Build the email (subject + html) for a given mode. Shared by the live send
+// and the /api/preview route so what you preview is exactly what sends.
+//   promo    (default) — visitor nurture: call us / finish your quote
+//   owner               — the "new identified lead" reveal
+//   customer            — privacy-experience confirmation
+export function renderEmail(env, p, baseUrl, modeOverride) {
+  const mode = (modeOverride || env.EMAIL_MODE || "promo").toLowerCase();
+  const t = tradeProfile(p.trade);
+  if (mode === "owner") {
+    return { subject: `🎯 New identified lead: ${p.name} from ${p.business_name || "your demo"}`, html: ownerHtml(p, env) };
+  }
+  if (mode === "customer") {
+    return { subject: "Thanks for visiting — your consent is on file", html: customerHtml(p, env) };
+  }
+  return { subject: `Your free ${t.label} quote from ${t.biz} — let's get you booked`, html: promoHtml(p, env, baseUrl) };
+}
+
+export async function sendRevealEmail(env, p, baseUrl) {
   if (!env.RESEND_API_KEY) return { ok: false, error: "missing_resend_key" };
 
-  const mode = (env.EMAIL_MODE || "owner").toLowerCase();
-  const html = mode === "customer" ? customerHtml(p, env) : ownerHtml(p, env);
-  const subject =
-    mode === "customer"
-      ? "Thanks for visiting — your consent is on file"
-      : `🎯 New identified lead: ${p.name} from ${p.business_name || "your demo"}`;
+  const { subject, html } = renderEmail(env, p, baseUrl);
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
