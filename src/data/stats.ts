@@ -95,7 +95,7 @@ export const STAT_SECTIONS: StatsSection[] = [
     eyebrow: "The problem",
     headline: "You're Watching Revenue Walk Away",
     subhead:
-      "Most visitors never identify themselves. They browse, compare, and leave — often to buy from competitors.",
+      "Most visitors never identify themselves. They browse, compare, and leave — often to hire a competitor.",
     tone: "warning",
     stats: [
       {
@@ -106,38 +106,11 @@ export const STAT_SECTIONS: StatsSection[] = [
         source: { name: "WordStream", url: "https://www.wordstream.com/blog/conversion-rate-benchmarks" },
       },
       {
-        value: "70%",
-        label: "Abandon Carts",
-        description: "Average cart abandonment rate across all industries.",
-        numeric: { value: 70, suffix: "%" },
-        source: { name: "Baymard Institute", url: "https://baymard.com/lists/cart-abandonment-rate" },
-      },
-      {
-        value: "26%",
-        label: "Buy From Competitors",
-        description: "Visitors who research on your site then purchase elsewhere.",
-        numeric: { value: 26, suffix: "%" },
-        source: { name: "MobiLoud", url: "https://www.mobiloud.com/blog/cart-abandonment-statistics" },
-      },
-      {
         value: "87s",
         label: "Average Browse Time",
         description: "You have less than 90 seconds to capture their attention.",
         numeric: { value: 87, suffix: "s" },
         source: { name: "Spectrum Infinite", url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/" },
-      },
-      {
-        value: "70%",
-        label: "Decide Anonymously",
-        description: "Purchase decisions made before identifying themselves.",
-        numeric: { value: 70, suffix: "%" },
-        source: { name: "Challenger Inc.", url: "https://challengerinc.com/blog/how-sales-leaders-can-unlock-seller-performance-in-an-uncertain-economy/" },
-      },
-      {
-        value: "$5.6T",
-        label: "Lost Globally",
-        description: "Revenue abandoned in carts each year worldwide.",
-        source: { name: "Envisage Digital", url: "https://www.envisagedigital.co.uk/shopping-cart-abandonment-statistics/" },
       },
     ],
     callout: {
@@ -217,53 +190,6 @@ export const STAT_SECTIONS: StatsSection[] = [
       title: "The lead trap",
       body:
         "You pay $25–$100+ for a lead that four other contractors are also calling. Angi charges you whether the homeowner picks up or not — and the FTC ordered HomeAdvisor to pay up to $7.2 million to settle charges of misleading pros about lead quality. Meanwhile, the visitors on your own website — the ones you already paid to get there — leave with no name at all. Those leads would be exclusive. And they'd be yours.",
-    },
-  },
-  // TODO (WS7 / pre-launch): this section + the "$5.6T lost globally" stat in
-  // anonymous-traffic read DTC/enterprise-sales ("sales reps", "550h per rep"),
-  // not home-services contractor. Sourced, so left in place rather than deleted
-  // — marketing to reframe or cut before launch. Flagged, not silently kept.
-  {
-    slug: "wasted-effort",
-    eyebrow: "The impact",
-    headline: "Your Team Is Drowning in Inefficiency",
-    subhead:
-      "Without visitor data, your sales and marketing teams waste time on manual work instead of revenue-generating activities.",
-    tone: "warning",
-    stats: [
-      {
-        value: "72%",
-        label: "Time Wasted",
-        description: "Sales reps spending time on admin instead of selling.",
-        numeric: { value: 72, suffix: "%" },
-        source: { name: "Salesforce", url: "https://www.salesforce.com/news/stories/sales-research-2023/" },
-      },
-      {
-        value: "550h",
-        label: "Lost Per Rep",
-        description: "Annual hours wasted on bad data and manual cleanup.",
-        numeric: { value: 550, suffix: "h" },
-        source: { name: "Neil Patel", url: "https://neilpatel.com/blog/bad-data-killing-sales/" },
-      },
-      {
-        value: "42h",
-        label: "Response Delay",
-        description: "Average lead response time with manual processes.",
-        numeric: { value: 42, suffix: "h" },
-        source: { name: "Chili Piper", url: "https://www.chilipiper.com/article/speed-to-lead-statistics" },
-      },
-      {
-        value: "21×",
-        label: "Less Likely",
-        description: "To qualify when waiting 30 min vs 5 min to respond.",
-        numeric: { value: 21, suffix: "×" },
-        source: { name: "MIT Study", url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf" },
-      },
-    ],
-    callout: {
-      title: "Every minute compounds",
-      body:
-        "550 wasted hours per rep per year is the equivalent of nearly three months of work. Speed isn't optional — speed is the job.",
     },
   },
   {
@@ -392,25 +318,12 @@ export const SOURCE_GROUPS: SourceGroup[] = [
     title: "Conversion & funnel research",
     sources: [
       { name: "WordStream", url: "https://www.wordstream.com/blog/conversion-rate-benchmarks" },
-      { name: "Baymard Institute", url: "https://baymard.com/lists/cart-abandonment-rate" },
-      { name: "MobiLoud", url: "https://www.mobiloud.com/blog/cart-abandonment-statistics" },
       { name: "Spectrum Infinite", url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/" },
-      { name: "Challenger Inc.", url: "https://challengerinc.com/blog/how-sales-leaders-can-unlock-seller-performance-in-an-uncertain-economy/" },
-      { name: "Envisage Digital", url: "https://www.envisagedigital.co.uk/shopping-cart-abandonment-statistics/" },
-      { name: "BigSur AI / Wiser", url: "https://bigsur.ai/blog/cro-statistics" },
-      { name: "ConvertCart", url: "https://www.convertcart.com/blog/cart-abandonment-rate-statistics" },
-      { name: "Klaviyo", url: "https://www.klaviyo.com/blog/abandoned-cart-benchmarks" },
-      { name: "BDOW", url: "https://bdow.com/stories/email-signup-benchmarks/" },
-      { name: "Practical Ecommerce", url: "https://www.practicalecommerce.com/how-brands-boost-roi-with-smart-data" },
-      { name: "Retainful", url: "https://www.retainful.com/blog/grow-your-email-list" },
     ],
   },
   {
-    title: "Sales productivity research",
+    title: "Speed-to-lead research",
     sources: [
-      { name: "Salesforce", url: "https://www.salesforce.com/news/stories/sales-research-2023/" },
-      { name: "Neil Patel", url: "https://neilpatel.com/blog/bad-data-killing-sales/" },
-      { name: "Chili Piper", url: "https://www.chilipiper.com/article/speed-to-lead-statistics" },
       { name: "MIT Study", url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf" },
     ],
   },

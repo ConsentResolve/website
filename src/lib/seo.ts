@@ -128,7 +128,7 @@ export const softwareApplicationSchema = {
     },
     description: "Flat $7 per recovered lead. Card required. No contract, cancel anytime.",
   },
-  provider: { "@type": "Organization", name: SITE.name, url: SITE.url },
+  provider: { "@id": `${SITE.url}/#organization` },
 };
 
 /** Founder Person schema — fed by src/data/team.ts. */
@@ -221,7 +221,7 @@ export function serviceSchema(opts: {
   return {
     "@context": "https://schema.org",
     "@type": "Service",
-    provider: { "@type": "Organization", name: SITE.name, url: SITE.url },
+    provider: { "@id": `${SITE.url}/#organization` },
     serviceType: opts.serviceType,
     ...(opts.areaServed ? { areaServed: opts.areaServed } : {}),
     ...(opts.description ? { description: opts.description } : {}),
@@ -239,7 +239,7 @@ export function industryServiceSchema(opts: {
     "@type": "Service",
     name: `${opts.tradeName} Lead Identification`,
     serviceType: `Consent-based visitor identification for ${opts.tradeName.toLowerCase()} businesses`,
-    provider: { "@type": "Organization", name: SITE.name, url: SITE.url + "/" },
+    provider: { "@id": `${SITE.url}/#organization` },
     areaServed: "US",
     description: opts.description,
     offers: {

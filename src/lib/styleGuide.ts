@@ -43,7 +43,6 @@ export const STYLE_GUIDE: StyleGuideEntry[] = [
   // Composite UI
   { slug: "logo-carousel", title: "Logo Carousel", description: "Marquee, grid, and static brand strips." },
   { slug: "calculators", title: "Calculators", description: "Interactive ROI and lead-cost calculators." },
-  { slug: "testimonials", title: "Testimonials", description: "Customer testimonial card variants." },
   { slug: "product-demo", title: "Product Demo Screens", description: "Anonymized HTML/CSS replicas of the dashboard for landing-page use." },
   // Sections — production marketing-page composites
   { slug: "hero", title: "Hero Section", description: "Two-column hero with eyebrow + headline + subhead + CTAs + a configurable right-side panel (lead-phone | lead-visit | illustration)." },

@@ -8,7 +8,8 @@ import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FAQSection from "~/components/sections/FAQSection.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import { IconArrowRight, IconEye } from "@tabler/icons-react";
-import { breadcrumbSchema, howToSchema } from "~/lib/seo";
+import { breadcrumbSchema, howToSchema, faqSchema } from "~/lib/seo";
+import { HOMEPAGE_FAQS } from "~/data/homepageFaqs";
 
 const breadcrumbs = breadcrumbSchema([
   { name: "Home", href: "/" },
@@ -33,7 +34,7 @@ const howTo = howToSchema({
 <BaseLayout
   title="How Consent Resolve Works — Anonymous Homeowner to Booked Job in Five Steps"
   description="From an anonymous bounce to a booked job in five steps. Same ad budget, more inbound calls. Walk through the consent-first recovery flow and the five product screens you'll actually use."
-  schema={[breadcrumbs, howTo]}
+  schema={[breadcrumbs, howTo, faqSchema(HOMEPAGE_FAQS)]}
 >
   <!-- Hero -->
   <section class="relative overflow-hidden">
