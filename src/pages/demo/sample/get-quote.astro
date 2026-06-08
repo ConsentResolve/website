@@ -1,0 +1,161 @@
+---
+// Email landing page: a real, fillable "Get your free quote" form pre-filled
+// with the visitor's consented data. This is where the nurture email's
+// "Finish your free quote" CTA goes — NOT the tour. Sample-site shell. noindex.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Get your free quote — Summit Home Services</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    <style is:global>
+      :root { --brand:#1d4ed8; --ink:#0f172a; --ink-2:#475569; --line:#e2e8f0; --bg:#fff; --bg-soft:#f8fafc; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body { font-family: "Inter", system-ui, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+      .ribbon { background: #0f172a; color: #cbd5e1; font-size: 13px; text-align: center; padding: 7px 16px; }
+      .ribbon strong { color: #fff; }
+      .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+      header.site { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--line); }
+      .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; }
+      .logo .mark { width: 34px; height: 34px; border-radius: 9px; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+      .nav { display: flex; gap: 22px; align-items: center; font-size: 15px; color: var(--ink-2); }
+      .nav a { color: var(--ink-2); text-decoration: none; white-space: nowrap; }
+      .nav .links { display: inline-flex; gap: 22px; align-items: center; }
+      .nav .call { background: var(--brand); color: #fff; padding: 9px 16px; border-radius: 8px; font-weight: 700; }
+      @media (max-width: 720px) { .nav .links { display: none; } }
+      .qhero { background: linear-gradient(180deg, var(--bg-soft), #fff); padding: 40px 0 56px; }
+      .tag { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); background: #eff6ff; padding: 5px 11px; border-radius: 999px; }
+      .qhero h1 { font-size: 32px; font-weight: 800; margin: 12px 0 6px; }
+      .qhero .lede { font-size: 16px; color: var(--ink-2); max-width: 54ch; margin: 0 0 22px; }
+      .qgrid { display: grid; grid-template-columns: 1fr 0.78fr; gap: 32px; align-items: center; }
+      @media (max-width: 860px) { .qgrid { grid-template-columns: 1fr; gap: 24px; } .qmedia { order: -1; } }
+      .qmedia img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 16px; box-shadow: 0 18px 40px rgba(8,15,30,0.16); display: block; }
+      .gqcard { max-width: 560px; border: 1px solid var(--line); border-radius: 14px; padding: 22px; background: #fff; box-shadow: 0 8px 24px rgba(8,15,30,0.08); }
+      .gqgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      @media (max-width: 460px) { .gqgrid { grid-template-columns: 1fr; } }
+      .gqf { display: flex; flex-direction: column; gap: 5px; }
+      .gqf.full { grid-column: 1 / -1; }
+      .gqf label { font-size: 13px; font-weight: 600; color: var(--ink); }
+      .gqf input, .gqf textarea { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font: inherit; font-size: 14px; background: #fff; }
+      .gqf input:focus, .gqf textarea:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(29,78,216,0.12); }
+      .gq-prefill { background: #f0fdf4; border-color: #6ee7b7; }
+      .gq-note { font-size: 12.5px; color: #047857; margin: 2px 0 12px; font-weight: 600; }
+      .gq-submit { margin-top: 6px; width: 100%; background: var(--brand); color: #fff; border: none; border-radius: 9px; padding: 13px; font-weight: 700; font-size: 15px; cursor: pointer; }
+      .gq-done { text-align: center; padding: 30px 10px; }
+      .gq-done .big { font-size: 42px; }
+      footer.site { border-top: 1px solid var(--line); padding: 20px 0; color: var(--ink-2); font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <div class="ribbon">👋 Welcome back — let's finish your free quote.</div>
+
+    <div class="wrap">
+      <header class="site">
+        <div class="logo"><span class="mark" data-mark>S</span> <span data-biz>Summit Home Services</span></div>
+        <nav class="nav">
+          <span class="links">
+            <a data-link="/demo/sample/" href="/demo/sample/">Home</a>
+            <a data-link="/demo/sample/#services" href="/demo/sample/#services">Services</a>
+            <a data-link="/demo/sample/#reviews" href="/demo/sample/#reviews">Reviews</a>
+            <a data-link="/demo/sample/get-quote/" href="/demo/sample/get-quote/">Free Quote</a>
+          </span>
+          <a class="call" data-phone href="#">Call now</a>
+        </nav>
+      </header>
+    </div>
+
+    <section class="qhero">
+      <div class="wrap">
+        <span class="tag">Free quote</span>
+        <h1>Pick up where you left off, <span data-firstname>there</span>.</h1>
+        <p class="lede">We saved your details so you don't have to start over. Look it over and hit send — we'll be in touch fast.</p>
+
+        <div class="qgrid">
+          <div class="gqcard" id="gq-card">
+            <p class="gq-note" id="gq-note" style="display:none">✓ Pre-filled from your earlier visit</p>
+            <form id="gq-form">
+              <div class="gqgrid">
+                <div class="gqf"><label for="gq-name">Name</label><input id="gq-name" name="name" type="text" required placeholder="Your name" data-pf="name" /></div>
+                <div class="gqf"><label for="gq-email">Email</label><input id="gq-email" name="email" type="email" required placeholder="you@email.com" data-pf="email" /></div>
+                <div class="gqf"><label for="gq-phone">Phone</label><input id="gq-phone" name="phone" type="tel" placeholder="(555) 555-5555" data-pf="phone" /></div>
+                <div class="gqf"><label for="gq-service">Service needed</label><input id="gq-service" name="service" type="text" placeholder="What can we help with?" data-pf="service" /></div>
+                <div class="gqf full"><label for="gq-details">Details</label><textarea id="gq-details" name="details" rows="3" placeholder="Tell us a little about the job"></textarea></div>
+              </div>
+              <button class="gq-submit" type="submit">Request my free quote</button>
+            </form>
+          </div>
+          <div class="qmedia"><img data-hero-img src="/demo/trades/handyman.jpg" alt="" loading="eager" /></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site">
+      <div class="wrap">
+        <span data-biz>Summit Home Services</span> · Licensed &amp; insured · <span data-phone-text>(555) 010-0100</span>
+        <div style="margin-top:6px;font-size:12px;color:#94a3b8">Fictional business for the Consent Resolve live demo.</div>
+      </div>
+    </footer>
+
+    <script>
+      const dt = new URLSearchParams(location.search).get("dt") || "";
+      const $ = (s: string) => document.querySelector(s);
+      const $all = (s: string) => Array.from(document.querySelectorAll(s));
+
+      function withDt(base: string) {
+        if (!dt) return base;
+        const i = base.indexOf("#");
+        const path = i >= 0 ? base.slice(0, i) : base;
+        const frag = i >= 0 ? base.slice(i) : "";
+        return path + (path.indexOf("?") >= 0 ? "&" : "?") + "dt=" + encodeURIComponent(dt) + frag;
+      }
+      $all("[data-link]").forEach((a) => { (a as HTMLAnchorElement).href = withDt((a as HTMLElement).getAttribute("data-link") || ""); });
+
+      function cap(s: string) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
+      (async function init() {
+        try {
+          const res = await fetch("/api/visit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ dt }) });
+          const d = await res.json();
+          const p = d.profile || {};
+          $all("[data-biz]").forEach((el) => (el.textContent = p.biz || "Summit Home Services"));
+          const mk = $("[data-mark]"); if (mk) mk.textContent = (p.biz || "S").trim().charAt(0).toUpperCase();
+          $all("[data-phone]").forEach((el) => ((el as HTMLAnchorElement).href = "tel:" + String(p.phone || "").replace(/[^0-9+]/g, "")));
+          const pt = $("[data-phone-text]"); if (pt) pt.textContent = p.phone || "";
+          const img = $("[data-hero-img]") as HTMLImageElement | null;
+          if (img) { img.onerror = () => { if (!img.src.endsWith("/handyman.jpg")) img.src = "/demo/trades/handyman.jpg"; }; if (p.image) img.src = p.image; }
+          document.title = `Get your free quote — ${p.biz || "Summit Home Services"}`;
+
+          // Pre-fill the form from the consented record.
+          const vals: Record<string, string> = {
+            name: d.name || "",
+            email: d.email || "",
+            phone: d.phone || "",
+            service: p.label ? cap(p.label) : "",
+          };
+          let prefilled = false;
+          Object.keys(vals).forEach((k) => {
+            const el = document.querySelector(`[data-pf="${k}"]`) as HTMLInputElement | null;
+            if (el && vals[k]) { el.value = vals[k]; el.classList.add("gq-prefill"); prefilled = true; }
+          });
+          if (prefilled) { const n = $("#gq-note") as HTMLElement; if (n) n.style.display = "block"; }
+          const fn = $("[data-firstname]"); if (fn && d.name) fn.textContent = String(d.name).split(/\s+/)[0];
+        } catch {}
+      })();
+
+      $("#gq-form")?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const nm = ($("#gq-name") as HTMLInputElement)?.value.trim() || "there";
+        const biz = ($("[data-biz]") as HTMLElement)?.textContent || "We";
+        ($("#gq-card") as HTMLElement).innerHTML =
+          `<div class="gq-done"><div class="big">✅</div><h2>Thanks, ${nm.replace(/</g, "")}!</h2><p class="lede">Your request is in — ${biz} will reach out shortly to get you scheduled.</p></div>`;
+      });
+    </script>
+  </body>
+</html>

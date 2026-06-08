@@ -35,5 +35,5 @@ export async function onRequestPost({ request, env }) {
     await logEvent(env, p.id, "visited", { sample_page: samplePath });
   }
 
-  return json({ ok: true, profile: profileFor(p.trade), name: p.name });
+  return json({ ok: true, profile: profileFor(p.trade), name: p.name, email: p.email, phone: p.phone, business_name: p.business_name });
 }
