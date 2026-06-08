@@ -55,6 +55,7 @@
       .qf-badge.show { opacity: 1; }
       .qf-submit { margin-top: 8px; width: 100%; padding: 11px; border-radius: 8px; border: none; background: #cbd5e1; color: #fff; font-weight: 700; font-size: 14px; transition: background .4s ease; }
       .qf-submit.go { background: var(--brand); }
+      .qf-success { margin-top: 10px; padding: 11px 14px; border-radius: 8px; background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; font-weight: 700; font-size: 14px; text-align: center; }
       .aha { margin-top: 18px; max-width: 560px; padding: 14px 16px; border-left: 4px solid #16a34a; background: #f0fdf4; border-radius: 8px; font-size: 14px; line-height: 1.55; }
       .actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
       .fade-seq { opacity: 0; transition: opacity .5s ease; }
@@ -96,17 +97,10 @@
           <div class="qf-field"><label>Name</label><div class="qf-val" data-qf-name>Jordan Smith</div></div>
           <div class="qf-field"><label>Service needed</label><div class="qf-val" data-qf-svc>Home services</div></div>
           <div class="qf-field"><label>Email</label><div class="qf-val empty" id="qf-email">— left blank<span class="qf-badge" id="qf-badge">✓ backfilled from consent</span></div></div>
-          <div class="qf-field"><label>Phone</label><div class="qf-val empty">— left blank</div></div>
-          <button class="qf-submit" id="qf-submit" type="button" disabled>Submit quote request</button>
-        </div>
-
-        <div class="aha fade-seq" id="qf-aha">
-          <strong>Recovered.</strong> They already consented, so we backfill the one thing that turns a dead form into a lead: their <strong>verified email</strong>. The phone stays blank on purpose — you don't cold-call anyone. They come back and call you when they're ready.
-        </div>
-
-        <div class="actions fade-seq" id="qf-actions">
-          <a class="btn btn-primary" id="continue-tour" href="/demo/sample/">Continue the tour →</a>
-          <a class="btn btn-ghost" data-link="/demo/sample/" href="/demo/sample/">Replay the demo</a>
+          <div class="qf-field"><label>Phone</label><div class="qf-val empty">—</div></div>
+          <div id="qf-cta">
+            <button class="qf-submit" id="qf-submit" type="button" disabled>Submit quote request</button>
+          </div>
         </div>
       </div>
     </section>
@@ -163,10 +157,15 @@
         window.setTimeout(() => {
           const st = $("#qf-status") as HTMLElement;
           if (st) { st.textContent = "Recovered lead"; st.classList.remove("abandoned"); st.classList.add("recovered"); }
-          const sub = $("#qf-submit") as HTMLButtonElement;
-          if (sub) { sub.classList.add("go"); sub.disabled = false; sub.textContent = "Lead recovered ✓"; }
-          ($("#qf-aha") as HTMLElement)?.classList.add("show");
-          ($("#qf-actions") as HTMLElement)?.classList.add("show");
+          const cta = $("#qf-cta") as HTMLElement;
+          if (cta) {
+            const contHref = "/demo/sample/?dt=" + encodeURIComponent(dt) + "&resume=4";
+            const replayHref = "/demo/sample/" + (dt ? "?dt=" + encodeURIComponent(dt) : "");
+            cta.innerHTML =
+              `<div class="qf-success">✓ Lead recovered — the consented email is in your funnel.</div>` +
+              `<div class="actions"><a class="btn btn-primary" href="${contHref}">Continue the tour →</a>` +
+              `<a class="btn btn-ghost" href="${replayHref}">Replay the demo</a></div>`;
+          }
         }, 1900);
       }
 
