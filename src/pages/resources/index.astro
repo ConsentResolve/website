@@ -13,6 +13,7 @@ import { itemListSchema } from "~/lib/seo";
 import { SITE } from "~/lib/site";
 import { RESOURCE_TYPES, RESOURCE_TYPE_ORDER, typeHref, getResources } from "~/lib/resources";
 import { COMPARE_PAGES } from "~/data/compare";
+import { GLOSSARY_TERMS } from "~/data/glossary";
 import {
   IconArrowRight,
   IconChecklist,
@@ -34,14 +35,17 @@ const TYPE_ICON: Record<string, any> = {
 
 // Category cards: the four resource types + Channel Comparisons (lives at /resources/compare/).
 const categories = [
-  ...RESOURCE_TYPE_ORDER.map((type) => ({
-    label: RESOURCE_TYPES[type].label,
-    blurb: RESOURCE_TYPES[type].blurb,
-    href: typeHref(type),
-    count: countOf(type),
-    noun: countOf(type) === 1 ? "piece" : "pieces",
-    Icon: TYPE_ICON[type],
-  })),
+  ...RESOURCE_TYPE_ORDER.map((type) => {
+    const count = type === "glossary" ? GLOSSARY_TERMS.length : countOf(type);
+    return {
+      label: RESOURCE_TYPES[type].label,
+      blurb: RESOURCE_TYPES[type].blurb,
+      href: typeHref(type),
+      count,
+      noun: type === "glossary" ? "terms" : count === 1 ? "piece" : "pieces",
+      Icon: TYPE_ICON[type],
+    };
+  }),
   {
     label: "Channel Comparisons",
     blurb:
