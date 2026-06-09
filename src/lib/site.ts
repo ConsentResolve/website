@@ -25,6 +25,7 @@ export const PRIMARY_NAV: NavItem[] = [
   { label: "Features", href: "/features/" },
   { label: "How It Works", href: "/how-it-works/" },
   { label: "Industries", href: "/industries/" },
+  { label: "Resources", href: "/resources/" },
   { label: "Pricing", href: "/pricing/" },
 ];
 
@@ -55,6 +56,7 @@ export const FOOTER_NAV = {
     { label: "About", href: "/about/" },
     { label: "Why consent-first", href: "/why-consent-first/" },
     { label: "Contact", href: "/contact/" },
+    { label: "Resource Center", href: "/resources/" },
     { label: "Stats & Sources", href: "/stats/" },
     { label: "Glossary", href: "/glossary/" },
     { label: "FAQ", href: "/faq/" },

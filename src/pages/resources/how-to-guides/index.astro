@@ -1,0 +1,56 @@
+---
+/**
+ * How-To Guides index — /resources/how-to-guides/. Lists every published
+ * how-to guide, newest first. Emits ItemList JSON-LD.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Breadcrumbs from "~/components/Breadcrumbs.astro";
+import Badge from "~/components/ui/Badge.astro";
+import ResourceGrid from "~/components/resources/ResourceGrid.astro";
+import { itemListSchema } from "~/lib/seo";
+import { SITE } from "~/lib/site";
+import { RESOURCE_TYPES, resourceHref, getResources } from "~/lib/resources";
+
+const meta = RESOURCE_TYPES["how-to-guide"];
+const entries = await getResources("how-to-guide");
+
+const canonical = `${SITE.url}/resources/how-to-guides/`;
+const schemas = [
+  itemListSchema({
+    name: "Consent Resolve How-To Guides",
+    items: entries.map((e) => ({
+      name: e.data.title,
+      url: `${SITE.url}${resourceHref(e.data)}`,
+    })),
+  }),
+];
+
+const breadcrumbs = [
+  { name: "Home", href: "/" },
+  { name: "Resources", href: "/resources/" },
+  { name: meta.label, href: "/resources/how-to-guides/" },
+];
+---
+
+<BaseLayout
+  title="How-To Guides for Home-Service Contractors | Consent Resolve"
+  description={meta.blurb}
+  canonical={canonical}
+  schema={schemas}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-content pb-4 pt-10">
+    <div class="max-w-3xl">
+      <div class="mb-6"><Badge tone="brand" variant="soft" size="md" uppercase>{meta.label}</Badge></div>
+      <h1 class="display-1 text-[color:var(--color-ink)]">How-To Guides</h1>
+      <p class="mt-6 text-lg leading-relaxed text-[color:var(--color-ink-2)]">{meta.blurb}</p>
+    </div>
+  </section>
+
+  <section class="section-tight pt-6">
+    <div class="container-content">
+      <ResourceGrid entries={entries} />
+    </div>
+  </section>
+</BaseLayout>

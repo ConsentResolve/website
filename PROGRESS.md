@@ -29,8 +29,8 @@ contractor-only, consent-first, no fabricated testimonials.
 
 ## Chunk status
 
-- [x] **Chunk 1 — Content model + first guide** *(this commit)*
-- [ ] Chunk 2 — Hub + type index + nav/footer links
+- [x] **Chunk 1 — Content model + first guide**
+- [x] **Chunk 2 — Hub + type index + nav/footer links** *(this commit)*
 - [ ] Chunk 3 — Seed guides 2–10
 - [ ] Chunk 4 — Glossary / explainer / blog templates + indexes
 - [ ] Chunk 5 — RSS/XML feeds
@@ -82,5 +82,38 @@ contractor-only, consent-first, no fabricated testimonials.
 - View source: `HowTo`, `FAQPage`, and `BreadcrumbList` JSON-LD present.
 - Note: page is intentionally **unlinked** from nav until Chunk 2.
 
-**Next:** Chunk 2 — `/resources/` hub + `/resources/how-to-guides/` index,
-`ResourceCard`/`ResourceGrid`, and nav/footer links.
+---
+
+## Chunk 2 — Hub + type index + nav/footer links ✅
+
+**Files added**
+- `src/lib/resources.ts` — single source of truth mapping `resource_type` →
+  route segment + labels + blurb (`RESOURCE_TYPES`), plus `resourceHref()`,
+  `typeHref()`, and `getResources(type?)` (filters to visible statuses, sorts
+  newest first). Reused by cards, indexes, the hub, and later feeds/social.json.
+- `src/components/resources/ResourceCard.astro` — links to a resource; shows
+  category badge, type tag, title, excerpt, read time.
+- `src/components/resources/ResourceGrid.astro` — responsive card grid.
+- `src/pages/resources/index.astro` — hub; groups visible resources by type in
+  canonical order; emits `ItemList` JSON-LD; positioning headline
+  "Turn anonymous visitors into known leads."
+- `src/pages/resources/how-to-guides/index.astro` — How-To index; `ItemList`.
+
+**Files changed**
+- `src/lib/site.ts` — added "Resources" to `PRIMARY_NAV` (between Industries and
+  Pricing) and "Resource Center" to `FOOTER_NAV.company`.
+
+**Decisions**
+- The existing standalone `/glossary/` page is unrelated to the Resource
+  Center's future `/resources/glossary/` type — no conflict, left as-is.
+- Hub/index show only `published | ready_to_publish | scheduled` resources
+  (draft/unpublished hidden), via `getResources()`.
+
+**Test (after deploy)**
+- "Resources" appears in the top nav and footer (company column).
+- `/resources/` renders the hero + a "How-To Guides" section with Guide 1's
+  card; card links through to the guide.
+- `/resources/how-to-guides/` lists Guide 1; breadcrumbs resolve.
+- View source on both: `ItemList` + `BreadcrumbList` JSON-LD present.
+
+**Next:** Chunk 3 — seed guides 2–10 (cross-links between guides go live).

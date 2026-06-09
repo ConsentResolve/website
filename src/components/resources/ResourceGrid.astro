@@ -1,0 +1,16 @@
+---
+/**
+ * ResourceGrid — responsive grid of ResourceCards. Pass an array of entries.
+ */
+import ResourceCard from "~/components/resources/ResourceCard.astro";
+import type { ResourceEntry } from "~/lib/resources";
+
+interface Props {
+  entries: ResourceEntry[];
+}
+const { entries } = Astro.props as Props;
+---
+
+<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+  {entries.map((entry) => <ResourceCard entry={entry} />)}
+</div>
