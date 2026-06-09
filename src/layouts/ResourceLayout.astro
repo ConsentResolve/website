@@ -1,0 +1,168 @@
+---
+/**
+ * ResourceLayout — shared chrome for every Resource Center detail page
+ * (how-to-guide, glossary, plain-language-explainer, blog). Handles
+ * server-rendered SEO meta + JSON-LD, breadcrumbs, the article hero,
+ * Key-Takeaways boxes (top + bottom), the rendered Markdown body, the FAQ
+ * accordion, and the CTA band.
+ *
+ * Type-specific section ORDER lives in each Markdown body (the spec's section
+ * orders per resource type), so this layout stays universal.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Breadcrumbs from "~/components/Breadcrumbs.astro";
+import Badge from "~/components/ui/Badge.astro";
+import FAQ from "~/components/sections/FAQ.astro";
+import KeyTakeaways from "~/components/resources/KeyTakeaways.astro";
+import ComplianceNote from "~/components/resources/ComplianceNote.astro";
+import type { ResourceData } from "~/content.config";
+import { IconArrowRight } from "@tabler/icons-react";
+
+interface Props {
+  data: ResourceData;
+  schemas: unknown[];
+  /** Crumb label for the resource-type index, e.g. "How-To Guides". */
+  typeLabel: string;
+  /** Path to the type index, e.g. "/resources/how-to-guides/". */
+  typeHref: string;
+}
+const { data, schemas, typeLabel, typeHref } = Astro.props as Props;
+
+const ogImage = data.images?.og_image || data.images?.featured_image || data.featured_image;
+const dateStr = (data.updated_at || data.published_at)?.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+const breadcrumbs = [
+  { name: "Home", href: "/" },
+  { name: "Resources", href: "/resources/" },
+  { name: typeLabel, href: typeHref },
+  { name: data.title, href: new URL(data.canonical_url).pathname },
+];
+---
+
+<BaseLayout
+  title={data.seo_title}
+  description={data.seo_description}
+  canonical={data.canonical_url}
+  ogType="article"
+  ogImage={ogImage}
+  schema={schemas}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <article class="container-content max-w-3xl pb-8 pt-8">
+    <!-- Hero -->
+    <header class="mb-8 border-b border-[color:var(--color-rule)] pb-8">
+      <div class="mb-5 flex flex-wrap items-center gap-3">
+        <Badge tone="brand" variant="soft" size="md" uppercase>{data.category}</Badge>
+        <span class="text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">
+          {typeLabel.replace(/s$/, "")}
+        </span>
+      </div>
+      <h1 class="display-1 text-[color:var(--color-ink)]">{data.title}</h1>
+      <p class="mt-6 text-lg leading-relaxed text-[color:var(--color-ink-2)]">{data.excerpt}</p>
+      <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[color:var(--color-ink-muted)]">
+        <span>By {data.author}</span>
+        {data.read_time && <><span aria-hidden="true">·</span><span>{data.read_time} read</span></>}
+        {dateStr && <><span aria-hidden="true">·</span><span>Updated {dateStr}</span></>}
+      </div>
+    </header>
+
+    {data.key_takeaways && <KeyTakeaways text={data.key_takeaways} placement="top" />}
+
+    <!-- Rendered Markdown body -->
+    <div class="rc-prose"><slot /></div>
+
+    {data.compliance_note && <ComplianceNote text={data.compliance_note} />}
+
+    {data.key_takeaways && <KeyTakeaways text={data.key_takeaways} placement="bottom" />}
+
+    <!-- CTA band -->
+    <div class="mt-10 rounded-3xl bg-[color:var(--color-bg-inverse)] p-8 text-center ring-1 ring-inset ring-white/10">
+      <a
+        href={data.primary_cta.url}
+        class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
+      >
+        {data.primary_cta.label}
+        <IconArrowRight size={16} stroke={2.5} />
+      </a>
+      {data.secondary_cta && (
+        <p class="mt-5">
+          <a
+            href={data.secondary_cta.url}
+            class="inline-flex items-center gap-2 text-sm font-semibold text-[color:var(--color-on-inverse)] underline-offset-4 hover:underline"
+          >
+            {data.secondary_cta.label}
+            <IconArrowRight size={14} stroke={2.2} />
+          </a>
+        </p>
+      )}
+    </div>
+  </article>
+
+  {data.faq_items.length > 0 && (
+    <FAQ eyebrow="FAQ" headline="Frequently asked questions" items={data.faq_items} />
+  )}
+</BaseLayout>
+
+<style is:global>
+  .rc-prose {
+    color: var(--color-ink-2);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+  .rc-prose > * + * {
+    margin-top: 1.25rem;
+  }
+  .rc-prose h2 {
+    font-family: var(--font-display, inherit);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+    font-size: 1.6rem;
+    line-height: 1.25;
+    margin-top: 2.5rem;
+    scroll-margin-top: 5rem;
+  }
+  .rc-prose h3 {
+    font-family: var(--font-display, inherit);
+    font-weight: 700;
+    color: var(--color-ink);
+    font-size: 1.25rem;
+    margin-top: 2rem;
+  }
+  .rc-prose p {
+    color: var(--color-ink-2);
+  }
+  .rc-prose strong {
+    color: var(--color-ink);
+    font-weight: 700;
+  }
+  .rc-prose a {
+    color: var(--color-brand-pressed);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .rc-prose a:hover {
+    color: var(--color-ink);
+  }
+  .rc-prose ul,
+  .rc-prose ol {
+    padding-left: 1.5rem;
+  }
+  .rc-prose ul {
+    list-style: disc;
+  }
+  .rc-prose ol {
+    list-style: decimal;
+  }
+  .rc-prose li + li {
+    margin-top: 0.6rem;
+  }
+  .rc-prose li::marker {
+    color: var(--color-ink-muted);
+  }
+</style>

@@ -1,0 +1,28 @@
+---
+/**
+ * Compliance note callout — the consent-first, TCPA/CCPA/GDPR-aware guardrail
+ * block that closes the "how to act on this" sections. Another high-extraction
+ * block for AI engines, and the place every guide reconnects to the
+ * consent-first positioning Consent Resolve is built around.
+ */
+import Badge from "~/components/ui/Badge.astro";
+import { IconShieldCheck } from "@tabler/icons-react";
+
+interface Props {
+  text: string;
+}
+const { text } = Astro.props as Props;
+---
+
+<aside
+  class="my-10 rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] p-6 shadow-[0_18px_36px_-28px_rgba(10,22,40,0.25)]"
+  aria-label="Compliance considerations"
+>
+  <div class="mb-3 flex items-center gap-2">
+    <span class="flex size-7 items-center justify-center rounded-full bg-[color:var(--color-navy-900)]">
+      <IconShieldCheck size={16} stroke={2.2} color="#00E5A0" />
+    </span>
+    <Badge tone="brand" variant="soft" size="sm" uppercase>Compliance note</Badge>
+  </div>
+  <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{text}</p>
+</aside>

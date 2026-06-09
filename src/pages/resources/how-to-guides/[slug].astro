@@ -1,0 +1,48 @@
+---
+/**
+ * How-To Guide detail page. One per Markdown file in
+ * src/content/resources/how-to-guides/. Section order lives in the Markdown
+ * body (Introduction → Who This Is For → Why It Matters → Step-by-Step →
+ * Common Mistakes → Compliance → ...). Schema: HowTo + FAQPage.
+ */
+import { getCollection, render } from "astro:content";
+import ResourceLayout from "~/layouts/ResourceLayout.astro";
+import { howToSchema, faqSchema } from "~/lib/seo";
+
+export async function getStaticPaths() {
+  const all = await getCollection("resources");
+  return all
+    .filter((e) => e.data.resource_type === "how-to-guide")
+    .map((entry) => ({
+      params: { slug: entry.data.slug },
+      props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const data = entry.data;
+
+const schemas: unknown[] = [];
+if (data.how_to_steps.length > 0) {
+  schemas.push(
+    howToSchema({
+      name: data.title,
+      description: data.excerpt,
+      steps: data.how_to_steps,
+    })
+  );
+}
+if (data.faq_items.length > 0) {
+  schemas.push(faqSchema(data.faq_items));
+}
+---
+
+<ResourceLayout
+  data={data}
+  schemas={schemas}
+  typeLabel="How-To Guides"
+  typeHref="/resources/how-to-guides/"
+>
+  <Content />
+</ResourceLayout>

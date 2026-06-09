@@ -1,0 +1,31 @@
+---
+/**
+ * Key Takeaways summary box — rendered near the top AND bottom of every
+ * resource. AI answer engines (Google AI Overviews, ChatGPT, Perplexity,
+ * Claude, Gemini) preferentially extract this self-contained summary, so it
+ * carries the article's thesis in plain, quotable language.
+ */
+import Badge from "~/components/ui/Badge.astro";
+import { IconBulb } from "@tabler/icons-react";
+
+interface Props {
+  text: string;
+  /** "top" gets a lighter intro framing; "bottom" reads as a recap. */
+  placement?: "top" | "bottom";
+}
+const { text, placement = "top" } = Astro.props as Props;
+const label = placement === "top" ? "Key takeaways" : "Recap";
+---
+
+<aside
+  class="my-10 rounded-2xl border-l-4 border-[color:var(--color-brand)] bg-[color:var(--color-brand-soft)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]"
+  aria-label="Key takeaways"
+>
+  <div class="mb-3 flex items-center gap-2">
+    <span class="flex size-7 items-center justify-center rounded-full bg-[color:var(--color-brand)]">
+      <IconBulb size={16} stroke={2.4} color="#0A1628" />
+    </span>
+    <Badge tone="brand" variant="soft" size="sm" uppercase>{label}</Badge>
+  </div>
+  <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{text}</p>
+</aside>
