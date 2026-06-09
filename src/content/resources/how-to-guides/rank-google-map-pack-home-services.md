@@ -9,6 +9,7 @@ excerpt: "The three local results in the Google Map Pack capture most of the cli
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "9 min"
+og_hook: "3 map results get the clicks. Here's how to own one."
 seo_title: "How to Rank in the Google Map Pack for Home Services (Step-by-Step)"
 seo_description: "A step-by-step Google Business Profile system to rank your HVAC, plumbing, roofing, or electrical company in the Google Map Pack and capture local search traffic."
 focus_keyword: "google map pack ranking"

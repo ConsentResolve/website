@@ -5,7 +5,7 @@
 import type { APIRoute, GetStaticPaths } from "astro";
 import { getCollection } from "astro:content";
 import { SITE } from "~/lib/site";
-import { RESOURCE_TYPES, resourceHref } from "~/lib/resources";
+import { RESOURCE_TYPES, resourceHref, RESOURCE_TRADES, IMAGE_VARIANTS, tradeImage } from "~/lib/resources";
 import { generateSocialPack } from "~/lib/social/generateSocialPack";
 import { SOCIAL_SOURCES } from "~/lib/social/buildUtm";
 
@@ -76,6 +76,13 @@ export const GET: APIRoute = ({ props }) => {
       })
     ),
     utm: Object.fromEntries(SOCIAL_SOURCES.map((s) => [s, social[s].utm_url])),
+    // Trade-themed image sets for targeted social pushes (page og stays generic).
+    trade_images: Object.fromEntries(
+      RESOURCE_TRADES.map((trade) => [
+        trade,
+        Object.fromEntries(IMAGE_VARIANTS.map((v) => [v, abs(tradeImage(data, trade, v))])),
+      ])
+    ),
   };
 
   return new Response(JSON.stringify(payload, null, 2), {

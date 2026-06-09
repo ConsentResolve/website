@@ -9,6 +9,7 @@ excerpt: "If you can't say which source produced which booked job, you're flying
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "8 min"
+og_hook: "If you can't name the channel that paid you, you're guessing."
 seo_title: "How to Track Where Your Leads Come From (Attribution for Contractors)"
 seo_description: "A step-by-step attribution guide for home-service businesses: call tracking, UTMs, a how-did-you-hear fallback, and tying revenue back to source."
 focus_keyword: "lead source tracking"

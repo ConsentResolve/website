@@ -391,6 +391,47 @@ SEO ≥ 90; run a Lighthouse pass in-browser to confirm.
 
 ---
 
+## Image System Upgrade — hook-led cards + real logo + trade theming ✅
+
+Per `consent-resolve-image-system-upgrade.md`. Two-layer rendering:
+- **Layer A (AI):** text-free, logo-free brand line-art, rendered as mint "ink"
+  on transparent (dark→mint, white→transparent) and placed right; reuses the
+  cached Chunk-8 art (no re-bill).
+- **Layer B (deterministic):** navy gradient + green glow + inner mint frame,
+  eyebrow, the **hook** (not the title; numbers highlighted mint), headline +
+  CTA pill (square/vertical), and the **real logo asset** from `public/brand/`
+  (`logo-on-dark.png` lockup) — never AI-rendered.
+
+**Schema (`content.config.ts`):** added `og_hook` (**required**, max 80),
+`social_headline`, `cta_text` (default "Read the guide →"), `logo_variant`.
+All 13 resources now carry an `og_hook` (10 from the spec table; 3 samples
+authored, voice-checked).
+
+**Per-format treatment:** featured/og = hook only + logo bottom-left; square =
+hook + headline + CTA + logo top-left; vertical = same, CTA pinned bottom;
+thumbnail = hook only + mark.
+
+**Logo assets:** `public/brand/{logo-light,logo-dark,mark}.png` (+ svg masters),
+copied from the real repo logos. `load_logo()` is SVG-first, PNG-fallback.
+
+**Trade theming (`--trade <slug>`):** swaps the right-side motif + adds a
+`FOR <TRADE>` eyebrow tag; motif cached once per trade, reused across resources.
+Generated the **Plumber** set (all 13 × 5 = 65). Naming
+`<slug>-<trade>-<variant>.png`. Canonical page og stays **generic**; trade
+variants feed targeted social pushes and are exposed in `social.json` under
+`trade_images`. `src/lib/resources.ts` → `RESOURCE_TRADES` + `tradeImage()`.
+
+**Images:** 130 PNGs (65 generic hook-led + 65 plumber). Generator:
+`scripts/generate-resource-images.py` (v2).
+
+**Brand font:** real Bricolage Grotesque + Hanken Grotesk (auto-downloaded to
+`scripts/.fonts`), matching the site.
+
+**Add a trade later:** `python3 scripts/generate-resource-images.py --trade roofing`
+then add `"roofing"` to `RESOURCE_TRADES`.
+
+---
+
 ## ✅ Build complete — all 9 chunks shipped
 
 13 content pieces (10 guides + 3 type samples), 4 resource types with per-type

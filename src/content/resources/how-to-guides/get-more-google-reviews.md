@@ -9,6 +9,7 @@ excerpt: "Reviews are both your top local ranking factor and the thing buyers tr
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "7 min"
+og_hook: "'Leave us a review' never works. Build the system that does."
 seo_title: "How to Get More Google Reviews on Autopilot (Contractor Guide)"
 seo_description: "A step-by-step review system for home-service businesses: the post-job trigger, text-first asks, handling unhappy customers, and staying inside Google's rules."
 focus_keyword: "get more google reviews"

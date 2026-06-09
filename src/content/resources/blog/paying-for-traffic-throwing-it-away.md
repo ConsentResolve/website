@@ -8,6 +8,7 @@ excerpt: "You spend to get people to your website, then most of them leave witho
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "5 min"
+og_hook: "You paid for the click. Most of it walks back out the door."
 seo_title: "You're Paying for Website Traffic and Throwing Most of It Away"
 seo_description: "Most contractor website visitors leave without converting. Here's why buying more traffic is the wrong fix — and what to do with the visitors you already paid for."
 focus_keyword: "website traffic wasted leads"

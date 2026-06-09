@@ -9,6 +9,7 @@ excerpt: "A homeowner with a broken AC calls three companies and books the first
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "7 min"
+og_hook: "A missed call is a booked job — for the other guy."
 seo_title: "How to Stop Losing Jobs to Missed Calls (Home Service Guide)"
 seo_description: "Step-by-step system for home-service contractors to capture every call: measure your miss rate, missed-call text-back, after-hours routing, and call logging."
 focus_keyword: "missed call text back"

@@ -8,6 +8,7 @@ excerpt: "\"Consent-first\" sounds like legal fine print, but for a contractor i
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "5 min"
+og_hook: "Only contact the people who said yes. That's the whole play."
 seo_title: "What \"Consent-First\" Marketing Actually Means (Plain English)"
 seo_description: "Consent-first marketing means only contacting people who agreed to hear from you, on the channel they chose. A plain-English explainer for home-service contractors."
 focus_keyword: "consent-first marketing"

@@ -46,6 +46,16 @@ const resourceSchema = z.object({
   updated_at: z.coerce.date().optional(),
   read_time: z.string().optional(),
 
+  // ── Image system (hook-led cards) ──────────────────────────────────────────
+  // og_hook is the scroll-stopping line printed large on the OG/featured image —
+  // NOT the title (the platform shows the title/description under the unfurl).
+  // Required: the scroll-stopping line printed large on the OG/featured image.
+  // The build fails if a resource omits it (per the image-system spec).
+  og_hook: z.string().max(80),
+  social_headline: z.string().optional(), // square/vertical; defaults to title
+  cta_text: z.string().default("Read the guide →"),
+  logo_variant: z.enum(["light", "dark", "mark"]).default("light"),
+
   // SEO
   seo_title: z.string(),
   seo_description: z.string(),

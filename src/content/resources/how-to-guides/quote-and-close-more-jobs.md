@@ -9,6 +9,7 @@ excerpt: "Racing to the bottom on price wins cheap customers who leave for the n
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "8 min"
+og_hook: "Stop being the cheapest. Close at your rate."
 seo_title: "How to Quote and Close More Jobs Without Lowering Your Price"
 seo_description: "A step-by-step closing guide for home-service contractors: option pricing, value anchoring, same-day quotes, estimate follow-up, and financing to win at your rate."
 focus_keyword: "close more jobs contractor"

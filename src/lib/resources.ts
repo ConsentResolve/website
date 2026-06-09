@@ -80,6 +80,24 @@ export function resourceImage(
   return `/images/resources/${RESOURCE_TYPES[data.resource_type].segment}/${data.slug}-${variant}.png`;
 }
 
+/** Trades we've generated themed social-image variants for. Add a slug here
+ *  after running `generate-resource-images.py --trade <slug>` for all resources.
+ *  The canonical page og:image stays generic; these feed trade-targeted social pushes. */
+export const RESOURCE_TRADES = ["plumber"] as const;
+export type ResourceTrade = (typeof RESOURCE_TRADES)[number];
+
+export const IMAGE_VARIANTS = ["featured", "og", "square", "vertical", "thumbnail"] as const;
+
+/** Trade-themed image path, e.g.
+ *  /images/resources/how-to-guides/<slug>-plumber-featured.png */
+export function tradeImage(
+  data: { resource_type: ResourceType; slug: string },
+  trade: string,
+  variant: (typeof IMAGE_VARIANTS)[number] = "featured"
+): string {
+  return `/images/resources/${RESOURCE_TYPES[data.resource_type].segment}/${data.slug}-${trade}-${variant}.png`;
+}
+
 /** Resources that should appear publicly (published + ready_to_publish). */
 const VISIBLE = new Set(["published", "ready_to_publish", "scheduled"]);
 

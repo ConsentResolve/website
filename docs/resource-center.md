@@ -99,9 +99,36 @@ Requires a Recraft key at `~/.config/recraft/key`. Brand fonts auto-download to
 
 ### Image provider abstraction
 
-The provider seam is `fetch_illustration()` (Recraft today). To swap providers
-(OpenAI, or a manual/uploaded image), replace that function's body — everything
-downstream (`brandify`, compositing, sizes) is provider-agnostic.
+The provider seam is `fetch_background()` (Recraft today). To swap providers
+(OpenAI, or a manual/uploaded background), replace that function's body —
+everything downstream (`render_ink`, compositing, sizes) is provider-agnostic.
+
+### Hook-led cards (two-layer)
+
+Images are **Layer A** (AI background art — text-free, logo-free, rendered as
+mint "ink" on transparent) + **Layer B** (deterministic: navy frame, eyebrow,
+the `og_hook` with numbers highlighted mint, headline/CTA, and the real logo
+from `public/brand/`). The AI never renders text or the logo. `og_hook` is
+required frontmatter (max 80 chars) and is what prints large on the OG image —
+NOT the title.
+
+### Trade theming
+
+`--trade <slug>` swaps the right-side motif to a trade (plumber, roofing, hvac,
+electrician, …) and adds a `FOR <TRADE>` eyebrow tag; the motif is cached once
+per trade and reused across every resource:
+
+```bash
+python3 scripts/generate-resource-images.py --trade plumber          # all resources, all 5
+python3 scripts/generate-resource-images.py --only <slug> --trade roofing --variant featured
+```
+
+Files are named `<slug>-<trade>-<variant>.png`. The **canonical page
+`og:image` stays generic** (one URL serves all audiences); trade variants feed
+**trade-targeted social pushes** and are exposed per item in `social.json`
+under `trade_images.<trade>.<variant>`. To make a trade first-class, add its
+slug to `RESOURCE_TRADES` in `src/lib/resources.ts` (drives `social.json`).
+Trade label/motif live in `TRADE_LABEL`/`TRADE_MOTIF` in the generator.
 
 ---
 

@@ -8,6 +8,7 @@ excerpt: "Website visitor identification is the practice of turning anonymous we
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "4 min"
+og_hook: "Most visitors never say who they are. Recover them — with consent."
 seo_title: "What Is Website Visitor Identification? (Plain-English Definition)"
 seo_description: "Website visitor identification turns anonymous site visitors into known leads. Here is what it means, a real example, and why the consent-first version is the only safe one."
 focus_keyword: "website visitor identification"

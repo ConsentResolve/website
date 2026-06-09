@@ -9,6 +9,7 @@ excerpt: "Even a great website loses the visitors who never fill out the form. H
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "9 min"
+og_hook: "Most visitors leave anonymous. Recover them — without the lawsuit."
 seo_title: "How to Identify Anonymous Website Visitors (Consent-First, Compliant)"
 seo_description: "A step-by-step, compliant guide for home-service contractors to identify and follow up with anonymous website visitors using consent-based data instead of scraped contacts."
 focus_keyword: "identify anonymous website visitors"

@@ -9,6 +9,7 @@ excerpt: "Lead response time is the single biggest predictor of who wins the job
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "9 min"
+og_hook: "The first 5 minutes decide who books the job."
 seo_title: "How to Follow Up With Leads So You Book the Job (Speed-to-Lead Guide)"
 seo_description: "A step-by-step follow-up system for home-service contractors: the 5-minute rule, first-touch templates, a multi-touch cadence, and automation that stays compliant."
 focus_keyword: "lead follow up"

@@ -9,6 +9,7 @@ excerpt: "Most contractor websites convert under four percent of visitors, so yo
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "8 min"
+og_hook: "Your site converts under 4%. The other 96% is leaking."
 seo_title: "How to Get More Leads From Your Website Traffic (Contractor Guide)"
 seo_description: "A step-by-step conversion guide for home-service websites: above-the-fold offers, shorter forms, trust signals, speed, and capturing the visitors who don't convert."
 focus_keyword: "website lead conversion"

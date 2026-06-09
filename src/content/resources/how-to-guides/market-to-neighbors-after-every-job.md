@@ -9,6 +9,7 @@ excerpt: "Every job site sits in front of 20 homes with the same roof, pipes, or
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "7 min"
+og_hook: "Every job sits in front of 20 future customers."
 seo_title: "How to Market to Neighbors After a Job (Neighbor Marketing Guide)"
 seo_description: "A step-by-step neighbor-marketing system for home-service contractors: timing the postcard, automating by job-address radius, and building dense route clusters."
 focus_keyword: "neighbor marketing contractors"
