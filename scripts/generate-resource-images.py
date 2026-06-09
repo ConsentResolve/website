@@ -333,12 +333,7 @@ def gradient_bg(w, h, focus=(0.66, 0.44)):
     glow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     ImageDraw.Draw(glow).ellipse([int(w * 0.52), int(-h * 0.4), int(w * 1.15), int(h * 0.55)], fill=(0, 235, 165, 34))
     img = Image.alpha_composite(img, glow.filter(ImageFilter.GaussianBlur(int(w * 0.07))))
-    # signature flourish — faint mint inner frame on every card
-    fr = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    m = int(w * 0.022)
-    ImageDraw.Draw(fr).rounded_rectangle([m, m, w - m, h - m], radius=int(w * 0.02),
-                                         outline=(0, 235, 165, 42), width=max(1, int(w / 560)))
-    return Image.alpha_composite(img, fr)
+    return img
 
 
 def load_logo(variant):
@@ -468,6 +463,25 @@ def fit_hook(draw, hook, text_w, avail_h, max_size, min_size):
     f = load_font("Bricolage.ttf", min_size, weight=800)
     track = -min_size * 0.015
     return f, layout_words(draw, hook, f, text_w, track), int(min_size * 1.06), track
+
+
+BADGE_TEXT = "See Our Interactive Demo"
+
+
+def draw_badge(draw, x, y, text, scale):
+    """A called-out pill badge: subtle mint fill + mint border + mint label.
+    Returns the badge's bottom y."""
+    fsz = max(13, int(21 * scale))
+    f = load_font("Hanken.ttf", fsz, weight=700)
+    tw = draw.textlength(text, font=f)
+    padx, pady = int(20 * scale), int(12 * scale)
+    bw = int(tw + 2 * padx)
+    bh = int(fsz + 2 * pady)
+    draw.rounded_rectangle([x, y, x + bw, y + bh], radius=bh // 2,
+                           fill=(0, 235, 165, 30), outline=(0, 235, 165, 235),
+                           width=max(2, int(2 * scale)))
+    draw.text((x + padx, y + pady - int(fsz * 0.08)), text, font=f, fill=MINT)
+    return y + bh
 
 
 def eyebrow_text(fm, trade_label=""):
@@ -626,12 +640,10 @@ def compose(variant, fm, art, trade_label="", art_mode="ink", ss=1):
         ey = pad
         text_w = int(w * 0.55) - pad
         # eyebrow + rule
-        draw_tracked(draw, tx, ey, eyebrow_text(fm, trade_label), f_cat, MINT, cat_size * 0.14)
-        ry = ey + cat_size + int(13 * scale)
-        draw.rounded_rectangle([tx, ry, tx + int(56 * scale), ry + max(3, int(4 * scale))], radius=2, fill=MINT)
-        # hook fills the band between eyebrow and the logo
+        badge_bottom = draw_badge(draw, tx, ey, BADGE_TEXT, scale)
+        # hook fills the band between badge and the logo
         logo_top = h - margin - logo_h
-        hook_top = ry + int(26 * scale)
+        hook_top = badge_bottom + int(22 * scale)
         f_hook, lines, lh, htrack = fit_hook(draw, hook, text_w, logo_top - hook_top - int(24 * scale), int(74 * scale), int(30 * scale))
         draw_hook(draw, tx, hook_top, lines, f_hook, lh, htrack)
         place_logo(card, logo_variant, logo_h, "bl", margin)
@@ -657,10 +669,8 @@ def compose(variant, fm, art, trade_label="", art_mode="ink", ss=1):
         tx = margin
         ey = margin + logo_h + int(26 * scale)
         text_w = w - 2 * margin
-        draw_tracked(draw, tx, ey, eyebrow_text(fm, trade_label), f_cat, MINT, cat_size * 0.14)
-        ry = ey + cat_size + int(13 * scale)
-        draw.rounded_rectangle([tx, ry, tx + int(56 * scale), ry + max(3, int(4 * scale))], radius=2, fill=MINT)
-        hook_top = ry + int(26 * scale)
+        badge_bottom = draw_badge(draw, tx, ey, BADGE_TEXT, scale)
+        hook_top = badge_bottom + int(22 * scale)
         # CTA removed on square (not clickable in-feed) -> bigger headline.
         hook_max = int(84 * scale) if layout == "square" else int(74 * scale)
         f_hook, lines, lh, htrack = fit_hook(draw, hook, text_w, int(h * 0.38), hook_max, int(34 * scale))
@@ -681,6 +691,10 @@ def compose(variant, fm, art, trade_label="", art_mode="ink", ss=1):
             draw.rounded_rectangle([tx, cta_y, tx + pill_w, cta_y + pill_h], radius=pill_h // 2, fill=MINT)
             draw.text((tx + int(22 * scale), cta_y + (pill_h - int(24 * scale)) // 2 - int(2 * scale)), cta, font=f_cta, fill=NAVY)
 
+    # defined mint border around the whole image
+    bm = int(w * 0.018)
+    draw.rounded_rectangle([bm, bm, w - bm, h - bm], radius=int(w * 0.02),
+                           outline=(0, 235, 165, 235), width=max(2, int(w / 300)))
     return card.convert("RGB")
 
 
