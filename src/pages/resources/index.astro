@@ -1,7 +1,9 @@
 ---
 /**
- * Resource Center hub — /resources/. Lists every resource type that has
- * published entries, grouped by type, newest first. Emits ItemList JSON-LD.
+ * Resource Center landing page — /resources/.
+ * Introduces the categories (How-To Guides, Glossary, Plain-Language
+ * Explainers, Blog, Channel Comparisons) and links to each category page,
+ * then shows the latest few resources. Each category lives on its own page.
  */
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Breadcrumbs from "~/components/Breadcrumbs.astro";
@@ -9,35 +11,56 @@ import Badge from "~/components/ui/Badge.astro";
 import ResourceGrid from "~/components/resources/ResourceGrid.astro";
 import { itemListSchema } from "~/lib/seo";
 import { SITE } from "~/lib/site";
+import { RESOURCE_TYPES, RESOURCE_TYPE_ORDER, typeHref, getResources } from "~/lib/resources";
+import { COMPARE_PAGES } from "~/data/compare";
 import {
-  RESOURCE_TYPES,
-  RESOURCE_TYPE_ORDER,
-  typeHref,
-  resourceHref,
-  getResources,
-} from "~/lib/resources";
-import { IconArrowRight } from "@tabler/icons-react";
+  IconArrowRight,
+  IconChecklist,
+  IconVocabulary,
+  IconBulb,
+  IconNews,
+  IconChartBar,
+} from "@tabler/icons-react";
 
 const all = await getResources();
+const countOf = (type: string) => all.filter((e) => e.data.resource_type === type).length;
 
-// Group by type, preserving the canonical type order.
-const groups = RESOURCE_TYPE_ORDER.map((type) => ({
-  type,
-  meta: RESOURCE_TYPES[type],
-  entries: all.filter((e) => e.data.resource_type === type),
-})).filter((g) => g.entries.length > 0);
+const TYPE_ICON: Record<string, any> = {
+  "how-to-guide": IconChecklist,
+  glossary: IconVocabulary,
+  "plain-language-explainer": IconBulb,
+  blog: IconNews,
+};
 
+// Category cards: the four resource types + Channel Comparisons (lives at /compare/).
+const categories = [
+  ...RESOURCE_TYPE_ORDER.map((type) => ({
+    label: RESOURCE_TYPES[type].label,
+    blurb: RESOURCE_TYPES[type].blurb,
+    href: typeHref(type),
+    count: countOf(type),
+    noun: countOf(type) === 1 ? "piece" : "pieces",
+    Icon: TYPE_ICON[type],
+  })),
+  {
+    label: "Channel Comparisons",
+    blurb:
+      "With/without booked-job math for Google LSA, Thumbtack, Angi, and HomeAdvisor — how Consent Resolve stacks up additively.",
+    href: "/compare/",
+    count: COMPARE_PAGES.length,
+    noun: "comparisons",
+    Icon: IconChartBar,
+  },
+];
+
+const latest = all.slice(0, 3);
 const canonical = `${SITE.url}/resources/`;
 const schemas = [
   itemListSchema({
     name: "Consent Resolve Resource Center",
-    items: all.map((e) => ({
-      name: e.data.title,
-      url: `${SITE.url}${resourceHref(e.data)}`,
-    })),
+    items: categories.map((c) => ({ name: c.label, url: `${SITE.url}${c.href}` })),
   }),
 ];
-
 const breadcrumbs = [
   { name: "Home", href: "/" },
   { name: "Resources", href: "/resources/" },
@@ -46,43 +69,67 @@ const breadcrumbs = [
 
 <BaseLayout
   title="Resource Center | Consent Resolve"
-  description="Guides, glossary, and explainers on consent-first, privacy-safe lead generation for home-service contractors. Turn anonymous visitors into known leads."
+  description="Guides, glossary, explainers, and channel comparisons on consent-first, privacy-safe lead generation for home-service contractors. Turn anonymous visitors into known leads."
   canonical={canonical}
   schema={schemas}
 >
   <Breadcrumbs items={breadcrumbs} />
 
   <!-- Hero -->
-  <section class="container-content pb-4 pt-10">
+  <section class="container-content pb-2 pt-10">
     <div class="max-w-3xl">
       <div class="mb-6"><Badge tone="brand" variant="soft" size="md" uppercase>Resource Center</Badge></div>
       <h1 class="display-1 text-[color:var(--color-ink)]">Turn anonymous visitors into known leads.</h1>
       <p class="mt-6 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
         Practical, consent-first playbooks for home-service contractors — how to
         get found, capture the traffic you already pay for, and book more jobs,
-        without the privacy-law exposure of scrape-and-cold-call tools.
+        without the privacy-law exposure of scrape-and-cold-call tools. Pick a
+        section to dive in.
       </p>
     </div>
   </section>
 
-  {groups.map((g) => (
-    <section class="section-tight">
+  <!-- Category cards -->
+  <section class="section-tight pt-8">
+    <div class="container-content">
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {categories.map((c) => {
+          const Icon = c.Icon;
+          return (
+            <a
+              href={c.href}
+              class="group flex h-full flex-col rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-0.5 hover:ring-[color:var(--color-mint-400)]/60 hover:shadow-[0_24px_48px_-30px_rgba(10,22,40,0.35)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand)] focus-visible:ring-offset-2"
+            >
+              <div class="mb-5 flex items-center justify-between">
+                <span class="flex size-12 items-center justify-center rounded-xl bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-pressed)]">
+                  <Icon size={24} stroke={2} />
+                </span>
+                <span class="text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">
+                  {c.count} {c.noun}
+                </span>
+              </div>
+              <h2 class="font-display text-xl font-bold tracking-tight text-[color:var(--color-ink)]">{c.label}</h2>
+              <p class="mt-3 flex-1 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{c.blurb}</p>
+              <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-[color:var(--color-brand-pressed)] transition-transform group-hover:translate-x-0.5">
+                Browse {c.label}
+                <IconArrowRight size={15} stroke={2.5} />
+              </span>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest -->
+  {latest.length > 0 && (
+    <section class="section-tight pt-0">
       <div class="container-content">
         <div class="mb-8 flex items-end justify-between gap-4">
-          <div>
-            <h2 class="display-2 text-[color:var(--color-ink)]">{g.meta.label}</h2>
-            <p class="mt-3 max-w-2xl text-[color:var(--color-ink-2)]">{g.meta.blurb}</p>
-          </div>
-          <a
-            href={typeHref(g.type)}
-            class="hidden shrink-0 items-center gap-1.5 text-sm font-bold text-[color:var(--color-brand-pressed)] hover:text-[color:var(--color-ink)] sm:inline-flex"
-          >
-            View all
-            <IconArrowRight size={15} stroke={2.5} />
-          </a>
+          <h2 class="display-2 text-[color:var(--color-ink)]">Latest from the Resource Center</h2>
         </div>
-        <ResourceGrid entries={g.entries} />
+        <ResourceGrid entries={latest} />
       </div>
     </section>
-  ))}
+  )}
 </BaseLayout>

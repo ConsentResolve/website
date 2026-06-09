@@ -19,13 +19,42 @@ export const SITE = {
   hours: "Mon–Fri 9a–6p Eastern",
 } as const;
 
-export type NavItem = { label: string; href: string };
+export type NavItem = {
+  label: string;
+  href: string;
+  /** Optional second line in dropdown panels. */
+  desc?: string;
+  /** When present, this item renders as a dropdown; `href` is the hub link. */
+  children?: NavItem[];
+};
 
 export const PRIMARY_NAV: NavItem[] = [
   { label: "Features", href: "/features/" },
   { label: "How It Works", href: "/how-it-works/" },
-  { label: "Industries", href: "/industries/" },
-  { label: "Resources", href: "/resources/" },
+  {
+    label: "Industries",
+    href: "/industries/",
+    children: [
+      { label: "Plumbers", href: "/plumber-leads/" },
+      { label: "Roofers", href: "/roofing-leads/" },
+      { label: "HVAC", href: "/hvac-leads/" },
+      { label: "Electricians", href: "/electrician-leads/" },
+      { label: "General Contractors", href: "/general-contractor-leads/" },
+      { label: "All industries →", href: "/industries/" },
+    ],
+  },
+  {
+    label: "Resources",
+    href: "/resources/",
+    children: [
+      { label: "How-To Guides", href: "/resources/how-to-guides/", desc: "Step-by-step playbooks" },
+      { label: "Glossary", href: "/resources/glossary/", desc: "Plain-English definitions" },
+      { label: "Plain-Language Explainers", href: "/resources/plain-language-explainers/", desc: "The confusing parts, simplified" },
+      { label: "Blog", href: "/resources/blog/", desc: "Ideas & evidence" },
+      { label: "Channel Comparisons", href: "/compare/", desc: "With/without booked-job math" },
+      { label: "All resources →", href: "/resources/" },
+    ],
+  },
   { label: "Pricing", href: "/pricing/" },
 ];
 
