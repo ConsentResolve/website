@@ -387,7 +387,7 @@ def place_art(card, art, box, mode):
     ImageDraw.Draw(panel).rounded_rectangle([0, 0, bw, bh], radius=rad, fill=(248, 250, 252, 255))
     card.alpha_composite(panel, (bx, by))
     ImageDraw.Draw(card).rounded_rectangle([bx, by, bx + bw, by + bh], radius=rad,
-                                           outline=(255, 255, 255, 255), width=max(3, int(min(bw, bh) / 90)))
+                                           outline=(0, 235, 165, 255), width=max(3, int(min(bw, bh) / 90)))
 
     # 3) faint mint rim-light on the edge facing the light (top + left)
     rim = Image.new("RGBA", (W, H), (0, 0, 0, 0))
