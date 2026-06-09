@@ -226,6 +226,36 @@ def fetch_background(slug):
     return bg
 
 
+# The website's master illustration prompt (from scripts/generate-recraft.py
+# STYLE_BASE) — marker / hand-drawn, flat fills, one offset shadow, on white.
+SITE_STYLE_BASE = (
+    "Minimalist hand-drawn vector illustration of a single subject, centered "
+    "with generous negative space. Hand-inked marker style: thick, slightly "
+    "rough, organic outlines of even medium-heavy weight, with the occasional "
+    "doubled 'ghost' outline stroke for a sketched feel. Flat color fills. Each "
+    "major shape casts ONE flat, hard-edged offset drop shadow (no blur, no "
+    "gradient), offset slightly down and to the right. Rounded, friendly, "
+    "organic forms with soft corners. Completely flat shading: no gradients, no "
+    "directional lighting, no texture, no 3D. Straight-on 2D perspective. "
+    "Modern, confident, trustworthy tone. Plain white background. NO eyes, NO "
+    "surveillance camera, NO spying imagery, NO lettering, NO numbers."
+)
+
+
+def brand_snap(img):
+    """Lock a generated illustration to the 4 brand colors for NATIVE-color
+    display on a light card: dark->navy, bright chromatic->mint, light kept."""
+    rgba = img.convert("RGBA")
+    arr = np.asarray(rgba).astype(np.uint8)
+    rgb, alpha = arr[..., :3].copy(), arr[..., 3]
+    hsv = np.asarray(rgba.convert("RGB").convert("HSV")).astype(np.float32)
+    S, V = hsv[..., 1] / 255.0, hsv[..., 2] / 255.0
+    dark = V < 0.45
+    rgb[dark] = NAVY
+    rgb[(~dark) & (S > 0.15)] = MINT
+    return Image.fromarray(np.dstack([rgb, alpha]))
+
+
 def render_ink(img, color=MINT, max_alpha=230, gamma=1.15):
     """Brand line-art -> mint 'ink' on transparent: dark pixels become opaque
     mint, white background becomes transparent. So it sits cleanly on navy."""
@@ -290,6 +320,24 @@ def place_ink(card, ink, box):
     card.alpha_composite(im, (bx + (bw - im.width) // 2, by + (bh - im.height) // 2))
 
 
+def place_art(card, art, box, mode):
+    """mode 'ink' = mint silhouette directly on navy (default v2 look).
+       mode 'card' = native-color illustration on a soft white rounded inset
+       (matches how the website presents its illustrations)."""
+    if mode != "card":
+        place_ink(card, art, box)
+        return
+    bx, by, bw, bh = box
+    pad = int(min(bw, bh) * 0.10)
+    panel = Image.new("RGBA", (bw, bh), (0, 0, 0, 0))
+    ImageDraw.Draw(panel).rounded_rectangle([0, 0, bw, bh], radius=int(min(bw, bh) * 0.10),
+                                            fill=(248, 250, 252, 255))
+    card.alpha_composite(panel, (bx, by))
+    im = art.copy()
+    im.thumbnail((bw - 2 * pad, bh - 2 * pad), Image.LANCZOS)
+    card.alpha_composite(im, (bx + (bw - im.width) // 2, by + (bh - im.height) // 2))
+
+
 def is_number_token(tok):
     return bool(re.search(r"\d", tok))
 
@@ -345,22 +393,27 @@ def eyebrow_text(fm, trade_label=""):
     return f"{fm['category'].upper()}  ·  {TYPE_LABEL.get(fm['resource_type'], '').upper()}"
 
 
-def fetch_trade_bg(trade):
-    """Text-free trade motif line-art, cached once and reused across resources."""
+def fetch_trade_bg(trade, site=False):
+    """Trade motif illustration, cached once and reused across resources.
+    site=True uses the website's STYLE_BASE master prompt (marker / hand-drawn,
+    native brand colors on white) for a site-matched look."""
     CACHE.mkdir(parents=True, exist_ok=True)
-    p = CACHE / f"trade-{trade}-bg.png"
+    p = CACHE / (f"trade-{trade}-site.png" if site else f"trade-{trade}-bg.png")
     if p.exists():
         return p
     subject = TRADE_MOTIF.get(trade)
     if not subject:
         sys.exit(f"No TRADE_MOTIF for '{trade}'")
-    prompt = (
-        f"Abstract on-brand background illustration for a SaaS social card. "
-        f"Subject: {subject}. Flat minimal line-art on a plain white background, "
-        f"bright mint green (#00E5A0) and deep navy (#0A1628) only, lots of "
-        f"negative space. NO text, NO words, NO letters, NO logos, NO watermarks, "
-        f"NO UI elements. Composition weighted to the RIGHT; left side empty."
-    )
+    if site:
+        prompt = f"Subject: {subject}, arranged center-frame.\n\n{SITE_STYLE_BASE}"
+    else:
+        prompt = (
+            f"Abstract on-brand background illustration for a SaaS social card. "
+            f"Subject: {subject}. Flat minimal line-art on a plain white background, "
+            f"bright mint green (#00E5A0) and deep navy (#0A1628) only, lots of "
+            f"negative space. NO text, NO words, NO letters, NO logos, NO watermarks, "
+            f"NO UI elements. Composition weighted to the RIGHT; left side empty."
+        )
     body = {"prompt": prompt, "model": "recraftv3", "style": "digital_illustration",
             "colors": BRAND_PALETTE, "size": "1024x1024", "n": 1, "response_format": "url"}
     req = urllib.request.Request(
@@ -378,7 +431,7 @@ def fetch_trade_bg(trade):
     return p
 
 
-def compose(variant, fm, ink, trade_label=""):
+def compose(variant, fm, art, trade_label="", art_mode="ink"):
     w, h, layout, logo_variant, logo_h_base, logo_pos, margin_base = VARIANTS[variant]
     scale = w / 1200.0
     card = gradient_bg(w, h)
@@ -396,7 +449,7 @@ def compose(variant, fm, ink, trade_label=""):
 
     if layout == "wide":
         # art on the right; text on the left
-        place_ink(card, ink, (int(w * 0.60), int(h * 0.16), int(w * 0.34), int(h * 0.68)))
+        place_art(card, art, (int(w * 0.60), int(h * 0.16), int(w * 0.34), int(h * 0.68)), art_mode)
         tx = pad
         ey = pad
         text_w = int(w * 0.55) - pad
@@ -412,7 +465,7 @@ def compose(variant, fm, ink, trade_label=""):
         place_logo(card, logo_variant, logo_h, "bl", margin)
 
     elif layout == "thumb":
-        place_ink(card, ink, (int(w * 0.58), int(h * 0.20), int(w * 0.36), int(h * 0.60)))
+        place_art(card, art, (int(w * 0.58), int(h * 0.20), int(w * 0.36), int(h * 0.60)), art_mode)
         place_logo(card, "mark", logo_h, "tl", margin)
         tx = margin
         top = margin + logo_h + int(14 * scale)
@@ -424,9 +477,9 @@ def compose(variant, fm, ink, trade_label=""):
         place_logo(card, logo_variant, logo_h, "tl", margin)
         # subtle art lower-right
         if layout == "square":
-            place_ink(card, ink, (int(w * 0.46), int(h * 0.50), int(w * 0.46), int(h * 0.34)))
+            place_art(card, art, (int(w * 0.46), int(h * 0.50), int(w * 0.46), int(h * 0.34)), art_mode)
         else:
-            place_ink(card, ink, (int(w * 0.40), int(h * 0.40), int(w * 0.52), int(h * 0.30)))
+            place_art(card, art, (int(w * 0.40), int(h * 0.40), int(w * 0.52), int(h * 0.30)), art_mode)
         tx = margin
         ey = margin + logo_h + int(26 * scale)
         text_w = w - 2 * margin
@@ -459,6 +512,10 @@ def main():
     ap.add_argument("--only", default="")
     ap.add_argument("--variant", default="")
     ap.add_argument("--trade", default="", help="trade slug for themed social variants (e.g. plumber, roofing)")
+    ap.add_argument("--site-style", action="store_true",
+                    help="render the art in the website's marker style (native brand colors on a white inset) instead of mint ink")
+    ap.add_argument("--preview", action="store_true",
+                    help="write to scripts/.preview/ instead of public/ (for A/B review, not deploy)")
     args = ap.parse_args()
     ensure_fonts()
 
@@ -468,6 +525,7 @@ def main():
             sys.exit(f"Unknown trade '{args.trade}'. Known: {', '.join(sorted(TRADE_MOTIF))}")
         trade_label = TRADE_LABEL.get(args.trade, args.trade.upper())
 
+    art_mode = "card" if args.site_style else "ink"
     resources = [find_resource(args.only)] if args.only else all_resources()
     resources = [r for r in resources if r]
     if not resources:
@@ -477,14 +535,21 @@ def main():
     for fm in resources:
         slug = fm["slug"]
         seg = TYPE_SEG[fm["resource_type"]]
-        out_dir = ROOT / "public" / "images" / "resources" / seg
+        if args.preview:
+            out_dir = ROOT / "scripts" / ".preview" / seg
+        else:
+            out_dir = ROOT / "public" / "images" / "resources" / seg
         out_dir.mkdir(parents=True, exist_ok=True)
-        bg = fetch_trade_bg(args.trade) if args.trade else fetch_background(slug)
-        ink = render_ink(Image.open(bg))
+        if args.trade:
+            bg = fetch_trade_bg(args.trade, site=args.site_style)
+        else:
+            bg = fetch_background(slug)
+        art = brand_snap(Image.open(bg)) if art_mode == "card" else render_ink(Image.open(bg))
         suffix = f"-{args.trade}" if args.trade else ""
+        style_tag = "-site" if args.site_style else ""
         for v in variants:
-            card = compose(v, fm, ink, trade_label)
-            out = out_dir / f"{slug}{suffix}-{v}.png"
+            card = compose(v, fm, art, trade_label, art_mode)
+            out = out_dir / f"{slug}{suffix}{style_tag}-{v}.png"
             card.save(out, "PNG")
             print(f"  wrote {out.relative_to(ROOT)} ({VARIANTS[v][0]}x{VARIANTS[v][1]})")
     print("Done.")

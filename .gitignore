@@ -8,3 +8,4 @@ dist/
 # Resource-image tooling (regenerated on demand)
 scripts/.fonts/
 scripts/.cache/
+scripts/.preview/
