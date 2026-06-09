@@ -15,6 +15,7 @@ import * as status from "./api/status.js";
 import * as preview from "./api/preview.js";
 import * as unsubscribe from "./api/unsubscribe.js";
 import * as socialQueue from "./api/social-queue.js";
+import * as admin from "./admin.js";
 
 const ROUTES = {
   "/api/register": register,
@@ -32,6 +33,19 @@ const NO_DB = new Set(["/api/preview"]);
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    // Authenticated admin (dynamic, Worker-rendered). Handles its own auth.
+    if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
+      try {
+        return await admin.handle({ request, env, ctx });
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ error: "admin_error", detail: String(err).slice(0, 300) }),
+          { status: 500, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } }
+        );
+      }
+    }
+
     const mod = ROUTES[url.pathname];
 
     if (mod) {

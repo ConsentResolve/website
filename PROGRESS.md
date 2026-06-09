@@ -36,8 +36,8 @@ contractor-only, consent-first, no fabricated testimonials.
 - [x] **Chunk 5 — RSS/XML content feeds** *(platform feeds were deferred to Chunk 6)*
 - [x] **Chunk 6 — Social pack generator + UTM + social.json + 7 platform feeds**
 - [x] **Chunk 7 — D1 social_queue + /api/social-queue** *(LIVE — table + secret set; seeded 91 rows / 13 resources × 7 platforms)*
-- [x] **Chunk 8 — Resource images: composite generator + 65 brand-locked images** *(this commit)*
-- [ ] Chunk 9 — Admin previews + AEO/Lighthouse pass + docs
+- [x] **Chunk 8 — Resource images: composite generator + 65 brand-locked images**
+- [x] **Chunk 9 — Authenticated admin + AEO pass + docs** *(this commit; admin needs 2 secrets)*
 
 ### Backlog (post-build, content expansion — not a spec miss)
 The spec supplied written content only for the 10 How-To Guides (all seeded).
@@ -350,3 +350,54 @@ thumbnail 600×400. Prototype reviewed → "tighten to brand palette" applied
 the Guide 1 social_pack image paths now 200.
 
 **Next:** Chunk 9 — admin previews + AEO/Lighthouse pass + docs.
+
+---
+
+## Chunk 9 — Authenticated admin + AEO pass + docs ✅
+
+**Admin (`/admin*`, Worker-rendered, session-cookie auth)**
+- `worker/_lib/auth.js` — HMAC-signed session cookie (Web Crypto), password
+  check, cookie helpers. Secrets: `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`.
+- `worker/_lib/queue.js` — shared D1 queue access (`readBuckets`, `enqueue`,
+  `updateStatus`); `worker/api/social-queue.js` refactored to use it.
+- `worker/admin.js` — login, dashboard (previews each resource's OG card + 7
+  platform posts from `social.json`), live queue actions (Generate pack / Enqueue
+  ALL / per-platform status + post URL). Reads the build-time index.
+- `src/pages/resources/index.json.ts` — machine index the admin reads via ASSETS.
+- `worker/index.js` — routes `/admin*` to the admin handler.
+- Honest boundary: resource CONTENT/`status:` stays git-edited; the admin manages
+  the runtime-mutable D1 queue + previews.
+
+**AEO pass**
+- `src/pages/llms.txt.ts` — added a Resource Center section (hub + every resource,
+  grouped by type) so AI crawlers get the full index.
+- Already in place from earlier chunks: KeyTakeaways (top+bottom), ComplianceNote,
+  self-contained FAQ answers, one-H1/logical-H2 bodies, internal cross-links,
+  per-type JSON-LD + FAQPage, ItemList on hubs, BreadcrumbList everywhere.
+
+**Docs**
+- `docs/resource-center.md` — content model, add a resource / type, images +
+  provider seam, social engine, feeds, queue API + Make/Zapier/n8n contract +
+  sample scenario, admin, and the Cloudflare secret/D1 checklist.
+
+**USER dashboard step (to activate the admin):** add secrets `ADMIN_PASSWORD`
+(login password) and `ADMIN_SESSION_SECRET` (long random string) in Cloudflare.
+Until then `/admin` shows a 503 "not configured" page. Optional: put Cloudflare
+Access in front of `/admin*`.
+
+**Lighthouse:** can't run headless here (no Node/Chrome). Pages are static, fully
+server-rendered meta + JSON-LD, mobile-responsive via the shared layout — expect
+SEO ≥ 90; run a Lighthouse pass in-browser to confirm.
+
+---
+
+## ✅ Build complete — all 9 chunks shipped
+
+13 content pieces (10 guides + 3 type samples), 4 resource types with per-type
+schema, hub + indexes + nav, 12 feeds, social packs + `social.json`, D1 queue +
+API, 65 brand-locked images, authenticated admin, llms.txt, and docs. Positioning
+lock held throughout (warm-inbound, email-first, $7 flat, contractor-only,
+no fabricated testimonials).
+
+**Outstanding USER items:** add `ADMIN_PASSWORD` + `ADMIN_SESSION_SECRET` secrets
+to use the admin. (D1 table + `CR_AUTOMATION_KEY` already done in Chunk 7.)

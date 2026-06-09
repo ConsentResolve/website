@@ -1,55 +1,22 @@
-// Social Queue API — /api/social-queue
+// Social Queue API — /api/social-queue (for external automation: Make/Zapier/n8n)
 //
-//   GET  -> { published: [], scheduled: [], ready_to_publish: [] }  (reads D1)
-//   POST -> two actions (JSON body):
-//       { action: "enqueue", resource_slug, resource_type, items: [{platform, payload}] }
-//           upserts one ready_to_publish row per platform (idempotent).
-//       { action: "callback", resource_slug, platform, status, post_url?, post_id?, published_at? }
-//           updates a row after automation posts it (status -> published/scheduled).
+//   GET  -> { published: [], scheduled: [], ready_to_publish: [] }
+//   POST -> { action: "enqueue", resource_slug, resource_type, items: [{platform, payload}] }
+//        -> { action: "callback", resource_slug, platform, status, post_url?, post_id?, published_at? }
 //
-// Auth: every request must send  X-CR-Automation-Key: <CR_AUTOMATION_KEY>.
-// The secret is a Cloudflare env var (never committed). If it isn't set, the
-// endpoint returns 503 so it fails closed rather than open.
+// Auth: X-CR-Automation-Key must equal env CR_AUTOMATION_KEY. Fails closed
+// (503 if the secret isn't set). The admin UI uses the same queue via a
+// cookie-authed path instead of this header.
 
 import { json, corsHeaders } from "../_lib/http.js";
-import { nowIso } from "../_lib/db.js";
-
-const VALID_STATUS = new Set(["ready_to_publish", "scheduled", "published"]);
+import { readBuckets, enqueue, updateStatus, VALID_STATUS } from "../_lib/queue.js";
 
 function authed(request, env) {
   const key = env.CR_AUTOMATION_KEY;
   if (!key) return { ok: false, code: 503, error: "queue_unconfigured" };
   const given = request.headers.get("X-CR-Automation-Key") || "";
-  // Constant-ish comparison (length + value); fine for a shared secret header.
-  if (given.length !== key.length || given !== key) {
-    return { ok: false, code: 401, error: "unauthorized" };
-  }
+  if (given.length !== key.length || given !== key) return { ok: false, code: 401, error: "unauthorized" };
   return { ok: true };
-}
-
-function mapRow(r) {
-  return {
-    id: r.id,
-    resource_slug: r.resource_slug,
-    resource_type: r.resource_type,
-    platform: r.platform,
-    status: r.status,
-    scheduled_at: r.scheduled_at,
-    published_at: r.published_at,
-    post_url: r.post_url,
-    post_id: r.post_id,
-    payload: r.payload ? safeParse(r.payload) : null,
-    created_at: r.created_at,
-    updated_at: r.updated_at,
-  };
-}
-
-function safeParse(s) {
-  try {
-    return JSON.parse(s);
-  } catch {
-    return s;
-  }
 }
 
 export async function onRequestOptions({ request, env }) {
@@ -66,17 +33,7 @@ export async function onRequestOptions({ request, env }) {
 export async function onRequestGet({ request, env }) {
   const a = authed(request, env);
   if (!a.ok) return json({ error: a.error }, { status: a.code });
-
-  const { results } = await env.DB.prepare(
-    "SELECT * FROM social_queue ORDER BY updated_at DESC"
-  ).all();
-
-  const buckets = { published: [], scheduled: [], ready_to_publish: [] };
-  for (const r of results || []) {
-    const item = mapRow(r);
-    (buckets[r.status] || (buckets[r.status] = [])).push(item);
-  }
-  return json(buckets);
+  return json(await readBuckets(env));
 }
 
 export async function onRequestPost({ request, env }) {
@@ -97,22 +54,7 @@ export async function onRequestPost({ request, env }) {
     if (!resource_slug || !resource_type || !Array.isArray(items) || items.length === 0) {
       return json({ error: "missing_fields", need: "resource_slug, resource_type, items[]" }, { status: 400 });
     }
-    const now = nowIso();
-    let n = 0;
-    for (const it of items) {
-      if (!it || !it.platform) continue;
-      await env.DB.prepare(
-        `INSERT INTO social_queue (resource_slug, resource_type, platform, status, payload, created_at, updated_at)
-         VALUES (?, ?, ?, 'ready_to_publish', ?, ?, ?)
-         ON CONFLICT(resource_slug, platform) DO UPDATE SET
-           resource_type = excluded.resource_type,
-           payload       = excluded.payload,
-           updated_at    = excluded.updated_at`
-      )
-        .bind(resource_slug, resource_type, it.platform, it.payload ? JSON.stringify(it.payload) : null, now, now)
-        .run();
-      n++;
-    }
+    const n = await enqueue(env, resource_slug, resource_type, items);
     return json({ ok: true, enqueued: n });
   }
 
@@ -124,26 +66,7 @@ export async function onRequestPost({ request, env }) {
     if (!VALID_STATUS.has(status)) {
       return json({ error: "bad_status", allowed: [...VALID_STATUS] }, { status: 400 });
     }
-    const published_at =
-      status === "published" ? body.published_at || nowIso() : body.published_at || null;
-    const res = await env.DB.prepare(
-      `UPDATE social_queue
-         SET status = ?, post_url = ?, post_id = ?, scheduled_at = ?, published_at = ?, updated_at = ?
-       WHERE resource_slug = ? AND platform = ?`
-    )
-      .bind(
-        status,
-        body.post_url || null,
-        body.post_id || null,
-        body.scheduled_at || null,
-        published_at,
-        nowIso(),
-        resource_slug,
-        platform
-      )
-      .run();
-
-    const changed = res.meta?.changes ?? res.changes ?? 0;
+    const changed = await updateStatus(env, body);
     if (!changed) return json({ error: "not_found", resource_slug, platform }, { status: 404 });
     return json({ ok: true, updated: changed });
   }

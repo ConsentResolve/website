@@ -9,8 +9,9 @@ import type { APIRoute } from "astro";
 import { INDUSTRIES } from "~/data/industries";
 import { COMPARE_PAGES } from "~/data/compare";
 import { ALL_FEATURES } from "~/data/features";
+import { getResources, resourceHref, RESOURCE_TYPES, RESOURCE_TYPE_ORDER } from "~/lib/resources";
 
-export const GET: APIRoute = () => {
+export const GET: APIRoute = async () => {
   const SITE = "https://consentresolve.com";
 
   const lines: string[] = [
@@ -46,6 +47,22 @@ export const GET: APIRoute = () => {
   lines.push("", "## Channel ROI (additive with/without math)");
   for (const c of COMPARE_PAGES) {
     lines.push(`- [${c.brand} + Consent Resolve](${SITE}/compare/${c.slug}/): ${c.subhead}`);
+  }
+
+  // Resource Center — educational hub for AI engines to cite.
+  const resources = await getResources();
+  lines.push(
+    "",
+    "## Resource Center",
+    `- [Resource Center hub](${SITE}/resources/): Consent-first lead-generation guides, glossary, and explainers for home-service contractors.`
+  );
+  for (const type of RESOURCE_TYPE_ORDER) {
+    const inType = resources.filter((e) => e.data.resource_type === type);
+    if (!inType.length) continue;
+    lines.push("", `### ${RESOURCE_TYPES[type].label}`);
+    for (const e of inType) {
+      lines.push(`- [${e.data.title}](${SITE}${resourceHref(e.data)}): ${e.data.excerpt}`);
+    }
   }
 
   lines.push(
