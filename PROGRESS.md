@@ -30,8 +30,8 @@ contractor-only, consent-first, no fabricated testimonials.
 ## Chunk status
 
 - [x] **Chunk 1 — Content model + first guide**
-- [x] **Chunk 2 — Hub + type index + nav/footer links** *(this commit)*
-- [ ] Chunk 3 — Seed guides 2–10
+- [x] **Chunk 2 — Hub + type index + nav/footer links**
+- [x] **Chunk 3 — Seed guides 2–10** *(this commit)*
 - [ ] Chunk 4 — Glossary / explainer / blog templates + indexes
 - [ ] Chunk 5 — RSS/XML feeds
 - [ ] Chunk 6 — Social pack generator + UTM + social.json endpoint
@@ -117,3 +117,33 @@ contractor-only, consent-first, no fabricated testimonials.
 - View source on both: `ItemList` + `BreadcrumbList` JSON-LD present.
 
 **Next:** Chunk 3 — seed guides 2–10 (cross-links between guides go live).
+
+---
+
+## Chunk 3 — Seed guides 2–10 ✅
+
+**Files added** (`src/content/resources/how-to-guides/`)
+- `win-google-local-service-ads.md` (Guide 2)
+- `get-more-leads-from-website-traffic.md` (Guide 3 — 7 steps)
+- `identify-anonymous-website-visitors.md` (Guide 4)
+- `stop-losing-jobs-missed-calls.md` (Guide 5)
+- `follow-up-with-leads.md` (Guide 6)
+- `quote-and-close-more-jobs.md` (Guide 7)
+- `get-more-google-reviews.md` (Guide 8)
+- `market-to-neighbors-after-every-job.md` (Guide 9)
+- `track-where-leads-come-from.md` (Guide 10)
+
+**Method:** transcribed verbatim from the spec into the Guide 1 template shape —
+identical frontmatter field order, `published_at`/`updated_at: 2026-06-09`,
+`key_takeaways` lifted to frontmatter, `how_to_steps` derived from the numbered
+steps, `schema_note`/`social_pack` omitted (social packs come in Chunk 6), the
+Key-Takeaways + FAQ-footer lines dropped from the body, bold labels → `## H2`.
+Validated structurally (10/10 files: 2 delimiters, 6 H2 sections, required keys,
+slug == filename, no stray fields). Step counts: Guide 1 = 8, Guide 3 = 7, the
+rest = 6.
+
+**Test (after deploy):** all 10 guide URLs render; the hub + How-To index list
+all 10; inter-guide CTA links (e.g. "track where your leads come from") now
+resolve; broken-link-sweep clean.
+
+**Next:** Chunk 4 — glossary / explainer / blog templates + indexes.
