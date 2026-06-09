@@ -18,7 +18,7 @@ const label = placement === "top" ? "Key takeaways" : "Recap";
 ---
 
 <aside
-  class="my-10 rounded-2xl border-l-4 border-[color:var(--color-brand)] bg-[color:var(--color-brand-soft)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]"
+  class:list={["my-10 rounded-2xl border-l-4 border-[color:var(--color-brand)] bg-[color:var(--color-brand-soft)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]", placement === "top" ? "key-takeaways" : "recap"]}
   aria-label="Key takeaways"
 >
   <div class="mb-3 flex items-center gap-2">

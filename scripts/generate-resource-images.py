@@ -596,6 +596,8 @@ CONTENT_SUBJECTS = {
     "what-is-a-service-area-business": "a service van with a dashed location-radius circle on a small map",
     "what-is-nap-consistency": "three matching cards aligned, each showing a person, a pin, and a phone icon",
     "what-is-reputation-management": "a row of five stars with a shield and a small chat bubble",
+    # Blog (Q1)
+    "fathers-day-first-heat-wave-how-hvac-pros-can-catch-the-homeowners-already-pricing-the-job": "an outdoor air-conditioner condenser unit beside a browser window resolving a faceless visitor into a contact card",
 }
 TRADE_TOOL = {
     "plumber": "a plumber's pipe wrench", "roofing": "a roofing hammer and a shingle",

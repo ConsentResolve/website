@@ -1,0 +1,93 @@
+---
+/**
+ * Author profile page — /resources/authors/<slug>/.
+ * ProfilePage whose mainEntity is the author's Person node (the canonical
+ * E-E-A-T author entity reused across the blog @graph). Shows photo, title,
+ * long bio, credentials, knowsAbout, LinkedIn, a "Meet the team" link, and an
+ * auto-list of that author's blog posts.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Breadcrumbs from "~/components/Breadcrumbs.astro";
+import Badge from "~/components/ui/Badge.astro";
+import ResourceGrid from "~/components/resources/ResourceGrid.astro";
+import { SITE } from "~/lib/site";
+import { AUTHORS, AUTHOR_ORDER, authorPersonSchema, authorUrl } from "~/data/authors";
+import { getResources } from "~/lib/resources";
+import { IconBrandLinkedin, IconArrowRight } from "@tabler/icons-react";
+
+export async function getStaticPaths() {
+  return AUTHOR_ORDER.map((slug) => ({ params: { slug }, props: { author: AUTHORS[slug] } }));
+}
+
+const { author } = Astro.props;
+const url = `${SITE.url}${authorUrl(author.slug)}`;
+const posts = (await getResources("blog")).filter((e) => e.data.author_slug === author.slug);
+
+const person = { "@context": "https://schema.org", ...authorPersonSchema(author), description: author.longBio };
+const profileSchema = {
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "@id": `${url}#profilepage`,
+  url,
+  mainEntity: { "@id": `${url}#person` },
+  about: { "@id": `${url}#person` },
+};
+const breadcrumbs = [
+  { name: "Home", href: "/" },
+  { name: "Resources", href: "/resources/" },
+  { name: "Authors", href: "/resources/authors/" },
+  { name: author.name, href: authorUrl(author.slug) },
+];
+---
+
+<BaseLayout
+  title={`${author.name} — ${author.title} | Consent Resolve`}
+  description={author.shortBio.slice(0, 155)}
+  canonical={url}
+  ogImage={author.photo}
+  schema={[profileSchema, person]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-content max-w-3xl pb-6 pt-8">
+    <div class="flex flex-col gap-6 sm:flex-row sm:items-center">
+      <img src={author.photo} alt={author.name} width="120" height="120" class="size-28 shrink-0 rounded-2xl object-cover ring-1 ring-inset ring-[color:var(--color-rule)]" />
+      <div>
+        <div class="mb-3"><Badge tone="brand" variant="soft" size="sm" uppercase>Author</Badge></div>
+        <h1 class="display-2 text-[color:var(--color-ink)]">{author.name}</h1>
+        <p class="mt-1 text-lg text-[color:var(--color-ink-2)]">{author.title} · Consent Resolve</p>
+        <p class="mt-1 text-sm text-[color:var(--color-ink-muted)]">{author.location} · “{author.tagline}”</p>
+      </div>
+    </div>
+
+    <p class="mt-8 text-lg leading-relaxed text-[color:var(--color-ink-2)]">{author.longBio}</p>
+
+    <div class="mt-8 grid gap-6 sm:grid-cols-2">
+      <div>
+        <div class="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-[color:var(--color-ink-muted)]">Background</div>
+        <ul class="flex flex-col gap-1.5 text-[15px] text-[color:var(--color-ink-2)]">
+          {author.credentials.map((c) => <li class="flex gap-2"><span class="text-[color:var(--color-brand-pressed)]">•</span>{c}</li>)}
+        </ul>
+      </div>
+      <div>
+        <div class="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-[color:var(--color-ink-muted)]">Writes about</div>
+        <p class="text-[15px] text-[color:var(--color-ink-2)]">{author.writesAbout}</p>
+        <div class="mt-5 flex flex-wrap gap-3">
+          <a href={author.linkedin} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 rounded-lg bg-[color:var(--color-brand-soft)] px-3.5 py-2 text-sm font-semibold text-[color:var(--color-brand-pressed)]">
+            <IconBrandLinkedin size={16} stroke={2} /> Follow on LinkedIn
+          </a>
+          <a href="/about/" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]">Meet the team <IconArrowRight size={14} stroke={2.2} /></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {posts.length > 0 && (
+    <section class="section-tight pt-2">
+      <div class="container-content">
+        <h2 class="mb-6 font-display text-2xl font-bold tracking-tight text-[color:var(--color-ink)]">Posts by {author.name}</h2>
+        <ResourceGrid entries={posts} />
+      </div>
+    </section>
+  )}
+</BaseLayout>

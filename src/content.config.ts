@@ -101,6 +101,15 @@ const resourceSchema = z.object({
   // Suppress the on-page "By …" byline (author stays in JSON-LD). Matches the glossary.
   hide_byline: z.boolean().default(false),
 
+  // ── Blog fields (BlogPosting w/ real author + reviewer, per 00-build-system) ─
+  // Author/reviewer keyed to src/data/authors.ts (drives byline link, author box,
+  // and Person JSON-LD via the /resources/authors/<slug>/#person @id).
+  author_slug: z.string().optional(),
+  reviewer_slug: z.string().optional(),
+  recap: z.string().optional(), // closing "Recap" box
+  article_section: z.string().optional(), // e.g. "Compliance & Privacy"
+  cluster: z.string().optional(), // trade or feature hub slug this post clusters under
+
   // HowTo step list — powers HowTo JSON-LD (kept in sync with the body prose)
   how_to_steps: z.array(howToStep).default([]),
 

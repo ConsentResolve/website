@@ -17,7 +17,8 @@ import KeyTakeaways from "~/components/resources/KeyTakeaways.astro";
 import ComplianceNote from "~/components/resources/ComplianceNote.astro";
 import type { ResourceData } from "~/content.config";
 import { resourceImage } from "~/lib/resources";
-import { IconArrowRight, IconArrowUpRight } from "@tabler/icons-react";
+import { authorUrl, type Author } from "~/data/authors";
+import { IconArrowRight, IconArrowUpRight, IconBrandLinkedin } from "@tabler/icons-react";
 
 interface Props {
   data: ResourceData;
@@ -26,8 +27,12 @@ interface Props {
   typeLabel: string;
   /** Path to the type index, e.g. "/resources/how-to-guides/". */
   typeHref: string;
+  /** Blog only: real author + optional reviewer (drives byline, author box). */
+  author?: Author;
+  reviewer?: Author;
 }
-const { data, schemas, typeLabel, typeHref } = Astro.props as Props;
+const { data, schemas, typeLabel, typeHref, author, reviewer } = Astro.props as Props;
+const isBlog = Boolean(author);
 
 const ogImage =
   data.images?.og_image ||
@@ -69,21 +74,33 @@ const breadcrumbs = [
       </div>
       <h1 class="display-1 text-[color:var(--color-ink)]">{data.title}</h1>
       <p class="mt-6 text-lg leading-relaxed text-[color:var(--color-ink-2)]">{data.excerpt}</p>
-      <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[color:var(--color-ink-muted)]">
-        {!data.hide_byline && <span>By {data.author}</span>}
-        {data.read_time && <>{!data.hide_byline && <span aria-hidden="true">·</span>}<span>{data.read_time} read</span></>}
-        {dateStr && <><span aria-hidden="true">·</span><span>Updated {dateStr}</span></>}
+      <div class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[color:var(--color-ink-muted)]">
+        {author ? (
+          <>
+            <span>By <a href={authorUrl(author.slug)} class="font-semibold text-[color:var(--color-ink-2)] hover:text-[color:var(--color-brand-pressed)]">{author.name}</a>, {author.title} at Consent Resolve</span>
+            {data.read_time && <><span aria-hidden="true">·</span><span>{data.read_time} read</span></>}
+            {reviewer && <><span aria-hidden="true">·</span><span>Reviewed by <a href={authorUrl(reviewer.slug)} class="font-semibold text-[color:var(--color-ink-2)] hover:text-[color:var(--color-brand-pressed)]">{reviewer.name}</a>, {reviewer.title}</span></>}
+          </>
+        ) : (
+          <>
+            {!data.hide_byline && <span>By {data.author}</span>}
+            {data.read_time && <>{!data.hide_byline && <span aria-hidden="true">·</span>}<span>{data.read_time} read</span></>}
+            {dateStr && <><span aria-hidden="true">·</span><span>Updated {dateStr}</span></>}
+          </>
+        )}
       </div>
     </header>
 
-    {data.tldr ? (
-      <aside class="my-8 rounded-2xl border-l-4 border-[color:var(--color-brand)] bg-[color:var(--color-brand-soft)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]" aria-label="The short answer">
+    {data.tldr && (
+      <aside class="tldr my-8 rounded-2xl border-l-4 border-[color:var(--color-brand)] bg-[color:var(--color-brand-soft)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]" aria-label="The short answer">
         <div class="mb-2"><Badge tone="brand" variant="soft" size="sm" uppercase>The short answer</Badge></div>
         <p class="text-[17px] leading-relaxed text-[color:var(--color-ink)]">{data.tldr}</p>
       </aside>
-    ) : (
-      data.key_takeaways && <KeyTakeaways text={data.key_takeaways} placement="top" />
     )}
+    {/* Blog: key takeaways near the top. Guides/explainers: top only when no TL;DR. */}
+    {isBlog
+      ? data.key_takeaways && <KeyTakeaways text={data.key_takeaways} placement="top" />
+      : !data.tldr && data.key_takeaways && <KeyTakeaways text={data.key_takeaways} placement="top" />}
 
     <!-- Rendered Markdown body -->
     <div class="rc-prose"><slot /></div>
@@ -115,7 +132,10 @@ const breadcrumbs = [
       </aside>
     )}
 
-    {data.key_takeaways && <KeyTakeaways text={data.key_takeaways} placement="bottom" />}
+    {/* Blog: a "Recap" box near the end. Guides/explainers: key takeaways at bottom. */}
+    {isBlog
+      ? data.recap && <KeyTakeaways text={data.recap} placement="bottom" />
+      : data.key_takeaways && <KeyTakeaways text={data.key_takeaways} placement="bottom" />}
 
     {data.related.length > 0 && (
       <aside class="my-8">
@@ -149,6 +169,22 @@ const breadcrumbs = [
         </p>
       )}
     </div>
+
+    {isBlog && author && (
+      <aside class="mt-10 flex flex-col gap-5 rounded-2xl bg-[color:var(--color-bg-alt)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)] sm:flex-row">
+        <img src={author.photo} alt={author.name} width="80" height="80" class="size-16 shrink-0 rounded-xl object-cover ring-1 ring-inset ring-[color:var(--color-rule)]" />
+        <div>
+          <div class="font-display text-lg font-bold text-[color:var(--color-ink)]">{author.name}</div>
+          <div class="text-sm text-[color:var(--color-ink-muted)]">{author.title} · Consent Resolve</div>
+          <p class="mt-2 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{author.longBio}</p>
+          <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm font-semibold">
+            <a href={author.linkedin} target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-[color:var(--color-brand-pressed)]"><IconBrandLinkedin size={15} stroke={2} /> Follow on LinkedIn</a>
+            <a href="/about/" class="text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]">Meet the team →</a>
+            <a href={authorUrl(author.slug)} class="text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]">More from {author.name.split(" ")[0]} →</a>
+          </div>
+        </div>
+      </aside>
+    )}
   </article>
 
   {data.faq_items.length > 0 && (

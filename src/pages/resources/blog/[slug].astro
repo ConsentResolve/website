@@ -1,12 +1,17 @@
 ---
 /**
  * Blog post detail — /resources/blog/[slug]/.
- * Body section order: Hook → Problem → Insight → Evidence →
- * Practical Takeaways → CTA → FAQs. Schema: BlogPosting + FAQPage.
+ * Section order (body): Hook → Problem → Insight → Evidence → Practical
+ * Takeaways → CTA. Schema graph: BlogPosting (+ Speakable, reviewedBy on
+ * Compliance posts) + author/reviewer Person + FAQPage (+ BreadcrumbList via
+ * the Breadcrumbs component). No dates anywhere.
  */
 import { getCollection, render } from "astro:content";
 import ResourceLayout from "~/layouts/ResourceLayout.astro";
-import { articleSchema, faqSchema } from "~/lib/seo";
+import { faqSchema } from "~/lib/seo";
+import { SITE } from "~/lib/site";
+import { resourceImage } from "~/lib/resources";
+import { getAuthor, authorPersonId, authorPersonSchema } from "~/data/authors";
 
 export async function getStaticPaths() {
   const all = await getCollection("resources");
@@ -19,17 +24,39 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const data = entry.data;
 
-const schemas: unknown[] = [
-  articleSchema({
-    type: "BlogPosting",
-    headline: data.title,
-    description: data.excerpt,
-    url: data.canonical_url,
-    datePublished: data.published_at,
-    dateModified: data.updated_at,
-    image: data.images?.og_image || data.images?.featured_image || data.featured_image,
-  }),
-];
+const author = data.author_slug ? getAuthor(data.author_slug) : undefined;
+const reviewer = data.reviewer_slug ? getAuthor(data.reviewer_slug) : undefined;
+
+const POST_URL = data.canonical_url;
+const ogImage = `${SITE.url}${data.images?.og_image || data.featured_image || resourceImage(data, "og")}`;
+
+// BlogPosting node — no dates (per 00-build-system); Speakable exposes the
+// TL;DR + key-takeaways to answer engines.
+const blogPosting: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "@id": `${POST_URL}#article`,
+  headline: data.title,
+  description: data.seo_description,
+  image: ogImage,
+  inLanguage: "en-US",
+  isPartOf: { "@id": `${SITE.url}/resources/blog/#blog` },
+  mainEntityOfPage: { "@id": POST_URL },
+  publisher: { "@id": `${SITE.url}/#organization` },
+  articleSection: data.article_section || "Blog",
+  about: [
+    { "@type": "Thing", name: "website visitor identification" },
+    ...(data.article_section ? [{ "@type": "Thing", name: data.article_section }] : []),
+  ],
+  keywords: data.tags.join(", "),
+  speakable: { "@type": "SpeakableSpecification", cssSelector: [".tldr", ".key-takeaways"] },
+  ...(author ? { author: { "@id": authorPersonId(author.slug) } } : {}),
+  ...(reviewer ? { reviewedBy: { "@id": authorPersonId(reviewer.slug) } } : {}),
+};
+
+const schemas: unknown[] = [blogPosting];
+if (author) schemas.push({ "@context": "https://schema.org", ...authorPersonSchema(author) });
+if (reviewer) schemas.push({ "@context": "https://schema.org", ...authorPersonSchema(reviewer) });
 if (data.faq_items.length > 0) schemas.push(faqSchema(data.faq_items));
 ---
 
@@ -38,6 +65,8 @@ if (data.faq_items.length > 0) schemas.push(faqSchema(data.faq_items));
   schemas={schemas}
   typeLabel="Blog"
   typeHref="/resources/blog/"
+  author={author}
+  reviewer={reviewer}
 >
   <Content />
 </ResourceLayout>
