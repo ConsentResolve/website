@@ -1,0 +1,48 @@
+---
+/**
+ * RelatedReads — a "From the blog" rail for hub pages (feature + trade pages).
+ * Reciprocal interlinking: surfaces up to 3 cluster-matched blog posts so each
+ * hub sends authority down to its strongest cluster reads (and vice-versa).
+ * Pass posts via getBlogPostsByCluster(cluster) from the page frontmatter.
+ */
+import Badge from "~/components/ui/Badge.astro";
+import ResourceCard from "~/components/resources/ResourceCard.astro";
+import { type ResourceEntry } from "~/lib/resources";
+import { IconArrowRight } from "@tabler/icons-react";
+
+interface Props {
+  posts: ResourceEntry[];
+  eyebrow?: string;
+  heading: string;
+  /** background surface — "alt" for the tinted band, "base" for white */
+  surface?: "alt" | "base";
+}
+const { posts, eyebrow = "From the blog", heading, surface = "base" } =
+  Astro.props as Props;
+const bg = surface === "alt" ? "bg-[color:var(--color-bg-alt)]" : "";
+---
+
+{posts.length > 0 && (
+  <section class={`section ${bg}`}>
+    <div class="container-content">
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        <div class="mb-5 flex justify-center">
+          <Badge tone="brand" variant="soft" size="md" uppercase>{eyebrow}</Badge>
+        </div>
+        <h2 class="display-2 text-[color:var(--color-ink)]">{heading}</h2>
+      </div>
+      <div class="grid gap-6 md:grid-cols-3">
+        {posts.map((entry) => <ResourceCard entry={entry} />)}
+      </div>
+      <div class="mt-12 text-center">
+        <a
+          href="/resources/blog/"
+          class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)] hover:text-[color:var(--color-ink)]"
+        >
+          Read more from the blog
+          <IconArrowRight size={14} stroke={2.5} />
+        </a>
+      </div>
+    </div>
+  </section>
+)}

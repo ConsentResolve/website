@@ -11,6 +11,7 @@ import { COMPARE_PAGES } from "~/data/compare";
 import { ALL_FEATURES } from "~/data/features";
 import { getResources, resourceHref, RESOURCE_TYPES, RESOURCE_TYPE_ORDER } from "~/lib/resources";
 import { GLOSSARY_TERMS } from "~/data/glossary";
+import { AUTHORS, AUTHOR_ORDER, authorUrl } from "~/data/authors";
 
 export const GET: APIRoute = async () => {
   const SITE = "https://consentresolve.com";
@@ -65,6 +66,15 @@ export const GET: APIRoute = async () => {
     for (const e of inType) {
       lines.push(`- [${e.data.title}](${SITE}${resourceHref(e.data)}): ${e.data.excerpt}`);
     }
+  }
+
+  // Authors — real, credentialed people behind the blog (E-E-A-T entities).
+  lines.push("", "## Authors");
+  for (const slug of AUTHOR_ORDER) {
+    const a = AUTHORS[slug];
+    lines.push(
+      `- [${a.name}](${SITE}${authorUrl(a.slug)}): ${a.title}, Consent Resolve. ${a.writesAbout} ${a.credentials[0]}.`
+    );
   }
 
   lines.push(

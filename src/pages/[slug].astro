@@ -9,7 +9,9 @@ import FinalCTA from "~/components/sections/FinalCTA.astro";
 import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import FAQ from "~/components/sections/FAQ.astro";
 import RecoveryCalculator from "~/components/ui/RecoveryCalculator.tsx";
+import RelatedReads from "~/components/sections/RelatedReads.astro";
 import { INDUSTRIES, type Industry } from "~/data/industries";
+import { getBlogPostsByCluster } from "~/lib/resources";
 import { breadcrumbSchema, faqSchema, industryServiceSchema } from "~/lib/seo";
 import { IconArrowRight, IconEye, IconCheck,
   IconBuilding, IconTool, IconAirConditioning, IconDroplet, IconKey, IconBolt,
@@ -78,6 +80,8 @@ const schemas = [
   }),
   faqSchema(trade.faqs.map((f) => ({ question: f.q, answer: f.a }))),
 ];
+
+const relatedPosts = await getBlogPostsByCluster(trade.slug);
 
 const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
 ---
@@ -196,6 +200,13 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
   <FAQ
     headline={`What ${trade.name.toLowerCase()} ask before they start.`}
     items={trade.faqs.map((f) => ({ question: f.q, answer: f.a }))}
+  />
+
+  <!-- From the blog (reciprocal cluster links) -->
+  <RelatedReads
+    posts={relatedPosts}
+    heading={`More for ${trade.name.toLowerCase()} pros`}
+    surface="alt"
   />
 
   <AEOAnswer text={trade.aeoAnswer} />

@@ -15,6 +15,8 @@ import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FAQ from "~/components/sections/FAQ.astro";
 import { ALL_FEATURES, getFeature, getFeatureGroupOf } from "~/data/features";
 import { FEATURE_ICONS } from "~/lib/feature-icons";
+import RelatedReads from "~/components/sections/RelatedReads.astro";
+import { getBlogPostsByCluster } from "~/lib/resources";
 import { breadcrumbSchema, faqSchema } from "~/lib/seo";
 import { IconArrowRight, IconCheck, IconEye } from "@tabler/icons-react";
 
@@ -33,6 +35,8 @@ const Icon = FEATURE_ICONS[feature.iconKey];
 const pairsWith = feature.pairsWith
   .map((slug) => getFeature(slug))
   .filter((f): f is NonNullable<typeof f> => Boolean(f));
+
+const relatedPosts = await getBlogPostsByCluster(feature.slug);
 
 const canonical = `https://consentresolve.com/features/${feature.slug}/`;
 const schemas = [
@@ -209,6 +213,13 @@ const schemas = [
       </div>
     </section>
   )}
+
+  <!-- From the blog (reciprocal cluster links) -->
+  <RelatedReads
+    posts={relatedPosts}
+    heading={`More on ${feature.name.toLowerCase()}`}
+    surface={pairsWith.length > 0 ? "base" : "alt"}
+  />
 
   <AEOAnswer text={feature.aeoAnswer} />
 

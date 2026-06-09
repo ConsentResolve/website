@@ -106,3 +106,36 @@ export async function getResources(type?: ResourceType): Promise<ResourceEntry[]
       return db - da;
     });
 }
+
+/**
+ * Blog posts for a hub page's "From the blog" rail, by `cluster` (a trade or
+ * feature slug). Cluster-matched posts come first (so every cluster post earns
+ * an inbound link from its hub); remaining slots are filled with evergreen
+ * fallbacks so a hub with few/no cluster posts still shows `n` relevant reads.
+ */
+const EVERGREEN_FALLBACK = [
+  "get-more-leads-no-extra-spend",
+  "see-whos-on-your-site-right-now-without-a-single-form-fill",
+  "capturing-the-98-who-will-never-fill-out-your-form",
+  "more-traffic-wrong-goal",
+];
+export async function getBlogPostsByCluster(
+  cluster: string,
+  n = 3
+): Promise<ResourceEntry[]> {
+  const blog = await getResources("blog");
+  const matched = blog.filter((e) => e.data.cluster === cluster);
+  const picked: ResourceEntry[] = [...matched];
+  if (picked.length < n) {
+    const have = new Set(picked.map((e) => e.data.slug));
+    for (const slug of EVERGREEN_FALLBACK) {
+      if (picked.length >= n) break;
+      const post = blog.find((e) => e.data.slug === slug && !have.has(slug));
+      if (post) {
+        picked.push(post);
+        have.add(slug);
+      }
+    }
+  }
+  return picked.slice(0, n);
+}
