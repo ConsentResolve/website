@@ -58,14 +58,33 @@ const breadcrumbs = [
 
   <!-- Hero -->
   <section class="container-content pb-2 pt-10">
-    <div class="max-w-3xl">
-      <div class="mb-6"><Badge tone="brand" variant="soft" size="md" uppercase>Resources · Glossary</Badge></div>
-      <h1 class="display-1 text-[color:var(--color-ink)]">The home-service marketing &amp; consent glossary.</h1>
-      <p class="mt-6 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-        Plain-English definitions of the marketing, lead, and privacy terms you'll run into working with us —
-        and the consent terms most lead vendors hope you never learn.
-      </p>
-      <p class="mt-4 text-sm text-[color:var(--color-ink-muted)]"><b class="text-[color:var(--color-ink-2)]">{GLOSSARY_TERMS.length}</b> terms</p>
+    <div class="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+      <div>
+        <div class="mb-6"><Badge tone="brand" variant="soft" size="md" uppercase>Resources · Glossary</Badge></div>
+        <h1 class="display-1 text-[color:var(--color-ink)]">The home-service marketing &amp; consent glossary.</h1>
+        <p class="mt-6 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+          Plain-English definitions of the marketing, lead, and privacy terms you'll run into working with us —
+          and the consent terms most lead vendors hope you never learn.
+        </p>
+        <p class="mt-4 text-sm text-[color:var(--color-ink-muted)]"><b class="text-[color:var(--color-ink-2)]">{GLOSSARY_TERMS.length}</b> terms</p>
+      </div>
+      <!-- Hero illustration — locked card treatment: navy panel + green-bordered white card -->
+      <div class="relative hidden lg:block">
+        <div class="relative overflow-hidden rounded-3xl bg-[color:var(--color-bg-inverse)] p-8 ring-1 ring-inset ring-[color:var(--color-mint-400)]/40 shadow-[0_30px_60px_-30px_rgba(10,22,40,0.5)]">
+          <div aria-hidden="true" class="pointer-events-none absolute -right-12 -top-12 size-48 rounded-full bg-[color:var(--color-mint-400)]/25 blur-3xl"></div>
+          <div class="relative rounded-2xl border-2 border-[color:var(--color-mint-400)] bg-[#f8fafc] p-6">
+            <img
+              src="/images/resources/glossary-hero.png"
+              alt="Illustration of a magnifying glass over an open glossary book"
+              width="1204"
+              height="1213"
+              loading="eager"
+              decoding="async"
+              class="mx-auto block h-auto w-full max-w-[340px]"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
