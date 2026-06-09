@@ -655,13 +655,10 @@ def compose(variant, fm, art, trade_label="", art_mode="ink", ss=1):
         place_logo(card, logo_variant, logo_h, "bl", margin)
 
     elif layout == "thumb":
-        place_art(card, art, (int(w * 0.58), int(h * 0.20), int(w * 0.36), int(h * 0.60)), art_mode)
-        place_logo(card, "mark", logo_h, "tl", margin)
-        tx = margin
-        top = margin + logo_h + int(14 * scale)
-        text_w = int(w * 0.56)
-        f_hook, lines, lh, htrack = fit_hook(draw, hook, text_w, h - top - margin, int(40 * scale), int(20 * scale))
-        draw_hook(draw, tx, top, lines, f_hook, lh, htrack)
+        # Clean illustration-only tile — no text, badge, or logo (the card UI
+        # shows the title/category/excerpt as HTML beneath the image).
+        cw_, ch_ = int(w * 0.64), int(h * 0.76)
+        place_art(card, art, ((w - cw_) // 2, (h - ch_) // 2, cw_, ch_), art_mode)
 
     else:  # square / portrait — logo top, then eyebrow, hook, headline, CTA
         place_logo(card, logo_variant, logo_h, "tl", margin)
