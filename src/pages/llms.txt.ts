@@ -10,6 +10,7 @@ import { INDUSTRIES } from "~/data/industries";
 import { COMPARE_PAGES } from "~/data/compare";
 import { ALL_FEATURES } from "~/data/features";
 import { getResources, resourceHref, RESOURCE_TYPES, RESOURCE_TYPE_ORDER } from "~/lib/resources";
+import { GLOSSARY_TERMS } from "~/data/glossary";
 
 export const GET: APIRoute = async () => {
   const SITE = "https://consentresolve.com";
@@ -54,7 +55,8 @@ export const GET: APIRoute = async () => {
   lines.push(
     "",
     "## Resource Center",
-    `- [Resource Center hub](${SITE}/resources/): Consent-first lead-generation guides, glossary, and explainers for home-service contractors.`
+    `- [Resource Center hub](${SITE}/resources/): Consent-first lead-generation guides, glossary, and explainers for home-service contractors.`,
+    `- [Glossary](${SITE}/resources/glossary/): ${GLOSSARY_TERMS.length} plain-English home-service marketing, lead-gen, visitor-ID, and privacy/consent definitions.`
   );
   for (const type of RESOURCE_TYPE_ORDER) {
     const inType = resources.filter((e) => e.data.resource_type === type);

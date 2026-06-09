@@ -32,7 +32,6 @@ const resourceSchema = z.object({
   slug: z.string(),
   resource_type: z.enum([
     "how-to-guide",
-    "glossary",
     "plain-language-explainer",
     "blog",
   ]),

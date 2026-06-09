@@ -28,24 +28,33 @@ const countOf = (type: string) => all.filter((e) => e.data.resource_type === typ
 
 const TYPE_ICON: Record<string, any> = {
   "how-to-guide": IconChecklist,
-  glossary: IconVocabulary,
   "plain-language-explainer": IconBulb,
   blog: IconNews,
 };
 
-// Category cards: the four resource types + Channel Comparisons (lives at /resources/compare/).
+const typeCard = (type: (typeof RESOURCE_TYPE_ORDER)[number]) => ({
+  label: RESOURCE_TYPES[type].label,
+  blurb: RESOURCE_TYPES[type].blurb,
+  href: typeHref(type),
+  count: countOf(type),
+  noun: countOf(type) === 1 ? "piece" : "pieces",
+  Icon: TYPE_ICON[type],
+});
+
+// Category cards. Glossary is a standalone single page (not a collection type),
+// so it's listed manually alongside the collection types + Channel Comparisons.
 const categories = [
-  ...RESOURCE_TYPE_ORDER.map((type) => {
-    const count = type === "glossary" ? GLOSSARY_TERMS.length : countOf(type);
-    return {
-      label: RESOURCE_TYPES[type].label,
-      blurb: RESOURCE_TYPES[type].blurb,
-      href: typeHref(type),
-      count,
-      noun: type === "glossary" ? "terms" : count === 1 ? "piece" : "pieces",
-      Icon: TYPE_ICON[type],
-    };
-  }),
+  typeCard("how-to-guide"),
+  {
+    label: "Glossary",
+    blurb: "Plain-English definitions for visitor identification, consent, attribution, and first-party data.",
+    href: "/resources/glossary/",
+    count: GLOSSARY_TERMS.length,
+    noun: "terms",
+    Icon: IconVocabulary,
+  },
+  typeCard("plain-language-explainer"),
+  typeCard("blog"),
   {
     label: "Channel Comparisons",
     blurb:

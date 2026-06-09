@@ -87,7 +87,7 @@ export const FOOTER_NAV = {
     { label: "Contact", href: "/contact/" },
     { label: "Resource Center", href: "/resources/" },
     { label: "Stats & Sources", href: "/stats/" },
-    { label: "Glossary", href: "/glossary/" },
+    { label: "Glossary", href: "/resources/glossary/" },
     { label: "FAQ", href: "/faq/" },
   ],
   legal: [

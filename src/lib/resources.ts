@@ -3,9 +3,10 @@
 // Used by cards, indexes, the hub, breadcrumbs, and (later) feeds + social.json.
 import { getCollection, type CollectionEntry } from "astro:content";
 
+// NOTE: glossary is NOT a collection type — it's a standalone single page at
+// /resources/glossary/ (src/data/glossary.ts). It's intentionally absent here.
 export type ResourceType =
   | "how-to-guide"
-  | "glossary"
   | "plain-language-explainer"
   | "blog";
 
@@ -30,13 +31,6 @@ export const RESOURCE_TYPES: Record<ResourceType, TypeMeta> = {
     blurb:
       "Step-by-step playbooks for getting found, capturing leads, and booking more jobs — built for home-service contractors.",
   },
-  glossary: {
-    segment: "glossary",
-    label: "Glossary",
-    singular: "Glossary Term",
-    blurb:
-      "Plain-English definitions for visitor identification, consent, attribution, and first-party data.",
-  },
   "plain-language-explainer": {
     segment: "plain-language-explainers",
     label: "Plain-Language Explainers",
@@ -55,7 +49,6 @@ export const RESOURCE_TYPES: Record<ResourceType, TypeMeta> = {
 
 export const RESOURCE_TYPE_ORDER: ResourceType[] = [
   "how-to-guide",
-  "glossary",
   "plain-language-explainer",
   "blog",
 ];
