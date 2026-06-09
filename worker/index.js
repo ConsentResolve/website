@@ -14,6 +14,7 @@ import * as consent from "./api/consent.js";
 import * as status from "./api/status.js";
 import * as preview from "./api/preview.js";
 import * as unsubscribe from "./api/unsubscribe.js";
+import * as socialQueue from "./api/social-queue.js";
 
 const ROUTES = {
   "/api/register": register,
@@ -22,6 +23,7 @@ const ROUTES = {
   "/api/status": status,
   "/api/preview": preview,
   "/api/unsubscribe": unsubscribe,
+  "/api/social-queue": socialQueue,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).

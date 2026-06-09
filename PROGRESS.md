@@ -34,8 +34,8 @@ contractor-only, consent-first, no fabricated testimonials.
 - [x] **Chunk 3 — Seed guides 2–10**
 - [x] **Chunk 4 — Glossary / explainer / blog templates + indexes**
 - [x] **Chunk 5 — RSS/XML content feeds** *(platform feeds were deferred to Chunk 6)*
-- [x] **Chunk 6 — Social pack generator + UTM + social.json + 7 platform feeds** *(this commit)*
-- [ ] Chunk 7 — D1 social_queue + /api/social-queue
+- [x] **Chunk 6 — Social pack generator + UTM + social.json + 7 platform feeds**
+- [x] **Chunk 7 — D1 social_queue + /api/social-queue** *(this commit; needs 2 dashboard steps)*
 - [ ] Chunk 8 — Image provider abstraction + 5 variants/guide
 - [ ] Chunk 9 — Admin previews + AEO/Lighthouse pass + docs
 
@@ -265,3 +265,50 @@ no collision with the detail pages.
 **Next:** Chunk 7 — D1 `social_queue` + `/api/social-queue` (needs a Cloudflare
 secret `X-CR-Automation-Key` + a D1 migration; the one chunk with a dashboard
 step).
+
+---
+
+## Chunk 7 — D1 social_queue + /api/social-queue ✅ (code) — needs 2 dashboard steps
+
+**Files added**
+- `worker/social-queue.sql` — `social_queue` table (one row per
+  resource_slug+platform; status ready_to_publish | scheduled | published;
+  post_url/post_id/published_at/payload) + indexes.
+- `worker/api/social-queue.js` — `onRequestGet` (returns `{published, scheduled,
+  ready_to_publish}`), `onRequestPost` (action `enqueue` = upsert rows; action
+  `callback` = update status/post_url/post_id/published_at), `onRequestOptions`.
+  Auth: `X-CR-Automation-Key` must equal env `CR_AUTOMATION_KEY`; **fails closed**
+  (503 if the secret isn't set, 401 if it doesn't match).
+- `scripts/seed-social-queue.py` — reads `/feeds/resources.xml` → each
+  `social.json` → POSTs enqueue for all 7 platforms. Idempotent; also the
+  reference for what Make/Zapier/n8n send.
+
+**Files changed**
+- `worker/index.js` — registered `/api/social-queue` route.
+- `wrangler.jsonc` — documented the `CR_AUTOMATION_KEY` secret.
+
+**USER dashboard steps (required before this endpoint works):**
+1. Apply the migration to D1 (binding `DB`):
+   `npx wrangler d1 execute consentresolve-demo --remote --file=worker/social-queue.sql`
+   (or paste the SQL into the dashboard D1 console).
+2. Add a Cloudflare secret `CR_AUTOMATION_KEY` = any long random string
+   (Workers & Pages → the project → Settings → Variables & Secrets, **encrypted**).
+
+**Test (after both steps + deploy):**
+```
+KEY=...; B=https://consentresolve.com
+# empty queue
+curl -s -H "X-CR-Automation-Key: $KEY" $B/api/social-queue
+# seed all 13 resources x 7 platforms
+CR_AUTOMATION_KEY=$KEY python3 scripts/seed-social-queue.py
+# now ready_to_publish is populated
+curl -s -H "X-CR-Automation-Key: $KEY" $B/api/social-queue | python3 -m json.tool | head
+# simulate an automation callback
+curl -s -X POST -H "X-CR-Automation-Key: $KEY" -H 'Content-Type: application/json' \
+  -d '{"action":"callback","resource_slug":"rank-google-map-pack-home-services","platform":"linkedin","status":"published","post_url":"https://linkedin.com/post/123"}' \
+  $B/api/social-queue
+# that row now appears under "published"
+```
+Without the secret the endpoint returns 503 (`queue_unconfigured`); wrong key → 401.
+
+**Next:** Chunk 8 — image provider abstraction + 5 image variants per guide.

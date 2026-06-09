@@ -23,8 +23,9 @@
   ],
   //
   // Non-secret config. Secrets (RESEND_API_KEY, TURNSTILE_SECRET,
-  // SALES_WEBHOOK_URL, TEAM_NOTIFY_URL) are set via `wrangler secret put` or the
-  // dashboard — never commit them.
+  // SALES_WEBHOOK_URL, TEAM_NOTIFY_URL, CR_AUTOMATION_KEY) are set via
+  // `wrangler secret put` or the dashboard — never commit them.
+  // CR_AUTOMATION_KEY gates /api/social-queue (X-CR-Automation-Key header).
   "vars": {
     "FROM_EMAIL": "Tyler Spurlock <sales@tryconsentresolve.com>",
     "REPLY_TO": "sales@tryconsentresolve.com",
