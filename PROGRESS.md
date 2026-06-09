@@ -432,6 +432,39 @@ then add `"roofing"` to `RESOURCE_TRADES`.
 
 ---
 
+## Image System v3 — LOCKED (site-style, content-aware, trade theming) ✅
+
+Iterated with the user and locked the final look, then rolled it resource-wide.
+
+**Locked treatment (every card):**
+- White rounded illustration card on the navy gradient, with a **green (mint)
+  border around the card** AND a **green border around the whole image**.
+- **Content-aware brand-style illustration**: generated via the website's Recraft
+  Brand Style (`214dccd1-…`) and rasterized with macOS `qlmanage` (so it matches
+  the marketing-site illustrations exactly). Subject = the article's content
+  motif (`CONTENT_SUBJECTS`); trade variants add the trade tool (plumber → wrench).
+- **"See Our Interactive Demo"** mint badge (solid pill, navy text) replaces the
+  old eyebrow/trade-tag.
+- Hook-led headline (numbers highlighted mint), depth (card shadow + mint rim,
+  bg spotlight + vignette), grain, tightened type, 2× supersample, pre-saturated
+  mint. Square illustration centered; square CTA removed.
+
+**Rolled out (canonical filenames, no `-site` suffix — mint-ink superseded):**
+- **Generic** page cards: 13 × 5 = 65 (these are the page `og:image` + card thumbs).
+- **Plumber** social set: 13 × 5 = 65 (`<slug>-plumber-<variant>.png`,
+  exposed in `social.json` `trade_images.plumber`).
+
+**Add another trade later:** `python3 scripts/generate-resource-images.py
+--site-style --trade roofing` (define its `TRADE_TOOL`), then add the slug to
+`RESOURCE_TRADES` in `src/lib/resources.ts`.
+
+**Source-quality note for future expansion:** content illustrations are AI
+(brand-style) — spot-check new ones; regenerate any that miss. Founder-POV
+(real headshot) variant was prototyped but **not adopted** (needs ≥1500px
+headshots with clean alpha cutouts before scaling).
+
+---
+
 ## ✅ Build complete — all 9 chunks shipped
 
 13 content pieces (10 guides + 3 type samples), 4 resource types with per-type
