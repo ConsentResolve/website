@@ -70,6 +70,16 @@ export function typeHref(type: ResourceType): string {
   return `/resources/${RESOURCE_TYPES[type].segment}/`;
 }
 
+/** Generated image path for a resource, e.g.
+ *  /images/resources/how-to-guides/<slug>-featured.png
+ *  variant: featured | og | square | vertical | thumbnail */
+export function resourceImage(
+  data: { resource_type: ResourceType; slug: string },
+  variant: "featured" | "og" | "square" | "vertical" | "thumbnail" = "featured"
+): string {
+  return `/images/resources/${RESOURCE_TYPES[data.resource_type].segment}/${data.slug}-${variant}.png`;
+}
+
 /** Resources that should appear publicly (published + ready_to_publish). */
 const VISIBLE = new Set(["published", "ready_to_publish", "scheduled"]);
 

@@ -16,6 +16,7 @@ import FAQ from "~/components/sections/FAQ.astro";
 import KeyTakeaways from "~/components/resources/KeyTakeaways.astro";
 import ComplianceNote from "~/components/resources/ComplianceNote.astro";
 import type { ResourceData } from "~/content.config";
+import { resourceImage } from "~/lib/resources";
 import { IconArrowRight } from "@tabler/icons-react";
 
 interface Props {
@@ -28,7 +29,11 @@ interface Props {
 }
 const { data, schemas, typeLabel, typeHref } = Astro.props as Props;
 
-const ogImage = data.images?.og_image || data.images?.featured_image || data.featured_image;
+const ogImage =
+  data.images?.og_image ||
+  data.images?.featured_image ||
+  data.featured_image ||
+  resourceImage(data, "og");
 const dateStr = (data.updated_at || data.published_at)?.toLocaleDateString("en-US", {
   year: "numeric",
   month: "long",

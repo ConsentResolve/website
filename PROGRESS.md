@@ -35,8 +35,8 @@ contractor-only, consent-first, no fabricated testimonials.
 - [x] **Chunk 4 — Glossary / explainer / blog templates + indexes**
 - [x] **Chunk 5 — RSS/XML content feeds** *(platform feeds were deferred to Chunk 6)*
 - [x] **Chunk 6 — Social pack generator + UTM + social.json + 7 platform feeds**
-- [x] **Chunk 7 — D1 social_queue + /api/social-queue** *(this commit; needs 2 dashboard steps)*
-- [ ] Chunk 8 — Image provider abstraction + 5 variants/guide
+- [x] **Chunk 7 — D1 social_queue + /api/social-queue** *(LIVE — table + secret set; seeded 91 rows / 13 resources × 7 platforms)*
+- [x] **Chunk 8 — Resource images: composite generator + 65 brand-locked images** *(this commit)*
 - [ ] Chunk 9 — Admin previews + AEO/Lighthouse pass + docs
 
 ### Backlog (post-build, content expansion — not a spec miss)
@@ -312,3 +312,41 @@ curl -s -X POST -H "X-CR-Automation-Key: $KEY" -H 'Content-Type: application/jso
 Without the secret the endpoint returns 503 (`queue_unconfigured`); wrong key → 401.
 
 **Next:** Chunk 8 — image provider abstraction + 5 image variants per guide.
+
+---
+
+## Chunk 8 — Resource images (composite generator) ✅
+
+**Approach (user-chosen):** composite of a **Recraft illustration + branded
+template card** (navy gradient, mint eyebrow + rule, Bricolage title in the real
+brand font, "Consent Resolve" wordmark), with the art **locked to brand colors**.
+
+**Files added**
+- `scripts/generate-resource-images.py` — for each resource: fetch a Recraft
+  `digital_illustration` (brand palette + strict two-color prompt), **`brandify()`**
+  post-process (numpy: dark→navy, chromatic→mint, light neutrals kept) so a stray
+  red pin / multicolor can never ship, then Pillow composes 5 variants with an
+  **auto-fitting** title (shrinks to fit above the wordmark). Illustrations are
+  cached under `scripts/.cache` so layout tweaks don't re-bill Recraft.
+  Brand fonts auto-download to `scripts/.fonts` (Bricolage + Hanken from Google
+  Fonts), system fallback.
+- **65 PNGs** under `public/images/resources/<type>/<slug>-{featured,og,square,
+  vertical,thumbnail}.png` (13 resources × 5).
+- `.gitignore` — ignores `scripts/.fonts/` and `scripts/.cache/`.
+
+**Files changed**
+- `src/lib/resources.ts` — `resourceImage(data, variant)` path helper.
+- `src/layouts/ResourceLayout.astro` — `og:image` falls back to the derived
+  `-og.png` (so all 13 get a real OG image, not just Guide 1).
+- `src/components/resources/ResourceCard.astro` — cards now show the `-thumbnail`
+  (600×400) image on top.
+
+**Sizes:** featured/og 1200×630, square 1080×1080, vertical 1080×1350,
+thumbnail 600×400. Prototype reviewed → "tighten to brand palette" applied
+(brandify); square/vertical title-overflow fixed via auto-fit.
+
+**Test (after deploy):** OG image resolves on every guide
+(`…/social.json` `open_graph.image` 200); hub/index cards show thumbnails;
+the Guide 1 social_pack image paths now 200.
+
+**Next:** Chunk 9 — admin previews + AEO/Lighthouse pass + docs.

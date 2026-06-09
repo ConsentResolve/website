@@ -4,3 +4,7 @@ dist/
 .env
 .env.production
 .DS_Store
+
+# Resource-image tooling (regenerated on demand)
+scripts/.fonts/
+scripts/.cache/

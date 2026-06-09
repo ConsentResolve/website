@@ -4,7 +4,7 @@
  * page. Shows the category, the resource-type tag, title, excerpt, and meta.
  */
 import Badge from "~/components/ui/Badge.astro";
-import { RESOURCE_TYPES, resourceHref, type ResourceEntry } from "~/lib/resources";
+import { RESOURCE_TYPES, resourceHref, resourceImage, type ResourceEntry } from "~/lib/resources";
 import { IconArrowRight } from "@tabler/icons-react";
 
 interface Props {
@@ -14,12 +14,23 @@ const { entry } = Astro.props as Props;
 const d = entry.data;
 const href = resourceHref(d);
 const typeMeta = RESOURCE_TYPES[d.resource_type];
+const thumb = d.images?.thumbnail || resourceImage(d, "thumbnail");
 ---
 
 <a
   href={href}
-  class="group flex h-full flex-col rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-0.5 hover:ring-[color:var(--color-mint-400)]/60 hover:shadow-[0_24px_48px_-30px_rgba(10,22,40,0.35)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand)] focus-visible:ring-offset-2"
+  class="group flex h-full flex-col overflow-hidden rounded-2xl bg-[color:var(--color-bg-alt)] ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-0.5 hover:ring-[color:var(--color-mint-400)]/60 hover:shadow-[0_24px_48px_-30px_rgba(10,22,40,0.35)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand)] focus-visible:ring-offset-2"
 >
+  <img
+    src={thumb}
+    alt=""
+    width="600"
+    height="400"
+    loading="lazy"
+    decoding="async"
+    class="aspect-[3/2] w-full object-cover"
+  />
+  <div class="flex flex-1 flex-col p-7">
   <div class="mb-4 flex flex-wrap items-center gap-2">
     <Badge tone="brand" variant="soft" size="sm" uppercase>{d.category}</Badge>
     <span class="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">
@@ -38,5 +49,6 @@ const typeMeta = RESOURCE_TYPES[d.resource_type];
       Read
       <IconArrowRight size={15} stroke={2.5} />
     </span>
+  </div>
   </div>
 </a>
