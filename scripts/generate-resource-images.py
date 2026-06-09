@@ -562,6 +562,9 @@ CONTENT_SUBJECTS = {
     "market-to-neighbors-after-every-job": "a row of houses with a postcard mailer flying between them",
     "track-where-leads-come-from": "branching source arrows converging into a dollar-sign circle",
     "identify-anonymous-website-visitors": "a faceless visitor silhouette resolving into a labelled contact card with a consent checkmark",
+    "website-visitor-identification": "a faceless visitor silhouette resolving along an arrow into a labelled contact card with a consent checkmark badge",
+    "what-consent-first-means": "a large consent checkmark button inside a dialog card with a protective shield behind it",
+    "paying-for-traffic-throwing-it-away": "a wide funnel leaking small dots out the sides while a few convert into contact cards, a dollar sign nearby",
 }
 TRADE_TOOL = {
     "plumber": "a plumber's pipe wrench", "roofing": "a roofing hammer and a shingle",
@@ -577,13 +580,15 @@ def fetch_content_art(slug, trade):
     if not motif:
         return None
     CACHE.mkdir(parents=True, exist_ok=True)
-    png_cache = CACHE / f"content-{slug}-{trade}.png"
+    tkey = trade or "generic"
+    png_cache = CACHE / f"content-{slug}-{tkey}.png"
     if png_cache.exists():
         return Image.open(png_cache).convert("RGBA")
-    svg_cache = CACHE / f"content-{slug}-{trade}.svg"
+    svg_cache = CACHE / f"content-{slug}-{tkey}.svg"
     if not svg_cache.exists():
-        tool = TRADE_TOOL.get(trade, "a service technician's tool")
-        subject = f"{motif}, together with {tool}, representing a fast service-pro response to a new customer lead"
+        tool = TRADE_TOOL.get(trade) if trade else None
+        with_tool = f", together with {tool}" if tool else ""
+        subject = f"{motif}{with_tool}, representing a fast service-pro response to a new customer lead"
         prompt = f"Subject: {subject}, arranged center-frame.\n\n{SITE_STYLE_BASE}"
         body = {"prompt": prompt, "model": "recraftv3", "style_id": BRAND_STYLE_ID,
                 "size": "1024x1024", "n": 1, "response_format": "url"}
@@ -883,15 +888,19 @@ def main():
         elif args.trade:
             art = render_ink(Image.open(fetch_trade_bg(args.trade)))
         elif art_mode == "card":
-            art = brand_snap(Image.open(fetch_background(slug)))
+            content = fetch_content_art(slug, "")
+            if content is not None:
+                art = trim_knockout(content)
+            else:
+                art = brand_snap(Image.open(fetch_background(slug)))
         else:
             art = render_ink(Image.open(fetch_background(slug)))
+        # site-style is the locked, canonical look — no style suffix on filenames.
         suffix = f"-{args.trade}" if args.trade else ""
-        style_tag = "-site" if args.site_style else ""
         for v in variants:
             card = compose(v, fm, art, trade_label, art_mode, ss=2)
             card = finalize(card, v)
-            out = out_dir / f"{slug}{suffix}{style_tag}-{v}.png"
+            out = out_dir / f"{slug}{suffix}-{v}.png"
             card.save(out, "PNG")
             print(f"  wrote {out.relative_to(ROOT)} ({VARIANTS[v][0]}x{VARIANTS[v][1]})")
     print("Done.")
