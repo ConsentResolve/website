@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "For every form you get, a dozen interested people left without a trace."
+excerpt: "Anonymous website visitors are people who browse your site without identifying themselves. Here's why most visitors stay anonymous and how to recover the ones who agreed to be contacted."
 seo_title: "What Are Anonymous Website Visitors? A Guide for Contractors"
 seo_description: "Anonymous website visitors are people who browse your site without identifying themselves. Here's why most visitors stay anonymous and how to recover the ones who agreed to be contacted."
 focus_keyword: "what are anonymous website visitors"

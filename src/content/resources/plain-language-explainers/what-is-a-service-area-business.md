@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "You drive to customers, not the other way around. Google has a setting for that."
+excerpt: "A service area business travels to customers instead of serving them at a storefront. Here's what it means on Google, how it differs from a storefront, and why it matters for contractors."
 seo_title: "What Is a Service Area Business (SAB)? A Plain-English Guide"
 seo_description: "A service area business travels to customers instead of serving them at a storefront. Here's what it means on Google, how it differs from a storefront, and why it matters for contractors."
 focus_keyword: "what is a service area business"

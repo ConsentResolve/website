@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "A 90% match rate isn't a brag — it's usually a warning sign."
+excerpt: "Match rate is the share of website visitors a service can identify. Here's what a realistic number looks like, why a sky-high rate is a red flag, and what actually matters more."
 seo_title: "What Is a Good Match Rate? A Plain-English Guide for Contractors"
 seo_description: "Match rate is the share of website visitors a service can identify. Here's what a realistic number looks like, why a sky-high rate is a red flag, and what actually matters more."
 focus_keyword: "what is a good match rate"

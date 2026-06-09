@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "PPC means you pay every time someone clicks — not when they book."
+excerpt: "PPC, or pay-per-click, is online advertising where you pay each time someone clicks your ad. Here's how it works, what it costs home-service contractors, and where it fits."
 seo_title: "What Is PPC (Pay-Per-Click)? A Plain-English Guide for Contractors"
 seo_description: "PPC, or pay-per-click, is online advertising where you pay each time someone clicks your ad. Here's how it works, what it costs home-service contractors, and where it fits."
 focus_keyword: "what is ppc"

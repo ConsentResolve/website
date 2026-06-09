@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "The free Google listing that puts your business on the map — literally."
+excerpt: "A Google Business Profile is the free listing that shows your business on Google Search and Maps. Here's what it is, how it works, and why it matters for home-service contractors."
 seo_title: "What Is a Google Business Profile (GBP)? A Plain-English Guide"
 seo_description: "A Google Business Profile is the free listing that shows your business on Google Search and Maps. Here's what it is, how it works, and why it matters for home-service contractors."
 focus_keyword: "what is a google business profile"

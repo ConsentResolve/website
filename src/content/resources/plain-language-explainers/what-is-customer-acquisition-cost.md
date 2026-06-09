@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "If it costs $400 to win a customer, the only question is what they're worth."
+excerpt: "Customer acquisition cost is what you spend to win one new customer. Here's how to calculate CAC, what counts, and how to read it against the value of a customer."
 seo_title: "What Is Customer Acquisition Cost (CAC)? A Guide for Contractors"
 seo_description: "Customer acquisition cost is what you spend to win one new customer. Here's how to calculate CAC, what counts, and how to read it against the value of a customer."
 focus_keyword: "what is customer acquisition cost"

@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "A lead magnet trades something useful for a homeowner's contact info."
+excerpt: "A lead magnet is something useful you offer in exchange for a homeowner's contact info. Here's how lead magnets work, real examples for contractors, and how to capture consent the right way."
 seo_title: "What Is a Lead Magnet? Examples for Home-Service Contractors"
 seo_description: "A lead magnet is something useful you offer in exchange for a homeowner's contact info. Here's how lead magnets work, real examples for contractors, and how to capture consent the right way."
 focus_keyword: "what is a lead magnet"

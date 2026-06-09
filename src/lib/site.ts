@@ -86,6 +86,7 @@ export const FOOTER_NAV = {
     { label: "Why consent-first", href: "/why-consent-first/" },
     { label: "Contact", href: "/contact/" },
     { label: "Resource Center", href: "/resources/" },
+    { label: "Straight Answers", href: "/resources/plain-language-explainers/" },
     { label: "Stats & Sources", href: "/stats/" },
     { label: "Glossary", href: "/resources/glossary/" },
     { label: "FAQ", href: "/faq/" },

@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "Most leads aren't ready today. Nurturing keeps you in mind until they are."
+excerpt: "Lead nurturing means staying in helpful touch with leads who aren't ready to buy yet, so you're the one they call when they are. Here's how it works and how contractors can do it simply."
 seo_title: "What Is Lead Nurturing? A Plain Guide for Contractors"
 seo_description: "Lead nurturing means staying in helpful touch with leads who aren't ready to buy yet, so you're the one they call when they are. Here's how it works and how contractors can do it simply."
 focus_keyword: "what is lead nurturing"

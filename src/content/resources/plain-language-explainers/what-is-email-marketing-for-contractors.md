@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "Email is the cheapest way to stay in front of past customers — done right."
+excerpt: "Email marketing helps contractors stay in touch with leads and past customers. Here's how it works, what the CAN-SPAM rules require, and how to do it without getting flagged as spam."
 seo_title: "What Is Email Marketing for Contractors? A Plain-English Guide"
 seo_description: "Email marketing helps contractors stay in touch with leads and past customers. Here's how it works, what the CAN-SPAM rules require, and how to do it without getting flagged as spam."
 focus_keyword: "email marketing for contractors"

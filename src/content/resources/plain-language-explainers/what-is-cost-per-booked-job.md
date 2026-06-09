@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "40 leads, 8 jobs, $2,000 spent — that's $250 a job, the only number that pays."
+excerpt: "Cost per booked job is what you pay for one lead that actually becomes work. Here's how to calculate it, why it beats cost per lead, and how to track it by source."
 seo_title: "What Is Cost Per Booked Job? The Number That Actually Matters"
 seo_description: "Cost per booked job is what you pay for one lead that actually becomes work. Here's how to calculate it, why it beats cost per lead, and how to track it by source."
 focus_keyword: "what is cost per booked job"

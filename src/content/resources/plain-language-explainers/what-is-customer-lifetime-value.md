@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "One $300 repair or $3,000 over 5 years? That's the LTV question."
+excerpt: "Customer lifetime value is the total profit one customer brings over the years they stay with you. Here's how to estimate LTV and use it to decide what a lead is worth."
 seo_title: "What Is Customer Lifetime Value (LTV)? A Guide for Contractors"
 seo_description: "Customer lifetime value is the total profit one customer brings over the years they stay with you. Here's how to estimate LTV and use it to decide what a lead is worth."
 focus_keyword: "what is customer lifetime value"

@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "Spend $1,000, earn $4,000 back — that's a 4x ROAS. But is it profit?"
+excerpt: "ROAS is the revenue you earn for every dollar of ad spend. Here's how to calculate it, what counts as good, and why ROI tells you more about actual profit."
 seo_title: "What Is ROAS (Return on Ad Spend)? A Guide for Contractors"
 seo_description: "ROAS is the revenue you earn for every dollar of ad spend. Here's how to calculate it, what counts as good, and why ROI tells you more about actual profit."
 focus_keyword: "what is roas"

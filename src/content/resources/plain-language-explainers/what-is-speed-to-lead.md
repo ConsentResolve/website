@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "The contractor who responds first usually wins the job. That's speed to lead."
+excerpt: "Speed to lead is how fast you respond to a new lead. Here's why responding in minutes instead of hours wins more jobs, and how contractors can answer faster without dropping everything."
 seo_title: "What Is Speed to Lead? Why Fast Follow-Up Wins Jobs"
 seo_description: "Speed to lead is how fast you respond to a new lead. Here's why responding in minutes instead of hours wins more jobs, and how contractors can answer faster without dropping everything."
 focus_keyword: "what is speed to lead"

@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "Most people who visit your site leave without ever filling out a form."
+excerpt: "Website visitor identification tells you who came to your site. Here's how it works, the difference between consent-based and scrape-everyone approaches, and why it matters for contractors."
 seo_title: "What Is Website Visitor Identification? A Plain-English Guide"
 seo_description: "Website visitor identification tells you who came to your site. Here's how it works, the difference between consent-based and scrape-everyone approaches, and why it matters for contractors."
 focus_keyword: "what is website visitor identification"

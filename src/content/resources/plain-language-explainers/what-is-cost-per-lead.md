@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "Paying $50 a lead means little until you know how many turn into jobs."
+excerpt: "Cost per lead is what you pay for one new lead. Here's how to calculate CPL, why it can mislead contractors, and the number that matters more — cost per booked job."
 seo_title: "What Is Cost Per Lead (CPL)? A Plain-English Guide for Contractors"
 seo_description: "Cost per lead is what you pay for one new lead. Here's how to calculate CPL, why it can mislead contractors, and the number that matters more — cost per booked job."
 focus_keyword: "what is cost per lead"

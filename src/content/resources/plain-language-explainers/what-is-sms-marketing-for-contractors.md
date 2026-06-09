@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "Texts get read fast — but texting without consent is the riskiest channel."
+excerpt: "SMS marketing lets contractors text leads and customers who opted in. Here's how it works, why text consent is strict, and how to use it without breaking the rules."
 seo_title: "What Is SMS Marketing for Contractors? A Plain-English Guide"
 seo_description: "SMS marketing lets contractors text leads and customers who opted in. Here's how it works, why text consent is strict, and how to use it without breaking the rules."
 focus_keyword: "sms marketing for contractors"

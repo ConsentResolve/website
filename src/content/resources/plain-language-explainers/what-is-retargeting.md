@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "5 min"
 og_hook: "Ever feel like an ad is following you? That's retargeting."
+excerpt: "Retargeting shows ads to people who already visited your website but didn't book. Here's how it works, why it's effective for contractors, and how to use it without being creepy."
 seo_title: "What Is Retargeting? A Plain-English Guide for Contractors"
 seo_description: "Retargeting shows ads to people who already visited your website but didn't book. Here's how it works, why it's effective for contractors, and how to use it without being creepy."
 focus_keyword: "what is retargeting"

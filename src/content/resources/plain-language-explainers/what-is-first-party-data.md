@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "The leads you collect yourself are worth more than any list you can buy."
+excerpt: "First-party data is information you collect directly from your own customers and visitors. Here's how it differs from third-party data and why it's safer and more useful for contractors."
 seo_title: "What Is First-Party Data? A Plain-English Guide for Contractors"
 seo_description: "First-party data is information you collect directly from your own customers and visitors. Here's how it differs from third-party data and why it's safer and more useful for contractors."
 focus_keyword: "what is first-party data"

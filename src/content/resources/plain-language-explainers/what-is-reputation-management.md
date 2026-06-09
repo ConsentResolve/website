@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "What people find when they Google your name — and how to shape it."
+excerpt: "Reputation management is shaping what customers find when they look you up online — reviews, ratings, and responses. Here's what it is, how it works, and why it matters for contractors."
 seo_title: "What Is Reputation Management? A Plain-English Guide for Contractors"
 seo_description: "Reputation management is shaping what customers find when they look you up online — reviews, ratings, and responses. Here's what it is, how it works, and why it matters for contractors."
 focus_keyword: "what is reputation management"

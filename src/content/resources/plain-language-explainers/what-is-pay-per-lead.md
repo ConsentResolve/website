@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "Pay-per-lead means you pay for a lead — not clicks, not a retainer."
+excerpt: "Pay-per-lead means you pay a set price for each lead you receive. Here's how it compares to pay-per-click and monthly retainers, and what to watch for so you don't overpay for shared leads."
 seo_title: "What Is Pay-Per-Lead? How It Compares to PPC and Retainers"
 seo_description: "Pay-per-lead means you pay a set price for each lead you receive. Here's how it compares to pay-per-click and monthly retainers, and what to watch for so you don't overpay for shared leads."
 focus_keyword: "what is pay per lead"

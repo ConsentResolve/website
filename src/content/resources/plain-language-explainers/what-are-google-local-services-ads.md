@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "LSAs put you at the top of Google — and you only pay per lead."
+excerpt: "Google Local Services Ads put home-service contractors at the top of search with a Google Guaranteed badge. Here's how they work, what they cost, and how they differ from regular Google Ads."
 seo_title: "What Are Google Local Services Ads (LSA)? A Guide for Contractors"
 seo_description: "Google Local Services Ads put home-service contractors at the top of search with a Google Guaranteed badge. Here's how they work, what they cost, and how they differ from regular Google Ads."
 focus_keyword: "what are google local services ads"

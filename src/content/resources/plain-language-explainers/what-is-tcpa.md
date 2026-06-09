@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "Texting a lead without consent? That's $500–$1,500 per message."
+excerpt: "The TCPA is the federal law on marketing calls and texts. Here's what it requires, why it matters for home-service contractors, and how to stay on the right side of it."
 seo_title: "What Is the TCPA? A Plain-English Guide for Contractors"
 seo_description: "The TCPA is the federal law on marketing calls and texts. Here's what it requires, why it matters for home-service contractors, and how to stay on the right side of it."
 focus_keyword: "what is the tcpa"

@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "5 min"
 og_hook: "Name, address, phone — identical everywhere, or Google trusts you less."
+excerpt: "NAP consistency means your business name, address, and phone number match everywhere online. Here's what it is, how it works, and why it matters for home-service contractors."
 seo_title: "What Is NAP Consistency? A Plain-English Guide for Contractors"
 seo_description: "NAP consistency means your business name, address, and phone number match everywhere online. Here's what it is, how it works, and why it matters for home-service contractors."
 focus_keyword: "what is nap consistency"

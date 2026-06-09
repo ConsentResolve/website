@@ -9,6 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "7 min"
 og_hook: "California gave homeowners the right to say 'don't sell my data.' Are you ready?"
+excerpt: "The CCPA, expanded by the CPRA, is California's privacy law giving consumers rights over their personal data. Here's what it means for home-service contractors."
 seo_title: "What Is the CCPA (and CPRA)? A Plain-English Guide for Contractors"
 seo_description: "The CCPA, expanded by the CPRA, is California's privacy law giving consumers rights over their personal data. Here's what it means for home-service contractors."
 focus_keyword: "what is the ccpa"
