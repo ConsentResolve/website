@@ -598,6 +598,50 @@ CONTENT_SUBJECTS = {
     "what-is-reputation-management": "a row of five stars with a shield and a small chat bubble",
     # Blog (Q1)
     "fathers-day-first-heat-wave-how-hvac-pros-can-catch-the-homeowners-already-pricing-the-job": "an outdoor air-conditioner condenser unit beside a browser window resolving a faceless visitor into a contact card",
+    # Trade Spotlight
+    "your-busiest-lawn-care-season-is-also-your-biggest-lead-leak-heres-the-fix": "a push lawn mower on a striped lawn beside a browser window resolving a faceless visitor into a contact card",
+    "independence-day-july-4-the-hvac-quote-shoppers-on-your-site-you-never-knew-were-there": "an outdoor air-conditioner condenser unit with a small firework spark beside a contact card emerging from a browser window",
+    "why-pest-control-pros-lose-their-best-leads-during-mid-summer-heat-and-how-to-keep-them": "a pest-control sprayer canister beside a browser window resolving a faceless visitor into a contact card",
+    "dog-days-of-summer-turn-power-washing-website-lookers-into-booked-jobs-on-the-same-ad-budget": "a pressure-washer wand spraying a clean stripe beside a contact card emerging from a browser window",
+    "the-roofing-rush-is-coming-stop-letting-ready-buyers-leave-anonymous": "a pitched roof with shingles and a roofing hammer beside a browser window resolving a faceless visitor into a contact card",
+    "end-of-summer-push-playbook-for-painters-recover-the-98-who-dont-call": "a paint roller and paint can beside a browser window resolving a faceless visitor into a contact card",
+    "what-every-house-cleaning-pro-should-know-about-the-shoppers-who-visit-and-vanish": "a spray bottle and a folded cleaning cloth beside a browser window resolving a faceless visitor into a contact card",
+    "late-summer-home-projects-the-quiet-reason-your-deck-fence-phone-isnt-ringing-enough": "a wooden deck board and a fence picket with a hand saw beside a contact card emerging from a browser window",
+    "roofers-meet-your-hidden-atlantic-hurricane-peak-pipeline": "a pitched roof under a stormy rain cloud beside a browser window resolving a faceless visitor into a contact card",
+    "pre-labor-day-how-hvac-pros-can-catch-the-homeowners-already-pricing-the-job": "an outdoor air-conditioner condenser unit with a calendar page beside a contact card emerging from a browser window",
+    "your-busiest-mobile-car-service-season-is-also-your-biggest-lead-leak-heres-the-fix": "a car with a detailing bucket and sponge beside a browser window resolving a faceless visitor into a contact card",
+    "fall-maintenance-kickoff-the-tree-removal-quote-shoppers-on-your-site-you-never-knew-were-there": "a tree with a chainsaw and a falling leaf beside a browser window resolving a faceless visitor into a contact card",
+    # Feature Deep-Dive
+    "see-whos-on-your-site-right-now-without-a-single-form-fill": "a faceless visitor silhouette inside a browser window resolving along an arrow into a labelled contact card with a consent checkmark",
+    "capturing-the-98-who-will-never-fill-out-your-form": "a crossed-out contact form beside a contact card appearing directly with a consent checkmark",
+    "turn-one-website-visit-into-an-ad-audience-that-books-jobs": "a single browser visit turning into a small ad banner with repeating audience cards and a return-arrow loop",
+    "when-a-past-visitor-comes-back-you-should-be-the-first-to-know": "a returning faceless visitor entering a browser window with a bell alert and a contact card",
+    "read-the-trail-knowing-what-a-homeowner-looked-at-before-they-call": "a dotted trail of footprints across browser pages ending at a contact card with a magnifying glass",
+    "hot-warm-or-just-browsing-sorting-leads-so-you-work-the-right-ones-first": "three contact cards sorted by a flame, a sun, and a snowflake icon",
+    "from-anonymous-visitor-to-your-crm-in-one-clean-hand-off": "a contact card sliding along an arrow into a database tray with a checkmark",
+    "the-cookie-banner-that-keeps-you-legal-and-unlocks-every-lead": "a cookie consent banner dialog with an accept checkmark button and a protective shield behind it",
+    "a-signed-receipt-on-every-lead-why-consent-records-protect-your-shop": "a contact card stamped with a signed receipt and a timestamp sealed by a protective shield",
+    "see-whos-on-your-site-right-now-without-a-single-form-fill-2": "a numbered step path turning a faceless visitor in a browser window into a contact card with a consent checkmark",
+    "capturing-the-98-who-will-never-fill-out-your-form-2": "a contact form with a large question mark beside a contact card that appears without a form, with a consent checkmark",
+    # Marketing
+    "why-google-ads-feel-expensive": "a coin dropping into an ad-click rectangle with a rising price tag beside a cheaper contact card",
+    "get-more-reviews-without-begging": "a row of five stars rising from a chat bubble beside a contact card",
+    "website-storefront-lights-off": "a darkened storefront window with a faceless visitor inside and a light switch turning it into a contact card",
+    "shared-vs-exclusive-leads-math": "one contact card linked by a single line to one house with a padlock, beside one card split by arrows among four houses",
+    "one-page-website-audit": "a browser window with a checklist clipboard and a magnifying glass",
+    "local-seo-for-busy-pros": "a magnifying glass over a map pin with three ranking bars and a small storefront card",
+    # Lead Generation
+    "get-more-leads-no-extra-spend": "a funnel above a flat unchanged budget bar with extra contact cards dropping out the bottom",
+    "more-traffic-wrong-goal": "a large crowd of visitor silhouettes funnelling down to a few contact cards beside a target",
+    "what-exclusive-lead-is-worth": "a single premium contact card on a small pedestal sealed with a padlock and a dollar tag",
+    # Operations
+    "missed-calls-cost-you-jobs": "a ringing smartphone with a missed-call badge turning into a chat reply bubble and a contact card",
+    "follow-up-window-wins-jobs": "a stopwatch beside a contact card with a short upward arrow and a chat bubble",
+    "referral-engine-that-runs-itself": "a contact card spawning two more cards along arrows in a self-running loop",
+    "slow-season-cash-flow": "a calendar showing a quiet month with a return-arrow loop bringing back a contact card and a coin",
+    # Compliance & Privacy
+    "tcpa-plain-english": "a smartphone with a protective shield and a small gavel beside a consent checkmark",
+    "never-fear-where-did-you-get-my-info": "a contact card with a timestamped consent-log document and a shield, a question mark resolved by a checkmark",
 }
 TRADE_TOOL = {
     "plumber": "a plumber's pipe wrench", "roofing": "a roofing hammer and a shingle",
