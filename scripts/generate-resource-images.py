@@ -23,8 +23,11 @@ Usage:
   python3 scripts/generate-resource-images.py                    # all resources
 """
 import argparse
+import glob
 import json
+import os
 import re
+import subprocess
 import sys
 import urllib.request
 import urllib.error
@@ -240,6 +243,45 @@ SITE_STYLE_BASE = (
     "Modern, confident, trustworthy tone. Plain white background. NO eyes, NO "
     "surveillance camera, NO spying imagery, NO lettering, NO numbers."
 )
+
+
+TRADE_SVG_DIR = ROOT / "public" / "illustrations" / "trades"
+
+
+def real_trade_art(trade):
+    """Rasterize the ACTUAL site trade illustration SVG (closest possible match
+    to the website look) via macOS Quick Look. Returns PIL RGBA, or None."""
+    cache = CACHE / f"trade-{trade}-real.png"
+    if cache.exists():
+        return Image.open(cache).convert("RGBA")
+    matches = sorted(glob.glob(str(TRADE_SVG_DIR / f"*-{trade}.svg")))
+    if not matches:
+        return None
+    tmp = CACHE / "_ql"
+    tmp.mkdir(parents=True, exist_ok=True)
+    for f in glob.glob(str(tmp / "*.png")):
+        os.remove(f)
+    subprocess.run(["qlmanage", "-t", "-s", "2048", "-o", str(tmp), matches[0]],
+                   capture_output=True)
+    pngs = glob.glob(str(tmp / "*.png"))
+    if not pngs:
+        return None
+    img = Image.open(pngs[0]).convert("RGBA")
+    img.save(cache)
+    return img
+
+
+def trim_knockout(img, thresh=244):
+    """Knock the near-white background out to transparent and crop to content,
+    so the navy-outlined illustration sits cleanly on a light inset."""
+    arr = np.asarray(img.convert("RGBA")).astype(np.uint8)
+    rgb = arr[..., :3]
+    near_white = (rgb[..., 0] >= thresh) & (rgb[..., 1] >= thresh) & (rgb[..., 2] >= thresh)
+    a = arr[..., 3].copy()
+    a[near_white] = 0
+    im = Image.fromarray(np.dstack([rgb, a]))
+    bbox = im.getbbox()
+    return im.crop(bbox) if bbox else im
 
 
 def brand_snap(img):
@@ -540,11 +582,19 @@ def main():
         else:
             out_dir = ROOT / "public" / "images" / "resources" / seg
         out_dir.mkdir(parents=True, exist_ok=True)
-        if args.trade:
-            bg = fetch_trade_bg(args.trade, site=args.site_style)
+        if args.site_style and args.trade:
+            # Closest match: the ACTUAL site trade SVG, rasterized + knocked out.
+            real = real_trade_art(args.trade)
+            if real is not None:
+                art = trim_knockout(real)
+            else:
+                art = brand_snap(Image.open(fetch_trade_bg(args.trade, site=True)))
+        elif args.trade:
+            art = render_ink(Image.open(fetch_trade_bg(args.trade)))
+        elif art_mode == "card":
+            art = brand_snap(Image.open(fetch_background(slug)))
         else:
-            bg = fetch_background(slug)
-        art = brand_snap(Image.open(bg)) if art_mode == "card" else render_ink(Image.open(bg))
+            art = render_ink(Image.open(fetch_background(slug)))
         suffix = f"-{args.trade}" if args.trade else ""
         style_tag = "-site" if args.site_style else ""
         for v in variants:
