@@ -78,7 +78,8 @@ function promoHtml(p, env, baseUrl) {
   const first = firstName(p);
   return `<!doctype html><html><body style="margin:0;padding:24px;background:#f1f5f9;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#0f172a">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto">
-    <tr><td style="padding:22px 28px;background:${BLUE};border-radius:14px 14px 0 0">
+    <tr><td style="background:#0a1628;color:#cbd5e1;text-align:center;padding:9px 16px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-radius:14px 14px 0 0">📩 Sample Customer Email</td></tr>
+    <tr><td style="padding:22px 28px;background:${BLUE}">
       <div style="font-size:19px;font-weight:800;color:#fff">${esc(t.biz)}</div>
       <div style="font-size:13px;color:#dbeafe;margin-top:2px">Licensed · Insured · Locally owned</div>
     </td></tr>
@@ -92,6 +93,7 @@ function promoHtml(p, env, baseUrl) {
         <a href="${tel}" style="display:inline-block;background:#fff;color:${BLUE};border:1px solid ${BLUE};padding:13px 26px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;margin:4px">Or call us: ${esc(t.phone)}</a>
       </div>
       <p style="margin:20px 0 0;font-size:13px;color:#64748b;line-height:1.5">No pressure, and no spam — you'll only hear from us because you asked. Reply anytime and a real person answers.</p>
+      <p style="margin:18px 0 0;padding:12px 14px;background:#eef4ff;border-radius:8px;font-size:13px;color:#0f172a;line-height:1.55"><strong>Imagine if 30–40% of your anonymous website traffic got this email</strong> — optimized specifically to generate warm inbound calls or an online quote.</p>
       <p style="margin:14px 0 0;font-size:11px;color:#94a3b8;line-height:1.5">This is a Consent Resolve demo — ${esc(t.biz)} is fictional and the only person we emailed is you. It shows the consented follow-up that pulls a visitor back to call you or finish their quote.</p>
     </td></tr>
   </table>${unsubFooter(p, env, baseUrl)}</body></html>`;
