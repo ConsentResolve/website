@@ -33,8 +33,8 @@ contractor-only, consent-first, no fabricated testimonials.
 - [x] **Chunk 2 — Hub + type index + nav/footer links**
 - [x] **Chunk 3 — Seed guides 2–10**
 - [x] **Chunk 4 — Glossary / explainer / blog templates + indexes**
-- [x] **Chunk 5 — RSS/XML content feeds** *(this commit; platform feeds deferred to Chunk 6)*
-- [ ] Chunk 6 — Social pack generator + UTM + social.json endpoint
+- [x] **Chunk 5 — RSS/XML content feeds** *(platform feeds were deferred to Chunk 6)*
+- [x] **Chunk 6 — Social pack generator + UTM + social.json + 7 platform feeds** *(this commit)*
 - [ ] Chunk 7 — D1 social_queue + /api/social-queue
 - [ ] Chunk 8 — Image provider abstraction + 5 variants/guide
 - [ ] Chunk 9 — Admin previews + AEO/Lighthouse pass + docs
@@ -224,3 +224,44 @@ counts (resources=13, how-to-guides=10, glossary=1, explainers=1, blog=1).
 
 **Next:** Chunk 6 — social-pack generator + UTM builder + `social.json` endpoint
 + the 7 platform feeds.
+
+---
+
+## Chunk 6 — Social pack generator + UTM + social.json + platform feeds ✅
+
+**Files added**
+- `src/lib/social/buildUtm.ts` — `buildUtm()` (the only UTM source) + the 7
+  `SOCIAL_SOURCES`. Email → `utm_medium=email`, all others `social`;
+  campaign `resource_center`, content = slug.
+- `src/lib/social/generateSocialPack.ts` — `generateSocialPack(data)` returns
+  all 7 platform variants. Deterministic templating from title/excerpt/
+  seo_description/tags with per-platform rules (LinkedIn 4 hashtags + square,
+  Facebook featured + soft CTA, X ≤240 hook, Threads no hashtags, Pinterest
+  vertical + keyword desc, GBP ≤1500 local + no hashtags, Email subject/preview/
+  body). **Authored variants win** (Guide 1's hand-written pack is preserved);
+  `utm_url` is ALWAYS rebuilt via `buildUtm` (never trust a hand-written UTM).
+- `src/pages/resources/[type]/[slug]/social.json.ts` — per-item payload:
+  resource meta, SEO, Open Graph, all image variants (absolute URLs), categories,
+  tags, the 7 social variants, and a flat `utm` map. `getStaticPaths` over every
+  resource (type = route segment).
+- `src/lib/feeds.ts` (changed): `buildPlatformFeed({source})` — one RSS feed per
+  platform; `<link>` is the platform's UTM URL, `<description>` = caption + CTA +
+  hashtags.
+- 7 platform feed endpoints: `/feeds/{linkedin,facebook,x,threads,pinterest,
+  email,google-business-profile}.xml`.
+
+**Routing note:** `resources/[type]/[slug]/social.json.ts` coexists with the
+static `resources/how-to-guides/[slug].astro` — the `.json` leaf segment means
+no collision with the detail pages.
+
+**Test (after deploy):**
+- `curl .../resources/how-to-guides/rank-google-map-pack-home-services/social.json`
+  → 7 platforms, each with utm_url; LinkedIn keeps Guide 1's authored copy.
+- `curl .../resources/how-to-guides/win-google-local-service-ads/social.json`
+  → fully generated pack (Guide 2 had no authored social_pack).
+- Each `/feeds/<platform>.xml` → valid RSS, 13 items, `<link>` carries
+  `utm_source=<platform>`.
+
+**Next:** Chunk 7 — D1 `social_queue` + `/api/social-queue` (needs a Cloudflare
+secret `X-CR-Automation-Key` + a D1 migration; the one chunk with a dashboard
+step).

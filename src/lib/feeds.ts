@@ -109,3 +109,50 @@ export async function buildResourceFeed(opts: {
   });
   return feedResponse(xml);
 }
+
+// ── Platform social feeds ───────────────────────────────────────────────────
+// One feed per platform exposing that platform's social_pack variant for every
+// resource. Automation (Make/Zapier/n8n) can poll a single platform feed and
+// post each item. The <link> is the platform's UTM-tagged URL.
+import { generateSocialPack } from "./social/generateSocialPack";
+import type { SocialSource } from "./social/buildUtm";
+
+const PLATFORM_LABEL: Record<SocialSource, string> = {
+  linkedin: "LinkedIn",
+  facebook: "Facebook",
+  x: "X",
+  threads: "Threads",
+  pinterest: "Pinterest",
+  email: "Email",
+  google_business_profile: "Google Business Profile",
+};
+
+export async function buildPlatformFeed(opts: {
+  source: SocialSource;
+  feedPath: string;
+}): Promise<Response> {
+  const entries = await getResources();
+  const label = PLATFORM_LABEL[opts.source];
+  const items: FeedItem[] = entries.map((e) => {
+    const v = generateSocialPack(e.data)[opts.source];
+    const desc = [v.caption, v.cta, (v.hashtags ?? []).map((h) => `#${h}`).join(" ")]
+      .filter(Boolean)
+      .join("\n\n");
+    return {
+      title: v.title ?? v.hook ?? e.data.title,
+      link: v.utm_url,
+      description: desc,
+      pubDate: e.data.published_at || e.data.updated_at,
+      guid: `${e.data.canonical_url}#${opts.source}`,
+      categories: v.hashtags,
+    };
+  });
+  const xml = rssXml({
+    title: `Consent Resolve — ${label} queue`,
+    description: `Ready-to-post ${label} updates generated from the Consent Resolve Resource Center.`,
+    link: `${SITE.url}/resources/`,
+    feedUrl: `${SITE.url}${opts.feedPath}`,
+    items,
+  });
+  return feedResponse(xml);
+}
