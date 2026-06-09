@@ -128,6 +128,54 @@ const props = Astro.props as Props;
       })();
     </script>
 
+    <!-- iMessage-style notification chime (1.5s after load) -->
+    <script is:inline type="text/javascript">
+      (function () {
+        const playiMessageSound = () => {
+          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+          // First tone (higher pitch - C6)
+          const oscillator1 = audioContext.createOscillator();
+          const gainNode1 = audioContext.createGain();
+
+          oscillator1.connect(gainNode1);
+          gainNode1.connect(audioContext.destination);
+
+          oscillator1.frequency.value = 1109; // C6
+          oscillator1.type = 'sine';
+
+          gainNode1.gain.setValueAtTime(0, audioContext.currentTime);
+          gainNode1.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+          gainNode1.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+
+          oscillator1.start(audioContext.currentTime);
+          oscillator1.stop(audioContext.currentTime + 0.15);
+
+          // Second tone (lower pitch - A5) - plays shortly after first
+          const oscillator2 = audioContext.createOscillator();
+          const gainNode2 = audioContext.createGain();
+
+          oscillator2.connect(gainNode2);
+          gainNode2.connect(audioContext.destination);
+
+          oscillator2.frequency.value = 880; // A5
+          oscillator2.type = 'sine';
+
+          gainNode2.gain.setValueAtTime(0, audioContext.currentTime + 0.08);
+          gainNode2.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.09);
+          gainNode2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.25);
+
+          oscillator2.start(audioContext.currentTime + 0.08);
+          oscillator2.stop(audioContext.currentTime + 0.25);
+        };
+
+        // Call after 1.5 second delay
+        setTimeout(() => {
+          try { playiMessageSound(); } catch (e) {}
+        }, 1500);
+      })();
+    </script>
+
     <!-- Microsoft Clarity -->
     <script is:inline type="text/javascript">
       (function(c,l,a,r,i,t,y){
