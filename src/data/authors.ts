@@ -2,7 +2,7 @@
 // / consentresolve.com/about/). Drives blog bylines, author boxes, the
 // /resources/authors/<slug>/ profile pages, and Person JSON-LD. Person @id is
 // the author profile URL + #person, reused everywhere for E-E-A-T.
-import { SITE } from "./site";
+import { SITE } from "~/lib/site";
 
 export interface Author {
   key: string;
