@@ -25,7 +25,7 @@ export const GET: APIRoute = async () => {
     `- [Features](${SITE}/features/): 17 features across four groups (ad recovery, funnel insertion, lead quality, compliance)`,
     `- [Pricing](${SITE}/pricing/): Flat $7 per recovered lead, framed as cost-per-booked-job not cost-per-lead`,
     `- [Industries hub](${SITE}/industries/): 17 home-service trades supported`,
-    `- [Channel ROI hub](${SITE}/compare/): With/without booked-job math for Google LSA, Thumbtack, Angi, HomeAdvisor`,
+    `- [Channel ROI hub](${SITE}/resources/compare/): With/without booked-job math for Google LSA, Thumbtack, Angi, HomeAdvisor`,
     `- [Stats & sources](${SITE}/stats/): Every claim and benchmark — primary-source-cited`,
     `- [About](${SITE}/about/): Founder credentials — Capitol Hill testimony, White House technology advisory, 50+ acquisitions in hosting & SaaS, i2Coalition board`,
     `- [FAQ](${SITE}/faq/): Common questions about legality, CRMs, pricing, and setup`,
@@ -46,7 +46,7 @@ export const GET: APIRoute = async () => {
 
   lines.push("", "## Channel ROI (additive with/without math)");
   for (const c of COMPARE_PAGES) {
-    lines.push(`- [${c.brand} + Consent Resolve](${SITE}/compare/${c.slug}/): ${c.subhead}`);
+    lines.push(`- [${c.brand} + Consent Resolve](${SITE}/resources/compare/${c.slug}/): ${c.subhead}`);
   }
 
   // Resource Center — educational hub for AI engines to cite.

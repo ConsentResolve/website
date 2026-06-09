@@ -1,9 +1,12 @@
 ---
 import { PRIMARY_NAV } from "~/lib/site";
-import { IconArrowRight, IconChevronDown } from "@tabler/icons-react";
+import { IconArrowRight, IconChevronDown, IconMenu2 } from "@tabler/icons-react";
 ---
 
 <header class="section-dark sticky top-0 z-50 w-full backdrop-blur-xl bg-[color:var(--color-navy-900)]/90 border-b border-white/[0.06]">
+  {/* Mobile menu toggle (CSS-only via peer) — must be a sibling of the panel below. */}
+  <input id="cr-navmenu" type="checkbox" class="peer sr-only" aria-hidden="true" tabindex="-1" />
+
   <div class="container-content flex h-[72px] items-center justify-between gap-8">
     <a href="/" class="group flex items-center" aria-label="Consent Resolve home">
       <img src="/crnewlogo.svg" alt="Consent Resolve" width="212" height="32" class="h-8 w-auto" />
@@ -21,14 +24,10 @@ import { IconArrowRight, IconChevronDown } from "@tabler/icons-react";
               {item.label}
               <IconChevronDown size={14} stroke={2.25} className="opacity-60 transition-transform group-hover:rotate-180" />
             </a>
-            {/* pt-3 = invisible hover bridge so the panel doesn't close between label and menu */}
             <div class="invisible absolute left-1/2 top-full z-50 w-72 -translate-x-1/2 pt-3 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
               <div class="rounded-2xl border border-white/10 bg-[color:var(--color-navy-800)] p-2 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.6)]">
                 {item.children.map((c) => (
-                  <a
-                    href={c.href}
-                    class="block rounded-xl px-3.5 py-2.5 transition-colors hover:bg-white/[0.06] focus:bg-white/[0.06] focus:outline-none"
-                  >
+                  <a href={c.href} class="block rounded-xl px-3.5 py-2.5 transition-colors hover:bg-white/[0.06] focus:bg-white/[0.06] focus:outline-none">
                     <span class="block text-sm font-semibold text-slate-100">{c.label}</span>
                     {c.desc && <span class="mt-0.5 block text-xs text-slate-400">{c.desc}</span>}
                   </a>
@@ -42,7 +41,7 @@ import { IconArrowRight, IconChevronDown } from "@tabler/icons-react";
       )}
     </nav>
 
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2">
       <a
         href="https://dashboard.consentresolve.com/register"
         class="inline-flex items-center gap-1.5 rounded-lg bg-[color:var(--color-mint-400)] px-4 py-2 text-sm font-semibold text-[color:var(--color-navy-900)] transition-all hover:bg-[color:var(--color-mint-300)] hover:shadow-[0_8px_24px_-8px_rgba(0,229,160,0.6)]"
@@ -50,6 +49,41 @@ import { IconArrowRight, IconChevronDown } from "@tabler/icons-react";
         Get Started
         <IconArrowRight size={16} stroke={2.25} />
       </a>
+      {/* Hamburger / close — toggles the checkbox above (mobile only) */}
+      <label
+        for="cr-navmenu"
+        class="md:hidden inline-flex size-10 cursor-pointer items-center justify-center rounded-lg text-slate-200 transition-colors hover:bg-white/[0.06]"
+        aria-label="Toggle menu"
+      >
+        <IconMenu2 size={22} stroke={2} />
+      </label>
     </div>
+  </div>
+
+  {/* Mobile panel — sibling of the checkbox, revealed via peer-checked */}
+  <div class="md:hidden hidden peer-checked:block border-t border-white/[0.06] bg-[color:var(--color-navy-900)]">
+    <nav class="container-content max-h-[calc(100vh-72px)] overflow-y-auto py-3" aria-label="Mobile">
+      {PRIMARY_NAV.map((item) =>
+        item.children ? (
+          <div class="border-b border-white/[0.06] py-2">
+            <a href={item.href} class="block py-2 text-base font-semibold text-white">{item.label}</a>
+            <div class="mt-1 flex flex-col gap-0.5 border-l border-white/10 pl-3">
+              {item.children.map((c) => (
+                <a href={c.href} class="block rounded-md px-2 py-2 text-sm text-slate-300 transition-colors hover:bg-white/[0.06] hover:text-white">{c.label}</a>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <a href={item.href} class="block border-b border-white/[0.06] py-3 text-base font-medium text-slate-200 transition-colors hover:text-white">{item.label}</a>
+        )
+      )}
+      <a
+        href="https://dashboard.consentresolve.com/register"
+        class="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[color:var(--color-mint-400)] px-4 py-3 text-sm font-semibold text-[color:var(--color-navy-900)]"
+      >
+        Get Started
+        <IconArrowRight size={16} stroke={2.25} />
+      </a>
+    </nav>
   </div>
 </header>

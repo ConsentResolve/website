@@ -32,7 +32,7 @@ const TYPE_ICON: Record<string, any> = {
   blog: IconNews,
 };
 
-// Category cards: the four resource types + Channel Comparisons (lives at /compare/).
+// Category cards: the four resource types + Channel Comparisons (lives at /resources/compare/).
 const categories = [
   ...RESOURCE_TYPE_ORDER.map((type) => ({
     label: RESOURCE_TYPES[type].label,
@@ -46,7 +46,7 @@ const categories = [
     label: "Channel Comparisons",
     blurb:
       "With/without booked-job math for Google LSA, Thumbtack, Angi, and HomeAdvisor — how Consent Resolve stacks up additively.",
-    href: "/compare/",
+    href: "/resources/compare/",
     count: COMPARE_PAGES.length,
     noun: "comparisons",
     Icon: IconChartBar,

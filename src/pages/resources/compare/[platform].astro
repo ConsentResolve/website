@@ -23,8 +23,9 @@ const initials = page.brand.split(/\s+/).map((s) => s[0]).slice(0, 2).join("").t
 const schemas = [
   breadcrumbSchema([
     { name: "Home", href: "/" },
-    { name: "Channel ROI", href: "/compare/" },
-    { name: page.brand, href: `/compare/${page.slug}/` },
+    { name: "Resources", href: "/resources/" },
+    { name: "Channel ROI", href: "/resources/compare/" },
+    { name: page.brand, href: `/resources/compare/${page.slug}/` },
   ]),
 ];
 
@@ -34,7 +35,7 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
 <BaseLayout
   title={page.titleTag}
   description={page.metaDescription}
-  canonical={`https://consentresolve.com/compare/${page.slug}/`}
+  canonical={`https://consentresolve.com/resources/compare/${page.slug}/`}
   schema={schemas}
 >
   <!-- Hero -->
