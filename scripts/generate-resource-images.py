@@ -531,6 +531,77 @@ def finalize(card, variant):
     return apply_grain(card, 0.03)
 
 
+# Recraft custom Brand Style (the exact style the website illustrations use).
+BRAND_STYLE_ID = "214dccd1-dca3-43e6-b005-c664e1b33338"
+
+# Per-article content motif (the topic of the piece), combined with the trade
+# tool so the illustration is BOTH service-pro themed AND about the content.
+CONTENT_SUBJECTS = {
+    "follow-up-with-leads": "a smartphone showing an incoming chat message bubble with a small alarm clock beside it, signalling a fast reply",
+    "stop-losing-jobs-missed-calls": "a ringing smartphone with a missed-call badge turning into a chat reply bubble",
+    "get-more-leads-from-website-traffic": "a browser window with an upward arrow and a contact card dropping out of a funnel",
+    "rank-google-map-pack-home-services": "a map pin on a small street grid with a ranking podium of three bars",
+    "win-google-local-service-ads": "a verification shield badge with a checkmark above a search bar",
+    "quote-and-close-more-jobs": "three price-option cards with a handshake above the tallest",
+    "get-more-google-reviews": "a row of five stars beside a chat bubble",
+    "market-to-neighbors-after-every-job": "a row of houses with a postcard mailer flying between them",
+    "track-where-leads-come-from": "branching source arrows converging into a dollar-sign circle",
+    "identify-anonymous-website-visitors": "a faceless visitor silhouette resolving into a labelled contact card with a consent checkmark",
+}
+TRADE_TOOL = {
+    "plumber": "a plumber's pipe wrench", "roofing": "a roofing hammer and a shingle",
+    "hvac": "an HVAC thermostat dial", "electrician": "an electrician's pliers and a lightning bolt",
+}
+
+
+def fetch_content_art(slug, trade):
+    """Generate a service-pro + content-themed illustration in the website's
+    Brand Style (Recraft style_id) and rasterize it via Quick Look. Returns PIL
+    RGBA, or None if no content motif is defined for this slug."""
+    motif = CONTENT_SUBJECTS.get(slug)
+    if not motif:
+        return None
+    CACHE.mkdir(parents=True, exist_ok=True)
+    png_cache = CACHE / f"content-{slug}-{trade}.png"
+    if png_cache.exists():
+        return Image.open(png_cache).convert("RGBA")
+    svg_cache = CACHE / f"content-{slug}-{trade}.svg"
+    if not svg_cache.exists():
+        tool = TRADE_TOOL.get(trade, "a service technician's tool")
+        subject = f"{motif}, together with {tool}, representing a fast service-pro response to a new customer lead"
+        prompt = f"Subject: {subject}, arranged center-frame.\n\n{SITE_STYLE_BASE}"
+        body = {"prompt": prompt, "model": "recraftv3", "style_id": BRAND_STYLE_ID,
+                "size": "1024x1024", "n": 1, "response_format": "url"}
+        req = urllib.request.Request(
+            "https://external.api.recraft.ai/v1/images/generations",
+            data=json.dumps(body).encode("utf-8"), method="POST",
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {load_key()}"})
+        print(f"  recraft content → {slug}/{trade} ...", end=" ", flush=True)
+        try:
+            with urllib.request.urlopen(req, timeout=300) as resp:
+                payload = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            print("FAILED", e.read().decode("utf-8", "replace")[:200])
+            return None
+        url = payload["data"][0]["url"]
+        dl = urllib.request.Request(url, headers={"User-Agent": "consentresolve-img/1.0"})
+        with urllib.request.urlopen(dl, timeout=120) as r:
+            svg_cache.write_bytes(r.read())
+        print("ok")
+    # rasterize via Quick Look
+    tmp = CACHE / "_ql"
+    tmp.mkdir(parents=True, exist_ok=True)
+    for f in glob.glob(str(tmp / "*.png")):
+        os.remove(f)
+    subprocess.run(["qlmanage", "-t", "-s", "2048", "-o", str(tmp), str(svg_cache)], capture_output=True)
+    pngs = glob.glob(str(tmp / "*.png"))
+    if not pngs:
+        return None
+    img = Image.open(pngs[0]).convert("RGBA")
+    img.save(png_cache)
+    return img
+
+
 def compose(variant, fm, art, trade_label="", art_mode="ink", ss=1):
     w, h, layout, logo_variant, logo_h_base, logo_pos, margin_base = VARIANTS[variant]
     w, h = w * ss, h * ss
@@ -578,9 +649,11 @@ def compose(variant, fm, art, trade_label="", art_mode="ink", ss=1):
         place_logo(card, logo_variant, logo_h, "tl", margin)
         # subtle art lower-right
         if layout == "square":
-            place_art(card, art, (int(w * 0.46), int(h * 0.50), int(w * 0.46), int(h * 0.34)), art_mode)
+            cw_, ch_ = int(w * 0.56), int(h * 0.40)
+            place_art(card, art, ((w - cw_) // 2, int(h * 0.52), cw_, ch_), art_mode)
         else:
-            place_art(card, art, (int(w * 0.40), int(h * 0.40), int(w * 0.52), int(h * 0.30)), art_mode)
+            cw_, ch_ = int(w * 0.60), int(h * 0.32)
+            place_art(card, art, ((w - cw_) // 2, int(h * 0.40), cw_, ch_), art_mode)
         tx = margin
         ey = margin + logo_h + int(26 * scale)
         text_w = w - 2 * margin
@@ -645,12 +718,14 @@ def main():
             out_dir = ROOT / "public" / "images" / "resources" / seg
         out_dir.mkdir(parents=True, exist_ok=True)
         if args.site_style and args.trade:
-            # Closest match: the ACTUAL site trade SVG, rasterized + knocked out.
-            real = real_trade_art(args.trade)
-            if real is not None:
-                art = trim_knockout(real)
+            # Prefer a service-pro + content-themed illustration in the brand
+            # style; fall back to the generic trade SVG, then to a regen.
+            content = fetch_content_art(slug, args.trade)
+            if content is not None:
+                art = trim_knockout(content)
             else:
-                art = brand_snap(Image.open(fetch_trade_bg(args.trade, site=True)))
+                real = real_trade_art(args.trade)
+                art = trim_knockout(real) if real is not None else brand_snap(Image.open(fetch_trade_bg(args.trade, site=True)))
         elif args.trade:
             art = render_ink(Image.open(fetch_trade_bg(args.trade)))
         elif art_mode == "card":
