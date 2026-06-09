@@ -465,6 +465,39 @@ headshots with clean alpha cutouts before scaling).
 
 ---
 
+## Straight Answers — explainer hub + 30 articles ✅ (LIVE)
+
+Built the 30 "What is X?" explainers into the existing `plain-language-explainer`
+type (URL unchanged: `/resources/plain-language-explainers/`), relabeled the
+section **"Straight Answers,"** mirroring the How-To Guides stack.
+
+- **30 articles** across the 6 glossary categories (5 each), one template:
+  TL;DR answer box (`tldr`), descriptive H2s, comparison tables where useful,
+  key takeaways, 3–5 FAQ, related links, one soft CTA. Legal topics (TCPA,
+  CAN-SPAM, express consent, CCPA, email, SMS) carry FCC/FTC/CPPA **primary
+  sources** + a not-legal-advice **disclaimer**. Authored by 6 parallel subagents
+  to a gold-standard exemplar (`what-is-tcpa`), voice-checked.
+- **Hub** regrouped into the 6 categories + `CollectionPage` + `ItemList` schema
+  + cross-link blocks (→ Glossary, → How-To Guides).
+- **`ResourceLayout` extended** (back-compatible): `tldr` box, citation+disclaimer
+  block, related-links block, table styling, optional hidden byline; `articleSchema`
+  gained an optional **Person author** (Aaron Phillips, `/about/#aaron-phillips`)
+  for E-E-A-T. New `content.config` fields: tldr, sources, disclaimer, related,
+  glossary_slug, hide_byline.
+- **Glossary** got data-driven **"Go deeper →"** links (29 terms → their article).
+- **Images**: 30 content-aware site-style sets (150 PNGs) via the locked pipeline.
+- **Nav + footer** show "Straight Answers"; **llms.txt + sitemap + RSS feed**
+  auto-include all 30. All internal links resolve.
+
+**Build gotcha fixed:** the required `excerpt` field was missing from the
+exemplar (so all 30 inherited it) → first build failed; added `excerpt` to all 30.
+
+**Not done (optional follow-ups):** plumber (or other trade) image variants for
+the explainers — only generic sets were generated, matching the page OG; can be
+generated per-trade on request.
+
+---
+
 ## ✅ Build complete — all 9 chunks shipped
 
 13 content pieces (10 guides + 3 type samples), 4 resource types with per-type
