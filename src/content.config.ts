@@ -88,6 +88,19 @@ const resourceSchema = z.object({
   key_takeaways: z.string().optional(),
   compliance_note: z.string().optional(),
 
+  // ── "Straight Answers" explainer fields (optional; How-To Guides omit them) ──
+  // TL;DR answer box at the very top (AEO: first sentence is a standalone answer).
+  tldr: z.string().optional(),
+  // Primary-source citations + "educational, not legal advice" disclaimer (legal topics).
+  sources: z.array(ctaItem).default([]),
+  disclaimer: z.boolean().default(false),
+  // Hand-authored related links (glossary term, siblings, product/trade page).
+  related: z.array(ctaItem).default([]),
+  // The glossary term id this article goes deeper on (drives the glossary "Go deeper →").
+  glossary_slug: z.string().optional(),
+  // Suppress the on-page "By …" byline (author stays in JSON-LD). Matches the glossary.
+  hide_byline: z.boolean().default(false),
+
   // HowTo step list — powers HowTo JSON-LD (kept in sync with the body prose)
   how_to_steps: z.array(howToStep).default([]),
 

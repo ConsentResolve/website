@@ -8,6 +8,7 @@
 import { getCollection, render } from "astro:content";
 import ResourceLayout from "~/layouts/ResourceLayout.astro";
 import { articleSchema, faqSchema } from "~/lib/seo";
+import { SITE } from "~/lib/site";
 
 export async function getStaticPaths() {
   const all = await getCollection("resources");
@@ -29,6 +30,10 @@ const schemas: unknown[] = [
     datePublished: data.published_at,
     dateModified: data.updated_at,
     image: data.images?.og_image || data.images?.featured_image || data.featured_image,
+    // E-E-A-T: Person author linked to the shared /about/ Person node.
+    author: data.author === "Aaron Phillips"
+      ? { name: "Aaron Phillips", id: `${SITE.url}/about/#aaron-phillips` }
+      : undefined,
   }),
 ];
 if (data.faq_items.length > 0) schemas.push(faqSchema(data.faq_items));
@@ -37,7 +42,7 @@ if (data.faq_items.length > 0) schemas.push(faqSchema(data.faq_items));
 <ResourceLayout
   data={data}
   schemas={schemas}
-  typeLabel="Plain-Language Explainers"
+  typeLabel="Straight Answers"
   typeHref="/resources/plain-language-explainers/"
 >
   <Content />

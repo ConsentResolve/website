@@ -33,10 +33,10 @@ export const RESOURCE_TYPES: Record<ResourceType, TypeMeta> = {
   },
   "plain-language-explainer": {
     segment: "plain-language-explainers",
-    label: "Plain-Language Explainers",
-    singular: "Explainer",
+    label: "Straight Answers",
+    singular: "Straight Answer",
     blurb:
-      "The confusing parts of privacy-first marketing, explained simply and tied back to what it means for your business.",
+      "Plain answers to the marketing and compliance questions contractors actually ask — no jargon.",
   },
   blog: {
     segment: "blog",

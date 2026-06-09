@@ -1,4 +1,10 @@
 ---
+/**
+ * "Straight Answers" hub — /resources/plain-language-explainers/.
+ * Pillar page for the 30 "What is X?" explainer articles, grouped into the same
+ * six categories as the glossary. Schema: CollectionPage + ItemList (+ Breadcrumb
+ * via component).
+ */
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Breadcrumbs from "~/components/Breadcrumbs.astro";
 import Badge from "~/components/ui/Badge.astro";
@@ -6,38 +12,96 @@ import ResourceGrid from "~/components/resources/ResourceGrid.astro";
 import { itemListSchema } from "~/lib/seo";
 import { SITE } from "~/lib/site";
 import { RESOURCE_TYPES, resourceHref, getResources } from "~/lib/resources";
+import { IconArrowRight } from "@tabler/icons-react";
 
 const meta = RESOURCE_TYPES["plain-language-explainer"];
 const entries = await getResources("plain-language-explainer");
+
+// Same six categories as the glossary, fixed order.
+const CATEGORY_ORDER = [
+  "Privacy & Consent",
+  "Visitor Identification",
+  "Lead Generation",
+  "Metrics & ROI",
+  "Marketing Channels",
+  "Home Services",
+];
+const groups = CATEGORY_ORDER.map((cat) => ({
+  category: cat,
+  entries: entries.filter((e) => e.data.category === cat),
+})).filter((g) => g.entries.length > 0);
+// Any entries whose category isn't one of the six fall into an "More" bucket.
+const known = new Set(CATEGORY_ORDER);
+const other = entries.filter((e) => !known.has(e.data.category));
+if (other.length) groups.push({ category: "More", entries: other });
+
 const canonical = `${SITE.url}/resources/plain-language-explainers/`;
+const collectionSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Straight Answers",
+  description: meta.blurb,
+  url: canonical,
+  isPartOf: { "@id": `${SITE.url}/#website` },
+};
 const schemas = [
+  collectionSchema,
   itemListSchema({
-    name: "Consent Resolve Plain-Language Explainers",
+    name: "Straight Answers — home-service marketing & compliance, explained",
     items: entries.map((e) => ({ name: e.data.title, url: `${SITE.url}${resourceHref(e.data)}` })),
   }),
 ];
 const breadcrumbs = [
   { name: "Home", href: "/" },
   { name: "Resources", href: "/resources/" },
-  { name: meta.label, href: "/resources/plain-language-explainers/" },
+  { name: meta.label, href: canonical },
 ];
 ---
 
 <BaseLayout
-  title="Plain-Language Explainers | Consent Resolve Resource Center"
-  description={meta.blurb}
+  title="Straight Answers — Marketing & Compliance, Explained | Consent Resolve"
+  description="Plain answers to the marketing and compliance questions home-service contractors actually ask — TCPA, CPL, LSA, local SEO, and more. No jargon."
   canonical={canonical}
   schema={schemas}
 >
   <Breadcrumbs items={breadcrumbs} />
-  <section class="container-content pb-4 pt-10">
+
+  <section class="container-content pb-2 pt-10">
     <div class="max-w-3xl">
-      <div class="mb-6"><Badge tone="brand" variant="soft" size="md" uppercase>{meta.label}</Badge></div>
-      <h1 class="display-1 text-[color:var(--color-ink)]">Plain-Language Explainers</h1>
-      <p class="mt-6 text-lg leading-relaxed text-[color:var(--color-ink-2)]">{meta.blurb}</p>
+      <div class="mb-6"><Badge tone="brand" variant="soft" size="md" uppercase>Straight Answers</Badge></div>
+      <h1 class="display-1 text-[color:var(--color-ink)]">Straight Answers</h1>
+      <p class="mt-6 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+        Plain answers to the marketing and compliance questions contractors actually ask — no jargon.
+      </p>
     </div>
   </section>
-  <section class="section-tight pt-6">
-    <div class="container-content"><ResourceGrid entries={entries} /></div>
+
+  {groups.map((g) => (
+    <section class="section-tight pt-8">
+      <div class="container-content">
+        <h2 class="mb-6 font-display text-2xl font-bold tracking-tight text-[color:var(--color-ink)]">{g.category}</h2>
+        <ResourceGrid entries={g.entries} />
+      </div>
+    </section>
+  ))}
+
+  <!-- Cross-link blocks -->
+  <section class="section-tight pt-4">
+    <div class="container-content grid gap-6 md:grid-cols-2">
+      <a href="/resources/glossary/" class="group flex items-center justify-between rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-0.5 hover:ring-[color:var(--color-mint-400)]/60">
+        <div>
+          <div class="font-display text-lg font-bold text-[color:var(--color-ink)]">Want quick definitions?</div>
+          <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">Browse the 138-term glossary.</p>
+        </div>
+        <span class="inline-flex items-center gap-1.5 text-sm font-bold text-[color:var(--color-brand-pressed)] group-hover:translate-x-0.5">Glossary <IconArrowRight size={15} stroke={2.5} /></span>
+      </a>
+      <a href="/resources/how-to-guides/" class="group flex items-center justify-between rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:-translate-y-0.5 hover:ring-[color:var(--color-mint-400)]/60">
+        <div>
+          <div class="font-display text-lg font-bold text-[color:var(--color-ink)]">Ready to act?</div>
+          <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">Step-by-step How-To Guides.</p>
+        </div>
+        <span class="inline-flex items-center gap-1.5 text-sm font-bold text-[color:var(--color-brand-pressed)] group-hover:translate-x-0.5">How-To Guides <IconArrowRight size={15} stroke={2.5} /></span>
+      </a>
+    </div>
   </section>
 </BaseLayout>

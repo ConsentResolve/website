@@ -17,7 +17,7 @@ import KeyTakeaways from "~/components/resources/KeyTakeaways.astro";
 import ComplianceNote from "~/components/resources/ComplianceNote.astro";
 import type { ResourceData } from "~/content.config";
 import { resourceImage } from "~/lib/resources";
-import { IconArrowRight } from "@tabler/icons-react";
+import { IconArrowRight, IconArrowUpRight } from "@tabler/icons-react";
 
 interface Props {
   data: ResourceData;
@@ -70,20 +70,63 @@ const breadcrumbs = [
       <h1 class="display-1 text-[color:var(--color-ink)]">{data.title}</h1>
       <p class="mt-6 text-lg leading-relaxed text-[color:var(--color-ink-2)]">{data.excerpt}</p>
       <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[color:var(--color-ink-muted)]">
-        <span>By {data.author}</span>
-        {data.read_time && <><span aria-hidden="true">·</span><span>{data.read_time} read</span></>}
+        {!data.hide_byline && <span>By {data.author}</span>}
+        {data.read_time && <>{!data.hide_byline && <span aria-hidden="true">·</span>}<span>{data.read_time} read</span></>}
         {dateStr && <><span aria-hidden="true">·</span><span>Updated {dateStr}</span></>}
       </div>
     </header>
 
-    {data.key_takeaways && <KeyTakeaways text={data.key_takeaways} placement="top" />}
+    {data.tldr ? (
+      <aside class="my-8 rounded-2xl border-l-4 border-[color:var(--color-brand)] bg-[color:var(--color-brand-soft)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]" aria-label="The short answer">
+        <div class="mb-2"><Badge tone="brand" variant="soft" size="sm" uppercase>The short answer</Badge></div>
+        <p class="text-[17px] leading-relaxed text-[color:var(--color-ink)]">{data.tldr}</p>
+      </aside>
+    ) : (
+      data.key_takeaways && <KeyTakeaways text={data.key_takeaways} placement="top" />
+    )}
 
     <!-- Rendered Markdown body -->
     <div class="rc-prose"><slot /></div>
 
     {data.compliance_note && <ComplianceNote text={data.compliance_note} />}
 
+    {(data.sources.length > 0 || data.disclaimer) && (
+      <aside class="my-8 rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] p-6">
+        {data.sources.length > 0 && (
+          <>
+            <div class="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-[color:var(--color-ink-muted)]">Primary sources</div>
+            <ul class="flex flex-col gap-1.5">
+              {data.sources.map((s) => (
+                <li>
+                  <a href={s.url} target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--color-brand-pressed)] hover:underline">
+                    {s.label}
+                    <IconArrowUpRight size={14} stroke={2.2} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        {data.disclaimer && (
+          <p class={`text-xs leading-relaxed text-[color:var(--color-ink-muted)] ${data.sources.length > 0 ? "mt-3" : ""}`}>
+            This is educational information, not legal advice. Consult a qualified attorney about your specific situation.
+          </p>
+        )}
+      </aside>
+    )}
+
     {data.key_takeaways && <KeyTakeaways text={data.key_takeaways} placement="bottom" />}
+
+    {data.related.length > 0 && (
+      <aside class="my-8">
+        <div class="mb-3 text-xs font-bold uppercase tracking-[0.1em] text-[color:var(--color-ink-muted)]">Related</div>
+        <div class="flex flex-wrap gap-2">
+          {data.related.map((r) => (
+            <a href={r.url} class="rounded-lg bg-[color:var(--color-brand-soft)] px-3 py-1.5 text-sm font-medium text-[color:var(--color-brand-pressed)] transition hover:ring-1 hover:ring-[color:var(--color-mint-400)]/60">{r.label}</a>
+          ))}
+        </div>
+      </aside>
+    )}
 
     <!-- CTA band -->
     <div class="mt-10 rounded-3xl bg-[color:var(--color-bg-inverse)] p-8 text-center ring-1 ring-inset ring-white/10">
@@ -141,6 +184,34 @@ const breadcrumbs = [
   }
   .rc-prose p {
     color: var(--color-ink-2);
+  }
+  .rc-prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    margin-top: 1.5rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .rc-prose th,
+  .rc-prose td {
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--color-rule);
+    vertical-align: top;
+  }
+  .rc-prose thead th {
+    background: var(--color-brand-soft);
+    color: var(--color-ink);
+    font-weight: 700;
+    font-family: var(--font-display, inherit);
+  }
+  .rc-prose tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .rc-prose tbody tr:nth-child(even) {
+    background: var(--color-bg-alt);
   }
   .rc-prose strong {
     color: var(--color-ink);

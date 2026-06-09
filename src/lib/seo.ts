@@ -222,6 +222,9 @@ export function articleSchema(opts: {
   datePublished?: Date;
   dateModified?: Date;
   image?: string;
+  /** Person author (E-E-A-T). When set, links to that Person @id (e.g. an
+   *  /about/#slug node). Defaults to the Organization as author. */
+  author?: { name: string; id: string };
 }) {
   return {
     "@context": "https://schema.org",
@@ -233,7 +236,9 @@ export function articleSchema(opts: {
     ...(opts.datePublished ? { datePublished: opts.datePublished.toISOString() } : {}),
     ...(opts.dateModified ? { dateModified: opts.dateModified.toISOString() } : {}),
     ...(opts.image ? { image: opts.image.startsWith("http") ? opts.image : `${SITE.url}${opts.image}` } : {}),
-    author: { "@id": `${SITE.url}/#organization` },
+    author: opts.author
+      ? { "@type": "Person", "@id": opts.author.id, name: opts.author.name }
+      : { "@id": `${SITE.url}/#organization` },
     publisher: { "@id": `${SITE.url}/#organization` },
   };
 }

@@ -49,7 +49,7 @@ export const PRIMARY_NAV: NavItem[] = [
     children: [
       { label: "How-To Guides", href: "/resources/how-to-guides/", desc: "Step-by-step playbooks" },
       { label: "Glossary", href: "/resources/glossary/", desc: "Plain-English definitions" },
-      { label: "Plain-Language Explainers", href: "/resources/plain-language-explainers/", desc: "The confusing parts, simplified" },
+      { label: "Straight Answers", href: "/resources/plain-language-explainers/", desc: "Plain “What is X?” answers" },
       { label: "Blog", href: "/resources/blog/", desc: "Ideas & evidence" },
       { label: "Channel Comparisons", href: "/resources/compare/", desc: "With/without booked-job math" },
       { label: "All resources →", href: "/resources/" },

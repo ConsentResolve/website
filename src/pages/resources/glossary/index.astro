@@ -9,7 +9,17 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 import Breadcrumbs from "~/components/Breadcrumbs.astro";
 import Badge from "~/components/ui/Badge.astro";
 import { SITE } from "~/lib/site";
+import { getResources, resourceHref } from "~/lib/resources";
 import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES } from "~/data/glossary";
+import { IconArrowRight } from "@tabler/icons-react";
+
+// Data-driven "Go deeper →": map each glossary term id to its matching
+// Straight Answers explainer (via the article's glossary_slug field).
+const explainers = await getResources("plain-language-explainer");
+const goDeeper: Record<string, string> = {};
+for (const e of explainers) {
+  if (e.data.glossary_slug) goDeeper[e.data.glossary_slug] = resourceHref(e.data);
+}
 
 const canonical = `${SITE.url}/resources/glossary/`;
 
@@ -143,6 +153,12 @@ const breadcrumbs = [
                 <Badge tone="brand" variant="soft" size="sm">{catLabel[t.category]}</Badge>
               </div>
               <p class="text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{t.definition}</p>
+              {goDeeper[t.id] && (
+                <a href={goDeeper[t.id]} class="mt-3 inline-flex items-center gap-1 text-sm font-bold text-[color:var(--color-brand-pressed)] hover:text-[color:var(--color-ink)]">
+                  Go deeper
+                  <IconArrowRight size={14} stroke={2.5} />
+                </a>
+              )}
               {t.related.length > 0 && (
                 <div class="mt-3.5 flex flex-wrap items-center gap-2">
                   <span class="text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--color-ink-muted)]">Related</span>
