@@ -27,8 +27,14 @@ if not KEY:
     sys.exit("Set CR_AUTOMATION_KEY (the Cloudflare secret) in the environment.")
 
 
+# Cloudflare's bot rules 403 the default "Python-urllib" UA, so send a normal one.
+UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ConsentResolve-Seed/1.0"
+
+
 def get(url):
-    with urllib.request.urlopen(url, timeout=20) as r:
+    req = urllib.request.Request(url)
+    req.add_header("User-Agent", UA)
+    with urllib.request.urlopen(req, timeout=20) as r:
         return r.read().decode("utf-8")
 
 
@@ -37,6 +43,7 @@ def post(url, payload):
     req = urllib.request.Request(url, data=data, method="POST")
     req.add_header("Content-Type", "application/json")
     req.add_header("X-CR-Automation-Key", KEY)
+    req.add_header("User-Agent", UA)
     with urllib.request.urlopen(req, timeout=20) as r:
         return r.status, r.read().decode("utf-8")
 
