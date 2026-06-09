@@ -33,7 +33,7 @@ import urllib.request
 import urllib.error
 from pathlib import Path
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "src" / "content" / "resources"
@@ -311,28 +311,34 @@ def render_ink(img, color=MINT, max_alpha=230, gamma=1.15):
 
 
 # ── Layer B: deterministic compositor ───────────────────────────────────────────
-def gradient_bg(w, h):
-    base = Image.new("RGB", (w, h), NAVY)
-    top = Image.new("RGB", (w, h), NAVY3)
-    mask = Image.new("L", (w, h))
-    md = mask.load()
-    for y in range(h):
-        for x in range(0, w, 4):
-            v = int(((x / w) * 0.55 + (y / h) * 0.45) * 130)
-            for dx in range(4):
-                if x + dx < w:
-                    md[x + dx, y] = v
-    base = Image.composite(top, base, mask).convert("RGBA")
+def gradient_bg(w, h, focus=(0.66, 0.44)):
+    """Navy diagonal gradient + mint glow + radial spotlight behind the focal
+    point + corner vignette + a faint mint inner-frame (the series signature)."""
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    # diagonal navy gradient (navy -> navy3)
+    t = np.clip((xx / w) * 0.55 + (yy / h) * 0.45, 0, 1)[..., None]
+    base = (np.array(NAVY, np.float32) * (1 - t) + np.array(NAVY3, np.float32) * t)
+    # radial spotlight (lighter behind focus) — additive
+    fx, fy = focus[0] * w, focus[1] * h
+    ds = np.sqrt(((xx - fx) / (w * 0.55)) ** 2 + ((yy - fy) / (h * 0.62)) ** 2)
+    spot = np.clip(1 - ds, 0, 1)[..., None]
+    base += np.array([34, 60, 92], np.float32) * (spot ** 1.5) * 0.55
+    # corner vignette — multiplicative darken
+    cx, cy = w / 2.0, h / 2.0
+    dv = np.sqrt(((xx - cx) / (w / 2)) ** 2 + ((yy - cy) / (h / 2)) ** 2)
+    vig = 1 - np.clip((dv - 0.72) / 0.6, 0, 1)[..., None] * 0.28
+    base = np.clip(base * vig, 0, 255).astype(np.uint8)
+    img = Image.fromarray(base).convert("RGBA")
+    # mint glow top-right
     glow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    ImageDraw.Draw(glow).ellipse([int(w * 0.5), int(-h * 0.4), int(w * 1.15), int(h * 0.6)], fill=(0, 229, 160, 40))
-    glow = glow.filter(ImageFilter.GaussianBlur(int(w * 0.07)))
-    base = Image.alpha_composite(base, glow)
-    # inner frame stroke
+    ImageDraw.Draw(glow).ellipse([int(w * 0.52), int(-h * 0.4), int(w * 1.15), int(h * 0.55)], fill=(0, 235, 165, 34))
+    img = Image.alpha_composite(img, glow.filter(ImageFilter.GaussianBlur(int(w * 0.07))))
+    # signature flourish — faint mint inner frame on every card
     fr = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    m = int(w * 0.02)
+    m = int(w * 0.022)
     ImageDraw.Draw(fr).rounded_rectangle([m, m, w - m, h - m], radius=int(w * 0.02),
-                                         outline=(0, 229, 160, 46), width=max(1, int(w / 600)))
-    return Image.alpha_composite(base, fr)
+                                         outline=(0, 235, 165, 42), width=max(1, int(w / 560)))
+    return Image.alpha_composite(img, fr)
 
 
 def load_logo(variant):
@@ -370,11 +376,30 @@ def place_art(card, art, box, mode):
         place_ink(card, art, box)
         return
     bx, by, bw, bh = box
+    rad = int(min(bw, bh) * 0.10)
     pad = int(min(bw, bh) * 0.10)
+    W, H = card.size
+
+    # 1) soft drop shadow so the white card floats above the navy
+    sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    off = int(min(bw, bh) * 0.05)
+    ImageDraw.Draw(sh).rounded_rectangle([bx, by + off, bx + bw, by + bh + off],
+                                         radius=rad, fill=(0, 0, 0, 130))
+    card.alpha_composite(sh.filter(ImageFilter.GaussianBlur(int(min(bw, bh) * 0.045))))
+
+    # 2) the white card
     panel = Image.new("RGBA", (bw, bh), (0, 0, 0, 0))
-    ImageDraw.Draw(panel).rounded_rectangle([0, 0, bw, bh], radius=int(min(bw, bh) * 0.10),
-                                            fill=(248, 250, 252, 255))
+    ImageDraw.Draw(panel).rounded_rectangle([0, 0, bw, bh], radius=rad, fill=(248, 250, 252, 255))
     card.alpha_composite(panel, (bx, by))
+
+    # 3) faint mint rim-light on the edge facing the light (top + left)
+    rim = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    rd = ImageDraw.Draw(rim)
+    rw = max(1, int(min(bw, bh) / 240))
+    rd.arc([bx, by, bx + bw, by + bh], start=150, end=300, fill=(0, 235, 165, 150), width=rw)
+    card.alpha_composite(rim)
+
+    # 4) the artwork (unchanged)
     im = art.copy()
     im.thumbnail((bw - 2 * pad, bh - 2 * pad), Image.LANCZOS)
     card.alpha_composite(im, (bx + (bw - im.width) // 2, by + (bh - im.height) // 2))
@@ -384,12 +409,27 @@ def is_number_token(tok):
     return bool(re.search(r"\d", tok))
 
 
-def layout_words(draw, text, font, max_w):
+def word_w(draw, s, font, track=0.0):
+    """Width of a string drawn char-by-char with letter `track` (px)."""
+    if not s:
+        return 0.0
+    return sum(draw.textlength(c, font=font) for c in s) + track * (len(s) - 1)
+
+
+def draw_tracked(draw, x, y, s, font, fill, track=0.0):
+    cx = x
+    for c in s:
+        draw.text((cx, y), c, font=font, fill=fill)
+        cx += draw.textlength(c, font=font) + track
+    return cx
+
+
+def layout_words(draw, text, font, max_w, track=0.0):
     """Wrap into lines; each word tagged base/hi (numbers highlighted)."""
     space = draw.textlength(" ", font=font)
     lines, cur, curw = [], [], 0.0
     for word in text.split():
-        ww = draw.textlength(word, font=font)
+        ww = word_w(draw, word, font, track)
         add = ww + (space if cur else 0)
         if cur and curw + add > max_w:
             lines.append(cur)
@@ -402,30 +442,32 @@ def layout_words(draw, text, font, max_w):
     return lines
 
 
-def draw_hook(draw, x, y, lines, font, line_h):
+def draw_hook(draw, x, y, lines, font, line_h, track=0.0):
     space = draw.textlength(" ", font=font)
     for li, line in enumerate(lines):
         cx = x
         for word, hi in line:
-            draw.text((cx, y + li * line_h), word, font=font, fill=MINT if hi else WHITE)
-            cx += draw.textlength(word, font=font) + space
+            cx = draw_tracked(draw, cx, y + li * line_h, word, font, MINT if hi else WHITE, track)
+            cx += space
 
 
 def fit_hook(draw, hook, text_w, avail_h, max_size, min_size):
+    """Largest size that fits; tightened tracking (~-1.5%) + tighter leading."""
     size = max_size
     while size >= min_size:
         f = load_font("Bricolage.ttf", size, weight=800)
-        lines = layout_words(draw, hook, f, text_w)
-        line_h = int(size * 1.12)
-        widest = 0
-        for line in lines:
-            w = sum(draw.textlength(wd, font=f) for wd, _ in line) + draw.textlength(" ", font=f) * (len(line) - 1)
-            widest = max(widest, w)
+        track = -size * 0.015
+        lines = layout_words(draw, hook, f, text_w, track)
+        line_h = int(size * 1.06)
+        space = draw.textlength(" ", font=f)
+        widest = max((sum(word_w(draw, wd, f, track) for wd, _ in line) + space * (len(line) - 1)
+                      for line in lines), default=0)
         if widest <= text_w and len(lines) * line_h <= avail_h:
-            return f, lines, line_h
+            return f, lines, line_h, track
         size -= 3
     f = load_font("Bricolage.ttf", min_size, weight=800)
-    return f, layout_words(draw, hook, f, text_w), int(min_size * 1.12)
+    track = -min_size * 0.015
+    return f, layout_words(draw, hook, f, text_w, track), int(min_size * 1.06), track
 
 
 def eyebrow_text(fm, trade_label=""):
@@ -473,16 +515,33 @@ def fetch_trade_bg(trade, site=False):
     return p
 
 
-def compose(variant, fm, art, trade_label="", art_mode="ink"):
+def apply_grain(img, amt=0.03, seed=11):
+    """Barely-there luminance noise to kill the flat-vector look."""
+    w, h = img.size
+    n = np.random.default_rng(seed).normal(0, 255 * amt, (h, w)).astype(np.float32)
+    arr = np.asarray(img.convert("RGB")).astype(np.float32) + n[..., None]
+    return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))
+
+
+def finalize(card, variant):
+    """2x supersample -> downscale (crisp), pre-saturate mint, add grain."""
+    w, h, *_ = VARIANTS[variant]
+    card = card.resize((w, h), Image.LANCZOS)
+    card = ImageEnhance.Color(card).enhance(1.08)  # platforms desaturate on upload
+    return apply_grain(card, 0.03)
+
+
+def compose(variant, fm, art, trade_label="", art_mode="ink", ss=1):
     w, h, layout, logo_variant, logo_h_base, logo_pos, margin_base = VARIANTS[variant]
+    w, h = w * ss, h * ss
     scale = w / 1200.0
-    card = gradient_bg(w, h)
+    # focal point for the bg spotlight: behind the illustration
+    focus = (0.74, 0.46) if layout == "wide" else (0.6, 0.62)
+    card = gradient_bg(w, h, focus)
     draw = ImageDraw.Draw(card)
-    pad = int(margin_base * scale) if layout != "wide" else 64
-    if layout == "wide":
-        pad = 64
-    logo_h = int(logo_h_base * scale) if layout != "wide" else logo_h_base
-    margin = int(margin_base) if layout == "wide" else int(margin_base * scale)
+    pad = int(margin_base * scale)
+    logo_h = int(logo_h_base * scale)
+    margin = int(margin_base * scale)
 
     cat_size = max(12, int(20 * scale))
     f_cat = load_font("Hanken.ttf", cat_size, weight=700)
@@ -496,14 +555,14 @@ def compose(variant, fm, art, trade_label="", art_mode="ink"):
         ey = pad
         text_w = int(w * 0.55) - pad
         # eyebrow + rule
-        draw.text((tx, ey), eyebrow_text(fm, trade_label), font=f_cat, fill=MINT)
-        ry = ey + cat_size + int(12 * scale)
-        draw.rounded_rectangle([tx, ry, tx + int(50 * scale), ry + max(3, int(4 * scale))], radius=2, fill=MINT)
+        draw_tracked(draw, tx, ey, eyebrow_text(fm, trade_label), f_cat, MINT, cat_size * 0.14)
+        ry = ey + cat_size + int(13 * scale)
+        draw.rounded_rectangle([tx, ry, tx + int(56 * scale), ry + max(3, int(4 * scale))], radius=2, fill=MINT)
         # hook fills the band between eyebrow and the logo
         logo_top = h - margin - logo_h
         hook_top = ry + int(26 * scale)
-        f_hook, lines, lh = fit_hook(draw, hook, text_w, logo_top - hook_top - int(24 * scale), int(72 * scale), int(30 * scale))
-        draw_hook(draw, tx, hook_top, lines, f_hook, lh)
+        f_hook, lines, lh, htrack = fit_hook(draw, hook, text_w, logo_top - hook_top - int(24 * scale), int(74 * scale), int(30 * scale))
+        draw_hook(draw, tx, hook_top, lines, f_hook, lh, htrack)
         place_logo(card, logo_variant, logo_h, "bl", margin)
 
     elif layout == "thumb":
@@ -512,8 +571,8 @@ def compose(variant, fm, art, trade_label="", art_mode="ink"):
         tx = margin
         top = margin + logo_h + int(14 * scale)
         text_w = int(w * 0.56)
-        f_hook, lines, lh = fit_hook(draw, hook, text_w, h - top - margin, int(40 * scale), int(20 * scale))
-        draw_hook(draw, tx, top, lines, f_hook, lh)
+        f_hook, lines, lh, htrack = fit_hook(draw, hook, text_w, h - top - margin, int(40 * scale), int(20 * scale))
+        draw_hook(draw, tx, top, lines, f_hook, lh, htrack)
 
     else:  # square / portrait — logo top, then eyebrow, hook, headline, CTA
         place_logo(card, logo_variant, logo_h, "tl", margin)
@@ -525,26 +584,29 @@ def compose(variant, fm, art, trade_label="", art_mode="ink"):
         tx = margin
         ey = margin + logo_h + int(26 * scale)
         text_w = w - 2 * margin
-        draw.text((tx, ey), eyebrow_text(fm, trade_label), font=f_cat, fill=MINT)
-        ry = ey + cat_size + int(12 * scale)
-        draw.rounded_rectangle([tx, ry, tx + int(50 * scale), ry + max(3, int(4 * scale))], radius=2, fill=MINT)
+        draw_tracked(draw, tx, ey, eyebrow_text(fm, trade_label), f_cat, MINT, cat_size * 0.14)
+        ry = ey + cat_size + int(13 * scale)
+        draw.rounded_rectangle([tx, ry, tx + int(56 * scale), ry + max(3, int(4 * scale))], radius=2, fill=MINT)
         hook_top = ry + int(26 * scale)
-        f_hook, lines, lh = fit_hook(draw, hook, text_w, int(h * 0.34), int(74 * scale), int(34 * scale))
-        draw_hook(draw, tx, hook_top, lines, f_hook, lh)
+        # CTA removed on square (not clickable in-feed) -> bigger headline.
+        hook_max = int(84 * scale) if layout == "square" else int(74 * scale)
+        f_hook, lines, lh, htrack = fit_hook(draw, hook, text_w, int(h * 0.38), hook_max, int(34 * scale))
+        draw_hook(draw, tx, hook_top, lines, f_hook, lh, htrack)
+        # subhead — higher contrast for legibility (words unchanged)
         hl_y = hook_top + len(lines) * lh + int(22 * scale)
-        f_hl = load_font("Hanken.ttf", int(30 * scale), weight=600)
+        f_hl = load_font("Hanken.ttf", int(29 * scale), weight=600)
         hl_lines = layout_words(draw, headline, f_hl, text_w)
         for i, line in enumerate(hl_lines[:3]):
-            draw.text((tx, hl_y + i * int(38 * scale)), " ".join(wd for wd, _ in line), font=f_hl, fill=MUTED)
-        # CTA pill
-        cta = fm["cta_text"]
-        f_cta = load_font("Hanken.ttf", int(24 * scale), weight=700)
-        cw = draw.textlength(cta, font=f_cta)
-        pill_w = int(cw + 44 * scale)
-        pill_h = int(54 * scale)
-        cta_y = h - margin - pill_h if layout == "portrait" else hl_y + len(hl_lines[:3]) * int(38 * scale) + int(26 * scale)
-        draw.rounded_rectangle([tx, cta_y, tx + pill_w, cta_y + pill_h], radius=pill_h // 2, fill=MINT)
-        draw.text((tx + int(22 * scale), cta_y + (pill_h - int(24 * scale)) // 2 - int(2 * scale)), cta, font=f_cta, fill=NAVY)
+            draw.text((tx, hl_y + i * int(38 * scale)), " ".join(wd for wd, _ in line), font=f_hl, fill=(203, 213, 225))
+        if layout == "portrait":
+            # CTA pill only on the vertical (still a useful in-feed affordance)
+            cta = fm["cta_text"]
+            f_cta = load_font("Hanken.ttf", int(24 * scale), weight=700)
+            pill_w = int(draw.textlength(cta, font=f_cta) + 44 * scale)
+            pill_h = int(54 * scale)
+            cta_y = h - margin - pill_h
+            draw.rounded_rectangle([tx, cta_y, tx + pill_w, cta_y + pill_h], radius=pill_h // 2, fill=MINT)
+            draw.text((tx + int(22 * scale), cta_y + (pill_h - int(24 * scale)) // 2 - int(2 * scale)), cta, font=f_cta, fill=NAVY)
 
     return card.convert("RGB")
 
@@ -598,7 +660,8 @@ def main():
         suffix = f"-{args.trade}" if args.trade else ""
         style_tag = "-site" if args.site_style else ""
         for v in variants:
-            card = compose(v, fm, art, trade_label, art_mode)
+            card = compose(v, fm, art, trade_label, art_mode, ss=2)
+            card = finalize(card, v)
             out = out_dir / f"{slug}{suffix}{style_tag}-{v}.png"
             card.save(out, "PNG")
             print(f"  wrote {out.relative_to(ROOT)} ({VARIANTS[v][0]}x{VARIANTS[v][1]})")
