@@ -33,7 +33,7 @@ import urllib.request
 import urllib.error
 from pathlib import Path
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance, ImageChops
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "src" / "content" / "resources"
@@ -699,6 +699,132 @@ def compose(variant, fm, art, trade_label="", art_mode="ink", ss=1):
     return card.convert("RGB")
 
 
+# ── Founder-POV variant (real headshot) ─────────────────────────────────────────
+def knockout_white(path, thresh=36):
+    """White-bg headshot -> transparent knockout (flood from borders so interior
+    whites like teeth survive), + a subtle cool color-grade. Returns tight RGBA."""
+    im = Image.open(path).convert("RGB")
+    flood = im.copy()
+    for seed in [(1, 1), (im.width - 2, 1), (1, im.height - 2), (im.width - 2, im.height - 2),
+                 (im.width // 2, 1), (1, im.height // 2)]:
+        ImageDraw.floodfill(flood, seed, (255, 0, 255), thresh=thresh)
+    arr = np.asarray(flood)
+    bg = (arr[..., 0] == 255) & (arr[..., 1] == 0) & (arr[..., 2] == 255)
+    alpha = np.where(bg, 0, 255).astype(np.uint8)
+    a = Image.fromarray(alpha).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(0.8))
+    # subtle grade: gentle contrast lift + cooled shadows
+    g = ImageEnhance.Contrast(im).enhance(1.06)
+    ga = np.asarray(g).astype(np.float32)
+    ga[..., 0] *= 0.985
+    ga[..., 2] *= 1.03
+    rgba = Image.fromarray(np.clip(ga, 0, 255).astype(np.uint8)).convert("RGBA")
+    rgba.putalpha(a)
+    bbox = rgba.getbbox()
+    return rgba.crop(bbox) if bbox else rgba
+
+
+def circle_crop(port):
+    s = min(port.size)
+    port = port.crop(((port.width - s) // 2, 0, (port.width - s) // 2 + s, s))  # head near top
+    mask = Image.new("L", (s, s), 0)
+    ImageDraw.Draw(mask).ellipse([0, 0, s, s], fill=255)
+    out = port.copy()
+    out.putalpha(ImageChops.darker(port.split()[-1], mask))
+    return out
+
+
+def place_portrait(card, port, box, scale, anchor="bottom"):
+    bx, by, bw, bh = box
+    im = port.copy()
+    im.thumbnail((bw, bh), Image.LANCZOS)
+    ox = bx + (bw - im.width) // 2
+    oy = by + (bh - im.height) if anchor == "bottom" else by + (bh - im.height) // 2
+    a = im.split()[-1]
+    # drop shadow (below)
+    sh = Image.new("RGBA", card.size, (0, 0, 0, 0))
+    dark = Image.new("RGBA", im.size, (2, 6, 12, 200))
+    dark.putalpha(a)
+    sh.alpha_composite(dark, (ox + int(2 * scale), oy + int(12 * scale)))
+    card.alpha_composite(sh.filter(ImageFilter.GaussianBlur(int(12 * scale))))
+    # mint rim-light (ghost offset up-right, behind)
+    rim = Image.new("RGBA", card.size, (0, 0, 0, 0))
+    mint = Image.new("RGBA", im.size, (0, 235, 165, 255))
+    mint.putalpha(a)
+    rim.alpha_composite(mint, (ox + int(7 * scale), oy - int(7 * scale)))
+    rim = rim.filter(ImageFilter.GaussianBlur(int(3 * scale)))
+    rim = Image.blend(Image.new("RGBA", card.size, (0, 0, 0, 0)), rim, 0.6)
+    card.alpha_composite(rim)
+    card.alpha_composite(im, (ox, oy))
+    return (ox, oy, im.width, im.height)
+
+
+def compose_founder(layout, headshot, ss=2):
+    W, H = 1080 * ss, 1080 * ss
+    scale = W / 1080.0
+    eyebrow, headline, name, org = "FROM THE TEAM", "Your headline goes here.", "Tyler Spurlock", "ConsentResolve"
+    focus = {"A": (0.74, 0.5), "B": (0.66, 0.64), "C": (0.72, 0.5)}[layout]
+    card = gradient_bg(W, H, focus)
+    draw = ImageDraw.Draw(card)
+    margin = int(72 * scale)
+    logo_h = int(52 * scale)
+
+    # faint mint accent behind subject (arc echoing the brand)
+    acc = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(acc).arc([int(W * 0.46), int(H * 0.08), int(W * 1.06), int(H * 0.9)],
+                            200, 30, fill=(0, 235, 165, 46), width=int(22 * scale))
+    card.alpha_composite(acc.filter(ImageFilter.GaussianBlur(int(2 * scale))))
+
+    place_logo(card, "light", logo_h, "tl", margin)
+
+    tx = margin
+    ey = margin + logo_h + int(26 * scale)
+    f_eb = load_font("Hanken.ttf", max(13, int(21 * scale)), 700)
+    draw_tracked(draw, tx, ey, eyebrow, f_eb, MINT, (21 * scale) * 0.16)
+    ry = ey + int(21 * scale) + int(13 * scale)
+    draw.rounded_rectangle([tx, ry, tx + int(56 * scale), ry + max(3, int(4 * scale))], radius=2, fill=MINT)
+    hook_top = ry + int(26 * scale)
+
+    port = knockout_white(headshot)
+    if layout == "A":
+        text_w = int(W * 0.52) - margin
+        pbox = (int(W * 0.58), int(H * 0.14), int(W * 0.40), int(H * 0.82))
+        anchor = "bottom"
+    elif layout == "B":
+        text_w = int(W * 0.60) - margin
+        pbox = (int(W * 0.40), int(H * 0.30), int(W * 0.60), int(H * 0.70))
+        anchor = "bottom"
+    else:  # C — circle with mint ring
+        port = circle_crop(port)
+        text_w = int(W * 0.54) - margin
+        pbox = (int(W * 0.58), int(H * 0.30), int(W * 0.34), int(H * 0.40))
+        anchor = "middle"
+
+    f_h, lines, lh, tr = fit_hook(draw, headline, text_w, int(H * 0.42), int(80 * scale), int(34 * scale))
+    draw_hook(draw, tx, hook_top, lines, f_h, lh, tr)
+
+    placed = place_portrait(card, port, pbox, scale, anchor)
+    if layout == "C":
+        ox, oy, pw, ph = placed
+        ImageDraw.Draw(card).ellipse([ox, oy, ox + pw, oy + ph], outline=(0, 235, 165, 255),
+                                     width=max(3, int(6 * scale)))
+
+    # attribution (name bold + org muted)
+    f_nm = load_font("Hanken.ttf", int(26 * scale), 700)
+    f_or = load_font("Hanken.ttf", int(24 * scale), 600)
+    ay = H - margin - int(26 * scale)
+    nx = draw_tracked(draw, tx, ay, name, f_nm, WHITE, 0)
+    draw.text((nx + int(10 * scale), ay + int(2 * scale)), f"· {org}", font=f_or, fill=(148, 163, 184))
+
+    # green image border
+    bm = int(W * 0.018)
+    draw.rounded_rectangle([bm, bm, W - bm, H - bm], radius=int(W * 0.02),
+                           outline=(0, 235, 165, 235), width=max(2, int(W / 300)))
+
+    card = card.convert("RGB").resize((1080, 1080), Image.LANCZOS)
+    card = ImageEnhance.Color(card).enhance(1.08)
+    return apply_grain(card, 0.03)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", default="")
@@ -708,8 +834,21 @@ def main():
                     help="render the art in the website's marker style (native brand colors on a white inset) instead of mint ink")
     ap.add_argument("--preview", action="store_true",
                     help="write to scripts/.preview/ instead of public/ (for A/B review, not deploy)")
+    ap.add_argument("--founder", default="",
+                    help="path to a white-bg headshot; generates founder-POV layouts A/B/C to preview")
     args = ap.parse_args()
     ensure_fonts()
+
+    if args.founder:
+        out_dir = ROOT / "scripts" / ".preview" / "founder"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        for layout in ("A", "B", "C"):
+            card = compose_founder(layout, args.founder, ss=2)
+            out = out_dir / f"founder-tyler-{layout}.png"
+            card.save(out, "PNG")
+            print(f"  wrote {out.relative_to(ROOT)} (layout {layout})")
+        print("Done.")
+        return
 
     trade_label = ""
     if args.trade:
