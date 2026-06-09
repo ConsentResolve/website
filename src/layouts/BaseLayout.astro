@@ -73,6 +73,61 @@ const props = Astro.props as Props;
       })();
     </script>
 
+    <!-- Hide Tawk.to branding (widget + chat iframe) -->
+    <script is:inline type="text/javascript">
+      (function removeTawkBranding() {
+        "use strict";
+
+        var STYLE_ID = "hide-tawk-branding";
+
+        var BRANDING_CSS = [
+          "a[href*='tawk.to'] { display: none !important; }",
+          "a[href*='utm_source=tawk-messenger'] { display: none !important; }",
+          "a[title*='Add Chat to your website'] { display: none !important; }",
+          ".tawk-branding { display: none !important; }",
+          "[class*='tawk-branding'] { display: none !important; }",
+          ".tawk-padding-small { display: none !important; }",
+          ".tawk-icon-popout { display: none !important; }",
+        ].join("\n");
+
+        function injectStyle(doc) {
+          if (!doc || doc.getElementById(STYLE_ID)) return;
+          var style = doc.createElement("style");
+          style.id = STYLE_ID;
+          style.textContent = BRANDING_CSS;
+          (doc.head || doc.documentElement).appendChild(style);
+        }
+
+        function handleIframe(iframe) {
+          var title = (iframe.title || "").toLowerCase();
+          if (title.indexOf("chat") === -1) return;
+          iframe.addEventListener("load", function () {
+            try { injectStyle(iframe.contentDocument); } catch (e) {}
+          });
+        }
+
+        // Observe for new iframes (Tawk rebuilds its widget).
+        var observer = new MutationObserver(function (mutations) {
+          mutations.forEach(function (m) {
+            m.addedNodes.forEach(function (node) {
+              if (node.nodeName === "IFRAME") handleIframe(node);
+            });
+          });
+        });
+
+        function start() {
+          injectStyle(document);
+          // Catch any chat iframe already present, then watch for new ones.
+          document.querySelectorAll("iframe").forEach(handleIframe);
+          observer.observe(document.body, { childList: true, subtree: true });
+        }
+
+        // This runs in <head>, so wait until <body> exists.
+        if (document.body) start();
+        else document.addEventListener("DOMContentLoaded", start);
+      })();
+    </script>
+
     <!-- Microsoft Clarity -->
     <script is:inline type="text/javascript">
       (function(c,l,a,r,i,t,y){
