@@ -382,10 +382,12 @@ def place_art(card, art, box, mode):
                                          radius=rad, fill=(0, 0, 0, 130))
     card.alpha_composite(sh.filter(ImageFilter.GaussianBlur(int(min(bw, bh) * 0.045))))
 
-    # 2) the white card
+    # 2) the white card + a crisp white keyline border around the illustration
     panel = Image.new("RGBA", (bw, bh), (0, 0, 0, 0))
     ImageDraw.Draw(panel).rounded_rectangle([0, 0, bw, bh], radius=rad, fill=(248, 250, 252, 255))
     card.alpha_composite(panel, (bx, by))
+    ImageDraw.Draw(card).rounded_rectangle([bx, by, bx + bw, by + bh], radius=rad,
+                                           outline=(255, 255, 255, 255), width=max(3, int(min(bw, bh) / 90)))
 
     # 3) faint mint rim-light on the edge facing the light (top + left)
     rim = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -477,10 +479,9 @@ def draw_badge(draw, x, y, text, scale):
     padx, pady = int(20 * scale), int(12 * scale)
     bw = int(tw + 2 * padx)
     bh = int(fsz + 2 * pady)
-    draw.rounded_rectangle([x, y, x + bw, y + bh], radius=bh // 2,
-                           fill=(0, 235, 165, 30), outline=(0, 235, 165, 235),
-                           width=max(2, int(2 * scale)))
-    draw.text((x + padx, y + pady - int(fsz * 0.08)), text, font=f, fill=MINT)
+    # Solid mint pill + navy text — high contrast, clearly "called out".
+    draw.rounded_rectangle([x, y, x + bw, y + bh], radius=bh // 2, fill=MINT)
+    draw.text((x + padx, y + pady - int(fsz * 0.08)), text, font=f, fill=NAVY)
     return y + bh
 
 
