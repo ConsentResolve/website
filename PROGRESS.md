@@ -31,8 +31,8 @@ contractor-only, consent-first, no fabricated testimonials.
 
 - [x] **Chunk 1 — Content model + first guide**
 - [x] **Chunk 2 — Hub + type index + nav/footer links**
-- [x] **Chunk 3 — Seed guides 2–10** *(this commit)*
-- [ ] Chunk 4 — Glossary / explainer / blog templates + indexes
+- [x] **Chunk 3 — Seed guides 2–10**
+- [x] **Chunk 4 — Glossary / explainer / blog templates + indexes** *(this commit)*
 - [ ] Chunk 5 — RSS/XML feeds
 - [ ] Chunk 6 — Social pack generator + UTM + social.json endpoint
 - [ ] Chunk 7 — D1 social_queue + /api/social-queue
@@ -147,3 +147,34 @@ all 10; inter-guide CTA links (e.g. "track where your leads come from") now
 resolve; broken-link-sweep clean.
 
 **Next:** Chunk 4 — glossary / explainer / blog templates + indexes.
+
+---
+
+## Chunk 4 — Glossary / explainer / blog templates + indexes ✅
+
+**Files added**
+- `src/lib/seo.ts` (changed): `definedTermSchema()` (glossary, with
+  `DefinedTermSet`) and `articleSchema({type})` (Article for explainers,
+  BlogPosting for blog; author + publisher → canonical Org `@id`).
+- Detail routes (all reuse `ResourceLayout`; section order lives in the body):
+  - `src/pages/resources/glossary/[slug].astro` — DefinedTerm + FAQPage
+  - `src/pages/resources/plain-language-explainers/[slug].astro` — Article + FAQPage
+  - `src/pages/resources/blog/[slug].astro` — BlogPosting + FAQPage
+- Index pages: `glossary/index.astro`, `plain-language-explainers/index.astro`,
+  `blog/index.astro` (each emits `ItemList`).
+- One on-voice sample per type:
+  - `glossary/website-visitor-identification.md`
+  - `plain-language-explainers/what-consent-first-means.md`
+  - `blog/paying-for-traffic-throwing-it-away.md`
+
+**Voice check:** ran on all 3 originals. One fix — "higher-leverage" →
+"higher-return" (banned word "leverage"). The `cold-call` mentions are
+intentional (describing the bad practice we warn against). No pricing/NAP/
+numeric-canon drift; warm-inbound + email-first preserved.
+
+**Test (after deploy):** `/resources/` now shows all four type sections; each
+new index lists its sample; each sample renders with the right schema
+(`DefinedTerm` / `Article` / `BlogPosting` + `FAQPage`); in-body markdown
+cross-links resolve.
+
+**Next:** Chunk 5 — RSS/XML feeds (`@astrojs/rss`).

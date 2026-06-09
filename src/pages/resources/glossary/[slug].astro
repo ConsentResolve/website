@@ -1,0 +1,35 @@
+---
+/**
+ * Glossary term detail — /resources/glossary/[slug]/.
+ * Body section order: Definition → Plain English Meaning → Example →
+ * Why It Matters → Related Terms → FAQs. Schema: DefinedTerm + FAQPage.
+ */
+import { getCollection, render } from "astro:content";
+import ResourceLayout from "~/layouts/ResourceLayout.astro";
+import { definedTermSchema, faqSchema } from "~/lib/seo";
+
+export async function getStaticPaths() {
+  const all = await getCollection("resources");
+  return all
+    .filter((e) => e.data.resource_type === "glossary")
+    .map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const data = entry.data;
+
+const schemas: unknown[] = [
+  definedTermSchema({ name: data.title, description: data.excerpt, url: data.canonical_url }),
+];
+if (data.faq_items.length > 0) schemas.push(faqSchema(data.faq_items));
+---
+
+<ResourceLayout
+  data={data}
+  schemas={schemas}
+  typeLabel="Glossary"
+  typeHref="/resources/glossary/"
+>
+  <Content />
+</ResourceLayout>

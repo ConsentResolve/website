@@ -192,6 +192,52 @@ export function itemListSchema(opts: {
   };
 }
 
+/** DefinedTerm — glossary entries. */
+export function definedTermSchema(opts: {
+  name: string;
+  description: string;
+  url: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "DefinedTerm",
+    name: opts.name,
+    description: opts.description,
+    url: opts.url,
+    inDefinedTermSet: {
+      "@type": "DefinedTermSet",
+      name: "Consent Resolve Glossary",
+      url: `${SITE.url}/resources/glossary/`,
+    },
+  };
+}
+
+/** Article / BlogPosting — explainers (Article) and blog posts (BlogPosting).
+ *  Author + publisher both resolve to the canonical Organization @id. */
+export function articleSchema(opts: {
+  type?: "Article" | "BlogPosting";
+  headline: string;
+  description: string;
+  url: string;
+  datePublished?: Date;
+  dateModified?: Date;
+  image?: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": opts.type ?? "Article",
+    headline: opts.headline,
+    description: opts.description,
+    url: opts.url,
+    mainEntityOfPage: { "@type": "WebPage", "@id": opts.url },
+    ...(opts.datePublished ? { datePublished: opts.datePublished.toISOString() } : {}),
+    ...(opts.dateModified ? { dateModified: opts.dateModified.toISOString() } : {}),
+    ...(opts.image ? { image: opts.image.startsWith("http") ? opts.image : `${SITE.url}${opts.image}` } : {}),
+    author: { "@id": `${SITE.url}/#organization` },
+    publisher: { "@id": `${SITE.url}/#organization` },
+  };
+}
+
 export const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",

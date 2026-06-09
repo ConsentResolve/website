@@ -1,0 +1,44 @@
+---
+/**
+ * Plain-Language Explainer detail — /resources/plain-language-explainers/[slug]/.
+ * Body section order: The Simple Version → Why This Confuses People →
+ * Real-World Example → What It Means For Your Business → What To Do Next →
+ * FAQs. Schema: Article + FAQPage.
+ */
+import { getCollection, render } from "astro:content";
+import ResourceLayout from "~/layouts/ResourceLayout.astro";
+import { articleSchema, faqSchema } from "~/lib/seo";
+
+export async function getStaticPaths() {
+  const all = await getCollection("resources");
+  return all
+    .filter((e) => e.data.resource_type === "plain-language-explainer")
+    .map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const data = entry.data;
+
+const schemas: unknown[] = [
+  articleSchema({
+    type: "Article",
+    headline: data.title,
+    description: data.excerpt,
+    url: data.canonical_url,
+    datePublished: data.published_at,
+    dateModified: data.updated_at,
+    image: data.images?.og_image || data.images?.featured_image || data.featured_image,
+  }),
+];
+if (data.faq_items.length > 0) schemas.push(faqSchema(data.faq_items));
+---
+
+<ResourceLayout
+  data={data}
+  schemas={schemas}
+  typeLabel="Plain-Language Explainers"
+  typeHref="/resources/plain-language-explainers/"
+>
+  <Content />
+</ResourceLayout>
