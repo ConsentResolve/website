@@ -32,12 +32,24 @@ contractor-only, consent-first, no fabricated testimonials.
 - [x] **Chunk 1 — Content model + first guide**
 - [x] **Chunk 2 — Hub + type index + nav/footer links**
 - [x] **Chunk 3 — Seed guides 2–10**
-- [x] **Chunk 4 — Glossary / explainer / blog templates + indexes** *(this commit)*
-- [ ] Chunk 5 — RSS/XML feeds
+- [x] **Chunk 4 — Glossary / explainer / blog templates + indexes**
+- [x] **Chunk 5 — RSS/XML content feeds** *(this commit; platform feeds deferred to Chunk 6)*
 - [ ] Chunk 6 — Social pack generator + UTM + social.json endpoint
 - [ ] Chunk 7 — D1 social_queue + /api/social-queue
 - [ ] Chunk 8 — Image provider abstraction + 5 variants/guide
 - [ ] Chunk 9 — Admin previews + AEO/Lighthouse pass + docs
+
+### Backlog (post-build, content expansion — not a spec miss)
+The spec supplied written content only for the 10 How-To Guides (all seeded).
+The glossary / explainer / blog types each have **1 sample** to prove the
+template; they want a real content set authored on-voice (voice-check each):
+- **Glossary:** build out core terms (consent, first-party data, TCPA, CCPA,
+  CIPA, attribution, speed-to-lead, review velocity, NAP, lead-grade…). Decide
+  whether to migrate/merge the existing standalone `/glossary/` page terms into
+  the Resource Center glossary.
+- **Explainers:** more plain-language pieces (email-grade vs phone-grade
+  consent; what TCPA means for a contractor; what an "exclusive" lead is).
+- **Blog:** ongoing cadence.
 
 ---
 
@@ -178,3 +190,37 @@ new index lists its sample; each sample renders with the right schema
 cross-links resolve.
 
 **Next:** Chunk 5 — RSS/XML feeds (`@astrojs/rss`).
+
+---
+
+## Chunk 5 — RSS/XML content feeds ✅
+
+**Decision:** hand-rolled RSS 2.0 (no `@astrojs/rss` dependency) to match the
+repo's existing endpoint style (`src/pages/llms.txt.ts`) and avoid adding a
+package we can't verify locally (no Node toolchain on this machine).
+
+**Files added**
+- `src/lib/feeds.ts` — `rssXml()` (valid RSS 2.0 + `atom:self`), `feedResponse()`,
+  and `buildResourceFeed({type?, ...})` (sources `getResources`, maps category +
+  tags to `<category>`, pubDate from published/updated).
+- Endpoints (build-time, prerendered):
+  - `src/pages/feeds/resources.xml.ts` (all types)
+  - `src/pages/feeds/how-to-guides.xml.ts`
+  - `src/pages/feeds/glossary.xml.ts`
+  - `src/pages/feeds/plain-language-explainers.xml.ts`
+  - `src/pages/feeds/blog.xml.ts`
+
+**Files changed**
+- `astro.config.mjs` — sitemap filter now also excludes `/feeds/`.
+
+**Deferred to Chunk 6:** the 7 **platform** feeds (linkedin/facebook/x/threads/
+pinterest/email/google-business-profile) read each resource's `social_pack`,
+which only exists for Guide 1 until the `generateSocialPack` service is built.
+Building them now would ship 6 near-empty feeds — so they ship alongside the
+generator in Chunk 6.
+
+**Test (after deploy):** `curl` each `/feeds/*.xml` → valid RSS, correct item
+counts (resources=13, how-to-guides=10, glossary=1, explainers=1, blog=1).
+
+**Next:** Chunk 6 — social-pack generator + UTM builder + `social.json` endpoint
++ the 7 platform feeds.
