@@ -118,7 +118,6 @@ export const GET: APIRoute = async () => {
     `- [Privacy Policy](${SITE}/privacy-policy/)`,
     `- [Terms of Service](${SITE}/terms/)`,
     `- [Cookie Policy](${SITE}/cookie-policy/)`,
-    `- [Glossary](${SITE}/glossary/)`,
     "",
   );
 
