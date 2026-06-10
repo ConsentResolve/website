@@ -181,18 +181,44 @@
       .point-row strong { color: var(--ink); }
 
       /* The reveal-email preview (this DOES look like the real CR notification) */
-      .emailcard { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin: 6px 0 4px; transition: outline 0.3s ease; }
-      .emailcard.is-final { outline: 2px solid #00e5a0; outline-offset: 1px; }
       .lead-reveal { opacity: 0; transition: opacity 0.4s ease; }
       .lead-reveal.show { opacity: 1; }
-      .emailcard .eh { background: #0a1628; padding: 15px 18px; }
-      .emailcard .eh .tag { color: #00e5a0; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 800; }
-      .emailcard .eh .subj { color: #fff; font-size: 16px; font-weight: 700; margin-top: 4px; }
-      .emailcard .eb { padding: 14px 18px; }
-      .emailcard table { width: 100%; border-collapse: collapse; font-size: 14px; }
-      .emailcard td.k { color: #64748b; width: 118px; padding: 6px 0; vertical-align: top; }
-      .emailcard td.v { color: #0a1628; font-weight: 600; padding: 6px 0; }
-      .emailcard td.v a { color: #0369a1; }
+
+      /* ===== Lead card — styled like the real Visitor dashboard ===== */
+      .dash { position: relative; overflow: hidden; border-radius: 14px; padding: 16px 18px; margin: 8px 0 4px; background: #0a1628; border: 1px solid rgba(255,255,255,0.08); color: #e2e8f0; animation: dash-in .45s cubic-bezier(.2,.7,.2,1); }
+      @keyframes dash-in { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+      .dash.is-final { border-color: rgba(0,229,160,0.5); animation: dash-in .45s cubic-bezier(.2,.7,.2,1), dash-pop .7s ease .15s; }
+      @keyframes dash-pop { 0% { box-shadow: 0 0 0 1px rgba(0,229,160,0); } 45% { box-shadow: 0 0 0 6px rgba(0,229,160,0.28); } 100% { box-shadow: 0 0 0 1px rgba(0,229,160,0.45), 0 18px 40px -22px rgba(0,229,160,0.5); } }
+      /* scanning sweep while identifying */
+      .dash.scanning::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 32%, rgba(0,229,160,0.10) 50%, transparent 68%); transform: translateX(-100%); animation: dash-sweep 1.4s ease-in-out infinite; pointer-events: none; }
+      @keyframes dash-sweep { to { transform: translateX(100%); } }
+      .dash-head { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+      .dash-avatar { width: 46px; height: 46px; border-radius: 999px; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 17px; background: rgba(0,229,160,0.16); color: #00e5a0; }
+      .dash.scanning .dash-avatar { background: rgba(255,255,255,0.07); color: #64748b; }
+      .dash-id { min-width: 0; flex: 1; }
+      .dash-email { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .dash.scanning .dash-email { color: #7c8ba1; letter-spacing: .5px; }
+      .dash-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+      .dash-chip { font-size: 9.5px; font-weight: 800; letter-spacing: .10em; text-transform: uppercase; padding: 3px 7px; border-radius: 5px; display: inline-flex; align-items: center; gap: 4px; }
+      .dash-chip.scan { background: rgba(255,255,255,0.07); color: #94a3b8; }
+      .dash-chip.scan::before { content: "⟳"; display: inline-block; animation: dash-spin 1s linear infinite; }
+      @keyframes dash-spin { to { transform: rotate(360deg); } }
+      .dash-chip.enriched { background: rgba(0,229,160,0.16); color: #00e5a0; animation: chip-pop .4s ease both; }
+      .dash-chip.identified { background: #00e5a0; color: #06231b; animation: chip-pop .4s ease .09s both; }
+      @keyframes chip-pop { 0% { opacity: 0; transform: scale(.6); } 60% { transform: scale(1.09); } 100% { opacity: 1; transform: scale(1); } }
+      .dash-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 13px 0; position: relative; z-index: 1; }
+      .dash-dl { display: grid; gap: 0; font-size: 13.5px; position: relative; z-index: 1; }
+      .dash-row { display: grid; grid-template-columns: 120px 1fr; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+      .dash-row:last-child { border-bottom: 0; }
+      .dash-row dt { color: #64748b; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; align-self: center; }
+      .dash-row dd { margin: 0; color: #fff; font-weight: 600; min-width: 0; word-break: break-word; }
+      .dash-row dd a { color: #5eead4; }
+      .dash-row dd.mono { font-family: ui-monospace, Menlo, monospace; font-weight: 500; font-size: 12.5px; color: #cbd5e1; }
+      .dash .mask { color: #475569; letter-spacing: .5px; }
+      @media (prefers-reduced-motion: reduce) {
+        .dash, .dash.is-final, .dash-chip.enriched, .dash-chip.identified { animation: none !important; }
+        .dash.scanning::after, .dash-chip.scan::before { display: none; animation: none; }
+      }
       .aha {
         margin-top: 12px; padding: 12px 14px; border-left: 4px solid #00e5a0;
         background: #f0fdf9; border-radius: 8px; font-size: 13.5px; line-height: 1.5; color: var(--ink);
@@ -462,24 +488,46 @@
       }
 
       // ---- Step 2: the lead that just landed ----
+      // Lead card styled like the real Visitor dashboard. While !isFinal it shows
+      // an "Identifying…" state (masked, scanning sweep); the final card resolves
+      // to the fully Identified + Enriched record — that's you.
       function leadCard(lead: any, isFinal: boolean) {
         const page = lead.sample_page || "/demo/sample/";
-        const subj = isFinal ? "🎯 New identified lead" : "🔍 Identifying visitor…";
+        const name = (lead.name || "").toString().trim();
+        const email = (lead.email || "").toString().trim();
+        const initials = (name
+          ? name.split(/\s+/).map((w: string) => w[0]).slice(0, 2).join("")
+          : (email[0] || "?")).toUpperCase();
+        const maskEmail = (e: string) => {
+          const at = e.indexOf("@");
+          if (at < 1) return "•••••••";
+          return e[0] + "••••••" + e.slice(at);
+        };
+        const row = (label: string, val: string, mono = false) =>
+          `<div class="dash-row"><dt>${label}</dt><dd class="${mono ? "mono" : ""}">${val}</dd></div>`;
+        const mask = (v: string) => `<span class="mask">${v}</span>`;
+
+        const headEmail = isFinal ? esc(email) : mask(esc(maskEmail(email)));
+        const chips = isFinal
+          ? `<span class="dash-chip enriched">✨ Enriched by Consent Resolve</span><span class="dash-chip identified">✓ Identified</span>`
+          : `<span class="dash-chip scan">Identifying…</span>`;
+
         return `
-          <div class="emailcard${isFinal ? " is-final" : ""}">
-            <div class="eh">
-              <div class="tag">Consent Resolve</div>
-              <div class="subj">${subj}</div>
+          <div class="dash${isFinal ? " is-final" : " scanning"}">
+            <div class="dash-head">
+              <div class="dash-avatar">${isFinal ? esc(initials) : "?"}</div>
+              <div class="dash-id">
+                <div class="dash-email">${headEmail}</div>
+                <div class="dash-chips">${chips}</div>
+              </div>
             </div>
-            <div class="eb">
-              <table>
-                <tr><td class="k">Name</td><td class="v">${esc(lead.name)}</td></tr>
-                <tr><td class="k">Email</td><td class="v"><a href="mailto:${esc(lead.email)}">${esc(lead.email)}</a></td></tr>
-                ${lead.business_name ? `<tr><td class="k">Business</td><td class="v">${esc(lead.business_name)}</td></tr>` : ""}
-                <tr><td class="k">Shopping for</td><td class="v">${esc(lead.trade_label || "home services")}</td></tr>
-                <tr><td class="k">Page viewed</td><td class="v">${esc(page)}</td></tr>
-                <tr><td class="k">Consent captured</td><td class="v">${esc(lead.consented_at)}</td></tr>
-              </table>
+            <div class="dash-divider"></div>
+            <div class="dash-dl">
+              ${row("Name", isFinal ? esc(name) : mask("█████ ████"))}
+              ${row("Business", isFinal && lead.business_name ? esc(lead.business_name) : mask("—"))}
+              ${row("Shopping for", esc(lead.trade_label || "home services"))}
+              ${row("Page viewed", esc(page), true)}
+              ${row("Consent captured", isFinal ? esc(lead.consented_at || "") : mask("resolving…"), true)}
             </div>
           </div>`;
       }
