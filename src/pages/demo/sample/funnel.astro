@@ -29,9 +29,14 @@
       * { box-sizing: border-box; }
       html, body { margin: 0; padding: 0; }
       body { font-family: "Inter", system-ui, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.55; -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column; }
-      .ribbon { background: var(--navy); color: #cbd5e1; font-size: 13px; text-align: center; padding: 7px 16px; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
-      .ribbon a { color: #fff; font-weight: 600; text-decoration: none; }
-      .ribbon a:hover { text-decoration: underline; }
+            .ribbon { background: #0a1628; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+      .ribbon-inner { max-width: 1080px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+      .ribbon-brand { display: inline-flex; align-items: center; }
+      .ribbon-brand img { height: 28px; width: auto; display: block; }
+      .ribbon-note { color: #9fb0c4; font-size: 13px; font-weight: 600; }
+      .ribbon-btn { display: inline-flex; align-items: center; gap: 6px; background: #00e5a0; color: #0a1628; font-weight: 800; font-size: 13px; padding: 9px 15px; border-radius: 8px; text-decoration: none; white-space: nowrap; }
+      .ribbon-btn:hover { background: #34edb1; }
+      @media (max-width: 600px) { .ribbon-note { display: none; } .ribbon-brand img { height: 23px; } .ribbon-btn { padding: 8px 12px; font-size: 12px; } }
       .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; width: 100%; }
       header.site { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--line); }
       .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; }
@@ -124,7 +129,13 @@
     </style>
   </head>
   <body>
-    <div class="ribbon"><a href="https://consentresolve.com/">← Return to consentresolve.com website</a></div>
+    <div class="ribbon">
+      <div class="ribbon-inner">
+        <a class="ribbon-brand" href="https://consentresolve.com/" aria-label="Consent Resolve home"><img src="/crnewlogo.svg" alt="Consent Resolve" width="184" height="28" /></a>
+        <span class="ribbon-note">You’re viewing a live interactive demo</span>
+        <a class="ribbon-btn" href="https://consentresolve.com/">← Return to consentresolve.com</a>
+      </div>
+    </div>
 
     <div class="wrap site-wrap">
       <header class="site">
