@@ -79,58 +79,72 @@ const props = Astro.props as Props;
       })();
     </script>
 
-    <!-- Hide Tawk.to branding (widget + chat iframe) -->
+    <!-- Cover Tawk.to branding. The widget renders in a cross-origin *.tawk.to
+         iframe, so CSS can't be injected into it from the parent. Instead we
+         overlay an opaque cover over the bottom branding bar of the open chat
+         window. Tune the three constants below to Tawk's current window size. -->
     <script is:inline type="text/javascript">
-      (function removeTawkBranding() {
+      (function coverTawkBranding() {
         "use strict";
 
-        var STYLE_ID = "hide-tawk-branding";
+        // --- tunables ---------------------------------------------------
+        var WINDOW_WIDTH = 400;   // px: Tawk desktop chat-window width
+        var EDGE_MARGIN  = 20;    // px: gap Tawk leaves from the viewport edge
+        var BAR_HEIGHT   = 34;    // px: height of the "powered by" branding bar
+        var COVER_COLOR  = "#ffffff"; // match the chat window's footer background
+        var MOBILE_MAX   = 600;   // px: at/below this, Tawk goes full-width
+        // ----------------------------------------------------------------
 
-        var BRANDING_CSS = [
-          "a[href*='tawk.to'] { display: none !important; }",
-          "a[href*='utm_source=tawk-messenger'] { display: none !important; }",
-          "a[title*='Add Chat to your website'] { display: none !important; }",
-          ".tawk-branding { display: none !important; }",
-          "[class*='tawk-branding'] { display: none !important; }",
-          ".tawk-padding-small { display: none !important; }",
-          ".tawk-icon-popout { display: none !important; }",
-        ].join("\n");
+        var COVER_ID = "tawk-brand-cover";
 
-        function injectStyle(doc) {
-          if (!doc || doc.getElementById(STYLE_ID)) return;
-          var style = doc.createElement("style");
-          style.id = STYLE_ID;
-          style.textContent = BRANDING_CSS;
-          (doc.head || doc.documentElement).appendChild(style);
+        function cover() {
+          var el = document.getElementById(COVER_ID);
+          if (!el) {
+            el = document.createElement("div");
+            el.id = COVER_ID;
+            el.style.cssText =
+              "position:fixed;z-index:2147483647;background:" + COVER_COLOR +
+              ";display:none;pointer-events:auto;";
+            (document.body || document.documentElement).appendChild(el);
+          }
+          return el;
         }
 
-        function handleIframe(iframe) {
-          var title = (iframe.title || "").toLowerCase();
-          if (title.indexOf("chat") === -1) return;
-          iframe.addEventListener("load", function () {
-            try { injectStyle(iframe.contentDocument); } catch (e) {}
-          });
+        function place() {
+          var el = cover();
+          var mobile = window.innerWidth <= MOBILE_MAX;
+          el.style.height = BAR_HEIGHT + "px";
+          if (mobile) {
+            el.style.left = "0";
+            el.style.right = "0";
+            el.style.width = "100%";
+            el.style.bottom = "0";
+          } else {
+            el.style.left = "auto";
+            el.style.right = EDGE_MARGIN + "px";
+            el.style.width = WINDOW_WIDTH + "px";
+            el.style.bottom = EDGE_MARGIN + "px";
+          }
         }
 
-        // Observe for new iframes (Tawk rebuilds its widget).
-        var observer = new MutationObserver(function (mutations) {
-          mutations.forEach(function (m) {
-            m.addedNodes.forEach(function (node) {
-              if (node.nodeName === "IFRAME") handleIframe(node);
-            });
-          });
+        function show() { place(); cover().style.display = "block"; }
+        function hide() { cover().style.display = "none"; }
+
+        window.Tawk_API = window.Tawk_API || {};
+        Tawk_API.onChatMaximized = show;
+        Tawk_API.onChatMinimized = hide;
+        Tawk_API.onChatHidden = hide;
+        // If the widget loads already-maximized (e.g. deep link), check state.
+        Tawk_API.onLoad = function () {
+          try {
+            if (Tawk_API.isChatMaximized && Tawk_API.isChatMaximized()) show();
+          } catch (e) {}
+        };
+
+        window.addEventListener("resize", function () {
+          var el = document.getElementById(COVER_ID);
+          if (el && el.style.display === "block") place();
         });
-
-        function start() {
-          injectStyle(document);
-          // Catch any chat iframe already present, then watch for new ones.
-          document.querySelectorAll("iframe").forEach(handleIframe);
-          observer.observe(document.body, { childList: true, subtree: true });
-        }
-
-        // This runs in <head>, so wait until <body> exists.
-        if (document.body) start();
-        else document.addEventListener("DOMContentLoaded", start);
       })();
     </script>
 
