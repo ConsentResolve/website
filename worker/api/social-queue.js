@@ -9,7 +9,8 @@
 // cookie-authed path instead of this header.
 
 import { json, corsHeaders } from "../_lib/http.js";
-import { readBuckets, enqueue, updateStatus, VALID_STATUS } from "../_lib/queue.js";
+import { readBuckets, enqueue, updateStatus, nextReady, VALID_STATUS } from "../_lib/queue.js";
+import { publish, LAUNCH_PLATFORMS } from "../_lib/publish.js";
 
 function authed(request, env) {
   const key = env.CR_AUTOMATION_KEY;
@@ -69,6 +70,24 @@ export async function onRequestPost({ request, env }) {
     const changed = await updateStatus(env, body);
     if (!changed) return json({ error: "not_found", resource_slug, platform }, { status: 404 });
     return json({ ok: true, updated: changed });
+  }
+
+  // Manual "post one now" — auth-gated test/trigger. Publishes the next
+  // ready_to_publish item for the given platform (or each launch platform if
+  // none), regardless of SOCIAL_AUTOPOST_ENABLED, honoring per-platform creds.
+  if (action === "run") {
+    const platforms = body.platform ? [body.platform] : LAUNCH_PLATFORMS;
+    const results = [];
+    for (const pl of platforms) {
+      const row = await nextReady(env, pl);
+      if (!row) { results.push({ platform: pl, status: "empty" }); continue; }
+      const res = await publish(env, pl, row.payload);
+      if (res.ok) {
+        await updateStatus(env, { resource_slug: row.resource_slug, platform: pl, status: "published", post_url: res.post_url, post_id: res.post_id });
+      }
+      results.push({ platform: pl, resource_slug: row.resource_slug, ...res });
+    }
+    return json({ ok: true, results });
   }
 
   return json({ error: "unknown_action", action }, { status: 400 });
