@@ -109,8 +109,11 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
       };
 
       form.addEventListener("submit", async (e) => {
-        // Native validation first.
+        // Native validation first. The form has `novalidate`, so the browser
+        // won't block an invalid submit on its own — we MUST preventDefault here,
+        // or the native POST fires and the server bounces to /demo/error.
         if (!form.checkValidity()) {
+          e.preventDefault();
           form.reportValidity();
           return;
         }
