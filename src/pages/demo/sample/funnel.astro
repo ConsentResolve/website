@@ -1,8 +1,13 @@
 ---
-// Standalone "Feed your funnel" page (Step 4 of the guided tour). The consented
-// lead flows into the contractor's existing marketing — CRM, retargeting, their
-// own email/SMS — so the homeowner comes back and calls. Warm inbound, never
-// outbound. Sample-site shell for cohesion. noindex.
+// Standalone "Feed your funnel" page (Step 4 of the guided tour), reworked as an
+// animated infographic. The consented lead flows into the contractor's existing
+// marketing — CRM, retargeting, their own email/SMS — so the homeowner comes back
+// and books. Warm inbound, never outbound.
+//
+// HONESTY: every figure is from the verified stat bank. Ecommerce-derived numbers
+// (26%) are labeled cross-industry; recovery rate is NEVER asserted (not published);
+// the $7 is framed as additive (on top of paid traffic), never head-to-head vs ads.
+// Sample-site shell for cohesion. noindex.
 ---
 
 <!doctype html>
@@ -14,52 +19,108 @@
     <title>How your funnel works — Summit Home Services</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" />
     <style is:global>
-      :root { --brand:#1d4ed8; --ink:#0f172a; --ink-2:#475569; --line:#e2e8f0; --bg:#fff; --bg-soft:#f8fafc; }
+      :root {
+        --brand:#1d4ed8; --brand-soft:#eff6ff; --navy:#0a1628; --ink:#0f172a;
+        --ink-2:#475569; --ink-3:#94a3b8; --line:#e2e8f0; --bg:#fff; --bg-soft:#f8fafc;
+        --green:#16a34a; --green-soft:#ecfdf5; --green-ink:#065f46; --amber:#b45309;
+      }
       * { box-sizing: border-box; }
       html, body { margin: 0; padding: 0; }
       body { font-family: "Inter", system-ui, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.55; -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column; }
-      .ribbon { background: #0f172a; color: #cbd5e1; font-size: 13px; text-align: center; padding: 7px 16px; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
-      .ribbon strong { color: #fff; }
-      .ribbon .stepchip { background: #1e293b; color: #7dd3fc; border-radius: 999px; padding: 2px 9px; font-size: 11px; font-weight: 700; }
-      .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+      .ribbon { background: var(--navy); color: #cbd5e1; font-size: 13px; text-align: center; padding: 7px 16px; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+      .ribbon a { color: #fff; font-weight: 600; text-decoration: none; }
+      .ribbon a:hover { text-decoration: underline; }
+      .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; width: 100%; }
       header.site { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--line); }
       .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; }
       .logo .mark { width: 34px; height: 34px; border-radius: 9px; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; }
       .nav { display: flex; gap: 22px; align-items: center; font-size: 15px; color: var(--ink-2); }
       .nav a { color: var(--ink-2); text-decoration: none; white-space: nowrap; }
       .nav .links { display: inline-flex; gap: 22px; align-items: center; }
-      .site-wrap { max-width: none; padding: 0 28px; }
-      .ribbon a { color: #fff; font-weight: 600; text-decoration: none; }
-      .ribbon a:hover { text-decoration: underline; }
-      .nav .call { background: var(--brand); color: #fff; padding: 9px 16px; border-radius: 8px; font-weight: 700; }
-      @media (max-width: 720px) { .nav .links { display: none; } }
-      .qhero { background: linear-gradient(180deg, var(--bg-soft), #fff); padding: 22px 0; flex: 1; display: flex; align-items: center; }
-      .qhero .wrap { text-align: center; }
-      .tag { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); background: #eff6ff; padding: 5px 11px; border-radius: 999px; }
-      .qhero h1 { font-size: 27px; font-weight: 800; margin: 10px 0 6px; }
-      .qhero .lede { font-size: 15px; color: var(--ink-2); max-width: 56ch; margin: 0 auto 16px; }
+      .nav .call { background: var(--brand); color: #fff; padding: 9px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+      @media (max-width: 760px) { .nav .links { display: none; } }
       .btn { padding: 12px 22px; border-radius: 9px; font-weight: 700; font-size: 15px; text-decoration: none; display: inline-block; cursor: pointer; border: none; }
       .btn-primary { background: var(--brand); color: #fff; }
       .btn-ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
-
-      .funnelviz { max-width: 540px; margin: 0 auto; }
-      .fv-node { border: 1px solid var(--line); border-radius: 12px; padding: 9px 14px; text-align: center; font-weight: 700; font-size: 13.5px; background: #fff; line-height: 1.25; opacity: 0; transform: translateY(8px); animation: fv-in .5s ease forwards; animation-delay: var(--d, 0s); }
-      .fv-node small { display: block; font-weight: 500; color: var(--ink-2); font-size: 12px; margin-top: 3px; }
-      .fv-source { background: #0a1628; color: #fff; border-color: #0a1628; }
-      .fv-source small { color: #9fb0c4; }
-      .fv-result { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
-      .fv-result small { color: #047857; }
-      .fv-fan { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-      @media (max-width: 560px) { .fv-fan { grid-template-columns: 1fr; } }
-      .fv-arrow { width: 2px; height: 14px; margin: 4px auto; background: #cbd5e1; position: relative; opacity: 0; animation: fv-in .4s ease forwards; animation-delay: var(--d, 0s); }
-      .fv-arrow::after { content: "▼"; position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%); color: #cbd5e1; font-size: 11px; }
-      .fv-cap { text-align: center; font-size: 12px; color: var(--ink-2); margin: 2px 0; opacity: 0; animation: fv-in .4s ease forwards; animation-delay: var(--d, 0s); }
-      @keyframes fv-in { to { opacity: 1; transform: none; } }
-      .aha { margin: 14px auto 0; max-width: 540px; padding: 11px 14px; border-left: 4px solid #16a34a; background: #f0fdf4; border-radius: 8px; font-size: 13px; line-height: 1.5; text-align: left; }
-      .actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
       footer.site { border-top: 1px solid var(--line); padding: 16px 0; color: var(--ink-2); font-size: 13px; }
+
+      /* ---------- infographic ---------- */
+      .ig { padding: 30px 0 40px; }
+      .ig-head { text-align: center; max-width: 60ch; margin: 0 auto 26px; }
+      .tag { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); background: var(--brand-soft); padding: 5px 11px; border-radius: 999px; }
+      .ig h1 { font-size: 30px; font-weight: 900; letter-spacing: -0.02em; margin: 12px 0 8px; line-height: 1.12; }
+      .ig .lede { font-size: 15.5px; color: var(--ink-2); margin: 0 auto; }
+      @media (max-width: 560px) { .ig h1 { font-size: 24px; } }
+
+      /* reveal-on-scroll */
+      .rv { opacity: 0; transform: translateY(14px); transition: opacity .55s ease, transform .55s ease; }
+      .rv.in { opacity: 1; transform: none; }
+
+      /* the leak: 3 problem stats */
+      .leak { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 0 auto 8px; max-width: 760px; }
+      @media (max-width: 620px) { .leak { grid-template-columns: 1fr; } }
+      .stat { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 14px; padding: 18px 16px; text-align: center; }
+      .stat .num { font-size: 40px; font-weight: 900; letter-spacing: -0.03em; line-height: 1; color: var(--navy); font-variant-numeric: tabular-nums; }
+      .stat .num.amber { color: var(--amber); }
+      .stat .lab { margin-top: 7px; font-size: 13px; color: var(--ink-2); font-weight: 600; }
+      .stat .src { display: inline-block; margin-top: 6px; font-size: 10.5px; color: var(--ink-3); text-decoration: none; }
+      .stat .src:hover { color: var(--brand); text-decoration: underline; }
+      .leak-cap { text-align: center; font-size: 13px; color: var(--ink-2); margin: 6px auto 30px; max-width: 56ch; }
+      .leak-cap strong { color: var(--ink); }
+
+      /* the pipeline */
+      .flow { position: relative; max-width: 880px; margin: 0 auto; }
+      .pnode { position: relative; z-index: 2; border-radius: 14px; padding: 14px 18px; text-align: center; background: #fff; border: 1px solid var(--line); box-shadow: 0 8px 20px -14px rgba(8,15,30,.25); }
+      .pnode .t { font-weight: 800; font-size: 15px; }
+      .pnode .s { font-size: 12.5px; color: var(--ink-2); margin-top: 3px; }
+      .pnode.source { background: var(--navy); color: #fff; border-color: var(--navy); max-width: 360px; margin: 0 auto; }
+      .pnode.source .s { color: #9fb0c4; }
+      .pnode.source .chip { display: inline-block; margin-top: 8px; font-size: 11px; font-weight: 800; letter-spacing: .04em; background: rgba(255,255,255,.12); color: #bfe3ff; border-radius: 999px; padding: 3px 10px; }
+      .pnode.result { background: var(--green-soft); border-color: #6ee7b7; color: var(--green-ink); max-width: 460px; margin: 0 auto; }
+      .pnode.result .t { font-size: 17px; }
+      .pnode.result .s { color: var(--green); }
+
+      .spine { width: 3px; background: linear-gradient(#cbd5e1, #cbd5e1); margin: 0 auto; position: relative; }
+      .spine.short { height: 26px; }
+      /* travelling lead packet */
+      .packet { position: absolute; left: 50%; top: 0; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 5px rgba(29,78,216,.18); }
+      .flow.go .packet.run { animation: travel 1.5s ease-in-out infinite; }
+      @keyframes travel { 0% { top: -4px; opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { top: calc(100% + 4px); opacity: 0; } }
+
+      .lanes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 10px 0; }
+      @media (max-width: 720px) { .lanes { grid-template-columns: 1fr; } }
+      .lane { border: 1px solid var(--line); border-radius: 14px; background: #fff; padding: 16px; box-shadow: 0 8px 20px -16px rgba(8,15,30,.22); }
+      .lane .ico { width: 38px; height: 38px; border-radius: 10px; background: var(--brand-soft); display: flex; align-items: center; justify-content: center; font-size: 19px; margin-bottom: 10px; }
+      .lane h3 { margin: 0; font-size: 15px; font-weight: 800; }
+      .lane .tools { font-size: 12px; color: var(--ink-3); margin-top: 3px; font-weight: 600; }
+      .lane .metric { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+      .lane .metric .mnum { font-size: 26px; font-weight: 900; color: var(--brand); letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+      .lane .metric .mlab { font-size: 12px; color: var(--ink-2); margin-top: 4px; line-height: 1.4; }
+      .lane .metric .src { font-size: 10.5px; color: var(--ink-3); text-decoration: none; }
+      .lane .metric .src:hover { color: var(--brand); text-decoration: underline; }
+
+      .converge { text-align: center; font-size: 12px; color: var(--ink-2); margin: 2px 0 8px; }
+
+      /* additive cost line */
+      .cost { margin: 26px auto 0; max-width: 700px; background: var(--navy); color: #e2e8f0; border-radius: 16px; padding: 20px 22px; display: flex; gap: 18px; align-items: center; flex-wrap: wrap; justify-content: center; text-align: center; }
+      .cost .big { font-size: 34px; font-weight: 900; color: #fff; letter-spacing: -0.02em; }
+      .cost .big small { font-size: 14px; font-weight: 700; color: #9fb0c4; }
+      .cost p { margin: 0; font-size: 13.5px; max-width: 42ch; text-align: left; }
+      .cost p strong { color: #fff; }
+      @media (max-width: 520px) { .cost p { text-align: center; } }
+
+      .sources { text-align: center; font-size: 11px; color: var(--ink-3); margin: 18px auto 0; max-width: 70ch; }
+      .sources a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
+
+      .actions { margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .rv { opacity: 1; transform: none; transition: none; }
+        .flow.go .packet.run { animation: none; }
+        .packet { display: none; }
+      }
     </style>
   </head>
   <body>
@@ -80,28 +141,97 @@
       </header>
     </div>
 
-    <section class="qhero">
+    <section class="ig">
       <div class="wrap">
-        <span class="tag">Feed your funnel</span>
-        <h1>Now it works toward a booked job.</h1>
-        <p class="lede">It doesn't just sit in an inbox. The consented record feeds the follow-up you already run — so the homeowner comes back on their own time and books.</p>
-
-        <div class="funnelviz">
-          <div class="fv-node fv-source" style="--d:0s">📥 Consented lead<small data-source>your visitor · yours alone, never resold</small></div>
-          <div class="fv-arrow" style="--d:.4s"></div>
-          <div class="fv-cap" style="--d:.5s">flows straight into your stack</div>
-          <div class="fv-fan">
-            <div class="fv-node" style="--d:.7s">🗂️ More booked jobs<small>into your CRM — Jobber · Housecall Pro · ServiceTitan · HubSpot</small></div>
-            <div class="fv-node" style="--d:.9s">🎯 More homeowners reached<small>retargeting — your Google &amp; Meta audiences</small></div>
-            <div class="fv-node" style="--d:1.1s">✉️ More estimates finished<small>email / SMS — your follow-up sequence</small></div>
-          </div>
-          <div class="fv-arrow" style="--d:1.35s"></div>
-          <div class="fv-node fv-result" style="--d:1.5s">📞 They come back — and call you<small>warm inbound, on their time</small></div>
+        <div class="ig-head rv">
+          <span class="tag">Step 4 · Feed your funnel</span>
+          <h1>One consented lead, working every channel you already run.</h1>
+          <p class="lede">It doesn't sit in an inbox. The recovered homeowner flows into your CRM, your retargeting, and your follow-up — so they come back on their own time and book. Warm inbound, never a cold call.</p>
         </div>
 
-        <div class="aha">Same consented contact, feeding the channels that already work for <span data-biz>your shop</span>. You don't cold-call anyone — they reach out to you, ready to book.</div>
+        <!-- THE LEAK -->
+        <div class="leak rv">
+          <div class="stat">
+            <div class="num" data-count="98" data-suffix="%">0%</div>
+            <div class="lab">of website visitors leave without contacting you</div>
+            <a class="src" href="https://www.wordstream.com/blog/conversion-rate-benchmarks" target="_blank" rel="noopener">WordStream</a>
+          </div>
+          <div class="stat">
+            <div class="num" data-count="87" data-suffix="s">0s</div>
+            <div class="lab">average time on site before they're gone</div>
+            <a class="src" href="https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/" target="_blank" rel="noopener">Spectrum Infinite</a>
+          </div>
+          <div class="stat">
+            <div class="num amber" data-count="2" data-suffix="%">0%</div>
+            <div class="lab">ever fill out your contact form</div>
+            <a class="src" href="https://www.wordstream.com/blog/conversion-rate-benchmarks" target="_blank" rel="noopener">WordStream</a>
+          </div>
+        </div>
+        <p class="leak-cap rv">You already paid to get them here. <strong>Consent Resolve recovers a portion of the ones who'd otherwise vanish</strong> — then puts each one to work, like this:</p>
 
-        <div class="actions">
+        <!-- THE PIPELINE -->
+        <div class="flow" id="flow">
+          <span class="packet run" aria-hidden="true"></span>
+
+          <div class="pnode source rv">
+            <div class="t">📥 1 consented lead</div>
+            <div class="s" data-source>your visitor · yours alone, never resold</div>
+            <span class="chip">$7 flat · exclusive</span>
+          </div>
+
+          <div class="spine short rv" aria-hidden="true"></div>
+          <div class="converge rv">flows straight into the stack you already run →</div>
+
+          <div class="lanes">
+            <div class="lane rv">
+              <div class="ico">🗂️</div>
+              <h3>Into your CRM</h3>
+              <div class="tools">Jobber · Housecall Pro · ServiceTitan · HubSpot</div>
+              <div class="metric">
+                <div class="mnum" data-count="21" data-suffix="×">0×</div>
+                <div class="mlab">more likely to qualify a lead contacted within 5 minutes vs. 30 <a class="src" href="https://consentresolve.com/stats/" target="_blank" rel="noopener">MIT</a></div>
+              </div>
+            </div>
+            <div class="lane rv">
+              <div class="ico">🎯</div>
+              <h3>Into retargeting</h3>
+              <div class="tools">your Google &amp; Meta audiences</div>
+              <div class="metric">
+                <div class="mnum" data-count="26" data-suffix="%">0%</div>
+                <div class="mlab">lift in engagement from retargeting — cross-industry evidence; results vary <a class="src" href="https://consentresolve.com/stats/" target="_blank" rel="noopener">stats</a></div>
+              </div>
+            </div>
+            <div class="lane rv">
+              <div class="ico">✉️</div>
+              <h3>Into email / SMS</h3>
+              <div class="tools">your own follow-up sequence</div>
+              <div class="metric">
+                <div class="mnum" data-count="78" data-suffix="%">0%</div>
+                <div class="mlab">of homeowners hire whoever responds first <a class="src" href="https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/" target="_blank" rel="noopener">Pipeline On</a></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="converge rv">all pointing the same direction ↓</div>
+          <div class="spine short rv" aria-hidden="true"></div>
+
+          <div class="pnode result rv">
+            <div class="t">📞 A warm inbound call → a booked job</div>
+            <div class="s">they come back on their time — you never cold-called anyone</div>
+          </div>
+        </div>
+
+        <!-- ADDITIVE COST -->
+        <div class="cost rv">
+          <div class="big">$7<small>/lead</small></div>
+          <p>A recovered homeowner is a flat <strong>$7</strong> — exclusive to you, never resold — <strong>on top of</strong> the ad spend you already make to fill the top of this funnel. It's incremental, not a swap.</p>
+        </div>
+
+        <p class="sources rv">
+          Every figure is sourced. 98% &amp; 2%: WordStream conversion benchmarks · 87s: Spectrum Infinite · 78%: Pipeline On · 21×: MIT lead-response study · 26%: cross-industry retargeting evidence (results vary by trade, traffic, and follow-up). See the receipts at <a href="https://consentresolve.com/stats/" target="_blank" rel="noopener">consentresolve.com/stats</a>.
+        </p>
+
+        <div class="actions rv">
           <a class="btn btn-primary" id="continue-tour" href="/demo/sample/">Continue the tour →</a>
           <a class="btn btn-ghost" data-link="/demo/sample/" href="/demo/sample/">Replay the demo</a>
         </div>
@@ -122,6 +252,7 @@
       let lead: any = {};
       try { lead = JSON.parse(sessionStorage.getItem("cr_lead") || "{}") || {}; } catch {}
 
+      // Preserve the dt token across sample-site links; continue → resume step 5.
       $all("[data-link]").forEach((a) => {
         const base = (a as HTMLElement).getAttribute("data-link") || "";
         const i = base.indexOf("#");
@@ -132,6 +263,48 @@
       const cont = $("#continue-tour") as HTMLAnchorElement;
       if (cont) cont.href = "/demo/sample/?dt=" + encodeURIComponent(dt) + "&resume=5";
 
+      // ---- count-up ----
+      function countUp(el: HTMLElement) {
+        const target = parseFloat(el.getAttribute("data-count") || "0");
+        const suffix = el.getAttribute("data-suffix") || "";
+        const dur = 1100;
+        const start = performance.now();
+        function frame(now: number) {
+          const p = Math.min(1, (now - start) / dur);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(target * eased) + suffix;
+          if (p < 1) requestAnimationFrame(frame);
+          else el.textContent = target + suffix;
+        }
+        requestAnimationFrame(frame);
+      }
+
+      // ---- reveal + trigger animations on scroll ----
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const counted = new WeakSet<HTMLElement>();
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          const el = e.target as HTMLElement;
+          el.classList.add("in");
+          // start the pipeline packet once the flow is in view
+          if (el.id === "flow") el.classList.add("go");
+          // count any numbers inside this revealed block
+          $all(".num[data-count], .mnum[data-count]").forEach((n) => {
+            const node = n as HTMLElement;
+            if (el.contains(node) && !counted.has(node)) {
+              counted.add(node);
+              if (reduce) node.textContent = node.getAttribute("data-count") + (node.getAttribute("data-suffix") || "");
+              else countUp(node);
+            }
+          });
+          io.unobserve(el);
+        });
+      }, { threshold: 0.35 });
+      $all(".rv").forEach((el) => io.observe(el));
+      const flow = $("#flow"); if (flow) io.observe(flow);
+
+      // ---- theme to the participant's trade ----
       (async function theme() {
         try {
           const res = await fetch("/api/visit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ dt }) });
