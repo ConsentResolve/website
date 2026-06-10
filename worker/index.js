@@ -16,6 +16,8 @@ import * as preview from "./api/preview.js";
 import * as unsubscribe from "./api/unsubscribe.js";
 import * as socialQueue from "./api/social-queue.js";
 import * as admin from "./admin.js";
+import { nextReady, updateStatus } from "./_lib/queue.js";
+import { publish, LAUNCH_PLATFORMS } from "./_lib/publish.js";
 
 const ROUTES = {
   "/api/register": register,
@@ -75,5 +77,37 @@ export default {
     // Not an API route → serve the static Astro build.
     if (env.ASSETS) return env.ASSETS.fetch(request);
     return new Response("Not found", { status: 404 });
+  },
+
+  // Cron: drip the Resource Center social queue — one ready item per launch
+  // platform per run (a daily cron => 1/platform/day). Safe no-op until
+  // SOCIAL_AUTOPOST_ENABLED === "true" AND a platform's secrets are configured
+  // (each adapter self-skips when its credentials are missing). On success the
+  // row is marked published with the live post URL; on error it stays
+  // ready_to_publish and retries next run.
+  async scheduled(event, env, ctx) {
+    if (env.SOCIAL_AUTOPOST_ENABLED !== "true" || !env.DB) return;
+    for (const platform of LAUNCH_PLATFORMS) {
+      try {
+        const row = await nextReady(env, platform);
+        if (!row) continue;
+        const res = await publish(env, platform, row.payload);
+        if (res.ok) {
+          await updateStatus(env, {
+            resource_slug: row.resource_slug,
+            platform,
+            status: "published",
+            post_url: res.post_url,
+            post_id: res.post_id,
+          });
+        }
+        console.log(
+          `[social] ${platform} ${row.resource_slug}: ` +
+            (res.ok ? "published " + (res.post_url || "") : res.skipped ? "skipped (no creds)" : "error " + res.error)
+        );
+      } catch (err) {
+        console.log(`[social] ${platform} fatal: ${String(err).slice(0, 160)}`);
+      }
+    }
   },
 };

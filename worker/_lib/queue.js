@@ -43,6 +43,16 @@ export async function readBuckets(env) {
   return buckets;
 }
 
+/** Oldest ready_to_publish row for a platform (the next one to drip). */
+export async function nextReady(env, platform) {
+  const row = await env.DB.prepare(
+    "SELECT * FROM social_queue WHERE platform = ? AND status = 'ready_to_publish' ORDER BY id ASC LIMIT 1"
+  )
+    .bind(platform)
+    .first();
+  return row ? mapRow(row) : null;
+}
+
 /** Upsert one ready_to_publish row per platform item. Returns count. */
 export async function enqueue(env, resource_slug, resource_type, items) {
   const now = nowIso();
