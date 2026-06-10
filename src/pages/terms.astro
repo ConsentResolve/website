@@ -13,18 +13,28 @@ const schemas = [
 
 <BaseLayout
   title="Terms of Service | Consent Resolve"
-  description="The Consent Resolve Terms of Service are being finalized and will be published here shortly."
+  description="The Consent Resolve Terms of Service — kept current via Termageddon."
   schema={schemas}
-  noindex={true}
 >
   <section class="container-content section">
-    <div class="mx-auto max-w-xl py-24 text-center">
+    <div class="mx-auto max-w-3xl">
       <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Legal</Badge></div>
-      <h1 class="display-1 text-[color:var(--color-ink)]">Coming Soon</h1>
-      <p class="mt-5 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-        Our Terms of Service are being finalized and will be published here shortly. Questions in the meantime? Email
-        <a class="font-semibold text-[color:var(--color-brand-pressed)] hover:underline" href="mailto:hello@consentresolve.com">hello@consentresolve.com</a>.
-      </p>
+      <h1 class="display-1 text-center text-[color:var(--color-ink)]">Terms of Service</h1>
+
+      <!-- Termageddon policy embed (auto-updates as laws change) -->
+      <div class="rc-prose mt-12">
+        <div
+          id="ZHpaRVJpOXlkSGxhUkhGWWVGRTlQUT09"
+          class="policy_embed_div"
+          width="640"
+          height="480"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          Please wait while the policy is loaded. If it does not load, please <a rel="nofollow" aria-label="click here to view the policy" href="https://policies.termageddon.com/api/policy/ZHpaRVJpOXlkSGxhUkhGWWVGRTlQUT09" target="_blank">click here to view the policy</a>.
+        </div>
+        <script is:inline src="https://policies.termageddon.com/api/embed/ZHpaRVJpOXlkSGxhUkhGWWVGRTlQUT09.js"></script>
+      </div>
     </div>
   </section>
 </BaseLayout>
