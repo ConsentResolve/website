@@ -1,6 +1,9 @@
 # Cloudflare Pages redirects.
 # Format: <from>  <to>  <status>
 
+# Conventional /sitemap.xml → the Astro-generated sitemap index.
+/sitemap.xml     /sitemap-index.xml    301
+
 # Trial/account signup lives on the dashboard subdomain.
 /get-started/    https://dashboard.consentresolve.com/register    301
 /get-started     https://dashboard.consentresolve.com/register    301
