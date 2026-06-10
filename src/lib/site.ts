@@ -97,7 +97,5 @@ export const FOOTER_NAV = {
     { label: "EULA", href: "/eula/" },
     { label: "Disclaimer", href: "/disclaimer/" },
     { label: "Cookie Policy", href: "/cookie-policy/" },
-    { label: "GDPR", href: "/gdpr/" },
-    { label: "CCPA", href: "/ccpa/" },
   ],
 } as const;
