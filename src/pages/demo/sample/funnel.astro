@@ -282,27 +282,41 @@
       // ---- reveal + trigger animations on scroll ----
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const counted = new WeakSet<HTMLElement>();
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach((e) => {
-          if (!e.isIntersecting) return;
-          const el = e.target as HTMLElement;
-          el.classList.add("in");
-          // start the pipeline packet once the flow is in view
-          if (el.id === "flow") el.classList.add("go");
-          // count any numbers inside this revealed block
-          $all(".num[data-count], .mnum[data-count]").forEach((n) => {
-            const node = n as HTMLElement;
-            if (el.contains(node) && !counted.has(node)) {
-              counted.add(node);
-              if (reduce) node.textContent = node.getAttribute("data-count") + (node.getAttribute("data-suffix") || "");
-              else countUp(node);
-            }
-          });
-          io.unobserve(el);
+
+      function finishCounts(scope: HTMLElement, instant: boolean) {
+        $all(".num[data-count], .mnum[data-count]").forEach((n) => {
+          const node = n as HTMLElement;
+          if (!scope.contains(node) || counted.has(node)) return;
+          counted.add(node);
+          if (instant || reduce) node.textContent = (node.getAttribute("data-count") || "") + (node.getAttribute("data-suffix") || "");
+          else countUp(node);
         });
-      }, { threshold: 0.35 });
-      $all(".rv").forEach((el) => io.observe(el));
-      const flow = $("#flow"); if (flow) io.observe(flow);
+      }
+      function reveal(el: HTMLElement, instant: boolean) {
+        if (el.classList.contains("in")) return;
+        el.classList.add("in");
+        if (el.id === "flow") el.classList.add("go"); // start the pipeline packet
+        finishCounts(el, instant);
+      }
+
+      const targets = $all(".rv") as HTMLElement[];
+      const flow = $("#flow") as HTMLElement | null; if (flow) targets.push(flow);
+
+      if (!("IntersectionObserver" in window) || reduce) {
+        // No IO / reduced motion → just show everything at final values.
+        targets.forEach((el) => reveal(el, true));
+      } else {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) { reveal(e.target as HTMLElement, false); io.unobserve(e.target); }
+          });
+        }, { threshold: 0.25 });
+        targets.forEach((el) => io.observe(el));
+        // Failsafe: a tab that loads hidden/backgrounded suspends IO + rAF, which
+        // would leave opacity:0 content stuck invisible. Force the final state so
+        // nothing is ever permanently hidden; visible tabs animate normally first.
+        setTimeout(() => { if (document.hidden) targets.forEach((el) => reveal(el, true)); }, 2000);
+      }
 
       // ---- theme to the participant's trade ----
       (async function theme() {
