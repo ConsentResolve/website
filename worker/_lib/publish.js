@@ -8,15 +8,29 @@
 //
 // Per-platform secrets (set with `wrangler secret put NAME`):
 //   Facebook : FACEBOOK_PAGE_ID, FACEBOOK_PAGE_ACCESS_TOKEN (long-lived page token)
-//   LinkedIn : LINKEDIN_ACCESS_TOKEN, LINKEDIN_AUTHOR_URN (urn:li:organization:####)
+//   LinkedIn (company)  : LINKEDIN_COMPANY_ACCESS_TOKEN, LINKEDIN_COMPANY_URN (urn:li:organization:####)
+//   LinkedIn (personal) : LINKEDIN_PERSONAL_ACCESS_TOKEN, LINKEDIN_PERSONAL_URN (urn:li:person:####)
 //   X        : X_CLIENT_ID, X_CLIENT_SECRET, X_REFRESH_TOKEN (OAuth2, tweet.write; refresh rotates → persisted in social_tokens)
 //   Google   : GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, GBP_ACCOUNT_ID, GBP_LOCATION_ID
 import { nowIso } from "./db.js";
 
 const SITE = "https://consentresolve.com";
 
-// Platforms we publish on launch. Others stay queued for later.
-export const LAUNCH_PLATFORMS = ["linkedin", "facebook", "x", "google_business_profile"];
+// Platforms we publish on launch. Others stay queued for later. LinkedIn is
+// split into two independent targets (company page + personal profile) so each
+// has its own queue stream, credentials, and posting cadence.
+export const LAUNCH_PLATFORMS = ["facebook", "linkedin_company", "linkedin_personal", "x", "google_business_profile"];
+
+// How often (in days) each platform may post. The daily cron checks the last
+// published_at per platform and only drips a new item once this many days have
+// elapsed. Default is 1 (every run / daily). Resilient to missed cron runs.
+export const PLATFORM_CADENCE_DAYS = {
+  facebook: 1,
+  linkedin_company: 2, // every other day
+  linkedin_personal: 7, // once per week
+  x: 1,
+  google_business_profile: 1,
+};
 
 function abs(u) {
   if (!u) return "";
@@ -78,10 +92,17 @@ async function postFacebook(env, p) {
   return { ok: true, post_id: id, post_url: id ? `https://www.facebook.com/${id}` : null };
 }
 
-// ── LinkedIn (org article share; LinkedIn scrapes our OG image) ──────────────
-async function postLinkedIn(env, p) {
-  const token = env.LINKEDIN_ACCESS_TOKEN;
-  const author = env.LINKEDIN_AUTHOR_URN;
+// ── LinkedIn (article share; LinkedIn scrapes our OG image) ──────────────────
+// Two targets share one implementation, differing only in token + author URN:
+//   linkedin_company  → Company Page  (w_organization_social, urn:li:organization:#)
+//   linkedin_personal → personal feed (w_member_social,        urn:li:person:#)
+function postLinkedInCompany(env, p) {
+  return postLinkedIn(env, p, { token: env.LINKEDIN_COMPANY_ACCESS_TOKEN, author: env.LINKEDIN_COMPANY_URN });
+}
+function postLinkedInPersonal(env, p) {
+  return postLinkedIn(env, p, { token: env.LINKEDIN_PERSONAL_ACCESS_TOKEN, author: env.LINKEDIN_PERSONAL_URN });
+}
+async function postLinkedIn(env, p, { token, author }) {
   if (!token || !author) return { skipped: true, error: "missing_credentials" };
   const commentary = composeText(p, "linkedin");
   const hasLink = Boolean(p.utm_url);
@@ -203,7 +224,8 @@ async function postGBP(env, p) {
 
 const ADAPTERS = {
   facebook: postFacebook,
-  linkedin: postLinkedIn,
+  linkedin_company: postLinkedInCompany,
+  linkedin_personal: postLinkedInPersonal,
   x: postX,
   google_business_profile: postGBP,
 };

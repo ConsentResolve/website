@@ -16,8 +16,8 @@ import * as preview from "./api/preview.js";
 import * as unsubscribe from "./api/unsubscribe.js";
 import * as socialQueue from "./api/social-queue.js";
 import * as admin from "./admin.js";
-import { nextReady, updateStatus } from "./_lib/queue.js";
-import { publish, LAUNCH_PLATFORMS } from "./_lib/publish.js";
+import { nextReady, updateStatus, lastPublishedAt } from "./_lib/queue.js";
+import { publish, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
 const ROUTES = {
   "/api/register": register,
@@ -79,16 +79,31 @@ export default {
     return new Response("Not found", { status: 404 });
   },
 
-  // Cron: drip the Resource Center social queue — one ready item per launch
-  // platform per run (a daily cron => 1/platform/day). Safe no-op until
-  // SOCIAL_AUTOPOST_ENABLED === "true" AND a platform's secrets are configured
-  // (each adapter self-skips when its credentials are missing). On success the
-  // row is marked published with the live post URL; on error it stays
-  // ready_to_publish and retries next run.
+  // Cron: drip the Resource Center social queue. Runs daily; each platform has
+  // its own cadence (PLATFORM_CADENCE_DAYS) and only posts once that many days
+  // have elapsed since its last published post — so Facebook posts daily,
+  // linkedin_company every other day, linkedin_personal weekly, all from one
+  // daily trigger. Safe no-op until SOCIAL_AUTOPOST_ENABLED === "true" AND a
+  // platform's secrets are configured (each adapter self-skips when creds are
+  // missing). On success the row is marked published with the live post URL; on
+  // error it stays ready_to_publish and retries next eligible run.
   async scheduled(event, env, ctx) {
     if (env.SOCIAL_AUTOPOST_ENABLED !== "true" || !env.DB) return;
+    const now = Date.now();
     for (const platform of LAUNCH_PLATFORMS) {
       try {
+        // Cadence gate: skip until enough days have passed since the last post.
+        // The 0.5-day slack keeps a fixed-time daily cron from drifting to the
+        // next interval (e.g. a 2-day cadence reliably fires on day 2, not 3).
+        const cadenceDays = PLATFORM_CADENCE_DAYS[platform] || 1;
+        const last = await lastPublishedAt(env, platform);
+        if (last) {
+          const elapsedDays = (now - new Date(last).getTime()) / 86400000;
+          if (elapsedDays < cadenceDays - 0.5) {
+            console.log(`[social] ${platform}: not due (${elapsedDays.toFixed(1)}/${cadenceDays}d)`);
+            continue;
+          }
+        }
         const row = await nextReady(env, platform);
         if (!row) continue;
         const res = await publish(env, platform, row.payload);

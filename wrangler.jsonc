@@ -23,8 +23,10 @@
   ],
   // ── Social auto-posting cron ────────────────────────────────────────────────
   // Daily at 15:00 UTC (~10am ET / 9am CT). scheduled() in worker/index.js drips
-  // one queued item per launch platform per run (=> 1/platform/day). NO-OP until
-  // SOCIAL_AUTOPOST_ENABLED === "true" AND a platform's secrets are set (each
+  // one queued item per launch platform per run, gated by each platform's
+  // cadence (PLATFORM_CADENCE_DAYS: facebook daily, linkedin_company every 2d,
+  // linkedin_personal weekly). NO-OP until SOCIAL_AUTOPOST_ENABLED === "true"
+  // AND a platform's secrets are set (each
   // adapter self-skips without its creds). Apply worker/social-queue.sql +
   // worker/social-tokens.sql to D1 and seed the queue before enabling.
   "triggers": {
@@ -39,7 +41,8 @@
   //   ADMIN_SESSION_SECRET — HMAC key for the /admin session cookie (long random)
   //   Social publishing (per platform):
   //     FACEBOOK_PAGE_ID, FACEBOOK_PAGE_ACCESS_TOKEN
-  //     LINKEDIN_ACCESS_TOKEN, LINKEDIN_AUTHOR_URN
+  //     LINKEDIN_COMPANY_ACCESS_TOKEN, LINKEDIN_COMPANY_URN  (urn:li:organization:#)
+  //     LINKEDIN_PERSONAL_ACCESS_TOKEN, LINKEDIN_PERSONAL_URN (urn:li:person:#)
   //     X_CLIENT_ID, X_CLIENT_SECRET, X_REFRESH_TOKEN
   //     GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, GBP_ACCOUNT_ID, GBP_LOCATION_ID
   "vars": {

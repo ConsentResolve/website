@@ -20,8 +20,12 @@ import urllib.request
 
 BASE = os.environ.get("BASE", "https://consentresolve.com").rstrip("/")
 KEY = os.environ.get("CR_AUTOMATION_KEY")
-PLATFORMS = ["linkedin", "facebook", "x", "threads", "pinterest",
-             "google_business_profile", "email"]
+# Queue platform keys. LinkedIn fans into two independent streams (company page
+# + personal profile) that share the same source payload but track cadence /
+# publish state separately. SOURCE_KEY maps a queue platform -> social.json key.
+PLATFORMS = ["linkedin_company", "linkedin_personal", "facebook", "x", "threads",
+             "pinterest", "google_business_profile", "email"]
+SOURCE_KEY = {"linkedin_company": "linkedin", "linkedin_personal": "linkedin"}
 
 if not KEY:
     sys.exit("Set CR_AUTOMATION_KEY (the Cloudflare secret) in the environment.")
@@ -62,8 +66,8 @@ def main():
         except Exception as e:  # noqa: BLE001
             print(f"skip {social_url}: {e}")
             continue
-        items = [{"platform": p, "payload": sj["social"].get(p)} for p in PLATFORMS
-                 if sj["social"].get(p)]
+        items = [{"platform": p, "payload": sj["social"].get(SOURCE_KEY.get(p, p))}
+                 for p in PLATFORMS if sj["social"].get(SOURCE_KEY.get(p, p))]
         body = {
             "action": "enqueue",
             "resource_slug": sj["resource"]["slug"],

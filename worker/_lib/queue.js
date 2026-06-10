@@ -43,6 +43,17 @@ export async function readBuckets(env) {
   return buckets;
 }
 
+/** Most recent published_at (ISO) for a platform, or null if never posted.
+ *  ISO-8601 strings sort lexically, so MAX() gives the latest timestamp. */
+export async function lastPublishedAt(env, platform) {
+  const row = await env.DB.prepare(
+    "SELECT MAX(published_at) AS last FROM social_queue WHERE platform = ? AND status = 'published'"
+  )
+    .bind(platform)
+    .first();
+  return row && row.last ? row.last : null;
+}
+
 /** Oldest ready_to_publish row for a platform (the next one to drip). */
 export async function nextReady(env, platform) {
   const row = await env.DB.prepare(
