@@ -364,7 +364,7 @@
         <div class="actions">
           <button class="btn decline" id="cr-decline" type="button">Decline</button>
           <div class="accept-wrap">
-            <div class="coach" id="coach">👇 Step 1 — accept the consent banner, like your customer would</div>
+            <div class="coach" id="coach">👇 Accept it, like your customer would — then watch what happens</div>
             <button class="btn accept" id="cr-accept" type="button">Accept</button>
           </div>
         </div>
@@ -453,30 +453,7 @@
         ($("#journey") as HTMLElement).classList.remove("show");
       }
 
-      // ---- Step 1: intro ----
-      function step1() {
-        setStep(1);
-        const biz = (PROFILE && PROFILE.biz) || "this business";
-        const label = (PROFILE && PROFILE.label) || "home services";
-        openModal(`
-          <span class="journey-tag">Step 1 of 5 · Consent</span>
-          <h2>This is a website like yours.</h2>
-          <p>A homeowner just landed on <span class="em">${esc(biz)}</span> from Google, an ad, or a referral — a click you may have paid for.</p>
-          <div class="point-row">
-            <div class="num">1</div>
-            <div>It starts with <strong>consent</strong>. See the banner at the bottom? Nothing about them is identified until they accept it.</div>
-          </div>
-          <div class="journey-actions">
-            <button class="btn btn-primary" id="j1-go" type="button">Show me the consent banner →</button>
-          </div>
-          <div class="journey-note">Consent-first, by design. The only person we'll identify here is you.</div>
-        `);
-        ($("#j1-go") as HTMLElement)?.addEventListener("click", () => {
-          closeModal();
-          revealBanner();
-        });
-      }
-
+      // ---- Step 1: reveal the consent banner directly (no pre-modal) ----
       function revealBanner() {
         const consent = $("#consent") as HTMLElement;
         consent.classList.add("show", "highlight");
@@ -531,6 +508,7 @@
           <div class="journey-actions lead-reveal" id="lead-next">
             <button class="btn btn-primary" id="j2-next" type="button">Next →</button>
           </div>
+          <div class="journey-note">Why is that allowed? Because they said yes. Consent-first — every record is timestamped, yours alone, and never resold.</div>
         `);
         ($("#j2-next") as HTMLElement)?.addEventListener("click", () => step2inbox());
         // Cycle through two sample records (slow), then settle on the participant's own.
@@ -562,8 +540,8 @@
         setStep(3);
         openModal(`
           <span class="journey-tag">Step 3 of 5 · Quote recovery</span>
-          <h2>They started a quote — then vanished.</h2>
-          <p>Someone began your estimate and never hit submit. Watch that dead form turn back into a <span class="em">recovered estimate</span>.</p>
+          <h2>The one that stings: an abandoned quote.</h2>
+          <p>A homeowner started your estimate and never hit submit — your most ready-to-buy lead, gone. Watch that dead form turn back into a <span class="em">recovered estimate</span> you can actually win.</p>
           <div class="journey-actions">
             <button class="btn btn-primary" id="j3-next" type="button">Next: open the quote page →</button>
           </div>
@@ -721,8 +699,9 @@
           const idx = TOUR.findIndex((s: any) => s.num === rn);
           if (idx >= 0) { gotoTour(idx); return; }
         }
-        // Otherwise kick off the guided journey once the page has themed.
-        setTimeout(step1, 700);
+        // Otherwise reveal the consent banner straight away — fastest path to
+        // the lead-reveal payoff. (Consent education now lives on the reveal step.)
+        setTimeout(() => { setStep(1); revealBanner(); }, 700);
       }
 
       init();
