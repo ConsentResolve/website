@@ -94,6 +94,7 @@ export const FOOTER_NAV = {
   legal: [
     { label: "Privacy Policy", href: "/privacy-policy/" },
     { label: "Terms of Service", href: "/terms/" },
+    { label: "EULA", href: "/eula/" },
     { label: "Cookie Policy", href: "/cookie-policy/" },
     { label: "GDPR", href: "/gdpr/" },
     { label: "CCPA", href: "/ccpa/" },

@@ -1,0 +1,40 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
+import { breadcrumbSchema } from "~/lib/seo";
+
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "EULA", href: "/eula/" },
+  ]),
+];
+---
+
+<BaseLayout
+  title="End User License Agreement | Consent Resolve"
+  description="The Consent Resolve End User License Agreement (EULA) — kept current via Termageddon."
+  schema={schemas}
+>
+  <section class="container-content section">
+    <div class="mx-auto max-w-3xl">
+      <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Legal</Badge></div>
+      <h1 class="display-1 text-center text-[color:var(--color-ink)]">End User License Agreement</h1>
+
+      <!-- Termageddon policy embed (auto-updates as laws change) -->
+      <div class="rc-prose mt-12">
+        <div
+          id="Y0M5MmFETlhVV2xyUVd4c1JYYzlQUT09"
+          class="policy_embed_div"
+          width="640"
+          height="480"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          Please wait while the policy is loaded. If it does not load, please <a rel="nofollow" aria-label="click here to view the policy" href="https://policies.termageddon.com/api/policy/Y0M5MmFETlhVV2xyUVd4c1JYYzlQUT09" target="_blank">click here to view the policy</a>.
+        </div>
+        <script is:inline src="https://policies.termageddon.com/api/embed/c/Y0M5MmFETlhVV2xyUVd4c1JYYzlQUT09.js"></script>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
