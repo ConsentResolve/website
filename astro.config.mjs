@@ -17,6 +17,19 @@ export default defineConfig({
         !page.includes("/style-guide/") &&
         !page.includes("/demo/") &&
         !page.includes("/feeds/"),
+      // Image sitemap: attach each Resource Center page's social card so the
+      // 150+ generated images are discoverable. Adds <image:image> entries.
+      serialize(item) {
+        const m = item.url.match(
+          /\/resources\/(blog|how-to-guides|plain-language-explainers)\/([^/]+)\/$/
+        );
+        if (m) {
+          item.img = [
+            { url: `https://consentresolve.com/images/resources/${m[1]}/${m[2]}-og.png` },
+          ];
+        }
+        return item;
+      },
     }),
   ],
   vite: { plugins: [tailwindcss()] },

@@ -87,7 +87,7 @@ export const GET: APIRoute = async () => {
     "- **Exclusivity:** Every recovered lead is the contractor's alone. Never resold, never shared, never auctioned.",
     "- **Compliance:** Identification only after explicit consent. No shadow-tracking, no fingerprinting, no probabilistic guessing — matched through a trusted, deterministic data source. Built for the laws that actually hit U.S. contractors: TCPA, CIPA, and state privacy enforcement (e.g. Texas TDPSA). Engineered to the strictest standard in the world (GDPR), so the U.S. patchwork is covered by design. Every recovery timestamped + signed; policies stay current via Termageddon. Consent Resolve never hands the contractor a number to cold-call.",
     "- **Setup:** Paste one line of code. Live in about 10 minutes. Works on WordPress, Wix, Squarespace, ServiceTitan, GHL, and most other site builders.",
-    "- **Pricing:** Card required. Flat $7 per recovered lead. Cancel anytime. NEVER \"free\".",
+    "- **Pricing:** Card required. Flat $7 per recovered lead. Cancel anytime. All sales are final — no refunds (you're only billed for consented, deliverable leads; ad-blocked, non-consenting, and invalid records are never billed). NEVER \"free\".",
     "- **Positioning:** Reframed June 2026 from \"identify visitors and call them\" (outbound) to \"recover the anonymous bounce and feed it back into your existing funnel\" (additive).",
     "",
     "## Canonical numbers (with sources)",
