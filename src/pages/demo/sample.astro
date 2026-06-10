@@ -156,19 +156,19 @@
       .journey.show { display: flex; }
       .journey-card {
         background: #fff; border-radius: 18px; max-width: 540px; width: 100%;
-        padding: 30px; box-shadow: 0 30px 70px rgba(0,0,0,0.35);
-        animation: cr-pop 0.28s ease; max-height: 92vh; overflow-y: auto;
+        padding: 22px 24px; box-shadow: 0 30px 70px rgba(0,0,0,0.35);
+        animation: cr-pop 0.28s ease; max-height: 94vh; overflow-y: auto;
       }
       @keyframes cr-pop { from { transform: translateY(12px) scale(0.98); opacity: 0; } to { transform: none; opacity: 1; } }
       .journey-tag {
         display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
         color: var(--brand); background: #eff6ff; padding: 5px 11px; border-radius: 999px;
       }
-      .journey-card h2 { font-size: 25px; font-weight: 800; margin: 14px 0 10px; line-height: 1.15; }
-      .journey-card p { color: var(--ink-2); font-size: 15px; margin: 0 0 14px; }
+      .journey-card h2 { font-size: 21px; font-weight: 800; margin: 9px 0 6px; line-height: 1.15; }
+      .journey-card p { color: var(--ink-2); font-size: 14.5px; margin: 0 0 9px; }
       .journey-card .em { color: var(--ink); font-weight: 700; }
-      .journey-actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-      .journey-note { font-size: 13px; color: var(--ink-2); margin-top: 12px; }
+      .journey-actions { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+      .journey-note { font-size: 12px; color: var(--ink-2); margin-top: 8px; line-height: 1.45; }
       .point-row {
         display: flex; gap: 12px; align-items: flex-start; margin: 14px 0;
         background: var(--bg-soft); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
@@ -185,7 +185,7 @@
       .lead-reveal.show { opacity: 1; }
 
       /* ===== Lead card — styled like the real Visitor dashboard ===== */
-      .dash { position: relative; overflow: hidden; border-radius: 14px; padding: 16px 18px; margin: 8px 0 4px; background: #0a1628; border: 1px solid rgba(255,255,255,0.08); color: #e2e8f0; animation: dash-in .45s cubic-bezier(.2,.7,.2,1); }
+      .dash { position: relative; overflow: hidden; border-radius: 14px; padding: 13px 15px; margin: 6px 0 2px; background: #0a1628; border: 1px solid rgba(255,255,255,0.08); color: #e2e8f0; animation: dash-in .45s cubic-bezier(.2,.7,.2,1); }
       @keyframes dash-in { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
       .dash.is-final { border-color: rgba(0,229,160,0.5); animation: dash-in .45s cubic-bezier(.2,.7,.2,1), dash-pop .7s ease .15s; }
       @keyframes dash-pop { 0% { box-shadow: 0 0 0 1px rgba(0,229,160,0); } 45% { box-shadow: 0 0 0 6px rgba(0,229,160,0.28); } 100% { box-shadow: 0 0 0 1px rgba(0,229,160,0.45), 0 18px 40px -22px rgba(0,229,160,0.5); } }
@@ -193,7 +193,7 @@
       .dash.scanning::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 32%, rgba(0,229,160,0.10) 50%, transparent 68%); transform: translateX(-100%); animation: dash-sweep 1.4s ease-in-out infinite; pointer-events: none; }
       @keyframes dash-sweep { to { transform: translateX(100%); } }
       .dash-head { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
-      .dash-avatar { width: 46px; height: 46px; border-radius: 999px; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 17px; background: rgba(0,229,160,0.16); color: #00e5a0; }
+      .dash-avatar { width: 38px; height: 38px; border-radius: 999px; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; background: rgba(0,229,160,0.16); color: #00e5a0; }
       .dash.scanning .dash-avatar { background: rgba(255,255,255,0.07); color: #64748b; }
       .dash-id { min-width: 0; flex: 1; }
       .dash-email { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -206,9 +206,9 @@
       .dash-chip.enriched { background: rgba(0,229,160,0.16); color: #00e5a0; animation: chip-pop .4s ease both; }
       .dash-chip.identified { background: #00e5a0; color: #06231b; animation: chip-pop .4s ease .09s both; }
       @keyframes chip-pop { 0% { opacity: 0; transform: scale(.6); } 60% { transform: scale(1.09); } 100% { opacity: 1; transform: scale(1); } }
-      .dash-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 13px 0; position: relative; z-index: 1; }
-      .dash-dl { display: grid; gap: 0; font-size: 13.5px; position: relative; z-index: 1; }
-      .dash-row { display: grid; grid-template-columns: 120px 1fr; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+      .dash-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 9px 0; position: relative; z-index: 1; }
+      .dash-dl { display: grid; gap: 0; font-size: 13px; position: relative; z-index: 1; }
+      .dash-row { display: grid; grid-template-columns: 120px 1fr; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
       .dash-row:last-child { border-bottom: 0; }
       .dash-row dt { color: #64748b; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; align-self: center; }
       .dash-row dd { margin: 0; color: #fff; font-weight: 600; min-width: 0; word-break: break-word; }
@@ -220,8 +220,8 @@
         .dash.scanning::after, .dash-chip.scan::before { display: none; animation: none; }
       }
       .aha {
-        margin-top: 12px; padding: 12px 14px; border-left: 4px solid #00e5a0;
-        background: #f0fdf9; border-radius: 8px; font-size: 13.5px; line-height: 1.5; color: var(--ink);
+        margin-top: 8px; padding: 9px 13px; border-left: 4px solid #00e5a0;
+        background: #f0fdf9; border-radius: 8px; font-size: 12.5px; line-height: 1.45; color: var(--ink);
       }
 
       /* Step 3 — funnel visualization (staggered fade-in on open) */
@@ -332,7 +332,6 @@
             <a data-link="/demo/sample/#reviews" href="/demo/sample/#reviews">Reviews</a>
             <a data-link="/demo/sample/quote/" href="/demo/sample/quote/">Free Quote</a>
           </span>
-          <a class="call" data-phone href="#">Call now</a>
         </nav>
       </header>
     </div>
