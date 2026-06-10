@@ -461,16 +461,15 @@
         openModal(`
           <span class="journey-tag">Step 1 of 5 · Consent</span>
           <h2>This is a website like yours.</h2>
-          <p>Say hello to <span class="em">${esc(biz)}</span> — a home services site, same as yours. A real homeowner (that might have cost you <strong>$8–12 for the click</strong>) just landed here from an ad, a Google search, or a shared link.</p>
+          <p>A homeowner just landed on <span class="em">${esc(biz)}</span> from Google, an ad, or a referral — a click you may have paid for.</p>
           <div class="point-row">
             <div class="num">1</div>
-            <div>Their journey starts with one thing: <strong>consent</strong>. See the banner at the bottom? That's the cookie &amp; consent notice your customers see. <strong>Nothing about them is identified until they accept it.</strong></div>
+            <div>It starts with <strong>consent</strong>. See the banner at the bottom? Nothing about them is identified until they accept it.</div>
           </div>
-          <p>Go ahead and accept it — exactly like your customer would. That single click is where every real lead begins.</p>
           <div class="journey-actions">
             <button class="btn btn-primary" id="j1-go" type="button">Show me the consent banner →</button>
           </div>
-          <div class="journey-note">Consent-first, by design. This is a demo — the only person we'll identify is you.</div>
+          <div class="journey-note">Consent-first, by design. The only person we'll identify here is you.</div>
         `);
         ($("#j1-go") as HTMLElement)?.addEventListener("click", () => {
           closeModal();
@@ -550,7 +549,7 @@
           <span class="journey-tag">Step 2 of 5 · The lead lands</span>
           <div style="text-align:center"><div style="font-size:46px;line-height:1">📬</div></div>
           <h2 style="text-align:center">Check your inbox.</h2>
-          <p>${EMAILED ? "We just emailed you" : "Your customer gets"} an example of the message that turns a <span class="em">cold, anonymous website visitor</span> into a warm lead — a friendly nudge to call you or finish their quote.${EMAILED ? " Open it to see exactly what they'd receive." : ""}</p>
+          <p>${EMAILED ? "Check your inbox to see the email that brings lost homeowners back — a friendly nudge to call you or finish their quote." : "Your customer gets the email that brings lost homeowners back — a friendly nudge to call you or finish their quote."}</p>
           <div class="journey-actions">
             <button class="btn btn-primary" id="j2-go" type="button">Next: recover an abandoned quote →</button>
           </div>
@@ -564,7 +563,7 @@
         openModal(`
           <span class="journey-tag">Step 3 of 5 · Quote recovery</span>
           <h2>They started a quote — then vanished.</h2>
-          <p>Someone began your estimate form and never hit submit. Next, we'll open your <span class="em">quote page</span> and watch that dead form turn back into a real lead.</p>
+          <p>Someone began your estimate and never hit submit. Watch that dead form turn back into a <span class="em">recovered estimate</span>.</p>
           <div class="journey-actions">
             <button class="btn btn-primary" id="j3-next" type="button">Next: open the quote page →</button>
           </div>
@@ -579,8 +578,8 @@
         setStep(4);
         openModal(`
           <span class="journey-tag">Step 4 of 5 · Feed your funnel</span>
-          <h2>Now that lead goes to work.</h2>
-          <p>It doesn't sit in an inbox — it feeds the marketing <span class="em">you already run</span>. Next, see where it goes.</p>
+          <h2>Now it works toward a booked job.</h2>
+          <p>The lead feeds the follow-up <span class="em">you already run</span> — so the homeowner comes back and books. See where it goes.</p>
           <div class="journey-actions">
             <button class="btn btn-primary" id="j4-next" type="button">Next: see your funnel →</button>
           </div>
@@ -596,7 +595,7 @@
         openModal(`
           <span class="journey-tag">Step 5 of 5 · It all comes together</span>
           <h2>Here's the bottom line.</h2>
-          <p>Everything you just saw — consent, the lead, the recovered quote, your funnel — working together. Next, see what it does to your <span class="em">numbers</span>.</p>
+          <p>Consent, the recovered estimate, your follow-up — all working toward <span class="em">more booked jobs</span>. See what it does to your numbers.</p>
           <div class="journey-actions">
             <button class="btn btn-primary" id="j5-next" type="button">Next: see the impact →</button>
           </div>

@@ -1,0 +1,50 @@
+---
+/**
+ * Static "leaky bucket" visual for the demo intro. Of ~100 website visitors,
+ * only ~2 fill out a form; the rest leave anonymously — and Consent Resolve
+ * brings a portion of those back. Designed for the dark demo intro section.
+ *
+ * Honesty: the 2% form-fill figure is sourced; recovery is intentionally
+ * NON-numeric (Consent Resolve does not publish a recovery rate).
+ */
+const TOTAL = 100;
+const FORMS = 2; // ~2 of 100 fill out a form (WordStream/industry benchmark)
+const cells = Array.from({ length: TOTAL }, (_, i) => i < FORMS);
+---
+
+<div class="rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
+  <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--color-brand)]">
+    Why a demo even matters
+  </p>
+  <p class="mt-2 text-lg font-semibold text-[color:var(--color-on-inverse)]">
+    Out of every 100 homeowners on your site, only about 2 ever fill out a form.
+  </p>
+
+  <div class="mt-5 grid grid-cols-[repeat(20,minmax(0,1fr))] gap-1.5" aria-hidden="true">
+    {cells.map((isForm) => (
+      <span
+        class:list={[
+          "aspect-square rounded-[2px]",
+          isForm ? "bg-[color:var(--color-brand)]" : "bg-white/15",
+        ]}
+      ></span>
+    ))}
+  </div>
+
+  <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[color:var(--color-on-inverse-muted)]">
+    <span class="flex items-center gap-1.5">
+      <span class="inline-block h-2.5 w-2.5 rounded-[2px] bg-[color:var(--color-brand)]"></span>
+      Fill out a form
+    </span>
+    <span class="flex items-center gap-1.5">
+      <span class="inline-block h-2.5 w-2.5 rounded-[2px] bg-white/15"></span>
+      Leave without a trace
+    </span>
+  </div>
+
+  <p class="mt-4 text-sm leading-relaxed text-[color:var(--color-on-inverse-muted)]">
+    The other 98 aren't gone — they're just anonymous. Consent Resolve turns a portion
+    of them into consented leads you can follow up with. <strong class="text-[color:var(--color-on-inverse)]">This demo
+    shows you exactly how, using yourself as the lead.</strong>
+  </p>
+</div>
