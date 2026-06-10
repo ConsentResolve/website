@@ -77,6 +77,12 @@ const props = Astro.props as Props;
         c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
       })(document);
     </script>
+    <!-- Below lg the mobile sticky bar provides a "Live Chat" button, so hide
+         Smartsupp's floating launcher there to avoid overlapping the bar. The
+         chat window (#chat-application-iframe) is separate and still opens. -->
+    <style is:inline>
+      @media (max-width: 1023.98px) { #widgetButtonFrame { display: none !important; } }
+    </style>
 
     <!-- iMessage-style notification chime (1.5s after load) -->
     <script is:inline type="text/javascript">

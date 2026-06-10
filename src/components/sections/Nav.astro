@@ -12,13 +12,13 @@ import { IconArrowRight, IconChevronDown, IconMenu2 } from "@tabler/icons-react"
       <img src="/crnewlogo.svg" alt="Consent Resolve" width="212" height="32" class="h-8 w-auto" />
     </a>
 
-    <nav class="hidden md:flex items-center gap-8" aria-label="Primary">
+    <nav class="hidden lg:flex items-center gap-7" aria-label="Primary">
       {PRIMARY_NAV.map((item) =>
         item.children ? (
           <div class="group relative">
             <a
               href={item.href}
-              class="inline-flex items-center gap-1 text-sm font-medium text-slate-300 transition-colors hover:text-white group-hover:text-white"
+              class="inline-flex items-center gap-1 whitespace-nowrap text-sm font-medium text-slate-300 transition-colors hover:text-white group-hover:text-white"
               aria-haspopup="true"
             >
               {item.label}
@@ -36,7 +36,7 @@ import { IconArrowRight, IconChevronDown, IconMenu2 } from "@tabler/icons-react"
             </div>
           </div>
         ) : (
-          <a class="text-sm font-medium text-slate-300 transition-colors hover:text-white" href={item.href}>{item.label}</a>
+          <a class="whitespace-nowrap text-sm font-medium text-slate-300 transition-colors hover:text-white" href={item.href}>{item.label}</a>
         )
       )}
     </nav>
@@ -52,7 +52,7 @@ import { IconArrowRight, IconChevronDown, IconMenu2 } from "@tabler/icons-react"
       {/* Hamburger / close — toggles the checkbox above (mobile only) */}
       <label
         for="cr-navmenu"
-        class="md:hidden inline-flex size-10 cursor-pointer items-center justify-center rounded-lg text-slate-200 transition-colors hover:bg-white/[0.06]"
+        class="lg:hidden inline-flex size-10 cursor-pointer items-center justify-center rounded-lg text-slate-200 transition-colors hover:bg-white/[0.06]"
         aria-label="Toggle menu"
       >
         <IconMenu2 size={22} stroke={2} />
@@ -61,7 +61,7 @@ import { IconArrowRight, IconChevronDown, IconMenu2 } from "@tabler/icons-react"
   </div>
 
   {/* Mobile panel — sibling of the checkbox, revealed via peer-checked */}
-  <div class="md:hidden hidden peer-checked:block border-t border-white/[0.06] bg-[color:var(--color-navy-900)]">
+  <div class="lg:hidden hidden peer-checked:block border-t border-white/[0.06] bg-[color:var(--color-navy-900)]">
     <nav class="container-content max-h-[calc(100vh-72px)] overflow-y-auto py-3" aria-label="Mobile">
       {PRIMARY_NAV.map((item) =>
         item.children ? (
