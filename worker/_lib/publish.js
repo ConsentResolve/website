@@ -63,18 +63,18 @@ async function postFacebook(env, p) {
   const pageId = env.FACEBOOK_PAGE_ID;
   const token = env.FACEBOOK_PAGE_ACCESS_TOKEN;
   if (!pageId || !token) return { skipped: true, error: "missing_credentials" };
-  const message = composeText(p, "facebook");
-  const img = abs(p.image_url);
-  const endpoint = img
-    ? `https://graph.facebook.com/v21.0/${pageId}/photos`
-    : `https://graph.facebook.com/v21.0/${pageId}/feed`;
-  const body = new URLSearchParams({ access_token: token });
-  if (img) { body.set("url", img); body.set("caption", message); }
-  else { body.set("message", message); if (p.utm_url) body.set("link", p.utm_url); }
-  const res = await fetch(endpoint, { method: "POST", body });
+  // Link post to /feed — Facebook renders our OG image as the card. The
+  // /photos-by-URL endpoint is rejected on Pages with a (#200) publish_actions
+  // error, so we don't use it. Message = caption + hashtags (link passed
+  // separately so it isn't duplicated in the text).
+  const tags = Array.isArray(p.hashtags) ? p.hashtags.map((t) => (String(t).startsWith("#") ? t : "#" + t)).join(" ") : "";
+  const message = [p.caption && String(p.caption).trim(), tags].filter(Boolean).join("\n\n");
+  const body = new URLSearchParams({ access_token: token, message });
+  if (p.utm_url) body.set("link", p.utm_url);
+  const res = await fetch(`https://graph.facebook.com/v21.0/${pageId}/feed`, { method: "POST", body });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) return { ok: false, error: data.error?.message || `fb_http_${res.status}` };
-  const id = data.post_id || data.id;
+  const id = data.id || data.post_id;
   return { ok: true, post_id: id, post_url: id ? `https://www.facebook.com/${id}` : null };
 }
 
