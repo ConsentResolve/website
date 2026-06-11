@@ -9,8 +9,8 @@
 // cookie-authed path instead of this header.
 
 import { json, corsHeaders } from "../_lib/http.js";
-import { readBuckets, enqueue, updateStatus, nextReady, VALID_STATUS } from "../_lib/queue.js";
-import { publish, LAUNCH_PLATFORMS } from "../_lib/publish.js";
+import { readBuckets, enqueue, updateStatus, VALID_STATUS } from "../_lib/queue.js";
+import { publishNextLive, LAUNCH_PLATFORMS } from "../_lib/publish.js";
 
 function authed(request, env) {
   const key = env.CR_AUTOMATION_KEY;
@@ -79,13 +79,10 @@ export async function onRequestPost({ request, env }) {
     const platforms = body.platform ? [body.platform] : LAUNCH_PLATFORMS;
     const results = [];
     for (const pl of platforms) {
-      const row = await nextReady(env, pl);
-      if (!row) { results.push({ platform: pl, status: "empty" }); continue; }
-      const res = await publish(env, pl, row.payload);
-      if (res.ok) {
-        await updateStatus(env, { resource_slug: row.resource_slug, platform: pl, status: "published", post_url: res.post_url, post_id: res.post_id });
-      }
-      results.push({ platform: pl, resource_slug: row.resource_slug, ...res });
+      const out = await publishNextLive(env, pl);
+      if (out.empty) { results.push({ platform: pl, status: "empty" }); continue; }
+      if (out.exhausted) { results.push({ platform: pl, status: "no_live_items" }); continue; }
+      results.push({ platform: pl, resource_slug: out.row.resource_slug, ...out.res });
     }
     return json({ ok: true, results });
   }

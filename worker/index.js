@@ -16,8 +16,8 @@ import * as preview from "./api/preview.js";
 import * as unsubscribe from "./api/unsubscribe.js";
 import * as socialQueue from "./api/social-queue.js";
 import * as admin from "./admin.js";
-import { nextReady, updateStatus, lastPublishedAt } from "./_lib/queue.js";
-import { publish, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
+import { lastPublishedAt } from "./_lib/queue.js";
+import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
 const ROUTES = {
   "/api/register": register,
@@ -104,22 +104,16 @@ export default {
             continue;
           }
         }
-        const row = await nextReady(env, platform);
-        if (!row) continue;
-        const res = await publish(env, platform, row.payload);
-        if (res.ok) {
-          await updateStatus(env, {
-            resource_slug: row.resource_slug,
-            platform,
-            status: "published",
-            post_url: res.post_url,
-            post_id: res.post_id,
-          });
+        const out = await publishNextLive(env, platform);
+        if (out.empty || out.exhausted) {
+          console.log(`[social] ${platform}: nothing live to post`);
+        } else {
+          const { row, res } = out;
+          console.log(
+            `[social] ${platform} ${row.resource_slug}: ` +
+              (res.ok ? "published " + (res.post_url || "") : res.skipped ? "skipped (no creds)" : "error " + res.error)
+          );
         }
-        console.log(
-          `[social] ${platform} ${row.resource_slug}: ` +
-            (res.ok ? "published " + (res.post_url || "") : res.skipped ? "skipped (no creds)" : "error " + res.error)
-        );
       } catch (err) {
         console.log(`[social] ${platform} fatal: ${String(err).slice(0, 160)}`);
       }

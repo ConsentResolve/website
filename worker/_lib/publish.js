@@ -13,6 +13,7 @@
 //   X        : X_CLIENT_ID, X_CLIENT_SECRET, X_REFRESH_TOKEN (OAuth2, tweet.write; refresh rotates → persisted in social_tokens)
 //   Google   : GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, GBP_ACCOUNT_ID, GBP_LOCATION_ID
 import { nowIso } from "./db.js";
+import { nextReady, updateStatus } from "./queue.js";
 
 const SITE = "https://consentresolve.com";
 
@@ -239,4 +240,58 @@ export async function publish(env, platform, payload) {
   } catch (err) {
     return { ok: false, error: "exception:" + String(err).slice(0, 160) };
   }
+}
+
+/** Liveness check: is the destination URL reachable (HTTP 2xx)? Guards against
+ *  posting links to removed/renamed pages (a 404 yields a broken FB/LinkedIn
+ *  card). Fails closed only on a definite non-2xx; network errors are treated
+ *  as "unknown -> allow" so a transient blip doesn't silently halt posting. */
+async function urlOk(url) {
+  try {
+    const ctl = new AbortController();
+    const to = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch(url, {
+      method: "GET",
+      redirect: "follow",
+      signal: ctl.signal,
+      headers: { "User-Agent": "ConsentResolve-LinkCheck/1.0" },
+    });
+    clearTimeout(to);
+    return { ok: r.ok, status: r.status };
+  } catch {
+    return { ok: true, status: 0 }; // unknown (timeout/network) -> don't block
+  }
+}
+
+/** Drip the next live, ready item for a platform. Skips (parks as "scheduled")
+ *  any row whose destination URL is a confirmed 404/4xx so a dead link is never
+ *  posted and can't block the queue head; advances to the next candidate. On a
+ *  successful post the row is marked published. Returns a result summary. */
+export async function publishNextLive(env, platform) {
+  for (let i = 0; i < 10; i++) {
+    const row = await nextReady(env, platform);
+    if (!row) return { empty: true };
+    const url = row.payload && row.payload.utm_url;
+    if (url) {
+      const live = await urlOk(url);
+      if (!live.ok) {
+        // confirmed dead link -> park it out of the drip, try the next one
+        await updateStatus(env, { resource_slug: row.resource_slug, platform, status: "scheduled" });
+        console.log(`[social] ${platform} ${row.resource_slug}: parked dead url (${live.status}) ${url}`);
+        continue;
+      }
+    }
+    const res = await publish(env, platform, row.payload);
+    if (res.ok) {
+      await updateStatus(env, {
+        resource_slug: row.resource_slug,
+        platform,
+        status: "published",
+        post_url: res.post_url,
+        post_id: res.post_id,
+      });
+    }
+    return { row, res };
+  }
+  return { exhausted: true };
 }
