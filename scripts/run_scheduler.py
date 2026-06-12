@@ -71,6 +71,8 @@ def main():
                 run([PY, str(ROOT/"scripts/post_video.py"), local_bytes(angle, url, dry), it["caption"]], dry)
             elif p == "yt":
                 run([PY, str(ROOT/"scripts/post_youtube.py"), local_bytes(angle, url, dry), it["yt_title"], it["caption"], "public"], dry)
+            elif p == "li":  # LinkedIn personal native video
+                run([PY, str(ROOT/"scripts/post_linkedin.py"), local_bytes(angle, url, dry), it["caption"], "personal"], dry)
         if it.get("story"):
             run([PY, str(ROOT/"scripts/post_instagram.py"), url, "", "STORIES"], dry)
     log("done.")
