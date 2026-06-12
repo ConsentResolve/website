@@ -10,8 +10,12 @@ from pathlib import Path
 
 # Phonetic respellings applied to the SPOKEN text only (captions keep the real
 # spelling). Sales "lead/leads" must say "leed/leeds", never rhyme with "led".
-# Add future fixes here (word -> phonetic).
-PRONOUNCE = {r"\bleads\b": "leeds", r"\blead\b": "leed"}
+# The /demo URL is spoken naturally but shown as the real URL in captions.
+PRONOUNCE = {
+    r"consentresolve\.com/demo": "consent resolve dot com slash demo",
+    r"\bleads\b": "leeds",
+    r"\blead\b": "leed",
+}
 def spoken(text):
     out = text
     for rx, rep in PRONOUNCE.items():
@@ -37,6 +41,19 @@ AVATARS = [
     ("jason", "26e04090a6124f48b27623c888c6996b", "0e671a523e3d4cd7b6d5c580de70931e"),  # warm-lit pickup
 ]
 CACHE = {}  # old cache invalid — new looks, regenerate all scenes
+
+# JOBS: default = the 3-persona anchor test (shared SCENES). If ANGLE is set
+# (comma-separated angle ids), produce those ~30s scripts from video_scripts.py
+# instead — one job per angle, each with its own persona look/voice + scenes.
+_ANGLE_ENV = os.environ.get("ANGLE", "").strip()
+if _ANGLE_ENV:
+    from video_scripts import job_for
+    JOBS = []
+    for aid in [a.strip() for a in _ANGLE_ENV.split(",") if a.strip()]:
+        j = job_for(aid)
+        JOBS.append((j["name"], j["look"], j["voice"], j["scenes"]))
+else:
+    JOBS = [(n, lk, vc, SCENES) for (n, lk, vc) in AVATARS]
 
 def api(url, body=None):
     data = json.dumps(body).encode() if body else None
@@ -70,12 +87,12 @@ def dur(f):
     return float(subprocess.check_output([FP, "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f]).strip())
 
 manifest = {}
-for name, look, voice in AVATARS:
+for name, look, voice, job_scenes in JOBS:
     d = OUT / name; d.mkdir(parents=True, exist_ok=True)
-    print(f"\n=== {name} ===")
+    print(f"\n=== {name} ({len(job_scenes)} scenes) ===")
     # submit all scenes first (concurrent render server-side), reusing cache
     vids = []
-    for i, (text, emo, spd) in enumerate(SCENES):
+    for i, (text, emo, spd) in enumerate(job_scenes):
         vid = CACHE.get((name, i)) or submit(look, voice, spoken(text), emo, spd)
         print(f"  scene {i+1}: {vid}")
         vids.append(vid)
@@ -90,7 +107,7 @@ for name, look, voice in AVATARS:
             print(f"  scene {i+1} FAILED render"); scenes.append(None); continue
         urllib.request.urlretrieve(url, out)
         scenes.append({"video_id": vid, "file": str(out), "dur": round(dur(out), 3),
-                       "text": SCENES[i][0]})
+                       "text": job_scenes[i][0]})
         print(f"  scene {i+1} -> {out.name} ({scenes[-1]['dur']}s)")
     manifest[name] = scenes
 

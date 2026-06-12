@@ -26,7 +26,9 @@ export const LAUNCH_PLATFORMS = ["facebook", "linkedin_company", "linkedin_perso
 // published_at per platform and only drips a new item once this many days have
 // elapsed. Default is 1 (every run / daily). Resilient to missed cron runs.
 export const PLATFORM_CADENCE_DAYS = {
-  facebook: 1,
+  facebook: 2, // every other day — harmonizes with FB Reels (video track) so the
+               // Page never posts a feed link AND a Reel the same day (the algo
+               // suppresses same-account posts in one session). See .docs/posting-system.md
   linkedin_company: 2, // every other day
   linkedin_personal: 7, // once per week
   x: 1,

@@ -60,7 +60,7 @@ def build(name, scenes):
     for i, sc in enumerate(scenes):
         src = sc["file"]; cap = str(d / f"cap{i+1}.png"); part = str(d / f"p{i+1}.mp4")
         caption_png(sc["text"], cap)
-        sclae = PUNCH[i]; ex = EXPO[i]
+        sclae = PUNCH[i % len(PUNCH)]; ex = EXPO[i % len(EXPO)]
         chain = ("[0:v]scale=trunc(iw*1.04/2)*2:trunc(ih*1.04/2)*2,"
                  "crop=1080:1920:x='(in_w-1080)/2+16*sin(2*PI*t*0.11)':y='(in_h-1920)/2+12*sin(2*PI*t*0.17)'")
         if sclae > 1.0:
