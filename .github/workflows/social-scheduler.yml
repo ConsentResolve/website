@@ -1,0 +1,43 @@
+name: social-scheduler
+
+# Posts the day's videos + Story to IG Reels / FB Reels / YouTube Shorts per
+# social/schedule.json. Always-on (no Mac needed). Reuses the Python posters,
+# which read creds from /tmp — we materialize those from repo secrets below.
+
+on:
+  schedule:
+    - cron: "0 16 * * *"      # daily 16:00 UTC (~11am ET) — GH cron may delay a few min
+  workflow_dispatch:           # manual "Run workflow" button for testing
+    inputs:
+      date:
+        description: "Override date (YYYY-MM-DD), blank = today"
+        required: false
+      dry_run:
+        description: "true = plan only, post nothing"
+        required: false
+        default: "false"
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Materialize credentials from secrets
+        run: |
+          printf '%s' "${{ secrets.FB_PAGE_ID }}"   > /tmp/fb_page_id.txt
+          printf '%s' "${{ secrets.FB_PAGE_TOKEN }}" > /tmp/fb_page_token.txt
+          printf '%s' "${{ secrets.CR_IG_ID }}"      > /tmp/cr_ig_id.txt
+          printf '%s' '${{ secrets.YT_TOKEN_JSON }}' > /tmp/yt_token.json
+          printf '%s' '${{ secrets.R2_JSON }}'       > /tmp/r2.json
+
+      - name: Run scheduler
+        run: |
+          ARGS=""
+          [ -n "${{ github.event.inputs.date }}" ] && ARGS="--date ${{ github.event.inputs.date }}"
+          [ "${{ github.event.inputs.dry_run }}" = "true" ] && ARGS="$ARGS --dry-run"
+          python3 scripts/run_scheduler.py $ARGS
+
+      - name: Clean up credentials
+        if: always()
+        run: rm -f /tmp/fb_page_id.txt /tmp/fb_page_token.txt /tmp/cr_ig_id.txt /tmp/yt_token.json /tmp/r2.json

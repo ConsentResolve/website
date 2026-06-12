@@ -1,11 +1,6 @@
-node_modules/
-dist/
-.astro/
-.env
-.env.production
-.DS_Store
-
-# Resource-image tooling (regenerated on demand)
-scripts/.fonts/
-scripts/.cache/
-scripts/.preview/
+# generated media / build artifacts (hosted on R2, never committed)
+build/
+public/reels/
+public/illustrations/gbp/
+public/illustrations/gmb/
+*.mp4
