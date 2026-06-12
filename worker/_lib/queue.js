@@ -54,14 +54,26 @@ export async function lastPublishedAt(env, platform) {
   return row && row.last ? row.last : null;
 }
 
-/** Oldest ready_to_publish row for a platform (the next one to drip). */
-export async function nextReady(env, platform) {
+/** Oldest ready_to_publish row for a platform (the next one to drip).
+ *  kind: "ad" = VoC product ads (resource_slug LIKE 'voc-%'), "resource" = the
+ *  rest, undefined = any. Used by the publisher to interleave ads with shares. */
+export async function nextReady(env, platform, kind) {
+  let q = "SELECT * FROM social_queue WHERE platform = ? AND status = 'ready_to_publish'";
+  if (kind === "ad") q += " AND resource_slug LIKE 'voc-%'";
+  else if (kind === "resource") q += " AND resource_slug NOT LIKE 'voc-%'";
+  q += " ORDER BY id ASC LIMIT 1";
+  const row = await env.DB.prepare(q).bind(platform).first();
+  return row ? mapRow(row) : null;
+}
+
+/** How many rows a platform has already published (drip position). */
+export async function publishedCount(env, platform) {
   const row = await env.DB.prepare(
-    "SELECT * FROM social_queue WHERE platform = ? AND status = 'ready_to_publish' ORDER BY id ASC LIMIT 1"
+    "SELECT COUNT(*) AS c FROM social_queue WHERE platform = ? AND status = 'published'"
   )
     .bind(platform)
     .first();
-  return row ? mapRow(row) : null;
+  return (row && Number(row.c)) || 0;
 }
 
 /** Upsert one ready_to_publish row per platform item. Returns count. */

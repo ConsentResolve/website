@@ -13,7 +13,7 @@
 //   X        : X_CLIENT_ID, X_CLIENT_SECRET, X_REFRESH_TOKEN (OAuth2, tweet.write; refresh rotates → persisted in social_tokens)
 //   Google   : GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, GBP_ACCOUNT_ID, GBP_LOCATION_ID
 import { nowIso } from "./db.js";
-import { nextReady, updateStatus } from "./queue.js";
+import { nextReady, updateStatus, publishedCount } from "./queue.js";
 
 const SITE = "https://consentresolve.com";
 
@@ -267,9 +267,19 @@ async function urlOk(url) {
  *  any row whose destination URL is a confirmed 404/4xx so a dead link is never
  *  posted and can't block the queue head; advances to the next candidate. On a
  *  successful post the row is marked published. Returns a result summary. */
+// Interleave: every Nth post per platform is a VoC product ad, the rest are
+// resource shares. Position is derived from how many that platform has already
+// published, so it's stateless and self-correcting.
+const AD_EVERY = 4; // 1 ad per 4 posts (~25% ads)
+
 export async function publishNextLive(env, platform) {
-  for (let i = 0; i < 10; i++) {
-    const row = await nextReady(env, platform);
+  const pos = await publishedCount(env, platform);
+  const preferAd = pos % AD_EVERY === AD_EVERY - 1; // slot 3,7,11,... -> ad
+  for (let i = 0; i < 12; i++) {
+    // Try the preferred kind; fall back to the other so the queue never stalls
+    // (e.g. ads exhausted, or a platform has only resource rows ready).
+    let row = await nextReady(env, platform, preferAd ? "ad" : "resource");
+    if (!row) row = await nextReady(env, platform, preferAd ? "resource" : "ad");
     if (!row) return { empty: true };
     const url = row.payload && row.payload.utm_url;
     if (url) {
