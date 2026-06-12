@@ -36,15 +36,29 @@ interface PlatformCfg {
   tags: number; // how many hashtags to derive when none authored
 }
 
+// CTAs are dry/peer per the social voice canon (.docs/voice-social.md) — no
+// exclamation points, no hype, no emoji.
 const PLATFORM_CFG: Record<SocialSource, PlatformCfg> = {
-  linkedin: { img: "square", cta: "Read the full guide →", tags: 4 },
-  facebook: { img: "featured", cta: "Read it here 👇", tags: 2 },
-  x: { img: "square", cta: "Full guide →", tags: 2 },
-  threads: { img: "square", cta: "Link in the guide.", tags: 0 },
-  pinterest: { img: "vertical", cta: "Save this guide", tags: 3 },
-  google_business_profile: { img: "featured", cta: "Read the guide", tags: 0 },
-  email: { img: "featured", cta: "Read the full guide", tags: 0 },
+  linkedin: { img: "square", cta: "Full breakdown's on the site.", tags: 4 },
+  facebook: { img: "featured", cta: "Whole thing's on the site.", tags: 2 },
+  x: { img: "square", cta: "Full breakdown →", tags: 2 },
+  threads: { img: "square", cta: "It's on the site.", tags: 0 },
+  pinterest: { img: "vertical", cta: "Save this for later.", tags: 3 },
+  google_business_profile: { img: "featured", cta: "Read the breakdown.", tags: 0 },
+  email: { img: "featured", cta: "Read the full breakdown.", tags: 0 },
 };
+
+// Social/ad voice rules (Heartbeat v2): no exclamation points, no spoken
+// competitor brand names (use euphemisms). Applied to hook/caption/title only —
+// the website's own voice is untouched.
+const COMPETITOR_RX = /\b(Angi(?:'s| Leads)?|HomeAdvisor|Thumbtack)\b/gi;
+function vocVoice(s: string | undefined): string | undefined {
+  if (!s) return s;
+  return s
+    .replace(COMPETITOR_RX, "the big lead sites")
+    .replace(/the big lead sites(?:\s+the big lead sites)+/gi, "the big lead sites")
+    .replace(/!+/g, ".");
+}
 
 function toHashtag(s: string): string {
   return s
@@ -115,12 +129,12 @@ export function generateSocialPack(data: ResourceData): SocialPack {
   for (const source of SOCIAL_SOURCES) {
     const cfg = PLATFORM_CFG[source];
     const authored = (authoredAll as Record<string, Partial<SocialVariant>>)[source] ?? {};
-    const hook = authored.hook ?? firstSentence(data.excerpt);
+    const hook = vocVoice(authored.hook ?? firstSentence(data.excerpt))!;
 
     pack[source] = {
-      title: authored.title ?? defaultTitle(source, data),
+      title: vocVoice(authored.title ?? defaultTitle(source, data)),
       hook,
-      caption: authored.caption ?? defaultCaption(source, data, hook),
+      caption: vocVoice(authored.caption ?? defaultCaption(source, data, hook))!,
       cta: authored.cta ?? cfg.cta,
       hashtags: authored.hashtags ?? topHashtags(data, cfg.tags),
       image_url: authored.image_url ?? imagePath(data, cfg.img),
