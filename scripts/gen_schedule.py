@@ -39,9 +39,11 @@ YT_TITLE = {
 }
 # per weekday: which connected platforms post, and whether to reshare to Story
 # 0=Mon..6=Sun. Front-load adds Sat.
-# "li" = LinkedIn personal native-video cross-post (Mondays, ~1/wk — keeps the
-# personal feed from getting spammy; company added here once its API is approved).
-GRID = {0:(["ig","fb","yt","li"], True), 1:(["yt"], False), 2:(["ig","fb"], False),
+# NOTE: avatar (UGC) reels are NOT cross-posted to the personal LinkedIn feed —
+# the founder feed gets non-UGC video + founder posts only (see
+# .docs/linkedin-personal-voice.md). "li" is reserved for the Company Page once
+# its Community Management API clears review.
+GRID = {0:(["ig","fb","yt"], True), 1:(["yt"], False), 2:(["ig","fb"], False),
         3:(["yt"], False), 4:(["ig","fb","yt"], True), 5:(["ig","fb"], False), 6:([], False)}
 FRONTLOAD_WEEKS = 3
 
