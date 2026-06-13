@@ -45,8 +45,9 @@ YT_TITLE = {
 # the founder feed gets non-UGC video + founder posts only (see
 # .docs/linkedin-personal-voice.md). "li" is reserved for the Company Page once
 # its Community Management API clears review.
-GRID = {0:(["ig","fb","yt"], True), 1:(["yt"], False), 2:(["ig","fb"], False),
-        3:(["yt"], False), 4:(["ig","fb","yt"], True), 5:(["ig","fb"], False), 6:([], False)}
+# "tk" = TikTok via Buffer (heaviest channel — Mon–Sat).
+GRID = {0:(["tk","ig","fb","yt"], True), 1:(["tk","yt"], False), 2:(["tk","ig","fb"], False),
+        3:(["tk","yt"], False), 4:(["tk","ig","fb","yt"], True), 5:(["tk","ig","fb"], False), 6:([], False)}
 FRONTLOAD_WEEKS = 3
 
 def caption(angle):

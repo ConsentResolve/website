@@ -74,6 +74,10 @@ def main():
                 run([PY, str(ROOT/"scripts/post_youtube.py"), local_bytes(angle, kind, url, dry), it["yt_title"], it["caption"], "public"], dry)
             elif p == "li":  # LinkedIn personal native video
                 run([PY, str(ROOT/"scripts/post_linkedin.py"), local_bytes(angle, kind, url, dry), it["caption"], "personal"], dry)
+            elif p == "tk":  # TikTok via Buffer (media by public R2 URL, no browser)
+                ch = os.environ.get("BUFFER_TIKTOK_CHANNEL", "6a2d5c7238b55793458ff01d")
+                ai = "ai" if kind == "ugc" else "noai"
+                run([PY, str(ROOT/"scripts/post_buffer.py"), ch, url, it["caption"], "shareNow", ai], dry)
         if it.get("story"):
             run([PY, str(ROOT/"scripts/post_instagram.py"), url, "", "STORIES"], dry)
     log("done.")

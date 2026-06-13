@@ -31,8 +31,11 @@ jobs:
           printf '%s' '${{ secrets.YT_TOKEN_JSON }}'    > /tmp/yt_token.json
           printf '%s' '${{ secrets.R2_JSON }}'          > /tmp/r2.json
           printf '%s' '${{ secrets.LI_PERSONAL_JSON }}' > /tmp/li_personal.json
+          printf '%s' '${{ secrets.BUFFER_TOKEN }}'     > /tmp/buffer_token.txt
 
       - name: Run scheduler
+        env:
+          BUFFER_TIKTOK_CHANNEL: ${{ secrets.BUFFER_TIKTOK_CHANNEL }}
         run: |
           ARGS=""
           [ -n "${{ github.event.inputs.date }}" ] && ARGS="--date ${{ github.event.inputs.date }}"
@@ -41,4 +44,4 @@ jobs:
 
       - name: Clean up credentials
         if: always()
-        run: rm -f /tmp/fb_page_id.txt /tmp/fb_page_token.txt /tmp/cr_ig_id.txt /tmp/yt_token.json /tmp/r2.json /tmp/li_personal.json
+        run: rm -f /tmp/fb_page_id.txt /tmp/fb_page_token.txt /tmp/cr_ig_id.txt /tmp/yt_token.json /tmp/r2.json /tmp/li_personal.json /tmp/buffer_token.txt
