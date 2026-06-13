@@ -74,28 +74,48 @@ def lead_card(dr,t):
     dr.text((px,py+428),"Wants: roof replacement quote",font=sans(33),fill=acol(SLATE,int(255*a)))
     dr.text((px,py+486),"Illustrative example",font=sans(24),fill=acol(SLATE,int(170*a)))
 
+# --- per-angle config (locked style, current voice; CPL confirmed correct) ---
+ANGLE=os.environ.get("ANGLE","leak")
+REELS={
+ "leak":{"hook":"leak","agitate":["You paid for","every single click."],"vanish":["Then they vanish.","Anonymous. Untraceable."],"reveal":"We turn the bounce into a real lead."},
+ "invoice":{"hook":"num","stat":"$1,900","unit":"in shared-lead spend","tail":"…for one closed job.","agitate":["Then you checked","your own analytics."],"vanish":["2,300 visitors.","Nearly all anonymous."],"reveal":"Recover the visitors you already paid for."},
+ "math":{"hook":"num","stat":"$100","unit":"per shared lead","tail":"closed ~5% of the time.","agitate":["Split four ways,","called in seconds."],"vanish":["A footrace,","not a lead."],"reveal":"$7 buys an exclusive lead from your own site."},
+ "robot":{"hook":"num","stat":"$400","unit":"auto-charged by a robot","tail":"for your own callback.","agitate":["No appeal.","No one to call."],"vanish":["Just the bill,","and a shrug."],"reveal":"Your own traffic never bills you by algorithm."},
+ "ftc":{"hook":"num","stat":"$7.2M","unit":"fine for the biggest lead site","tail":"for lying about lead quality.","agitate":["Suddenly the garbage","leads made sense."],"vanish":["Years of blaming","yourself."],"reveal":"So recover your own traffic instead."},
+ "twice":{"hook":"num","stat":"2×","unit":"the same homeowner","tail":"sold to me twice.","agitate":["Second call,","the job was done."],"vanish":["Shared means","sold again."],"reveal":"Exclusive means sold once — to you."},
+ "ghost":{"hook":"num","stat":"30","unit":"leads, 30 ghosts","tail":"paid for every one.","agitate":["No answer.","Wrong number."],"vanish":["A thousand bucks","to talk to no one."],"reveal":"The people on your site actually want the work."},
+ "ownership":{"hook":"num","stat":"1","unit":"pipe you actually own","tail":"your website.","agitate":["Their dashboard,","their rules."],"vanish":["One policy change,","it's gone."],"reveal":"Build your pipeline, not theirs."},
+}
+CFG=REELS.get(ANGLE, REELS["leak"])
+
 def render(key,dr,t,dur):
     if key=="hook":
-        p=min(t/0.7,1); val=int(round(98*eo(p)))
-        ct(dr,500,str(val),disp(230),RED)
-        ct(dr,648,"out of 100 visitors",sans(48),PAPER)
-        cols=rows=10;sp=58;r=10;gx0=W//2-(cols-1)*sp//2;gy0=760
-        ng=int(round(98*clamp((t-0.2)/1.6)));i=0
-        for ry in range(rows):
-            for cx in range(cols):
-                x=gx0+cx*sp;y=gy0+ry*sp;col=SLATE if i<ng else MINT
-                dr.ellipse([x-r,y-r,x+r,y+r],fill=acol(col,255));i+=1
-        if t>1.7: ct(dr,1360,"leave anonymous.",sans(48),SLATE,int(230*clamp((t-1.7)/0.3)))
+        if CFG["hook"]=="leak":
+            p=min(t/0.7,1); val=int(round(98*eo(p)))
+            ct(dr,500,str(val),disp(230),RED)
+            ct(dr,648,"out of 100 visitors",sans(48),PAPER)
+            cols=rows=10;sp=58;r=10;gx0=W//2-(cols-1)*sp//2;gy0=760
+            ng=int(round(98*clamp((t-0.2)/1.6)));i=0
+            for ry in range(rows):
+                for cx in range(cols):
+                    x=gx0+cx*sp;y=gy0+ry*sp;col=SLATE if i<ng else MINT
+                    dr.ellipse([x-r,y-r,x+r,y+r],fill=acol(col,255));i+=1
+            if t>1.7: ct(dr,1360,"leave anonymous.",sans(48),SLATE,int(230*clamp((t-1.7)/0.3)))
+        else:
+            a=clamp(t/0.5)
+            ct(dr,560,CFG["stat"],disp(210),RED,int(255*a))
+            ct(dr,740,CFG["unit"],fit(CFG["unit"],920,52,32,sans),PAPER,int(255*a))
+            if t>1.0: ct(dr,1320,CFG["tail"],fit(CFG["tail"],900,48,30,sans),SLATE,int(230*clamp((t-1.0)/0.3)))
     elif key=="agitate":
         a=clamp(t/0.3);yo=int((1-eo(a))*40)
-        ct(dr,840-yo,"You paid for",fit("You paid for",900,96,54,disp),PAPER,int(255*a))
-        ct(dr,970-yo,"every single click.",fit("every single click.",900,96,54,disp),PAPER,int(255*a))
+        ct(dr,840-yo,CFG["agitate"][0],fit(CFG["agitate"][0],900,96,54,disp),PAPER,int(255*a))
+        ct(dr,970-yo,CFG["agitate"][1],fit(CFG["agitate"][1],900,96,54,disp),PAPER,int(255*a))
     elif key=="vanish":
         a=clamp(t/0.3)
-        ct(dr,880,"Then they vanish.",fit("Then they vanish.",900,110,60,disp),RED,int(255*a))
-        ct(dr,1010,"Anonymous. Untraceable.",sans(50),SLATE,int(220*a))
+        ct(dr,880,CFG["vanish"][0],fit(CFG["vanish"][0],900,110,60,disp),RED,int(255*a))
+        ct(dr,1010,CFG["vanish"][1],sans(50),SLATE,int(220*a))
     elif key=="reveal":
-        ct(dr,600,"We turn the bounce into a real lead.",fit("We turn the bounce into a real lead.",920,56,36,sans),PAPER,int(255*clamp(t/0.3)))
+        ct(dr,600,CFG["reveal"],fit(CFG["reveal"],920,56,36,sans),PAPER,int(255*clamp(t/0.3)))
         lead_card(dr,t)
     elif key=="deliver":
         ct(dr,600,"Every lead comes with:",disp(56),PAPER,int(255*clamp(t/0.25)))
@@ -143,7 +163,7 @@ print("video_v3 (silent) rebuilt")
 # Override per render:  MUSIC=<path> OUTNAME=<name> python3 scripts/brand_reel.py
 MUSIC=os.environ.get("MUSIC", str(ROOT/"assets/audio/CR1.mp3"))
 if not os.path.isabs(MUSIC): MUSIC=str(ROOT/MUSIC)   # cwd is public/reels (chdir above)
-OUTNAME=os.environ.get("OUTNAME","reel-leak-locked")
+OUTNAME=os.environ.get("OUTNAME",f"reel-{ANGLE}-locked")
 subprocess.run([FF,"-y","-loglevel","error","-i","build/video_v3.mp4","-stream_loop","-1","-i",MUSIC,
   "-map","0:v","-map","1:a","-af","loudnorm=I=-14:TP=-1.5:LRA=11","-c:v","copy","-c:a","aac","-b:a","160k",
   "-shortest","-movflags","+faststart",str(ROOT/f"public/reels/{OUTNAME}.mp4")],check=True)

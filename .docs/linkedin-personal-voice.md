@@ -71,6 +71,55 @@ Question for the contractors here:
 what would make you trust a lead source again after getting burned by the big platforms?
 Genuinely asking — we're building Consent Resolve around the answers, and the honest ones sting in a useful way.
 
+## Real founder post bank (from the interview — use these first)
+Grounded in Aaron's actual answers. Post as-is or tighten.
+
+**1 · The rigged moment**
+I didn't decide the lead-gen model was broken in one dramatic moment.
+I decided it reading a contractor's call log — five competitors calling the same homeowner inside one minute.
+The platforms weren't even hiding it.
+That's not a marketplace. It's a race to the bottom, engineered for platform revenue, not your business.
+
+**2 · What it cost me**
+Before this, I ran campaigns wired into shared-lead systems.
+We paid to generate the demand — then paid again to compete for it when that same demand got resold to competitors.
+The wasted spend stung. Looking desperate, calling people who didn't remember opting in, stung more.
+
+**3 · The $85 receipt**
+A contractor told me: "I paid $85 for a hot plumbing lead. Called in 90 seconds. The guy says, 'you're the fourth plumber, I already booked someone.'"
+He never got to quote.
+That's not a lead. It's a receipt for losing.
+
+**4 · The question that is the whole business**
+The first reaction to "98 of 100 visitors leave your site anonymous" is silence.
+Then: "almost everyone who comes to my site just disappears?"
+Then the one that matters: "I've been paying for leads… while ignoring the 98 who came to me first?"
+
+**5 · The belief the industry gets wrong**
+The whole industry runs on one belief: more leads = more jobs.
+It's wrong. Ten exclusive, high-intent conversations beat 100 shared leads every time.
+Volume is what platforms can sell — not what works for you.
+
+**6 · The line we won't cross**
+Our hard rule: we never share a homeowner's intent without clear, direct consent tied to one contractor.
+No "implied interest." No bundling. No reselling.
+Fewer easy leads — but the homeowner expects your call, and you're not another lead mill.
+
+**7 · "I turned my website on for the first time"**
+A contractor recovered conversations from previously anonymous visitors and closed jobs — without buying a single shared lead that month.
+He said: "This feels like I turned my own website on for the first time."
+That's when I knew we weren't optimizing the old model. We were replacing it.
+
+**8 · What I got wrong**
+Early on I assumed the value would be obvious. It wasn't.
+Contractors have been burned so many times that "new marketing tool" just triggers skepticism.
+So we stopped explaining and started proving — real conversations, real jobs, not dashboards.
+
+**9 · What "100 customers in 2026" actually means**
+It's not about the number. It's proof a different model can survive —
+that contractors can grow without feeding the shared-lead machine.
+If 100 can do it, it's not a tactic. It's a viable alternative. That's the wedge.
+
 ## How to run it
 - These are **founder posts — post them as yourself** (or lightly schedule). Don't fully automate the personal voice; review/tweak so it stays human.
 - Keep a running list; when one performs, write two more in that vein.
