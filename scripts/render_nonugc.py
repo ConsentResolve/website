@@ -1,42 +1,66 @@
 #!/usr/bin/env python3
-"""Render non-UGC locked reels (brand_reel.py) with their mood-matched music and
-stage to R2. Durable home for the angle->track map (was previously ad-hoc).
+"""Render the non-UGC reels in their assigned audio mode and stage to R2.
+
+One audio mode per angle (chosen for the angle's tone):
+  - vo     : matched cloned-voice voice-over (scripts/vo_reel.py) over a ducked bed
+  - instr  : instrumental only — visuals carry the story (muted-legible by design)
+  - lyrics : a with-lyrics Suno track — energetic, the on-screen story still reads muted
+
+Every angle, regardless of mode, normalizes to:
+  - local  public/reels/reel-<angle>-locked.mp4   (what run_scheduler.py posts)
+  - R2     social/nonugc/<angle>.mp4              (URL for platforms that need one)
 
 Usage:
-  python3 scripts/render_nonugc.py              # all angles
-  python3 scripts/render_nonugc.py ftc robot    # only these
-Tracks live in assets/audio/cr-music/no-vocals/ (local, gitignored).
+  python3 scripts/render_nonugc.py            # all angles
+  python3 scripts/render_nonugc.py ftc robot  # only these
 """
-import subprocess, os, sys
+import subprocess, os, sys, shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 NOVOX = "assets/audio/cr-music/no-vocals"
+VOX = "assets/audio/cr-music/vocals"
 
-# angle -> instrumental (mood-matched). int-new1 (24.68s) retired off the longer
-# reels — its loop seam showed; ftc/robot moved to the new ~28-30s tracks.
-MUSIC_MAP = {
-    "leak": "inst-money", "invoice": "inst-money", "ghost": "inst-money",
-    "math": "inst-solveit", "twice": "inst-solveit",
-    "ownership": "inst-fp1",
-    "ftc": "inst-new6", "robot": "inst-new4",
+# angle -> (mode, track). track is the instrumental/lyrics file for instr/lyrics;
+# for vo it's unused (vo_reel.py supplies its own ducked bed).
+MODES = {
+    "leak":      ("vo",     None),
+    "ftc":       ("vo",     None),
+    "ownership": ("vo",     None),
+    "invoice":   ("instr",  f"{NOVOX}/inst-money.mp3"),
+    "math":      ("instr",  f"{NOVOX}/inst-solveit.mp3"),
+    "robot":     ("instr",  f"{NOVOX}/inst-new4.mp3"),
+    "twice":     ("lyrics", f"{VOX}/voc-sparks.mp3"),
+    "ghost":     ("lyrics", f"{VOX}/voc-oneroof.mp3"),
 }
 
 def render(angle):
-    track = MUSIC_MAP.get(angle)
-    if not track:
-        print(f"  skip {angle}: no track mapped"); return
-    music = f"{NOVOX}/{track}.mp3"
-    if not (ROOT / music).exists():
-        print(f"  MISSING track for {angle}: {music}"); return
-    print(f"=== render {angle} ({track}) ===", flush=True)
-    env = dict(os.environ, ANGLE=angle, MUSIC=music)
-    subprocess.run(["/usr/bin/python3", "scripts/brand_reel.py"], cwd=ROOT, env=env, check=False)
+    spec = MODES.get(angle)
+    if not spec:
+        print(f"  skip {angle}: not in MODES"); return
+    mode, track = spec
+    print(f"=== render {angle} ({mode}{'/'+Path(track).stem if track else ''}) ===", flush=True)
+    if mode == "vo":
+        subprocess.run(["/usr/bin/python3", "scripts/vo_reel.py"], cwd=ROOT,
+                       env=dict(os.environ, ANGLE=angle), check=False)
+        produced = ROOT / f"public/reels/reel-{angle}-vo.mp4"
+    else:
+        if not (ROOT / track).exists():
+            print(f"  MISSING track for {angle}: {track}"); return
+        subprocess.run(["/usr/bin/python3", "scripts/brand_reel.py"], cwd=ROOT,
+                       env=dict(os.environ, ANGLE=angle, MUSIC=track), check=False)
+        produced = ROOT / f"public/reels/reel-{angle}-locked.mp4"
+    if not produced.exists():
+        print(f"  render produced nothing for {angle}"); return
+    # normalize to the canonical name the scheduler posts
+    canonical = ROOT / f"public/reels/reel-{angle}-locked.mp4"
+    if produced != canonical:
+        shutil.copy2(produced, canonical)
     subprocess.run(["/usr/bin/python3", "scripts/r2_upload.py",
                     f"public/reels/reel-{angle}-locked.mp4", f"social/nonugc/{angle}.mp4", "video/mp4"],
                    cwd=ROOT, check=False)
 
-angles = sys.argv[1:] or list(MUSIC_MAP)
+angles = sys.argv[1:] or list(MODES)
 for a in angles:
     render(a)
 print("done")

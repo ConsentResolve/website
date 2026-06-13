@@ -10,7 +10,14 @@ on top of the same core asset.
 | Style | Locked brand reel — `scripts/brand_reel.py` (red 98/100 + dot-grid → lead-identified card → $7/exclusive → /demo pill), Suno music | Avatar IV presenters (Jason/Tyler/Aaron) in trade settings — `gen_avatar_scenes.py` + de-AI finish |
 | Origin | The original posts / first Reels (Suno songs + instrumentals) | Added later |
 | Best for | LinkedIn (founder), brand-forward variety, "proof/explainer" beats | TikTok / IG / YT cold discovery (a face out-performs there) |
-| Audio | Suno music (instrumental/song), no VO required | Cloned-voice VO |
+| Audio | One mode per angle: **VO** (matched cloned voice + ducked bed), **instrumental**, or **with-lyrics** Suno | Cloned-voice VO |
+
+**Every non-UGC reel is built to convert muted:** a ≤3s hook (big number/grid
+on-screen instantly), a muted-legible visual story, brisk pacing (~23–25s). Audio
+mode is assigned per angle in `render_nonugc.py` (`MODES`): VO=leak/ftc/ownership,
+instrumental=invoice/math/robot, with-lyrics=twice/ghost. VO narration is
+re-scripted to Heartbeat-v2 in `vo_reel.py` and spoken in that angle's matched
+avatar voice (leak=Jason, ftc=Tyler, ownership=Aaron).
 
 Both share: navy/mint, the logo, Heartbeat-v2 copy ($7, exclusive, consent-first,
 /demo, "the big lead sites", no trial language, no exclamation).
@@ -33,8 +40,10 @@ Rule of thumb: **UGC drives cold discovery (TikTok/IG/YT); non-UGC carries Linke
 - Stories: auto-reshare + branded slides. Personal LinkedIn: founder posts + non-UGC clips (manual).
 
 ## Builders (source of truth)
-- Non-UGC: `scripts/brand_reel.py` (+ `assets/audio/CR1.mp3`)
+- Non-UGC: `scripts/render_nonugc.py` (mode router) → `brand_reel.py` (visual engine,
+  `DURS`/`VO`/`MUSIC` env) and `vo_reel.py` (cloned-voice VO over a ducked bed)
 - UGC: `scripts/gen_avatar_scenes.py` → `finish_tests.py` / `finish_variants.py`
+- Written-post preview: `scripts/gen_posts_preview.py` → `public/posts.html` (noindex)
 - Schedule/scheduler: `scripts/gen_schedule.py`, `run_scheduler.py`, `.github/workflows/social-scheduler.yml`
 - Hosting: `scripts/r2_upload.py` (R2 `cr-social`)
 - Voice/casting: `.docs/voice-social.md`, `.docs/avatar-casting.md`, `.docs/linkedin-personal-voice.md`

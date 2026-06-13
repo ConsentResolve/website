@@ -140,10 +140,16 @@ def _d(f):
     import subprocess as _sp
     return round(float(_sp.check_output([FP,"-v","error","-show_entries","format=duration","-of","csv=p=0",f]).strip()),3)
 _keys=["hook","agitate","vanish","reveal","deliver","offer","cta"]
-# Fixed, VO-independent timing — silent animated reel + Suno music (better for
-# silent autoplay anyway). Sums to ~25.4s to sit under CR1.mp3 (25.8s).
-_FIXED={"hook":4.4,"agitate":2.2,"vanish":2.2,"reveal":4.6,"deliver":4.2,"offer":3.6,"cta":4.2}
-DUR=[(k,_FIXED[k]) for k in _keys]
+# Default timing: tight 3s hook (the big number/grid is fully on-screen and read
+# inside the first ~3s), then a brisk, muted-legible story. Sums ~23.4s.
+# Scene anims mostly resolve in the first ~0.3-0.7s then hold, so stretching any
+# scene (e.g. to fit a voiceover line) just holds longer — safe.
+_FIXED={"hook":3.2,"agitate":2.0,"vanish":2.0,"reveal":4.4,"deliver":4.0,"offer":3.4,"cta":4.4}
+# DURS env (JSON: {scene: seconds}) overrides per-scene timing — used by vo_reel.py
+# to lock each scene to its narration length.
+import json as _json
+_DURS=_json.loads(os.environ.get("DURS","{}") or "{}")
+DUR=[(k,float(_DURS.get(k,_FIXED[k]))) for k in _keys]
 TOTAL=round(sum(d for _,d in DUR),2); print("TOTAL",TOTAL)
 import shutil; shutil.rmtree("build/frames",ignore_errors=True); Path("build/frames").mkdir(parents=True,exist_ok=True)
 gi=0; bar_x0,bar_x1,bar_y=160,920,300; TF=TOTAL*FPS
@@ -159,12 +165,24 @@ for key,d in DUR:
 print("frames",gi)
 subprocess.run([FF,"-y","-loglevel","error","-framerate","30","-i","build/frames/%05d.png","-c:v","libx264","-profile:v","high","-pix_fmt","yuv420p","-b:v","10M","-minrate","8M","-maxrate","12M","-bufsize","12M","-r","30","build/video_v3.mp4"],check=True)
 print("video_v3 (silent) rebuilt")
-# mux Suno music (loudnorm, loop-to-length) -> on-voice locked-style reel.
-# Override per render:  MUSIC=<path> OUTNAME=<name> python3 scripts/brand_reel.py
+# Audio mux. Two modes:
+#  - music-only (default): Suno track, loudnorm, loop-to-length.
+#  - VO mode (VO=<path> set, from vo_reel.py): voiceover full + the instrumental
+#    MUSIC ducked to a quiet bed underneath. OUTNAME/MUSIC overridable per render.
 MUSIC=os.environ.get("MUSIC", str(ROOT/"assets/audio/CR1.mp3"))
 if not os.path.isabs(MUSIC): MUSIC=str(ROOT/MUSIC)   # cwd is public/reels (chdir above)
 OUTNAME=os.environ.get("OUTNAME",f"reel-{ANGLE}-locked")
-subprocess.run([FF,"-y","-loglevel","error","-i","build/video_v3.mp4","-stream_loop","-1","-i",MUSIC,
-  "-map","0:v","-map","1:a","-af","loudnorm=I=-14:TP=-1.5:LRA=11","-c:v","copy","-c:a","aac","-b:a","160k",
-  "-shortest","-movflags","+faststart",str(ROOT/f"public/reels/{OUTNAME}.mp4")],check=True)
-print(f"{OUTNAME}.mp4 built (music: {Path(MUSIC).name}) ->", ROOT/f"public/reels/{OUTNAME}.mp4")
+VO=os.environ.get("VO","").strip()
+OUT=str(ROOT/f"public/reels/{OUTNAME}.mp4")
+if VO:
+    if not os.path.isabs(VO): VO=str(ROOT/VO)
+    subprocess.run([FF,"-y","-loglevel","error","-i","build/video_v3.mp4","-i",VO,"-stream_loop","-1","-i",MUSIC,
+      "-filter_complex","[2:a]volume=0.12[bed];[1:a][bed]amix=inputs=2:duration=first:dropout_transition=0,"
+      "loudnorm=I=-14:TP=-1.5:LRA=11[a]","-map","0:v","-map","[a]","-c:v","copy","-c:a","aac","-b:a","160k",
+      "-shortest","-movflags","+faststart",OUT],check=True)
+    print(f"{OUTNAME}.mp4 built (VO + bed: {Path(MUSIC).name}) ->", OUT)
+else:
+    subprocess.run([FF,"-y","-loglevel","error","-i","build/video_v3.mp4","-stream_loop","-1","-i",MUSIC,
+      "-map","0:v","-map","1:a","-af","loudnorm=I=-14:TP=-1.5:LRA=11","-c:v","copy","-c:a","aac","-b:a","160k",
+      "-shortest","-movflags","+faststart",OUT],check=True)
+    print(f"{OUTNAME}.mp4 built (music: {Path(MUSIC).name}) ->", OUT)
