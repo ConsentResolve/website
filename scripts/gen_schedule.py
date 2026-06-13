@@ -19,9 +19,11 @@ START = datetime.date(2026, 6, 15)          # Mon, week 1
 DAYS = 45
 HASHTAGS = "#contractorlife #homeservicebusiness #leadgeneration #trades #smallbusinessmarketing"
 
-# angle rotation (alternating persona); cycles for the back half
-ROTATION = ["invoice","leak","ftc","race","math","credit","ghost","creepy",
-            "policy","twice","contrarian","ownership","robot"]
+# Angles with a locked non-UGC reel (scripts/brand_reel.py). The rest are UGC-only.
+NONUGC = {"leak","invoice","math","robot","ftc","twice","ghost","ownership"}
+# Rotation weighted ~80% non-UGC / 20% UGC: 8 non-UGC angles + 2 UGC-only.
+ROTATION = ["leak","invoice","math","robot","ftc","twice","ghost","ownership",
+            "creepy","contrarian"]
 YT_TITLE = {
  "invoice":"Where your lead money actually goes #Shorts",
  "leak":"Why 98% of website visitors leave anonymous #Shorts",
@@ -64,7 +66,8 @@ for i in range(DAYS):
         continue
     angle = ROTATION[ai % len(ROTATION)]; ai += 1
     sched[d.isoformat()] = [{
-        "angle": angle, "platforms": plats, "story": story,
+        "angle": angle, "kind": "nonugc" if angle in NONUGC else "ugc",
+        "platforms": plats, "story": story,
         "caption": caption(angle), "yt_title": YT_TITLE.get(angle, f"{angle} #Shorts"),
     }]
 

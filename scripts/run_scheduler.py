@@ -22,23 +22,24 @@ PUB = R2.get("public_base", "")
 
 def log(*a): print("[scheduler]", *a, flush=True)
 
-def video_for(angle):
-    """Local reels-safe cut path (vertical, used for all platforms)."""
-    return ROOT / f"public/reels/test-{angle}-tiktok.mp4"
+def video_for(angle, kind):
+    """Local vertical cut: non-UGC locked reel, or UGC avatar reels-safe cut."""
+    name = f"reel-{angle}-locked" if kind == "nonugc" else f"test-{angle}-tiktok"
+    return ROOT / f"public/reels/{name}.mp4"
 
-def ensure_r2(angle, dry):
-    key = f"social/{angle}.mp4"; url = f"{PUB}/{key}"
-    local = video_for(angle)
+def ensure_r2(angle, kind, dry):
+    key = (f"social/nonugc/{angle}.mp4" if kind == "nonugc" else f"social/{angle}.mp4"); url = f"{PUB}/{key}"
+    local = video_for(angle, kind)
     if local.exists() and not dry:
         subprocess.run(["/usr/bin/python3", str(ROOT/"scripts/r2_upload.py"), str(local), key, "video/mp4"], check=False)
     return url, key
 
-def local_bytes(angle, url, dry):
+def local_bytes(angle, kind, url, dry):
     """FB/YT need a local file. Use local if present, else download from R2."""
-    local = video_for(angle)
+    local = video_for(angle, kind)
     if local.exists():
         return str(local)
-    tmp = f"/tmp/sched-{angle}.mp4"
+    tmp = f"/tmp/sched-{kind}-{angle}.mp4"
     if not dry:
         urllib.request.urlretrieve(url, tmp)
     return tmp
@@ -59,20 +60,20 @@ def main():
         log(f"{date}: nothing scheduled."); return
     PY = "/usr/bin/python3" if Path("/usr/bin/python3").exists() else "python3"
     for it in items:
-        angle = it["angle"]; plats = it["platforms"]
-        log(f"{date}: {angle} -> {plats} story={it.get('story')}")
-        if not video_for(angle).exists() and not PUB:
+        angle = it["angle"]; kind = it.get("kind", "ugc"); plats = it["platforms"]
+        log(f"{date}: {angle} [{kind}] -> {plats} story={it.get('story')}")
+        if not video_for(angle, kind).exists() and not PUB:
             log(f"  SKIP {angle}: no local video and no R2 base"); continue
-        url, _ = ensure_r2(angle, dry)
+        url, _ = ensure_r2(angle, kind, dry)
         for p in plats:
             if p == "ig":
                 run([PY, str(ROOT/"scripts/post_instagram.py"), url, it["caption"], "REELS"], dry)
             elif p == "fb":
-                run([PY, str(ROOT/"scripts/post_video.py"), local_bytes(angle, url, dry), it["caption"]], dry)
+                run([PY, str(ROOT/"scripts/post_video.py"), local_bytes(angle, kind, url, dry), it["caption"]], dry)
             elif p == "yt":
-                run([PY, str(ROOT/"scripts/post_youtube.py"), local_bytes(angle, url, dry), it["yt_title"], it["caption"], "public"], dry)
+                run([PY, str(ROOT/"scripts/post_youtube.py"), local_bytes(angle, kind, url, dry), it["yt_title"], it["caption"], "public"], dry)
             elif p == "li":  # LinkedIn personal native video
-                run([PY, str(ROOT/"scripts/post_linkedin.py"), local_bytes(angle, url, dry), it["caption"], "personal"], dry)
+                run([PY, str(ROOT/"scripts/post_linkedin.py"), local_bytes(angle, kind, url, dry), it["caption"], "personal"], dry)
         if it.get("story"):
             run([PY, str(ROOT/"scripts/post_instagram.py"), url, "", "STORIES"], dry)
     log("done.")
