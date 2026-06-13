@@ -138,8 +138,12 @@ for key,d in DUR:
 print("frames",gi)
 subprocess.run([FF,"-y","-loglevel","error","-framerate","30","-i","build/frames/%05d.png","-c:v","libx264","-profile:v","high","-pix_fmt","yuv420p","-b:v","10M","-minrate","8M","-maxrate","12M","-bufsize","12M","-r","30","build/video_v3.mp4"],check=True)
 print("video_v3 (silent) rebuilt")
-# mux Suno music (loudnorm) -> on-voice locked-style reel
-subprocess.run([FF,"-y","-loglevel","error","-i","build/video_v3.mp4","-i",str(ROOT/"assets/audio/CR1.mp3"),
+# mux Suno music (loudnorm, loop-to-length) -> on-voice locked-style reel.
+# Override per render:  MUSIC=<path> OUTNAME=<name> python3 scripts/brand_reel.py
+MUSIC=os.environ.get("MUSIC", str(ROOT/"assets/audio/CR1.mp3"))
+if not os.path.isabs(MUSIC): MUSIC=str(ROOT/MUSIC)   # cwd is public/reels (chdir above)
+OUTNAME=os.environ.get("OUTNAME","reel-leak-locked")
+subprocess.run([FF,"-y","-loglevel","error","-i","build/video_v3.mp4","-stream_loop","-1","-i",MUSIC,
   "-map","0:v","-map","1:a","-af","loudnorm=I=-14:TP=-1.5:LRA=11","-c:v","copy","-c:a","aac","-b:a","160k",
-  "-shortest","-movflags","+faststart",str(ROOT/"public/reels/reel-leak-locked.mp4")],check=True)
-print("reel-leak-locked.mp4 built ->", ROOT/"public/reels/reel-leak-locked.mp4")
+  "-shortest","-movflags","+faststart",str(ROOT/f"public/reels/{OUTNAME}.mp4")],check=True)
+print(f"{OUTNAME}.mp4 built (music: {Path(MUSIC).name}) ->", ROOT/f"public/reels/{OUTNAME}.mp4")
