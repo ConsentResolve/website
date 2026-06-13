@@ -14,7 +14,7 @@ FF="/opt/homebrew/bin/ffmpeg"
 NAVY=(10,22,40); NAVY8=(13,27,42); MINT=(0,229,160); WHITE=(245,248,250); SLATE=(150,170,185)
 W,H=1080,1920
 BRI=str(ROOT/"scripts/.fonts/Bricolage.ttf"); HAN=str(ROOT/"scripts/.fonts/Hanken.ttf")
-MUSIC=str(ROOT/"assets/audio/cr-music/no-vocals/inst-cr1c.mp3")
+MUSIC=str(ROOT/"assets/audio/cr-music/no-vocals/int-new1.mp3")
 def F(p,s): return ImageFont.truetype(p,s)
 def cx(d,t,f): b=d.textbbox((0,0),t,font=f); return (W-(b[2]-b[0]))//2-b[0]
 def wrap(d,t,f,mw):
