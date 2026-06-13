@@ -5,7 +5,7 @@ video-trained instant-avatar look our AI personas don't have).
 Reuses an already-rendered scene if a video_id is cached. Outputs to
 build/tests/<name>/s{1,2,3}.mp4 and writes a manifest with durations + cost notes.
 """
-import json, os, re, subprocess, time, urllib.request, urllib.error
+import json, os, re, hashlib, subprocess, time, urllib.request, urllib.error
 from pathlib import Path
 
 # Phonetic respellings applied to the SPOKEN text only (captions keep the real
@@ -89,11 +89,14 @@ def dur(f):
 manifest = {}
 for name, look, voice, job_scenes in JOBS:
     d = OUT / name; d.mkdir(parents=True, exist_ok=True)
-    print(f"\n=== {name} ({len(job_scenes)} scenes) ===")
+    # per-video pacing jitter (~0.97–1.04x): every take lands on a slightly
+    # different cadence so the model's delivery/expression isn't uniform.
+    sf = round(0.97 + (int(hashlib.md5(name.encode()).hexdigest()[:4], 16) % 70) / 1000.0, 3)
+    print(f"\n=== {name} ({len(job_scenes)} scenes, speed x{sf}) ===")
     # submit all scenes first (concurrent render server-side), reusing cache
     vids = []
     for i, (text, emo, spd) in enumerate(job_scenes):
-        vid = CACHE.get((name, i)) or submit(look, voice, spoken(text), emo, spd)
+        vid = CACHE.get((name, i)) or submit(look, voice, spoken(text), emo, round(spd * sf, 3))
         print(f"  scene {i+1}: {vid}")
         vids.append(vid)
     # poll + download

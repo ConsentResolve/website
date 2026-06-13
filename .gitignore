@@ -5,3 +5,7 @@ public/illustrations/gbp/
 public/illustrations/gmb/
 *.mp4
 assets/audio/cr-music/
+assets/img/
+
+.DS_Store
+scripts/.cache/

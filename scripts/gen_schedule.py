@@ -21,9 +21,10 @@ HASHTAGS = "#contractorlife #homeservicebusiness #leadgeneration #trades #smallb
 
 # Angles with a locked non-UGC reel (scripts/brand_reel.py). The rest are UGC-only.
 NONUGC = {"leak","invoice","math","robot","ftc","twice","ghost","ownership"}
-# Rotation weighted ~80% non-UGC / 20% UGC: 8 non-UGC angles + 2 UGC-only.
+# Rotation: 8 non-UGC angles + 3 UGC, one per persona so every face appears —
+# race=Jason, credit=Aaron, creepy=Tyler (was creepy+contrarian, both Tyler).
 ROTATION = ["leak","invoice","math","robot","ftc","twice","ghost","ownership",
-            "creepy","contrarian"]
+            "race","credit","creepy"]
 YT_TITLE = {
  "invoice":"Where your lead money actually goes #Shorts",
  "leak":"Why 98% of website visitors leave anonymous #Shorts",

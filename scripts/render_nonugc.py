@@ -13,13 +13,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 NOVOX = "assets/audio/cr-music/no-vocals"
 
-# angle -> instrumental (mood-matched). inst-cr1c removed (bad audio) ->
-# ftc/robot moved to int-new1 (new serious-tone track). inst-brain removed (dup).
+# angle -> instrumental (mood-matched). int-new1 (24.68s) retired off the longer
+# reels — its loop seam showed; ftc/robot moved to the new ~28-30s tracks.
 MUSIC_MAP = {
     "leak": "inst-money", "invoice": "inst-money", "ghost": "inst-money",
     "math": "inst-solveit", "twice": "inst-solveit",
     "ownership": "inst-fp1",
-    "ftc": "int-new1", "robot": "int-new1",
+    "ftc": "inst-new6", "robot": "inst-new4",
 }
 
 def render(angle):
