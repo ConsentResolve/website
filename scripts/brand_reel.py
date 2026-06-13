@@ -64,14 +64,15 @@ def lead_card(dr,t):
     ax,ay,ar=px+54,py+185,58
     dr.ellipse([ax-ar,ay-ar,ax+ar,ay+ar],fill=acol(MINT,int(255*a)))
     dr.ellipse([ax-22,ay-30,ax+22,ay+14],fill=acol(NAVY900,int(255*a)));dr.pieslice([ax-40,ay-2,ax+40,ay+70],180,360,fill=acol(NAVY900,int(255*a)))
-    nx=px+140;dr.text((nx,py+118),"Marcus T.",font=disp(58),fill=acol(PAPER,int(255*a)))
+    nx=px+140;dr.text((nx,py+118),"Sam Paul",font=disp(58),fill=acol(PAPER,int(255*a)))
     # tag styled to MATCH the deliverable chips: dark chip + mint border + mint tag-dot + mint text
     tag="Roofing · quote request";tf=sans(30);tw=SCR.textlength(tag,font=tf);ty=py+200;tcw=int(tw)+108
     dr.rounded_rectangle([nx,ty,nx+tcw,ty+62],radius=18,fill=acol(NAVY900,int(255*a)),outline=acol(MINT,int(170*a)),width=3)
     dr.ellipse([nx+26,ty+22,nx+44,ty+40],fill=acol(MINT,int(255*a)))
     dr.text((nx+62,ty+31),tag,font=tf,fill=acol(MINT300,int(255*a)),anchor="lm")
-    dr.text((px,py+360),"marcus.t@roofingco.com",font=sans(36),fill=acol(PAPER,int(255*a)))
+    dr.text((px,py+360),"sam.paul@roofingco.com",font=sans(36),fill=acol(PAPER,int(255*a)))
     dr.text((px,py+428),"Wants: roof replacement quote",font=sans(33),fill=acol(SLATE,int(255*a)))
+    dr.text((px,py+486),"Illustrative example",font=sans(24),fill=acol(SLATE,int(170*a)))
 
 def render(key,dr,t,dur):
     if key=="hook":
