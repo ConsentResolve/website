@@ -15,14 +15,22 @@ import { IconArrowRight, IconCalculator } from "@tabler/icons-react";
 
 interface Props {
   variant?: "default" | "dark";
+  // "ripoff" adds a lead-site-spend input and reframes the output as the
+  // "same money, owned" contrast (drives the /lead-math growth funnel).
+  mode?: "default" | "ripoff";
   defaults?: {
     visitors?: number;
     avgJob?: number;
     recoveryPct?: number;
     bookedPct?: number;
+    leadSpend?: number;
   };
   title?: string;
   blurb?: string;
+  // Result CTA. Defaults preserve the existing dashboard-register button so
+  // current placements (homepage, [slug]) are unchanged.
+  ctaHref?: string;
+  ctaLabel?: string;
 }
 
 const BOUNCE_RATE = 0.98; // sourced: ~98% of visitors leave without converting (/stats/)
@@ -37,16 +45,22 @@ const fmtUsd0 = (n: number) =>
 
 export default function RecoveryCalculator({
   variant = "default",
+  mode = "default",
   defaults = {},
   title = "Recoverable revenue calculator",
   blurb = "Set your own assumptions. Illustrative, not a promise.",
+  ctaHref = "https://dashboard.consentresolve.com/register",
+  ctaLabel = "Get Started",
 }: Props) {
+  const isRipoff = mode === "ripoff";
   const [visitors, setVisitors] = useState<number>(defaults.visitors ?? 2_000);
   const [avgJob, setAvgJob] = useState<number>(defaults.avgJob ?? 850);
   // Assumptions the reader controls — conservative starting points, NOT
   // published performance claims.
   const [recoveryPct, setRecoveryPct] = useState<number>(defaults.recoveryPct ?? 10);
   const [bookedPct, setBookedPct] = useState<number>(defaults.bookedPct ?? 1);
+  // Ripoff mode only: what they currently hand the lead sites each month.
+  const [leadSpend, setLeadSpend] = useState<number>(defaults.leadSpend ?? 1_500);
 
   const numbers = useMemo(() => {
     const bouncers = visitors * BOUNCE_RATE;
@@ -54,8 +68,17 @@ export default function RecoveryCalculator({
     const bookedJobs = recovered * (bookedPct / 100);
     const monthlyRevenue = bookedJobs * avgJob;
     const monthlyCost = recovered * COST_PER_RECOVERED;
-    return { recovered, bookedJobs, monthlyRevenue, monthlyCost };
-  }, [visitors, avgJob, recoveryPct, bookedPct]);
+    // The reframe: for the SAME money they already spend, how many exclusive,
+    // never-resold leads would $7-each buy? Only $7 is fixed; leadSpend is theirs.
+    const exclusiveForSameSpend = Math.floor(leadSpend / COST_PER_RECOVERED);
+    return { recovered, bookedJobs, monthlyRevenue, monthlyCost, exclusiveForSameSpend };
+  }, [visitors, avgJob, recoveryPct, bookedPct, leadSpend]);
+
+  // In ripoff mode, carry the live inputs to the demo so /demo/done can echo
+  // them later (Phase 2 loop). Params are harmless until then.
+  const ctaFinalHref = isRipoff && !ctaHref.startsWith("#")
+    ? `${ctaHref}${ctaHref.includes("?") ? "&" : "?"}visitors=${visitors}&avgJob=${avgJob}&spend=${leadSpend}`
+    : ctaHref;
 
   const isDark = variant === "dark";
 
@@ -165,34 +188,77 @@ export default function RecoveryCalculator({
                 <span>0.5%</span><span>of recovered records · 10%</span>
               </div>
             </div>
+
+            {/* Ripoff mode — current lead-site spend (their number) */}
+            {isRipoff && (
+              <div>
+                <div className="mb-2 flex items-baseline justify-between">
+                  <label htmlFor="rc-spend" className="text-sm font-semibold">What you spend on lead sites / month</label>
+                  <span className="font-display text-lg font-bold tabular-nums">{fmtUsd0(leadSpend)}</span>
+                </div>
+                <input
+                  id="rc-spend"
+                  type="range"
+                  min={0}
+                  max={10000}
+                  step={100}
+                  value={leadSpend}
+                  onChange={(e) => setLeadSpend(Number(e.target.value))}
+                  className={`w-full appearance-none rounded-full ${inputTrack} h-2 accent-[color:var(--color-brand)]`}
+                />
+                <div className={`mt-1 flex justify-between text-[11px] ${dim}`}>
+                  <span>$0</span><span>shared leads, sold to four other guys · $10,000</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Output */}
         <div className="flex flex-col justify-between p-7 md:p-9">
-          <div>
-            <p className={`text-xs font-bold uppercase tracking-[0.14em] ${isDark ? "text-[color:var(--color-mint-400)]" : "text-[color:var(--color-brand-pressed)]"}`}>
-              Recoverable monthly job revenue
-            </p>
-            <p className="mt-3 font-display text-5xl font-black tracking-tight tabular-nums md:text-6xl">
-              {fmtUsd0(numbers.monthlyRevenue)}
-            </p>
-            <p className={`mt-2 text-sm ${muted}`}>
-              On the same ad budget you already run — at your assumptions, recovered visitors turn into roughly{" "}
-              <strong className={isDark ? "text-white" : "text-[color:var(--color-ink)]"}>
-                {numbers.bookedJobs < 1 ? numbers.bookedJobs.toFixed(1) : Math.round(numbers.bookedJobs)} booked jobs / month
-              </strong>{" "}
-              at {fmtUsd0(avgJob)} average, for about{" "}
-              <strong className="tabular-nums">{fmtUsd0(numbers.monthlyCost)}</strong>/mo in recovery cost at $7 per recovered lead.
-            </p>
-          </div>
+          {isRipoff ? (
+            <div>
+              <p className={`text-xs font-bold uppercase tracking-[0.14em] ${isDark ? "text-[color:var(--color-mint-400)]" : "text-[color:var(--color-brand-pressed)]"}`}>
+                The lead-site math
+              </p>
+              <p className="mt-3 font-display text-5xl font-black tracking-tight tabular-nums md:text-6xl">
+                {numbers.exclusiveForSameSpend.toLocaleString()}
+              </p>
+              <p className={`mt-1 text-sm font-semibold ${muted}`}>exclusive leads / month — for what you already spend</p>
+              <p className={`mt-3 text-sm ${muted}`}>
+                <strong className={isDark ? "text-white" : "text-[color:var(--color-ink)]"}>{fmtUsd0(leadSpend)}/mo</strong> to the machine buys shared leads that go to four other guys the second you get them. The same money, owned, buys{" "}
+                <strong className="tabular-nums">{numbers.exclusiveForSameSpend.toLocaleString()}</strong> leads that are yours alone — at $7 each, never resold.
+              </p>
+              <p className={`mt-3 text-sm ${muted}`}>
+                And the traffic already on your site? At your assumptions that's about{" "}
+                <strong className="tabular-nums">{fmtUsd0(numbers.monthlyRevenue)}</strong> in recoverable monthly job revenue.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <p className={`text-xs font-bold uppercase tracking-[0.14em] ${isDark ? "text-[color:var(--color-mint-400)]" : "text-[color:var(--color-brand-pressed)]"}`}>
+                Recoverable monthly job revenue
+              </p>
+              <p className="mt-3 font-display text-5xl font-black tracking-tight tabular-nums md:text-6xl">
+                {fmtUsd0(numbers.monthlyRevenue)}
+              </p>
+              <p className={`mt-2 text-sm ${muted}`}>
+                On the same ad budget you already run — at your assumptions, recovered visitors turn into roughly{" "}
+                <strong className={isDark ? "text-white" : "text-[color:var(--color-ink)]"}>
+                  {numbers.bookedJobs < 1 ? numbers.bookedJobs.toFixed(1) : Math.round(numbers.bookedJobs)} booked jobs / month
+                </strong>{" "}
+                at {fmtUsd0(avgJob)} average, for about{" "}
+                <strong className="tabular-nums">{fmtUsd0(numbers.monthlyCost)}</strong>/mo in recovery cost at $7 per recovered lead.
+              </p>
+            </div>
+          )}
 
           <div className="mt-6 flex flex-col gap-3">
             <a
-              href="https://dashboard.consentresolve.com/register"
+              href={ctaFinalHref}
               className="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--color-brand)] px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
             >
-              Get Started <IconArrowRight size={16} stroke={2.5} />
+              {ctaLabel} <IconArrowRight size={16} stroke={2.5} />
             </a>
 
             <p className={`text-[11px] leading-relaxed ${dim}`}>

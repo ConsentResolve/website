@@ -1,0 +1,132 @@
+---
+/**
+ * /lead-math/ — the promotable "what your leads really cost" calculator page.
+ *
+ * Growth funnel entry point (the magnet) for cold social/ad/Group traffic:
+ *   villain hook → ripoff calculator (no email) → CTA into /demo (the closer).
+ * Indexable (unlike /demo) so it also earns organic search as an AEO calculator.
+ * Voice locked to /style-guide/voice/ — dry, no exclamation, no competitor names
+ * ("the machine / the big lead sites"), email not phone, only $7 is a fixed claim.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
+import RecoveryCalculator from "~/components/ui/RecoveryCalculator.tsx";
+import FAQ from "~/components/sections/FAQ.astro";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+import { breadcrumbSchema, faqSchema } from "~/lib/seo";
+import { IconRefresh, IconCash, IconBolt } from "@tabler/icons-react";
+
+const DEMO_CTA =
+  "/demo?from=lead-math&utm_source=site&utm_medium=calc&utm_campaign=own_your_traffic";
+
+const faqs = [
+  {
+    question: "How much do shared leads cost home-service contractors?",
+    answer:
+      "It varies, which is the point — you enter your real monthly spend in the calculator above. The catch isn't only the price; the same lead is sold to several contractors at once, so you're paying to race three or four other businesses to the same homeowner. Sourced industry figures live on /stats/.",
+  },
+  {
+    question: "What makes an exclusive lead worth more than a shared one?",
+    answer:
+      "An exclusive lead is sold once — to you. It comes from a visitor already on your own website, identified consent-first, so the person expects to hear from you. No footrace, no reselling.",
+  },
+  {
+    question: "What does Consent Resolve cost?",
+    answer:
+      "A flat $7 per recovered lead — exclusive, never resold. That $7 is the only fixed number in the calculator; every other input is yours to set.",
+  },
+  {
+    question: "Is identifying my website visitors legal?",
+    answer:
+      "Consent Resolve is consent-first by design: nothing is identified until the visitor agrees on the banner, and we never hand over a phone number to cold-call. The full compliance picture is on /why-consent-first/.",
+  },
+];
+
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "Lead math", href: "/lead-math/" },
+  ]),
+  faqSchema(faqs),
+];
+---
+
+<BaseLayout
+  title="Lead Cost Calculator for Contractors — what shared leads really cost · Consent Resolve"
+  description="Run your own numbers: see what the lead sites cost you every month, and how many exclusive, consent-first leads the same money would buy from your own website traffic. No email, no signup."
+  schema={schemas}
+>
+  <!-- Hook -->
+  <section class="section section-dark relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-40 -top-40 size-[520px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[140px]"></div>
+    <div aria-hidden="true" class="pointer-events-none absolute -right-40 -bottom-40 size-[520px] rounded-full bg-[color:var(--color-mint-400)]/10 blur-[140px]"></div>
+
+    <div class="container-content relative">
+      <div class="mx-auto max-w-3xl text-center">
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Own your traffic</Badge></div>
+        <h1 class="display-2 text-white">What your leads actually cost.</h1>
+        <p class="mt-4 text-lg leading-relaxed text-slate-300">
+          The machine charges you for shared leads that go to four other guys the second you get them.
+          Run your own numbers — see what the same money buys when the traffic is yours.
+          <span class="text-slate-400">No email, no signup wall.</span>
+        </p>
+      </div>
+
+      <!-- Calculator (ripoff framing) -->
+      <div class="mx-auto mt-12 max-w-5xl">
+        <div class="rounded-3xl bg-white/[0.03] p-3 ring-1 ring-inset ring-white/10 backdrop-blur-sm sm:p-4">
+          <RecoveryCalculator
+            client:visible
+            variant="dark"
+            mode="ripoff"
+            title="What your leads really cost"
+            blurb="Your numbers, your assumptions. The only fixed figure is the flat $7."
+            ctaHref={DEMO_CTA}
+            ctaLabel="See a real one land in your inbox"
+          />
+        </div>
+      </div>
+
+      <!-- Supporting micro-stats -->
+      <div class="mx-auto mt-10 grid max-w-5xl gap-4 sm:grid-cols-3">
+        <div class="rounded-2xl bg-white/[0.03] p-5 ring-1 ring-inset ring-white/10">
+          <div class="mb-3 inline-flex size-9 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]/15">
+            <IconRefresh size={18} stroke={1.75} color="#00E5A0" />
+          </div>
+          <p class="font-display text-2xl font-bold leading-none text-white">98%</p>
+          <p class="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Sourced bounce rate</p>
+          <p class="mt-2 text-[13px] leading-relaxed text-slate-300">Roughly 98 of every 100 visitors leave without ever calling — that's the pool you recover from. <a href="/stats/#anonymous-traffic" class="underline">Sourced on /stats/</a>.</p>
+        </div>
+        <div class="rounded-2xl bg-white/[0.03] p-5 ring-1 ring-inset ring-white/10">
+          <div class="mb-3 inline-flex size-9 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]/15">
+            <IconCash size={18} stroke={1.75} color="#00E5A0" />
+          </div>
+          <p class="font-display text-2xl font-bold leading-none text-white">$7</p>
+          <p class="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Flat, per recovered lead</p>
+          <p class="mt-2 text-[13px] leading-relaxed text-slate-300">Exclusive and never resold. Sold once — to you — from traffic you already paid to earn.</p>
+        </div>
+        <div class="rounded-2xl bg-white/[0.03] p-5 ring-1 ring-inset ring-white/10">
+          <div class="mb-3 inline-flex size-9 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]/15">
+            <IconBolt size={18} stroke={1.75} color="#00E5A0" />
+          </div>
+          <p class="font-display text-2xl font-bold leading-none text-white">~60s</p>
+          <p class="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">See it on yourself</p>
+          <p class="mt-2 text-[13px] leading-relaxed text-slate-300">The demo makes <em>you</em> the lead — register, consent on a sample site, and watch the notification hit your own inbox.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <FAQ
+    eyebrow="The lead-site math"
+    headline="What contractors ask about lead costs"
+    items={faqs}
+  />
+
+  <FinalCTA
+    heading="Stop renting leads. See it work on you."
+    body="Run the demo: register, consent on a sample trades site, and watch the new-lead notification land in your inbox — the lead is you. About 60 seconds."
+    ctaLabel="Try the live demo"
+    ctaHref={DEMO_CTA}
+  />
+</BaseLayout>
