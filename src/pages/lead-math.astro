@@ -1,162 +1,118 @@
 ---
 /**
- * /lead-math/ — the simple visual story (infographic), not a calculator.
- *
- * A plumber sees it in one beat: a before/after toggle flips a 10×10 grid of
- * site visitors from ~2% (a form on your site) to a far larger share that come
- * back after they consent. Minimal text, one big animated visual, big emotional
- * jump. Reuses the person dot-grid + count-up from the demo's "It all comes
- * together" finale.
+ * /lead-math/ — the lead-cost landing page (the one we liked), now built around
+ * LeadMathStory: a Before/After toggle that flips the 2%→35% animated visitor
+ * grid with one click (no lever movement needed), plus two optional sliders for
+ * the dollar payoff. Villain hook → visual calculator → CTA into /demo → proof
+ * → AEO FAQ.
  *
  * Voice locked: dry, no exclamation, no competitor names, email not phone, only
- * $7 is a fixed claim. The after figure is the demo's illustrative ~35% and is
- * labeled illustrative (see note in chat re: indexing).
+ * $7 is a fixed claim. The ~35% after figure is the demo's illustrative number
+ * and is labeled illustrative (see chat re: indexing).
  */
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import { breadcrumbSchema } from "~/lib/seo";
+import Badge from "~/components/ui/Badge.astro";
+import LeadMathStory from "~/components/ui/LeadMathStory.tsx";
+import FAQ from "~/components/sections/FAQ.astro";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+import { breadcrumbSchema, faqSchema } from "~/lib/seo";
+import { IconRefresh, IconCash, IconBolt } from "@tabler/icons-react";
+
+const DEMO =
+  "/demo?from=lead-math&utm_source=site&utm_medium=infographic&utm_campaign=own_your_traffic";
+
+const faqs = [
+  {
+    question: "How much do shared leads cost home-service contractors?",
+    answer:
+      "It varies — flip the toggle and drag the spend slider to your real number. The catch isn't only the price; the same lead is sold to several contractors at once, so you're paying to race three or four other businesses to the same homeowner. Sourced industry figures live on /stats/.",
+  },
+  {
+    question: "What makes an exclusive lead worth more than a shared one?",
+    answer:
+      "An exclusive lead is sold once — to you. It comes from a visitor already on your own website, identified consent-first, so the person expects to hear from you. No footrace, no reselling.",
+  },
+  {
+    question: "What does Consent Resolve cost?",
+    answer:
+      "A flat $7 per recovered lead — exclusive, never resold. That $7 is the only fixed number here; the recovery rate shown is illustrative.",
+  },
+  {
+    question: "Is identifying my website visitors legal?",
+    answer:
+      "Consent Resolve is consent-first by design: nothing is identified until the visitor agrees on the banner, and we never hand over a phone number to cold-call. The full compliance picture is on /why-consent-first/.",
+  },
+];
 
 const schemas = [
   breadcrumbSchema([
     { name: "Home", href: "/" },
-    { name: "The lead leak", href: "/lead-math/" },
+    { name: "The lead math", href: "/lead-math/" },
   ]),
+  faqSchema(faqs),
 ];
-const DEMO =
-  "/demo?from=lead-math&utm_source=site&utm_medium=infographic&utm_campaign=own_your_traffic";
 ---
 
 <BaseLayout
-  title="The lead leak — see your website traffic before & after · Consent Resolve"
-  description="One toggle: watch your website visitors flip from a 2% trickle of form-fills to the far larger share that come back as named, exclusive leads once they consent."
+  title="The lead math — what shared leads really cost contractors · Consent Resolve"
+  description="One toggle, no homework: watch your website visitors flip from a 2% trickle of form-fills to the far larger share that come back as named, exclusive leads after they consent."
   schema={schemas}
 >
-  <section class="relative overflow-hidden" style="background:#0a1628">
+  <!-- Hook -->
+  <section class="section section-dark relative overflow-hidden">
     <div aria-hidden="true" class="pointer-events-none absolute -left-40 -top-40 size-[520px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[140px]"></div>
     <div aria-hidden="true" class="pointer-events-none absolute -right-40 -bottom-40 size-[520px] rounded-full bg-[color:var(--color-mint-400)]/10 blur-[140px]"></div>
 
-    <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 md:grid-cols-2 md:py-24">
-      <!-- Left: minimal story -->
-      <div class="text-center md:text-left">
-        <p class="text-xs font-bold uppercase tracking-[0.16em]" style="color:#00e5a0">Your website traffic</p>
-        <h1 id="lm-title" class="lm-fade mt-3 font-display text-4xl font-extrabold leading-[1.04] tracking-tight text-white md:text-6xl">98 of 100 leave anonymous.</h1>
-        <p id="lm-sub" class="lm-fade mx-auto mt-5 max-w-md text-lg leading-relaxed md:mx-0" style="color:#9fb0c4">You paid for every click. They never call, and you never even know they were there.</p>
-        <a
-          href={DEMO}
-          class="mt-9 inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] transition-all hover:-translate-y-0.5"
-          style="background:#00e5a0;color:#06281f"
-        >
-          See it work on you
-        </a>
-        <p class="mt-4 text-xs" style="color:#64748b">$7 a lead — exclusive, never resold.</p>
+    <div class="container-content relative">
+      <div class="mx-auto max-w-3xl text-center">
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Own your traffic</Badge></div>
+        <h1 class="display-2 text-white">What your leads actually cost.</h1>
+        <p class="mt-4 text-lg leading-relaxed text-slate-300">
+          One tap, no homework. Flip Before / After and watch what your website traffic is really doing.
+        </p>
       </div>
 
-      <!-- Right: the toggle + the big animated grid -->
-      <div>
-        <div class="flex justify-center">
-          <div class="lm-seg" role="tablist" aria-label="Before and after">
-            <button class="lm-btn is-active" data-m="before" role="tab" aria-selected="true">Before</button>
-            <button class="lm-btn" data-m="after" role="tab" aria-selected="false">After</button>
+      <!-- The visual calculator -->
+      <div class="mx-auto mt-12 max-w-4xl">
+        <LeadMathStory client:visible demoHref={DEMO} />
+      </div>
+
+      <!-- Supporting micro-stats -->
+      <div class="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-3">
+        <div class="rounded-2xl bg-white/[0.03] p-5 ring-1 ring-inset ring-white/10">
+          <div class="mb-3 inline-flex size-9 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]/15">
+            <IconRefresh size={18} stroke={1.75} color="#00E5A0" />
           </div>
+          <p class="font-display text-2xl font-bold leading-none text-white">98%</p>
+          <p class="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Sourced bounce rate</p>
+          <p class="mt-2 text-[13px] leading-relaxed text-slate-300">Roughly 98 of every 100 visitors leave without ever calling. <a href="/stats/#anonymous-traffic" class="underline">Sourced on /stats/</a>.</p>
         </div>
-
-        <div id="lm-grid" class="mx-auto mt-7 grid max-w-[340px] gap-[4px]" style="grid-template-columns:repeat(10,1fr)"></div>
-
-        <div class="mt-6 text-center">
-          <p class="font-display text-6xl font-extrabold tabular-nums text-white md:text-7xl">
-            <span id="lm-num">2</span><span style="color:#00e5a0">%</span>
-          </p>
-          <p id="lm-cap" class="lm-fade mt-2 text-sm" style="color:#9fb0c4">of visitors ever fill out a form</p>
+        <div class="rounded-2xl bg-white/[0.03] p-5 ring-1 ring-inset ring-white/10">
+          <div class="mb-3 inline-flex size-9 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]/15">
+            <IconCash size={18} stroke={1.75} color="#00E5A0" />
+          </div>
+          <p class="font-display text-2xl font-bold leading-none text-white">$7</p>
+          <p class="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Flat, per recovered lead</p>
+          <p class="mt-2 text-[13px] leading-relaxed text-slate-300">Exclusive and never resold. Sold once — to you — from traffic you already paid to earn.</p>
+        </div>
+        <div class="rounded-2xl bg-white/[0.03] p-5 ring-1 ring-inset ring-white/10">
+          <div class="mb-3 inline-flex size-9 items-center justify-center rounded-xl bg-[color:var(--color-mint-400)]/15">
+            <IconBolt size={18} stroke={1.75} color="#00E5A0" />
+          </div>
+          <p class="font-display text-2xl font-bold leading-none text-white">~60s</p>
+          <p class="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">See it on yourself</p>
+          <p class="mt-2 text-[13px] leading-relaxed text-slate-300">The demo makes <em>you</em> the lead — register, consent on a sample site, and watch the notification hit your own inbox.</p>
         </div>
       </div>
     </div>
   </section>
+
+  <FAQ eyebrow="The lead math" headline="What contractors ask about lead costs" items={faqs} />
+
+  <FinalCTA
+    heading="Stop renting leads. See it work on you."
+    body="Run the demo: register, consent on a sample trades site, and watch the new-lead notification land in your inbox — the lead is you. About 60 seconds."
+    ctaLabel="Try the live demo"
+    ctaHref={DEMO}
+  />
 </BaseLayout>
-
-<style>
-  .lm-seg { display:inline-flex; background:#0e1d33; border:1px solid rgba(255,255,255,0.08); border-radius:999px; padding:5px; }
-  .lm-btn { appearance:none; border:none; background:transparent; color:#9fb0c4; font-size:14px; font-weight:700; padding:10px 26px; border-radius:999px; cursor:pointer; transition:color .2s ease, background .2s ease; }
-  .lm-btn.is-active { background:#00e5a0; color:#06281f; }
-  .lm-fade { transition:opacity .25s ease; }
-  #lm-grid .pdot { width:100%; aspect-ratio:1; display:block; fill:#22304a; transition:fill .4s ease; }
-  #lm-grid .pdot.on { fill:#00e5a0; }
-</style>
-
-<script>
-  const PERSON =
-    '<svg class="pdot" viewBox="0 0 24 24"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-5 0-9 2.5-9 6v2h18v-2c0-3.5-4-6-9-6z"/></svg>';
-  const COPY = {
-    before: {
-      title: "98 of 100 leave anonymous.",
-      sub: "You paid for every click. They never call, and you never even know they were there.",
-      cap: "of visitors ever fill out a form",
-      n: 2,
-    },
-    after: {
-      title: "Now they come back.",
-      sub: "The visitors who consent return as named, exclusive leads — real name and email, yours alone.",
-      cap: "come back as named leads · illustrative",
-      n: 35,
-    },
-  };
-
-  const grid = document.getElementById("lm-grid");
-  const dots = [];
-  for (let i = 0; i < 100; i++) {
-    const span = document.createElement("span");
-    span.innerHTML = PERSON;
-    grid.appendChild(span);
-    dots.push(span.firstChild);
-  }
-  const title = document.getElementById("lm-title");
-  const sub = document.getElementById("lm-sub");
-  const cap = document.getElementById("lm-cap");
-  const num = document.getElementById("lm-num");
-  let timers = [];
-  let raf = 0;
-
-  function countTo(target, ms) {
-    cancelAnimationFrame(raf);
-    let t0 = 0;
-    const from = Number(num.textContent) || 0;
-    const step = (now) => {
-      if (!t0) t0 = now;
-      const p = Math.min(1, (now - t0) / ms);
-      num.textContent = String(Math.round(from + (target - from) * p));
-      if (p < 1) raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-  }
-
-  function render(mode) {
-    const c = COPY[mode];
-    [title, sub, cap].forEach((e) => (e.style.opacity = "0"));
-    timers.forEach(clearTimeout);
-    timers = [];
-    setTimeout(() => {
-      title.textContent = c.title;
-      sub.textContent = c.sub;
-      cap.textContent = c.cap;
-      [title, sub, cap].forEach((e) => (e.style.opacity = "1"));
-    }, 220);
-    dots.forEach((d) => d.classList.remove("on"));
-    for (let k = 0; k < c.n; k++) {
-      const idx = (k * 37) % 100;
-      timers.push(setTimeout(() => dots[idx].classList.add("on"), 280 + k * 45));
-    }
-    countTo(c.n, 280 + c.n * 45);
-  }
-
-  document.querySelectorAll(".lm-btn").forEach((b) => {
-    b.addEventListener("click", () => {
-      document.querySelectorAll(".lm-btn").forEach((x) => {
-        x.classList.remove("is-active");
-        x.setAttribute("aria-selected", "false");
-      });
-      b.classList.add("is-active");
-      b.setAttribute("aria-selected", "true");
-      render(b.getAttribute("data-m"));
-    });
-  });
-
-  render("before");
-</script>
