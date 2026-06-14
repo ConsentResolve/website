@@ -27,9 +27,10 @@ const AMB_TXT = "#b45309", AMB_BG = "#fff7ed", AMB_BD = "#fed7aa";
 
 interface Props {
   demoHref?: string;
+  ctaLabel?: string;
 }
 
-export default function LeadMathStory({ demoHref = "/demo" }: Props) {
+export default function LeadMathStory({ demoHref = "/demo", ctaLabel = "See it work on you" }: Props) {
   const [mode, setMode] = useState<"before" | "after">("before");
   const [tradeId, setTradeId] = useState(DEFAULT_TRADE);
   const [jobs, setJobs] = useState(5);
@@ -148,7 +149,7 @@ export default function LeadMathStory({ demoHref = "/demo" }: Props) {
           </div>
 
           <a href={ctaHref} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 16, width: "100%", background: MINT, color: "#06281f", fontWeight: 800, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", padding: "12px 18px", borderRadius: 999 }}>
-            See it work on you <IconArrowRight size={16} stroke={2.5} />
+            {ctaLabel} <IconArrowRight size={16} stroke={2.5} />
           </a>
         </div>
       </div>

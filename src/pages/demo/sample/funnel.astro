@@ -1,13 +1,9 @@
 ---
-// Standalone "Feed your funnel" page (Step 4 of the guided tour), reworked as an
-// animated infographic. The consented lead flows into the contractor's existing
-// marketing — CRM, retargeting, their own email/SMS — so the homeowner comes back
-// and books. Warm inbound, never outbound.
-//
-// HONESTY: every figure is from the verified stat bank. Ecommerce-derived numbers
-// (26%) are labeled cross-industry; recovery rate is NEVER asserted (not published);
-// the $7 is framed as additive (on top of paid traffic), never head-to-head vs ads.
+// Standalone "The math" page (Step 4 of the guided tour). Reworked to embed the
+// /lead-math calculator (LeadMathStory) so the demo's proof matches the calculator
+// exactly: shared leads vs Consent Resolve, head-to-head, on cost per booked job.
 // Sample-site shell for cohesion. noindex.
+import LeadMathStory from "~/components/ui/LeadMathStory.tsx";
 ---
 
 <!doctype html>
@@ -154,91 +150,18 @@
     <section class="ig">
       <div class="wrap">
         <div class="ig-head rv">
-          <span class="tag">Step 4 · Feed your funnel</span>
-          <h1>One consented lead, working every channel you already run.</h1>
-          <p class="lede">It doesn't sit in an inbox. The recovered homeowner flows into your CRM, your retargeting, and your follow-up — so they come back on their own time and book. Warm inbound, never a cold call.</p>
+          <span class="tag">Step 4 · The math</span>
+          <h1>So what does a lead actually cost you?</h1>
+          <p class="lede">Shared leads get sold to four contractors at once, so most never book. Recover the traffic you already have instead — exclusive, at $7. Here's the same job, both ways.</p>
         </div>
 
-        <!-- THE LEAK -->
-        <div class="leak rv">
-          <div class="stat">
-            <div class="num" data-count="98" data-suffix="%">0%</div>
-            <div class="lab">of website visitors leave without contacting you</div>
-            <a class="src" href="https://www.wordstream.com/blog/conversion-rate-benchmarks" target="_blank" rel="noopener">WordStream</a>
-          </div>
-          <div class="stat">
-            <div class="num" data-count="87" data-suffix="s">0s</div>
-            <div class="lab">average time on site before they're gone</div>
-            <a class="src" href="https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/" target="_blank" rel="noopener">Spectrum Infinite</a>
-          </div>
-          <div class="stat">
-            <div class="num amber" data-count="2" data-suffix="%">0%</div>
-            <div class="lab">ever fill out your contact form</div>
-            <a class="src" href="https://www.wordstream.com/blog/conversion-rate-benchmarks" target="_blank" rel="noopener">WordStream</a>
-          </div>
-        </div>
-        <p class="leak-cap rv">You already paid to get them here. <strong>Consent Resolve recovers a portion of the ones who'd otherwise vanish</strong> — then puts each one to work, like this:</p>
-
-        <!-- THE PIPELINE -->
-        <div class="flow" id="flow">
-          <span class="packet run" aria-hidden="true"></span>
-
-          <div class="pnode source rv">
-            <div class="t">📥 1 consented lead</div>
-            <div class="s" data-source>your visitor · yours alone, never resold</div>
-            <span class="chip">$7 flat · exclusive</span>
-          </div>
-
-          <div class="spine short rv" aria-hidden="true"></div>
-          <div class="converge rv">flows straight into the stack you already run →</div>
-
-          <div class="lanes">
-            <div class="lane rv">
-              <div class="ico">🗂️</div>
-              <h3>Into your CRM</h3>
-              <div class="tools">Jobber · Housecall Pro · ServiceTitan · HubSpot</div>
-              <div class="metric">
-                <div class="mnum" data-count="21" data-suffix="×">0×</div>
-                <div class="mlab">more likely to qualify a lead contacted within 5 minutes vs. 30 <a class="src" href="https://consentresolve.com/stats/" target="_blank" rel="noopener">MIT</a></div>
-              </div>
-            </div>
-            <div class="lane rv">
-              <div class="ico">🎯</div>
-              <h3>Into retargeting</h3>
-              <div class="tools">your Google &amp; Meta audiences</div>
-              <div class="metric">
-                <div class="mnum" data-count="26" data-suffix="%">0%</div>
-                <div class="mlab">lift in engagement from retargeting — cross-industry evidence; results vary <a class="src" href="https://consentresolve.com/stats/" target="_blank" rel="noopener">stats</a></div>
-              </div>
-            </div>
-            <div class="lane rv">
-              <div class="ico">✉️</div>
-              <h3>Into email / SMS</h3>
-              <div class="tools">your own follow-up sequence</div>
-              <div class="metric">
-                <div class="mnum" data-count="78" data-suffix="%">0%</div>
-                <div class="mlab">of homeowners hire whoever responds first <a class="src" href="https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/" target="_blank" rel="noopener">Pipeline On</a></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="converge rv">all pointing the same direction ↓</div>
-          <div class="spine short rv" aria-hidden="true"></div>
-
-          <div class="pnode result rv">
-            <div class="t">📞 A warm inbound call → a booked job</div>
-            <div class="s">they come back on their time — you never cold-called anyone</div>
-          </div>
-        </div>
-
-        <!-- ADDITIVE COST -->
-        <div class="cost rv">
-          <div class="big">$7<small>/lead</small></div>
-          <p>A recovered homeowner is a flat <strong>$7</strong> — exclusive to you, never resold — <strong>on top of</strong> the ad spend you already make to fill the top of this funnel. It's incremental, not a swap.</p>
+        <!-- The calculator (same as /lead-math): shared vs Consent, cost per booked job -->
+        <div style="margin-top:10px">
+          <LeadMathStory client:visible demoHref="https://dashboard.consentresolve.com/register" ctaLabel="Get started" />
         </div>
 
         <p class="sources rv">
-          Every figure is sourced. 98% &amp; 2%: WordStream conversion benchmarks · 87s: Spectrum Infinite · 78%: Pipeline On · 21×: MIT lead-response study · 26%: cross-industry retargeting evidence (results vary by trade, traffic, and follow-up). See the receipts at <a href="https://consentresolve.com/stats/" target="_blank" rel="noopener">consentresolve.com/stats</a>.
+          Lead costs are researched per-trade averages; close rates are typical estimates; revenue is gross, before labor &amp; materials. Only the $7 is fixed. Sourced figures: <a href="https://consentresolve.com/stats/" target="_blank" rel="noopener">consentresolve.com/stats</a>.
         </p>
 
         <div class="actions rv">

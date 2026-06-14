@@ -577,7 +577,7 @@
           <span class="journey-tag">Step 2 of 5 · The lead lands</span>
           <div style="text-align:center"><div style="font-size:46px;line-height:1">📬</div></div>
           <h2 style="text-align:center">Check your inbox.</h2>
-          <p>${EMAILED ? "Check your inbox to see the email that brings lost homeowners back — a friendly nudge to call you or finish their quote." : "Your customer gets the email that brings lost homeowners back — a friendly nudge to call you or finish their quote."}</p>
+          <p>${EMAILED ? "Check your inbox to see the email that brings lost homeowners back — a friendly nudge to reach out or finish their quote." : "Your customer gets the email that brings lost homeowners back — a friendly nudge to reach out or finish their quote."}</p>
           <div class="journey-actions">
             <button class="btn btn-primary" id="j2-go" type="button">Next: recover an abandoned quote →</button>
           </div>
@@ -605,11 +605,11 @@
       function step4modal() {
         setStep(4);
         openModal(`
-          <span class="journey-tag">Step 4 of 5 · Feed your funnel</span>
-          <h2>Now it works toward a booked job.</h2>
-          <p>The lead feeds the follow-up <span class="em">you already run</span> — so the homeowner comes back and books. See where it goes.</p>
+          <span class="journey-tag">Step 4 of 5 · The math</span>
+          <h2>So what does a lead actually cost you?</h2>
+          <p>See the same job both ways — a shared lead sold to four contractors, vs recovering the traffic <span class="em">you already have</span> at $7. Same booked job, very different cost.</p>
           <div class="journey-actions">
-            <button class="btn btn-primary" id="j4-next" type="button">Next: see your funnel →</button>
+            <button class="btn btn-primary" id="j4-next" type="button">Next: see the math →</button>
           </div>
         `);
         ($("#j4-next") as HTMLElement)?.addEventListener("click", () => {
