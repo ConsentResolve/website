@@ -53,6 +53,11 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
         <input name="business_name" type="text" autocomplete="organization" placeholder="Smith Plumbing & Air"
           class="w-full rounded-lg border border-[color:var(--color-rule)] bg-white px-3.5 py-2.5 text-[15px] text-[color:var(--color-ink)] outline-none focus:border-[color:var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-brand-soft)]" />
       </label>
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Phone <span class="font-normal text-[color:var(--color-ink-muted)]">(optional)</span></span>
+        <input name="phone" type="tel" autocomplete="tel" placeholder="(555) 123-4567"
+          class="w-full rounded-lg border border-[color:var(--color-rule)] bg-white px-3.5 py-2.5 text-[15px] text-[color:var(--color-ink)] outline-none focus:border-[color:var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-brand-soft)]" />
+      </label>
     </div>
 
     <label class="flex items-start gap-2.5 text-sm text-[color:var(--color-ink-2)]">
@@ -120,6 +125,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
           name: fd.get("name"),
           email: fd.get("email"),
           business_name: fd.get("business_name"),
+          phone: fd.get("phone"),
           trade: fd.get("trade"),
           consent_contact: fd.get("consent_contact") ? "1" : "",
           hp: fd.get("hp") || "",
