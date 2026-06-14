@@ -3,7 +3,7 @@
 // /lead-math calculator (LeadMathStory) so the demo's proof matches the calculator
 // exactly: shared leads vs Consent Resolve, head-to-head, on cost per booked job.
 // Sample-site shell for cohesion. noindex.
-import LeadMathStory from "~/components/ui/LeadMathStory.tsx";
+import LeadMathStoryFull from "~/components/ui/LeadMathStoryFull.tsx";
 ---
 
 <!doctype html>
@@ -157,7 +157,7 @@ import LeadMathStory from "~/components/ui/LeadMathStory.tsx";
 
         <!-- The calculator (same as /lead-math): shared vs Consent, cost per booked job -->
         <div style="margin-top:10px">
-          <LeadMathStory client:visible showCta={false} />
+          <LeadMathStoryFull client:visible showCta={false} />
         </div>
 
         <p class="sources rv">
