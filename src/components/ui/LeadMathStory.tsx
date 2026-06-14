@@ -28,9 +28,12 @@ const AMB_TXT = "#b45309", AMB_BG = "#fff7ed", AMB_BD = "#fed7aa";
 interface Props {
   demoHref?: string;
   ctaLabel?: string;
+  // Hide the CTA when embedded somewhere with its own navigation (e.g. the demo
+  // tour). Defaults true so /lead-math is unchanged.
+  showCta?: boolean;
 }
 
-export default function LeadMathStory({ demoHref = "/demo", ctaLabel = "See it work on you" }: Props) {
+export default function LeadMathStory({ demoHref = "/demo", ctaLabel = "See it work on you", showCta = true }: Props) {
   const [mode, setMode] = useState<"before" | "after">("before");
   const [tradeId, setTradeId] = useState(DEFAULT_TRADE);
   const [jobs, setJobs] = useState(5);
@@ -148,9 +151,11 @@ export default function LeadMathStory({ demoHref = "/demo", ctaLabel = "See it w
             <input id="lm-job" type="range" min={100} max={15000} step={50} value={avgJob} onChange={(e) => setAvgJob(Number(e.target.value))} style={{ width: "100%", accentColor: MINT }} />
           </div>
 
-          <a href={ctaHref} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 16, width: "100%", background: MINT, color: "#06281f", fontWeight: 800, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", padding: "12px 18px", borderRadius: 999 }}>
-            {ctaLabel} <IconArrowRight size={16} stroke={2.5} />
-          </a>
+          {showCta && (
+            <a href={ctaHref} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 16, width: "100%", background: MINT, color: "#06281f", fontWeight: 800, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", padding: "12px 18px", borderRadius: 999 }}>
+              {ctaLabel} <IconArrowRight size={16} stroke={2.5} />
+            </a>
+          )}
         </div>
       </div>
     </div>
