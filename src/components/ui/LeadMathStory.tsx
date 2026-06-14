@@ -88,26 +88,6 @@ export default function LeadMathStory({ demoHref = "/demo" }: Props) {
       <div style={{ display: "grid", gap: 0, alignItems: "stretch" }} className="md:grid-cols-2">
         {/* The money flow */}
         <div style={{ padding: "14px 28px 22px" }}>
-          {/* Input slider at the top of the funnel */}
-          {isAfter ? (
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
-                <label htmlFor="lm-visitors" style={{ fontSize: 13, fontWeight: 600, color: "#cbd5e1" }}>Your monthly website traffic</label>
-                <span style={{ fontSize: 15, fontWeight: 700, color: "#fff", fontVariantNumeric: "tabular-nums" }}>{r(visitors)}</span>
-              </div>
-              <input id="lm-visitors" type="range" min={200} max={50000} step={200} value={visitors} onChange={(e) => setVisitors(Number(e.target.value))} style={{ width: "100%", accentColor: "#00e5a0" }} />
-              <p style={{ margin: "5px 0 0", fontSize: 11, color: "#64748b" }}>Lead-site clicks · organic · social · paid ads</p>
-            </div>
-          ) : (
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
-                <label htmlFor="lm-spend" style={{ fontSize: 13, fontWeight: 600, color: "#cbd5e1" }}>Monthly spend on shared leads</label>
-                <span style={{ fontSize: 15, fontWeight: 700, color: "#fff", fontVariantNumeric: "tabular-nums" }}>{fmt0(spend)}</span>
-              </div>
-              <input id="lm-spend" type="range" min={200} max={10000} step={100} value={spend} onChange={(e) => setSpend(Number(e.target.value))} style={{ width: "100%", accentColor: "#00e5a0" }} />
-            </div>
-          )}
-
           {/* Money OUT */}
           <div style={{ borderRadius: 12, background: "rgba(246,160,77,0.08)", border: "1px solid rgba(246,160,77,0.28)", padding: "10px 14px" }}>
             <Pill label="Money out" color="#f6a04d" />
@@ -152,6 +132,25 @@ export default function LeadMathStory({ demoHref = "/demo" }: Props) {
             <input id="lm-job" type="range" min={100} max={15000} step={50} value={avgJob} onChange={(e) => setAvgJob(Number(e.target.value))} style={{ width: "100%", accentColor: "#00e5a0" }} />
             <p style={{ margin: "8px 0 0", fontSize: 11, color: "#64748b" }}>Illustrative — lead cost is your trade's researched average; close &amp; recovery rates are typical estimates; only the $7 is fixed.</p>
           </div>
+
+          {isAfter ? (
+            <div style={{ marginTop: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
+                <label htmlFor="lm-visitors" style={{ fontSize: 13, fontWeight: 600, color: "#cbd5e1" }}>Your monthly website traffic</label>
+                <span style={{ fontSize: 15, fontWeight: 700, color: "#fff", fontVariantNumeric: "tabular-nums" }}>{r(visitors)}</span>
+              </div>
+              <input id="lm-visitors" type="range" min={200} max={50000} step={200} value={visitors} onChange={(e) => setVisitors(Number(e.target.value))} style={{ width: "100%", accentColor: "#00e5a0" }} />
+              <p style={{ margin: "5px 0 0", fontSize: 11, color: "#64748b" }}>Lead-site clicks · organic · social · paid ads</p>
+            </div>
+          ) : (
+            <div style={{ marginTop: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
+                <label htmlFor="lm-spend" style={{ fontSize: 13, fontWeight: 600, color: "#cbd5e1" }}>Monthly spend on shared leads</label>
+                <span style={{ fontSize: 15, fontWeight: 700, color: "#fff", fontVariantNumeric: "tabular-nums" }}>{fmt0(spend)}</span>
+              </div>
+              <input id="lm-spend" type="range" min={200} max={10000} step={100} value={spend} onChange={(e) => setSpend(Number(e.target.value))} style={{ width: "100%", accentColor: "#00e5a0" }} />
+            </div>
+          )}
 
           <a href={ctaHref} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 14, width: "100%", background: "#00e5a0", color: "#06281f", fontWeight: 800, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", padding: "12px 18px", borderRadius: 999 }}>
             See it work on you <IconArrowRight size={16} stroke={2.5} />
