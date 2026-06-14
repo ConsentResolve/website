@@ -3,14 +3,14 @@ import { IconArrowRight } from "@tabler/icons-react";
 import { TRADES, DEFAULT_TRADE } from "../../data/leadCosts";
 
 /**
- * LeadMathStory — the simplified, visual lead-cost calculator for /lead-math.
- * Pick your trade → see one digestible number: what a shared lead costs in your
- * trade vs the flat $7 exclusive. A Before/After toggle flips a 10×10 visitor
- * grid from ~2% to ~35% (one tap, no levers) with the demo's count-up + cascade
- * (before = blue, after = green/mint), dark palette. One optional visitors
- * slider personalizes the tangible counts. Voice locked: $7 is the only fixed
- * figure; per-trade CPLs are sourced researched averages; ~35% is illustrative;
- * no competitor names on the page.
+ * LeadMathStory — the visual lead-cost calculator for /lead-math.
+ * Before/After toggle (top) flips a 10×10 visitor grid ~2% → ~35% with the
+ * demo's count-up + cascade. A trade selector under the toggle (default
+ * "General") sets the per-trade economics. The Before screen shows your monthly
+ * ad spend and the few booked jobs it yields; After shows how recovering your
+ * own traffic improves that, with a per-trade revenue story (avg job × extra
+ * jobs). Voice locked: $7 is the only fixed figure; per-trade CPLs are sourced
+ * averages; job value + ~35% are illustrative; no competitor names on the page.
  */
 const COST = 7;
 const fmt0 = (n: number) =>
@@ -33,11 +33,20 @@ interface Props {
 export default function LeadMathStory({ demoHref = "/demo" }: Props) {
   const [mode, setMode] = useState<"before" | "after">("before");
   const [tradeId, setTradeId] = useState(DEFAULT_TRADE);
-  const [visitors, setVisitors] = useState(2000);
+  const [spend, setSpend] = useState(1500);
 
   const trade = TRADES.find((t) => t.id === tradeId) || TRADES[0];
+  const [avgJob, setAvgJob] = useState(trade.avgJob);
+  useEffect(() => { setAvgJob(trade.avgJob); }, [trade.avgJob]);
+
   const cpl = trade.sharedCpl;
-  const mult = Math.round(cpl / COST);
+  // Conservative, illustrative job math: today's ad budget books a trickle
+  // (~10% of what it would buy in shared leads); recovering your own traffic
+  // lifts that a few times over. The reader can tune spend + job value.
+  const bookedBefore = Math.max(1, Math.round((spend / cpl) * 0.1));
+  const bookedAfter = bookedBefore * 3;
+  const extraJobs = bookedAfter - bookedBefore;
+  const revenueExtra = extraJobs * avgJob;
 
   const isAfter = mode === "after";
   const litCount = isAfter ? 35 : 2;
@@ -62,14 +71,12 @@ export default function LeadMathStory({ demoHref = "/demo" }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [litCount]);
 
-  const formCount = Math.round(visitors * 0.02);
-  const backCount = Math.round(visitors * 0.35);
-  const ctaHref = `${demoHref}${demoHref.includes("?") ? "&" : "?"}trade=${tradeId}&visitors=${visitors}`;
+  const ctaHref = `${demoHref}${demoHref.includes("?") ? "&" : "?"}trade=${tradeId}&spend=${spend}`;
 
   return (
     <div style={{ background: "#0a1628", borderRadius: 24, border: "1px solid rgba(255,255,255,0.08)", overflow: "hidden" }}>
-      {/* Toggle + trade selector — the whole interaction lives here */}
-      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: 14, padding: "18px 18px 4px" }}>
+      {/* Toggle */}
+      <div style={{ display: "flex", justifyContent: "center", padding: "18px 18px 0" }}>
         <div role="tablist" aria-label="Before and after" style={{ display: "inline-flex", background: "#0e1d33", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 999, padding: 5 }}>
           {(["before", "after"] as const).map((m) => (
             <button
@@ -79,7 +86,7 @@ export default function LeadMathStory({ demoHref = "/demo" }: Props) {
               onClick={() => setMode(m)}
               style={{
                 appearance: "none", border: "none", cursor: "pointer", borderRadius: 999,
-                padding: "9px 28px", fontSize: 15, fontWeight: 700, transition: "all .2s ease",
+                padding: "9px 30px", fontSize: 15, fontWeight: 700, transition: "all .2s ease",
                 background: mode === m ? MINT : "transparent",
                 color: mode === m ? "#06281f" : "#9fb0c4",
               }}
@@ -88,6 +95,10 @@ export default function LeadMathStory({ demoHref = "/demo" }: Props) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Trade selector — under the toggle */}
+      <div style={{ display: "flex", justifyContent: "center", padding: "12px 18px 2px" }}>
         <label style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14, color: "#9fb0c4" }}>
           I'm a
           <select
@@ -112,7 +123,6 @@ export default function LeadMathStory({ demoHref = "/demo" }: Props) {
           <p style={{ margin: "2px 0 0", fontSize: 13, color: "#9fb0c4" }}>
             {isAfter ? "of consenting visitors come back — named, exclusive" : "of your visitors become leads today"}
           </p>
-
           <div style={{ display: "grid", gridTemplateColumns: "repeat(10,1fr)", gap: 3, maxWidth: 264, margin: "12px auto 0" }}>
             {Array.from({ length: 100 }).map((_, i) => {
               const on = ORDER[i] < litCount;
@@ -123,41 +133,48 @@ export default function LeadMathStory({ demoHref = "/demo" }: Props) {
               );
             })}
           </div>
-          <p style={{ margin: "10px 0 0", fontSize: 12, color: "#64748b" }}>
-            {isAfter ? `≈ ${backCount.toLocaleString()} of your ${visitors.toLocaleString()} visitors · illustrative` : `≈ ${formCount.toLocaleString()} of your ${visitors.toLocaleString()} visitors fill a form`}
-          </p>
+          {isAfter && <p style={{ margin: "10px 0 0", fontSize: 11, color: "#64748b" }}>Illustrative</p>}
         </div>
 
-        {/* The one number: shared cost in your trade vs $7 */}
+        {/* Money: ad spend → booked jobs, before vs after, + revenue story */}
         <div style={{ padding: "6px 28px 22px" }} className="md:border-l md:border-[rgba(255,255,255,0.06)] md:pl-7">
           <div style={{ borderRadius: 16, background: isAfter ? "rgba(0,229,160,0.08)" : "rgba(255,255,255,0.04)", border: `1px solid ${isAfter ? "rgba(0,229,160,0.35)" : "rgba(255,255,255,0.08)"}`, padding: "16px 18px", transition: "all .3s ease" }}>
-            {isAfter ? (
-              <>
-                <p style={{ margin: 0, fontSize: 13, letterSpacing: "0.12em", textTransform: "uppercase", color: "#00e5a0", fontWeight: 700 }}>From your own site</p>
-                <p style={{ margin: "6px 0 0", fontSize: 44, fontWeight: 800, color: "#fff", lineHeight: 1 }}>$7<span style={{ fontSize: 18, color: "#9fb0c4", fontWeight: 600 }}> / lead</span></p>
-                <p style={{ margin: "10px 0 0", fontSize: 14, lineHeight: 1.5, color: "#cbd5e1" }}>
-                  Exclusive, never resold. For the price of one shared {trade.label.toLowerCase()} lead, that's about <strong style={{ color: MINT }}>{mult}× the leads</strong>.
-                </p>
-              </>
-            ) : (
-              <>
-                <p style={{ margin: 0, fontSize: 13, letterSpacing: "0.12em", textTransform: "uppercase", color: "#9fb0c4", fontWeight: 700 }}>A shared {trade.label.toLowerCase()} lead</p>
-                <p style={{ margin: "6px 0 0", fontSize: 44, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{fmt0(cpl)}<span style={{ fontSize: 18, color: "#9fb0c4", fontWeight: 600 }}> / lead</span></p>
-                <p style={{ margin: "10px 0 0", fontSize: 14, lineHeight: 1.5, color: "#cbd5e1" }}>
-                  And it's sold to four other contractors the second you get it.
-                </p>
-              </>
-            )}
+            <p style={{ margin: 0, fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 700, color: isAfter ? "#00e5a0" : "#9fb0c4" }}>
+              {isAfter ? "With Consent Resolve" : "Today"} · {fmt0(spend)}/mo in ads
+            </p>
+            <p style={{ margin: "8px 0 0", fontSize: 44, fontWeight: 800, color: "#fff", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
+              {isAfter ? bookedAfter : bookedBefore}<span style={{ fontSize: 18, color: "#9fb0c4", fontWeight: 600 }}> booked jobs</span>
+            </p>
+            <p style={{ margin: "10px 0 0", fontSize: 13.5, lineHeight: 1.5, color: "#cbd5e1" }}>
+              {isAfter
+                ? <>You recover the visitors who consent — exclusive leads at <strong style={{ color: "#fff" }}>$7</strong>, never resold (a shared {trade.label.toLowerCase()} lead runs ~{fmt0(cpl)}).</>
+                : <>Most of that traffic leaves anonymous — you book only the few who fill a form.</>}
+            </p>
           </div>
 
-          <div style={{ marginTop: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
-              <label htmlFor="lm-visitors" style={{ fontSize: 13, fontWeight: 600, color: "#cbd5e1" }}>Monthly website visitors</label>
-              <span style={{ fontSize: 15, fontWeight: 700, color: "#fff", fontVariantNumeric: "tabular-nums" }}>{visitors.toLocaleString()}</span>
-            </div>
-            <input id="lm-visitors" type="range" min={200} max={20000} step={100} value={visitors} onChange={(e) => setVisitors(Number(e.target.value))} style={{ width: "100%", accentColor: MINT }} />
-            <p style={{ margin: "5px 0 0", fontSize: 11, color: "#64748b" }}>Optional — or just flip Before / After.</p>
+          {/* Per-trade revenue story */}
+          <div style={{ marginTop: 12, borderRadius: 14, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", padding: "12px 14px" }}>
+            <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5, color: "#cbd5e1" }}>
+              Your average {trade.label.toLowerCase()} job is about <strong style={{ color: "#fff" }}>{fmt0(avgJob)}</strong>. Booking <strong style={{ color: MINT }}>{extraJobs}</strong> more a month is roughly <strong style={{ color: MINT }}>{fmt0(revenueExtra)}</strong> in extra revenue.
+            </p>
           </div>
+
+          {/* Two small, optional levers */}
+          <div style={{ marginTop: 14 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
+              <label htmlFor="lm-spend" style={{ fontSize: 13, fontWeight: 600, color: "#cbd5e1" }}>Monthly ad spend</label>
+              <span style={{ fontSize: 15, fontWeight: 700, color: "#fff", fontVariantNumeric: "tabular-nums" }}>{fmt0(spend)}</span>
+            </div>
+            <input id="lm-spend" type="range" min={200} max={10000} step={100} value={spend} onChange={(e) => setSpend(Number(e.target.value))} style={{ width: "100%", accentColor: MINT }} />
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
+              <label htmlFor="lm-job" style={{ fontSize: 13, fontWeight: 600, color: "#cbd5e1" }}>Your average job</label>
+              <span style={{ fontSize: 15, fontWeight: 700, color: "#fff", fontVariantNumeric: "tabular-nums" }}>{fmt0(avgJob)}</span>
+            </div>
+            <input id="lm-job" type="range" min={100} max={15000} step={50} value={avgJob} onChange={(e) => setAvgJob(Number(e.target.value))} style={{ width: "100%", accentColor: MINT }} />
+          </div>
+          <p style={{ margin: "8px 0 0", fontSize: 11, color: "#64748b" }}>Illustrative — set your spend and job value, or just flip Before / After.</p>
 
           <a href={ctaHref} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 14, width: "100%", background: MINT, color: "#06281f", fontWeight: 800, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", padding: "12px 18px", borderRadius: 999 }}>
             See it work on you <IconArrowRight size={16} stroke={2.5} />
