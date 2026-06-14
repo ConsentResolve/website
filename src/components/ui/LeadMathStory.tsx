@@ -63,6 +63,9 @@ export default function LeadMathStory({ demoHref = "/demo", ctaLabel = "See it w
 
   return (
     <div style={{ background: "#ffffff", borderRadius: 24, border: `1px solid ${LINE}`, overflow: "hidden", boxShadow: "0 18px 50px -28px rgba(10,22,40,0.25)" }}>
+      {/* Self-contained responsive layout — no Tailwind dependency, so it renders
+          identically on /lead-math and the standalone demo pages. */}
+      <style dangerouslySetInnerHTML={{ __html: ".lms-2col{display:grid;gap:0;align-items:stretch}@media(min-width:768px){.lms-2col{grid-template-columns:repeat(2,minmax(0,1fr))}.lms-right{border-left:1px solid #e2e8f0}}" }} />
       {/* Toggle */}
       <div style={{ display: "flex", justifyContent: "center", padding: "18px 18px 0" }}>
         <div role="tablist" aria-label="Shared leads versus Consent Resolve" style={{ display: "inline-flex", background: "#f1f5f9", border: `1px solid ${LINE}`, borderRadius: 999, padding: 5 }}>
@@ -86,7 +89,7 @@ export default function LeadMathStory({ demoHref = "/demo", ctaLabel = "See it w
         </label>
       </div>
 
-      <div style={{ display: "grid", gap: 0, alignItems: "stretch" }} className="md:grid-cols-2">
+      <div className="lms-2col">
         {/* Left: per-job funnel — three matching boxes */}
         <div style={{ padding: "14px 28px 22px", textAlign: "center" }}>
           <div style={stepBox}>
@@ -113,7 +116,7 @@ export default function LeadMathStory({ demoHref = "/demo", ctaLabel = "See it w
         </div>
 
         {/* Right: money in / money out + the story */}
-        <div style={{ padding: "8px 28px 22px" }} className="md:border-l md:border-[#e2e8f0] md:pl-7">
+        <div className="lms-right" style={{ padding: "8px 28px 22px" }}>
           <div style={{ marginBottom: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
               <label htmlFor="lm-jobs" style={{ fontSize: 13, fontWeight: 600, color: SUB }}>Jobs you want to book a month</label>
