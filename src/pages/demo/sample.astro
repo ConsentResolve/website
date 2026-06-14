@@ -613,7 +613,8 @@
           </div>
         `);
         ($("#j4-next") as HTMLElement)?.addEventListener("click", () => {
-          window.location.assign("/demo/sample/funnel/?dt=" + encodeURIComponent(dt || ""));
+          const tr = (LEAD && (LEAD.trade || LEAD.trade_label)) || "";
+          window.location.assign("/demo/sample/funnel/?dt=" + encodeURIComponent(dt || "") + "&trade=" + encodeURIComponent(tr));
         });
       }
 
