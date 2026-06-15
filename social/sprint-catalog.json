@@ -1,0 +1,242 @@
+[
+  {
+    "name": "leak-stat",
+    "angle": "leak",
+    "arch": "stat",
+    "persona": "7A317560C0D54461A38666Bc965Cac72",
+    "hook": "Ninety-eight out of a hundred people hit your site and just leave.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat.mp4"
+  },
+  {
+    "name": "leak-confession",
+    "angle": "leak",
+    "arch": "confession",
+    "persona": "7A317560C0D54461A38666Bc965Cac72",
+    "hook": "I spent four grand on clicks last month. Two of them called me.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-confession.mp4"
+  },
+  {
+    "name": "leak-contrarian",
+    "angle": "leak",
+    "arch": "contrarian",
+    "persona": "7A317560C0D54461A38666Bc965Cac72",
+    "hook": "Your website isn't broken. It's leaking exactly the way they designed it.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-contrarian.mp4"
+  },
+  {
+    "name": "race-stat",
+    "angle": "race",
+    "arch": "stat",
+    "persona": "46Fee5Fcd8E642Da9476B4B1F999Ea19",
+    "hook": "Every shared lead I buy goes to four other guys the same second.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/race-stat.mp4"
+  },
+  {
+    "name": "race-confession",
+    "angle": "race",
+    "arch": "confession",
+    "persona": "46Fee5Fcd8E642Da9476B4B1F999Ea19",
+    "hook": "I lost a job to a guy who got my lead before I finished reading it.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/race-confession.mp4"
+  },
+  {
+    "name": "race-contrarian",
+    "angle": "race",
+    "arch": "contrarian",
+    "persona": "46Fee5Fcd8E642Da9476B4B1F999Ea19",
+    "hook": "A shared lead isn't a lead. It's a footrace you paid to enter.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/race-contrarian.mp4"
+  },
+  {
+    "name": "ftc-stat",
+    "angle": "ftc",
+    "arch": "stat",
+    "persona": "B5Dc5A22Eb684B959E36D2C0A1834461",
+    "hook": "The biggest lead site got fined seven point two million for lying about lead quality.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/ftc-stat.mp4"
+  },
+  {
+    "name": "ftc-confession",
+    "angle": "ftc",
+    "arch": "confession",
+    "persona": "B5Dc5A22Eb684B959E36D2C0A1834461",
+    "hook": "Turns out my garbage leads weren't my fault. There's a paper trail.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/ftc-confession.mp4"
+  },
+  {
+    "name": "ftc-contrarian",
+    "angle": "ftc",
+    "arch": "contrarian",
+    "persona": "B5Dc5A22Eb684B959E36D2C0A1834461",
+    "hook": "If your leads feel like junk, they might literally be junk.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/ftc-contrarian.mp4"
+  },
+  {
+    "name": "robot-stat",
+    "angle": "robot",
+    "arch": "stat",
+    "persona": "9C8D011C319F47438A1F18Def6Bbc875",
+    "hook": "A robot charged me four hundred bucks because my own customer called me back.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/robot-stat.mp4"
+  },
+  {
+    "name": "robot-confession",
+    "angle": "robot",
+    "arch": "confession",
+    "persona": "9C8D011C319F47438A1F18Def6Bbc875",
+    "hook": "I got billed for a lead that was already my customer. Couldn't even argue.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/robot-confession.mp4"
+  },
+  {
+    "name": "robot-contrarian",
+    "angle": "robot",
+    "arch": "contrarian",
+    "persona": "9C8D011C319F47438A1F18Def6Bbc875",
+    "hook": "Your own website traffic never bills you by algorithm.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/robot-contrarian.mp4"
+  },
+  {
+    "name": "ghost-stat",
+    "angle": "ghost",
+    "arch": "stat",
+    "persona": "1D4009B32Ec140A69564F4065F8C96Fb",
+    "hook": "Thirty leads last month. Thirty ghosts. Paid for every one.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/ghost-stat.mp4"
+  },
+  {
+    "name": "ghost-confession",
+    "angle": "ghost",
+    "arch": "confession",
+    "persona": "1D4009B32Ec140A69564F4065F8C96Fb",
+    "hook": "I called the same dead number six times before I gave up.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/ghost-confession.mp4"
+  },
+  {
+    "name": "ghost-contrarian",
+    "angle": "ghost",
+    "arch": "contrarian",
+    "persona": "1D4009B32Ec140A69564F4065F8C96Fb",
+    "hook": "The people already on your site want the work. The bought ones don't.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/ghost-contrarian.mp4"
+  },
+  {
+    "name": "math-stat",
+    "angle": "math",
+    "arch": "stat",
+    "persona": "D3Cca390C1F4480Ba459C70C189738Cb",
+    "hook": "A hundred bucks for a shared lead I close maybe five percent of the time.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/math-stat.mp4"
+  },
+  {
+    "name": "math-confession",
+    "angle": "math",
+    "arch": "confession",
+    "persona": "D3Cca390C1F4480Ba459C70C189738Cb",
+    "hook": "I did the math on my lead spend and almost parked the truck.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/math-confession.mp4"
+  },
+  {
+    "name": "math-contrarian",
+    "angle": "math",
+    "arch": "contrarian",
+    "persona": "D3Cca390C1F4480Ba459C70C189738Cb",
+    "hook": "Seven dollars for a lead that's mine, or a hundred for one that's everyone's.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/math-contrarian.mp4"
+  },
+  {
+    "name": "credit-stat",
+    "angle": "credit",
+    "arch": "stat",
+    "persona": "88773E53D22D45C2Baa228335Ceaf6Fb",
+    "hook": "They don't refund bad leads. They give you credit to buy more bad leads.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/credit-stat.mp4"
+  },
+  {
+    "name": "credit-confession",
+    "angle": "credit",
+    "arch": "confession",
+    "persona": "88773E53D22D45C2Baa228335Ceaf6Fb",
+    "hook": "I disputed a fake lead and they credited me \u2014 to spend with them again.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/credit-confession.mp4"
+  },
+  {
+    "name": "credit-contrarian",
+    "angle": "credit",
+    "arch": "contrarian",
+    "persona": "88773E53D22D45C2Baa228335Ceaf6Fb",
+    "hook": "A refund gives your money back. A credit just keeps you on the hook.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/credit-contrarian.mp4"
+  },
+  {
+    "name": "creepy-stat",
+    "angle": "creepy",
+    "arch": "stat",
+    "persona": "14A3864Dbeda4771800055A48Aac5521",
+    "hook": "I tried a visitor-ID tool once. First week, someone asked why they were on a list.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/creepy-stat.mp4"
+  },
+  {
+    "name": "creepy-confession",
+    "angle": "creepy",
+    "arch": "confession",
+    "persona": "14A3864Dbeda4771800055A48Aac5521",
+    "hook": "Someone replied 'why am I on this list,' and I never opened it again.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/creepy-confession.mp4"
+  },
+  {
+    "name": "creepy-contrarian",
+    "angle": "creepy",
+    "arch": "contrarian",
+    "persona": "14A3864Dbeda4771800055A48Aac5521",
+    "hook": "Consent-first means the person actually expects to hear from you.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/creepy-contrarian.mp4"
+  },
+  {
+    "name": "twice-stat",
+    "angle": "twice",
+    "arch": "stat",
+    "persona": "Beff1B28F1D242C28Bb0B0051Feef263",
+    "hook": "They sold me the same homeowner twice. Second time, the job was already done.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/twice-stat.mp4"
+  },
+  {
+    "name": "twice-confession",
+    "angle": "twice",
+    "arch": "confession",
+    "persona": "Beff1B28F1D242C28Bb0B0051Feef263",
+    "hook": "I paid for a lead I'd already lost \u2014 same name, two weeks later.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/twice-confession.mp4"
+  },
+  {
+    "name": "twice-contrarian",
+    "angle": "twice",
+    "arch": "contrarian",
+    "persona": "Beff1B28F1D242C28Bb0B0051Feef263",
+    "hook": "Exclusive used to mean something. With us it still does \u2014 sold once, to you.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/twice-contrarian.mp4"
+  },
+  {
+    "name": "ownership-stat",
+    "angle": "ownership",
+    "arch": "stat",
+    "persona": "72C934Cce9784B98B3Cf9Fd7A40F341A",
+    "hook": "Every dollar I gave the lead sites built their brand, not mine.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/ownership-stat.mp4"
+  },
+  {
+    "name": "ownership-confession",
+    "angle": "ownership",
+    "arch": "confession",
+    "persona": "72C934Cce9784B98B3Cf9Fd7A40F341A",
+    "hook": "I built someone else's pipeline for three years before I noticed.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/ownership-confession.mp4"
+  },
+  {
+    "name": "ownership-contrarian",
+    "angle": "ownership",
+    "arch": "contrarian",
+    "persona": "72C934Cce9784B98B3Cf9Fd7A40F341A",
+    "hook": "You don't own a lead you rent. Your website is the one pipe that's yours.",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/ownership-contrarian.mp4"
+  }
+]
