@@ -53,28 +53,31 @@ def upload_photo(ref, published, message=None):
 def comment_link(post_id, link):
     return _form(f"{GRAPH}/{post_id}/comments", {"access_token": TOK, "message": link})
 
+def _with_link(caption, link):
+    # Link goes in the caption (needs only pages_manage_posts). For a photo post
+    # this stays a photo post — not a reach-throttled link-card.
+    return (caption + (f"\n\n{link}" if link else "")).strip()
+
 def post_photo(ref, caption, link, dry):
-    if dry: print(f"[dry] FB photo · {ref}\n      caption: {caption}\n      link-in-comment: {link or '—'}"); return {"dry": True}
-    r = upload_photo(ref, True, caption)
+    msg = _with_link(caption, link)
+    if dry: print(f"[dry] FB photo · {ref}\n      caption: {msg}"); return {"dry": True}
+    r = upload_photo(ref, True, msg)
     if r.get("_err"): print("photo err:", r["_err"]); return r
-    pid = r.get("post_id") or r.get("id"); print("posted:", pid)
-    if link and pid: print("comment:", comment_link(pid, link))
-    return r
+    print("posted:", r.get("post_id") or r.get("id")); return r
 
 def post_carousel(caption, refs, link, dry):
-    if dry: print(f"[dry] FB carousel ({len(refs)}) · {refs}\n      caption: {caption}\n      link-in-comment: {link or '—'}"); return {"dry": True}
+    msg = _with_link(caption, link)
+    if dry: print(f"[dry] FB carousel ({len(refs)}) · {refs}\n      caption: {msg}"); return {"dry": True}
     ids = []
     for r in refs:
         u = upload_photo(r, False)
         if u.get("_err"): print("child err:", u["_err"]); return u
         ids.append(u["id"])
-    fields = {"access_token": TOK, "message": caption}
+    fields = {"access_token": TOK, "message": msg}
     for i, pid in enumerate(ids): fields[f"attached_media[{i}]"] = json.dumps({"media_fbid": pid})
     res = _form(f"{GRAPH}/{PID}/feed", fields)
     if res.get("_err"): print("feed err:", res["_err"]); return res
-    post_id = res.get("id"); print("posted carousel:", post_id)
-    if link and post_id: print("comment:", comment_link(post_id, link))
-    return res
+    print("posted carousel:", res.get("id")); return res
 
 def post_story(ref, dry):
     if dry: print(f"[dry] FB story · {ref}"); return {"dry": True}
