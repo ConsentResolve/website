@@ -107,21 +107,30 @@ def c_quote(quote, attrib):
         ctext(d, cx, 1240, "consentresolve.com/demo", sans(36), MINT3)
     return r
 
+def cmpbox(d, box, label, num, accent):
+    """A stylized comparison box: dark accent-tinted fill, bright accent border,
+    accent label at top, the $ number centered both ways below the label."""
+    x0, y0, x1, y1 = box
+    tint = tuple(int(NAVY9[i] * 0.84 + accent[i] * 0.16) for i in range(3))
+    d.rounded_rectangle([x0, y0, x1, y1], radius=30, fill=tint, outline=accent, width=5)
+    lf = sans(40); lw = SCR.textlength(label, font=lf)
+    d.text(((x0 + x1) / 2 - lw / 2, y0 + 30), label, font=lf, fill=accent)
+    nf = fit(num, x1 - x0 - 140, 156, 90, disp)
+    bb = nf.getbbox(num); tw = bb[2] - bb[0]; th = bb[3] - bb[1]
+    ry0, ry1 = y0 + 84, y1
+    d.text(((x0 + x1) / 2 - tw / 2 - bb[0], (ry0 + ry1) / 2 - th / 2 - bb[1]), num, font=nf, fill=WHITE)
+
 def c_cpbj(d, cx, W, H):
     eyebrow(d, cx, 250, "COST PER BOOKED JOB")
-    # shared (amber-ish red) box
-    d.rounded_rectangle([110, 360, W - 110, 600], radius=26, fill=(255, 107, 107, 26), outline=acol_red(), width=3)
-    ctext(d, cx, 400, "Shared leads", sans(40), RED)
-    ctext(d, cx, 452, "$575", disp(120), WHITE)
-    # consent box
-    d.rounded_rectangle([110, 650, W - 110, 900], radius=26, fill=(0, 229, 160, 26), outline=(0, 229, 160, 200), width=3)
-    ctext(d, cx, 690, "Consent Resolve", sans(40), MINT3)
-    ctext(d, cx, 742, "$140", disp(120), WHITE)
-    for i, ln in enumerate(wrap("Same booked job. $7 a lead, exclusive — instead of a shared one sold to four of you.", sans(44), 880)):
-        ctext(d, cx, 980 + i * 58, ln, sans(44), SLATE)
-    ctext(d, cx, 1250, "Run your numbers · consentresolve.com/lead-math", sans(34), MINT3)
-
-def acol_red(): return (255, 107, 107, 200)
+    cmpbox(d, (90, 350, W - 90, 632), "SHARED LEADS", "$575", RED)
+    vy = 666
+    d.ellipse([cx - 42, vy - 42, cx + 42, vy + 42], fill=NAVY7, outline=(255, 255, 255, 70), width=2)
+    vf = sans(40); vb = vf.getbbox("vs"); vw = vb[2] - vb[0]; vh = vb[3] - vb[1]
+    d.text((cx - vw / 2 - vb[0], vy - vh / 2 - vb[1]), "vs", font=vf, fill=SLATE)
+    cmpbox(d, (90, 700, W - 90, 982), "CONSENT RESOLVE", "$140", MINT)
+    for i, ln in enumerate(wrap("Same booked job — a $7 exclusive lead instead of a shared one sold to four of you.", sans(44), 880)):
+        ctext(d, cx, 1042 + i * 58, ln, sans(44), SLATE)
+    ctext(d, cx, 1270, "Run your numbers · consentresolve.com/lead-math", sans(34), MINT3)
 
 # ── carousels (4:5 slides) ───────────────────────────────────────────────────
 def cslide(name, render):
