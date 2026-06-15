@@ -23,7 +23,9 @@ TOK = _read("/tmp/fb_page_token.txt")
 
 def fetch(ref):
     if ref.startswith("http"):
-        return urllib.request.urlopen(ref, timeout=90).read()
+        # Cloudflare/R2 403s the default urllib UA — send a normal one.
+        req = urllib.request.Request(ref, headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ConsentResolve/1.0"})
+        return urllib.request.urlopen(req, timeout=90).read()
     return Path(ref).read_bytes()
 
 def _form(url, fields):
