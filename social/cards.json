@@ -97,35 +97,37 @@
   "2026-07-12": {
     "format": "story",
     "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-leak.png"
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-race.png"
     ],
     "caption": "",
     "link": ""
   },
   "2026-07-14": {
-    "format": "photo",
+    "format": "carousel",
     "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-leak.png"
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/rigC-1.png",
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/rigC-2.png",
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/rigC-3.png",
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/rigC-4.png",
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/rigC-5.png",
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/rigC-6.png",
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/rigC-7.png"
     ],
-    "caption": "You paid for every click. 98 of 100 of them leave without a trace \u2014 here's how you get them back.",
+    "caption": "5 signs your lead source is rigged. Swipe \u2192",
     "link": "https://consentresolve.com/demo"
   },
   "2026-07-16": {
-    "format": "carousel",
+    "format": "photo",
     "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-1.png",
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-2.png",
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-3.png",
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-4.png",
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-5.png"
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-ghost.png"
     ],
-    "caption": "How to get a lead without buying one. Swipe \u2192",
+    "caption": "30 leads, 30 ghosts \u2014 paid for every one. The people already on your site actually want the work.",
     "link": "https://consentresolve.com/demo"
   },
   "2026-07-19": {
     "format": "story",
     "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-offer.png"
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-ftc.png"
     ],
     "caption": "",
     "link": ""
@@ -133,26 +135,23 @@
   "2026-07-21": {
     "format": "photo",
     "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-race.png"
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-robot.png"
     ],
-    "caption": "A shared lead is sold to you and four competitors. That's a footrace, not a lead.",
+    "caption": "A robot charged me $400 because my own customer called me back. Your own traffic doesn't bill you by algorithm.",
     "link": "https://consentresolve.com/demo"
   },
   "2026-07-23": {
-    "format": "carousel",
+    "format": "photo",
     "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/cmpB-1.png",
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/cmpB-2.png",
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/cmpB-3.png",
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/cmpB-4.png"
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-ftc.png"
     ],
-    "caption": "Shared leads vs your own traffic \u2014 the real math. Swipe \u2192",
-    "link": "https://consentresolve.com/lead-math"
+    "caption": "The biggest lead site was fined $7.2M for lying about lead quality. Suddenly the garbage leads made sense.",
+    "link": "https://consentresolve.com/demo"
   },
   "2026-07-26": {
     "format": "story",
     "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-cta.png"
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-leak.png"
     ],
     "caption": "",
     "link": ""
@@ -160,17 +159,17 @@
   "2026-07-28": {
     "format": "photo",
     "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-cpbj.png"
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-rent.png"
     ],
-    "caption": "$575 to land a job on shared leads, or about $140 on your own traffic. Same booked job.",
-    "link": "https://consentresolve.com/lead-math"
+    "caption": "Stop renting leads from the people getting rich off your invoices.",
+    "link": "https://consentresolve.com/demo"
   },
   "2026-07-30": {
     "format": "photo",
     "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-product.png"
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-credit.png"
     ],
-    "caption": "With the lead sites you pay them \u2014 and you're still the product. Own your traffic instead.",
+    "caption": "They don't refund the fake leads \u2014 they give you credit to buy more fake leads.",
     "link": "https://consentresolve.com/demo"
   }
 }

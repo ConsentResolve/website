@@ -207,6 +207,47 @@ def st_cta(d, cx, W, H):
     pill(d, cx, 1480, "See it work on you →", sans(46), INKMINT, MINT, padx=44, pady=24)
     ctext(d, cx, 1620, "link in bio · /demo", sans(38), MINT3)
 
+# ── more photo cards (from the approved VoC angles) ──────────────────────────
+def c_ghost(d, cx, W, H):
+    eyebrow(d, cx, 320, "PURCHASED LEADS")
+    ctext(d, cx, 400, "30 leads.", disp(112), WHITE)
+    ctext(d, cx, 542, "30 ghosts.", disp(112), RED)
+    for i, ln in enumerate(wrap("Paid for every one. The people already on your site actually want the work.", sans(46), 860)):
+        ctext(d, cx, 760 + i * 60, ln, sans(46), SLATE)
+    ctext(d, cx, 1240, "consentresolve.com/demo", sans(38), MINT3)
+
+def c_robot(d, cx, W, H):
+    eyebrow(d, cx, 300, "THE BILLING")
+    ctext(d, cx, 380, "$400", disp(200), RED)
+    ctext(d, cx, 620, "charged by a robot", disp(66), WHITE)
+    for i, ln in enumerate(wrap("for your own customer calling you back. No appeal, no one to argue with.", sans(46), 860)):
+        ctext(d, cx, 742 + i * 60, ln, sans(46), SLATE)
+    ctext(d, cx, 1240, "Your own traffic doesn't bill you by algorithm.", sans(34), MINT3)
+
+def c_ftc(d, cx, W, H):
+    eyebrow(d, cx, 320, "THE RECEIPTS")
+    ctext(d, cx, 400, "$7.2M", disp(180), RED)
+    ctext(d, cx, 636, "fine for the biggest lead site", fit("fine for the biggest lead site", 940, 56, 40, sans), WHITE)
+    for i, ln in enumerate(wrap("for lying about lead quality. Suddenly the garbage leads made sense.", sans(46), 860)):
+        ctext(d, cx, 740 + i * 60, ln, sans(46), SLATE)
+    ctext(d, cx, 1240, "consentresolve.com/demo", sans(38), MINT3)
+
+# ── more stories ─────────────────────────────────────────────────────────────
+def st_race(d, cx, W, H):
+    eyebrow(d, cx, 640, "SHARED LEADS")
+    ctext(d, cx, 720, "1 lead.", disp(150), WHITE)
+    ctext(d, cx, 890, "4 contractors.", disp(118), RED)
+    for i, ln in enumerate(wrap("A footrace, not a lead — and you're paying to run it.", sans(54), 820)):
+        ctext(d, cx, 1120 + i * 70, ln, sans(54), SLATE)
+    pill(d, cx, 1450, "consentresolve.com/demo", sans(44), INKMINT, MINT, padx=44, pady=24)
+
+def st_ftc(d, cx, W, H):
+    eyebrow(d, cx, 660, "THE RECEIPTS")
+    ctext(d, cx, 740, "$7.2M", disp(220), RED)
+    for i, ln in enumerate(["fine for the biggest", "lead site — for lying", "about lead quality."]):
+        ctext(d, cx, 1050 + i * 92, ln, sans(58), WHITE)
+    pill(d, cx, 1500, "consentresolve.com/demo", sans(44), INKMINT, MINT, padx=44, pady=24)
+
 # ── render all ───────────────────────────────────────────────────────────────
 card("card-leak", c_leak)
 card("card-offer", c_offer)
@@ -229,5 +270,25 @@ cslide("cmpB-4", cta_slide("Run your own numbers.", "consentresolve.com/lead-mat
 story("story-leak", st_leak)
 story("story-offer", st_offer)
 story("story-cta", st_cta)
+
+# more photo cards
+card("card-ghost", c_ghost)
+card("card-robot", c_robot)
+card("card-ftc", c_ftc)
+card("card-rent", c_quote("Stop renting leads from the people getting rich off your invoices.", "— Own your traffic"))
+card("card-credit", c_quote("They don't refund the fake leads. They give you credit to buy more fake leads.", "— what contractors keep telling us"))
+
+# "5 signs your lead source is rigged" carousel
+cslide("rigC-1", cover("IS YOUR LEAD SOURCE RIGGED?", "5 signs the game is built against you"))
+cslide("rigC-2", step(1, "The same lead goes to four of you", "A race to respond — not a lead."))
+cslide("rigC-3", step(2, "'Bad-lead' disputes get denied", "You pay for tire-kickers and wrong numbers."))
+cslide("rigC-4", step(3, "Charged when a customer calls back", "Billed by an algorithm, with no appeal."))
+cslide("rigC-5", step(4, "Cancelling comes with a penalty", "Auto-renew contracts and exit fees."))
+cslide("rigC-6", step(5, "Your pipeline lives in their dashboard", "One policy change and it's gone."))
+cslide("rigC-7", cta_slide("Own your traffic instead.", "consentresolve.com/demo"))
+
+# more stories
+story("story-race", st_race)
+story("story-ftc", st_ftc)
 
 print("\ndone ->", OUT)

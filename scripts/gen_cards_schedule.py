@@ -34,8 +34,20 @@ FEED = [
      "caption": "$7 a lead. Exclusive, never resold — recovered from the traffic you already have."},
     {"format": "photo", "images": ["card-robbed"], "link": "https://consentresolve.com/demo",
      "caption": "You didn't get worse at marketing. The lead-site game is built to work against you."},
+    {"format": "carousel", "images": ["rigC-1", "rigC-2", "rigC-3", "rigC-4", "rigC-5", "rigC-6", "rigC-7"], "link": "https://consentresolve.com/demo",
+     "caption": "5 signs your lead source is rigged. Swipe →"},
+    {"format": "photo", "images": ["card-ghost"], "link": "https://consentresolve.com/demo",
+     "caption": "30 leads, 30 ghosts — paid for every one. The people already on your site actually want the work."},
+    {"format": "photo", "images": ["card-robot"], "link": "https://consentresolve.com/demo",
+     "caption": "A robot charged me $400 because my own customer called me back. Your own traffic doesn't bill you by algorithm."},
+    {"format": "photo", "images": ["card-ftc"], "link": "https://consentresolve.com/demo",
+     "caption": "The biggest lead site was fined $7.2M for lying about lead quality. Suddenly the garbage leads made sense."},
+    {"format": "photo", "images": ["card-rent"], "link": "https://consentresolve.com/demo",
+     "caption": "Stop renting leads from the people getting rich off your invoices."},
+    {"format": "photo", "images": ["card-credit"], "link": "https://consentresolve.com/demo",
+     "caption": "They don't refund the fake leads — they give you credit to buy more fake leads."},
 ]
-STORIES = ["story-leak", "story-offer", "story-cta"]
+STORIES = ["story-leak", "story-offer", "story-cta", "story-race", "story-ftc"]
 
 sched, fi, si = {}, 0, 0
 for i in range(DAYS):

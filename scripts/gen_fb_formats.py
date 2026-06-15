@@ -20,12 +20,18 @@ CARDS = [
     ("card-robbed", "You didn't get worse at marketing. The lead-site game is built to work against you."),
     ("card-product", "With the lead sites you pay them — and you're still the product. Own your traffic instead."),
     ("card-cpbj", "$575 to land a job on shared leads, or about $140 on your own traffic. Same booked job."),
+    ("card-ghost", "30 leads, 30 ghosts — paid for every one. The people already on your site actually want the work."),
+    ("card-robot", "A robot charged me $400 because my own customer called me back. Your own traffic doesn't bill you by algorithm."),
+    ("card-ftc", "The biggest lead site was fined $7.2M for lying about lead quality. Suddenly the garbage leads made sense."),
+    ("card-rent", "Stop renting leads from the people getting rich off your invoices."),
+    ("card-credit", "They don't refund the fake leads — they give you credit to buy more fake leads."),
 ]
 CAROUSELS = [
     ("How you get a lead without buying one — swipe →", ["howA-1", "howA-2", "howA-3", "howA-4", "howA-5"]),
     ("Shared leads vs your own traffic — the real math. Swipe →", ["cmpB-1", "cmpB-2", "cmpB-3", "cmpB-4"]),
+    ("5 signs your lead source is rigged. Swipe →", ["rigC-1", "rigC-2", "rigC-3", "rigC-4", "rigC-5", "rigC-6", "rigC-7"]),
 ]
-STORIES = ["story-leak", "story-offer", "story-cta"]
+STORIES = ["story-leak", "story-offer", "story-cta", "story-race", "story-ftc"]
 
 def fb_post(image, caption):
     return f"""<div class="post">

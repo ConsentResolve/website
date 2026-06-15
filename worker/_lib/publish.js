@@ -20,7 +20,13 @@ const SITE = "https://consentresolve.com";
 // Platforms we publish on launch. Others stay queued for later. LinkedIn is
 // split into two independent targets (company page + personal profile) so each
 // has its own queue stream, credentials, and posting cadence.
-export const LAUNCH_PLATFORMS = ["facebook", "linkedin_company", "linkedin_personal", "x", "google_business_profile"];
+//
+// NOTE: "facebook" is intentionally NOT here. The FB Page feed is now owned by
+// the native card scheduler (scripts/run_cards.py — photo/carousel/story on
+// non-Reel days), which is richer than a link-card post and avoids two systems
+// double-posting to the Page in one session. The worker still drips LinkedIn /
+// X / GBP. FB rows stay queued (harmless) but are never auto-posted from here.
+export const LAUNCH_PLATFORMS = ["linkedin_company", "linkedin_personal", "x", "google_business_profile"];
 
 // How often (in days) each platform may post. The daily cron checks the last
 // published_at per platform and only drips a new item once this many days have
