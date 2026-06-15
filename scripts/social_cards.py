@@ -123,11 +123,12 @@ def cmpbox(d, box, label, num, accent):
 def c_cpbj(d, cx, W, H):
     eyebrow(d, cx, 250, "COST PER BOOKED JOB")
     cmpbox(d, (90, 350, W - 90, 632), "SHARED LEADS", "$575", RED)
+    cmpbox(d, (90, 700, W - 90, 982), "CONSENT RESOLVE", "$140", MINT)
+    # 'vs' badge drawn last, so it sits in front of both boxes
     vy = 666
-    d.ellipse([cx - 42, vy - 42, cx + 42, vy + 42], fill=NAVY7, outline=(255, 255, 255, 70), width=2)
+    d.ellipse([cx - 44, vy - 44, cx + 44, vy + 44], fill=(8, 15, 28), outline=(255, 255, 255, 80), width=2)
     vf = sans(40); vb = vf.getbbox("vs"); vw = vb[2] - vb[0]; vh = vb[3] - vb[1]
     d.text((cx - vw / 2 - vb[0], vy - vh / 2 - vb[1]), "vs", font=vf, fill=SLATE)
-    cmpbox(d, (90, 700, W - 90, 982), "CONSENT RESOLVE", "$140", MINT)
     for i, ln in enumerate(wrap("Same booked job — a $7 exclusive lead instead of a shared one sold to four of you.", sans(44), 880)):
         ctext(d, cx, 1042 + i * 58, ln, sans(44), SLATE)
     ctext(d, cx, 1270, "Run your numbers · consentresolve.com/lead-math", sans(34), MINT3)
