@@ -21,6 +21,8 @@ DISP = str(ROOT / "scripts/.fonts/Bricolage.ttf"); SANS = str(ROOT / "scripts/.f
 LOGO = ROOT / "public/logo-on-dark.png"; MUSIC = str(ROOT / "assets/audio/CR1.mp3")
 W, H = 1080, 1920
 NAVY = (10, 22, 40); MINT = (0, 229, 160); PAPER = (248, 250, 252); INK = (13, 27, 42)
+NAVY700 = (30, 41, 59); NAVY800 = (13, 27, 42); MINT300 = (0, 245, 176); SLATE = (148, 163, 184)
+AMP_X, AMP_Y, ZB, ZR = 10, 8, 1.03, 0.03  # handheld float (matches leah_pipeline)
 MOTION = "Confident, warm, direct. Talking straight to a contractor who's a peer. Calm authority, slight smile on the wins."
 disp = lambda p: ImageFont.truetype(DISP, p); sans = lambda p: ImageFont.truetype(SANS, p)
 
@@ -98,19 +100,56 @@ def scene_times(reel, words):
         times.append((start, end)); wi = wi_end
     return times
 
+def _super(d, super_text):
+    if not super_text: return
+    f = fit(d, super_text, DISP, 78, 40, W-140)
+    bw = d.textlength(super_text, font=f); x = W//2-bw/2; y = int(H*0.10)
+    d.rounded_rectangle([x-26, y-14, x+bw+26, y+f.size+18], radius=18, fill=MINT)
+    d.text((W//2, y+f.size//2+2), super_text, font=f, fill=NAVY, anchor="mm")
+
+def sampaul_card(d):
+    """The standard 'Sam Paul' lead card (replicates brand_reel.lead_card, static)."""
+    x0, y0, x1, y1 = 140, 660, 940, 1280
+    d.rounded_rectangle([x0, y0, x1, y1], radius=30, fill=NAVY700, outline=MINT, width=3)
+    px, py = x0+44, y0+40
+    d.ellipse([px, py+6, px+18, py+24], fill=MINT); d.text((px+30, py), "Lead identified", font=sans(30), fill=MINT)
+    d.text((x1-44, py), "just now", font=sans(26), fill=SLATE, anchor="ra")
+    d.line([(px, py+62), (x1-44, py+62)], fill=(255, 255, 255), width=2)
+    ax, ay, ar = px+54, py+185, 58
+    d.ellipse([ax-ar, ay-ar, ax+ar, ay+ar], fill=MINT)
+    d.ellipse([ax-22, ay-30, ax+22, ay+14], fill=NAVY); d.pieslice([ax-40, ay-2, ax+40, ay+70], 180, 360, fill=NAVY)
+    nx = px+140; d.text((nx, py+118), "Sam Paul", font=disp(58), fill=PAPER)
+    tag = "Roofing · quote request"; tf = sans(30); tw = d.textlength(tag, font=tf); ty = py+200; tcw = int(tw)+108
+    d.rounded_rectangle([nx, ty, nx+tcw, ty+62], radius=18, fill=NAVY, outline=MINT, width=3)
+    d.ellipse([nx+26, ty+22, nx+44, ty+40], fill=MINT)
+    d.text((nx+62, ty+31), tag, font=tf, fill=MINT300, anchor="lm")
+    d.text((px, py+360), "sam.paul@roofingco.com", font=sans(36), fill=PAPER)
+    d.text((px, py+428), "Wants: roof replacement quote", font=sans(33), fill=SLATE)
+    d.text((px, py+486), "Illustrative example", font=sans(24), fill=SLATE)
+
 def asset_card(slug, super_text, reel, out):
+    # the standard lead card (Sam Paul) on navy — used for every consented/lead beat
+    if slug and slug.startswith("leadcard"):
+        img = Image.new("RGB", (W, H), NAVY); d = ImageDraw.Draw(img, "RGBA")
+        for gy in range(60, H, 60):
+            for gx in range(60, W, 60): d.ellipse([gx, gy, gx+2, gy+2], fill=(148, 163, 184))
+        sampaul_card(d); _super(d, super_text); img.convert("RGB").save(out); return
     img = Image.new("RGB", (W, H), PAPER); d = ImageDraw.Draw(img)
+    if slug == "grid-anon":  # 5x5 wall of the same anonymous icon
+        tile = ROOT / f"public/exp-reels/{reel}/a1-anon.png"
+        if tile.exists():
+            cell = 176; t = Image.open(tile).convert("RGBA").resize((cell, cell), Image.LANCZOS)
+            cols = rows = 5; gx = (W-cols*cell)//(cols+1); gy0 = int(H*0.20)
+            for rr in range(rows):
+                for cc in range(cols):
+                    img.paste(t, (gx + cc*(cell+gx), gy0 + rr*(cell+18)), t)
+        _super(d, super_text); img.save(out); return
     p = ROOT / f"public/exp-reels/{reel}/{slug}.png"
     if p.exists():
-        ic = Image.open(p).convert("RGBA"); m = int(W*0.82); r = m/ic.width
+        ic = Image.open(p).convert("RGBA"); m = int(W*0.80); r = m/ic.width
         ic = ic.resize((m, int(ic.height*r)), Image.LANCZOS)
         img.paste(ic, (W//2 - ic.width//2, H//2 - ic.height//2 - 40), ic)
-    if super_text:
-        f = fit(d, super_text, DISP, 78, 40, W-140)
-        bw = d.textlength(super_text, font=f); x = W//2 - bw/2; y = int(H*0.10)
-        d.rounded_rectangle([x-26, y-14, x+bw+26, y+f.size+18], radius=18, fill=MINT)
-        d.text((W//2, y+f.size//2+2), super_text, font=f, fill=NAVY, anchor="mm")
-    img.save(out)
+    _super(d, super_text); img.save(out)
 
 def karaoke_png(words, active, out):
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(img); CAP = sans(56); lh = 70
@@ -153,25 +192,25 @@ def main(reel):
     words = word_timeline(srt); D = dur(src)
     sc_times = scene_times(reel, words)
     scenes = REELS[reel]["scenes"]
-    # 1) visual segments
-    segs = []
+    # 1) FLOAT base: the avatar stays one continuous, perfectly-synced track (leah-style
+    #    handheld zoompan). Asset cards get OVERLAID on top during their beats — the
+    #    avatar is never cut, so lips never drift.
+    TF = max(1, int(D*30))
+    base = str(d/"base.mp4")
+    zp = (f"fps=30,zoompan=z='{ZB}+{ZR}*on/{TF}':d=1:"
+          f"x='iw/2-(iw/zoom/2)+({AMP_X}*0.6)*sin(on/30*0.9)+({AMP_X}*0.4)*sin(on/30*2.3+1.1)':"
+          f"y='ih/2-(ih/zoom/2)+({AMP_Y}*0.6)*sin(on/30*1.2+0.5)+({AMP_Y}*0.4)*sin(on/30*2.9+2.0)':s={W}x{H}:fps=30")
+    subprocess.run([FF, "-y", "-loglevel", "error", "-i", src, "-vf", zp,
+        "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "copy", base], check=True)
+    # 2) asset cards for ASSET/SPLIT scenes -> overlaid over their time range
+    overlays = []
     for i, sc in enumerate(scenes):
-        s, e = sc_times[i]; e = min(e, D); durr = max(0.6, e-s)
-        tok, slug, _prompt, _vo, cap = sc[2], sc[3], sc[4], sc[5], sc[6]
-        seg = str(d/f"v{i}.mp4")
-        if tok == "AVATAR" or (tok == "SPLIT" and not slug):
-            subprocess.run([FF, "-y", "-loglevel", "error", "-ss", f"{s:.3f}", "-to", f"{e:.3f}", "-i", src,
-                "-vf", f"fps=30,scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H}", "-an",
-                "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p", "-r", "30", seg], check=True)
-        else:
+        tok, slug, cap = sc[2], sc[3], sc[6]
+        if tok in ("ASSET", "SPLIT") and slug:
+            s, e = sc_times[i]; e = min(e, D)
             card = str(d/f"card{i}.png"); asset_card(slug, cap, reel, card)
-            z = "zoompan=z='min(zoom+0.0008,1.08)':d=1:s=%dx%d:fps=30" % (W, H)
-            subprocess.run([FF, "-y", "-loglevel", "error", "-loop", "1", "-t", f"{durr:.3f}", "-i", card,
-                "-vf", f"{z},format=yuv420p", "-an", "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p", "-r", "30", seg], check=True)
-        segs.append(seg)
-    lst = d/"segs.txt"; lst.write_text("".join(f"file '{Path(s).resolve()}'\n" for s in segs))
-    visual = str(d/"visual.mp4"); subprocess.run([FF, "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", str(lst), "-c", "copy", visual], check=True)
-    # 2) karaoke caption overlays
+            overlays.append((card, s, e))
+    # 3) karaoke caption word pngs (from SRT)
     cues = []
     for blk in re.split(r"\n\s*\n", Path(srt).read_text().strip()):
         L = [x for x in blk.splitlines() if x.strip()]; tl = next((x for x in L if "-->" in x), None)
@@ -184,10 +223,14 @@ def main(reel):
         for k, w in enumerate(wlist):
             e2 = b if k == len(wlist)-1 else tt + (b-a)*wt[k]/tot
             p = str(d/f"w{gi}.png"); karaoke_png(wlist, k, p); wp.append(p); ww.append((tt, e2)); tt = e2; gi += 1
-    ins = ["-i", visual, "-i", src] + sum([["-i", p] for p in wp], [])
-    fc = "[0:v]null[b0]"
-    for k, (s, e) in enumerate(ww): fc += f";[b{k}][{2+k}:v]overlay=0:0:enable='between(t,{s:.3f},{e:.3f})'[b{k+1}]"
-    fc += f";[b{len(wp)}]null[v];[1:a]loudnorm=I=-14:TP=-1.5:LRA=11[a]"
+    # 4) one pass: base -> overlay asset cards -> overlay captions (audio stays from base)
+    ins = ["-i", base] + sum([["-i", c[0]] for c in overlays], []) + sum([["-i", p] for p in wp], [])
+    nov = len(overlays); fc = "[0:v]null[b0]"; k = 0
+    for j, (card, s, e) in enumerate(overlays):
+        fc += f";[b{k}][{1+j}:v]overlay=0:0:enable='between(t,{s:.3f},{e:.3f})'[b{k+1}]"; k += 1
+    for j, (s, e) in enumerate(ww):
+        fc += f";[b{k}][{1+nov+j}:v]overlay=0:0:enable='between(t,{s:.3f},{e:.3f})'[b{k+1}]"; k += 1
+    fc += f";[b{k}]null[v];[0:a]loudnorm=I=-14:TP=-1.5:LRA=11[a]"
     body = str(d/"body.mp4")
     subprocess.run([FF, "-y", "-loglevel", "error", *ins, "-filter_complex", fc, "-map", "[v]", "-map", "[a]",
         "-c:v", "libx264", "-b:v", "4M", "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "aac", "-b:a", "160k", "-t", f"{D:.2f}", body], check=True)

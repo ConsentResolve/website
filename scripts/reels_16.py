@@ -123,10 +123,10 @@ REELS = {
  (25,29,"ASSET","nophone","a clean lead card icon with an email field and no phone field","Consent in. Email out. No creepy stuff.",""),
 ]},
 "10": {"avatar":"leah","title":"Gray to Green","scenes":[
- (0,2,"ASSET","a1-anon","a single faceless anonymous person icon inside a browser-window frame, a question mark where the face should be","This is your website traffic. Every one of them, a stranger.","anonymous"),
+ (0,2,"ASSET","grid-anon",None,"This is your website traffic. Every one of them, a stranger.","anonymous"),
  (2,5,"AVATAR",None,None,"You can't call a stranger. You don't know who they are.",""),
  (5,9,"ASSET","a2-accept","a hand tapping a large rounded checkmark consent button, a small person icon beside it","But the second they tap Accept on your banner, watch.",""),
- (9,13,"ASSET","a3-card","a contact card icon showing a person avatar with two simple horizontal placeholder lines beside it","A stranger becomes a name. An email. What they wanted.","consented"),
+ (9,13,"ASSET","leadcard-sam",None,"A stranger becomes a name. An email. What they wanted.","consented"),
  (13,17,"ASSET","a4-some","a small three-by-three grid of identical person icons, a few of them marked with a small checkmark badge","Not all of them. The ones who say yes. That's the deal.",""),
  (17,21,"AVATAR",None,None,"No yes, no name. We never identify anyone by guessing.","no guessing"),
  (21,25,"AVATAR",None,None,"Your whole job is making more of them choose yes. We just make yes callable.",""),
