@@ -58,7 +58,6 @@ ANG = {
  "twice": (["PAID TWICE","SAME LEAD"], "Here's one that'll make you mad. Ever buy a lead from one site, then realize you'd already bought the exact same person from a different site? Same homeowner. Two lead sites. You paid twice for one lead. That's the shared-lead game, the same name sold all over town. The visitors on your own website are yours alone. When they opt in, we hand them to you. Sold once. Seven dollars. Never to anyone else.", "Exclusive, for real  →"),
  "policy": (["THEIR DASHBOARD","THEIR RULES"], "Here's a risk most contractors never think about. Your entire pipeline lives inside someone else's dashboard. Their rules, their prices. One policy change, one suspended account, and it's gone. Years of reviews and ranking, equity you built in their company, not yours. Your website is the one pipe you actually own. Recover the visitors who opt in, as real, exclusive leads. Seven dollars each. Build something they can't switch off.", "Own your pipeline  →"),
  "ownership": (["STOP RENTING","YOUR LEADS"], "Here's the part nobody on those platforms wants you to notice. Every dollar you spend with the lead sites builds their brand, not yours. You're renting access to customers you're already paying to create. Your website is the one pipe you actually own. Recover the people on it who opt in, as real, exclusive leads. Seven dollars each. Same money, except now it compounds for you.", "Own your traffic  →"),
- "contrarian": (["NOT BROKEN","BY DESIGN"], "Hot take. The lead sites aren't broken. They work exactly the way they were designed to, for them. Shared leads, surge pricing, no real refunds. That's not a bug, that's the model. You're not the customer there, you're the product. The fix isn't a better marketplace. It's owning the traffic you already have. Your own website. Recover the people who opt in as real, exclusive leads. Seven dollars. Stop being the product.", "Stop being the product  →"),
 }
 for a,(card,script,cta) in ANG.items():
     look,voice=J(a); add(f"{a}-new", look, voice, card, script, cta, f"{a}-new")
@@ -98,7 +97,7 @@ def hook_card(lines,out):
     img.save(out)
 def cta_card(text,out):
     img=Image.new("RGBA",(W,H),(0,0,0,0)); d=ImageDraw.Draw(img)
-    f=fitf(d,text,DISP,64,40,W-220); tw=d.textlength(text,font=f); bw=int(tw)+90; bh=116; x=W//2-bw//2; y=int(H*0.80)
+    f=fitf(d,text,DISP,64,40,W-220); tw=d.textlength(text,font=f); bw=int(tw)+90; bh=116; x=W//2-bw//2; y=int(H*0.07)  # ABOVE the head (clears the low captions)
     d.rounded_rectangle([x,y,x+bw,y+bh],radius=bh//2,fill=MINT); d.text((W//2,y+bh//2),text,font=f,fill=NAVY,anchor="mm"); img.save(out)
 def karaoke_png(words,active,out):
     img=Image.new("RGBA",(W,H),(0,0,0,0)); d=ImageDraw.Draw(img); lh=70
@@ -143,24 +142,28 @@ for slug in want:
     look,voice,card,script,cta,r2 = A[slug]
     d=WORK/slug; d.mkdir(exist_ok=True)
     print(f">>> {slug}",flush=True)
-    body={"caption":True,"video_inputs":[{"character":{"type":"talking_photo","talking_photo_id":look,"use_avatar_iv_model":True,"talking_style":"expressive","super_resolution":True,"expressiveness":"high","custom_motion_prompt":MOTION},
-          "voice":{"type":"text","voice_id":voice,"input_text":spoken(script),"speed":0.92}}],"dimension":{"width":W,"height":H}}
-    vid=(api("https://api.heygen.com/v2/video/generate",body).get("data") or {}).get("video_id")
-    src=str(d/"src.mp4"); srt=str(d/"cap.srt"); vurl=curl=None
-    for _ in range(80):
-        st=api(f"https://api.heygen.com/v1/video_status.get?video_id={vid}").get("data") or {}
-        if st.get("status")=="completed":
-            vurl=st.get("video_url")
-            for _ in range(12):
-                curl=(api(f"https://api.heygen.com/v1/video_status.get?video_id={vid}").get("data") or {}).get("caption_url")
-                if curl: break
-                time.sleep(3)
-            break
-        if st.get("status")=="failed": print(f"!!! {slug} failed"); break
-        time.sleep(10)
-    if not vurl: print(f"!!! {slug} no video"); continue
-    urllib.request.urlretrieve(vurl,src)
-    if curl: urllib.request.urlretrieve(curl,srt)
+    src=str(d/"src.mp4"); srt=str(d/"cap.srt")
+    if Path(src).exists() and Path(srt).exists() and Path(src).stat().st_size>80000:
+        print("  (cached render — post-only re-cut)",flush=True)
+    else:
+        body={"caption":True,"video_inputs":[{"character":{"type":"talking_photo","talking_photo_id":look,"use_avatar_iv_model":True,"talking_style":"expressive","super_resolution":True,"expressiveness":"high","custom_motion_prompt":MOTION},
+              "voice":{"type":"text","voice_id":voice,"input_text":spoken(script),"speed":0.92}}],"dimension":{"width":W,"height":H}}
+        vid=(api("https://api.heygen.com/v2/video/generate",body).get("data") or {}).get("video_id")
+        vurl=curl=None
+        for _ in range(80):
+            st=api(f"https://api.heygen.com/v1/video_status.get?video_id={vid}").get("data") or {}
+            if st.get("status")=="completed":
+                vurl=st.get("video_url")
+                for _ in range(12):
+                    curl=(api(f"https://api.heygen.com/v1/video_status.get?video_id={vid}").get("data") or {}).get("caption_url")
+                    if curl: break
+                    time.sleep(3)
+                break
+            if st.get("status")=="failed": print(f"!!! {slug} failed"); break
+            time.sleep(10)
+        if not vurl: print(f"!!! {slug} no video"); continue
+        urllib.request.urlretrieve(vurl,src)
+        if curl: urllib.request.urlretrieve(curl,srt)
     D=dur(src)
     # jump-cut segments
     segs=[]; t=0.0; i=0

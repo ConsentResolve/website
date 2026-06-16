@@ -61,13 +61,29 @@ for slug, desc in LEAH:
                    f'<div class="hk">{esc(desc)}</div>{FB}</div>')
 leah_row = f'<div class="angle"><div class="ah">leah <span>· office manager (her own scripts)</span></div><div class="trio">{leah_cells}</div></div>'
 
+# Brand music library (20 tracks) — review/select, leave notes per track
+RM = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/music"
+MUSIC_INST = [("CR1.mp3","CR1 (default)"),("inst-fp1.mp3","fp1"),("inst-money.mp3","money"),("inst-1920s.mp3","1920s"),
+  ("inst-jingle.mp3","jingle"),("inst-solveit.mp3","solve it"),("int-new1.mp3","new 1"),("inst-new2.mp3","new 2"),
+  ("inst-new3.mp3","new 3"),("inst-new4.mp3","new 4"),("inst-new5.mp3","new 5"),("inst-new6.mp3","new 6")]
+MUSIC_VOC = [("voc-cr1c.mp3","CR1 vocal c"),("voc-cr1d.mp3","CR1 vocal d"),("voc-hiphop.mp3","hip-hop"),
+  ("voc-sparks.mp3","sparks"),("pop-cr.mp3","pop"),("voc-jingle.mp3","jingle"),("voc-oneroof.mp3","one roof"),("voc-solveit.mp3","solve it")]
+def mcells(items):
+    s = ""
+    for f, lbl in items:
+        s += (f'<div class="mcell" data-name="music-{f.replace(".mp3","")}"><div class="ml">{esc(lbl)}</div>'
+              f'<audio class="ma" src="{RM}/{f}" controls preload="none"></audio>{FB}</div>')
+    return s
+music_row = (f'<div class="mgrp"><div class="mh">Instrumentals — no vocals ({len(MUSIC_INST)})</div><div class="mgrid">{mcells(MUSIC_INST)}</div></div>'
+             f'<div class="mgrp"><div class="mh">Songs — with vocals ({len(MUSIC_VOC)})</div><div class="mgrid">{mcells(MUSIC_VOC)}</div></div>')
+
 # Reframed (new style) — the rest re-cut to CR voice + warm delivery + end-card
 REFRAMED = [("invoice","Jason · truck · lead-spend math"),("race","Jason · roof · the footrace"),
  ("ftc","Aaron · office · $7.2M fine"),("robot","Jason · garage · billed for your own customer"),
  ("ghost","Jason · driveway · 30 ghosts"),("math","Tyler · the $100 vs $7 math"),
  ("credit","Aaron · no refunds, only credit"),("creepy","Tyler · consent-first vs creepy"),
  ("twice","Jason · sold twice"),("policy","Aaron · their dashboard, their rules"),
- ("ownership","Aaron · stop renting your leads"),("contrarian","Tyler · not broken, by design")]
+ ("ownership","Aaron · stop renting your leads")]
 ref_cells = ""
 for a, desc in REFRAMED:
     name = f"{a}-new"; url = f"{R2}/{name}.mp4"
@@ -98,6 +114,10 @@ h2.sec{margin:34px 0 4px;font-size:14px;letter-spacing:.12em;text-transform:uppe
 .fsave{margin-top:6px;background:#00e5a0;color:#06281f;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer}
 .fok{color:#00e5a0;font-size:12px;margin-left:6px}
 #rev{background:#0e1d33;color:#f5f8fa;border:1px solid #1e293b;border-radius:8px;padding:8px 13px;font-size:14px;margin-top:10px;width:320px;max-width:90%}
+.mgrp{margin:14px 0}.mh{font-size:14px;font-weight:700;color:#fff;margin-bottom:8px}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.mcell{background:#0e1d33;border:1px solid #1e293b;border-radius:12px;padding:12px}
+.ml{font-weight:700;font-size:14px;color:#fff;margin-bottom:8px}.ma{width:100%}
 """
 HTML = f"""<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -112,6 +132,7 @@ HTML = f"""<!doctype html><html lang="en"><head>
   <h2 class="sec">Leak experiments — 2 hook mechanisms</h2>{leak_row}
   <h2 class="sec">Non-UGC (brand-animated) — 4 angles × 3 ({len(NONUGC)*3})</h2>{non_rows}
   <h2 class="sec">Leah — office-manager set ({len(LEAH)})</h2>{leah_row}
+  <h2 class="sec">🎵 Brand music library — {len(MUSIC_INST)+len(MUSIC_VOC)} tracks</h2>{music_row}
 </div>
 <script>
 const rev=document.getElementById('rev');
@@ -131,6 +152,6 @@ document.querySelectorAll('.fsave').forEach(b=>b.onclick=async()=>{{
 }});
 </script>
 </body></html>"""
-HTML = HTML.replace('.mp4"', '.mp4?v=3"')   # cache-buster so the browser fetches the current cuts
+HTML = HTML.replace('.mp4"', '.mp4?v=5"')   # cache-buster so the browser fetches the current cuts
 (ROOT / "public/sprint.html").write_text(HTML)
 print(f"wrote public/sprint.html + sprint-catalog.json — {len(catalog)} reels")

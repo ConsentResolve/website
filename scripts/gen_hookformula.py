@@ -54,7 +54,7 @@ def hook_card(lines,out):
     img.save(out)
 def cta_card(text,out):
     img=Image.new("RGBA",(W,H),(0,0,0,0)); d=ImageDraw.Draw(img)
-    f=fit(d,text,DISP,64,40,W-220); tw=d.textlength(text,font=f); bw=int(tw)+90; bh=116; x=W//2-bw//2; y=int(H*0.80)
+    f=fit(d,text,DISP,64,40,W-220); tw=d.textlength(text,font=f); bw=int(tw)+90; bh=116; x=W//2-bw//2; y=int(H*0.07)  # ABOVE the head (clears the low captions)
     d.rounded_rectangle([x,y,x+bw,y+bh],radius=bh//2,fill=MINT); d.text((W//2,y+bh//2),text,font=f,fill=NAVY,anchor="mm"); img.save(out)
 def karaoke(words,active,out):
     img=Image.new("RGBA",(W,H),(0,0,0,0)); d=ImageDraw.Draw(img); lh=70
@@ -94,24 +94,28 @@ subprocess.run([FF,"-y","-loglevel","error","-loop","1","-t","2.6","-i",ENDPNG,"
 
 for slug in want:
     look,voice,card,script,cta=ITEMS[slug]; d=WORK/slug; d.mkdir(exist_ok=True); print(f">>> {slug}",flush=True)
-    body={"caption":True,"video_inputs":[{"character":{"type":"talking_photo","talking_photo_id":look,"use_avatar_iv_model":True,"talking_style":"expressive","super_resolution":True,"expressiveness":"high","custom_motion_prompt":MOTION},
-          "voice":{"type":"text","voice_id":voice,"input_text":spoken(script),"speed":0.95}}],"dimension":{"width":W,"height":H}}
-    vid=(api("https://api.heygen.com/v2/video/generate",body).get("data") or {}).get("video_id")
-    src=str(d/"src.mp4"); srt=str(d/"cap.srt"); vurl=cu=None
-    for _ in range(80):
-        st=api(f"https://api.heygen.com/v1/video_status.get?video_id={vid}").get("data") or {}
-        if st.get("status")=="completed":
-            vurl=st.get("video_url")
-            for _ in range(12):
-                cu=(api(f"https://api.heygen.com/v1/video_status.get?video_id={vid}").get("data") or {}).get("caption_url")
-                if cu: break
-                time.sleep(3)
-            break
-        if st.get("status")=="failed": print(f"!!! {slug} failed"); break
-        time.sleep(10)
-    if not vurl: print(f"!!! {slug} no video"); continue
-    urllib.request.urlretrieve(vurl,src)
-    if cu: urllib.request.urlretrieve(cu,srt)
+    src=str(d/"src.mp4"); srt=str(d/"cap.srt")
+    if Path(src).exists() and Path(srt).exists() and Path(src).stat().st_size>80000:
+        print("  (cached render — post-only re-cut)",flush=True)
+    else:
+        body={"caption":True,"video_inputs":[{"character":{"type":"talking_photo","talking_photo_id":look,"use_avatar_iv_model":True,"talking_style":"expressive","super_resolution":True,"expressiveness":"high","custom_motion_prompt":MOTION},
+              "voice":{"type":"text","voice_id":voice,"input_text":spoken(script),"speed":0.95}}],"dimension":{"width":W,"height":H}}
+        vid=(api("https://api.heygen.com/v2/video/generate",body).get("data") or {}).get("video_id")
+        vurl=cu=None
+        for _ in range(80):
+            st=api(f"https://api.heygen.com/v1/video_status.get?video_id={vid}").get("data") or {}
+            if st.get("status")=="completed":
+                vurl=st.get("video_url")
+                for _ in range(12):
+                    cu=(api(f"https://api.heygen.com/v1/video_status.get?video_id={vid}").get("data") or {}).get("caption_url")
+                    if cu: break
+                    time.sleep(3)
+                break
+            if st.get("status")=="failed": print(f"!!! {slug} failed"); break
+            time.sleep(10)
+        if not vurl: print(f"!!! {slug} no video"); continue
+        urllib.request.urlretrieve(vurl,src)
+        if cu: urllib.request.urlretrieve(cu,srt)
     D=dur(src)
     segs=[]; t=0.0; i=0
     while t<D-0.05:
