@@ -37,8 +37,8 @@ def trio(angle, hooks, who, prefix=""):
                   f'<div class="hk">{esc(hook)}</div>{FB}</div>')
     return f'<div class="angle"><div class="ah">{esc(angle)} <span>· {esc(who)}</span></div><div class="trio">{cells}</div></div>'
 
-ugc_rows = "".join(trio(a, h, PERSONA[a]) for a, _p, h in UGC)
-non_rows = "".join(trio(a, h, "brand-animated", prefix="nonugc-") for a, h in NONUGC)
+leak_hooks = next(h for a, _p, h in UGC if a == "leak")
+leak_row = trio("leak", leak_hooks, "3 hook mechanisms")
 
 LEAH = [("roofing", "Front desk · the 98% leak"), ("speed", "Front desk · speed-to-lead"),
         ("ghost", "Kitchen · done chasing dead numbers"), ("consent", "Home office · consent-first vs creepy"),
@@ -50,16 +50,6 @@ for slug, desc in LEAH:
                    f'<video class="v" src="{url}" controls preload="none" playsinline></video>'
                    f'<div class="hk">{esc(desc)}</div>{FB}</div>')
 leah_row = f'<div class="angle"><div class="ah">leah <span>· office manager (her own scripts)</span></div><div class="trio">{leah_cells}</div></div>'
-
-SHOW = [("realjason-styled", "Jason · truck · lead-spend math"), ("realtyler-styled", "Tyler · lawn · the 98%"),
-        ("realaaron-styled", "Aaron · office · $7.2M FTC")]
-show_cells = ""
-for slug, desc in SHOW:
-    url = f"{R2}/{slug}.mp4"; catalog.append({"name": slug, "persona": slug.split('-')[0], "hook": desc, "url": url})
-    show_cells += (f'<div class="cell" data-name="{slug}"><div class="ar">{esc(slug.replace("real","").replace("-styled",""))}</div>'
-                   f'<video class="v" src="{url}" controls preload="none" playsinline></video>'
-                   f'<div class="hk">{esc(desc)}</div>{FB}</div>')
-show_row = f'<div class="angle"><div class="ah">showcase <span>· full single-take pieces</span></div><div class="trio">{show_cells}</div></div>'
 
 # Reframed (new style) — the rest re-cut to CR voice + warm delivery + end-card
 REFRAMED = [("invoice","Jason · truck · lead-spend math"),("race","Jason · roof · the footrace"),
@@ -109,10 +99,8 @@ HTML = f"""<!doctype html><html lang="en"><head>
 <p class="note" style="color:#64748b;font-size:12px">Tap <b>＋ Add note</b> under any video to leave specific feedback — it's saved and I'll batch the fixes.</p></header>
 <div class="wrap">
   <h2 class="sec">⭐ Reframed — new style ({len(REFRAMED)}) · CR voice + warm delivery + end-card</h2>{ref_row}
-  <h2 class="sec">UGC hook matrix (earlier exploratory cuts) — 10 angles × 3 ({len(UGC)*3})</h2>{ugc_rows}
-  <h2 class="sec">Non-UGC hook matrix — 4 angles × 3 ({len(NONUGC)*3})</h2>{non_rows}
+  <h2 class="sec">Leak experiments — 3 hook mechanisms</h2>{leak_row}
   <h2 class="sec">Leah — office-manager set ({len(LEAH)})</h2>{leah_row}
-  <h2 class="sec">Showcase — full single-take ({len(SHOW)})</h2>{show_row}
 </div>
 <script>
 const rev=document.getElementById('rev');
