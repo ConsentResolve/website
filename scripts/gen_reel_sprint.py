@@ -23,6 +23,11 @@ TESTS = ROOT / "build/tests"; TESTS.mkdir(parents=True, exist_ok=True)
 FP = "/opt/homebrew/bin/ffprobe"
 KEY = open("/tmp/heygen_key.txt").read().strip()
 HEM = {"stat": "Serious", "confession": "Serious", "contrarian": "Friendly"}
+# Cloned voices with emotion_support=false — the emotion field must be OMITTED
+# (HeyGen ignores/rejects it). Real Jason's real voice is one of these.
+NO_EMOTION = {"9d5497bed1f144049861da9389addc96",   # Real Jason
+              "92071a8742744d17bc92a02baab2941f",   # Real Tyler
+              "41c46ea57c0a4dd29e3acd1de0765c05"}   # Real Aaron
 PRON = {r"consentresolve\.com/demo": "consent resolve dot com slash demo", r"\bleads\b": "leeds", r"\blead\b": "leed"}
 HOOKS = {a: h for a, p, h in UGC}
 PERSONA = {a: p for a, p, h in UGC}
@@ -42,10 +47,12 @@ def quota():
     return (d.get("data") or {}).get("remaining_quota")
 
 def submit(look, voice, text, emotion, speed):
+    voice_obj = {"type": "text", "voice_id": voice, "input_text": text, "speed": speed}
+    if voice not in NO_EMOTION: voice_obj["emotion"] = emotion
     body = {"caption": False, "video_inputs": [{
         "character": {"type": "talking_photo", "talking_photo_id": look, "use_avatar_iv_model": True,
                       "talking_style": "expressive", "super_resolution": True},
-        "voice": {"type": "text", "voice_id": voice, "input_text": text, "speed": speed, "emotion": emotion}}],
+        "voice": voice_obj}],
         "dimension": {"width": 1080, "height": 1920}}
     r = api("https://api.heygen.com/v2/video/generate", body)
     if r.get("error"): print("  submit err:", r["error"]); return None

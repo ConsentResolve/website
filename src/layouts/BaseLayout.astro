@@ -15,6 +15,11 @@ interface Props {
   schema?: unknown[];
 }
 const props = Astro.props as Props;
+
+// Ad-platform pixels — only emitted when the ID env var is set (no-op otherwise).
+// Set in Cloudflare Pages env: PUBLIC_META_PIXEL_ID, PUBLIC_TIKTOK_PIXEL_ID.
+const META_PIXEL_ID = import.meta.env.PUBLIC_META_PIXEL_ID;
+const TIKTOK_PIXEL_ID = import.meta.env.PUBLIC_TIKTOK_PIXEL_ID;
 ---
 
 <!doctype html>
@@ -38,6 +43,21 @@ const props = Astro.props as Props;
     <link rel="preconnect" href="https://cdn.consentresolve.com" />
     <script is:inline src="https://cdn.consentresolve.com/consentresolve.js"></script>
     <script is:inline>ConsentResolve.init({siteId:'9a7ac777-3ca8-483a-b452-0c4deba31c3c',usercentricsSettingsId:'NToLbWs-EAo6fS'});ConsentResolve.page();</script>
+
+    <!-- Meta Pixel (ad measurement) — CONSENT-GATED via ConsentResolve/Usercentrics
+         autoblocker: type=text/plain keeps it inert; the CMP flips it to executable
+         only after the user consents to the "Facebook Pixel" service. The data-usercentrics
+         value MUST match the service name configured in the ConsentResolve/Usercentrics
+         dashboard. Emitted only when PUBLIC_META_PIXEL_ID is set. -->
+    {META_PIXEL_ID && (
+      <script is:inline type="text/plain" data-usercentrics="Facebook Pixel" set:html={`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${META_PIXEL_ID}');fbq('track','PageView');`} />
+    )}
+
+    <!-- TikTok Pixel (ad measurement) — CONSENT-GATED (autoblocker; data-usercentrics
+         must match the configured "TikTok Pixel" service). Emitted only when PUBLIC_TIKTOK_PIXEL_ID is set. -->
+    {TIKTOK_PIXEL_ID && (
+      <script is:inline type="text/plain" data-usercentrics="TikTok Pixel" set:html={`!function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];ttq.setAndDefer=function(e,n){e[n]=function(){e.push([n].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(e){for(var n=ttq._i[e]||[],i=0;i<ttq.methods.length;i++)ttq.setAndDefer(n,ttq.methods[i]);return n};ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=r;ttq._t=ttq._t||{};ttq._t[e]=+new Date;ttq._o=ttq._o||{};ttq._o[e]=n||{};var s=d.createElement("script");s.type="text/javascript";s.async=!0;s.src=r+"?sdkid="+e+"&lib="+t;var a=d.getElementsByTagName("script")[0];a.parentNode.insertBefore(s,a)};ttq.load('${TIKTOK_PIXEL_ID}');ttq.page()}(window,document,'ttq');`} />
+    )}
 
     <!-- Leadsy AI vtag (visitor identification) -->
     <script is:inline id="vtag-ai-js" async src="https://r2.leadsy.ai/tag.js" data-pid="1a05vWNgmDU1HfyCP" data-version="062024"></script>

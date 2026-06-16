@@ -90,6 +90,13 @@ CFG=REELS.get(ANGLE, REELS["leak"])
 
 def render(key,dr,t,dur):
     if key=="hook":
+        HT=os.environ.get("HOOK_TEXT","").strip()
+        if HT:   # archetype hook override (non-UGC sprint variants): bold wrapped headline
+            import textwrap as _tw
+            a=clamp(t/0.4); lines=_tw.wrap(HT,width=22); y=820
+            for ln in lines:
+                ct(dr,y,ln,fit(ln,940,96,52,disp),PAPER,int(255*a)); y+=132
+            return
         if CFG["hook"]=="leak":
             p=min(t/0.7,1); val=int(round(98*eo(p)))
             ct(dr,500,str(val),disp(230),RED)

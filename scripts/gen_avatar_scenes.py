@@ -64,11 +64,18 @@ def api(url, body=None):
     except urllib.error.HTTPError as e:
         return {"error": json.loads(e.read().decode())}
 
+# Cloned voices with emotion_support=false — emotion field must be OMITTED.
+NO_EMOTION = {"9d5497bed1f144049861da9389addc96",   # Real Jason
+              "92071a8742744d17bc92a02baab2941f",   # Real Tyler
+              "41c46ea57c0a4dd29e3acd1de0765c05"}   # Real Aaron
+
 def submit(look, voice, text, emotion, speed):
+    voice_obj = {"type": "text", "voice_id": voice, "input_text": text, "speed": speed}
+    if voice not in NO_EMOTION: voice_obj["emotion"] = emotion
     body = {"caption": False, "video_inputs": [{
         "character": {"type": "talking_photo", "talking_photo_id": look,
                       "use_avatar_iv_model": True, "talking_style": "expressive", "super_resolution": True},
-        "voice": {"type": "text", "voice_id": voice, "input_text": text, "speed": speed, "emotion": emotion},
+        "voice": voice_obj,
     }], "dimension": {"width": 1080, "height": 1920}}
     r = api("https://api.heygen.com/v2/video/generate", body)
     if r.get("error"): print("   submit error:", r["error"]); return None

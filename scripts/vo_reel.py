@@ -24,11 +24,26 @@ BED = "assets/audio/cr-music/no-vocals/inst-fp1.mp3"   # quiet instrumental bed 
 
 # matched cloned voice + its look (look is required by talking_photo even though
 # we discard the video and keep only the audio).
+# NON-UGC VOICE MIX: male VO alternates between Real Jason's real voice
+# (jason_real / 9d5497) and the legacy persona voice (jason / 0e671a) — see
+# JASON_MIX + resolve_voice(). Looks are arbitrary here (audio-only); both use a
+# Real Jason look since the old AI-Jason group is retired.
 VOICES = {
-    "jason": ("26e04090a6124f48b27623c888c6996b", "0e671a523e3d4cd7b6d5c580de70931e"),
-    "tyler": ("7a317560c0d54461a38666bc965cac72", "0c76e4a9be91456da07c3c9e1160db1e"),
-    "aaron": ("b5dc5a22eb684b959e36d2c0a1834461", "f365d990e89f4c55810722ef4788b85b"),
+    "jason":      ("b8cf5419ad5247d38bb000fd0df239a6", "0e671a523e3d4cd7b6d5c580de70931e"),
+    "jason_real": ("b8cf5419ad5247d38bb000fd0df239a6", "9d5497bed1f144049861da9389addc96"),
+    "tyler":      ("7a317560c0d54461a38666bc965cac72", "0c76e4a9be91456da07c3c9e1160db1e"),
+    "aaron":      ("b5dc5a22eb684b959e36d2c0a1834461", "f365d990e89f4c55810722ef4788b85b"),
 }
+# emotion_support=false → omit the emotion field for these voices.
+NO_EMOTION = {"9d5497bed1f144049861da9389addc96"}
+# Non-UGC male VO mix order: any SCRIPT whose voice is "jason" alternates across
+# these two so both the real and legacy voice get airtime as angles are added.
+JASON_MIX = ["jason_real", "jason"]
+def resolve_voice(angle, spec):
+    if spec["voice"] != "jason":
+        return spec["voice"]
+    order = sorted(a for a, s in SCRIPTS.items() if s["voice"] == "jason")
+    return JASON_MIX[order.index(angle) % len(JASON_MIX)]
 
 _KEYS = ["hook", "agitate", "vanish", "reveal", "deliver", "offer", "cta"]
 
@@ -74,9 +89,11 @@ def api(url, body=None):
     except urllib.error.HTTPError as e: return {"error": json.loads(e.read().decode())}
 
 def gen_audio(look, voice, text, emotion, out):
+    voice_obj = {"type": "text", "voice_id": voice, "input_text": spoken(text), "speed": 1.04}
+    if voice not in NO_EMOTION: voice_obj["emotion"] = emotion
     body = {"caption": False, "video_inputs": [{
         "character": {"type": "talking_photo", "talking_photo_id": look, "use_avatar_iv_model": True},
-        "voice": {"type": "text", "voice_id": voice, "input_text": spoken(text), "speed": 1.04, "emotion": emotion}}],
+        "voice": voice_obj}],
         "dimension": {"width": 720, "height": 1280}}
     r = api("https://api.heygen.com/v2/video/generate", body)
     vid = (r.get("data") or {}).get("video_id")
@@ -97,7 +114,7 @@ def dur(f):
 def main():
     angle = os.environ.get("ANGLE", "leak")
     if angle not in SCRIPTS: raise SystemExit(f"no VO script for '{angle}' (have {list(SCRIPTS)})")
-    spec = SCRIPTS[angle]; look, voice = VOICES[spec["voice"]]
+    spec = SCRIPTS[angle]; vkey = resolve_voice(angle, spec); look, voice = VOICES[vkey]
     d = TMP / angle; d.mkdir(parents=True, exist_ok=True)
     durs, padded = {}, []
     for k in _KEYS:
@@ -108,7 +125,7 @@ def main():
         pad = str(d / f"{k}.pad.wav")
         subprocess.run([FF, "-y", "-loglevel", "error", "-i", wav, "-af", f"apad=whole_dur={sd}",
                         "-ar", "44100", "-ac", "2", pad], check=True)
-        padded.append(pad); print(f"  {k}: {sd}s ({spec['voice']})", flush=True)
+        padded.append(pad); print(f"  {k}: {sd}s ({vkey})", flush=True)
     # concat VO track
     lst = d / "vo_list.txt"; lst.write_text("".join(f"file '{os.path.abspath(p)}'\n" for p in padded))
     vo = str(d / "vo.m4a")

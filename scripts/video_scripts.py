@@ -16,27 +16,33 @@ Consumed by:  ANGLE=invoice,leak python3 scripts/gen_avatar_scenes.py
 """
 
 # Voice IDs (synced Jun 2026)
+# jason = "Real Jason" — his REAL cloned voice (9d5497) from the original uploaded
+# footage. This is the UGC default (replaced the old AI-Jason persona voice
+# 0e671a, now kept only for the non-UGC VO mix in vo_reel.py). NOTE: this clone
+# has emotion_support=false, so generators must OMIT the emotion field for it
+# (see NO_EMOTION in gen_reel_sprint.py / gen_avatar_scenes.py).
 VOICE = {
-    "aaron": "f365d990e89f4c55810722ef4788b85b",
-    "tyler": "0c76e4a9be91456da07c3c9e1160db1e",
-    "jason": "0e671a523e3d4cd7b6d5c580de70931e",
+    "aaron": "41c46ea57c0a4dd29e3acd1de0765c05",  # Real Aaron (real clone, no emotion)
+    "tyler": "92071a8742744d17bc92a02baab2941f",  # Real Tyler (real clone, no emotion)
+    "jason": "9d5497bed1f144049861da9389addc96",  # Real Jason (real clone, no emotion)
 }
 # Trade looks per persona (location variety across angles) — ids from the
-# re-themed avatar groups.
+# re-themed avatar groups. jason_* now point at the "Real Jason" group
+# (276733…); the old AI-Jason group a24e2bd4 is retired for UGC.
 LOOK = {
-    "aaron_office":  "b5dc5a22eb684b959e36d2c0a1834461",
-    "aaron_hvac":    "72c934cce9784b98b3cf9fd7a40f341a",
-    "aaron_breaker": "88773e53d22d45c2baa228335ceaf6fb",
-    "aaron_remodel": "508d65961dac4265ae0f24902834283c",
-    "jason_truck":   "26e04090a6124f48b27623c888c6996b",
-    "jason_plumb":   "beff1b28f1d242c28bb0b0051feef263",
-    "jason_drive":   "1d4009b32ec140a69564f4065f8c96fb",
-    "jason_roof":    "46fee5fcd8e642da9476b4b1f999ea19",
-    "jason_garage":  "9c8d011c319f47438a1f18def6bbc875",
-    "tyler_lawn":    "7a317560c0d54461a38666bc965cac72",
-    "tyler_pest":    "14a3864dbeda4771800055a48aac5521",
-    "tyler_drive":   "d3cca390c1f4480ba459c70c189738cb",
-    "tyler_pool":    "f913c841468a40f4b9355a45883b32a9",
+    "aaron_office":  "4480e202d425486b9364928f426b195a",  # Real Aaron — Heather-Grey Henley at Desk
+    "aaron_hvac":    "bb9f43820c2740679a59b8c487b0a8be",  # Real Aaron — Navy Polo by AC Unit
+    "aaron_breaker": "a75bc443051043c4ad83e1803b9bd4b4",  # Real Aaron — Charcoal by Breaker Panel
+    "aaron_remodel": "2a426180d5744e9fad0ecf8db4611017",  # Real Aaron — Navy Quarter-Zip, Mid-Remodel
+    "jason_truck":   "b8cf5419ad5247d38bb000fd0df239a6",  # Grey-Goatee Pickup Driver
+    "jason_plumb":   "cfcaef6ccfc7494f996e26e96266cd74",  # Charcoal Garage Workman
+    "jason_drive":   "aa549ac4f24d49f6b5fa09fbf4bb700c",  # Navy by Fresh Driveway
+    "jason_roof":    "a53ae05876a741039e5bd2bd3f15f701",  # Grey T-Shirt, Dark Cap Man
+    "jason_garage":  "d1489419d50542d3af6a9b0deec230d9",  # Older Navy Polo Garage Man
+    "tyler_lawn":    "9b790b0358e344ea91040c2041e6279c",  # Real Tyler — Green Hat, Matching Shirt (lawn)
+    "tyler_pest":    "cf120b166c84480a83e8b7107645657e",  # Real Tyler — Black Hat, No Logo
+    "tyler_drive":   "ba22e1b95b454c33890b21da5cb63ac3",  # Real Tyler — Short Visor
+    "tyler_pool":    "00f79819d42743babd2017e6e5766604",  # Real Tyler — Navy by the midday pool
 }
 
 F, S = "Friendly", "Serious"
@@ -53,7 +59,7 @@ ANGLES = {
  ]},
  "race": {"persona": "jason", "look": "jason_roof", "scenes": [
     ("Every shared lead I buy, four other guys get the same name the same second.", S, 1.04),
-    ("By the time I call, two of them already left a voicemail. That is not a lead.", S, 1.04),
+    ("By the time I get to it, the homeowner has already heard from three other companies.", S, 1.04),
     ("That is a footrace, and I am paying just to stand at the starting line.", S, 1.04),
     ("The traffic already on your own website is different. Those people are yours alone.", F, 1.04),
     ("We hand them back as exclusive leads. Seven dollars. Sold once, to you, never resold.", F, 1.05),
@@ -61,7 +67,7 @@ ANGLES = {
  ]},
  "ftc": {"persona": "aaron", "look": "aaron_office", "scenes": [
     ("The biggest lead site in the country was ordered to pay seven point two million dollars.", S, 1.03),
-    ("The reason was lying about lead quality. And honestly, suddenly all my garbage leads made sense.", S, 1.03),
+    ("And honestly, that explained every junk lead I had ever been handed.", S, 1.03),
     ("I had spent years blaming myself for a pipeline somebody else completely controlled.", S, 1.03),
     ("So I stopped. Now I just recover the people already on my own website.", F, 1.04),
     ("No marketplace, no middleman, no robot deciding what I owe. Consent-first, exclusive, seven dollars.", F, 1.05),
@@ -69,7 +75,7 @@ ANGLES = {
  ]},
  "leak": {"persona": "tyler", "look": "tyler_lawn", "scenes": [
     ("Here is the number that stopped me cold. Ninety-eight out of a hundred.", F, 1.05),
-    ("That is how many people visit your website and leave without ever raising a hand.", S, 1.04),
+    ("Most people who land on your website leave without ever raising a hand.", S, 1.04),
     ("You paid for every one of those clicks. The traffic was already yours.", S, 1.04),
     ("We identify those visitors and hand them back as real, consent-first leads.", F, 1.05),
     ("Not a name scraped off a list. A person who actually wants the work. Seven dollars, exclusive.", F, 1.05),
@@ -85,7 +91,7 @@ ANGLES = {
  ]},
  "ghost": {"persona": "jason", "look": "jason_drive", "scenes": [
     ("Thirty leads last month. I called every single one of them.", S, 1.04),
-    ("Thirty ghosts. No answer, wrong number, or never heard of me. A thousand bucks to talk to nobody.", S, 1.04),
+    ("No answer, wrong number, or never heard of me. A thousand bucks to talk to nobody.", S, 1.04),
     ("Meanwhile the people already on your website actually want the work done.", F, 1.04),
     ("We hand those visitors back, consent-first, the moment they land on your site.", F, 1.05),
     ("Seven dollars. Exclusive. They are expecting your call, not dodging it.", F, 1.05),
@@ -93,7 +99,7 @@ ANGLES = {
  ]},
  "credit": {"persona": "aaron", "look": "aaron_breaker", "scenes": [
     ("You flag a fake lead. They review it. And they do not refund you.", S, 1.03),
-    ("They hand you a credit, to go buy more leads from the same place.", S, 1.03),
+    ("You are not getting your money back. You are getting tokens for the same machine.", S, 1.03),
     ("Sit with that. The penalty for selling you junk is making you buy more junk.", S, 1.03),
     ("We do it backwards. You pay seven dollars only when a real, identified person lands in your funnel.", F, 1.04),
     ("From the website you already paid to fill. Exclusive, consent-first.", F, 1.05),
@@ -101,7 +107,7 @@ ANGLES = {
  ]},
  "robot": {"persona": "jason", "look": "jason_garage", "scenes": [
     ("A robot charged me four hundred dollars last month.", S, 1.04),
-    ("Why. Because my own customer called me back from a number it did not recognize.", S, 1.04),
+    ("It billed me for my own returning customer, and there was nothing I could do about it.", S, 1.04),
     ("No appeal. No person to call. Just a bill and a shrug.", S, 1.03),
     ("I am paying a machine to misunderstand my own business.", S, 1.04),
     ("The traffic on your own website never bills you by algorithm. Exclusive, consent-first, seven dollars.", F, 1.05),
@@ -125,7 +131,7 @@ ANGLES = {
  ]},
  "math": {"persona": "tyler", "look": "tyler_drive", "scenes": [
     ("Let me just do the math out loud for a second.", F, 1.05),
-    ("Option one. A hundred bucks for a shared lead I close maybe five percent of the time.", S, 1.04),
+    ("A shared lead runs about a hundred bucks, and I close maybe one in twenty.", S, 1.04),
     ("And I split that lead with three other guys, all calling at once.", S, 1.04),
     ("Option two. Seven dollars for an exclusive lead from somebody already on my website.", F, 1.04),
     ("One of those builds a business. The other one builds theirs.", F, 1.05),

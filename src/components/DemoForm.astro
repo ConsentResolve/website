@@ -146,6 +146,10 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
             throw new Error(data.message || "Something went wrong. Please try again.");
           }
           const data = await res.json();
+          // Ad-platform conversion events (fire before navigating away). No-op if
+          // the pixel didn't load (ID unset). This is what the ad campaigns optimize to.
+          try { (window as any).fbq?.("track", "Lead"); } catch {}
+          try { (window as any).ttq?.track?.("CompleteRegistration"); } catch {}
           if (data.redirect_url) {
             window.location.assign(data.redirect_url);
             return;

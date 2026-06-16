@@ -19,6 +19,23 @@ major trades without overlap.
   not available to them (confirmed in-Studio + via API: "no eligible instant
   avatar look"). To ever use Avatar V, you'd film a real person/presenter.
 
+## LOCKED UGC reel style (Jun 2026) — `scripts/ugc_reel.sh`
+Every UGC reel runs through one pipeline (one HeyGen render → finished captioned reel):
+- **Avatar IV** (`talking_photo` + `use_avatar_iv_model`) — chosen over Avatar V for
+  **tight, generated-to-audio lip sync**. (Avatar V real-footage is more realistic but
+  its retargeted lips read looser; reserve for one-setting founder pieces.)
+- **Expressiveness = high** + a `custom_motion_prompt` (small nods, brow lifts on
+  emphasis, light smile) so delivery isn't flat.
+- **Real cloned voices**, no emotion field (the clones are `emotion_support:false`).
+- **`caption:true` render** → clean `video_url` + real **SRT** (`caption_url`) in one shot.
+- **Handheld camera float** — dual-frequency drift, 10/8 px budget (frame must breathe).
+- **−14 LUFS** two-pass loudnorm (CFR-normalize to 30fps FIRST or lip-sync drifts).
+- **TikTok karaoke captions** from the real SRT: black box, white text, spoken word in
+  mint (`scripts/add_captions_srt.py`).
+
+Voice + anchor look IDs are in `video_scripts.py` (Real Jason/Tyler) and the casting
+tables below; Real Aaron group `10c7ced9…`, Real Leah/"L Beyke" group `761a2701…`.
+
 ## Industry map (collectively cover the trades)
 | Character | Persona | Owns these trades |
 |---|---|---|
@@ -98,6 +115,19 @@ Late 20s, curly hair, mustache, fit. Trades: Lawn care · Pest control · Pressu
 ## JASON — rugged heavy-field operator
 ~50s, bald, grey goatee. Trades: Plumbing · Roofing · Concrete/Masonry · Garage door · Fencing.
 Truck cab (#1) is his universal anchor — works for any of his trades.
+
+> **DEFAULT (Jun 2026): "Real Jason" is now the UGC presenter for Jason.**
+> Jason runs on the **Real Jason** photo-avatar group (`276733…`) with his **real
+> cloned voice `9d5497…`**. The old AI-Jason group (`a24e2bd4…`, voice `0e671a…`)
+> is **retired for UGC**. The 5 looks below were regenerated into the Real Jason
+> group (truck/utility/driveway/roof/garage-door) and their ids are wired in
+> `video_scripts.py` (`jason_truck/plumb/drive/roof/garage`).
+> • The real voice has **emotion_support = false** → generators OMIT the emotion
+>   field for it (`NO_EMOTION` in `gen_reel_sprint.py` / `gen_avatar_scenes.py`).
+> • **Non-UGC VO** uses a *mix*: `vo_reel.py` alternates the male voice between the
+>   real voice (`9d5497…`) and the legacy voice (`0e671a…`) via `JASON_MIX`.
+> • The real-footage **Avatar V** asset (`ceff9efa…`) also exists but is locked to
+>   one filmed setting; we chose Avatar IV looks for UGC to keep trade-scene variety.
 
 | # | Look name | Trade (role) | Prompt (+ append suffix) |
 |---|---|---|---|
