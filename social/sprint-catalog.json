@@ -4,7 +4,7 @@
     "angle": "leak",
     "arch": "stat",
     "persona": "jason",
-    "hook": "Ninety-eight out of a hundred people hit your site and just leave.",
+    "hook": "Visual disruption \u2014 '98 of 100 \u00b7 GONE' cold-open \u2192 warm CR breakdown",
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat.mp4"
   },
   {
@@ -12,7 +12,7 @@
     "angle": "leak",
     "arch": "confession",
     "persona": "jason",
-    "hook": "I spent four grand on clicks last month. Two of them called me.",
+    "hook": "Verbal pattern interrupt \u2014 'Your website isn't broken\u2026'",
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-confession.mp4"
   },
   {
@@ -20,7 +20,7 @@
     "angle": "leak",
     "arch": "contrarian",
     "persona": "jason",
-    "hook": "Your website isn't broken. It's leaking exactly the way they designed it.",
+    "hook": "\u26a1 HAIL MARY \u2014 kinetic, no avatar: 98 visitors vanish, 2 survive",
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-contrarian.mp4"
   },
   {
@@ -382,5 +382,89 @@
     "persona": "realaaron",
     "hook": "Aaron \u00b7 office \u00b7 $7.2M FTC",
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/realaaron-styled.mp4"
+  },
+  {
+    "name": "invoice-new",
+    "angle": "invoice",
+    "persona": "reframed",
+    "hook": "Jason \u00b7 truck \u00b7 lead-spend math",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/invoice-new.mp4"
+  },
+  {
+    "name": "race-new",
+    "angle": "race",
+    "persona": "reframed",
+    "hook": "Jason \u00b7 roof \u00b7 the footrace",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/race-new.mp4"
+  },
+  {
+    "name": "ftc-new",
+    "angle": "ftc",
+    "persona": "reframed",
+    "hook": "Aaron \u00b7 office \u00b7 $7.2M fine",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/ftc-new.mp4"
+  },
+  {
+    "name": "robot-new",
+    "angle": "robot",
+    "persona": "reframed",
+    "hook": "Jason \u00b7 garage \u00b7 billed for your own customer",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/robot-new.mp4"
+  },
+  {
+    "name": "ghost-new",
+    "angle": "ghost",
+    "persona": "reframed",
+    "hook": "Jason \u00b7 driveway \u00b7 30 ghosts",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/ghost-new.mp4"
+  },
+  {
+    "name": "math-new",
+    "angle": "math",
+    "persona": "reframed",
+    "hook": "Tyler \u00b7 the $100 vs $7 math",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/math-new.mp4"
+  },
+  {
+    "name": "credit-new",
+    "angle": "credit",
+    "persona": "reframed",
+    "hook": "Aaron \u00b7 no refunds, only credit",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/credit-new.mp4"
+  },
+  {
+    "name": "creepy-new",
+    "angle": "creepy",
+    "persona": "reframed",
+    "hook": "Tyler \u00b7 consent-first vs creepy",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/creepy-new.mp4"
+  },
+  {
+    "name": "twice-new",
+    "angle": "twice",
+    "persona": "reframed",
+    "hook": "Jason \u00b7 sold twice",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/twice-new.mp4"
+  },
+  {
+    "name": "policy-new",
+    "angle": "policy",
+    "persona": "reframed",
+    "hook": "Aaron \u00b7 their dashboard, their rules",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/policy-new.mp4"
+  },
+  {
+    "name": "ownership-new",
+    "angle": "ownership",
+    "persona": "reframed",
+    "hook": "Aaron \u00b7 stop renting your leads",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/ownership-new.mp4"
+  },
+  {
+    "name": "contrarian-new",
+    "angle": "contrarian",
+    "persona": "reframed",
+    "hook": "Tyler \u00b7 not broken, by design",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/contrarian-new.mp4"
   }
 ]

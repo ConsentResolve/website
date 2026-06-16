@@ -61,6 +61,22 @@ for slug, desc in SHOW:
                    f'<div class="hk">{esc(desc)}</div>{FB}</div>')
 show_row = f'<div class="angle"><div class="ah">showcase <span>· full single-take pieces</span></div><div class="trio">{show_cells}</div></div>'
 
+# Reframed (new style) — the rest re-cut to CR voice + warm delivery + end-card
+REFRAMED = [("invoice","Jason · truck · lead-spend math"),("race","Jason · roof · the footrace"),
+ ("ftc","Aaron · office · $7.2M fine"),("robot","Jason · garage · billed for your own customer"),
+ ("ghost","Jason · driveway · 30 ghosts"),("math","Tyler · the $100 vs $7 math"),
+ ("credit","Aaron · no refunds, only credit"),("creepy","Tyler · consent-first vs creepy"),
+ ("twice","Jason · sold twice"),("policy","Aaron · their dashboard, their rules"),
+ ("ownership","Aaron · stop renting your leads"),("contrarian","Tyler · not broken, by design")]
+ref_cells = ""
+for a, desc in REFRAMED:
+    name = f"{a}-new"; url = f"{R2}/{name}.mp4"
+    catalog.append({"name": name, "angle": a, "persona": "reframed", "hook": desc, "url": url})
+    ref_cells += (f'<div class="cell" data-name="{name}"><div class="ar">{esc(a)}</div>'
+                  f'<video class="v" src="{url}" controls preload="none" playsinline></video>'
+                  f'<div class="hk">{esc(desc)}</div>{FB}</div>')
+ref_row = f'<div class="trio">{ref_cells}</div>'
+
 (ROOT / "social/sprint-catalog.json").write_text(json.dumps(catalog, indent=2))
 
 CSS = """
@@ -92,7 +108,8 @@ HTML = f"""<!doctype html><html lang="en"><head>
 <p style="margin-top:4px"><input id="rev" placeholder="Your name (so notes are attributed)"></p>
 <p class="note" style="color:#64748b;font-size:12px">Tap <b>＋ Add note</b> under any video to leave specific feedback — it's saved and I'll batch the fixes.</p></header>
 <div class="wrap">
-  <h2 class="sec">UGC hook matrix — 10 angles × 3 ({len(UGC)*3})</h2>{ugc_rows}
+  <h2 class="sec">⭐ Reframed — new style ({len(REFRAMED)}) · CR voice + warm delivery + end-card</h2>{ref_row}
+  <h2 class="sec">UGC hook matrix (earlier exploratory cuts) — 10 angles × 3 ({len(UGC)*3})</h2>{ugc_rows}
   <h2 class="sec">Non-UGC hook matrix — 4 angles × 3 ({len(NONUGC)*3})</h2>{non_rows}
   <h2 class="sec">Leah — office-manager set ({len(LEAH)})</h2>{leah_row}
   <h2 class="sec">Showcase — full single-take ({len(SHOW)})</h2>{show_row}

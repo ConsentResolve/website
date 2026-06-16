@@ -74,16 +74,17 @@ def render(scene,t,d,gi):
         sh=jit.randint(-3,3)  # tension jitter
         draw_dots(dr,present,a=255)
         ct(dr,430,str(gone),disp(150),RED,255,sh)
-        ct(dr,560,"vanished",sans(48),SLATE)
-        if t>1.2: ct(dr,1500,"you paid for every one.",fit("you paid for every one.",900,52,34,sans),PAPER,int(230*clamp((t-1.2)/0.3)))
+        ct(dr,565,"gone — anonymous.",fit("gone — anonymous.",900,52,34,sans),SLATE)
+        if t>1.2: ct(dr,1500,"you paid for every click.",fit("you paid for every click.",900,52,34,sans),PAPER,int(230*clamp((t-1.2)/0.3)))
     elif scene=="hold":
         pulse=0.6+0.4*math.sin(2*math.pi*t*1.6)
         draw_dots(dr,set(SURV),glow=True,a=int(255*(0.7+0.3*pulse)))
-        ct(dr,430,"2",disp(150),MINT); ct(dr,560,"said yes.",sans(48),PAPER)
+        ct(dr,420,"2 opted in.",fit("2 opted in.",900,90,56,disp),MINT)
+        ct(dr,560,"You can actually reach them.",fit("You can actually reach them.",940,46,30,sans),PAPER,230)
     elif scene=="flip":
         a=clamp(t/0.3)
-        ct(dr,560,"Those two?",fit("Those two?",900,84,52,disp),PAPER,int(255*a))
-        ct(dr,690,"We hand them back to you.",fit("We hand them back to you.",960,68,42,disp),MINT,int(255*a))
+        ct(dr,560,"The two who opted in?",fit("The two who opted in?",980,72,46,disp),PAPER,int(255*a))
+        ct(dr,690,"We turn them into real, named leads.",fit("We turn them into real, named leads.",1000,58,36,disp),MINT,int(255*a))
         if t>1.0:
             b=clamp((t-1.0)/0.4)
             ct(dr,1000,"Real  ·  Named  ·  Exclusive",fit("Real  ·  Named  ·  Exclusive",960,52,34,sans),PAPER,int(235*b))
