@@ -217,5 +217,460 @@
     "persona": "reframed",
     "hook": "Aaron \u00b7 stop renting your leads",
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/ownership-new.mp4"
+  },
+  {
+    "name": "orig-test-leak-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "leak",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-leak-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-ftc-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "ftc",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-ftc-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-math-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "math",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-math-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-invoice-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "invoice",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-invoice-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-ghost-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "ghost",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-ghost-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-policy-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "policy",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-policy-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-twice-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "twice",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-twice-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-contrarian-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "contrarian",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-contrarian-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-ownership-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "ownership",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-ownership-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-robot-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "robot",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-robot-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-race-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "race",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-race-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-credit-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "credit",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-credit-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-creepy-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "creepy",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-creepy-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-aaron-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "aaron \u00b7 persona",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-aaron-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-tyler-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "tyler \u00b7 persona",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-tyler-tiktok.mp4"
+  },
+  {
+    "name": "orig-test-jason-tiktok",
+    "group": "original",
+    "section": "Original UGC \u2014 first-person angle reels",
+    "hook": "jason \u00b7 persona",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-jason-tiktok.mp4"
+  },
+  {
+    "name": "orig-reel-named-aaron-v1",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "aaron v1",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-aaron-v1.mp4"
+  },
+  {
+    "name": "orig-reel-named-aaron-v2",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "aaron v2",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-aaron-v2.mp4"
+  },
+  {
+    "name": "orig-reel-named-aaron-v3",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "aaron v3",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-aaron-v3.mp4"
+  },
+  {
+    "name": "orig-reel-named-jason-v1",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "jason v1",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-jason-v1.mp4"
+  },
+  {
+    "name": "orig-reel-named-jason-v2",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "jason v2",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-jason-v2.mp4"
+  },
+  {
+    "name": "orig-reel-named-jason-v3",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "jason v3",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-jason-v3.mp4"
+  },
+  {
+    "name": "orig-reel-named-jason-pointer",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "jason pointer",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-jason-pointer.mp4"
+  },
+  {
+    "name": "orig-reel-named-tyler-v1",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "tyler v1",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-tyler-v1.mp4"
+  },
+  {
+    "name": "orig-reel-named-tyler-v2",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "tyler v2",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-tyler-v2.mp4"
+  },
+  {
+    "name": "orig-reel-named-tyler-v3",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "tyler v3",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-tyler-v3.mp4"
+  },
+  {
+    "name": "orig-reel-final-aaron",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "aaron final",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-final-aaron.mp4"
+  },
+  {
+    "name": "orig-reel-final-jason",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "jason final",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-final-jason.mp4"
+  },
+  {
+    "name": "orig-reel-final-tyler",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "tyler final",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-final-tyler.mp4"
+  },
+  {
+    "name": "orig-reel-jason-final",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "jason final (alt)",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-jason-final.mp4"
+  },
+  {
+    "name": "orig-reel-style-aaron",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "aaron styled",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-style-aaron.mp4"
+  },
+  {
+    "name": "orig-reel-style-tyler",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "tyler styled",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-style-tyler.mp4"
+  },
+  {
+    "name": "orig-reel-style-pickup",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "pickup styled",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-style-pickup.mp4"
+  },
+  {
+    "name": "orig-reel-test-aaron",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "aaron test",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-aaron.mp4"
+  },
+  {
+    "name": "orig-reel-test-jason",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "jason test",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-jason.mp4"
+  },
+  {
+    "name": "orig-reel-test-tyler",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "tyler test",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-tyler.mp4"
+  },
+  {
+    "name": "orig-reel-test-pickup",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "pickup test",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-pickup.mp4"
+  },
+  {
+    "name": "orig-reel-test-curly",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "curly test",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-curly.mp4"
+  },
+  {
+    "name": "orig-reel-test-curly-iv",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "curly IV",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-curly-iv.mp4"
+  },
+  {
+    "name": "orig-reel-test-curly-masked",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "curly masked",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-curly-masked.mp4"
+  },
+  {
+    "name": "orig-reel-tyler-cinematic",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "tyler cinematic",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-tyler-cinematic.mp4"
+  },
+  {
+    "name": "orig-reel-tyler-clean",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "tyler clean",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-tyler-clean.mp4"
+  },
+  {
+    "name": "orig-reel-tyler-sticker",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "tyler sticker",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-tyler-sticker.mp4"
+  },
+  {
+    "name": "orig-reel-tyler-rec",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "tyler rec",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-tyler-rec.mp4"
+  },
+  {
+    "name": "orig-reel-D-avatar",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "D \u00b7 avatar",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-D-avatar.mp4"
+  },
+  {
+    "name": "orig-reel-E-avatar-pip",
+    "group": "original",
+    "section": "Persona & look tests",
+    "hook": "E \u00b7 avatar PiP",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-E-avatar-pip.mp4"
+  },
+  {
+    "name": "orig-reel-leak-locked",
+    "group": "original",
+    "section": "Original non-UGC \u2014 music reels (locked)",
+    "hook": "leak \u00b7 VO",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-leak-locked.mp4"
+  },
+  {
+    "name": "orig-reel-ftc-locked",
+    "group": "original",
+    "section": "Original non-UGC \u2014 music reels (locked)",
+    "hook": "ftc \u00b7 VO",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-ftc-locked.mp4"
+  },
+  {
+    "name": "orig-reel-ownership-locked",
+    "group": "original",
+    "section": "Original non-UGC \u2014 music reels (locked)",
+    "hook": "ownership \u00b7 VO",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-ownership-locked.mp4"
+  },
+  {
+    "name": "orig-reel-invoice-locked",
+    "group": "original",
+    "section": "Original non-UGC \u2014 music reels (locked)",
+    "hook": "invoice \u00b7 instrumental",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-invoice-locked.mp4"
+  },
+  {
+    "name": "orig-reel-math-locked",
+    "group": "original",
+    "section": "Original non-UGC \u2014 music reels (locked)",
+    "hook": "math \u00b7 instrumental",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-math-locked.mp4"
+  },
+  {
+    "name": "orig-reel-robot-locked",
+    "group": "original",
+    "section": "Original non-UGC \u2014 music reels (locked)",
+    "hook": "robot \u00b7 instrumental",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-robot-locked.mp4"
+  },
+  {
+    "name": "orig-reel-twice-locked",
+    "group": "original",
+    "section": "Original non-UGC \u2014 music reels (locked)",
+    "hook": "twice \u00b7 with-lyrics",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-twice-locked.mp4"
+  },
+  {
+    "name": "orig-reel-ghost-locked",
+    "group": "original",
+    "section": "Original non-UGC \u2014 music reels (locked)",
+    "hook": "ghost \u00b7 with-lyrics",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-ghost-locked.mp4"
+  },
+  {
+    "name": "orig-reel-dashboard-locked",
+    "group": "original",
+    "section": "Original non-UGC \u2014 music reels (locked)",
+    "hook": "dashboard \u00b7 product beat",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-dashboard-locked.mp4"
+  },
+  {
+    "name": "orig-reel-A-vo",
+    "group": "original",
+    "section": "Music experiments",
+    "hook": "A \u00b7 VO",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-A-vo.mp4"
+  },
+  {
+    "name": "orig-reel-B-song",
+    "group": "original",
+    "section": "Music experiments",
+    "hook": "B \u00b7 song",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-B-song.mp4"
+  },
+  {
+    "name": "orig-reel-C-jingle-vo",
+    "group": "original",
+    "section": "Music experiments",
+    "hook": "C \u00b7 jingle+VO",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-C-jingle-vo.mp4"
+  },
+  {
+    "name": "orig-reel-01-lead-leak",
+    "group": "original",
+    "section": "Music experiments",
+    "hook": "leak v1",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak.mp4"
+  },
+  {
+    "name": "orig-reel-01-lead-leak-v2",
+    "group": "original",
+    "section": "Music experiments",
+    "hook": "leak v2",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak-v2.mp4"
+  },
+  {
+    "name": "orig-reel-01-lead-leak-voiced",
+    "group": "original",
+    "section": "Music experiments",
+    "hook": "leak voiced",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak-voiced.mp4"
+  },
+  {
+    "name": "orig-reel-01-lead-leak-vo",
+    "group": "original",
+    "section": "Music experiments",
+    "hook": "leak VO",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak-vo.mp4"
+  },
+  {
+    "name": "orig-reel-01-lead-leak-suno",
+    "group": "original",
+    "section": "Music experiments",
+    "hook": "leak suno",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak-suno.mp4"
+  },
+  {
+    "name": "orig-reel-01-lead-leak-suno-v2",
+    "group": "original",
+    "section": "Music experiments",
+    "hook": "leak suno v2",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak-suno-v2.mp4"
+  },
+  {
+    "name": "orig-reel-01-lead-leak-sage",
+    "group": "original",
+    "section": "Music experiments",
+    "hook": "leak sage",
+    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak-sage.mp4"
   }
 ]
