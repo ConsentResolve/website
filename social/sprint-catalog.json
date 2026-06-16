@@ -334,74 +334,11 @@
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-style-pickup.mp4"
   },
   {
-    "name": "orig-reel-test-aaron",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "aaron test",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-aaron.mp4"
-  },
-  {
-    "name": "orig-reel-test-jason",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "jason test",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-jason.mp4"
-  },
-  {
-    "name": "orig-reel-test-tyler",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "tyler test",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-tyler.mp4"
-  },
-  {
-    "name": "orig-reel-test-pickup",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "pickup test",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-pickup.mp4"
-  },
-  {
     "name": "orig-reel-tyler-cinematic",
     "group": "original",
     "section": "Persona & look tests",
     "hook": "tyler cinematic",
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-tyler-cinematic.mp4"
-  },
-  {
-    "name": "orig-reel-tyler-clean",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "tyler clean",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-tyler-clean.mp4"
-  },
-  {
-    "name": "orig-reel-tyler-sticker",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "tyler sticker",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-tyler-sticker.mp4"
-  },
-  {
-    "name": "orig-reel-tyler-rec",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "tyler rec",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-tyler-rec.mp4"
-  },
-  {
-    "name": "orig-reel-D-avatar",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "D \u00b7 avatar",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-D-avatar.mp4"
-  },
-  {
-    "name": "orig-reel-E-avatar-pip",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "E \u00b7 avatar PiP",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-E-avatar-pip.mp4"
   },
   {
     "name": "orig-reel-leak-locked",
@@ -479,61 +416,5 @@
     "section": "Music experiments",
     "hook": "B \u00b7 song",
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-B-song.mp4"
-  },
-  {
-    "name": "orig-reel-C-jingle-vo",
-    "group": "original",
-    "section": "Music experiments",
-    "hook": "C \u00b7 jingle+VO",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-C-jingle-vo.mp4"
-  },
-  {
-    "name": "orig-reel-01-lead-leak",
-    "group": "original",
-    "section": "Music experiments",
-    "hook": "leak v1",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak.mp4"
-  },
-  {
-    "name": "orig-reel-01-lead-leak-v2",
-    "group": "original",
-    "section": "Music experiments",
-    "hook": "leak v2",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak-v2.mp4"
-  },
-  {
-    "name": "orig-reel-01-lead-leak-voiced",
-    "group": "original",
-    "section": "Music experiments",
-    "hook": "leak voiced",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak-voiced.mp4"
-  },
-  {
-    "name": "orig-reel-01-lead-leak-vo",
-    "group": "original",
-    "section": "Music experiments",
-    "hook": "leak VO",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak-vo.mp4"
-  },
-  {
-    "name": "orig-reel-01-lead-leak-suno",
-    "group": "original",
-    "section": "Music experiments",
-    "hook": "leak suno",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak-suno.mp4"
-  },
-  {
-    "name": "orig-reel-01-lead-leak-suno-v2",
-    "group": "original",
-    "section": "Music experiments",
-    "hook": "leak suno v2",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak-suno-v2.mp4"
-  },
-  {
-    "name": "orig-reel-01-lead-leak-sage",
-    "group": "original",
-    "section": "Music experiments",
-    "hook": "leak sage",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-01-lead-leak-sage.mp4"
   }
 ]
