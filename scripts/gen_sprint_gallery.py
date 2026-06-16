@@ -16,6 +16,9 @@ from originals import ORIG_GROUPS
 R2 = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint"
 ARCH = [("stat", "Stat / pattern-interrupt"), ("confession", "Confession / rage"), ("contrarian", "Contrarian / reframe")]
 def esc(s): return html.escape(s)
+# Reels hard-deleted after review — omitted from the gallery + catalog entirely.
+_DELFILE = ROOT / "social/deleted.json"
+DELETED = set(json.loads(_DELFILE.read_text())) if _DELFILE.exists() else set()
 PERSONA = {a: p for a, p, h in UGC}
 FB = ('<button class="fbtn">＋ Add note</button>'
       '<div class="fb" hidden><textarea class="fbi" placeholder="What would make this video better?"></textarea>'
@@ -43,6 +46,7 @@ def trio(angle, hooks, who, prefix=""):
     cells = ""
     for arch, label in ARCH:
         name = f"{prefix}{angle}-{arch}"; url = f"{R2}/{name}.mp4"; hook = hooks[arch]
+        if name in DELETED: continue
         if angle == "leak" and not prefix: hook = LEAK_LABELS.get(arch, hook)
         catalog.append({"name": name, "angle": angle, "arch": arch, "persona": who, "hook": hook, "url": url})
         cells += vcell(name, label, url, hook)
@@ -53,6 +57,7 @@ leak_hooks = next(h for a, _p, h in UGC if a == "leak")
 lk = ""
 for arch, label in [("stat", "Stat / pattern-interrupt"), ("confession", "Confession / rage")]:
     name = f"leak-{arch}"; url = f"{R2}/{name}.mp4"; hook = LEAK_LABELS.get(arch, leak_hooks[arch])
+    if name in DELETED: continue
     catalog.append({"name": name, "angle": "leak", "arch": arch, "persona": "Tyler", "hook": hook, "url": url})
     lk += vcell(name, label, url, hook)
 leak_row = f'<div class="angle"><div class="ah">leak <span>· 2 hook mechanisms</span></div><div class="trio">{lk}</div></div>'
@@ -64,6 +69,7 @@ LEAH = [("roofing", "Front desk · the 98% leak"), ("speed", "Front desk · spee
         ("cost", "Car · the per-booked-job math")]
 leah_cells = ""
 for slug, desc in LEAH:
+    if f"leah-{slug}" in DELETED: continue
     url = f"{R2}/leah-{slug}.mp4"; catalog.append({"name": f"leah-{slug}", "persona": "leah", "hook": desc, "url": url})
     leah_cells += vcell(f"leah-{slug}", slug, url, desc)
 leah_row = f'<div class="angle"><div class="ah">leah <span>· office manager (her own scripts)</span></div><div class="trio">{leah_cells}</div></div>'
@@ -94,6 +100,7 @@ REFRAMED = [("invoice","Jason · truck · lead-spend math"),("race","Jason · ro
 ref_cells = ""
 for a, desc in REFRAMED:
     name = f"{a}-new"; url = f"{R2}/{name}.mp4"
+    if name in DELETED: continue
     catalog.append({"name": name, "angle": a, "persona": "reframed", "hook": desc, "url": url})
     ref_cells += vcell(name, a, url, desc)
 ref_row = f'<div class="trio">{ref_cells}</div>'
@@ -106,6 +113,7 @@ for title, sub, items in ORIG_GROUPS:
     cells = ""
     for base, label in items:
         name = f"orig-{base}"; url = f"{R2}/orig/{base}.mp4"
+        if name in DELETED: continue
         catalog.append({"name": name, "group": "original", "section": title, "hook": label, "url": url})
         cells += vcell(name, label, url)
         orig_count += 1
@@ -199,6 +207,6 @@ document.querySelectorAll('.undo').forEach(b=>b.onclick=async()=>{{
 }}catch(e){{}}}})();
 </script>
 </body></html>"""
-HTML = HTML.replace('.mp4"', '.mp4?v=5"')   # cache-buster so the browser fetches the current cuts
+HTML = HTML.replace('.mp4"', '.mp4?v=6"')   # cache-buster so the browser fetches the current cuts
 (ROOT / "public/sprint.html").write_text(HTML)
 print(f"wrote public/sprint.html + sprint-catalog.json — {reels_total} reels ({orig_count} originals)")

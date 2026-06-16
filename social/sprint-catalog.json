@@ -16,22 +16,6 @@
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-confession.mp4"
   },
   {
-    "name": "nonugc-leak-stat",
-    "angle": "leak",
-    "arch": "stat",
-    "persona": "brand-animated",
-    "hook": "98 of 100 visitors leave your site.",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/nonugc-leak-stat.mp4"
-  },
-  {
-    "name": "nonugc-leak-confession",
-    "angle": "leak",
-    "arch": "confession",
-    "persona": "brand-animated",
-    "hook": "You paid for every click \u2014 and most you never see again.",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/nonugc-leak-confession.mp4"
-  },
-  {
     "name": "nonugc-leak-contrarian",
     "angle": "leak",
     "arch": "contrarian",
@@ -78,22 +62,6 @@
     "persona": "brand-animated",
     "hook": "Your bad leads, finally explained.",
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/nonugc-ftc-confession.mp4"
-  },
-  {
-    "name": "nonugc-ftc-contrarian",
-    "angle": "ftc",
-    "arch": "contrarian",
-    "persona": "brand-animated",
-    "hook": "It isn't bad luck. It's documented.",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/nonugc-ftc-contrarian.mp4"
-  },
-  {
-    "name": "nonugc-ownership-stat",
-    "angle": "ownership",
-    "arch": "stat",
-    "persona": "brand-animated",
-    "hook": "One pipe you actually own: your website.",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/nonugc-ownership-stat.mp4"
   },
   {
     "name": "nonugc-ownership-confession",
