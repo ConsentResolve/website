@@ -107,7 +107,7 @@ HTML = f"""<!doctype html><html lang="en"><head>
 <p class="note" style="color:#64748b;font-size:12px">Tap <b>＋ Add note</b> under any video to leave specific feedback — it's saved and I'll batch the fixes.</p></header>
 <div class="wrap">
   <h2 class="sec">⭐ Reframed — new style ({len(REFRAMED)}) · CR voice + warm delivery + end-card</h2>{ref_row}
-  <h2 class="sec">Leak experiments — 3 hook mechanisms</h2>{leak_row}
+  <h2 class="sec">Leak experiments — 2 hook mechanisms</h2>{leak_row}
   <h2 class="sec">Leah — office-manager set ({len(LEAH)})</h2>{leah_row}
 </div>
 <script>
