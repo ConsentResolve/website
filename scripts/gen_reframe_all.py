@@ -46,6 +46,10 @@ add("leak-stat", lk_look, lk_voice, ["98 OF 100","GONE"],
 add("leak-confession", lk_look, lk_voice, ["YOUR SITE","ISN'T BROKEN"],
     "Your website... isn't broken. I know it can feel like it is. But it's leaking exactly the way it was built to. All those people who land on it, the ones already interested, most of them just slip away. No name, no email. And you paid for every click. But here's the thing. There's a version where they don't vanish. The ones who opted in come back to you as real, named leads, seven dollars, exclusive, never resold. You don't need more traffic. You need to stop losing the traffic you've already got.",
     "Watch it on your site  →", "leak-confession")
+# --- orig leak reel rebuilt in Real Tyler's clone (92071), straight narrative. Uploads to the originals path. ---
+add("leak-orig", lk_look, lk_voice, ["98 OF 100","LEAVE"],
+    "Here is the number that stopped me cold. Ninety-eight out of a hundred. Most people who land on your website leave without ever raising a hand. You paid for every one of those clicks, and the traffic was already yours. The ones who opt in, though, don't have to vanish. We hand them back to you as real, consent-first leads. Not a name scraped off a list, a person who actually wants the work. Seven dollars each, exclusive, never resold. See it work at consentresolve.com/demo.",
+    "See who you missed  →", "orig/test-leak-tiktok")
 
 # --- 12 reframed angles (CR voice, proper endings) ---
 ANG = {
