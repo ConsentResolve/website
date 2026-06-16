@@ -3,7 +3,7 @@
     "name": "leak-stat",
     "angle": "leak",
     "arch": "stat",
-    "persona": "3 hook mechanisms",
+    "persona": "Tyler",
     "hook": "Visual disruption \u2014 '98 of 100 \u00b7 GONE' cold-open \u2192 warm CR breakdown",
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat.mp4"
   },
@@ -11,17 +11,9 @@
     "name": "leak-confession",
     "angle": "leak",
     "arch": "confession",
-    "persona": "3 hook mechanisms",
+    "persona": "Tyler",
     "hook": "Verbal pattern interrupt \u2014 'Your website isn't broken\u2026'",
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-confession.mp4"
-  },
-  {
-    "name": "leak-contrarian",
-    "angle": "leak",
-    "arch": "contrarian",
-    "persona": "3 hook mechanisms",
-    "hook": "\u26a1 HAIL MARY \u2014 kinetic, no avatar: 98 visitors vanish, 2 survive",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-contrarian.mp4"
   },
   {
     "name": "leah-roofing",

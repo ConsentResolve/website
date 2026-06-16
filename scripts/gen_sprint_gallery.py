@@ -38,7 +38,15 @@ def trio(angle, hooks, who, prefix=""):
     return f'<div class="angle"><div class="ah">{esc(angle)} <span>· {esc(who)}</span></div><div class="trio">{cells}</div></div>'
 
 leak_hooks = next(h for a, _p, h in UGC if a == "leak")
-leak_row = trio("leak", leak_hooks, "3 hook mechanisms")
+# Hail Mary (contrarian) removed; leak experiments = stat + confession only
+lk = ""
+for arch, label in [("stat", "Stat / pattern-interrupt"), ("confession", "Confession / rage")]:
+    name = f"leak-{arch}"; url = f"{R2}/{name}.mp4"; hook = LEAK_LABELS.get(arch, leak_hooks[arch])
+    catalog.append({"name": name, "angle": "leak", "arch": arch, "persona": "Tyler", "hook": hook, "url": url})
+    lk += (f'<div class="cell" data-name="{name}"><div class="ar">{label}</div>'
+           f'<video class="v" src="{url}" controls preload="none" playsinline></video>'
+           f'<div class="hk">{esc(hook)}</div>{FB}</div>')
+leak_row = f'<div class="angle"><div class="ah">leak <span>· 2 hook mechanisms</span></div><div class="trio">{lk}</div></div>'
 
 LEAH = [("roofing", "Front desk · the 98% leak"), ("speed", "Front desk · speed-to-lead"),
         ("ghost", "Kitchen · done chasing dead numbers"), ("consent", "Home office · consent-first vs creepy"),
