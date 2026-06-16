@@ -15,6 +15,7 @@ import * as status from "./api/status.js";
 import * as preview from "./api/preview.js";
 import * as unsubscribe from "./api/unsubscribe.js";
 import * as socialQueue from "./api/social-queue.js";
+import * as feedback from "./api/feedback.js";
 import * as admin from "./admin.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
@@ -27,6 +28,7 @@ const ROUTES = {
   "/api/preview": preview,
   "/api/unsubscribe": unsubscribe,
   "/api/social-queue": socialQueue,
+  "/api/feedback": feedback,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
