@@ -15,7 +15,11 @@ import sys, os, json, subprocess, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SCHED = json.loads((ROOT / "social/cards.json").read_text()) if (ROOT / "social/cards.json").exists() else {}
+def _load(name):
+    p = ROOT / "social" / name
+    return json.loads(p.read_text()) if p.exists() else {}
+# Resource-center FB drip fills the open card days; brand cards win on any shared date.
+SCHED = {**_load("resource-cards.json"), **_load("cards.json")}
 PY = "/usr/bin/python3" if Path("/usr/bin/python3").exists() else "python3"
 
 def main():
