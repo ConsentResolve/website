@@ -257,13 +257,6 @@
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-robot-tiktok.mp4"
   },
   {
-    "name": "orig-test-race-tiktok",
-    "group": "original",
-    "section": "Original UGC \u2014 first-person angle reels",
-    "hook": "race",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-race-tiktok.mp4"
-  },
-  {
     "name": "orig-test-credit-tiktok",
     "group": "original",
     "section": "Original UGC \u2014 first-person angle reels",
@@ -278,13 +271,6 @@
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-creepy-tiktok.mp4"
   },
   {
-    "name": "orig-test-aaron-tiktok",
-    "group": "original",
-    "section": "Original UGC \u2014 first-person angle reels",
-    "hook": "aaron \u00b7 persona",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-aaron-tiktok.mp4"
-  },
-  {
     "name": "orig-test-tyler-tiktok",
     "group": "original",
     "section": "Original UGC \u2014 first-person angle reels",
@@ -297,41 +283,6 @@
     "section": "Original UGC \u2014 first-person angle reels",
     "hook": "jason \u00b7 persona",
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/test-jason-tiktok.mp4"
-  },
-  {
-    "name": "orig-reel-named-aaron-v1",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "aaron v1",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-aaron-v1.mp4"
-  },
-  {
-    "name": "orig-reel-named-aaron-v2",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "aaron v2",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-aaron-v2.mp4"
-  },
-  {
-    "name": "orig-reel-named-aaron-v3",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "aaron v3",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-aaron-v3.mp4"
-  },
-  {
-    "name": "orig-reel-named-jason-v1",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "jason v1",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-jason-v1.mp4"
-  },
-  {
-    "name": "orig-reel-named-jason-v2",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "jason v2",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-jason-v2.mp4"
   },
   {
     "name": "orig-reel-named-jason-v3",
@@ -367,41 +318,6 @@
     "section": "Persona & look tests",
     "hook": "tyler v3",
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-named-tyler-v3.mp4"
-  },
-  {
-    "name": "orig-reel-final-aaron",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "aaron final",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-final-aaron.mp4"
-  },
-  {
-    "name": "orig-reel-final-jason",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "jason final",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-final-jason.mp4"
-  },
-  {
-    "name": "orig-reel-final-tyler",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "tyler final",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-final-tyler.mp4"
-  },
-  {
-    "name": "orig-reel-jason-final",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "jason final (alt)",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-jason-final.mp4"
-  },
-  {
-    "name": "orig-reel-style-aaron",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "aaron styled",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-style-aaron.mp4"
   },
   {
     "name": "orig-reel-style-tyler",
@@ -444,27 +360,6 @@
     "section": "Persona & look tests",
     "hook": "pickup test",
     "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-pickup.mp4"
-  },
-  {
-    "name": "orig-reel-test-curly",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "curly test",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-curly.mp4"
-  },
-  {
-    "name": "orig-reel-test-curly-iv",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "curly IV",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-curly-iv.mp4"
-  },
-  {
-    "name": "orig-reel-test-curly-masked",
-    "group": "original",
-    "section": "Persona & look tests",
-    "hook": "curly masked",
-    "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/orig/reel-test-curly-masked.mp4"
   },
   {
     "name": "orig-reel-tyler-cinematic",

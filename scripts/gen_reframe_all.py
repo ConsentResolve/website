@@ -12,7 +12,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT/"scripts"))
-from video_scripts import job_for
+from video_scripts import job_for, VOICE, LOOK
 
 KEY = open("/tmp/heygen_key.txt").read().strip()
 FF, FP = "/opt/homebrew/bin/ffmpeg", "/opt/homebrew/bin/ffprobe"
@@ -50,6 +50,36 @@ add("leak-confession", lk_look, lk_voice, ["YOUR SITE","ISN'T BROKEN"],
 add("leak-orig", lk_look, lk_voice, ["98 OF 100","LEAVE"],
     "Here is the number that stopped me cold. Ninety-eight out of a hundred. Most people who land on your website leave without ever raising a hand. You paid for every one of those clicks, and the traffic was already yours. The ones who opt in, though, don't have to vanish. We hand them back to you as real, consent-first leads. Not a name scraped off a list, a person who actually wants the work. Seven dollars each, exclusive, never resold. See it work at consentresolve.com/demo.",
     "See who you missed  →", "orig/test-leak-tiktok")
+
+# ---- Batch re-voice of the original UGC reels: each angle's original narrative
+# (job_for scenes) rebuilt in its persona's REAL clone voice, output to the
+# originals path (orig/test-<angle>-tiktok). leak handled above. ----
+_ORIG_CARDCTA = {
+  "ftc": (["$7.2M","FINE"], "See the better way  →"),
+  "math": (["$100","vs  $7"], "Run your numbers  →"),
+  "invoice": (["ADD UP YOUR","LEAD SPEND"], "See your number  →"),
+  "ghost": (["30 LEADS","30 GHOSTS"], "Reach real people  →"),
+  "policy": (["THEIR DASHBOARD","THEIR RULES"], "Own your pipeline  →"),
+  "twice": (["PAID TWICE","SAME LEAD"], "Exclusive, for real  →"),
+  "contrarian": (["THE LEAK ISN'T","A BUG"], "See the fix  →"),
+  "ownership": (["STOP RENTING","YOUR LEADS"], "Own your traffic  →"),
+  "robot": (["BILLED $400","BY A ROBOT"], "Take it back  →"),
+  "credit": (["NO REFUNDS","ONLY CREDIT"], "Don't be a hostage  →"),
+  "creepy": (["WHY AM I","ON THIS LIST?"], "See the right way  →"),
+}
+for _a, (_card, _cta) in _ORIG_CARDCTA.items():
+    _j = job_for(_a); _script = " ".join(s[0] for s in _j["scenes"])
+    add(f"{_a}-orig", _j["look"], _j["voice"], _card, _script, _cta, f"orig/test-{_a}-tiktok")
+
+# Persona casting reels (recovered 3-scene script; scene 3 reframed off the
+# "tells you who they were" identification claim to consent-first).
+_PERSONA_SCRIPT = ("Look, ninety-eight out of a hundred people hit your website... and just leave. "
+    "You paid for every single one of those clicks. Every one. "
+    "The ones who opt in, we hand back to you. Seven bucks a lead, exclusive, never resold.")
+add("jason-orig", LOOK["jason_truck"], VOICE["jason"], ["98 OF 100","JUST LEAVE"],
+    _PERSONA_SCRIPT, "See who you missed  →", "orig/test-jason-tiktok")
+add("tyler-orig", LOOK["tyler_lawn"], VOICE["tyler"], ["98 OF 100","JUST LEAVE"],
+    _PERSONA_SCRIPT, "See who you missed  →", "orig/test-tyler-tiktok")
 
 # --- 12 reframed angles (CR voice, proper endings) ---
 ANG = {
