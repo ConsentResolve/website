@@ -131,5 +131,6 @@ document.querySelectorAll('.fsave').forEach(b=>b.onclick=async()=>{{
 }});
 </script>
 </body></html>"""
+HTML = HTML.replace('.mp4"', '.mp4?v=3"')   # cache-buster so the browser fetches the current cuts
 (ROOT / "public/sprint.html").write_text(HTML)
 print(f"wrote public/sprint.html + sprint-catalog.json — {len(catalog)} reels")
