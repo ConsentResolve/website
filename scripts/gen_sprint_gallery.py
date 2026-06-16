@@ -47,6 +47,8 @@ for arch, label in [("stat", "Stat / pattern-interrupt"), ("confession", "Confes
            f'<video class="v" src="{url}" controls preload="none" playsinline></video>'
            f'<div class="hk">{esc(hook)}</div>{FB}</div>')
 leak_row = f'<div class="angle"><div class="ah">leak <span>· 2 hook mechanisms</span></div><div class="trio">{lk}</div></div>'
+# Non-UGC (brand-animated) — 4 angles x 3 hooks, paths social/sprint/nonugc-<angle>-<arch>.mp4
+non_rows = "".join(trio(a, h, "brand-animated", prefix="nonugc-") for a, h in NONUGC)
 
 LEAH = [("roofing", "Front desk · the 98% leak"), ("speed", "Front desk · speed-to-lead"),
         ("ghost", "Kitchen · done chasing dead numbers"), ("consent", "Home office · consent-first vs creepy"),
@@ -108,6 +110,7 @@ HTML = f"""<!doctype html><html lang="en"><head>
 <div class="wrap">
   <h2 class="sec">⭐ Reframed — new style ({len(REFRAMED)}) · CR voice + warm delivery + end-card</h2>{ref_row}
   <h2 class="sec">Leak experiments — 2 hook mechanisms</h2>{leak_row}
+  <h2 class="sec">Non-UGC (brand-animated) — 4 angles × 3 ({len(NONUGC)*3})</h2>{non_rows}
   <h2 class="sec">Leah — office-manager set ({len(LEAH)})</h2>{leah_row}
 </div>
 <script>
