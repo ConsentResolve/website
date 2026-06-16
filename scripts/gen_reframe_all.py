@@ -80,12 +80,14 @@ add("jason-orig", LOOK["jason_truck"], VOICE["jason"], ["98 OF 100","JUST LEAVE"
     _PERSONA_SCRIPT, "See who you missed  →", "orig/test-jason-tiktok")
 add("tyler-orig", LOOK["tyler_lawn"], VOICE["tyler"], ["98 OF 100","JUST LEAVE"],
     _PERSONA_SCRIPT, "See who you missed  →", "orig/test-tyler-tiktok")
-# Styled/cinematic casting reels (avatar_reel.py / heygen_ab_tyler.py looks) -> orig path, real clones.
-add("style-pickup-orig", "a7ffbaf6bf6d443ebd8a8c19cdaa5059", VOICE["jason"], ["98 OF 100","JUST LEAVE"],
+# Styled/cinematic casting reels — original avatars (a7ffbaf6 / 972e62f2) are RETIRED
+# in HeyGen, so rebuild on current real-clone looks: pickup->jason_truck (Real Jason),
+# style/cinematic tyler->tyler_lawn/tyler_drive (Real Tyler).
+add("style-pickup-orig", LOOK["jason_truck"], VOICE["jason"], ["98 OF 100","JUST LEAVE"],
     _PERSONA_SCRIPT, "See who you missed  →", "orig/reel-style-pickup")
-add("style-tyler-orig", "972e62f23f724b688c740e5b8d307822", VOICE["tyler"], ["98 OF 100","JUST LEAVE"],
+add("style-tyler-orig", LOOK["tyler_lawn"], VOICE["tyler"], ["98 OF 100","JUST LEAVE"],
     _PERSONA_SCRIPT, "See who you missed  →", "orig/reel-style-tyler")
-add("tyler-cinematic-orig", "972e62f23f724b688c740e5b8d307822", VOICE["tyler"], ["98 OF 100","JUST LEAVE"],
+add("tyler-cinematic-orig", LOOK["tyler_drive"], VOICE["tyler"], ["98 OF 100","JUST LEAVE"],
     _PERSONA_SCRIPT, "See who you missed  →", "orig/reel-tyler-cinematic")
 
 # --- 12 reframed angles (CR voice, proper endings) ---
