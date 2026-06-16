@@ -80,6 +80,13 @@ add("jason-orig", LOOK["jason_truck"], VOICE["jason"], ["98 OF 100","JUST LEAVE"
     _PERSONA_SCRIPT, "See who you missed  →", "orig/test-jason-tiktok")
 add("tyler-orig", LOOK["tyler_lawn"], VOICE["tyler"], ["98 OF 100","JUST LEAVE"],
     _PERSONA_SCRIPT, "See who you missed  →", "orig/test-tyler-tiktok")
+# Styled/cinematic casting reels (avatar_reel.py / heygen_ab_tyler.py looks) -> orig path, real clones.
+add("style-pickup-orig", "a7ffbaf6bf6d443ebd8a8c19cdaa5059", VOICE["jason"], ["98 OF 100","JUST LEAVE"],
+    _PERSONA_SCRIPT, "See who you missed  →", "orig/reel-style-pickup")
+add("style-tyler-orig", "972e62f23f724b688c740e5b8d307822", VOICE["tyler"], ["98 OF 100","JUST LEAVE"],
+    _PERSONA_SCRIPT, "See who you missed  →", "orig/reel-style-tyler")
+add("tyler-cinematic-orig", "972e62f23f724b688c740e5b8d307822", VOICE["tyler"], ["98 OF 100","JUST LEAVE"],
+    _PERSONA_SCRIPT, "See who you missed  →", "orig/reel-tyler-cinematic")
 
 # --- 12 reframed angles (CR voice, proper endings) ---
 ANG = {
