@@ -127,6 +127,26 @@ def sampaul_card(d):
     d.text((px, py+428), "Wants: roof replacement quote", font=sans(33), fill=SLATE)
     d.text((px, py+486), "Illustrative example", font=sans(24), fill=SLATE)
 
+def hook_card(headline, out):
+    """The open hook screen — navy brand card, logo, big headline, mint down-cue."""
+    img = Image.new("RGB", (W, H), NAVY); d = ImageDraw.Draw(img, "RGBA")
+    for gy in range(60, H, 60):
+        for gx in range(60, W, 60): d.ellipse([gx, gy, gx+2, gy+2], fill=(148, 163, 184))
+    try:
+        lg = Image.open(LOGO).convert("RGBA"); lw = 360; lg = lg.resize((lw, int(lg.height*lw/lg.width)), Image.LANCZOS); img.paste(lg, (W//2-lw//2, 380), lg)
+    except Exception: pass
+    head = headline or ""; f = fit(d, head, DISP, 100, 54, W-150)
+    words = head.split(); lines = []; cur = ""
+    for w in words:
+        t = (cur+" "+w).strip()
+        if d.textlength(t, font=f) <= W-150: cur = t
+        else: lines.append(cur); cur = w
+    if cur: lines.append(cur)
+    y = H//2 - (len(lines)*int(f.size*1.15))//2
+    for ln in lines: d.text((W//2, y), ln, font=f, fill=PAPER, anchor="mm"); y += int(f.size*1.15)
+    d.text((W//2, y+40), "↓", font=disp(64), fill=MINT, anchor="mm")
+    img.convert("RGB").save(out)
+
 def asset_card(slug, super_text, reel, out):
     # the standard lead card (Sam Paul) on navy — used for every consented/lead beat
     if slug and slug.startswith("leadcard"):
@@ -202,14 +222,17 @@ def main(reel):
           f"y='ih/2-(ih/zoom/2)+({AMP_Y}*0.6)*sin(on/30*1.2+0.5)+({AMP_Y}*0.4)*sin(on/30*2.9+2.0)':s={W}x{H}:fps=30")
     subprocess.run([FF, "-y", "-loglevel", "error", "-i", src, "-vf", zp,
         "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "copy", base], check=True)
-    # 2) asset cards for ASSET/SPLIT scenes -> overlaid over their time range
+    # 2) full-screen cards (hook / asset / split) -> overlaid over their beat, with a
+    #    minimum hold so nothing flashes, and a fade in/out so cuts dissolve.
     overlays = []
     for i, sc in enumerate(scenes):
         tok, slug, cap = sc[2], sc[3], sc[6]
-        if tok in ("ASSET", "SPLIT") and slug:
-            s, e = sc_times[i]; e = min(e, D)
-            card = str(d/f"card{i}.png"); asset_card(slug, cap, reel, card)
-            overlays.append((card, s, e))
+        if tok in ("HOOK", "ASSET", "SPLIT") and (slug or tok == "HOOK"):
+            s, e = sc_times[i]; e = min(D, max(e, s + 2.8))  # min hold ~2.8s
+            card = str(d/f"card{i}.png")
+            if tok == "HOOK": hook_card(cap, card)
+            else: asset_card(slug, cap, reel, card)
+            overlays.append((card, s, e, max(1.0, e - s)))
     # 3) karaoke caption word pngs (from SRT)
     cues = []
     for blk in re.split(r"\n\s*\n", Path(srt).read_text().strip()):
@@ -223,11 +246,15 @@ def main(reel):
         for k, w in enumerate(wlist):
             e2 = b if k == len(wlist)-1 else tt + (b-a)*wt[k]/tot
             p = str(d/f"w{gi}.png"); karaoke_png(wlist, k, p); wp.append(p); ww.append((tt, e2)); tt = e2; gi += 1
-    # 4) one pass: base -> overlay asset cards -> overlay captions (audio stays from base)
-    ins = ["-i", base] + sum([["-i", c[0]] for c in overlays], []) + sum([["-i", p] for p in wp], [])
+    # 4) one pass: base -> dissolve cards in/out (fade alpha + PTS offset) -> captions.
+    ins = ["-i", base]
+    for (card, s, e, du) in overlays: ins += ["-loop", "1", "-t", f"{du:.3f}", "-i", card]
+    ins += sum([["-i", p] for p in wp], [])
     nov = len(overlays); fc = "[0:v]null[b0]"; k = 0
-    for j, (card, s, e) in enumerate(overlays):
-        fc += f";[b{k}][{1+j}:v]overlay=0:0:enable='between(t,{s:.3f},{e:.3f})'[b{k+1}]"; k += 1
+    for j, (card, s, e, du) in enumerate(overlays):
+        fc += (f";[{1+j}:v]format=rgba,fade=t=in:st=0:d=0.35:alpha=1,fade=t=out:st={du-0.35:.2f}:d=0.35:alpha=1,"
+               f"setpts=PTS+{s:.3f}/TB[ov{j}]")
+        fc += f";[b{k}][ov{j}]overlay=0:0:enable='between(t,{s:.3f},{e:.3f})':eof_action=pass[b{k+1}]"; k += 1
     for j, (s, e) in enumerate(ww):
         fc += f";[b{k}][{1+nov+j}:v]overlay=0:0:enable='between(t,{s:.3f},{e:.3f})'[b{k+1}]"; k += 1
     fc += f";[b{k}]null[v];[0:a]loudnorm=I=-14:TP=-1.5:LRA=11[a]"
