@@ -27,7 +27,7 @@ for key, label in CATS:
     for l in items:
         n = f"shoptalk-{l['id']}"
         cells += (f'<div class="cell" data-name="{n}"><div class="ar">#{l["id"]}</div>'
-                  f'<video class="v" src="{R2}/{n}.mp4?v=5" poster="{R2}/{n}-cover.png?v=5" controls preload="none" playsinline></video>'
+                  f'<video class="v" src="{R2}/{n}.mp4?v=6" poster="{R2}/{n}-cover.png?v=6" controls preload="none" playsinline></video>'
                   f'<div class="hk">{esc(l["text"])}</div>{FB}{DEL}</div>')
     sections += f'<h2 class="sec">{esc(label)} ({len(items)})</h2><div class="grid">{cells}</div>'
 

@@ -17,7 +17,7 @@ W, H = 1080, 1920
 HOLD = 1.1  # deadpan face-hold after the last word (the end-pause)
 HOOK_DUR = 0.9  # front hook card hold (tight — avatar arrives fast)
 MUSIC = str(ROOT/"assets/audio/CR1.mp3")  # outro bed (same as UGC end-cards)
-LAUGH = str(ROOT/"assets/audio/laugh-1.mp3")  # audience laugh on every reel's punchline (laugh-1/2/3 staged)
+LAUGHS = [str(ROOT/f"assets/audio/laugh-{i}.mp3") for i in (1, 2, 3)]  # rotated across reels by id
 FILL = f"scale=trunc({W}*1.05/2)*2:trunc({H}*1.05/2)*2,crop={W}:{H}"  # overscan-crop the cream bg edge
 NAVY = (10, 22, 40); MINT = (0, 229, 160); PAPER = (248, 250, 252)
 SERIES, SUB, HANDLE = "SHOP TALK", "with AA-Ron", "@consentresolve"
@@ -124,7 +124,7 @@ def main(rid):
     print(f">>> {rid} [{line['cat']}] {line['text'][:48]}...", flush=True)
     src, srt = render_heygen(line, d)
     dur = float(subprocess.check_output([FP, "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", src]).strip())
-    laugh = True  # laugh track on every reel's punchline
+    laugh = True; laugh_path = LAUGHS[int(rid) % len(LAUGHS)]  # rotate the laugh track per reel
     # caption cues from SRT; mint the last cue (punchline kicker)
     cues = []
     for blk in re.split(r"\n\s*\n", Path(srt).read_text().strip()):
@@ -143,22 +143,20 @@ def main(rid):
         if punch_start is None: build.append((a, b, txt))
         cum += len(txt.split())
     if punch_start is None: punch_start = cues[-1][0] if cues else 0.0
-    # laugh begins right before the last 1-2 words of the punchline; the hold stretches to fit it
+    # laugh starts in the MIDDLE of the very last word; the hold stretches to fit the whole laugh
     lstart = llen = 0.0
     if laugh and cues:
-        llen = float(subprocess.check_output([FP, "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", LAUGH]).strip())
-        la, lb, ltx = cues[-1]
-        if len(ltx.split()) >= 2: lstart = la
-        else:
-            pa, pb, pt = cues[-2] if len(cues) >= 2 else (la, lb, ltx)
-            lstart = pb - (pb - pa) / max(1, len(pt.split()))  # back into the prev cue's last word
-        lstart = max(0.0, lstart - 0.10)
+        llen = float(subprocess.check_output([FP, "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", laugh_path]).strip())
+        la, lb, ltx = cues[-1]; nw = max(1, len(ltx.split()))
+        lstart = lb - 0.5 * (lb - la) / nw  # midpoint of the final word
     hold = max(HOLD, lstart + llen + 0.35 - dur) if laugh else HOLD
+    multi = len(sents) > 1
     cap_imgs = []
     for i, (a, b, txt) in enumerate(build):
-        nxt = build[i+1][0] if i+1 < len(build) else punch_start
+        nxt = build[i+1][0] if i+1 < len(build) else (punch_start if multi else b)
         p = str(d/f"c{i}.png"); cap_png(txt, False, p); cap_imgs.append((p, a, nxt))
-    pp = str(d/"cpunch.png"); cap_png(punch, True, pp); cap_imgs.append((pp, punch_start, dur+hold))
+    if multi:  # held mint tag only for two/three-part jokes; single-liners don't repeat the whole joke
+        pp = str(d/"cpunch.png"); cap_png(punch, True, pp); cap_imgs.append((pp, punch_start, dur+hold))
     # chrome pills
     chrome = Image.new("RGBA", (W, H), (0, 0, 0, 0)); cd = ImageDraw.Draw(chrome)
     # Series branding lives on the intro/outro only — during playback keep just the handle watermark.
@@ -193,8 +191,8 @@ def main(rid):
     for j, (p, a, b) in enumerate(cap_imgs):
         fc += f";[b{k}][{2+j}:v]overlay=0:0:enable='between(t,{a:.2f},{b:.2f})'[b{k+1}]"; k += 1
     fc += f";[b{k}]null[v];[0:a]apad=pad_dur={hold},loudnorm=I=-14:TP=-1.0:LRA=11[sp]"
-    if laugh:  # laugh begins right before the last 1-2 words; ducked, faded; speech sets the length
-        li = 2 + len(cap_imgs); ins += ["-i", LAUGH]; dly = int(lstart * 1000); fo = max(0.2, llen - 0.5)
+    if laugh:  # laugh begins mid-last-word; ducked, faded; speech sets the length
+        li = 2 + len(cap_imgs); ins += ["-i", laugh_path]; dly = int(lstart * 1000); fo = max(0.2, llen - 0.5)
         fc += (f";[{li}:a]afade=t=in:st=0:d=0.08,afade=t=out:st={fo:.2f}:d=0.5,volume=0.9,"
                f"adelay={dly}|{dly}[lg];[sp][lg]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]")
     else:
