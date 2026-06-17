@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+"""SHOP TALK with AAAA-RON — render each one-liner as the full show:
+cover poster + 1.3s cold-open hook + the bit (timed lower-third captions, punchline
+in mint) + branded outro. HeyGen Avatar IV (caption:true -> word-accurate SRT),
+voice 0.9, periods drive the beats. Uploads reel + cover to R2 social/shoptalk/.
+Usage: python3 scripts/gen_shoptalk.py 10 11 30   (ids)   |   ... pilot   |   ... all"""
+import sys, re, json, subprocess, time, urllib.request, urllib.error
+from pathlib import Path
+from PIL import Image, ImageDraw, ImageFont
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT/"scripts"))
+from shop_talk_lines import BY_ID, LINES, PILOT, VOICE
+FF, FP = "/opt/homebrew/bin/ffmpeg", "/opt/homebrew/bin/ffprobe"
+KEY = open("/tmp/heygen_key.txt").read().strip()
+DISP = str(ROOT/"scripts/.fonts/Bricolage.ttf"); SANS = str(ROOT/"scripts/.fonts/Hanken.ttf")
+W, H = 1080, 1920
+NAVY = (10, 22, 40); MINT = (0, 229, 160); PAPER = (248, 250, 252)
+SERIES, SUB, HANDLE = "SHOP TALK", "with AAAA-RON", "@consentresolve"
+MOTION = ("Casual deadpan comedian on a small stage. Face mostly neutral, dry delivery, "
+          "the faintest knowing look on the punchline. Relaxed, unhurried, in on the joke.")
+disp = lambda p: ImageFont.truetype(DISP, p); sans = lambda p: ImageFont.truetype(SANS, p)
+def fit(dr, t, fp, hi, lo, mw):
+    s = hi
+    while s > lo and dr.textlength(t, font=ImageFont.truetype(fp, s)) > mw: s -= 2
+    return ImageFont.truetype(fp, max(14, s))
+def wrap(dr, t, f, mw):
+    o, c = [], ""
+    for w in t.split():
+        if dr.textlength((c+" "+w).strip(), font=f) <= mw: c = (c+" "+w).strip()
+        else: o.append(c); c = w
+    if c: o.append(c)
+    return o
+def ts(s): h, m, r = s.split(":"); sec, ms = r.split(","); return int(h)*3600+int(m)*60+int(sec)+int(ms)/1000.0
+def brand_bg():
+    img = Image.new("RGB", (W, H), NAVY); dr = ImageDraw.Draw(img, "RGBA")
+    for gy in range(60, H, 60):
+        for gx in range(60, W, 60): dr.ellipse([gx, gy, gx+2, gy+2], fill=(148, 163, 184))
+    return img, dr
+def lockup(dr, y):
+    lf = disp(52); lw = dr.textlength(SERIES, font=lf)
+    dr.rounded_rectangle([W//2-lw//2-34, y, W//2+lw//2+34, y+90], radius=45, fill=MINT)
+    dr.text((W//2, y+45), SERIES, font=lf, fill=NAVY, anchor="mm")
+    dr.text((W//2, y+90+36), SUB, font=disp(36), fill=(MINT+(255,)), anchor="mm")
+
+def api(u, b=None):
+    data = json.dumps(b).encode() if b else None
+    r = urllib.request.Request(u, data=data, headers={"X-Api-Key": KEY, "Content-Type": "application/json"})
+    try: return json.load(urllib.request.urlopen(r, timeout=180))
+    except urllib.error.HTTPError as e: return {"error": e.read().decode()[:200]}
+def render_heygen(line, d):
+    src, srt = str(d/"src.mp4"), str(d/"cap.srt")
+    if Path(src).exists() and Path(srt).exists() and Path(src).stat().st_size > 80000: return src, srt
+    body = {"caption": True, "video_inputs": [{
+        "character": {"type": "avatar", "avatar_id": line["avatar"], "avatar_style": "normal", "motion_prompt": MOTION, "expressiveness": "low"},
+        "voice": {"type": "text", "voice_id": VOICE, "input_text": line["text"], "speed": 0.9},
+        "background": {"type": "color", "value": "#EAE3D6"}}], "dimension": {"width": W, "height": H}}
+    vid = (api("https://api.heygen.com/v2/video/generate", body).get("data") or {}).get("video_id")
+    if not vid: raise RuntimeError("no video_id")
+    vurl = cu = None
+    for _ in range(120):
+        st = api(f"https://api.heygen.com/v1/video_status.get?video_id={vid}").get("data") or {}
+        if st.get("status") == "completed":
+            vurl = st.get("video_url")
+            for _ in range(15):
+                cu = (api(f"https://api.heygen.com/v1/video_status.get?video_id={vid}").get("data") or {}).get("caption_url")
+                if cu: break
+                time.sleep(3)
+            break
+        if st.get("status") == "failed": raise RuntimeError("heygen failed")
+        time.sleep(8)
+    urllib.request.urlretrieve(vurl, src)
+    if cu: urllib.request.urlretrieve(cu, srt)
+    return src, srt
+
+def hook_teaser(text):
+    first = re.split(r"(?<=[.!?])\s", text.strip())[0]
+    m = re.search(r"\bis\b", first)
+    if m and m.start() < 40: return first[:m.start()].strip().rstrip(",") + " is..."
+    w = first.split()
+    return (" ".join(w[:7]) + ("..." if len(w) > 7 else "")) if w else text
+
+def cap_png(text, mint, out):
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0)); dr = ImageDraw.Draw(img); f = sans(58)
+    lines = wrap(dr, text, f, W-200); lh = 76; bh = lh*len(lines)+34
+    bw = int(max(dr.textlength(" ".join([ln]), font=f) for ln in lines))+72; cx = W//2; y0 = int(H*0.72)-bh
+    box = Image.new("RGBA", (bw, bh), (0, 0, 0, 0)); ImageDraw.Draw(box).rounded_rectangle([0, 0, bw, bh], radius=22, fill=(10, 22, 40, 235))
+    img.alpha_composite(box, (cx-bw//2, y0)); ty = y0+17
+    col = (MINT+(255,)) if mint else (255, 255, 255, 255)
+    for ln in lines: dr.text((cx, ty+lh//2), ln, font=f, fill=col, anchor="mm"); ty += lh
+    img.save(out)
+
+def card_clip(png, dur_s, out):
+    subprocess.run([FF, "-y", "-loglevel", "error", "-loop", "1", "-t", f"{dur_s}", "-i", png,
+        "-f", "lavfi", "-t", f"{dur_s}", "-i", "anullsrc=r=44100:cl=stereo",
+        "-vf", f"scale={W}:{H},fps=30,format=yuv420p", "-c:v", "libx264", "-r", "30", "-c:a", "aac", "-b:a", "160k", "-shortest", out], check=True)
+
+def main(rid):
+    line = BY_ID[rid]; d = ROOT/f"build/shoptalk/{rid}"; d.mkdir(parents=True, exist_ok=True)
+    print(f">>> {rid} [{line['cat']}] {line['text'][:48]}...", flush=True)
+    src, srt = render_heygen(line, d)
+    dur = float(subprocess.check_output([FP, "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", src]).strip())
+    # caption cues from SRT; mint the last cue (punchline kicker)
+    cues = []
+    for blk in re.split(r"\n\s*\n", Path(srt).read_text().strip()):
+        L = [x for x in blk.splitlines() if x.strip()]; tl = next((x for x in L if "-->" in x), None)
+        if not tl: continue
+        a, b = [x.strip() for x in tl.split("-->")]; txt = " ".join(L[L.index(tl)+1:]).strip()
+        if txt: cues.append((ts(a), ts(b), txt))
+    cap_imgs = []
+    for i, (a, b, txt) in enumerate(cues):
+        p = str(d/f"c{i}.png"); cap_png(txt, i == len(cues)-1, p); cap_imgs.append((p, a, b))
+    # chrome pills
+    chrome = Image.new("RGBA", (W, H), (0, 0, 0, 0)); cd = ImageDraw.Draw(chrome)
+    lf = disp(50); lw = cd.textlength(SERIES, font=lf)
+    cd.rounded_rectangle([W//2-lw//2-32, 64, W//2+lw//2+32, 64+86], radius=43, fill=MINT); cd.text((W//2, 64+43), SERIES, font=lf, fill=NAVY, anchor="mm")
+    sf = disp(34); sw = cd.textlength(SUB, font=sf); sy = 64+98
+    cd.rounded_rectangle([W//2-sw//2-22, sy, W//2+sw//2+22, sy+58], radius=29, fill=(10, 22, 40, 235)); cd.text((W//2, sy+29), SUB, font=sf, fill=(MINT+(255,)), anchor="mm")
+    hf = sans(42); hw = cd.textlength(HANDLE, font=hf); hy = int(H*0.88)
+    cd.rounded_rectangle([W//2-hw//2-28, hy-36, W//2+hw//2+28, hy+36], radius=36, fill=(10, 22, 40, 215)); cd.text((W//2, hy), HANDLE, font=hf, fill=(255, 255, 255, 255), anchor="mm")
+    chrome_p = str(d/"chrome.png"); chrome.save(chrome_p)
+    # hook + outro cards
+    teaser = hook_teaser(line["text"])
+    img, dr = brand_bg(); lockup(dr, 150); f = fit(dr, teaser, DISP, 116, 60, W-150)
+    ls = wrap(dr, teaser, f, W-150); y = H//2-len(ls)*int(f.size*1.12)//2
+    for ln in ls: dr.text((W//2, y), ln, font=f, fill=PAPER, anchor="mm"); y += int(f.size*1.12)
+    hook_png = str(d/"hook.png"); img.save(hook_png)
+    img, dr = brand_bg(); lockup(dr, 360); dr.text((W//2, int(H*0.55)), "follow for more", font=disp(96), fill=PAPER, anchor="mm")
+    hw2 = dr.textlength(HANDLE, font=sans(48)); hy2 = int(H*0.70)
+    dr.rounded_rectangle([W//2-hw2//2-30, hy2-40, W//2+hw2//2+30, hy2+40], radius=40, fill=MINT); dr.text((W//2, hy2), HANDLE, font=sans(48), fill=NAVY, anchor="mm")
+    outro_png = str(d/"outro.png"); img.save(outro_png)
+    # cover poster
+    frame = str(d/"frame.png"); subprocess.run([FF, "-y", "-loglevel", "error", "-ss", f"{dur*0.45:.2f}", "-i", src, "-frames:v", "1", "-vf", f"scale={W}:{H}", frame], check=True)
+    cov = Image.open(frame).convert("RGB"); c2 = ImageDraw.Draw(cov, "RGBA")
+    c2.rectangle([0, 0, W, 270], fill=(10, 22, 40, 150)); c2.rectangle([0, H-470, W, H], fill=(10, 22, 40, 150)); lockup(c2, 60)
+    cf = fit(c2, teaser, DISP, 92, 52, W-120); cls = wrap(c2, teaser, cf, W-120); cy = H-380
+    for ln in cls: c2.text((W//2, cy), ln, font=cf, fill=PAPER, anchor="mm"); cy += int(cf.size*1.1)
+    c2.text((W//2, H-90), HANDLE, font=sans(40), fill=(MINT+(255,)), anchor="mm")
+    cover_p = str(ROOT/f"public/reels/shoptalk-{rid}-cover.png"); cov.save(cover_p)
+    # bit
+    ins = ["-i", src, "-i", chrome_p] + sum([["-i", p] for p, _a, _b in cap_imgs], [])
+    fc = f"[0:v]scale={W}:{H},tpad=stop_mode=clone:stop_duration=0.5,fps=30[v0];[v0][1:v]overlay=0:0[b0]"
+    k = 0
+    for j, (p, a, b) in enumerate(cap_imgs):
+        fc += f";[b{k}][{2+j}:v]overlay=0:0:enable='between(t,{a:.2f},{b:.2f})'[b{k+1}]"; k += 1
+    fc += f";[b{k}]null[v];[0:a]apad=pad_dur=0.5,loudnorm=I=-14:TP=-1.5:LRA=11[a]"
+    bit = str(d/"bit.mp4")
+    subprocess.run([FF, "-y", "-loglevel", "error", *ins, "-filter_complex", fc, "-map", "[v]", "-map", "[a]",
+        "-c:v", "libx264", "-b:v", "5M", "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "aac", "-b:a", "160k", bit], check=True)
+    hook_c, outro_c = str(d/"hookc.mp4"), str(d/"outroc.mp4")
+    card_clip(hook_png, 1.3, hook_c); card_clip(outro_png, 1.6, outro_c)
+    out = str(ROOT/f"public/reels/shoptalk-{rid}.mp4")
+    subprocess.run([FF, "-y", "-loglevel", "error", "-i", hook_c, "-i", bit, "-i", outro_c,
+        "-filter_complex", "[0:v][0:a][1:v][1:a][2:v][2:a]concat=n=3:v=1:a=1[v][a]", "-map", "[v]", "-map", "[a]",
+        "-c:v", "libx264", "-b:v", "5M", "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", out], check=True)
+    subprocess.run(["/usr/bin/python3", str(ROOT/"scripts/r2_upload.py"), out, f"social/shoptalk/shoptalk-{rid}.mp4", "video/mp4"], cwd=str(ROOT))
+    subprocess.run(["/usr/bin/python3", str(ROOT/"scripts/r2_upload.py"), cover_p, f"social/shoptalk/shoptalk-{rid}-cover.png", "image/png"], cwd=str(ROOT))
+    print(f"<<< {rid} done ({dur:.1f}s clip)", flush=True)
+
+if __name__ == "__main__":
+    arg = sys.argv[1:] or ["pilot"]
+    ids = [l["id"] for l in LINES] if arg == ["all"] else (PILOT if arg == ["pilot"] else arg)
+    for rid in ids: main(rid)
+    print("=== shoptalk done ===", flush=True)
