@@ -107,6 +107,20 @@ def cap_png(text, mint, out):
     for ln in lines: dr.text((cx, ty+lh//2), ln, font=f, fill=col, anchor="mm"); ty += lh
     img.save(out)
 
+def pick_hold_frame(src, dur, d):
+    """Choose an open-eyed settle frame near the end for the deadpan hold — so we don't
+    freeze on an end-of-clip blink. Open eyes add contrast (pupils/lashes) in the eye
+    band, so we keep the highest-variance candidate."""
+    t = max(0.0, dur - 0.50); best = None; bestv = -1.0; i = 0
+    while t <= dur - 0.06:
+        fp = str(d/f"_hf{i}.png")
+        subprocess.run([FF, "-y", "-loglevel", "error", "-ss", f"{t:.2f}", "-i", src, "-frames:v", "1", fp], check=True)
+        band = Image.open(fp).convert("L").crop((int(W*0.30), int(H*0.27), int(W*0.70), int(H*0.40)))
+        px = list(band.getdata()); m = sum(px)/len(px); v = sum((p-m)**2 for p in px)/len(px)
+        if v > bestv: bestv = v; best = fp
+        t += 0.05; i += 1
+    return best
+
 def card_clip(png, dur_s, out, music=None):
     if music:  # CR1 outro bed: fade in/out, ducked
         af = f"[1:a]atrim=0:{dur_s},afade=t=in:st=0:d=0.3,afade=t=out:st={dur_s-0.6:.2f}:d=0.6,volume=0.5[a]"
@@ -182,17 +196,20 @@ def main(rid):
     c2.text((W//2, H-90), HANDLE, font=sans(40), fill=(MINT+(255,)), anchor="mm")
     cover_p = str(ROOT/f"public/reels/shoptalk-{rid}-cover.png"); cov.save(cover_p)
     # bit
-    ins = ["-i", src, "-i", chrome_p] + sum([["-i", p] for p, _a, _b in cap_imgs], [])
-    # scale up, clone-extend for the hold, then a slow handheld drift over the whole clip — so the
-    # held tail keeps MOVING (Ken-Burns on the freeze) instead of going dead under the laugh.
-    fc = (f"[0:v]scale=trunc({W}*1.08/2)*2:trunc({H}*1.08/2)*2,tpad=stop_mode=clone:stop_duration={hold},fps=30,"
-          f"crop={W}:{H}:x='(in_w-{W})/2+14*sin(2*PI*t/3)':y='(in_h-{H})/2+10*sin(2*PI*t/3.7)',setsar=1[v0];[v0][1:v]overlay=0:0[b0]")
+    # Hold an OPEN-EYED settle frame for the deadpan tail (not the last frame, which is often a
+    # blink), then a slow handheld drift over the whole clip so it keeps MOVING under the laugh.
+    hold_png = pick_hold_frame(src, dur, d); ncap = len(cap_imgs); hidx = 2 + ncap
+    ins = ["-i", src, "-i", chrome_p] + sum([["-i", p] for p, _a, _b in cap_imgs], []) + ["-loop", "1", "-t", f"{hold}", "-i", hold_png]
+    SC = f"scale=trunc({W}*1.08/2)*2:trunc({H}*1.08/2)*2"
+    FLT = f"crop={W}:{H}:x='(in_w-{W})/2+14*sin(2*PI*t/3)':y='(in_h-{H})/2+10*sin(2*PI*t/3.7)'"
+    fc = (f"[0:v]{SC},fps=30,setsar=1,format=yuv420p[av];[{hidx}:v]{SC},fps=30,setsar=1,format=yuv420p[hld];"
+          f"[av][hld]concat=n=2:v=1[cat];[cat]{FLT},setsar=1[v0];[v0][1:v]overlay=0:0[b0]")
     k = 0
     for j, (p, a, b) in enumerate(cap_imgs):
         fc += f";[b{k}][{2+j}:v]overlay=0:0:enable='between(t,{a:.2f},{b:.2f})'[b{k+1}]"; k += 1
     fc += f";[b{k}]null[v];[0:a]apad=pad_dur={hold},loudnorm=I=-14:TP=-1.0:LRA=11[sp]"
     if laugh:  # laugh begins mid-last-word; ducked, faded; speech sets the length
-        li = 2 + len(cap_imgs); ins += ["-i", laugh_path]; dly = int(lstart * 1000); fo = max(0.2, llen - 0.5)
+        li = 3 + ncap; ins += ["-i", laugh_path]; dly = int(lstart * 1000); fo = max(0.2, llen - 0.5)
         fc += (f";[{li}:a]afade=t=in:st=0:d=0.08,afade=t=out:st={fo:.2f}:d=0.5,volume=0.9,"
                f"adelay={dly}|{dly}[lg];[sp][lg]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]")
     else:

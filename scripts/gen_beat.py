@@ -52,12 +52,13 @@ def beat(rid):
     if gap >= THRESH: return f"{rid}: skip (already {gap:.2f}s)"
     BEAT = round(TARGET - gap, 2)
     T = cues[pidx-1][1] + gap*0.5  # mid-gap → mouth at rest
+    TAIL = round(min(0.22, BEAT, T), 2)  # last bit of motion, slowed to fill the beat
     run("-i", str(src), "-t", f"{T}", "-vf", f"scale={W}:{H},fps=30", *ENC, str(d/"_p1.mp4"))
     run("-ss", f"{T}", "-i", str(src), "-vf", f"scale={W}:{H},fps=30", *ENC, str(d/"_p2.mp4"))
-    run("-sseof", "-0.05", "-i", str(d/"_p1.mp4"), "-frames:v", "1", str(d/"_fr.png"))
-    run("-loop", "1", "-t", f"{BEAT}", "-i", str(d/"_fr.png"), "-f", "lavfi", "-t", f"{BEAT}", "-i", "anullsrc=r=44100:cl=stereo",
-        "-vf", f"scale={W}:{H},fps=30,format=yuv420p", *ENC, "-shortest", str(d/"_freeze.mp4"))
-    lst = d/"_beatlist.txt"; lst.write_text("".join(f"file '{(d/x).resolve()}'\n" for x in ["_p1.mp4", "_freeze.mp4", "_p2.mp4"]))
+    # gentle slow-mo of the last TAIL (not a dead freeze) so the avatar keeps moving through the beat
+    run("-ss", f"{T-TAIL}", "-t", f"{TAIL}", "-i", str(src), "-f", "lavfi", "-t", f"{BEAT}", "-i", "anullsrc=r=44100:cl=stereo",
+        "-vf", f"scale={W}:{H},fps=30,setpts={BEAT/TAIL:.4f}*PTS", "-map", "0:v", "-map", "1:a", *ENC, "-shortest", str(d/"_beatseg.mp4"))
+    lst = d/"_beatlist.txt"; lst.write_text("".join(f"file '{(d/x).resolve()}'\n" for x in ["_p1.mp4", "_beatseg.mp4", "_p2.mp4"]))
     run("-f", "concat", "-safe", "0", "-i", str(lst), *ENC, str(d/"_src_beat.mp4"))
     out = []
     for blk in re.split(r"\n\s*\n", srt.read_text().strip()):
@@ -69,7 +70,7 @@ def beat(rid):
         out.append(f"{L[0]}\n{fmt(A)} --> {fmt(B)}\n" + "\n".join(L[L.index(tl)+1:]))
     (d/"cap.srt").write_text("\n\n".join(out)+"\n")
     shutil.copy(str(d/"_src_beat.mp4"), str(src))
-    for f in ["_p1.mp4", "_p2.mp4", "_fr.png", "_freeze.mp4", "_src_beat.mp4", "_beatlist.txt"]: (d/f).unlink(missing_ok=True)
+    for f in ["_p1.mp4", "_p2.mp4", "_beatseg.mp4", "_src_beat.mp4", "_beatlist.txt"]: (d/f).unlink(missing_ok=True)
     return f"{rid}: BEAT +{BEAT:.2f}s at {T:.2f}s ({gap:.2f}->{gap+BEAT:.2f}s)  <== fixed"
 
 if __name__ == "__main__":
