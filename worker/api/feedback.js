@@ -26,11 +26,19 @@ export async function onRequestOptions({ request, env }) {
 export async function onRequestPost({ request, env }) {
   let b;
   try { b = await request.json(); } catch { return json({ error: "bad_json" }, { status: 400 }); }
+  await ensure(env);
+  // Clear notes (gated by FEEDBACK_KEY): { action:"clear", key, video? }. Omit video to clear all.
+  if (b.action === "clear") {
+    if (!env.FEEDBACK_KEY || b.key !== env.FEEDBACK_KEY) return json({ error: "unauthorized" }, { status: 401 });
+    const r = b.video
+      ? await env.DB.prepare("DELETE FROM reel_feedback WHERE video = ?").bind(b.video.toString().slice(0, 120)).run()
+      : await env.DB.prepare("DELETE FROM reel_feedback").run();
+    return json({ ok: true, cleared: r.meta?.changes ?? null, video: b.video || "ALL" });
+  }
   const video = (b.video || "").toString().slice(0, 120);
   const note = (b.note || "").toString().slice(0, 4000);
   const author = (b.author || "").toString().slice(0, 80);
   if (!video || !note.trim()) return json({ error: "missing_fields", need: "video, note" }, { status: 400 });
-  await ensure(env);
   await env.DB.prepare("INSERT INTO reel_feedback (video, note, author) VALUES (?, ?, ?)").bind(video, note, author).run();
   return json({ ok: true });
 }
