@@ -16,6 +16,8 @@ DISP = str(ROOT/"scripts/.fonts/Bricolage.ttf"); SANS = str(ROOT/"scripts/.fonts
 W, H = 1080, 1920
 HOLD = 1.1  # deadpan face-hold after the last word (the end-pause)
 HOOK_DUR = 0.9  # front hook card hold (tight — avatar arrives fast)
+MUSIC = str(ROOT/"assets/audio/CR1.mp3")  # outro bed (same as UGC end-cards)
+FILL = f"scale=trunc({W}*1.05/2)*2:trunc({H}*1.05/2)*2,crop={W}:{H}"  # overscan-crop the cream bg edge
 NAVY = (10, 22, 40); MINT = (0, 229, 160); PAPER = (248, 250, 252)
 SERIES, SUB, HANDLE = "SHOP TALK", "with AAAA-RON", "@consentresolve"
 MOTION = ("Casual deadpan comedian on a small stage. Face mostly neutral, dry delivery, "
@@ -91,10 +93,16 @@ def cap_png(text, mint, out):
     for ln in lines: dr.text((cx, ty+lh//2), ln, font=f, fill=col, anchor="mm"); ty += lh
     img.save(out)
 
-def card_clip(png, dur_s, out):
-    subprocess.run([FF, "-y", "-loglevel", "error", "-loop", "1", "-t", f"{dur_s}", "-i", png,
-        "-f", "lavfi", "-t", f"{dur_s}", "-i", "anullsrc=r=44100:cl=stereo",
-        "-vf", f"scale={W}:{H},fps=30,format=yuv420p", "-c:v", "libx264", "-r", "30", "-c:a", "aac", "-b:a", "160k", "-shortest", out], check=True)
+def card_clip(png, dur_s, out, music=None):
+    if music:  # CR1 outro bed: fade in/out, ducked
+        af = f"[1:a]atrim=0:{dur_s},afade=t=in:st=0:d=0.3,afade=t=out:st={dur_s-0.6:.2f}:d=0.6,volume=0.5[a]"
+        subprocess.run([FF, "-y", "-loglevel", "error", "-loop", "1", "-t", f"{dur_s}", "-i", png, "-stream_loop", "-1", "-i", music,
+            "-filter_complex", f"[0:v]scale={W}:{H},fps=30,format=yuv420p[v];{af}", "-map", "[v]", "-map", "[a]",
+            "-c:v", "libx264", "-r", "30", "-c:a", "aac", "-b:a", "160k", "-t", f"{dur_s}", out], check=True)
+    else:
+        subprocess.run([FF, "-y", "-loglevel", "error", "-loop", "1", "-t", f"{dur_s}", "-i", png,
+            "-f", "lavfi", "-t", f"{dur_s}", "-i", "anullsrc=r=44100:cl=stereo",
+            "-vf", f"scale={W}:{H},fps=30,format=yuv420p", "-c:v", "libx264", "-r", "30", "-c:a", "aac", "-b:a", "160k", "-shortest", out], check=True)
 
 def main(rid):
     if rid in DELETED: print(f"--- skip {rid} (cut during review)", flush=True); return
@@ -145,7 +153,7 @@ def main(rid):
     dr.rounded_rectangle([W//2-hw2//2-30, hy2-40, W//2+hw2//2+30, hy2+40], radius=40, fill=MINT); dr.text((W//2, hy2), HANDLE, font=sans(48), fill=NAVY, anchor="mm")
     outro_png = str(d/"outro.png"); img.save(outro_png)
     # cover poster
-    frame = str(d/"frame.png"); subprocess.run([FF, "-y", "-loglevel", "error", "-ss", f"{dur*0.45:.2f}", "-i", src, "-frames:v", "1", "-vf", f"scale={W}:{H}", frame], check=True)
+    frame = str(d/"frame.png"); subprocess.run([FF, "-y", "-loglevel", "error", "-ss", f"{dur*0.45:.2f}", "-i", src, "-frames:v", "1", "-vf", FILL, frame], check=True)
     cov = Image.open(frame).convert("RGB"); c2 = ImageDraw.Draw(cov, "RGBA")
     c2.rectangle([0, 0, W, 270], fill=(10, 22, 40, 150)); c2.rectangle([0, H-470, W, H], fill=(10, 22, 40, 150)); lockup(c2, 60)
     cf = fit(c2, teaser, DISP, 92, 52, W-120); cls = wrap(c2, teaser, cf, W-120); cy = H-380
@@ -154,7 +162,7 @@ def main(rid):
     cover_p = str(ROOT/f"public/reels/shoptalk-{rid}-cover.png"); cov.save(cover_p)
     # bit
     ins = ["-i", src, "-i", chrome_p] + sum([["-i", p] for p, _a, _b in cap_imgs], [])
-    fc = f"[0:v]scale={W}:{H},tpad=stop_mode=clone:stop_duration={HOLD},fps=30[v0];[v0][1:v]overlay=0:0[b0]"
+    fc = f"[0:v]{FILL},tpad=stop_mode=clone:stop_duration={HOLD},fps=30[v0];[v0][1:v]overlay=0:0[b0]"
     k = 0
     for j, (p, a, b) in enumerate(cap_imgs):
         fc += f";[b{k}][{2+j}:v]overlay=0:0:enable='between(t,{a:.2f},{b:.2f})'[b{k+1}]"; k += 1
@@ -163,7 +171,7 @@ def main(rid):
     subprocess.run([FF, "-y", "-loglevel", "error", *ins, "-filter_complex", fc, "-map", "[v]", "-map", "[a]",
         "-c:v", "libx264", "-b:v", "5M", "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "aac", "-b:a", "160k", bit], check=True)
     hook_c, outro_c = str(d/"hookc.mp4"), str(d/"outroc.mp4")
-    card_clip(hook_png, HOOK_DUR, hook_c); card_clip(outro_png, 1.6, outro_c)
+    card_clip(hook_png, HOOK_DUR, hook_c); card_clip(outro_png, 1.6, outro_c, music=MUSIC)
     out = str(ROOT/f"public/reels/shoptalk-{rid}.mp4")
     subprocess.run([FF, "-y", "-loglevel", "error", "-i", hook_c, "-i", bit, "-i", outro_c,
         "-filter_complex", "[0:v][0:a][1:v][1:a][2:v][2:a]concat=n=3:v=1:a=1[v][a]", "-map", "[v]", "-map", "[a]",
