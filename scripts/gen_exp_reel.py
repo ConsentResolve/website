@@ -23,7 +23,8 @@ W, H = 1080, 1920
 NAVY = (10, 22, 40); MINT = (0, 229, 160); PAPER = (248, 250, 252); INK = (13, 27, 42)
 NAVY700 = (30, 41, 59); NAVY800 = (13, 27, 42); MINT300 = (0, 245, 176); SLATE = (148, 163, 184)
 AMP_X, AMP_Y, ZB, ZR = 10, 8, 1.03, 0.03  # handheld float (matches leah_pipeline)
-MOTION = "Confident, warm, direct. Talking straight to a contractor who's a peer. Calm authority, slight smile on the wins."
+MOTION = ("Casual and genuinely excited, like he's telling a buddy something cool he just figured out. "
+          "Upbeat, easy energy, a real smile, leans in on the good parts. Natural and unhurried, never salesy.")
 disp = lambda p: ImageFont.truetype(DISP, p); sans = lambda p: ImageFont.truetype(SANS, p)
 
 def api(u, b=None):
