@@ -17,9 +17,10 @@ W, H = 1080, 1920
 HOLD = 1.1  # deadpan face-hold after the last word (the end-pause)
 HOOK_DUR = 0.9  # front hook card hold (tight — avatar arrives fast)
 MUSIC = str(ROOT/"assets/audio/CR1.mp3")  # outro bed (same as UGC end-cards)
+LAUGH = str(ROOT/"assets/audio/laugh-1.mp3")  # audience laugh on every reel's punchline (laugh-1/2/3 staged)
 FILL = f"scale=trunc({W}*1.05/2)*2:trunc({H}*1.05/2)*2,crop={W}:{H}"  # overscan-crop the cream bg edge
 NAVY = (10, 22, 40); MINT = (0, 229, 160); PAPER = (248, 250, 252)
-SERIES, SUB, HANDLE = "SHOP TALK", "with AAAA-RON", "@consentresolve"
+SERIES, SUB, HANDLE = "SHOP TALK", "with AA-Ron", "@consentresolve"
 MOTION = ("Casual deadpan comedian on a small stage. Face mostly neutral, dry delivery, "
           "the faintest knowing look on the punchline. Relaxed, unhurried, in on the joke.")
 disp = lambda p: ImageFont.truetype(DISP, p); sans = lambda p: ImageFont.truetype(SANS, p)
@@ -45,6 +46,19 @@ def lockup(dr, y):
     dr.rounded_rectangle([W//2-lw//2-34, y, W//2+lw//2+34, y+90], radius=45, fill=MINT)
     dr.text((W//2, y+45), SERIES, font=lf, fill=NAVY, anchor="mm")
     dr.text((W//2, y+90+36), SUB, font=disp(36), fill=(MINT+(255,)), anchor="mm")
+def show_lockup(dr, cy):
+    """Big, badged SHOP TALK title + 'with AA-Ron' tab — the hero lockup shared by
+    intro & outro: chunky mint badge, navy keyline, drop shadow, contrasting sub-pill."""
+    big = 138; lf = disp(big); tw = dr.textlength(SERIES, font=lf)
+    px, sh = 58, int(big*1.36); x0, x1 = W//2-tw//2-px, W//2+tw//2+px
+    y0, y1 = cy-sh//2, cy+sh//2; r = sh//2
+    dr.rounded_rectangle([x0+9, y0+14, x1+9, y1+14], radius=r, fill=(4, 10, 20, 150))     # drop shadow
+    dr.rounded_rectangle([x0, y0, x1, y1], radius=r, fill=MINT, outline=NAVY, width=6)     # mint badge
+    dr.text((W//2, cy-4), SERIES, font=lf, fill=NAVY, anchor="mm")
+    sp = 56; sf = disp(sp); sw = dr.textlength(SUB, font=sf); sy = y1 + 56                  # 'with AA-Ron' tab
+    dr.rounded_rectangle([W//2-sw//2-32, sy-int(sp*0.8), W//2+sw//2+32, sy+int(sp*0.8)], radius=sp, fill=NAVY, outline=MINT, width=3)
+    dr.text((W//2, sy), SUB, font=sf, fill=(MINT+(255,)), anchor="mm")
+    return sy + sp
 
 def api(u, b=None):
     data = json.dumps(b).encode() if b else None
@@ -110,6 +124,7 @@ def main(rid):
     print(f">>> {rid} [{line['cat']}] {line['text'][:48]}...", flush=True)
     src, srt = render_heygen(line, d)
     dur = float(subprocess.check_output([FP, "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", src]).strip())
+    laugh = True  # laugh track on every reel's punchline
     # caption cues from SRT; mint the last cue (punchline kicker)
     cues = []
     for blk in re.split(r"\n\s*\n", Path(srt).read_text().strip()):
@@ -128,27 +143,35 @@ def main(rid):
         if punch_start is None: build.append((a, b, txt))
         cum += len(txt.split())
     if punch_start is None: punch_start = cues[-1][0] if cues else 0.0
+    # laugh begins right before the last 1-2 words of the punchline; the hold stretches to fit it
+    lstart = llen = 0.0
+    if laugh and cues:
+        llen = float(subprocess.check_output([FP, "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", LAUGH]).strip())
+        la, lb, ltx = cues[-1]
+        if len(ltx.split()) >= 2: lstart = la
+        else:
+            pa, pb, pt = cues[-2] if len(cues) >= 2 else (la, lb, ltx)
+            lstart = pb - (pb - pa) / max(1, len(pt.split()))  # back into the prev cue's last word
+        lstart = max(0.0, lstart - 0.10)
+    hold = max(HOLD, lstart + llen + 0.35 - dur) if laugh else HOLD
     cap_imgs = []
     for i, (a, b, txt) in enumerate(build):
         nxt = build[i+1][0] if i+1 < len(build) else punch_start
         p = str(d/f"c{i}.png"); cap_png(txt, False, p); cap_imgs.append((p, a, nxt))
-    pp = str(d/"cpunch.png"); cap_png(punch, True, pp); cap_imgs.append((pp, punch_start, dur+HOLD))
+    pp = str(d/"cpunch.png"); cap_png(punch, True, pp); cap_imgs.append((pp, punch_start, dur+hold))
     # chrome pills
     chrome = Image.new("RGBA", (W, H), (0, 0, 0, 0)); cd = ImageDraw.Draw(chrome)
-    lf = disp(50); lw = cd.textlength(SERIES, font=lf)
-    cd.rounded_rectangle([W//2-lw//2-32, 64, W//2+lw//2+32, 64+86], radius=43, fill=MINT); cd.text((W//2, 64+43), SERIES, font=lf, fill=NAVY, anchor="mm")
-    sf = disp(34); sw = cd.textlength(SUB, font=sf); sy = 64+98
-    cd.rounded_rectangle([W//2-sw//2-22, sy, W//2+sw//2+22, sy+58], radius=29, fill=(10, 22, 40, 235)); cd.text((W//2, sy+29), SUB, font=sf, fill=(MINT+(255,)), anchor="mm")
+    # Series branding lives on the intro/outro only — during playback keep just the handle watermark.
     hf = sans(42); hw = cd.textlength(HANDLE, font=hf); hy = int(H*0.88)
     cd.rounded_rectangle([W//2-hw//2-28, hy-36, W//2+hw//2+28, hy+36], radius=36, fill=(10, 22, 40, 215)); cd.text((W//2, hy), HANDLE, font=hf, fill=(255, 255, 255, 255), anchor="mm")
     chrome_p = str(d/"chrome.png"); chrome.save(chrome_p)
     # hook + outro cards
     teaser = hook_teaser(line["text"])
-    img, dr = brand_bg(); lockup(dr, 150); f = fit(dr, teaser, DISP, 116, 60, W-150)
-    ls = wrap(dr, teaser, f, W-150); y = H//2-len(ls)*int(f.size*1.12)//2
-    for ln in ls: dr.text((W//2, y), ln, font=f, fill=PAPER, anchor="mm"); y += int(f.size*1.12)
+    img, dr = brand_bg(); show_lockup(dr, int(H*0.29))
+    f = fit(dr, teaser, DISP, 100, 54, W-150); ls = wrap(dr, teaser, f, W-150); y = int(H*0.56)
+    for ln in ls: dr.text((W//2, y), ln, font=f, fill=PAPER, anchor="mm"); y += int(f.size*1.14)
     hook_png = str(d/"hook.png"); img.save(hook_png)
-    img, dr = brand_bg(); lockup(dr, 360); dr.text((W//2, int(H*0.55)), "follow for more", font=disp(96), fill=PAPER, anchor="mm")
+    img, dr = brand_bg(); show_lockup(dr, int(H*0.33)); dr.text((W//2, int(H*0.60)), "follow for more", font=disp(84), fill=PAPER, anchor="mm")
     hw2 = dr.textlength(HANDLE, font=sans(48)); hy2 = int(H*0.70)
     dr.rounded_rectangle([W//2-hw2//2-30, hy2-40, W//2+hw2//2+30, hy2+40], radius=40, fill=MINT); dr.text((W//2, hy2), HANDLE, font=sans(48), fill=NAVY, anchor="mm")
     outro_png = str(d/"outro.png"); img.save(outro_png)
@@ -162,11 +185,20 @@ def main(rid):
     cover_p = str(ROOT/f"public/reels/shoptalk-{rid}-cover.png"); cov.save(cover_p)
     # bit
     ins = ["-i", src, "-i", chrome_p] + sum([["-i", p] for p, _a, _b in cap_imgs], [])
-    fc = f"[0:v]{FILL},tpad=stop_mode=clone:stop_duration={HOLD},fps=30[v0];[v0][1:v]overlay=0:0[b0]"
+    # scale up, clone-extend for the hold, then a slow handheld drift over the whole clip — so the
+    # held tail keeps MOVING (Ken-Burns on the freeze) instead of going dead under the laugh.
+    fc = (f"[0:v]scale=trunc({W}*1.08/2)*2:trunc({H}*1.08/2)*2,tpad=stop_mode=clone:stop_duration={hold},fps=30,"
+          f"crop={W}:{H}:x='(in_w-{W})/2+14*sin(2*PI*t/3)':y='(in_h-{H})/2+10*sin(2*PI*t/3.7)',setsar=1[v0];[v0][1:v]overlay=0:0[b0]")
     k = 0
     for j, (p, a, b) in enumerate(cap_imgs):
         fc += f";[b{k}][{2+j}:v]overlay=0:0:enable='between(t,{a:.2f},{b:.2f})'[b{k+1}]"; k += 1
-    fc += f";[b{k}]null[v];[0:a]apad=pad_dur={HOLD},loudnorm=I=-14:TP=-1.0:LRA=11[a]"
+    fc += f";[b{k}]null[v];[0:a]apad=pad_dur={hold},loudnorm=I=-14:TP=-1.0:LRA=11[sp]"
+    if laugh:  # laugh begins right before the last 1-2 words; ducked, faded; speech sets the length
+        li = 2 + len(cap_imgs); ins += ["-i", LAUGH]; dly = int(lstart * 1000); fo = max(0.2, llen - 0.5)
+        fc += (f";[{li}:a]afade=t=in:st=0:d=0.08,afade=t=out:st={fo:.2f}:d=0.5,volume=0.9,"
+               f"adelay={dly}|{dly}[lg];[sp][lg]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]")
+    else:
+        fc += ";[sp]anull[a]"
     bit = str(d/"bit.mp4")
     subprocess.run([FF, "-y", "-loglevel", "error", *ins, "-filter_complex", fc, "-map", "[v]", "-map", "[a]",
         "-c:v", "libx264", "-b:v", "5M", "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "aac", "-b:a", "160k", bit], check=True)

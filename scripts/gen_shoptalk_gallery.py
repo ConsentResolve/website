@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""public/shop-talk.html (noindex) — review gallery for the SHOP TALK with AAAA-RON
+"""public/shop-talk.html (noindex) — review gallery for the SHOP TALK with AA-Ron
 library. Grouped by category, cover-poster thumbnails, per-video note box + Delete
 (server-persisted via /api/feedback + /api/queue, same as the sprint page). Only
 lists reels whose file exists in public/reels/."""
@@ -27,7 +27,7 @@ for key, label in CATS:
     for l in items:
         n = f"shoptalk-{l['id']}"
         cells += (f'<div class="cell" data-name="{n}"><div class="ar">#{l["id"]}</div>'
-                  f'<video class="v" src="{R2}/{n}.mp4?v=3" poster="{R2}/{n}-cover.png?v=3" controls preload="none" playsinline></video>'
+                  f'<video class="v" src="{R2}/{n}.mp4?v=4" poster="{R2}/{n}-cover.png?v=4" controls preload="none" playsinline></video>'
                   f'<div class="hk">{esc(l["text"])}</div>{FB}{DEL}</div>')
     sections += f'<h2 class="sec">{esc(label)} ({len(items)})</h2><div class="grid">{cells}</div>'
 
@@ -57,8 +57,8 @@ document.querySelectorAll('.undo').forEach(b=>b.onclick=async()=>{const c=b.clos
 (async()=>{try{const j=await(await fetch('/api/queue')).json();(j.queued||[]).forEach(n=>{const c=document.querySelector('[data-name="'+(window.CSS&&CSS.escape?CSS.escape(n):n)+'"]');if(c)c.classList.add('queued');});}catch(e){}})();
 """
 HTML = (f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-        f'<meta name="robots" content="noindex,nofollow"><title>SHOP TALK with AAAA-RON — review</title><style>{CSS}</style></head><body>'
-        f'<header><h1>SHOP TALK with AAAA-RON — {len(present)} reels</h1>'
+        f'<meta name="robots" content="noindex,nofollow"><title>SHOP TALK with AA-Ron — review</title><style>{CSS}</style></head><body>'
+        f'<header><h1>SHOP TALK with AA-Ron — {len(present)} reels</h1>'
         f'<p>Deadpan trade humor · cover + hook + bit + outro · pick your openers. Tap ＋ Add note or 🗑 Delete (both persist).</p>'
         f'<p><input id="rev" placeholder="Your name (so notes are attributed)"></p></header>'
         f'{sections}<div id="pv"></div><script>{JS}</script></body></html>')
