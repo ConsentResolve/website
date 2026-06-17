@@ -15,21 +15,21 @@ _RAW = [
  ("trade", "Carpet is a floor that decided to be a sweater."),
  ("trade", "A door that sticks isn't broken. It's just unsure. And taking it out on your shoulder."),
  ("trade", "I built a deck. Now the backyard has a stage, an audience of one, and no talent."),
- ("trade", "A screw is a nail that believes in itself. And makes everyone turn for it."),
- ("trade", "A hinge is the only part of the door willing to compromise. Which is why it's exhausted."),
- ("trade", "A baseboard is trim that knows its place. It's made peace with the floor."),
+ ("trade", "A screw is a nail with confidence. Everyone turns for it."),
+ ("trade", "A hinge is the only part of the door willing to compromise, which is why it's always exhausted."),
+ ("trade", "A baseboard is trim that knows its place — right next to the floor."),
  ("trade", "A joist is a beam with impostor syndrome."),
- ("trade", "Plywood is wood that found strength in numbers. Because alone, it was nothing."),
- ("trade", "A dimmer is a switch that can't fully commit. And calls it ambiance."),
+ ("trade", "Plywood is wood that found strength in numbers. Alone, it fell to pieces."),
+ ("trade", "A dimmer is a switch that can't fully commit. Calls it ambiance."),
  ("trade", "A sander is a tool that smooths things over. And leaves the mess for someone else."),
  ("trade", "Stucco is a wall that joined a texture cult."),
- ("trade", "A spiral staircase is a regular staircase having a nervous breakdown."),
+ ("trade", "A spiral staircase is a regular staircase just having a nervous breakdown."),
  ("trade", "A French drain is a regular drain that thinks it's better than you. Because it has a name."),
  ("trade", "A garbage disposal is a blender with a dark past."),
- ("trade", "A ceiling fan is a helicopter that gave up on its dreams."),
+ ("trade", "A ceiling fan loves ceilings. Looks up to every one of them."),
  ("trade", "A space heater is a tiny sun. You're not supposed to trust it or leave it alone."),
  ("trade", "A chain-link fence is a fence that gave up on secrets. It lets the whole street watch."),
- ("trade", "A weather vane is a rooster that chose a career in meteorology and didn't like guessing."),
+ ("trade", "A weather vane is a meteorologist who only knows which way the wind is blowing."),
  ("trade", "A screen door is a door with boundary issues. It lets everything in but the dog."),
  ("trade", "A nightlight is a lamp that never grew out of it. And still can't sleep."),
  ("trade", "A mini fridge is a fridge that never left college, and probably lives in your basement."),
@@ -50,7 +50,7 @@ _RAW = [
  ("mktg", "Angi's List is a wingman who sets you up with people who aren't interested, bills you for the heartbreak, and lines up the next one."),
  ("mktg", "A shared lead is a blind date who brought four other contractors. And will probably have their cousin do the work."),
  ("mktg", "A tire kicker test-drives the whole lot, asks about financing, and then takes the bus home."),
- ("mktg", "A one-star review is a stranger who waited eight months to tell the world you exist. And spelled \"you suck\" wrong."),
+ ("mktg", "A one-star review is a stranger who waited eight months to tell the world you exist, and spelled \"you suck\" wrong."),
  ("mktg", "The lowest bidder is a guy you meet twice. The second time, he's not there."),
  ("mktg", "My buddy can do it cheaper is a sentence with a sequel. And you've read the script."),
  ("anec", "I played poker with the plumber while he fixed my toilet. His flush beat my full house. And the toilet still runs."),
@@ -65,6 +65,6 @@ LINES = [{"id": f"{i+1:02d}", "cat": c, "text": t, "avatar": LOOKA if i % 2 == 0
          for i, (c, t) in enumerate(_RAW)]
 BY_ID = {l["id"]: l for l in LINES}
 # Cut during review — excluded from re-render + the gallery.
-DELETED = {"01", "03", "04", "10", "14", "17", "22", "23", "27", "35", "36", "37", "38", "43", "47", "48", "49"}
+DELETED = {"01", "03", "04", "10", "14", "17", "22", "23", "27", "30", "35", "36", "37", "38", "43", "47", "48", "49"}
 # pilot across categories: short trade, medium trade, competitor, privacy, long anecdote
 PILOT = ["10", "11", "30", "35", "45"]

@@ -53,13 +53,19 @@ def beat(rid):
     BEAT = round(TARGET - gap, 2)
     T = cues[pidx-1][1] + gap*0.5  # mid-gap → mouth at rest
     TAIL = round(min(0.22, BEAT, T), 2)  # last bit of motion, slowed to fill the beat
-    run("-i", str(src), "-t", f"{T}", "-vf", f"scale={W}:{H},fps=30", *ENC, str(d/"_p1.mp4"))
-    run("-ss", f"{T}", "-i", str(src), "-vf", f"scale={W}:{H},fps=30", *ENC, str(d/"_p2.mp4"))
-    # gentle slow-mo of the last TAIL (not a dead freeze) so the avatar keeps moving through the beat
-    run("-ss", f"{T-TAIL}", "-t", f"{TAIL}", "-i", str(src), "-f", "lavfi", "-t", f"{BEAT}", "-i", "anullsrc=r=44100:cl=stereo",
-        "-vf", f"scale={W}:{H},fps=30,setpts={BEAT/TAIL:.4f}*PTS", "-map", "0:v", "-map", "1:a", *ENC, "-shortest", str(d/"_beatseg.mp4"))
-    lst = d/"_beatlist.txt"; lst.write_text("".join(f"file '{(d/x).resolve()}'\n" for x in ["_p1.mp4", "_beatseg.mp4", "_p2.mp4"]))
-    run("-f", "concat", "-safe", "0", "-i", str(lst), *ENC, str(d/"_src_beat.mp4"))
+    dur = float(subprocess.check_output([FP, "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(src)]).strip())
+    # Single pass, joined with the concat FILTER (sample-accurate — no encode-boundary click):
+    # setup + slow-mo tail (silent, keeps motion through the beat) + punchline.
+    fc = (f"[0:v]trim=0:{T:.3f},setpts=PTS-STARTPTS,scale={W}:{H},fps=30,setsar=1[v1];"
+          f"[0:v]trim={T-TAIL:.3f}:{T:.3f},setpts={BEAT/TAIL:.4f}*(PTS-STARTPTS),scale={W}:{H},fps=30,setsar=1[vb];"
+          f"[0:v]trim={T:.3f}:{dur:.3f},setpts=PTS-STARTPTS,scale={W}:{H},fps=30,setsar=1[v2];"
+          f"[0:a]atrim=0:{T:.3f},asetpts=PTS-STARTPTS[a1];"
+          f"[1:a]atrim=0:{BEAT:.3f},asetpts=PTS-STARTPTS[ab];"
+          f"[0:a]atrim={T:.3f}:{dur:.3f},asetpts=PTS-STARTPTS[a2];"
+          f"[v1][a1][vb][ab][v2][a2]concat=n=3:v=1:a=1[v][a]")
+    run("-i", str(src), "-f", "lavfi", "-t", f"{dur+BEAT+1}", "-i", "anullsrc=r=44100:cl=stereo",
+        "-filter_complex", fc, "-map", "[v]", "-map", "[a]",
+        "-c:v", "libx264", "-r", "30", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-ar", "44100", str(d/"_src_beat.mp4"))
     out = []
     for blk in re.split(r"\n\s*\n", srt.read_text().strip()):
         L = [x for x in blk.splitlines() if x.strip()]; tl = next((x for x in L if "-->" in x), None)
@@ -70,7 +76,7 @@ def beat(rid):
         out.append(f"{L[0]}\n{fmt(A)} --> {fmt(B)}\n" + "\n".join(L[L.index(tl)+1:]))
     (d/"cap.srt").write_text("\n\n".join(out)+"\n")
     shutil.copy(str(d/"_src_beat.mp4"), str(src))
-    for f in ["_p1.mp4", "_p2.mp4", "_beatseg.mp4", "_src_beat.mp4", "_beatlist.txt"]: (d/f).unlink(missing_ok=True)
+    (d/"_src_beat.mp4").unlink(missing_ok=True)
     return f"{rid}: BEAT +{BEAT:.2f}s at {T:.2f}s ({gap:.2f}->{gap+BEAT:.2f}s)  <== fixed"
 
 if __name__ == "__main__":
