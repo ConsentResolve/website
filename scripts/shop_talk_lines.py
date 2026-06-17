@@ -10,7 +10,7 @@ VOICE = "41c46ea57c0a4dd29e3acd1de0765c05"
 # (id, category, text) — punctuation kept; periods drive the beats.
 _RAW = [
  ("trade", "Hail damage is the sky filing a complaint. And your roof is the only name on it."),
- ("trade", "A gutter is a river with low self-esteem and a job it settled for."),
+ ("trade", "A gutter is a river with low self-esteem. And a job it settled for."),
  ("trade", "A brick is a tiny wall that succeeded. And it won't let the other bricks forget it."),
  ("trade", "Carpet is a floor that decided to be a sweater."),
  ("trade", "A door that sticks isn't broken. It's just unsure. And taking it out on your shoulder."),

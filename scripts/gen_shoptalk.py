@@ -14,6 +14,8 @@ FF, FP = "/opt/homebrew/bin/ffmpeg", "/opt/homebrew/bin/ffprobe"
 KEY = open("/tmp/heygen_key.txt").read().strip()
 DISP = str(ROOT/"scripts/.fonts/Bricolage.ttf"); SANS = str(ROOT/"scripts/.fonts/Hanken.ttf")
 W, H = 1080, 1920
+HOLD = 1.1  # deadpan face-hold after the last word (the end-pause)
+HOOK_DUR = 0.9  # front hook card hold (tight — avatar arrives fast)
 NAVY = (10, 22, 40); MINT = (0, 229, 160); PAPER = (248, 250, 252)
 SERIES, SUB, HANDLE = "SHOP TALK", "with AAAA-RON", "@consentresolve"
 MOTION = ("Casual deadpan comedian on a small stage. Face mostly neutral, dry delivery, "
@@ -107,9 +109,22 @@ def main(rid):
         if not tl: continue
         a, b = [x.strip() for x in tl.split("-->")]; txt = " ".join(L[L.index(tl)+1:]).strip()
         if txt: cues.append((ts(a), ts(b), txt))
+    # Build-up lines stay white per-cue; the PUNCHLINE (final sentence) shows as ONE
+    # mint caption that pops on its first word and holds through the face-hold (muted-readable).
+    sents = re.split(r"(?<=[.!?])\s+", line["text"].strip())
+    punch = sents[-1] if len(sents) > 1 else line["text"].strip()
+    np_words = len(" ".join(sents[:-1]).split()) if len(sents) > 1 else 0
+    build = []; cum = 0; punch_start = None
+    for (a, b, txt) in cues:
+        if punch_start is None and cum >= np_words and np_words > 0: punch_start = a
+        if punch_start is None: build.append((a, b, txt))
+        cum += len(txt.split())
+    if punch_start is None: punch_start = cues[-1][0] if cues else 0.0
     cap_imgs = []
-    for i, (a, b, txt) in enumerate(cues):
-        p = str(d/f"c{i}.png"); cap_png(txt, i == len(cues)-1, p); cap_imgs.append((p, a, b))
+    for i, (a, b, txt) in enumerate(build):
+        nxt = build[i+1][0] if i+1 < len(build) else punch_start
+        p = str(d/f"c{i}.png"); cap_png(txt, False, p); cap_imgs.append((p, a, nxt))
+    pp = str(d/"cpunch.png"); cap_png(punch, True, pp); cap_imgs.append((pp, punch_start, dur+HOLD))
     # chrome pills
     chrome = Image.new("RGBA", (W, H), (0, 0, 0, 0)); cd = ImageDraw.Draw(chrome)
     lf = disp(50); lw = cd.textlength(SERIES, font=lf)
@@ -139,16 +154,16 @@ def main(rid):
     cover_p = str(ROOT/f"public/reels/shoptalk-{rid}-cover.png"); cov.save(cover_p)
     # bit
     ins = ["-i", src, "-i", chrome_p] + sum([["-i", p] for p, _a, _b in cap_imgs], [])
-    fc = f"[0:v]scale={W}:{H},tpad=stop_mode=clone:stop_duration=0.5,fps=30[v0];[v0][1:v]overlay=0:0[b0]"
+    fc = f"[0:v]scale={W}:{H},tpad=stop_mode=clone:stop_duration={HOLD},fps=30[v0];[v0][1:v]overlay=0:0[b0]"
     k = 0
     for j, (p, a, b) in enumerate(cap_imgs):
         fc += f";[b{k}][{2+j}:v]overlay=0:0:enable='between(t,{a:.2f},{b:.2f})'[b{k+1}]"; k += 1
-    fc += f";[b{k}]null[v];[0:a]apad=pad_dur=0.5,loudnorm=I=-14:TP=-1.5:LRA=11[a]"
+    fc += f";[b{k}]null[v];[0:a]apad=pad_dur={HOLD},loudnorm=I=-14:TP=-1.0:LRA=11[a]"
     bit = str(d/"bit.mp4")
     subprocess.run([FF, "-y", "-loglevel", "error", *ins, "-filter_complex", fc, "-map", "[v]", "-map", "[a]",
         "-c:v", "libx264", "-b:v", "5M", "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "aac", "-b:a", "160k", bit], check=True)
     hook_c, outro_c = str(d/"hookc.mp4"), str(d/"outroc.mp4")
-    card_clip(hook_png, 1.3, hook_c); card_clip(outro_png, 1.6, outro_c)
+    card_clip(hook_png, HOOK_DUR, hook_c); card_clip(outro_png, 1.6, outro_c)
     out = str(ROOT/f"public/reels/shoptalk-{rid}.mp4")
     subprocess.run([FF, "-y", "-loglevel", "error", "-i", hook_c, "-i", bit, "-i", outro_c,
         "-filter_complex", "[0:v][0:a][1:v][1:a][2:v][2:a]concat=n=3:v=1:a=1[v][a]", "-map", "[v]", "-map", "[a]",
