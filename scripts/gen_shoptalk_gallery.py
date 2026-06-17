@@ -8,7 +8,7 @@ from pathlib import Path
 import sys
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT/"scripts"))
-from shop_talk_lines import LINES
+from shop_talk_lines import LINES, DELETED
 R2 = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/shoptalk"
 def esc(s): return html.escape(s)
 CATS = [("trade", "Trade & home"), ("mktg", "Marketing, lead-gen & privacy"), ("anec", "First-person anecdotes")]
@@ -18,7 +18,7 @@ FB = ('<button class="fbtn">＋ Add note</button>'
 DEL = ('<div class="acts"><button class="del">🗑 Delete</button></div>'
        '<div class="qbar">🗑 Queued · <button class="undo">Undo</button></div>')
 
-present = [l for l in LINES if (ROOT/f"public/reels/shoptalk-{l['id']}.mp4").exists()]
+present = [l for l in LINES if l["id"] not in DELETED and (ROOT/f"public/reels/shoptalk-{l['id']}.mp4").exists()]
 sections = ""
 for key, label in CATS:
     items = [l for l in present if l["cat"] == key]

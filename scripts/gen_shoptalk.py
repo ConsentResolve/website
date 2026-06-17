@@ -9,7 +9,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT/"scripts"))
-from shop_talk_lines import BY_ID, LINES, PILOT, VOICE
+from shop_talk_lines import BY_ID, LINES, PILOT, VOICE, DELETED
 FF, FP = "/opt/homebrew/bin/ffmpeg", "/opt/homebrew/bin/ffprobe"
 KEY = open("/tmp/heygen_key.txt").read().strip()
 DISP = str(ROOT/"scripts/.fonts/Bricolage.ttf"); SANS = str(ROOT/"scripts/.fonts/Hanken.ttf")
@@ -95,6 +95,7 @@ def card_clip(png, dur_s, out):
         "-vf", f"scale={W}:{H},fps=30,format=yuv420p", "-c:v", "libx264", "-r", "30", "-c:a", "aac", "-b:a", "160k", "-shortest", out], check=True)
 
 def main(rid):
+    if rid in DELETED: print(f"--- skip {rid} (cut during review)", flush=True); return
     line = BY_ID[rid]; d = ROOT/f"build/shoptalk/{rid}"; d.mkdir(parents=True, exist_ok=True)
     print(f">>> {rid} [{line['cat']}] {line['text'][:48]}...", flush=True)
     src, srt = render_heygen(line, d)

@@ -64,5 +64,7 @@ _RAW = [
 LINES = [{"id": f"{i+1:02d}", "cat": c, "text": t, "avatar": LOOKA if i % 2 == 0 else LOOKB}
          for i, (c, t) in enumerate(_RAW)]
 BY_ID = {l["id"]: l for l in LINES}
+# Cut during review — excluded from re-render + the gallery.
+DELETED = {"01", "03", "04", "10", "14", "17", "22", "23", "27", "35", "36", "37", "38", "43", "47", "48", "49"}
 # pilot across categories: short trade, medium trade, competitor, privacy, long anecdote
 PILOT = ["10", "11", "30", "35", "45"]
