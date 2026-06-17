@@ -44,11 +44,17 @@ def render_heygen(reel, d):
     src = str(d / "src.mp4"); srt = str(d / "cap.srt")
     if Path(src).exists() and Path(srt).exists() and Path(src).stat().st_size > 80000:
         print("  (cached HeyGen render)", flush=True); return src, srt
-    full = " ".join(sc[5] for sc in REELS[reel]["scenes"] if sc[5])
+    parts = []
+    for sc in REELS[reel]["scenes"]:
+        t = (sc[5] or "").strip()
+        if not t: continue
+        if t[-1] not in ".!?…": t += "."   # guarantee a sentence pause between lines
+        parts.append(t)
+    full = "  ".join(parts)
     body = {"caption": True, "video_inputs": [{"character": {"type": "talking_photo", "talking_photo_id": look,
             "use_avatar_iv_model": True, "talking_style": "expressive", "super_resolution": True,
             "expressiveness": "high", "custom_motion_prompt": MOTION},
-            "voice": {"type": "text", "voice_id": voice, "input_text": full, "speed": 0.96}}],
+            "voice": {"type": "text", "voice_id": voice, "input_text": full, "speed": 0.90}}],
             "dimension": {"width": W, "height": H}}
     vid = (api("https://api.heygen.com/v2/video/generate", body).get("data") or {}).get("video_id")
     if not vid: raise RuntimeError("no video_id")
