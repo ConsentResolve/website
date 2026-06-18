@@ -110,9 +110,7 @@ for d in range(DAYS):
             plats.append("ig")
         if d % 2 == 0 and not fb_used:
             plats.append("fb"); fb_used = True
-        prod = (e.get("group") == "brand-animated") or (e.get("persona") in ("reframed", "leah", "Tyler"))
-        if prod and slot % 3 == 0:
-            plats.append("li")
+        # LinkedIn intentionally excluded — account not verified yet (re-add "li" when it is)
         day_items.append({
             "name": e["name"],
             "url": e.get("url") or f"{PUB}/social/sprint/{e['name']}.mp4",

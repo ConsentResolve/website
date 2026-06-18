@@ -26,7 +26,8 @@ const SITE = "https://consentresolve.com";
 // non-Reel days), which is richer than a link-card post and avoids two systems
 // double-posting to the Page in one session. The worker still drips LinkedIn /
 // X / GBP. FB rows stay queued (harmless) but are never auto-posted from here.
-export const LAUNCH_PLATFORMS = ["linkedin_company", "linkedin_personal", "x", "google_business_profile"];
+// LinkedIn (company + personal) paused — account not verified yet; re-add when verified.
+export const LAUNCH_PLATFORMS = ["x", "google_business_profile"];
 
 // How often (in days) each platform may post. The daily cron checks the last
 // published_at per platform and only drips a new item once this many days have
