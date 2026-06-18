@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 R2 = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards"
-START = datetime.date(2026, 6, 16)
+START = datetime.date(2026, 6, 18)
 DAYS = 45
 def url(n): return f"{R2}/{n}.png"
 

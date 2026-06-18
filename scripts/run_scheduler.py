@@ -77,7 +77,13 @@ def main():
         angle = it.get("angle", it.get("name", "?")); kind = it.get("kind", "ugc"); plats = it["platforms"]
         log(f"{date}: {angle} [{kind}] -> {plats} story={it.get('story')}")
         need_bytes = any(p in ("fb", "yt", "li") for p in plats)
-        if it.get("name"):                                   # locked sprint reel
+        if it.get("url"):                                    # explicit R2 url (any bucket: shoptalk/, exp/, sprint/)
+            url = it["url"]; lb_path = None
+            if need_bytes:
+                lb_path = f"/tmp/sched-{it.get('name','item')}.mp4"
+                if not dry:
+                    urllib.request.urlretrieve(url, lb_path)
+        elif it.get("name"):                                 # locked sprint reel (legacy name→path)
             url, lb_path = media_by_name(it["name"], dry) if need_bytes else (f"{PUB}/social/sprint/{it['name']}.mp4", None)
         else:                                                # legacy angle/kind reel
             if not video_for(angle, kind).exists() and not PUB:

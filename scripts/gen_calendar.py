@@ -22,7 +22,8 @@ for date in sorted(SCHED):
     d = datetime.date.fromisoformat(date)
     label = d.strftime("%a · %b %-d")
     for it in SCHED[date]:
-        angle, kind = it["angle"], it.get("kind", "ugc")
+        angle, kind = it.get("angle", it.get("name", "?")), it.get("kind", "ugc")
+        vsrc = it.get("url") or vurl(angle, kind)   # honor explicit R2 url (launch schedule)
         plats = it["platforms"] + (["ig-story"] if it.get("story") else [])
         chips = "".join(
             f'<span class="chip" style="--c:{PLAT[p][1]}">{PLAT[p][0]}</span>'
@@ -34,7 +35,7 @@ for date in sorted(SCHED):
         cards.append(f"""
         <div class="card" data-plat="{platattr}">
           <div class="meta"><div class="date">{label}</div>{kindbadge}</div>
-          <div class="phone"><video src="{vurl(angle,kind)}" preload="metadata" controls playsinline></video></div>
+          <div class="phone"><video src="{vsrc}" preload="metadata" controls playsinline></video></div>
           <div class="chips">{chips}</div>
           <div class="angle">{angle}</div>
           <div class="cap">{cap}</div>
