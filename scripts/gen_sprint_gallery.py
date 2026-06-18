@@ -120,6 +120,31 @@ for title, sub, items in ORIG_GROUPS:
     orig_html += (f'<div class="angle"><div class="ah">{esc(title)} <span>· {esc(sub)} ({len(items)})</span></div>'
                   f'<div class="ogrid">{cells}</div></div>')
 
+# Experimental reels — round one survivors (asset-driven, casual-excited). Play from social/exp/.
+EXP_R2 = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/exp"
+EXP_KEEP = [("03", "Isn't This Illegal · Jason"), ("04", "Bad Tinder Date · Tyler"),
+            ("05", "Confession Booth · Tyler"), ("06", "10-Minute Speedrun · Aaron"),
+            ("08", "The Price Is Wrong · Aaron"), ("09", "Two Truths and a Lie · Jason"),
+            ("13", "Start at the Win · Aaron")]
+exp_cells = ""
+for num, label in EXP_KEEP:
+    name = f"exp-{num}"; url = f"{EXP_R2}/{name}.mp4"
+    catalog.append({"name": name, "group": "experimental", "hook": label, "url": url})
+    exp_cells += vcell(name, label, url)
+exp_row = f'<div class="angle"><div class="ah">experimental <span>· round one ({len(EXP_KEEP)})</span></div><div class="ogrid">{exp_cells}</div></div>'
+
+# SHOP TALK with AA-Ron — deadpan trade comedy series (cover + cold-open hook + bit + outro).
+# Plays from social/shoptalk/; same names so notes/delete route through the shared APIs.
+from shop_talk_lines import LINES as ST_LINES, DELETED as ST_DELETED
+ST_R2 = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/shoptalk"
+st_present = [l for l in ST_LINES if l["id"] not in ST_DELETED and (ROOT / f"public/reels/shoptalk-{l['id']}.mp4").exists()]
+st_cells = ""
+for l in st_present:
+    name = f"shoptalk-{l['id']}"; url = f"{ST_R2}/{name}.mp4"
+    catalog.append({"name": name, "group": "shoptalk", "hook": l["text"], "url": url})
+    st_cells += vcell(name, f"#{l['id']}", url, l["text"])
+st_row = f'<div class="angle"><div class="ah">SHOP TALK with AA-Ron <span>· deadpan trade comedy ({len(st_present)})</span></div><div class="ogrid">{st_cells}</div></div>'
+
 (ROOT / "social/sprint-catalog.json").write_text(json.dumps(catalog, indent=2))
 
 CSS = """
@@ -165,11 +190,13 @@ HTML = f"""<!doctype html><html lang="en"><head>
 <p style="margin-top:4px"><input id="rev" placeholder="Your name (so notes are attributed)"></p>
 <p class="note" style="color:#64748b;font-size:12px">Tap <b>＋ Add note</b> for feedback, or <b>🗑 Delete</b> to queue a reel for removal — it disappears here and I delete it from storage when you give the word. Both persist.</p></header>
 <div class="wrap">
+  <h2 class="sec">🎬 SHOP TALK with AA-Ron — comedy series ({len(st_present)})</h2>{st_row}
   <h2 class="sec">⭐ Reframed — new style ({len(REFRAMED)}) · CR voice + warm delivery + end-card</h2>{ref_row}
   <h2 class="sec">Leak experiments — 2 hook mechanisms</h2>{leak_row}
   <h2 class="sec">Non-UGC (brand-animated) — 4 angles × 3 ({len(NONUGC)*3})</h2>{non_rows}
   <h2 class="sec">Leah — office-manager set ({len(LEAH)})</h2>{leah_row}
   <h2 class="sec">🎵 Brand music library — {len(MUSIC_INST)+len(MUSIC_VOC)} tracks</h2>{music_row}
+  <h2 class="sec">🧪 Experimental reels — round one ({len(EXP_KEEP)}) · asset-driven, casual-excited</h2>{exp_row}
   <h2 class="sec">📼 Originals — Jun 11–13 era ({orig_count}) · review &amp; prune</h2>{orig_html}
 </div>
 <script>
@@ -207,6 +234,6 @@ document.querySelectorAll('.undo').forEach(b=>b.onclick=async()=>{{
 }}catch(e){{}}}})();
 </script>
 </body></html>"""
-HTML = HTML.replace('.mp4"', '.mp4?v=6"')   # cache-buster so the browser fetches the current cuts
+HTML = HTML.replace('.mp4"', '.mp4?v=7"')   # cache-buster so the browser fetches the current cuts
 (ROOT / "public/sprint.html").write_text(HTML)
 print(f"wrote public/sprint.html + sprint-catalog.json — {reels_total} reels ({orig_count} originals)")

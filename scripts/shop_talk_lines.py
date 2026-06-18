@@ -13,14 +13,14 @@ _RAW = [
  ("trade", "A gutter is a river with low self-esteem. And a job it settled for."),
  ("trade", "A brick is a tiny wall that succeeded. And it won't let the other bricks forget it."),
  ("trade", "Carpet is a floor that decided to be a sweater."),
- ("trade", "A door that sticks isn't broken. It's just unsure. And taking it out on your shoulder."),
+ ("trade", "A door that sticks isn't broken, it's just unsure and taking it out on your shoulder."),
  ("trade", "I built a deck. Now the backyard has a stage, an audience of one, and no talent."),
  ("trade", "A screw is a nail with confidence. Everyone turns for it."),
  ("trade", "A hinge is the only part of the door willing to compromise, which is why it's always exhausted."),
  ("trade", "A baseboard is trim that knows its place — right next to the floor."),
  ("trade", "A joist is a beam with impostor syndrome."),
  ("trade", "Plywood is wood that found strength in numbers. Alone, it fell to pieces."),
- ("trade", "A dimmer is a switch that can't fully commit. Calls it ambiance."),
+ ("trade", "A dimmer is a switch that can't fully commit. Calls it setting the mood."),
  ("trade", "A sander is a tool that smooths things over. And leaves the mess for someone else."),
  ("trade", "Stucco is a wall that joined a texture cult."),
  ("trade", "A spiral staircase is a regular staircase just having a nervous breakdown."),
@@ -65,6 +65,6 @@ LINES = [{"id": f"{i+1:02d}", "cat": c, "text": t, "avatar": LOOKA if i % 2 == 0
          for i, (c, t) in enumerate(_RAW)]
 BY_ID = {l["id"]: l for l in LINES}
 # Cut during review — excluded from re-render + the gallery.
-DELETED = {"01", "03", "04", "10", "14", "17", "22", "23", "19", "27", "30", "35", "36", "37", "38", "43", "47", "48", "49"}
+DELETED = {"01", "03", "04", "09", "10", "14", "17", "22", "23", "19", "27", "30", "35", "36", "37", "38", "43", "47", "48", "49"}
 # pilot across categories: short trade, medium trade, competitor, privacy, long anecdote
 PILOT = ["10", "11", "30", "35", "45"]
