@@ -26,15 +26,15 @@ _RAW = [
  ("trade", "A spiral staircase is a regular staircase just having a nervous breakdown."),
  ("trade", "A French drain is a regular drain that thinks it's better than you. Because it has a name."),
  ("trade", "A garbage disposal is a blender with a dark past."),
- ("trade", "A ceiling fan loves ceilings. Looks up to every one of them."),
+ ("trade", "A ceiling fan loves ceilings and really looks up to them."),
  ("trade", "A space heater is a tiny sun. You're not supposed to trust it or leave it alone."),
- ("trade", "A chain-link fence is a fence that gave up on secrets. It lets the whole street watch."),
- ("trade", "A weather vane is a meteorologist who only knows which way the wind is blowing."),
+ ("trade", "A chain-link fence is a fence that gave up on secrets and lets the whole street watch."),
+ ("trade", "A weather vane is a rooster that chose a career in meteorology."),
  ("trade", "A screen door is a door with boundary issues. It lets everything in but the dog."),
  ("trade", "A nightlight is a lamp that never grew out of it. And still can't sleep."),
  ("trade", "A mini fridge is a fridge that never left college, and probably lives in your basement."),
- ("trade", "You can't hire a handyman to fix a dishwasher that doesn't work, but you could buy her flowers and ask nicely."),
- ("trade", "A bar stool is a chair that's just here for a good time. And doesn't remember last night."),
+ ("trade", "A broken dishwasher doesn't need a handyman. She needs flowers and a compliment."),
+ ("trade", "A bar stool is a chair that's just here for a good time and doesn't remember last night."),
  ("trade", "A power strip is an outlet that started a commune."),
  ("trade", "A welcome mat is a doormat that chose to stay positive. No matter how many times it gets walked on."),
  ("trade", "A cul-de-sac is really an unfinished roundabout that gave up on life."),
@@ -59,12 +59,12 @@ _RAW = [
  ("anec", "My electrician told me I wasn't grounded. Turned out neither was the house. But only one of us was fixable by Tuesday."),
  ("anec", "The painter promised he'd cut corners for me. I didn't realize that was the technique."),
  ("anec", "I called a locksmith when I got locked out. He had my door open in nine seconds. And I've slept worse ever since."),
- ("anec", "I asked the SEO guy when I'd hit page one. He said soon, the same way a contractor says it. I'm still waiting on both."),
+ ("anec", "I asked the SEO guy when I'd hit page one and he said \"soon\", the same way a contractor says it. I'm still waiting on both."),
 ]
 LINES = [{"id": f"{i+1:02d}", "cat": c, "text": t, "avatar": LOOKA if i % 2 == 0 else LOOKB}
          for i, (c, t) in enumerate(_RAW)]
 BY_ID = {l["id"]: l for l in LINES}
 # Cut during review — excluded from re-render + the gallery.
-DELETED = {"01", "03", "04", "10", "14", "17", "22", "23", "27", "30", "35", "36", "37", "38", "43", "47", "48", "49"}
+DELETED = {"01", "03", "04", "10", "14", "17", "22", "23", "19", "27", "30", "35", "36", "37", "38", "43", "47", "48", "49"}
 # pilot across categories: short trade, medium trade, competitor, privacy, long anecdote
 PILOT = ["10", "11", "30", "35", "45"]
