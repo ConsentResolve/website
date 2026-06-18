@@ -155,9 +155,7 @@ h2.sec{margin:34px 0 4px;font-size:14px;letter-spacing:.12em;text-transform:uppe
 .angle{margin:18px 0}
 .ah{font-size:15px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;margin-bottom:12px}
 .ah span{color:#64748b;font-weight:500;text-transform:none}
-.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.ogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-@media(max-width:760px){.trio{grid-template-columns:1fr}}
+.trio,.ogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
 .cell{background:#0e1d33;border:1px solid #1e293b;border-radius:14px;padding:12px}
 .ar{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#00e5a0;margin-bottom:8px}
 .v{width:100%;aspect-ratio:9/16;border-radius:10px;background:#000;display:block}
@@ -195,9 +193,9 @@ HTML = f"""<!doctype html><html lang="en"><head>
   <h2 class="sec">Leak experiments — 2 hook mechanisms</h2>{leak_row}
   <h2 class="sec">Non-UGC (brand-animated) — 4 angles × 3 ({len(NONUGC)*3})</h2>{non_rows}
   <h2 class="sec">Leah — office-manager set ({len(LEAH)})</h2>{leah_row}
-  <h2 class="sec">🎵 Brand music library — {len(MUSIC_INST)+len(MUSIC_VOC)} tracks</h2>{music_row}
   <h2 class="sec">🧪 Experimental reels — round one ({len(EXP_KEEP)}) · asset-driven, casual-excited</h2>{exp_row}
   <h2 class="sec">📼 Originals — Jun 11–13 era ({orig_count}) · review &amp; prune</h2>{orig_html}
+  <h2 class="sec">🎵 Brand music library — {len(MUSIC_INST)+len(MUSIC_VOC)} tracks</h2>{music_row}
 </div>
 <script>
 const rev=document.getElementById('rev');
