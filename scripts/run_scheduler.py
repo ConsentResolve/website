@@ -21,6 +21,12 @@ R2 = json.loads(Path("/tmp/r2.json").read_text()) if Path("/tmp/r2.json").exists
 R2_PUBLIC = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev"
 PUB = R2.get("public_base", "") or R2_PUBLIC
 
+# R2 sits behind Cloudflare, which 403s the default python-urllib user-agent. Install a
+# browser UA on the global opener so urlretrieve (FB/YT byte downloads) isn't blocked.
+_op = urllib.request.build_opener()
+_op.addheaders = [("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36")]
+urllib.request.install_opener(_op)
+
 def log(*a): print("[scheduler]", *a, flush=True)
 
 def video_for(angle, kind):
@@ -85,7 +91,10 @@ def main():
             if need_bytes:
                 lb_path = f"/tmp/sched-{it.get('name','item')}.mp4"
                 if not dry:
-                    urllib.request.urlretrieve(url, lb_path)
+                    try:
+                        urllib.request.urlretrieve(url, lb_path)
+                    except Exception as e:
+                        log(f"  download failed for {it.get('name')}: {e} — skipping byte platforms"); lb_path = None
         elif it.get("name"):                                 # locked sprint reel (legacy name→path)
             url, lb_path = media_by_name(it["name"], dry) if need_bytes else (f"{PUB}/social/sprint/{it['name']}.mp4", None)
         else:                                                # legacy angle/kind reel
@@ -94,6 +103,8 @@ def main():
             url, _ = ensure_r2(angle, kind, dry)
             lb_path = local_bytes(angle, kind, url, dry) if need_bytes else None
         for p in plats:
+            if p in ("fb", "yt", "li") and not lb_path:
+                log(f"  skip {p} for {it.get('name', angle)}: no local bytes"); continue
             if p == "ig":
                 run([PY, str(ROOT/"scripts/post_instagram.py"), url, it["caption"], "REELS"], dry)
             elif p == "fb":
