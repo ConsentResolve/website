@@ -27,11 +27,13 @@ def add(date, typ, label, caption, plats, img="", link=""):
     events.setdefault(date, []).append({"type": typ, "label": label, "caption": caption,
         "plats": [p for p in plats if p in PLAT], "img": img, "link": link})
 
-# 1) Reels / Stories — every platform the reel targets
+# 1) Reels (all their platforms) + an IG Story reshare event where flagged
 for date, items in sched.items():
     for it in items:
-        typ = "Story" if it.get("story") else "Reel"
-        add(date, typ, it.get("name", "reel"), it.get("caption", ""), list(it.get("platforms") or []))
+        plats = list(it.get("platforms") or [])
+        add(date, "Reel", it.get("name", "reel"), it.get("caption", ""), plats)
+        if it.get("story"):
+            add(date, "Story", it.get("name", "reel") + " (IG reshare)", it.get("caption", ""), ["ig"])
 # 2) Brand cards → Facebook
 for date, it in cards.items():
     fmt = it.get("format", "photo"); typ = {"photo": "Post", "carousel": "Carousel", "story": "Story"}.get(fmt, "Post")

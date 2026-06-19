@@ -116,7 +116,7 @@ for d in range(DAYS):
             "url": e.get("url") or f"{PUB}/social/sprint/{e['name']}.mp4",
             "kind": kind(e),
             "platforms": plats,
-            "story": (slot % 3 == 1),
+            "story": (j == 0),   # first reel each posting day reshares to IG Stories (daily warm-up)
             "caption": caption(e, slot),
             "yt_title": yt_title(e),
         })

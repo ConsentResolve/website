@@ -291,4 +291,56 @@ cslide("rigC-7", cta_slide("Own your traffic instead.", "consentresolve.com/demo
 story("story-race", st_race)
 story("story-ftc", st_ftc)
 
+# ── Story expansion (daily warm-up): SHOP TALK jokes + more hooks + prompts ──
+import sys as _sys; _sys.path.insert(0, str(ROOT / "scripts"))
+from shop_talk_lines import LINES as _ST, DELETED as _STD
+_jokes = sorted((l["text"] for l in _ST if l["id"] not in _STD), key=len)[:8]
+
+def st_joke(joke):
+    def r(d, cx, W, H):
+        pill(d, cx, 300, "SHOP TALK", disp(54), INKMINT, MINT, padx=40, pady=20)
+        ctext(d, cx, 410, "with AA-Ron", sans(42), MINT3)
+        lines = wrap(joke, disp(76), 900); y = 820 - max(0, len(lines) - 2) * 50
+        for ln in lines:
+            ctext(d, cx, y, ln, disp(76), WHITE); y += 96
+        ctext(d, cx, 1660, "@consentresolve", sans(40), SLATE)
+    return r
+for _i, _jk in enumerate(_jokes, 1):
+    story(f"story-joke-{_i}", st_joke(_jk))
+
+def st_consent(d, cx, W, H):
+    eyebrow(d, cx, 620, "HOW IT WORKS")
+    ctext(d, cx, 700, "Consent-", disp(150), WHITE); ctext(d, cx, 860, "first.", disp(150), MINT)
+    for i, ln in enumerate(wrap("Nothing happens until the visitor says yes. Then they're yours.", sans(54), 820)):
+        ctext(d, cx, 1120 + i * 70, ln, sans(54), SLATE)
+    pill(d, cx, 1500, "consentresolve.com/demo", sans(44), INKMINT, MINT, padx=44, pady=24)
+story("story-consent", st_consent)
+
+def st_own(d, cx, W, H):
+    ctext(d, cx, 700, "Your traffic.", disp(120), WHITE); ctext(d, cx, 850, "Your leads.", disp(120), MINT)
+    for i, ln in enumerate(wrap("Exclusive, $7, never resold — from the visitors you already paid for.", sans(52), 840)):
+        ctext(d, cx, 1090 + i * 68, ln, sans(52), SLATE)
+    pill(d, cx, 1480, "Own your traffic →", sans(46), INKMINT, MINT, padx=44, pady=24)
+story("story-own", st_own)
+
+def st_ghost(d, cx, W, H):
+    eyebrow(d, cx, 640, "PURCHASED LEADS")
+    ctext(d, cx, 720, "30 leads.", disp(140), WHITE); ctext(d, cx, 880, "30 ghosts.", disp(140), RED)
+    for i, ln in enumerate(wrap("The people already on your site actually want the work.", sans(54), 820)):
+        ctext(d, cx, 1120 + i * 70, ln, sans(54), SLATE)
+    pill(d, cx, 1500, "consentresolve.com/demo", sans(44), INKMINT, MINT, padx=44, pady=24)
+story("story-ghost", st_ghost)
+
+def st_q(eyebrow_t, big_lines, sub):  # engagement prompt — pair with a poll/reply sticker in-app
+    def r(d, cx, W, H):
+        eyebrow(d, cx, 560, eyebrow_t); y = 700
+        for ln in big_lines:
+            ctext(d, cx, y, ln, disp(96), WHITE); y += 116
+        for i, ln in enumerate(wrap(sub, sans(52), 840)):
+            ctext(d, cx, y + 50 + i * 68, ln, sans(52), MINT3)
+    return r
+story("story-q-cpbj", st_q("YOUR NUMBERS", ["What's your real", "cost per", "booked job?"], "Most pros guess low. 👇"))
+story("story-q-visitors", st_q("QUICK ONE", ["How many site", "visitors actually", "call you?"], "Fewer than you'd think. 👀"))
+story("story-q-trade", st_q("SHOP TALK", ["What's your", "trade?"], "Drop it below 👇 — we read every one."))
+
 print("\ndone ->", OUT)

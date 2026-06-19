@@ -7,10 +7,34 @@
     "caption": "You paid for every click. 98 of 100 of them leave without a trace \u2014 here's how you get them back.",
     "link": "https://consentresolve.com/demo"
   },
-  "2026-06-21": {
+  "2026-06-19": {
     "format": "story",
     "images": [
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-leak.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-06-20": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-offer.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-06-21": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-cta.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-06-22": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-race.png"
     ],
     "caption": "",
     "link": ""
@@ -27,6 +51,14 @@
     "caption": "How to get a lead without buying one. Swipe \u2192",
     "link": "https://consentresolve.com/demo"
   },
+  "2026-06-24": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-ftc.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
   "2026-06-25": {
     "format": "photo",
     "images": [
@@ -35,10 +67,34 @@
     "caption": "A shared lead is sold to you and four competitors. That's a footrace, not a lead.",
     "link": "https://consentresolve.com/demo"
   },
+  "2026-06-26": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-consent.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-06-27": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-own.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
   "2026-06-28": {
     "format": "story",
     "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-offer.png"
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-ghost.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-06-29": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-1.png"
     ],
     "caption": "",
     "link": ""
@@ -54,6 +110,14 @@
     "caption": "Shared leads vs your own traffic \u2014 the real math. Swipe \u2192",
     "link": "https://consentresolve.com/lead-math"
   },
+  "2026-07-01": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-2.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
   "2026-07-02": {
     "format": "photo",
     "images": [
@@ -62,10 +126,34 @@
     "caption": "$575 to land a job on shared leads, or about $140 on your own traffic. Same booked job.",
     "link": "https://consentresolve.com/lead-math"
   },
+  "2026-07-03": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-3.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-07-04": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-4.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
   "2026-07-05": {
     "format": "story",
     "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-cta.png"
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-5.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-07-06": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-6.png"
     ],
     "caption": "",
     "link": ""
@@ -78,6 +166,14 @@
     "caption": "With the lead sites you pay them \u2014 and you're still the product. Own your traffic instead.",
     "link": "https://consentresolve.com/demo"
   },
+  "2026-07-08": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-7.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
   "2026-07-09": {
     "format": "photo",
     "images": [
@@ -86,10 +182,34 @@
     "caption": "$7 a lead. Exclusive, never resold \u2014 recovered from the traffic you already have.",
     "link": "https://consentresolve.com/demo"
   },
+  "2026-07-10": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-8.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-07-11": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-q-cpbj.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
   "2026-07-12": {
     "format": "story",
     "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-race.png"
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-q-visitors.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-07-13": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-q-trade.png"
     ],
     "caption": "",
     "link": ""
@@ -101,6 +221,14 @@
     ],
     "caption": "You didn't get worse at marketing. The lead-site game is built to work against you.",
     "link": "https://consentresolve.com/demo"
+  },
+  "2026-07-15": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-leak.png"
+    ],
+    "caption": "",
+    "link": ""
   },
   "2026-07-16": {
     "format": "carousel",
@@ -116,7 +244,31 @@
     "caption": "5 signs your lead source is rigged. Swipe \u2192",
     "link": "https://consentresolve.com/demo"
   },
+  "2026-07-17": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-offer.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-07-18": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-cta.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
   "2026-07-19": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-race.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-07-20": {
     "format": "story",
     "images": [
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-ftc.png"
@@ -132,6 +284,14 @@
     "caption": "30 leads, 30 ghosts \u2014 paid for every one. The people already on your site actually want the work.",
     "link": "https://consentresolve.com/demo"
   },
+  "2026-07-22": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-consent.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
   "2026-07-23": {
     "format": "photo",
     "images": [
@@ -140,10 +300,34 @@
     "caption": "A robot charged me $400 because my own customer called me back. Your own traffic doesn't bill you by algorithm.",
     "link": "https://consentresolve.com/demo"
   },
+  "2026-07-24": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-own.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-07-25": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-ghost.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
   "2026-07-26": {
     "format": "story",
     "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-leak.png"
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-1.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-07-27": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-2.png"
     ],
     "caption": "",
     "link": ""
@@ -156,6 +340,14 @@
     "caption": "The biggest lead site was fined $7.2M for lying about lead quality. Suddenly the garbage leads made sense.",
     "link": "https://consentresolve.com/demo"
   },
+  "2026-07-29": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-3.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
   "2026-07-30": {
     "format": "photo",
     "images": [
@@ -163,5 +355,21 @@
     ],
     "caption": "Stop renting leads from the people getting rich off your invoices.",
     "link": "https://consentresolve.com/demo"
+  },
+  "2026-07-31": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-4.png"
+    ],
+    "caption": "",
+    "link": ""
+  },
+  "2026-08-01": {
+    "format": "story",
+    "images": [
+      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-5.png"
+    ],
+    "caption": "",
+    "link": ""
   }
 }

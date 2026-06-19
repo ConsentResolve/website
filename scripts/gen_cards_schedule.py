@@ -47,16 +47,20 @@ FEED = [
     {"format": "photo", "images": ["card-credit"], "link": "https://consentresolve.com/demo",
      "caption": "They don't refund the fake leads — they give you credit to buy more fake leads."},
 ]
-STORIES = ["story-leak", "story-offer", "story-cta", "story-race", "story-ftc"]
+# Full Story pool (warm-up): hooks + SHOP TALK jokes + engagement prompts (19 cards on R2).
+STORIES = (["story-leak", "story-offer", "story-cta", "story-race", "story-ftc",
+            "story-consent", "story-own", "story-ghost"]
+           + [f"story-joke-{i}" for i in range(1, 9)]
+           + ["story-q-cpbj", "story-q-visitors", "story-q-trade"])
 
 sched, fi, si = {}, 0, 0
 for i in range(DAYS):
     d = START + datetime.timedelta(days=i); wd = d.weekday()
-    if wd in (1, 3):  # Tue / Thu — feed cards
+    if wd in (1, 3):  # Tue / Thu — feed cards (FB feed stays ~2x/wk to avoid suppression)
         it = FEED[fi % len(FEED)]; fi += 1
         sched[d.isoformat()] = {"format": it["format"], "images": [url(n) for n in it["images"]],
                                 "caption": it["caption"], "link": it["link"]}
-    elif wd == 6:  # Sun — story reshare
+    else:  # every other day — a rotating Story (near-daily FB Stories for warm-up)
         s = STORIES[si % len(STORIES)]; si += 1
         sched[d.isoformat()] = {"format": "story", "images": [url(s)], "caption": "", "link": ""}
 
