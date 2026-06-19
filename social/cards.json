@@ -7,14 +7,36 @@
     "caption": "You paid for every click. 98 of 100 of them leave without a trace \u2014 here's how you get them back.",
     "link": "https://consentresolve.com/demo"
   },
-  "2026-06-19": {
-    "format": "story",
-    "images": [
-      "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-leak.png"
-    ],
-    "caption": "",
-    "link": ""
-  },
+  "2026-06-19": [
+    {
+      "format": "photo",
+      "images": [
+        "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-leak.png"
+      ],
+      "link": "https://consentresolve.com/demo",
+      "caption": "About 98 of 100 people who hit your website leave without raising a hand \u2014 and you paid for every click. We hand them back, consent-first, $7, exclusive. See it on your own site \u2192 link below."
+    },
+    {
+      "format": "carousel",
+      "images": [
+        "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-1.png",
+        "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-2.png",
+        "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-3.png",
+        "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-4.png",
+        "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-5.png"
+      ],
+      "link": "https://consentresolve.com/demo",
+      "caption": "How to get a lead without buying one \ud83d\udc49 swipe. Consent-first, exclusive, $7, never resold."
+    },
+    {
+      "format": "story",
+      "images": [
+        "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/story-joke-1.png"
+      ],
+      "caption": "",
+      "link": ""
+    }
+  ],
   "2026-06-20": {
     "format": "story",
     "images": [

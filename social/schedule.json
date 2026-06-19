@@ -17,6 +17,20 @@
   ],
   "2026-06-19": [
     {
+      "name": "shoptalk-02",
+      "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/shoptalk/shoptalk-02.mp4",
+      "kind": "ugc",
+      "platforms": [
+        "tk",
+        "yt",
+        "ig",
+        "fb"
+      ],
+      "story": true,
+      "caption": "A gutter is a river with low self-esteem. And a job it settled for.\n\nTag a contractor who needs to hear this 👇\n\n#contractorhumor #tradeslife #contractorlife #bluecollar #homeservicebusiness",
+      "yt_title": "A gutter is a river with low self-esteem #Shorts"
+    },
+    {
       "name": "invoice-new",
       "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/invoice-new.mp4",
       "kind": "ugc",
@@ -25,9 +39,22 @@
         "yt",
         "ig"
       ],
-      "story": true,
-      "caption": "A shared lead is a footrace you pay to enter. Recover your own website traffic instead — opted-in, exclusive, $7 a lead, never resold.\n\nSee it work on your own site — link in bio.\n\n#contractorlife #homeservicebusiness #leadgeneration #trades #smallbusinessmarketing",
-      "yt_title": "Own your website traffic — $7 exclusive leads #Shorts"
+      "story": false,
+      "caption": "Added up my lead spend, then counted who actually picked up. Wasn't close. ~98 of 100 site visitors vanish — and you paid for them. We hand them back: real, opted-in, $7, exclusive.\n\nSee it work on your own site — link in bio.\n\n#contractorlife #homeservicebusiness #leadgeneration #trades #smallbusinessmarketing",
+      "yt_title": "Where your lead money actually goes #Shorts"
+    },
+    {
+      "name": "leah-roofing",
+      "url": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leah-roofing.mp4",
+      "kind": "ugc",
+      "platforms": [
+        "tk",
+        "yt",
+        "fb"
+      ],
+      "story": false,
+      "caption": "I run the front desk. Almost everyone who hits our site just leaves — no name, no email. Now we recover those visitors as real, opted-in leads. Same traffic, not wasted.\n\nSee it work on your own site — link in bio.\n\n#contractorlife #homeservicebusiness #leadgeneration #trades #smallbusinessmarketing",
+      "yt_title": "The 98% nobody follows up #Shorts"
     }
   ],
   "2026-06-20": [

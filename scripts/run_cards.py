@@ -27,25 +27,27 @@ def main():
     if "--date" in sys.argv:
         date = sys.argv[sys.argv.index("--date") + 1]
     dry = ("--dry-run" in sys.argv) or os.environ.get("CARDS_AUTOPOST") != "true"
-    it = SCHED.get(date)
-    if not it:
+    day = SCHED.get(date)
+    if not day:
         print(f"[cards] {date}: nothing scheduled."); return
-    fmt = it["format"]; imgs = it["images"]; cap = it.get("caption", ""); link = it.get("link", "")
-    print(f"[cards] {date}: {fmt} ({len(imgs)} img){' DRY' if dry else ' LIVE'}")
+    items = day if isinstance(day, list) else [day]   # a day may hold one card or several
     base = [PY, str(ROOT / "scripts/post_fb_card.py")]
-    if fmt == "photo":
-        cmd = base + ["photo", imgs[0], cap]
-    elif fmt == "carousel":
-        cmd = base + ["carousel", cap] + imgs
-    elif fmt == "story":
-        cmd = base + ["story", imgs[0]]
-    else:
-        print(f"  unknown format {fmt}"); return
-    if link and fmt != "story":
-        cmd += ["--link", link]
-    if dry:
-        cmd += ["--dry-run"]
-    subprocess.run(cmd, check=False)
+    for it in items:
+        fmt = it["format"]; imgs = it["images"]; cap = it.get("caption", ""); link = it.get("link", "")
+        print(f"[cards] {date}: {fmt} ({len(imgs)} img){' DRY' if dry else ' LIVE'}")
+        if fmt == "photo":
+            cmd = base + ["photo", imgs[0], cap]
+        elif fmt == "carousel":
+            cmd = base + ["carousel", cap] + imgs
+        elif fmt == "story":
+            cmd = base + ["story", imgs[0]]
+        else:
+            print(f"  unknown format {fmt}"); continue
+        if link and fmt != "story":
+            cmd += ["--link", link]
+        if dry:
+            cmd += ["--dry-run"]
+        subprocess.run(cmd, check=False)
 
 if __name__ == "__main__":
     main()
