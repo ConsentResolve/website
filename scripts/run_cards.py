@@ -27,10 +27,15 @@ def main():
     if "--date" in sys.argv:
         date = sys.argv[sys.argv.index("--date") + 1]
     dry = ("--dry-run" in sys.argv) or os.environ.get("CARDS_AUTOPOST") != "true"
+    slot = sys.argv[sys.argv.index("--slot") + 1] if "--slot" in sys.argv else "all"
     day = SCHED.get(date)
     if not day:
         print(f"[cards] {date}: nothing scheduled."); return
     items = day if isinstance(day, list) else [day]   # a day may hold one card or several
+    if slot != "all":  # staggered cron: only this time-of-day's cards
+        items = [it for it in items if it.get("slot", "mid") == slot]
+    if not items:
+        print(f"[cards] {date}: nothing for slot '{slot}'."); return
     base = [PY, str(ROOT / "scripts/post_fb_card.py")]
     for it in items:
         fmt = it["format"]; imgs = it["images"]; cap = it.get("caption", ""); link = it.get("link", "")

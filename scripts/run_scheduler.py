@@ -69,9 +69,12 @@ def main():
     date = datetime.date.today().isoformat()
     if "--date" in sys.argv:
         date = sys.argv[sys.argv.index("--date") + 1]
+    slot = sys.argv[sys.argv.index("--slot") + 1] if "--slot" in sys.argv else "all"
     items = SCHED.get(date, [])
+    if slot != "all":  # staggered cron: only this time-of-day's items (am/mid/pm)
+        items = [it for it in items if it.get("slot", "mid") == slot]
     if not items:
-        log(f"{date}: nothing scheduled."); return
+        log(f"{date}: nothing scheduled" + (f" for slot '{slot}'." if slot != "all" else ".")); return
     PY = "/usr/bin/python3" if Path("/usr/bin/python3").exists() else "python3"
     for it in items:
         angle = it.get("angle", it.get("name", "?")); kind = it.get("kind", "ugc"); plats = it["platforms"]

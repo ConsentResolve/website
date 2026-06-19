@@ -121,6 +121,10 @@ for d in range(DAYS):
             "yt_title": yt_title(e),
         })
         idx += 1; slot += 1
+    # stagger the day's reels across time-of-day slots (am/mid/pm) for the 3-cron runner
+    tod = {1: ["mid"], 2: ["am", "pm"], 3: ["am", "mid", "pm"]}.get(len(day_items), ["am", "mid", "pm"])
+    for k, itm in enumerate(day_items):
+        itm["slot"] = tod[k % len(tod)]
     sched[date] = day_items
 
 (ROOT / "social/schedule.json").write_text(json.dumps(sched, indent=2, ensure_ascii=False))

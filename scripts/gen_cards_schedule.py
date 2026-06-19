@@ -58,11 +58,11 @@ for i in range(DAYS):
     d = START + datetime.timedelta(days=i); wd = d.weekday()
     if wd in (1, 3):  # Tue / Thu — feed cards (FB feed stays ~2x/wk to avoid suppression)
         it = FEED[fi % len(FEED)]; fi += 1
-        sched[d.isoformat()] = {"format": it["format"], "images": [url(n) for n in it["images"]],
+        sched[d.isoformat()] = {"format": it["format"], "slot": "mid", "images": [url(n) for n in it["images"]],
                                 "caption": it["caption"], "link": it["link"]}
     else:  # every other day — a rotating Story (near-daily FB Stories for warm-up)
         s = STORIES[si % len(STORIES)]; si += 1
-        sched[d.isoformat()] = {"format": "story", "images": [url(s)], "caption": "", "link": ""}
+        sched[d.isoformat()] = {"format": "story", "slot": "pm", "images": [url(s)], "caption": "", "link": ""}
 
 out = ROOT / "social/cards.json"; out.parent.mkdir(exist_ok=True)
 out.write_text(json.dumps(sched, indent=2))

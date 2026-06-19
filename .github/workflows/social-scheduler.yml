@@ -5,9 +5,11 @@ name: social-scheduler
 # which read creds from /tmp — we materialize those from repo secrets below.
 
 on:
-  schedule:
-    - cron: "0 16 * * *"      # daily 16:00 UTC (~11am ET) — GH cron may delay a few min
-  workflow_dispatch:           # manual "Run workflow" button for testing
+  schedule:                     # staggered across the day (UTC) — slot derived from the hour
+    - cron: "0 12 * * *"        # ~early-AM ET   → slot "am"
+    - cron: "0 17 * * *"        # ~lunch ET      → slot "mid"
+    - cron: "0 22 * * *"        # ~evening ET    → slot "pm"
+  workflow_dispatch:           # manual "Run workflow" button (posts ALL slots for the day)
     inputs:
       date:
         description: "Override date (YYYY-MM-DD), blank = today"
@@ -33,12 +35,23 @@ jobs:
           printf '%s' '${{ secrets.LI_PERSONAL_JSON }}' > /tmp/li_personal.json
           printf '%s' '${{ secrets.BUFFER_TOKEN }}'     > /tmp/buffer_token.txt
 
+      - name: Derive time-of-day slot from the run hour
+        id: slot
+        run: |
+          H=$(date -u +%H)
+          if   [ "$H" -ge 11 ] && [ "$H" -le 13 ]; then SLOT=am
+          elif [ "$H" -ge 16 ] && [ "$H" -le 18 ]; then SLOT=mid
+          elif [ "$H" -ge 21 ];                     then SLOT=pm
+          else SLOT=all; fi   # manual dispatch off-hours → post the whole day
+          echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
+          echo "Resolved slot: $SLOT (hour ${H} UTC)"
+
       - name: Run scheduler
         env:
           BUFFER_TIKTOK_CHANNEL: ${{ secrets.BUFFER_TIKTOK_CHANNEL }}
         run: |
-          ARGS=""
-          [ -n "${{ github.event.inputs.date }}" ] && ARGS="--date ${{ github.event.inputs.date }}"
+          ARGS="--slot ${{ steps.slot.outputs.slot }}"
+          [ -n "${{ github.event.inputs.date }}" ] && ARGS="$ARGS --date ${{ github.event.inputs.date }}"
           [ "${{ github.event.inputs.dry_run }}" = "true" ] && ARGS="$ARGS --dry-run"
           python3 scripts/run_scheduler.py $ARGS
 
@@ -46,8 +59,8 @@ jobs:
         env:
           CARDS_AUTOPOST: ${{ vars.CARDS_AUTOPOST }}   # set repo variable to "true" to post live; otherwise dry-run
         run: |
-          ARGS=""
-          [ -n "${{ github.event.inputs.date }}" ] && ARGS="--date ${{ github.event.inputs.date }}"
+          ARGS="--slot ${{ steps.slot.outputs.slot }}"
+          [ -n "${{ github.event.inputs.date }}" ] && ARGS="$ARGS --date ${{ github.event.inputs.date }}"
           [ "${{ github.event.inputs.dry_run }}" = "true" ] && ARGS="$ARGS --dry-run"
           python3 scripts/run_cards.py $ARGS
 
