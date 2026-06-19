@@ -26,6 +26,8 @@ PUB = R2.get("public_base", "") or R2_PUBLIC
 _op = urllib.request.build_opener()
 _op.addheaders = [("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36")]
 urllib.request.install_opener(_op)
+import post_log
+NOW = datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z"
 
 def log(*a): print("[scheduler]", *a, flush=True)
 
@@ -65,10 +67,17 @@ def media_by_name(name, dry):
     return url, tmp
 
 def run(cmd, dry):
+    """Run a poster; return (ok, stdout) so the caller can log the result + post id/url."""
     log("RUN" if not dry else "DRY", " ".join(str(c)[:80] for c in cmd[:4]), "...")
     if dry:
-        return
-    subprocess.run(cmd, check=False)
+        return None, ""
+    p = subprocess.run(cmd, check=False, capture_output=True, text=True)
+    out = (p.stdout or "")
+    if out: print(out[-500:], flush=True)
+    if p.returncode and p.stderr: print(p.stderr[-300:], flush=True)
+    import re as _re
+    ok = p.returncode == 0 and not _re.search(r'(PUBLISH|UPLOAD|upload|buffer HTTP) err|"_err"', out)
+    return ok, out
 
 def main():
     dry = "--dry-run" in sys.argv
@@ -82,6 +91,7 @@ def main():
     if not items:
         log(f"{date}: nothing scheduled" + (f" for slot '{slot}'." if slot != "all" else ".")); return
     PY = "/usr/bin/python3" if Path("/usr/bin/python3").exists() else "python3"
+    results = []
     for it in items:
         angle = it.get("angle", it.get("name", "?")); kind = it.get("kind", "ugc"); plats = it["platforms"]
         log(f"{date}: {angle} [{kind}] -> {plats} story={it.get('story')}")
@@ -105,21 +115,31 @@ def main():
         for p in plats:
             if p in ("fb", "yt", "li") and not lb_path:
                 log(f"  skip {p} for {it.get('name', angle)}: no local bytes"); continue
+            ok = out = None
             if p == "ig":
-                run([PY, str(ROOT/"scripts/post_instagram.py"), url, it["caption"], "REELS"], dry)
+                ok, out = run([PY, str(ROOT/"scripts/post_instagram.py"), url, it["caption"], "REELS"], dry)
             elif p == "fb":
-                run([PY, str(ROOT/"scripts/post_video.py"), lb_path, it["caption"]], dry)
+                ok, out = run([PY, str(ROOT/"scripts/post_video.py"), lb_path, it["caption"]], dry)
             elif p == "yt":
-                run([PY, str(ROOT/"scripts/post_youtube.py"), lb_path, it["yt_title"], it["caption"], "public"], dry)
+                ok, out = run([PY, str(ROOT/"scripts/post_youtube.py"), lb_path, it["yt_title"], it["caption"], "public"], dry)
             elif p == "li":  # LinkedIn personal native video
-                run([PY, str(ROOT/"scripts/post_linkedin.py"), lb_path, it["caption"], "personal"], dry)
+                ok, out = run([PY, str(ROOT/"scripts/post_linkedin.py"), lb_path, it["caption"], "personal"], dry)
             elif p == "tk":  # TikTok via Buffer (media by public R2 URL, no browser)
                 ch = os.environ.get("BUFFER_TIKTOK_CHANNEL", "6a2d5c7238b55793458ff01d")
                 ai = "ai" if kind == "ugc" else "noai"
-                run([PY, str(ROOT/"scripts/post_buffer.py"), ch, url, it["caption"], "shareNow", ai], dry)
+                ok, out = run([PY, str(ROOT/"scripts/post_buffer.py"), ch, url, it["caption"], "shareNow", ai], dry)
+            if not dry and ok is not None:
+                pid, purl = post_log.parse(p, out or "")
+                results.append({"ts": NOW, "date": date, "slot": it.get("slot", slot), "name": it.get("name", angle),
+                                "platform": p, "ptype": "reel", "status": "ok" if ok else "fail", "pid": pid, "url": purl})
         if it.get("story"):
-            run([PY, str(ROOT/"scripts/post_instagram.py"), url, "", "STORIES"], dry)
-    log("done.")
+            ok, out = run([PY, str(ROOT/"scripts/post_instagram.py"), url, "", "STORIES"], dry)
+            if not dry and ok is not None:
+                results.append({"ts": NOW, "date": date, "slot": it.get("slot", slot), "name": it.get("name", angle),
+                                "platform": "ig", "ptype": "story", "status": "ok" if ok else "fail", "pid": "", "url": ""})
+    if not dry:
+        post_log.append(results)
+    log(f"done. ({len(results)} result(s) logged)")
 
 if __name__ == "__main__":
     main()

@@ -71,6 +71,10 @@ jobs:
           [ "${{ github.event.inputs.dry_run }}" = "true" ] && ARGS="$ARGS --dry-run"
           python3 scripts/run_cards.py $ARGS
 
+      - name: Refresh engagement metrics (best-effort)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: python3 scripts/fetch_metrics.py || true
+
       - name: Clean up credentials
         if: always()
         run: rm -f /tmp/fb_page_id.txt /tmp/fb_page_token.txt /tmp/cr_ig_id.txt /tmp/yt_token.json /tmp/r2.json /tmp/li_personal.json /tmp/buffer_token.txt

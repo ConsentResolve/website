@@ -37,6 +37,9 @@ def main():
     if not items:
         print(f"[cards] {date}: nothing for slot '{slot}'."); return
     base = [PY, str(ROOT / "scripts/post_fb_card.py")]
+    import post_log
+    NOW = datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z"
+    results = []
     for it in items:
         fmt = it["format"]; imgs = it["images"]; cap = it.get("caption", ""); link = it.get("link", "")
         print(f"[cards] {date}: {fmt} ({len(imgs)} img){' DRY' if dry else ' LIVE'}")
@@ -52,7 +55,19 @@ def main():
             cmd += ["--link", link]
         if dry:
             cmd += ["--dry-run"]
-        subprocess.run(cmd, check=False)
+        p = subprocess.run(cmd, check=False, capture_output=True, text=True)
+        out = (p.stdout or "")
+        if out: print(out[-400:])
+        if not dry:
+            import re
+            ok = p.returncode == 0 and not re.search(r'(upload err|"_err")', out)
+            pid, purl = post_log.parse("card", out)
+            name = (it.get("images") or [""])[0].split("/")[-1].replace(".png", "")
+            results.append({"ts": NOW, "date": date, "slot": it.get("slot", slot), "name": name,
+                            "platform": "fb", "ptype": fmt, "status": "ok" if ok else "fail", "pid": pid, "url": purl})
+    if not dry:
+        post_log.append(results)
+    print(f"[cards] done. ({len(results)} result(s) logged)")
 
 if __name__ == "__main__":
     main()
