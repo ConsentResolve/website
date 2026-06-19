@@ -18,6 +18,10 @@ on:
         description: "true = plan only, post nothing"
         required: false
         default: "false"
+      slot:
+        description: "am | mid | pm | all (manual runs default to all = whole day)"
+        required: false
+        default: "all"
 
 jobs:
   post:
@@ -38,13 +42,16 @@ jobs:
       - name: Derive time-of-day slot from the run hour
         id: slot
         run: |
-          H=$(date -u +%H)
-          if   [ "$H" -ge 11 ] && [ "$H" -le 13 ]; then SLOT=am
-          elif [ "$H" -ge 16 ] && [ "$H" -le 18 ]; then SLOT=mid
-          elif [ "$H" -ge 21 ];                     then SLOT=pm
-          else SLOT=all; fi   # manual dispatch off-hours → post the whole day
+          SLOT="${{ github.event.inputs.slot }}"   # manual override (defaults to "all")
+          if [ -z "$SLOT" ]; then                   # scheduled run → derive from the hour
+            H=$(date -u +%H)
+            if   [ "$H" -ge 11 ] && [ "$H" -le 13 ]; then SLOT=am
+            elif [ "$H" -ge 16 ] && [ "$H" -le 18 ]; then SLOT=mid
+            elif [ "$H" -ge 21 ];                     then SLOT=pm
+            else SLOT=all; fi
+          fi
           echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
-          echo "Resolved slot: $SLOT (hour ${H} UTC)"
+          echo "Resolved slot: $SLOT"
 
       - name: Run scheduler
         env:
