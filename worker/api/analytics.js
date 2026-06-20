@@ -28,6 +28,14 @@ export async function onRequestGet({ request, env }) {
     demos_by_source: await all("SELECT COALESCE(NULLIF(json_extract(metadata,'$.src'),''),'(direct)') k, COUNT(*) c FROM events WHERE event_type='registered' GROUP BY k ORDER BY c DESC"),
     by_day: await all("SELECT substr(created_at,1,10) k, COUNT(*) c FROM participants GROUP BY k ORDER BY k DESC LIMIT 30"),
     metrics: await r2json("social/metrics.json"),
-    delivery: await r2json("social/post-log.json"),
+    // Delivery = runner reels (R2 post-log) + worker-queue posts (X / GBP live in D1,
+    // not the post-log) so the dashboard shows every platform that actually posts.
+    delivery: [
+      ...(await r2json("social/post-log.json")),
+      ...(await all(
+        "SELECT platform, resource_slug name, post_url, published_at ts FROM social_queue WHERE status='published' AND platform IN ('x','google_business_profile') ORDER BY published_at DESC LIMIT 60"
+      )).map((r) => ({ platform: r.platform === "google_business_profile" ? "gbp" : r.platform,
+        name: r.name, status: "ok", ts: r.ts, note: r.post_url || "" })),
+    ],
   });
 }

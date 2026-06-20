@@ -126,13 +126,24 @@ def yt_backfill():
     except Exception as e: print("yt backfill:", e)
     return rows
 
+def x_backfill():
+    """X tweet impressions/likes via our own worker endpoint (it holds the X token in
+    D1 and reads public_metrics off the tweets we posted). Keeps token use server-side
+    on the 6h cadence rather than on every dashboard load."""
+    key = os.environ.get("ANALYTICS_KEY") or "fixme"
+    try:
+        d = get(f"https://consentresolve.com/api/x-metrics?key={urllib.parse.quote(key)}")
+        return d.get("rows") or []
+    except Exception as e:
+        print("x backfill:", e); return []
+
 def main():
-    rows = fb_backfill() + ig_backfill() + yt_backfill() + tk_backfill()
+    rows = fb_backfill() + ig_backfill() + yt_backfill() + tk_backfill() + x_backfill()
     rows = [r for r in rows if (r.get("views") or 0) > 0 or r.get("likes")]
     tmp = "/tmp/metrics.json"; Path(tmp).write_text(json.dumps(rows))
     subprocess.run(["/usr/bin/python3", str(ROOT / "scripts/r2_upload.py"), tmp, "social/metrics.json", "application/json"], check=False)
     tv = sum(r.get("views") or 0 for r in rows)
-    print(f"wrote social/metrics.json — {len(rows)} posts, {tv:,} total views (fb/ig/yt/tk direct backfill)")
+    print(f"wrote social/metrics.json — {len(rows)} posts, {tv:,} total views (fb/ig/yt/tk/x direct backfill)")
 
 if __name__ == "__main__":
     main()

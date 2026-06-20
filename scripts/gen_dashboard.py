@@ -53,7 +53,7 @@ fetch(C.analyticsUrl+'&t='+Date.now()).then(r=>r.ok?r.json():null).catch(()=>nul
   const views=m.reduce((s,r)=>s+(+r.views||0),0);
   const clicks=a?a.totals.clicks:0, demos=a?a.totals.demos:0, signups=a?a.totals.signups:0;
   // headline funnel
-  $('#kpis').innerHTML=[['Views',views,'social reels (FB/IG/YT/TikTok)'],['Clicks',clicks,'→ '+pf(clicks,views)+' click-thru'],
+  $('#kpis').innerHTML=[['Views',views,'social (FB/IG/YT/TikTok/X)'],['Clicks',clicks,'→ '+pf(clicks,views)+' click-thru'],
     ['Demos',demos,'→ '+pf(demos,clicks)+' of clicks'],['Signups',signups,'→ '+pf(signups,demos)+' of demos']]
     .map(([l,v,r])=>`<div class="kpi"><div class="n">${n(v)}</div><div class="l">${l}</div><div class="r">${r}</div></div>`).join('');
   if(!a){$('#funnelnote').innerHTML='<div class="empty">Clicks/Demos/Signups load from /api/analytics — showing 0 until the worker deploys + the first visitor lands. Views populate as the metrics fetcher runs.</div>';}
@@ -96,6 +96,7 @@ HTML = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
   <a class="lk" href="https://www.instagram.com/" target="_blank">Instagram</a>
   <a class="lk" href="https://studio.youtube.com/" target="_blank">YouTube Studio</a>
   <a class="lk" href="https://www.tiktok.com/tiktokstudio" target="_blank">TikTok Studio</a>
+  <a class="lk" href="https://analytics.x.com/" target="_blank">X Analytics</a>
   <a class="lk" href="/fb-calendar" target="_blank">Social calendar</a>
 </div>
 <script>{JS.replace('%CFG%', json.dumps(CFG))}</script></body></html>"""
