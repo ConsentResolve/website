@@ -11,6 +11,9 @@ export async function onRequestGet({ request, env }) {
   if (!key || new URL(request.url).searchParams.get("key") !== key) return json({ error: "unauthorized" }, { status: 401 });
   const one = async (sql) => { try { const r = await env.DB.prepare(sql).first(); return r ? Object.values(r)[0] : 0; } catch { return 0; } };
   const all = async (sql) => { try { const { results } = await env.DB.prepare(sql).all(); return results || []; } catch { return []; } };
+  // Fetch R2 JSON server-side (no CORS) so the dashboard needs only this one same-origin call.
+  const R2 = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev";
+  const r2json = async (k) => { try { const r = await fetch(`${R2}/${k}`); return r.ok ? await r.json() : []; } catch { return []; } };
   const demos = await one("SELECT COUNT(*) FROM participants");
   const signups = await one("SELECT COUNT(*) FROM participants WHERE consent_contact=1");
   const clicks = await one("SELECT COUNT(*) FROM traffic WHERE path LIKE '/demo%'");
@@ -24,5 +27,7 @@ export async function onRequestGet({ request, env }) {
     by_source: await all("SELECT COALESCE(NULLIF(utm_source,''),'(direct)') k, COUNT(*) c FROM traffic WHERE path LIKE '/demo%' GROUP BY k ORDER BY c DESC"),
     demos_by_source: await all("SELECT COALESCE(NULLIF(json_extract(metadata,'$.src'),''),'(direct)') k, COUNT(*) c FROM events WHERE event_type='registered' GROUP BY k ORDER BY c DESC"),
     by_day: await all("SELECT substr(created_at,1,10) k, COUNT(*) c FROM participants GROUP BY k ORDER BY k DESC LIMIT 30"),
+    metrics: await r2json("social/metrics.json"),
+    delivery: await r2json("social/post-log.json"),
   });
 }

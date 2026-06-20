@@ -48,12 +48,8 @@ const C=%CFG%, $=s=>document.querySelector(s), n=v=>(v==null?'—':(+v).toLocale
  const day=Math.min(C.days,Math.max(1,Math.floor((now-s)/864e5)+1)),pct=Math.min(100,Math.max(0,Math.round((now-s)/(e-s)*100)));
  $('#prog').textContent='Day '+day+' of '+C.days+' · '+C.reels_scheduled+' reels scheduled';$('#bar').style.width=pct+'%';})();
 const pf=(x,y)=>(y?Math.round(x/y*1000)/10+'%':'—');
-Promise.all([
-  fetch(C.analyticsUrl).then(r=>r.ok?r.json():null).catch(()=>null),
-  fetch(C.metricsUrl+'?t='+Date.now()).then(r=>r.ok?r.json():[]).catch(()=>[]),
-  fetch(C.logUrl+'?t='+Date.now()).then(r=>r.ok?r.json():[]).catch(()=>[]),
-]).then(([a,m,log])=>{
-  m=Array.isArray(m)?m:[]; log=Array.isArray(log)?log:[];
+fetch(C.analyticsUrl+'&t='+Date.now()).then(r=>r.ok?r.json():null).catch(()=>null).then(a=>{
+  const m=Array.isArray(a&&a.metrics)?a.metrics:[], log=Array.isArray(a&&a.delivery)?a.delivery:[];
   const views=m.reduce((s,r)=>s+(+r.views||0),0);
   const clicks=a?a.totals.clicks:0, demos=a?a.totals.demos:0, signups=a?a.totals.signups:0;
   // headline funnel
