@@ -255,8 +255,14 @@ export async function publish(env, platform, payload) {
  *  posting links to removed/renamed pages (a 404 yields a broken FB/LinkedIn
  *  card). Fails closed only on a definite non-2xx; network errors are treated
  *  as "unknown -> allow" so a transient blip doesn't silently halt posting. */
+const SITE_HOST = new URL(SITE).host;
 async function urlOk(url) {
   try {
+    const host = new URL(url).host;
+    // Our own pages ship with this deploy, AND a Worker fetching its own zone loops
+    // back through the edge and 522s — so a same-zone check is both pointless and a
+    // false "dead link". Trust our own URLs; only liveness-check external links.
+    if (host === SITE_HOST || host.endsWith("." + SITE_HOST)) return { ok: true, status: 0 };
     const ctl = new AbortController();
     const to = setTimeout(() => ctl.abort(), 8000);
     const r = await fetch(url, {
@@ -266,6 +272,7 @@ async function urlOk(url) {
       headers: { "User-Agent": "ConsentResolve-LinkCheck/1.0" },
     });
     clearTimeout(to);
+    if (r.status >= 500) return { ok: true, status: r.status }; // origin/edge error -> unknown, don't block
     return { ok: r.ok, status: r.status };
   } catch {
     return { ok: true, status: 0 }; // unknown (timeout/network) -> don't block
