@@ -71,7 +71,10 @@ fetch(C.analyticsUrl+'&t='+Date.now()).then(r=>r.ok?r.json():null).catch(()=>nul
   $('#bytrade').innerHTML=tbl(a&&a.by_trade,'Demos by trade');
   // delivery
   if(log.length){const t={};log.forEach(r=>{const k=r.platform||'?';t[k]=t[k]||{ok:0,n:0};t[k].n++;if(r.status==='ok')t[k].ok++;});
-    $('#deliv').innerHTML='<div class="cards">'+Object.entries(t).map(([k,v])=>`<div class="stat"><div class="n">${v.ok}<span class="muted" style="font-size:13px">/${v.n}</span></div><div class="l">${k.toUpperCase()} delivered</div></div>`).join('')+'</div>';}
+    $('#deliv').innerHTML='<div class="cards">'+Object.entries(t).map(([k,v])=>`<div class="stat"><div class="n">${v.ok}<span class="muted" style="font-size:13px">/${v.n}</span></div><div class="l">${k.toUpperCase()} delivered</div></div>`).join('')+'</div>';
+    const probs=log.filter(r=>r.status!=='ok'||r.note).slice(-20).reverse();
+    $('#issues').innerHTML=probs.length?'<table><tr><th>When</th><th>Platform</th><th>Reel</th><th>Status</th><th>Detail / response</th></tr>'+probs.map(r=>`<tr><td class="muted">${(r.ts||'').replace('T',' ').replace('Z','')}</td><td>${(r.platform||'').toUpperCase()}</td><td>${r.name||''}</td><td><span class="pill ${r.status==='ok'?'ok':'fail'}">${r.status}</span></td><td class="muted">${r.note||''}</td></tr>`).join('')+'</table>':'';
+  }
   else $('#deliv').innerHTML='<div class="empty">No posts delivered yet — fills after the first successful run.</div>';
 });
 """
@@ -87,7 +90,7 @@ HTML = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
   <h2>Attribution — what's driving the funnel</h2>
   <div class="two"><div id="bysource"></div><div id="bysrcd"></div></div>
   <div style="margin-top:14px" id="bytrade"></div>
-  <h2>Delivery</h2><div id="deliv"></div>
+  <h2>Delivery</h2><div id="deliv"></div><div id="issues" style="margin-top:12px"></div>
   <h2>Native analytics</h2>
   <a class="lk" href="https://www.facebook.com/latest/insights" target="_blank">Facebook</a>
   <a class="lk" href="https://www.instagram.com/" target="_blank">Instagram</a>

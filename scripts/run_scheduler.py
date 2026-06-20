@@ -139,8 +139,15 @@ def main():
                 ok, out = run([PY, str(ROOT/"scripts/post_buffer.py"), ch, url, it["caption"], "shareNow", ai], dry)
             if not dry and ok is not None:
                 pid, purl = post_log.parse(p, out or "")
+                note = ""
+                if out:  # surface the platform's response (esp. Buffer/TikTok __typename + message)
+                    try:
+                        import json as _j
+                        bj = _j.loads([l for l in out.strip().splitlines() if l.strip().startswith("{")][-1])
+                        note = (bj.get("__typename", "") + ((": " + bj["message"]) if bj.get("message") else "")).strip(": ")
+                    except Exception: pass
                 results.append({"ts": NOW, "date": date, "slot": it.get("slot", slot), "name": it.get("name", angle),
-                                "platform": p, "ptype": "reel", "status": "ok" if ok else "fail", "pid": pid, "url": purl})
+                                "platform": p, "ptype": "reel", "status": "ok" if ok else "fail", "pid": pid, "url": purl, "note": note})
         if it.get("story"):
             ok, out = run([PY, str(ROOT/"scripts/post_instagram.py"), url, "", "STORIES"], dry)
             if not dry and ok is not None:
