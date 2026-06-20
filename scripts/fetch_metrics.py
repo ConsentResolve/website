@@ -33,13 +33,24 @@ def match(desc):
 
 def fb_backfill():
     if not (FBTOK and PAGE): return []
+    q = urllib.parse.quote(FBTOK); seen = {}
+    for edge in ("video_reels", "videos"):  # Reels live on a separate edge from regular videos
+        try:
+            d = get(f"{GRAPH}/{PAGE}/{edge}?fields=id,description,permalink_url&limit=50&access_token={q}")
+            for v in d.get("data", []):
+                seen.setdefault(v["id"], (v.get("description", ""), v.get("permalink_url", "")))
+        except Exception as e: print(f"fb {edge}:", e)
     rows = []
-    try:
-        d = get(f"{GRAPH}/{PAGE}/videos?fields=id,description,permalink_url,views,likes.summary(true)&limit=60&access_token={urllib.parse.quote(FBTOK)}")
-        for v in d.get("data", []):
-            rows.append({"name": match(v.get("description")), "platform": "fb", "views": v.get("views"),
-                         "likes": (v.get("likes", {}).get("summary", {}) or {}).get("total_count"), "url": v.get("permalink_url", "")})
-    except Exception as e: print("fb backfill:", e)
+    for vid, (desc, url) in seen.items():
+        views = likes = None
+        try:
+            d = get(f"{GRAPH}/{vid}?fields=views,likes.summary(true)&access_token={q}")
+            views = d.get("views"); likes = (d.get("likes", {}).get("summary", {}) or {}).get("total_count")
+            if views is None:  # Reels often need video_insights instead of the views field
+                ins = get(f"{GRAPH}/{vid}/video_insights?metric=total_video_views&access_token={q}")
+                views = (ins.get("data") or [{}])[0].get("values", [{}])[0].get("value")
+        except Exception as e: print(f"fb views {vid}:", e)
+        rows.append({"name": match(desc), "platform": "fb", "views": views, "likes": likes, "url": url})
     return rows
 
 def ig_backfill():
