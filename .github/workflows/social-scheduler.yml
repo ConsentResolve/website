@@ -37,6 +37,7 @@ jobs:
           printf '%s' '${{ secrets.YT_TOKEN_JSON }}'    > /tmp/yt_token.json
           printf '%s' '${{ secrets.R2_JSON }}'          > /tmp/r2.json
           printf '%s' '${{ secrets.LI_PERSONAL_JSON }}' > /tmp/li_personal.json
+          printf '%s' '${{ secrets.LI_COMPANY_JSON }}'  > /tmp/li_company.json
           printf '%s' '${{ secrets.BUFFER_TOKEN }}'     > /tmp/buffer_token.txt
 
       - name: Derive time-of-day slot from the run hour
@@ -77,4 +78,4 @@ jobs:
 
       - name: Clean up credentials
         if: always()
-        run: rm -f /tmp/fb_page_id.txt /tmp/fb_page_token.txt /tmp/cr_ig_id.txt /tmp/yt_token.json /tmp/r2.json /tmp/li_personal.json /tmp/buffer_token.txt
+        run: rm -f /tmp/fb_page_id.txt /tmp/fb_page_token.txt /tmp/cr_ig_id.txt /tmp/yt_token.json /tmp/r2.json /tmp/li_personal.json /tmp/li_company.json /tmp/buffer_token.txt

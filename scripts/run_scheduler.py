@@ -123,8 +123,16 @@ def main():
             elif p == "yt":  # YT description can carry a real link — tag it
                 ytdesc = it["caption"] + "\n\n👉 See it on your own site: https://consentresolve.com/demo?utm_source=youtube&utm_medium=social&utm_campaign=launch_2026"
                 ok, out = run([PY, str(ROOT/"scripts/post_youtube.py"), lb_path, it["yt_title"], ytdesc, "public"], dry)
-            elif p == "li":  # LinkedIn personal native video
-                ok, out = run([PY, str(ROOT/"scripts/post_linkedin.py"), lb_path, it["caption"], "personal"], dry)
+            elif p == "li":  # LinkedIn — post to each configured actor (personal + company)
+                for actor in ("personal", "company"):
+                    cred = Path(f"/tmp/li_{actor}.json")
+                    if not dry and (not cred.exists() or cred.stat().st_size < 20):
+                        continue  # actor not configured (no token/urn) — skip silently
+                    a_ok, a_out = run([PY, str(ROOT/"scripts/post_linkedin.py"), lb_path, it["caption"], actor], dry)
+                    if not dry and a_ok is not None:
+                        results.append({"ts": NOW, "date": date, "slot": it.get("slot", slot), "name": it.get("name", angle),
+                                        "platform": f"li-{actor}", "ptype": "reel", "status": "ok" if a_ok else "fail", "pid": "", "url": ""})
+                ok = None  # recorded per-actor above; skip the generic append below
             elif p == "tk":  # TikTok via Buffer (media by public R2 URL, no browser)
                 ch = os.environ.get("BUFFER_TIKTOK_CHANNEL", "6a2d5c7238b55793458ff01d")
                 ai = "ai" if kind == "ugc" else "noai"
