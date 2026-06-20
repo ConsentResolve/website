@@ -41,4 +41,4 @@ if __name__ == "__main__":
     channel, url, caption = sys.argv[1], sys.argv[2], sys.argv[3]
     when = sys.argv[4] if len(sys.argv) > 4 else "shareNow"
     ai = (sys.argv[5].lower() == "ai") if len(sys.argv) > 5 else True
-    create(channel, url, caption, when, ai)
+    sys.exit(0 if create(channel, url, caption, when, ai) else 1)  # non-zero on any Buffer error so the runner logs a real fail
