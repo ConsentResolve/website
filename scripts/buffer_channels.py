@@ -8,7 +8,7 @@ import os, json, urllib.request, urllib.error
 TOK = os.environ.get("BUFFER_TOKEN") or (open("/tmp/buffer_token.txt").read().strip() if os.path.exists("/tmp/buffer_token.txt") else "")
 if not TOK:
     raise SystemExit("no Buffer token (set BUFFER_TOKEN or /tmp/buffer_token.txt)")
-Q = "query { channels { id name service serviceType locked } }"
+Q = "query { account { channels { id name service } } }"
 req = urllib.request.Request("https://api.buffer.com", data=json.dumps({"query": Q}).encode(),
                              headers={"Authorization": f"Bearer {TOK}", "Content-Type": "application/json"})
 try:
@@ -16,7 +16,7 @@ try:
 except urllib.error.HTTPError as e:
     print("HTTP", e.code, e.read().decode()[:600]); raise SystemExit(1)
 print(json.dumps(r, indent=2))
-chs = (r.get("data") or {}).get("channels") or []
+chs = ((r.get("data") or {}).get("account") or {}).get("channels") or []
 print("\n--- channels ---")
 for c in chs:
     star = "  <-- set BUFFER_TIKTOK_CHANNEL to this" if (c.get("service") or "").lower() == "tiktok" else ""
