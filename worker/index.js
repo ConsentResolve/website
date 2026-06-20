@@ -20,6 +20,7 @@ import * as queue from "./api/queue.js";
 import * as hit from "./api/hit.js";
 import * as analytics from "./api/analytics.js";
 import * as liStatus from "./api/li-status.js";
+import * as xStatus from "./api/x-status.js";
 import * as admin from "./admin.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
@@ -37,6 +38,7 @@ const ROUTES = {
   "/api/hit": hit,
   "/api/analytics": analytics,
   "/api/li-status": liStatus,
+  "/api/x-status": xStatus,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
