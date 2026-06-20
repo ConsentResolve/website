@@ -83,7 +83,7 @@ export async function onRequestPost({ request, env }) {
         phone: phone || existing.phone,
         consent_contact: consent_contact ? 1 : 0,
       });
-      await logEvent(env, token, "registered", { repeat: true });
+      await logEvent(env, token, "registered", { repeat: true, src: (request.headers.get("Cookie") || "").match(/cr_src=([^;]+)/)?.[1] || "" });
     } else {
       token = uuid();
       await insertParticipant(env, {
@@ -98,7 +98,7 @@ export async function onRequestPost({ request, env }) {
         user_agent: request.headers.get("User-Agent") || null,
         created_at: nowIso(),
       });
-      await logEvent(env, token, "registered", { trade: trade || null });
+      await logEvent(env, token, "registered", { trade: trade || null, src: (request.headers.get("Cookie") || "").match(/cr_src=([^;]+)/)?.[1] || "" });
     }
   } catch (err) {
     return fail(isForm, origin, cors, "server", "Something went wrong. Please try again.", 500);

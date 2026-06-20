@@ -58,8 +58,11 @@ for i in range(DAYS):
     d = START + datetime.timedelta(days=i); wd = d.weekday()
     if wd in (1, 3):  # Tue / Thu — feed cards (FB feed stays ~2x/wk to avoid suppression)
         it = FEED[fi % len(FEED)]; fi += 1
+        link = it["link"]
+        if link and "consentresolve.com" in link and "utm_" not in link:  # tag FB card clicks
+            link += ("&" if "?" in link else "?") + "utm_source=facebook&utm_medium=social&utm_campaign=launch_2026"
         sched[d.isoformat()] = {"format": it["format"], "slot": "mid", "images": [url(n) for n in it["images"]],
-                                "caption": it["caption"], "link": it["link"]}
+                                "caption": it["caption"], "link": link}
     else:  # every other day — a rotating Story (near-daily FB Stories for warm-up)
         s = STORIES[si % len(STORIES)]; si += 1
         sched[d.isoformat()] = {"format": "story", "slot": "pm", "images": [url(s)], "caption": "", "link": ""}

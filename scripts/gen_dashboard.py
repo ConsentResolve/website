@@ -70,7 +70,8 @@ Promise.all([
     m.slice(0,15).map((r,i)=>{const er=r.views?(r.likes||0)/r.views*100:0;const cand=(r.views||0)>=500&&er>=2;return `<tr><td>${i+1}</td><td>${r.name||''}</td><td>${(r.platform||'').toUpperCase()}</td><td>${n(r.views)}</td><td>${n(r.likes)}</td><td>${r.views?er.toFixed(1)+'%':'—'}</td><td>${cand?'<span class="pill ok">boost</span>':'<span class="muted">—</span>'}</td></tr>`;}).join('')+'</table>':'<div class="empty">Engagement fills in as views accrue (~1–2 weeks for real signal).</div>';
   // breakdowns
   const tbl=(rows,h)=>rows&&rows.length?'<table><tr><th>'+h+'</th><th>#</th></tr>'+rows.map(r=>`<tr><td>${r.k}</td><td>${n(r.c)}</td></tr>`).join('')+'</table>':'<div class="empty">No data yet.</div>';
-  $('#bysource').innerHTML=tbl(a&&a.by_source,'Click source');
+  $('#bysource').innerHTML=tbl(a&&a.by_source,'Clicks by source');
+  $('#bysrcd').innerHTML=tbl(a&&a.demos_by_source,'Demos by source');
   $('#bytrade').innerHTML=tbl(a&&a.by_trade,'Demos by trade');
   // delivery
   if(log.length){const t={};log.forEach(r=>{const k=r.platform||'?';t[k]=t[k]||{ok:0,n:0};t[k].n++;if(r.status==='ok')t[k].ok++;});
@@ -87,7 +88,9 @@ HTML = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
   <h2>Funnel</h2><div id="kpis" class="kpis"></div><div id="funnelnote" style="margin-top:10px"></div>
   <h2>Views by platform</h2><div id="byplat"></div>
   <h2>Top performers → FB ad candidates</h2><div id="top"></div>
-  <div class="two"><div><h2>Clicks by source</h2><div id="bysource"></div></div><div><h2>Demos by trade</h2><div id="bytrade"></div></div></div>
+  <h2>Attribution — what's driving the funnel</h2>
+  <div class="two"><div id="bysource"></div><div id="bysrcd"></div></div>
+  <div style="margin-top:14px" id="bytrade"></div>
   <h2>Delivery</h2><div id="deliv"></div>
   <h2>Native analytics</h2>
   <a class="lk" href="https://www.facebook.com/latest/insights" target="_blank">Facebook</a>

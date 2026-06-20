@@ -4,8 +4,8 @@
     "images": [
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-leak.png"
     ],
-    "caption": "You paid for every click. 98 of 100 of them leave without a trace — here's how you get them back.",
-    "link": "https://consentresolve.com/demo",
+    "caption": "You paid for every click. 98 of 100 of them leave without a trace \u2014 here's how you get them back.",
+    "link": "https://consentresolve.com/demo?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
     "slot": "mid"
   },
   "2026-06-19": [
@@ -14,8 +14,8 @@
       "images": [
         "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-leak.png"
       ],
-      "link": "https://consentresolve.com/demo",
-      "caption": "About 98 of 100 people who hit your website leave without raising a hand — and you paid for every click. We hand them back, consent-first, $7, exclusive. See it on your own site → link below.",
+      "link": "https://consentresolve.com/demo?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
+      "caption": "About 98 of 100 people who hit your website leave without raising a hand \u2014 and you paid for every click. We hand them back, consent-first, $7, exclusive. See it on your own site \u2192 link below.",
       "slot": "mid"
     },
     {
@@ -27,8 +27,8 @@
         "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-4.png",
         "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-5.png"
       ],
-      "link": "https://consentresolve.com/demo",
-      "caption": "How to get a lead without buying one 👉 swipe. Consent-first, exclusive, $7, never resold.",
+      "link": "https://consentresolve.com/demo?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
+      "caption": "How to get a lead without buying one \ud83d\udc49 swipe. Consent-first, exclusive, $7, never resold.",
       "slot": "mid"
     },
     {
@@ -77,8 +77,8 @@
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-4.png",
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/howA-5.png"
     ],
-    "caption": "How to get a lead without buying one. Swipe →",
-    "link": "https://consentresolve.com/demo",
+    "caption": "How to get a lead without buying one. Swipe \u2192",
+    "link": "https://consentresolve.com/demo?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
     "slot": "mid"
   },
   "2026-06-24": {
@@ -96,7 +96,7 @@
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-race.png"
     ],
     "caption": "A shared lead is sold to you and four competitors. That's a footrace, not a lead.",
-    "link": "https://consentresolve.com/demo",
+    "link": "https://consentresolve.com/demo?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
     "slot": "mid"
   },
   "2026-06-26": {
@@ -143,8 +143,8 @@
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/cmpB-3.png",
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/cmpB-4.png"
     ],
-    "caption": "Shared leads vs your own traffic — the real math. Swipe →",
-    "link": "https://consentresolve.com/lead-math",
+    "caption": "Shared leads vs your own traffic \u2014 the real math. Swipe \u2192",
+    "link": "https://consentresolve.com/lead-math?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
     "slot": "mid"
   },
   "2026-07-01": {
@@ -162,7 +162,7 @@
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-cpbj.png"
     ],
     "caption": "$575 to land a job on shared leads, or about $140 on your own traffic. Same booked job.",
-    "link": "https://consentresolve.com/lead-math",
+    "link": "https://consentresolve.com/lead-math?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
     "slot": "mid"
   },
   "2026-07-03": {
@@ -206,8 +206,8 @@
     "images": [
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-product.png"
     ],
-    "caption": "With the lead sites you pay them — and you're still the product. Own your traffic instead.",
-    "link": "https://consentresolve.com/demo",
+    "caption": "With the lead sites you pay them \u2014 and you're still the product. Own your traffic instead.",
+    "link": "https://consentresolve.com/demo?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
     "slot": "mid"
   },
   "2026-07-08": {
@@ -224,8 +224,8 @@
     "images": [
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-offer.png"
     ],
-    "caption": "$7 a lead. Exclusive, never resold — recovered from the traffic you already have.",
-    "link": "https://consentresolve.com/demo",
+    "caption": "$7 a lead. Exclusive, never resold \u2014 recovered from the traffic you already have.",
+    "link": "https://consentresolve.com/demo?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
     "slot": "mid"
   },
   "2026-07-10": {
@@ -270,7 +270,7 @@
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-robbed.png"
     ],
     "caption": "You didn't get worse at marketing. The lead-site game is built to work against you.",
-    "link": "https://consentresolve.com/demo",
+    "link": "https://consentresolve.com/demo?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
     "slot": "mid"
   },
   "2026-07-15": {
@@ -293,8 +293,8 @@
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/rigC-6.png",
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/rigC-7.png"
     ],
-    "caption": "5 signs your lead source is rigged. Swipe →",
-    "link": "https://consentresolve.com/demo",
+    "caption": "5 signs your lead source is rigged. Swipe \u2192",
+    "link": "https://consentresolve.com/demo?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
     "slot": "mid"
   },
   "2026-07-17": {
@@ -338,8 +338,8 @@
     "images": [
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-ghost.png"
     ],
-    "caption": "30 leads, 30 ghosts — paid for every one. The people already on your site actually want the work.",
-    "link": "https://consentresolve.com/demo",
+    "caption": "30 leads, 30 ghosts \u2014 paid for every one. The people already on your site actually want the work.",
+    "link": "https://consentresolve.com/demo?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
     "slot": "mid"
   },
   "2026-07-22": {
@@ -357,7 +357,7 @@
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-robot.png"
     ],
     "caption": "A robot charged me $400 because my own customer called me back. Your own traffic doesn't bill you by algorithm.",
-    "link": "https://consentresolve.com/demo",
+    "link": "https://consentresolve.com/demo?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
     "slot": "mid"
   },
   "2026-07-24": {
@@ -402,7 +402,7 @@
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-ftc.png"
     ],
     "caption": "The biggest lead site was fined $7.2M for lying about lead quality. Suddenly the garbage leads made sense.",
-    "link": "https://consentresolve.com/demo",
+    "link": "https://consentresolve.com/demo?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
     "slot": "mid"
   },
   "2026-07-29": {
@@ -420,7 +420,7 @@
       "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social-cards/card-rent.png"
     ],
     "caption": "Stop renting leads from the people getting rich off your invoices.",
-    "link": "https://consentresolve.com/demo",
+    "link": "https://consentresolve.com/demo?utm_source=facebook&utm_medium=social&utm_campaign=launch_2026",
     "slot": "mid"
   },
   "2026-07-31": {

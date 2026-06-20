@@ -22,6 +22,7 @@ export async function onRequestGet({ request, env }) {
     funnel: { clicks, registered: demos, visited, consented, enrolled, opted_in: signups },
     by_trade: await all("SELECT COALESCE(NULLIF(trade,''),'(unknown)') k, COUNT(*) c FROM participants GROUP BY k ORDER BY c DESC"),
     by_source: await all("SELECT COALESCE(NULLIF(utm_source,''),'(direct)') k, COUNT(*) c FROM traffic WHERE path LIKE '/demo%' GROUP BY k ORDER BY c DESC"),
+    demos_by_source: await all("SELECT COALESCE(NULLIF(json_extract(metadata,'$.src'),''),'(direct)') k, COUNT(*) c FROM events WHERE event_type='registered' GROUP BY k ORDER BY c DESC"),
     by_day: await all("SELECT substr(created_at,1,10) k, COUNT(*) c FROM participants GROUP BY k ORDER BY k DESC LIMIT 30"),
   });
 }

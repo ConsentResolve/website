@@ -120,8 +120,9 @@ def main():
                 ok, out = run([PY, str(ROOT/"scripts/post_instagram.py"), url, it["caption"], "REELS"], dry)
             elif p == "fb":
                 ok, out = run([PY, str(ROOT/"scripts/post_video.py"), lb_path, it["caption"]], dry)
-            elif p == "yt":
-                ok, out = run([PY, str(ROOT/"scripts/post_youtube.py"), lb_path, it["yt_title"], it["caption"], "public"], dry)
+            elif p == "yt":  # YT description can carry a real link — tag it
+                ytdesc = it["caption"] + "\n\n👉 See it on your own site: https://consentresolve.com/demo?utm_source=youtube&utm_medium=social&utm_campaign=launch_2026"
+                ok, out = run([PY, str(ROOT/"scripts/post_youtube.py"), lb_path, it["yt_title"], ytdesc, "public"], dry)
             elif p == "li":  # LinkedIn personal native video
                 ok, out = run([PY, str(ROOT/"scripts/post_linkedin.py"), lb_path, it["caption"], "personal"], dry)
             elif p == "tk":  # TikTok via Buffer (media by public R2 URL, no browser)
