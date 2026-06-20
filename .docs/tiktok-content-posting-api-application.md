@@ -45,3 +45,23 @@ Until the audit passes, posts are forced to `SELF_ONLY` (private) — expect ~da
 - New poster `post_tiktok_native.py`: query creator info → Direct Post the clean-variant video by URL.
 - Swap the scheduler's `tk` branch from `post_buffer.py` → `post_tiktok_native.py`; retire Buffer.
 - Render a watermark-free TikTok variant of each reel (drop badge/handle/captions).
+
+## Demo-video runbook (what to screen-record for the audit)
+Code is built: `scripts/tiktok_oauth.py` + `scripts/post_tiktok_native.py` (FILE_UPLOAD, no domain
+verification needed). You need the app created first (for the client key/secret). Then:
+
+1. **Create the app** at developers.tiktok.com → copy **client key + secret** → save locally as
+   `/tmp/tiktok_app.json` `{"client_key":"…","client_secret":"…"}` (or export the env vars).
+   In the app's **Login Kit settings, add a Redirect URI** you control (e.g. `https://consentresolve.com/`).
+2. **Get the authorize URL** → `python3 scripts/tiktok_oauth.py url https://consentresolve.com/`
+   → open it, **log into the Consent Resolve TikTok**, approve `user.info.basic` + `video.publish`.
+   *(Start the screen recording here.)*
+3. The browser redirects with `?code=…` — copy it → `python3 scripts/tiktok_oauth.py exchange <code> https://consentresolve.com/`
+   (saves `/tmp/tiktok_token.json`).
+4. **Post a sandbox test** → `python3 scripts/post_tiktok_native.py "<a clean test reel URL>" "test caption"`.
+   It prints creator info → publish_id → status. Open the TikTok app and show the post (SELF_ONLY in sandbox).
+   *(Stop recording.)*
+5. That recording (authorize → post → it appears) is the demo video. Upload it on the submission.
+
+Notes: sandbox posts are `SELF_ONLY` until the audit passes — that's expected and fine for the demo.
+Use the clean (no-watermark) reel variant so the same asset passes the content-policy review.
