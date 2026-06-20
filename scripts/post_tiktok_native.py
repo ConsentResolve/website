@@ -23,7 +23,8 @@ def main(video_url, caption):
     # 1) creator info (required before any post; returns allowed privacy levels)
     ci = jpost("/post/publish/creator_info/query/", {}).get("data", {})
     print("creator:", ci.get("creator_nickname"), "| privacy options:", ci.get("privacy_level_options"))
-    privacy = (ci.get("privacy_level_options") or ["SELF_ONLY"])[0]  # sandbox forces SELF_ONLY anyway
+    opts = ci.get("privacy_level_options") or ["SELF_ONLY"]
+    privacy = "SELF_ONLY" if "SELF_ONLY" in opts else opts[0]  # unaudited apps must post SELF_ONLY (to a private account)
     # 2) fetch the reel bytes (R2 is behind Cloudflare → needs a browser UA)
     vb = urllib.request.urlopen(urllib.request.Request(video_url, headers={"User-Agent": UA}), timeout=180).read()
     size = len(vb); print(f"video {size/1e6:.1f} MB")
