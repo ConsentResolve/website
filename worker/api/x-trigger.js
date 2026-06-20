@@ -5,11 +5,38 @@
 // result incl. the actual X error if the tweet POST fails.
 import { json } from "../_lib/http.js";
 import { publishNextLive } from "../_lib/publish.js";
+import { nextReady } from "../_lib/queue.js";
+
+// Mirror publish.js urlOk() so the dry run reports exactly what the cron would see.
+async function liveness(url) {
+  if (!url) return null;
+  try {
+    const ctl = new AbortController();
+    const to = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch(url, { method: "GET", redirect: "follow", signal: ctl.signal,
+      headers: { "User-Agent": "ConsentResolve-LinkCheck/1.0" } });
+    clearTimeout(to);
+    return { ok: r.ok, status: r.status };
+  } catch (e) { return { ok: true, status: 0, err: String(e).slice(0, 80) }; }
+}
 
 export async function onRequestGet({ request, env }) {
   const u = new URL(request.url);
   if (!env.FEEDBACK_KEY || u.searchParams.get("key") !== env.FEEDBACK_KEY)
     return json({ error: "unauthorized" }, { status: 401 });
+
+  // Diagnostic: show the next candidate row per kind + its liveness, WITHOUT posting.
+  if (u.searchParams.get("dry") === "1") {
+    const out = { dry: true };
+    for (const kind of ["resource", "ad"]) {
+      const row = await nextReady(env, "x", kind);
+      if (!row) { out[kind] = { none: true }; continue; }
+      const url = row.payload?.utm_url || null;
+      out[kind] = { slug: row.resource_slug, url, live: await liveness(url) };
+    }
+    return json(out);
+  }
+
   if (u.searchParams.get("confirm") !== "post")
     return json({ error: "add &confirm=post to publish ONE real tweet" }, { status: 400 });
   if (env.SOCIAL_AUTOPOST_ENABLED !== "true")
