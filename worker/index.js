@@ -17,6 +17,8 @@ import * as unsubscribe from "./api/unsubscribe.js";
 import * as socialQueue from "./api/social-queue.js";
 import * as feedback from "./api/feedback.js";
 import * as queue from "./api/queue.js";
+import * as hit from "./api/hit.js";
+import * as analytics from "./api/analytics.js";
 import * as admin from "./admin.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
@@ -31,6 +33,8 @@ const ROUTES = {
   "/api/social-queue": socialQueue,
   "/api/feedback": feedback,
   "/api/queue": queue,
+  "/api/hit": hit,
+  "/api/analytics": analytics,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
