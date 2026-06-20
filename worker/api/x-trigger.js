@@ -7,15 +7,20 @@ import { json } from "../_lib/http.js";
 import { publishNextLive } from "../_lib/publish.js";
 import { nextReady } from "../_lib/queue.js";
 
-// Mirror publish.js urlOk() so the dry run reports exactly what the cron would see.
+// Mirror publish.js urlOk() so the dry run reports exactly what the cron would see
+// (incl. the same-zone skip — a Worker self-fetch 522s, so we trust our own URLs).
 async function liveness(url) {
   if (!url) return null;
   try {
+    const host = new URL(url).host;
+    if (host === "consentresolve.com" || host.endsWith(".consentresolve.com"))
+      return { ok: true, status: 0, note: "own-zone (skipped)" };
     const ctl = new AbortController();
     const to = setTimeout(() => ctl.abort(), 8000);
     const r = await fetch(url, { method: "GET", redirect: "follow", signal: ctl.signal,
       headers: { "User-Agent": "ConsentResolve-LinkCheck/1.0" } });
     clearTimeout(to);
+    if (r.status >= 500) return { ok: true, status: r.status };
     return { ok: r.ok, status: r.status };
   } catch (e) { return { ok: true, status: 0, err: String(e).slice(0, 80) }; }
 }
