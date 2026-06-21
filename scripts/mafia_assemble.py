@@ -116,7 +116,7 @@ def main():
     timing = {t["n"]: t for t in json.loads((VO.parent / "timing.json").read_text())}
     for li in lines: li["wav"] = timing[li["n"]]["wav"]; li["dur"] = timing[li["n"]]["dur"]
 
-    clips, timeline, sfx_cues = [], 0.0, []
+    clips, timeline, sfx_cues, manifest = [], 0.0, [], []
     idx = 0
     log("ASSEMBLE: building clips")
     sfx_cues.append((SFX / "newsreel.wav", 0.2))  # cold-open sting
@@ -139,7 +139,9 @@ def main():
         if li["scene"] == "scene_2_the_racket_explained_badly" and li["character"] == "NARRATOR":
             sfx_cues.append((SFX / "screech.wav", timeline + 0.1))
         p, d = render_line(li, idx)
-        clips.append(p); timeline += d; idx += 1
+        clips.append(p); manifest.append({"clip": p, "n": li["n"], "scene": li["scene"],
+                                          "character": li["character"], "cc": li["cc"]})
+        timeline += d; idx += 1
         log(f"  clip {idx-1:02d} {li['character']:12} {d:.1f}s  (t={timeline:.1f})")
 
     # end card
@@ -147,6 +149,7 @@ def main():
                       "$7 a lead  ·  yours alone  ·  consent-first"], 5.0, bgkey="bg_endcard", big=84)
     clips.append(p); idx += 1
 
+    (OUT / "manifest.json").write_text(__import__("json").dumps(manifest, indent=2))
     # concat
     lst = OUT / "concat.txt"; lst.write_text("".join(f"file '{c}'\n" for c in clips))
     silent = OUT / "episode_silent.mp4"
