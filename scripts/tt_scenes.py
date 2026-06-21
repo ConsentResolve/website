@@ -69,17 +69,18 @@ def math(reveal=False):
             ("shared with 4 pros", "you're 1 of 4 voices", SUB),
             ("~50% reply", "15 real conversations", SUB),
             ("win 1 in 4", "4 booked jobs", SUB)]
-    y = 200; bw = 1100; x = (W-bw)//2
+    y = 158; bw = 1100; x = (W-bw)//2
     for a, b, c in rows:
-        panel(d, [x, y, x+bw, y+96], radius=16, fill=PANEL)
-        d.text((x+40, y+28), a, font=font(40), fill=TEXT)
-        w = d.textlength(b, font=font(40)); d.text((x+bw-40-w, y+28), b, font=font(40), fill=MINT)
-        y += 116
+        panel(d, [x, y, x+bw, y+78], radius=16, fill=PANEL)
+        d.text((x+40, y+20), a, font=font(38), fill=TEXT)
+        w = d.textlength(b, font=font(38)); d.text((x+bw-40-w, y+20), b, font=font(38), fill=MINT)
+        y += 96
     if reveal:
-        panel(d, [W//2-480, y+16, W//2+480, y+286], radius=22, fill=(40,18,24), outline=RED, width=4)
-        center_text(d, W//2, y+40, "TRUE COST PER BOOKED JOB", font(30), SUB)
-        center_text(d, W//2, y+78, "$412", font(112), RED)
-        center_text(d, W//2, y+228, "even a great month is north of $200", font(28), GOLD)
+        ry = y + 8
+        panel(d, [W//2-480, ry, W//2+480, ry+236], radius=22, fill=(40,18,24), outline=RED, width=4)
+        center_text(d, W//2, ry+26, "TRUE COST PER BOOKED JOB", font(28), SUB)
+        center_text(d, W//2, ry+60, "$412", font(100), RED)
+        center_text(d, W//2, ry+196, "even a great month is north of $200", font(26), GOLD)
     save(disclaimer(img), "math_reveal" if reveal else "math")
 
 def complaints():
