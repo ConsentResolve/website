@@ -153,7 +153,9 @@ def main():
         # to respect LinkedIn cadence; gated by BUFFER_LINKEDIN_CHANNEL.
         li_ch = os.environ.get("BUFFER_LINKEDIN_CHANNEL", "6a38746c5ab6d2f1065994ca")
         li_skip = kind == "shoptalk" or "shoptalk" in ((it.get("name", "") or "") + " " + (it.get("url", "") or "")).lower()
-        if li_ch and url and not li_done and not li_skip:  # no SHOP TALK on LinkedIn
+        try: li_wed = __import__("datetime").date.fromisoformat(date).weekday() == 2  # LinkedIn reels: Wed only
+        except Exception: li_wed = False
+        if li_ch and url and not li_done and not li_skip and li_wed:  # no SHOP TALK; one reel, Wednesdays
             li_ok, li_out = run([PY, str(ROOT/"scripts/post_buffer.py"), li_ch, url, it["caption"],
                                  "shareNow", ("ai" if kind == "ugc" else "noai"), "linkedin"], dry)
             if not dry and li_ok is not None:

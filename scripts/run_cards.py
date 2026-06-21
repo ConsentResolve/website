@@ -37,9 +37,13 @@ def main():
     if not items:
         print(f"[cards] {date}: nothing for slot '{slot}'."); return
     base = [PY, str(ROOT / "scripts/post_fb_card.py")]
-    import post_log
+    import post_log, post_buffer
     NOW = datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z"
     results = []
+    # LinkedIn via Buffer: photo card on Tue, carousel on Fri (once/run, interim until native API)
+    li_ch = os.environ.get("BUFFER_LINKEDIN_CHANNEL", "6a38746c5ab6d2f1065994ca")
+    wd = datetime.date.fromisoformat(date).weekday()  # Mon=0 … Sun=6
+    li_done = False
     for it in items:
         fmt = it["format"]; imgs = it["images"]; cap = it.get("caption", ""); link = it.get("link", "")
         print(f"[cards] {date}: {fmt} ({len(imgs)} img){' DRY' if dry else ' LIVE'}")
@@ -65,6 +69,15 @@ def main():
             name = (it.get("images") or [""])[0].split("/")[-1].replace(".png", "")
             results.append({"ts": NOW, "date": date, "slot": it.get("slot", slot), "name": name,
                             "platform": "fb", "ptype": fmt, "status": "ok" if ok else "fail", "pid": pid, "url": purl})
+        # LinkedIn via Buffer — photo on Tue (wd 1), carousel on Fri (wd 4)
+        if not dry and li_ch and not li_done and ((wd == 1 and fmt == "photo") or (wd == 4 and fmt == "carousel")):
+            cap_li = cap + (("\n\n" + link) if (link and link not in cap) else "")
+            res = post_buffer.create(li_ch, imgs[0], cap_li, "shareNow", False, "linkedin", "image",
+                                     extra_media=(imgs[1:] if fmt == "carousel" else None))
+            results.append({"ts": NOW, "date": date, "slot": it.get("slot", slot),
+                            "name": (imgs[0].split("/")[-1].replace(".png", "")),
+                            "platform": "li", "ptype": fmt, "status": "ok" if res else "fail", "pid": "", "url": ""})
+            li_done = True
     if not dry:
         post_log.append(results)
     print(f"[cards] done. ({len(results)} result(s) logged)")

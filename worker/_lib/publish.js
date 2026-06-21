@@ -26,8 +26,10 @@ const SITE = "https://consentresolve.com";
 // non-Reel days), which is richer than a link-card post and avoids two systems
 // double-posting to the Page in one session. The worker still drips LinkedIn /
 // X / GBP. FB rows stay queued (harmless) but are never auto-posted from here.
-// LinkedIn (company + personal) paused — account not verified yet; re-add when verified.
-export const LAUNCH_PLATFORMS = ["x", "google_business_profile"];
+// LinkedIn native (ugcPosts) paused — API not approved yet. Interim: linkedin_company
+// drips its QUEUED written posts to LinkedIn via Buffer (gated to Mon/Thu in scheduled()).
+// When native approval lands, point ADAPTERS.linkedin_company back at postLinkedInCompany.
+export const LAUNCH_PLATFORMS = ["x", "google_business_profile", "linkedin_company"];
 
 // How often (in days) each platform may post. The daily cron checks the last
 // published_at per platform and only drips a new item once this many days have
@@ -145,6 +147,29 @@ async function postLinkedIn(env, p, { token, author }) {
   return { ok: true, post_id: id, post_url: id ? `https://www.linkedin.com/feed/update/${id}/` : null };
 }
 
+// ── LinkedIn via Buffer (interim until native API approval) ──────────────────
+// Posts the queued written content to LinkedIn through Buffer's GraphQL (Buffer holds
+// the LinkedIn channel access). Needs env BUFFER_TOKEN + BUFFER_LINKEDIN_CHANNEL.
+async function postLinkedInBuffer(env, p) {
+  const token = env.BUFFER_TOKEN, channel = env.BUFFER_LINKEDIN_CHANNEL;
+  if (!token || !channel) return { skipped: true, error: "missing_credentials" };
+  const text = composeText(p, "linkedin");
+  const mutation = `mutation($input:CreatePostInput!){ createPost(input:$input){ __typename
+    ... on PostActionSuccess{ post{ id status } }
+    ... on RestProxyError{ message } ... on InvalidInputError{ message }
+    ... on UnauthorizedError{ message } ... on NotFoundError{ message } ... on UnexpectedError{ message } } }`;
+  const input = { channelId: channel, text, schedulingType: "automatic", mode: "shareNow" };
+  const res = await fetch("https://api.buffer.com", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ query: mutation, variables: { input } }),
+  });
+  const data = await res.json().catch(() => ({}));
+  const cp = data?.data?.createPost;
+  if (cp?.__typename === "PostActionSuccess") return { ok: true, post_id: cp.post?.id || null, post_url: null };
+  return { ok: false, error: cp?.message || cp?.__typename || `buffer_http_${res.status}` };
+}
+
 // ── X / Twitter (OAuth2 user context; refresh token rotates → persist) ───────
 async function xAccessToken(env) {
   const clientId = env.X_CLIENT_ID, clientSecret = env.X_CLIENT_SECRET;
@@ -234,7 +259,7 @@ async function postGBP(env, p) {
 
 const ADAPTERS = {
   facebook: postFacebook,
-  linkedin_company: postLinkedInCompany,
+  linkedin_company: postLinkedInBuffer,   // interim via Buffer; swap to postLinkedInCompany when native API is approved
   linkedin_personal: postLinkedInPersonal,
   x: postX,
   google_business_profile: postGBP,

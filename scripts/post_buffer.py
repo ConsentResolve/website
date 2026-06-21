@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 """Create a post on a Buffer channel via Buffer's GraphQL API (api.buffer.com).
-Media attached by PUBLIC URL (our R2 reels) — no file upload. Used for TikTok
-(Buffer holds the TikTok access, so no TikTok audit needed on our side).
+Media attached by PUBLIC URL (our R2 assets) — no file upload. Used for TikTok and
+LinkedIn (Buffer holds the channel access, so no native audit needed on our side).
+Supports video, single image, multi-image carousel, link (text+link), and text-only.
 Reads the personal token from /tmp/buffer_token.txt.
 
-Usage: post_buffer.py <channel_id> <video_url> "<caption>" [shareNow|addToQueue|<ISO8601>] [ai|noai] [tiktok|linkedin|...]
+CLI (video, backward-compatible):
+  post_buffer.py <channel_id> <video_url> "<caption>" [shareNow|<ISO8601>] [ai|noai] [tiktok|linkedin]
+For images/carousels/links, import and call create() directly.
 """
-import sys, json, urllib.request, urllib.error
+import os, sys, json, urllib.request, urllib.error
 
-TOK = open("/tmp/buffer_token.txt").read().strip()
+# Lazy/safe: importing this module must not crash when the token file is absent
+# (e.g. local dry-runs). create() fails gracefully if the token is empty.
+TOK = open("/tmp/buffer_token.txt").read().strip() if os.path.exists("/tmp/buffer_token.txt") else ""
 ENDPOINT = "https://api.buffer.com"
 M = """mutation($input:CreatePostInput!){ createPost(input:$input){ __typename
   ... on PostActionSuccess{ post{ id status dueAt } }
@@ -16,16 +21,29 @@ M = """mutation($input:CreatePostInput!){ createPost(input:$input){ __typename
   ... on LimitReachedError{ message } ... on UnauthorizedError{ message }
   ... on NotFoundError{ message } ... on UnexpectedError{ message } } }"""
 
-def create(channel, video_url, caption, when="shareNow", ai=True, service="tiktok"):
-    inp = {"channelId": channel, "text": caption,
-           "assets": [{"video": {"url": video_url}}] if video_url else [],
-           "schedulingType": "automatic"}
+def build_assets(media, kind):
+    """media = list of URLs. kind = video | image | link | text."""
+    if not media:
+        return []
+    if kind == "image":
+        return [{"image": {"url": u}} for u in media]
+    if kind == "link":
+        return [{"link": {"url": media[0]}}]
+    if kind == "text":
+        return []
+    return [{"video": {"url": media[0]}}]  # default: video
+
+def create(channel, media_url, caption, when="shareNow", ai=True, service="tiktok", kind="video", extra_media=None):
+    media = ([media_url] if media_url else []) + list(extra_media or [])
+    inp = {"channelId": channel, "text": caption, "schedulingType": "automatic"}
+    assets = build_assets(media, kind)
+    if assets:
+        inp["assets"] = assets
     if service == "tiktok":  # tiktok-only AI-disclosure metadata; other services reject it
         inp["metadata"] = {"tiktok": {"isAiGenerated": bool(ai)}}
-    if when in ("shareNow", "addToQueue", "shareNext"):
-        inp["mode"] = when
-    else:
-        inp["mode"] = "customScheduled"; inp["dueAt"] = when
+    inp["mode"] = when if when in ("shareNow", "addToQueue", "shareNext") else "customScheduled"
+    if inp["mode"] == "customScheduled":
+        inp["dueAt"] = when
     req = urllib.request.Request(ENDPOINT, data=json.dumps({"query": M, "variables": {"input": inp}}).encode(),
                                  headers={"Authorization": f"Bearer {TOK}", "Content-Type": "application/json"})
     try:

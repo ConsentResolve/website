@@ -112,6 +112,10 @@ export default {
     const now = Date.now();
     for (const platform of LAUNCH_PLATFORMS) {
       try {
+        // LinkedIn (via Buffer): only Mondays & Thursdays (weekday content calendar).
+        if (platform === "linkedin_company" && ![1, 4].includes(new Date(now).getUTCDay())) {
+          console.log("[social] linkedin_company: not Mon/Thu — skipping"); continue;
+        }
         // Cadence gate: skip until enough days have passed since the last post.
         // The 0.5-day slack keeps a fixed-time daily cron from drifting to the
         // next interval (e.g. a 2-day cadence reliably fires on day 2, not 3).
