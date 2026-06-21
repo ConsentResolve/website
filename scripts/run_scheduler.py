@@ -92,6 +92,7 @@ def main():
         log(f"{date}: nothing scheduled" + (f" for slot '{slot}'." if slot != "all" else ".")); return
     PY = "/usr/bin/python3" if Path("/usr/bin/python3").exists() else "python3"
     results = []
+    li_done = False  # LinkedIn-via-Buffer: cap to one post per run (LinkedIn cadence)
     for it in items:
         angle = it.get("angle", it.get("name", "?")); kind = it.get("kind", "ugc"); plats = it["platforms"]
         log(f"{date}: {angle} [{kind}] -> {plats} story={it.get('story')}")
@@ -148,6 +149,25 @@ def main():
                     except Exception: pass
                 results.append({"ts": NOW, "date": date, "slot": it.get("slot", slot), "name": it.get("name", angle),
                                 "platform": p, "ptype": "reel", "status": "ok" if ok else "fail", "pid": pid, "url": purl, "note": note})
+        # LinkedIn via Buffer (interim until native LinkedIn API approval). Once per run
+        # to respect LinkedIn cadence; gated by BUFFER_LINKEDIN_CHANNEL.
+        li_ch = os.environ.get("BUFFER_LINKEDIN_CHANNEL")
+        if li_ch and url and not li_done:
+            li_ok, li_out = run([PY, str(ROOT/"scripts/post_buffer.py"), li_ch, url, it["caption"],
+                                 "shareNow", ("ai" if kind == "ugc" else "noai"), "linkedin"], dry)
+            if not dry and li_ok is not None:
+                li_pid, li_purl = post_log.parse("li", li_out or "")
+                li_note = ""
+                if li_out:
+                    try:
+                        import json as _j
+                        bj = _j.loads([l for l in li_out.strip().splitlines() if l.strip().startswith("{")][-1])
+                        li_note = (bj.get("__typename", "") + ((": " + bj["message"]) if bj.get("message") else "")).strip(": ")
+                    except Exception: pass
+                results.append({"ts": NOW, "date": date, "slot": it.get("slot", slot), "name": it.get("name", angle),
+                                "platform": "li", "ptype": "reel", "status": "ok" if li_ok else "fail",
+                                "pid": li_pid, "url": li_purl, "note": li_note})
+                li_done = True
         if it.get("story"):
             ok, out = run([PY, str(ROOT/"scripts/post_instagram.py"), url, "", "STORIES"], dry)
             if not dry and ok is not None:
