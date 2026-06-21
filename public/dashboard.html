@@ -50,9 +50,10 @@ fetch(C.analyticsUrl+'&t='+Date.now()).then(r=>r.ok?r.json():null).catch(()=>nul
     ['Demos',demos,'→ '+pf(demos,clicks)+' of clicks'],['Signups',signups,'→ '+pf(signups,demos)+' of demos']]
     .map(([l,v,r])=>`<div class="kpi"><div class="n">${n(v)}</div><div class="l">${l}</div><div class="r">${r}</div></div>`).join('');
   if(!a){$('#funnelnote').innerHTML='<div class="empty">Clicks/Demos/Signups load from /api/analytics — showing 0 until the worker deploys + the first visitor lands. Views populate as the metrics fetcher runs.</div>';}
-  // views by platform
-  const bp={};m.forEach(r=>{bp[r.platform]=(bp[r.platform]||0)+(+r.views||0);});
-  $('#byplat').innerHTML=Object.keys(bp).length?'<div class="cards">'+Object.entries(bp).sort((x,y)=>y[1]-x[1]).map(([k,v])=>`<div class="stat"><div class="n">${n(v)}</div><div class="l">${k.toUpperCase()} views</div></div>`).join('')+'</div>':'<div class="empty">No view data yet.</div>';
+  // views by platform — always show every platform (0 until views accrue)
+  const PLAT={fb:'Facebook',ig:'Instagram',yt:'YouTube',tk:'TikTok',x:'X'};
+  const bp={fb:0,ig:0,yt:0,tk:0,x:0};m.forEach(r=>{if(r.platform in bp)bp[r.platform]+=(+r.views||0);});
+  $('#byplat').innerHTML='<div class="cards">'+Object.keys(PLAT).map(k=>`<div class="stat"><div class="n">${n(bp[k])}</div><div class="l">${PLAT[k]} views</div></div>`).join('')+'</div>';
   // top reels → ad candidates
   m.sort((x,y)=>(y.views||0)-(x.views||0));
   $('#top').innerHTML=m.length?'<table><tr><th>#</th><th>Reel</th><th>Platform</th><th>Views</th><th>Likes</th><th>Eng.</th><th>Ad?</th></tr>'+
