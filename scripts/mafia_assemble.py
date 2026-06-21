@@ -30,10 +30,23 @@ CHARS = {"DON ANGELO": ("don_angelo", 940), "SAL": ("sal", 820),
 def ff(args, **k):
     return subprocess.run([FF, "-y", "-loglevel", "error", *args], check=True, **k)
 
-def capfile(text, path):
-    wrapped = "\n".join(textwrap.wrap(text, width=42)) or text
-    Path(path).write_text(wrapped)
-    return wrapped
+def caption_png(text, path):
+    """Render a caption as a full-frame transparent PNG (this ffmpeg lacks drawtext)."""
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+    font = ImageFont.truetype(CAPFONT, 46)
+    lines = textwrap.wrap(text, width=42) or [text]
+    lh, pad = 58, 26
+    tw = max(d.textlength(ln, font=font) for ln in lines)
+    bw, bh = int(tw) + pad * 2, lh * len(lines) + pad * 2
+    x0, y0 = (W - bw) // 2, H - bh - 54
+    box = Image.new("RGBA", (bw, bh), (0, 0, 0, 0))
+    ImageDraw.Draw(box).rounded_rectangle([0, 0, bw, bh], radius=18, fill=(0, 0, 0, 165))
+    img.alpha_composite(box, (x0, y0))
+    ty = y0 + pad
+    for ln in lines:
+        lw = d.textlength(ln, font=font); d.text(((W - lw) // 2, ty), ln, font=font, fill=(255, 255, 255, 255)); ty += lh
+    img.save(path)
+    return str(path)
 
 def bg_path(key):
     p = ART / f"{key}.png"
@@ -50,7 +63,7 @@ def render_line(li, idx):
     out = SCENES / f"clip_{idx:02d}.mp4"
     d = max(1.2, dur(li["wav"]) + 0.35)
     bg = bg_path(SCENE_BG.get(li["scene"], "bg_backroom")) or fallback_bg()
-    cap = SCENES / f"cap_{idx:02d}.txt"; capfile(li["cc"], cap)
+    capimg = caption_png(li["cc"], SCENES / f"cap_{idx:02d}.png")
     char = CHARS.get(li["character"])
     is_vans = li["scene"] == "scene_2_the_racket_explained_badly" and li["character"] in ("NARRATOR", "MRS. PETUNIA")
     van = ART / "van.png"
@@ -69,8 +82,8 @@ def render_line(li, idx):
             fc.append(f"[{ni}:v]scale=-1:150[vn{k}]")
             fc.append(f"[{last}][vn{k}]overlay=x='max({tx},{W}-({W}-{tx})*min(t/1.3,1))':y={H-185}[vk{k}]")
             last = f"vk{k}"; ni += 1
-    fc.append(f"[{last}]drawtext=fontfile='{CAPFONT}':textfile='{cap}':fontsize=46:fontcolor=white:"
-              f"line_spacing=8:box=1:boxcolor=black@0.62:boxborderw=22:x=(w-text_w)/2:y=h-text_h-54[vt]")
+    inputs += ["-loop", "1", "-t", f"{d:.2f}", "-i", capimg]
+    fc.append(f"[{last}][{ni}:v]overlay=0:0[vt]"); ni += 1
     inputs += ["-i", li["wav"]]
     fc.append(f"[{ni}:a]apad[a]")
     try:
@@ -79,8 +92,9 @@ def render_line(li, idx):
             "-b:a", "160k", "-movflags", "+faststart", str(out)])
     except subprocess.CalledProcessError:
         log(f"  clip {idx} FAIL -> bg+caption placeholder")
-        ff(["-loop", "1", "-t", f"{d:.2f}", "-i", bg, "-i", li["wav"], "-filter_complex",
-            f"[0:v]scale={W}:{H},fps={FPS},drawtext=fontfile='{CAPFONT}':textfile='{cap}':fontsize=46:fontcolor=white:box=1:boxcolor=black@0.62:boxborderw=22:x=(w-text_w)/2:y=h-text_h-54[vt];[1:a]apad[a]",
+        ff(["-loop", "1", "-t", f"{d:.2f}", "-i", bg, "-loop", "1", "-t", f"{d:.2f}", "-i", capimg,
+            "-i", li["wav"], "-filter_complex",
+            f"[0:v]scale={W}:{H},fps={FPS}[b];[b][1:v]overlay=0:0[vt];[2:a]apad[a]",
             "-map", "[vt]", "-map", "[a]", "-t", f"{d:.2f}", "-r", str(FPS), "-c:v", "libx264",
             "-pix_fmt", "yuv420p", "-c:a", "aac", "-ar", "44100", "-ac", "2", str(out)])
     return str(out), d
