@@ -69,8 +69,9 @@ def main():
             name = (it.get("images") or [""])[0].split("/")[-1].replace(".png", "")
             results.append({"ts": NOW, "date": date, "slot": it.get("slot", slot), "name": name,
                             "platform": "fb", "ptype": fmt, "status": "ok" if ok else "fail", "pid": pid, "url": purl})
-        # LinkedIn via Buffer — photo on Tue (wd 1), carousel on Fri (wd 4)
-        if not dry and li_ch and not li_done and ((wd == 1 and fmt == "photo") or (wd == 4 and fmt == "carousel")):
+        # LinkedIn via Buffer — Tue (wd 1) & Fri (wd 4) get the day's card (photo or
+        # carousel; stories skipped as off-format for LinkedIn). Once per run.
+        if not dry and li_ch and not li_done and wd in (1, 4) and fmt in ("photo", "carousel"):
             cap_li = cap + (("\n\n" + link) if (link and link not in cap) else "")
             res = post_buffer.create(li_ch, imgs[0], cap_li, "shareNow", False, "linkedin", "image",
                                      extra_media=(imgs[1:] if fmt == "carousel" else None))
