@@ -5,12 +5,18 @@ redirect, exchanges the code, and saves /tmp/yt_token.json.
 """
 import json, os, urllib.parse, urllib.request, http.server, threading, sys
 
-# Provide via env (never hardcode secrets):
-#   YT_CLIENT_ID=... YT_CLIENT_SECRET=... python3 scripts/youtube_oauth.py
+# Credentials, in priority order (never hardcode secrets):
+#   1) env: YT_CLIENT_ID=... YT_CLIENT_SECRET=... python3 scripts/youtube_oauth.py
+#   2) the OAuth client JSON downloaded from Google Cloud Console, saved to /tmp/yt_client.json
 CLIENT_ID = os.environ.get("YT_CLIENT_ID", "")
 CLIENT_SECRET = os.environ.get("YT_CLIENT_SECRET", "")
+if not (CLIENT_ID and CLIENT_SECRET) and os.path.exists("/tmp/yt_client.json"):
+    c = json.load(open("/tmp/yt_client.json"))
+    c = c.get("installed") or c.get("web") or c   # Google wraps it under installed/ web
+    CLIENT_ID = CLIENT_ID or c.get("client_id", "")
+    CLIENT_SECRET = CLIENT_SECRET or c.get("client_secret", "")
 if not (CLIENT_ID and CLIENT_SECRET):
-    sys.exit("Set YT_CLIENT_ID and YT_CLIENT_SECRET env vars (one-time OAuth bootstrap).")
+    sys.exit("No credentials. Set YT_CLIENT_ID/YT_CLIENT_SECRET, or save the OAuth client JSON to /tmp/yt_client.json")
 PORT = 8765
 REDIRECT = f"http://127.0.0.1:{PORT}/"
 # youtube.force-ssl unlocks playlists, captions, thumbnails, channel sections + scheduling
