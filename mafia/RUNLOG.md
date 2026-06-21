@@ -10,3 +10,70 @@ Started Sat Jun 20 22:59:06 CDT 2026
 - Upload: Consent Resolve channel, UNLISTED.
 
 ## Steps
+- `22:59:13` VOICE: generating 28 VO clips
+- `23:00:15`   [00] ok NARRATOR 8.77s
+- `23:00:59`   [01] ok SAL 4.06s
+- `23:01:51` ART: characters
+- `23:01:59`   [02] ok NARRATOR 7.08s
+- `23:02:03` art ok don_angelo (+bg removed)
+- `23:02:14` art ok sal (+bg removed)
+- `23:02:27` art ok vinnie (+bg removed)
+- `23:02:38` removeBg FAIL (0) petunia.png: HTTP Error 400: Bad Request
+- `23:02:42` removeBg FAIL (1) petunia.png: HTTP Error 400: Bad Request
+- `23:02:45` art ok petunia (+bg removed)
+- `23:02:45` ART: van
+- `23:02:45` recraft FAIL (0) van.src.png: HTTP Error 400: Bad Request
+- `23:02:49` recraft FAIL (1) van.src.png: HTTP Error 400: Bad Request
+- `23:02:50`   [03] ok NARRATOR 3.71s
+- `23:02:53` art PLACEHOLDER van — flagged
+- `23:02:53` ART: backgrounds
+- `23:02:53` recraft FAIL (0) bg_alley.png: HTTP Error 400: Bad Request
+- `23:02:58` recraft FAIL (1) bg_alley.png: HTTP Error 400: Bad Request
+- `23:03:02` art PLACEHOLDER bg_alley
+- `23:03:02` recraft FAIL (0) bg_backroom.png: HTTP Error 400: Bad Request
+- `23:03:06` recraft FAIL (1) bg_backroom.png: HTTP Error 400: Bad Request
+- `23:03:10` art PLACEHOLDER bg_backroom
+- `23:03:10` recraft FAIL (0) bg_porch.png: HTTP Error 400: Bad Request
+- `23:03:15` recraft FAIL (1) bg_porch.png: HTTP Error 400: Bad Request
+- `23:03:19` art PLACEHOLDER bg_porch
+- `23:03:19` recraft FAIL (0) bg_greendoor.png: HTTP Error 400: Bad Request
+- `23:03:23` recraft FAIL (1) bg_greendoor.png: HTTP Error 400: Bad Request
+- `23:03:27` art PLACEHOLDER bg_greendoor
+- `23:03:27` recraft FAIL (0) bg_sunlit.png: HTTP Error 400: Bad Request
+- `23:03:32` recraft FAIL (1) bg_sunlit.png: HTTP Error 400: Bad Request
+- `23:03:36` art PLACEHOLDER bg_sunlit
+- `23:03:36` recraft FAIL (0) bg_endcard.png: HTTP Error 400: Bad Request
+- `23:03:40` recraft FAIL (1) bg_endcard.png: HTTP Error 400: Bad Request
+- `23:03:44` art PLACEHOLDER bg_endcard
+- `23:03:45` recraft FAIL (0) bg_title.png: HTTP Error 400: Bad Request
+- `23:03:49` recraft FAIL (1) bg_title.png: HTTP Error 400: Bad Request
+- `23:03:51`   [04] ok DON ANGELO 12.06s
+- `23:03:53` art PLACEHOLDER bg_title
+- `23:03:53` ART: done
+- `23:04:34`   [05] ok SAL 2.78s
+- `23:05:17`   [06] ok DON ANGELO 1.82s
+- `23:05:21` recraft FAIL (0) bg_endcard.png: HTTP Error 400: Bad Request
+- `23:05:26` recraft FAIL (1) bg_endcard.png: HTTP Error 400: Bad Request
+- `23:06:00`   [07] ok VINNIE 2.28s
+- `23:06:36`   [08] ok DON ANGELO 1.00s
+- `23:07:35`   [09] ok NARRATOR 5.08s
+- `23:08:01` BG: Recraft out of credits -> generating backgrounds + van via OpenAI gpt-image-1 (flagged)
+- `23:08:22`   ok bg_alley
+- `23:08:36`   [10] ok NARRATOR 9.35s
+- `23:08:42`   ok bg_backroom
+- `23:09:02`   ok bg_porch
+- `23:09:20`   ok bg_greendoor
+- `23:09:36`   [11] ok MRS. PETUNIA 5.27s
+- `23:09:41`   ok bg_sunlit
+- `23:09:57`   ok van (transparent)
+- `23:09:59` petunia PIL flood-cut -> alpha (0, 255)
+- `23:09:59` BG: done
+- `23:10:19`   [12] ok SAL 2.43s
+- `23:10:35` AUDIO: synthesizing music bed + SFX (placeholder synth — flagged)
+- `23:10:36`   bed.wav
+- `23:10:36`   stab.wav
+- `23:10:36`   ring.wav
+- `23:10:36`   screech.wav
+- `23:10:36`   newsreel.wav
+- `23:10:36`   chime.wav
+- `23:10:36` AUDIO: done
