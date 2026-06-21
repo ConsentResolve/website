@@ -1,0 +1,254 @@
+[
+  {
+    "n": 0,
+    "scene": "cold_open",
+    "character": "NARRATOR",
+    "cc": "As our story opens in the smoky borough of Leadville, an honest plumber is about to make an offer... he doesn't entirely understand.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_00_narrator.wav",
+    "dur": 8.77
+  },
+  {
+    "n": 1,
+    "scene": "cold_open",
+    "character": "SAL",
+    "cc": "Forty bucks for one lead. Eh. Business is business.",
+    "action": "sighing",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_01_sal.wav",
+    "dur": 4.055
+  },
+  {
+    "n": 2,
+    "scene": "cold_open",
+    "character": "NARRATOR",
+    "cc": "Business, dear viewer, was about to get very personal. Like everything else in this beautiful, rotten neighborhood.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_02_narrator.wav",
+    "dur": 7.084
+  },
+  {
+    "n": 3,
+    "scene": "cold_open",
+    "character": "NARRATOR",
+    "cc": "Mafia Marketing. Episode One.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_03_narrator.wav",
+    "dur": 3.714
+  },
+  {
+    "n": 4,
+    "scene": "scene_1_the_back_room",
+    "character": "DON ANGELO",
+    "cc": "Salvatore! Come in, come in! You want leads? The Family has leads. Fresh. Hot. Exclusive.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_04_don.wav",
+    "dur": 12.055
+  },
+  {
+    "n": 5,
+    "scene": "scene_1_the_back_room",
+    "character": "SAL",
+    "cc": "Exclusive? So it's just mine?",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_05_sal.wav",
+    "dur": 2.775
+  },
+  {
+    "n": 6,
+    "scene": "scene_1_the_back_room",
+    "character": "DON ANGELO",
+    "cc": "...It's yours-ish.",
+    "action": "beat",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_06_don.wav",
+    "dur": 1.815
+  },
+  {
+    "n": 7,
+    "scene": "scene_1_the_back_room",
+    "character": "VINNIE",
+    "cc": "We sold it to four guys, bo\u2014",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_07_vinnie.wav",
+    "dur": 2.284
+  },
+  {
+    "n": 8,
+    "scene": "scene_1_the_back_room",
+    "character": "DON ANGELO",
+    "cc": "VINNIE.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_08_don.wav",
+    "dur": 1.004
+  },
+  {
+    "n": 9,
+    "scene": "scene_1_the_back_room",
+    "character": "NARRATOR",
+    "cc": "And there it was. The word no contractor survives. Yours-ish.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_09_narrator.wav",
+    "dur": 5.079
+  },
+  {
+    "n": 10,
+    "scene": "scene_2_the_racket_explained_badly",
+    "character": "NARRATOR",
+    "cc": "You see, one leaky faucet became one 'lead'... and one lead became four invoices. The Family calls this... efficiency.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_10_narrator.wav",
+    "dur": 9.346
+  },
+  {
+    "n": 11,
+    "scene": "scene_2_the_racket_explained_badly",
+    "character": "MRS. PETUNIA",
+    "cc": "Oh my \u2014 is this a plumber convention, dear? There's so many of you.",
+    "action": "opening door to four sweating plumbers",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_11_mrs.wav",
+    "dur": 5.271
+  },
+  {
+    "n": 12,
+    "scene": "scene_2_the_racket_explained_badly",
+    "character": "SAL",
+    "cc": "I paid forty bucks to lose a footrace!",
+    "action": "out of breath",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_12_sal.wav",
+    "dur": 2.434
+  },
+  {
+    "n": 13,
+    "scene": "scene_2_the_racket_explained_badly",
+    "character": "VINNIE",
+    "cc": "Technically you paid to enter the footrace, boss.",
+    "action": "helpfully",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_13_vinnie.wav",
+    "dur": 2.775
+  },
+  {
+    "n": 14,
+    "scene": "scene_2_the_racket_explained_badly",
+    "character": "NARRATOR",
+    "cc": "Vinnie, it should be noted, was the only honest man in the building. The Family considered this a flaw.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_14_narrator.wav",
+    "dur": 5.804
+  },
+  {
+    "n": 15,
+    "scene": "scene_3_the_squeeze",
+    "character": "DON ANGELO",
+    "cc": "Sal. Sal. You lose the job, you buy more leads. You win the job... you buy more leads. Either way... capisce?",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_15_don.wav",
+    "dur": 11.095
+  },
+  {
+    "n": 16,
+    "scene": "scene_3_the_squeeze",
+    "character": "SAL",
+    "cc": "That's not a business. That's a treadmill with a fedora.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_16_sal.wav",
+    "dur": 3.415
+  },
+  {
+    "n": 17,
+    "scene": "scene_3_the_squeeze",
+    "character": "NARRATOR",
+    "cc": "Our hero had found the catch. Now he needed... a way out. Cue the dramatic lighting we couldn't afford.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_17_narrator.wav",
+    "dur": 7.554
+  },
+  {
+    "n": 18,
+    "scene": "scene_4_the_way_out",
+    "character": "NARRATOR",
+    "cc": "Behind the green door \u2014 no Family. No footrace. Just the homeowners who came to Sal's own website... and decided to say hello.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_18_narrator.wav",
+    "dur": 9.41
+  },
+  {
+    "n": 19,
+    "scene": "scene_4_the_way_out",
+    "character": "SAL",
+    "cc": "'When a homeowner says yes on your site, you get their email. A real name. What they need. Yours alone \u2014 for seven bucks.'",
+    "action": "reading a card",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_19_sal.wav",
+    "dur": 8.919
+  },
+  {
+    "n": 20,
+    "scene": "scene_4_the_way_out",
+    "character": "VINNIE",
+    "cc": "No four guys?",
+    "action": "poking head through door",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_20_vinnie.wav",
+    "dur": 1.666
+  },
+  {
+    "n": 21,
+    "scene": "scene_4_the_way_out",
+    "character": "SAL",
+    "cc": "No four guys, Vinnie. They come back and call me.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_21_sal.wav",
+    "dur": 3.244
+  },
+  {
+    "n": 22,
+    "scene": "scene_4_the_way_out",
+    "character": "NARRATOR",
+    "cc": "It was consent-first. It was exclusive. And it cost less than the Don's footrace fee. Mrs. Petunia, for one, was thrilled to call a single plumber.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_22_narrator.wav",
+    "dur": 9.644
+  },
+  {
+    "n": 23,
+    "scene": "scene_4_the_way_out",
+    "character": "MRS. PETUNIA",
+    "cc": "Sal? It's about the faucet, dear. You're the only one I called.",
+    "action": "on phone",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_23_mrs.wav",
+    "dur": 6.274
+  },
+  {
+    "n": 24,
+    "scene": "scene_4_the_way_out",
+    "character": "SAL",
+    "cc": "The only one...",
+    "action": "tearing up",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_24_sal.wav",
+    "dur": 1.324
+  },
+  {
+    "n": 25,
+    "scene": "tag_mock_cliffhanger",
+    "character": "DON ANGELO",
+    "cc": "This isn't over, Wrench! Nobody leaves the Family!",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_25_don.wav",
+    "dur": 4.759
+  },
+  {
+    "n": 26,
+    "scene": "tag_mock_cliffhanger",
+    "character": "NARRATOR",
+    "cc": "But somebody just did. Will the Don adapt? Will Vinnie ever stop telling the truth? Will Mrs. Petunia's faucet ever get fixed? Tune in next time.",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_26_narrator.wav",
+    "dur": 11.095
+  },
+  {
+    "n": 27,
+    "scene": "tag_mock_cliffhanger",
+    "character": "NARRATOR",
+    "cc": "Next time: 'A Fistful of Invoices'... or \u2014 'The Don Who Knew Too Little.'",
+    "action": "",
+    "wav": "/Users/aaronphillips/GIT/consentresolve2/mafia/vo/line_27_narrator.wav",
+    "dur": 7.02
+  }
+]

@@ -32,8 +32,9 @@ def upload(path, title, desc, tags):
 
 def main():
     tok = token()
-    ep = OUT / "episode.mp4"
-    if not ep.exists(): sys.exit("no episode.mp4 — run assemble first")
+    ep = OUT / "episode_yt.mp4"
+    if not ep.exists(): ep = OUT / "episode.mp4"
+    if not ep.exists(): sys.exit("no episode — run assemble first")
     ep_id = upload(ep, "Mafia Marketing — Ep. 1: Yours-ish", DESC, TAGS)
 
     # playlist

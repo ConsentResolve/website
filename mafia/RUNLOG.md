@@ -77,3 +77,70 @@ Started Sat Jun 20 22:59:06 CDT 2026
 - `23:10:36`   newsreel.wav
 - `23:10:36`   chime.wav
 - `23:10:36` AUDIO: done
+- `23:11:11`   [13] ok VINNIE 2.78s
+- `23:12:03`   [14] ok NARRATOR 5.80s
+- `23:13:11`   [15] ok DON ANGELO 11.10s
+- `23:13:55`   [16] ok SAL 3.42s
+- `23:14:47`   [17] ok NARRATOR 7.55s
+- `23:15:47`   [18] ok NARRATOR 9.41s
+- `23:16:39`   [19] ok SAL 8.92s
+- `23:17:39`   [20] ok VINNIE 1.67s
+- `23:18:31`   [21] ok SAL 3.24s
+- `23:19:31`   [22] ok NARRATOR 9.64s
+- `23:20:23`   [23] ok MRS. PETUNIA 6.27s
+- `23:21:07`   [24] ok SAL 1.32s
+- `23:21:58`   [25] ok DON ANGELO 4.76s
+- `23:22:58`   [26] ok NARRATOR 11.10s
+- `23:23:51`   [27] ok NARRATOR 7.02s
+- `23:23:51` VOICE: done — 28 clips, 159.7s total VO (~2.7 min)
+- `23:24:13` ASSEMBLE: building clips
+- `23:24:13`   clip 0 FAIL -> bg+caption placeholder
+- `23:26:42` ASSEMBLE: building clips
+- `23:26:47`   clip 00 NARRATOR     9.1s  (t=9.1)
+- `23:26:52`   clip 01 SAL          4.4s  (t=13.5)
+- `23:26:56`   clip 02 NARRATOR     7.4s  (t=21.0)
+- `23:27:08`   clip 04 DON ANGELO   12.4s  (t=36.0)
+- `23:27:11`   clip 05 SAL          3.1s  (t=39.1)
+- `23:27:13`   clip 06 DON ANGELO   2.2s  (t=41.3)
+- `23:27:16`   clip 07 VINNIE       2.6s  (t=43.9)
+- `23:27:18`   clip 08 DON ANGELO   1.4s  (t=45.2)
+- `23:27:21`   clip 09 NARRATOR     5.4s  (t=50.7)
+- `23:27:31`   clip 10 NARRATOR     9.7s  (t=60.4)
+- `23:27:38`   clip 11 MRS. PETUNIA 5.6s  (t=66.0)
+- `23:27:41`   clip 12 SAL          2.8s  (t=68.8)
+- `23:27:44`   clip 13 VINNIE       3.1s  (t=71.9)
+- `23:27:50`   clip 14 NARRATOR     6.2s  (t=78.1)
+- `23:28:01`   clip 15 DON ANGELO   11.4s  (t=89.5)
+- `23:28:05`   clip 16 SAL          3.8s  (t=93.3)
+- `23:28:09`   clip 17 NARRATOR     7.9s  (t=101.2)
+- `23:28:15`   clip 19 NARRATOR     9.8s  (t=113.3)
+- `23:28:23`   clip 20 SAL          9.3s  (t=122.6)
+- `23:28:25`   clip 21 VINNIE       2.0s  (t=124.6)
+- `23:28:29`   clip 22 SAL          3.6s  (t=128.2)
+- `23:28:34`   clip 23 NARRATOR     10.0s  (t=138.2)
+- `23:28:39`   clip 24 MRS. PETUNIA 6.6s  (t=144.8)
+- `23:28:41`   clip 25 SAL          1.7s  (t=146.5)
+- `23:28:46`   clip 26 DON ANGELO   5.1s  (t=151.6)
+- `23:28:52`   clip 27 NARRATOR     11.4s  (t=163.1)
+- `23:28:56`   clip 28 NARRATOR     7.4s  (t=170.4)
+- `23:28:58` ASSEMBLE: concatenated 30 clips -> 175.8s
+- `23:30:39` ASSEMBLE: done -> /Users/aaronphillips/GIT/consentresolve2/mafia/out/episode.mp4  (2.93 min)
+- `23:33:28` SHORT short_a_yours_ish: 5 clips -> 14.8s short_a_yours_ish.mp4
+- `23:34:08` SHORT short_b_four_vans: 5 clips -> 27.5s short_b_four_vans.mp4
+- `23:34:58` SHORT short_c_green_door: 7 clips -> 43.1s short_c_green_door.mp4
+- `23:34:58` SHORTS: done
+- `23:35:46` uploaded episode_yt.mp4 -> https://www.youtube.com/watch?v=SNrDyBA_14k (unlisted)
+- `23:35:48` playlist Mafia Marketing -> PL_eMnmjavvjxG4DeieOf-dhVasXsVpa2K (+episode)
+- `23:35:50` uploaded short_a_yours_ish.mp4 -> https://www.youtube.com/watch?v=B9SS9zjcmd8 (unlisted)
+- `23:35:52` uploaded short_b_four_vans.mp4 -> https://www.youtube.com/watch?v=R_lRq9RK_Qk (unlisted)
+- `23:35:54` uploaded short_c_green_door.mp4 -> https://www.youtube.com/watch?v=RhIEW0Bx8CQ (unlisted)
+- `23:35:54` DONE — episode https://www.youtube.com/watch?v=SNrDyBA_14k
+
+## FINAL — Episode 1 complete (unlisted)
+- Episode: https://www.youtube.com/watch?v=SNrDyBA_14k  (1920x1080, 2:55)
+- Short A (yours-ish): https://www.youtube.com/watch?v=B9SS9zjcmd8
+- Short B (four-vans): https://www.youtube.com/watch?v=R_lRq9RK_Qk
+- Short C (green-door): https://www.youtube.com/watch?v=RhIEW0Bx8CQ
+- Playlist: Mafia Marketing (PL_eMnmjavvjxG4DeieOf-dhVasXsVpa2K)
+- 28/28 VO clips (0 placeholders); 4 Recraft characters; 5 OpenAI backgrounds + van; synth audio.
+- Flags: music/SFX synthesized; backgrounds via OpenAI (Recraft credits exhausted); captions/titles via PIL (no drawtext). See README.md.
