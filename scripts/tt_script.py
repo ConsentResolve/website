@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""Locked VO script for Thumbtack-Exposed (HVAC). vo = exact narration sent to HeyGen
+(URL spelled phonetically); scene = which motion-graphic to render."""
+
+SEGMENTS = [
+ {"id": "01_hook", "scene": "hook",
+  "vo": "A homeowner in your town taps one button. Four HVAC contractors get charged for it. "
+        "Nobody's booked the job. Nobody's even talked yet. But everybody just paid. "
+        "That's not a marketplace. It's a turnstile. So let's do the math Thumbtack keeps off the billboard."},
+ {"id": "02_customer", "scene": "customer",
+  "vo": "From the homeowner's side, it's slick. They type, A C not cooling, answer a few questions, and "
+        "Thumbtack instantly lines up pros ready to quote. Two minutes, zero cost, sit back. Frictionless. For them."},
+ {"id": "03_contractor", "scene": "contractor",
+  "vo": "Now flip it to your side of the screen. You're not paying for jobs. You're paying for contacts. "
+        "The second a homeowner messages you, your card gets charged. Win or lose. And that lead wasn't just yours. "
+        "Thumbtack shows most projects to four or five pros at once. You're not buying a customer. You're buying a "
+        "ticket to a race you might already be losing. And the price isn't fixed. Thumbtack re-prices leads every week "
+        "on supply and demand. For HVAC, that's roughly thirty-five to ninety dollars. Per contact."},
+ {"id": "04_math", "scene": "math",
+  "vo": "Let's run a real month. Say you buy thirty HVAC leads at fifty-five dollars each. That's sixteen-fifty, "
+        "gone before you've fixed a single furnace. But it gets sharper. Each lead went to four pros, so you're one "
+        "voice in four. Maybe half the homeowners even reply. The rest are price-shopping, or they ghost you. That's "
+        "fifteen real conversations. Win a strong one in four, and you've booked four jobs. Sixteen-fifty, divided by "
+        "four, is over four hundred dollars to land one customer. Even on a great month with responsive leads, you're "
+        "north of two hundred. Every month. Win or lose."},
+ {"id": "05_complaints", "scene": "complaints",
+  "vo": "And don't take my word for it. Across Reddit, the Better Business Bureau, and the review sites, HVAC pros "
+        "tell the same four stories. One. I paid seventy-eight dollars for a lead that never texted back. Two. I won "
+        "the job, and still got charged for the three I lost. Three. I asked for a refund, and got platform credit, "
+        "not my money, so I'm stuck spending it there. Four. I set my service area, and still got billed for a lead "
+        "two states away. Different pros. Same script."},
+ {"id": "06_turn", "scene": "turn",
+  "vo": "Here's the thing. That's not bad luck. It's the design. When you rent leads from a shared platform, you don't "
+        "own the pipe. They set the price, they pick who else gets your lead, and they keep your refund as store credit. "
+        "You're renting access to your own customers. So we built the opposite. With Consent Resolve, the homeowner opts "
+        "in on your own website, and comes back to call you. Exclusive. Consent-first. Yours alone. Never resold. Seven "
+        "dollars. Not seven dollars to stand in line behind three other guys. Seven dollars for a real name, a real "
+        "email, and exactly what they need."},
+ {"id": "07_end", "scene": "end",
+  "vo": "Stop paying to enter the race. Start owning the finish line. Consent resolve dot com slash demo."},
+]
