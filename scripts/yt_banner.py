@@ -45,15 +45,24 @@ d = ImageDraw.Draw(img)
 
 # ── center safe area (1235x338), vertically centered: y 407..745 ──
 cx = W//2
-d.rectangle([cx-70, 430, cx+70, 436], fill=MINT)                       # accent rule
-ctext(d, cx, 452, "CONSENT RESOLVE", font(40), MINT, ls=10)            # kicker
-ctext(d, cx, 510, "Your leads should be yours.", font(96), TEXT)       # headline
-ctext(d, cx, 628, "Exclusive  ·  consent-first  ·  $7 a lead  ·  never resold", font(40), SUB)
+# headline (kicker removed; block moved up)
+ctext(d, cx, 430, "Your leads should be yours.", font(96), TEXT)
+# value-prop badges
+badges = ["Exclusive", "Consent-First", "Never Resold", "For Service Pros"]
+bf = font(34); bh = 62; padx = 28; gap = 22
+widths = [d.textlength(b, font=bf) + padx*2 for b in badges]
+total = sum(widths) + gap*(len(badges)-1)
+x = cx - total/2; by = 568
+for b, w in zip(badges, widths):
+    d.rounded_rectangle([x, by, x+w, by+bh], radius=bh//2, fill=(12, 38, 30), outline=MINT, width=2)
+    ctext(d, x + w/2, by + 11, b, bf, MINT)
+    x += w + gap
 # url pill
 pill = "consentresolve.com/demo"; pf = font(36)
 pw = d.textlength(pill, font=pf) + 80
-d.rounded_rectangle([cx-pw/2, 690, cx+pw/2, 752], radius=31, fill=(12, 38, 30), outline=MINT, width=2)
-ctext(d, cx, 700, pill, pf, MINT)
+by2 = 668
+d.rounded_rectangle([cx-pw/2, by2, cx+pw/2, by2+62], radius=31, fill=(12, 38, 30), outline=MINT, width=2)
+ctext(d, cx, by2+10, pill, pf, MINT)
 
 out = ROOT / "yt-channel-banner.png"
 img.save(out, "PNG")
