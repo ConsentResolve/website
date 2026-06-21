@@ -13,7 +13,11 @@ if not (CLIENT_ID and CLIENT_SECRET):
     sys.exit("Set YT_CLIENT_ID and YT_CLIENT_SECRET env vars (one-time OAuth bootstrap).")
 PORT = 8765
 REDIRECT = f"http://127.0.0.1:{PORT}/"
-SCOPES = "https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly"
+# youtube.force-ssl unlocks playlists, captions, thumbnails, channel sections + scheduling
+# (uploads + read still covered). Re-run this to upgrade an upload-only token.
+SCOPES = ("https://www.googleapis.com/auth/youtube.upload "
+          "https://www.googleapis.com/auth/youtube.force-ssl "
+          "https://www.googleapis.com/auth/youtube.readonly")
 AUTH = ("https://accounts.google.com/o/oauth2/v2/auth?" + urllib.parse.urlencode({
     "client_id": CLIENT_ID, "redirect_uri": REDIRECT, "response_type": "code",
     "scope": SCOPES, "access_type": "offline", "prompt": "consent", "include_granted_scopes": "true"}))
