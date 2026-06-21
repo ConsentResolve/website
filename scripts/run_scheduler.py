@@ -151,8 +151,9 @@ def main():
                                 "platform": p, "ptype": "reel", "status": "ok" if ok else "fail", "pid": pid, "url": purl, "note": note})
         # LinkedIn via Buffer (interim until native LinkedIn API approval). Once per run
         # to respect LinkedIn cadence; gated by BUFFER_LINKEDIN_CHANNEL.
-        li_ch = os.environ.get("BUFFER_LINKEDIN_CHANNEL")
-        if li_ch and url and not li_done:
+        li_ch = os.environ.get("BUFFER_LINKEDIN_CHANNEL", "6a38746c5ab6d2f1065994ca")
+        li_skip = kind == "shoptalk" or "shoptalk" in ((it.get("name", "") or "") + " " + (it.get("url", "") or "")).lower()
+        if li_ch and url and not li_done and not li_skip:  # no SHOP TALK on LinkedIn
             li_ok, li_out = run([PY, str(ROOT/"scripts/post_buffer.py"), li_ch, url, it["caption"],
                                  "shareNow", ("ai" if kind == "ugc" else "noai"), "linkedin"], dry)
             if not dry and li_ok is not None:
