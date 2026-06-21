@@ -33,19 +33,25 @@ def auth_url(redirect):
         "scope": SCOPE, "access_type": "offline", "prompt": "consent",
         "include_granted_scopes": "true"})
 
-def _token(data):
+def _token(data, expect_refresh=True):
     req = urllib.request.Request(TOKEN, data=urllib.parse.urlencode(data).encode(),
         headers={"Content-Type": "application/x-www-form-urlencoded"})
     try:
         r = json.load(urllib.request.urlopen(req, timeout=30))
     except urllib.error.HTTPError as e:
         print("HTTP", e.code, e.read().decode()[:500]); raise SystemExit(1)
+    # Preserve the refresh_token across `refresh` calls (Google only returns it on exchange).
+    if not r.get("refresh_token") and os.path.exists("/tmp/google_token.json"):
+        prev = json.load(open("/tmp/google_token.json"))
+        if prev.get("refresh_token"): r["refresh_token"] = prev["refresh_token"]
     json.dump(r, open("/tmp/google_token.json", "w"))
-    if r.get("refresh_token"):
-        print("\n=== GOOGLE_REFRESH_TOKEN (copy into Cloudflare) ===\n" + r["refresh_token"] + "\n")
-    else:
+    if expect_refresh and r.get("refresh_token"):
+        print("\n=== GOOGLE_REFRESH_TOKEN (copy into Cloudflare — do NOT paste in chat) ===\n" + r["refresh_token"] + "\n")
+    elif expect_refresh:
         print("\n[!] No refresh_token returned — re-run the `url` step (prompt=consent) and approve again.\n")
-    print(json.dumps({k: v for k, v in r.items() if k != "access_token"}, indent=2))
+    else:
+        print("\n[ok] refresh succeeded (Google omits refresh_token on refresh — that's normal).\n")
+    print(json.dumps({k: v for k, v in r.items() if k not in ("access_token", "refresh_token")}, indent=2))
     return r
 
 if __name__ == "__main__":
@@ -59,4 +65,4 @@ if __name__ == "__main__":
     elif cmd == "refresh":
         t = json.load(open("/tmp/google_token.json"))
         _token({"client_id": cid, "client_secret": sec, "grant_type": "refresh_token",
-                "refresh_token": t["refresh_token"]})
+                "refresh_token": t["refresh_token"]}, expect_refresh=False)
