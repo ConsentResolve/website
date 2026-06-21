@@ -15,9 +15,10 @@ HEYGEN_KEY = open("/tmp/heygen_key.txt").read().strip()
 RECRAFT_KEY = (Path.home()/".config/recraft/key").read_text().strip()
 
 # Global style suffix appended to EVERY image prompt (locks the look).
-STYLE = ("mid-century UPA cartoon, flat colors, limited palette, thick bold ink outlines, "
-         "grainy litho paper texture, Jay Ward 1960s TV animation, larger-than-life mob "
-         "caricature, simple geometric shapes, clean vector-like shading, retro halftone")
+# NOTE: no proper nouns (UPA / Jay Ward) — they render as literal text in the image.
+STYLE = ("1960s mid-century limited-animation cartoon, flat colors, limited palette, thick "
+         "bold black ink outlines, grainy litho paper texture, retro halftone shading, bold "
+         "simple geometric shapes, larger-than-life caricature, no lettering, no text, no words")
 
 def log(msg):
     ts = datetime.datetime.now().strftime("%H:%M:%S")
@@ -46,6 +47,28 @@ def recraft(prompt, out_png, size="1820x1024", style="digital_illustration", sub
             log(f"recraft FAIL ({attempt}) {Path(out_png).name}: {str(e)[:140]}")
             time.sleep(4)
     return False
+
+def recraft_remove_bg(in_png, out_png, retries=1):
+    """POST the image to Recraft removeBackground -> transparent PNG. Falls back to a
+    copy of the original (opaque) if it fails, so compositing still proceeds."""
+    import mimetypes, uuid
+    for attempt in range(retries + 1):
+        try:
+            blob = Path(in_png).read_bytes(); b = "----mafiabg" + uuid.uuid4().hex
+            body = (f"--{b}\r\nContent-Disposition: form-data; name=\"response_format\"\r\n\r\nurl\r\n"
+                    f"--{b}\r\nContent-Disposition: form-data; name=\"image\"; filename=\"i.png\"\r\n"
+                    "Content-Type: image/png\r\n\r\n").encode() + blob + f"\r\n--{b}--\r\n".encode()
+            req = urllib.request.Request("https://external.api.recraft.ai/v1/images/removeBackground",
+                data=body, headers={"Authorization": f"Bearer {RECRAFT_KEY}",
+                "Content-Type": f"multipart/form-data; boundary={b}"})
+            payload = json.loads(urllib.request.urlopen(req, timeout=180).read())
+            url = (payload.get("image") or {}).get("url") or (payload.get("data") or [{}])[0].get("url")
+            if not url: raise RuntimeError(str(payload)[:160])
+            Path(out_png).write_bytes(urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "mafia/1.0"}), timeout=120).read())
+            return True
+        except Exception as e:
+            log(f"removeBg FAIL ({attempt}) {Path(out_png).name}: {str(e)[:120]}"); time.sleep(3)
+    Path(out_png).write_bytes(Path(in_png).read_bytes()); return False
 
 # ── HeyGen TTS (audio-only via talking_photo; video discarded) ────────────────
 _LOOK = "b8cf5419ad5247d38bb000fd0df239a6"   # arbitrary look; we keep only the audio
