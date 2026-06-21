@@ -36,7 +36,7 @@ Return STRICT JSON with these keys:
 - thumbnail_text: <=6 punchy words
 - chapters: array of {time_label,title}, starting "00:00 Intro" (time_labels are ESTIMATES; exact ones are recomputed from the rendered audio)
 - avatar_intro: 2-3 sentence on-camera hook (spoken by AA-Ron), promises the answer
-- body: array of {heading,narration}; EXACTLY 7-9 slide-narrated sections; each narration MUST be 110-160 words (write the full spoken paragraph, concrete examples + numbers, conversational — do not summarize or use bullet points)
+- body: array of {heading,narration,bullets}; EXACTLY 7-9 slide-narrated sections; each narration MUST be 110-160 words (full spoken paragraph, concrete examples + numbers, conversational); bullets = 2-4 short on-screen phrases (<=6 words each) summarizing that section's narration
 - avatar_outro: 2-3 sentence on-camera close with the consentresolve.com/demo CTA
 IMPORTANT: total spoken words across intro+body+outro MUST be 1200-1700 (~8-11 min). Write real, full narration paragraphs — depth and specifics, not outlines.
 
