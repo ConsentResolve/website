@@ -55,3 +55,43 @@
 - `21:58:23` [C] panels via 608b6955…
 - `21:58:23` [C] composing + assembling
 - `21:58:37` [C] DONE -> /Users/aaronphillips/GIT/consentresolve2/disaster/out/C.mp4 (33.1s)
+- `07:06:42` [A] generating open-mouth variants for lip-flap
+- `07:06:49`   [A] mike_confident_open ok
+- `07:06:56`   [A] mike_pause_open ok
+- `07:07:04`   [A] mike_nervous_open ok
+- `07:07:11`   [A] mike_defeated_open ok
+- `07:07:17`   [A] frank_coffee_open ok
+- `07:07:24`   [A] frank_deadpan_open ok
+- `07:07:31`   [A] frank_eyebrow_open ok
+- `07:07:38`   [A] frank_camera_open ok
+- `07:07:50`   [A] frank_approve_open ok
+- `07:07:50` [A] open-mouth variants done
+- `07:08:59` [A polish] building scenes
+- `07:09:24` [A polish] DONE -> /Users/aaronphillips/GIT/consentresolve2/disaster/out/A_polished.mp4 (32.5s)
+- `07:11:35` [A polish] building scenes
+- `07:11:55` [A polish] DONE -> /Users/aaronphillips/GIT/consentresolve2/disaster/out/A_polished.mp4 (32.5s)
+- `07:28:58` inpaint open-mouth: mike_confident ok
+- `07:29:06` inpaint open-mouth: mike_pause ok
+- `07:29:14` inpaint open-mouth: mike_nervous ok
+- `07:29:23` inpaint open-mouth: mike_defeated ok
+- `07:29:33` inpaint open-mouth: frank_coffee ok
+- `07:29:41` inpaint open-mouth: frank_deadpan ok
+- `07:29:54` inpaint open-mouth: frank_eyebrow ok
+- `07:30:02` inpaint open-mouth: frank_camera ok
+- `07:30:11` inpaint open-mouth: frank_approve ok
+- `07:30:11` LIP inpaint done
+- `07:31:22` [A polish] building scenes
+- `07:31:45` [A lipflap] DONE -> /Users/aaronphillips/GIT/consentresolve2/disaster/out/A_lipflap.mp4 (32.5s)
+- `07:39:58` regen frank_coffee ok
+- `07:40:05` regen frank_deadpan ok
+- `07:40:13` regen frank_eyebrow ok
+- `07:40:21` regen frank_camera ok
+- `07:40:29` regen frank_approve ok
+- `07:40:29` Frank regen done
+- `07:41:51` Frank inpaint frank_coffee: ok
+- `07:42:00` Frank inpaint frank_deadpan: ok
+- `07:42:09` Frank inpaint frank_eyebrow: ok
+- `07:42:20` Frank inpaint frank_camera: ok
+- `07:42:29` Frank inpaint frank_approve: ok
+- `07:43:05` [A polish] building scenes
+- `07:43:23` [A lipflap] DONE -> /Users/aaronphillips/GIT/consentresolve2/disaster/out/A_lipflap.mp4 (32.5s)
