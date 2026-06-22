@@ -33,8 +33,8 @@ export async function onRequestGet({ request, env }) {
     delivery: [
       ...(await r2json("social/post-log.json")),
       ...(await all(
-        "SELECT platform, resource_slug name, post_url, published_at ts FROM social_queue WHERE status='published' AND platform IN ('x','google_business_profile') ORDER BY published_at DESC LIMIT 60"
-      )).map((r) => ({ platform: r.platform === "google_business_profile" ? "gbp" : r.platform,
+        "SELECT platform, resource_slug name, post_url, published_at ts FROM social_queue WHERE status='published' AND platform IN ('x','google_business_profile','linkedin_company') ORDER BY published_at DESC LIMIT 60"
+      )).map((r) => ({ platform: r.platform === "google_business_profile" ? "gbp" : (r.platform === "linkedin_company" ? "li" : r.platform),
         name: r.name, status: "ok", ts: r.ts, note: r.post_url || "" })),
     ],
   });

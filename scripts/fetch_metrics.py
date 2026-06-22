@@ -72,10 +72,10 @@ def ig_backfill():
     except Exception as e: print("ig backfill:", e)
     return rows
 
-def tk_backfill():
-    """TikTok views/engagement via Buffer's GraphQL (api.buffer.com) — Buffer surfaces
-    per-post Views/Reach/Reactions for the connected TikTok channel, which TikTok's own
-    API does not expose to us. Token from /tmp/buffer_token.txt (same as the poster)."""
+def buffer_backfill(service, platform):
+    """Per-post views/engagement for a Buffer-managed channel (TikTok, LinkedIn) via
+    Buffer's GraphQL — Buffer surfaces metrics the platform's own API doesn't give us.
+    views<-Views|Impressions, likes<-Reactions|Likes. Token from /tmp/buffer_token.txt."""
     tok = _read("/tmp/buffer_token.txt") or os.environ.get("BUFFER_TOKEN", "")
     if not tok: return []
     def bq(query, var=None):
@@ -88,7 +88,7 @@ def tk_backfill():
     try:
         acc = (bq("{ account { organizations { id } channels { id service } } }").get("data") or {}).get("account") or {}
         org = ((acc.get("organizations") or [{}])[0]).get("id")
-        chans = [c["id"] for c in (acc.get("channels") or []) if (c.get("service") or "").lower() == "tiktok"]
+        chans = [c["id"] for c in (acc.get("channels") or []) if (c.get("service") or "").lower() == service]
         if not (org and chans): return []
         Q = ("query($in:PostsInput!,$f:Int){ posts(input:$in, first:$f){ edges { node { "
              "status text metrics { name value } } } } }")
@@ -97,11 +97,14 @@ def tk_backfill():
             nd = e.get("node") or {}
             if nd.get("status") != "sent": continue
             mm = {m["name"]: m["value"] for m in (nd.get("metrics") or [])}
-            rows.append({"name": match(nd.get("text")), "platform": "tk",
-                         "views": mm.get("Views"), "likes": mm.get("Reactions"),
-                         "url": ""})
-    except Exception as e: print("tk backfill:", e)
+            views = mm.get("Views") if mm.get("Views") is not None else mm.get("Impressions")
+            likes = mm.get("Reactions") if mm.get("Reactions") is not None else mm.get("Likes")
+            rows.append({"name": match(nd.get("text")), "platform": platform, "views": views, "likes": likes, "url": ""})
+    except Exception as e: print(f"{platform} backfill:", e)
     return rows
+
+def tk_backfill(): return buffer_backfill("tiktok", "tk")
+def li_backfill(): return buffer_backfill("linkedin", "li")
 
 def yt_backfill():
     p = Path("/tmp/yt_token.json")
@@ -138,12 +141,12 @@ def x_backfill():
         print("x backfill:", e); return []
 
 def main():
-    rows = fb_backfill() + ig_backfill() + yt_backfill() + tk_backfill() + x_backfill()
+    rows = fb_backfill() + ig_backfill() + yt_backfill() + tk_backfill() + x_backfill() + li_backfill()
     rows = [r for r in rows if (r.get("views") or 0) > 0 or r.get("likes")]
     tmp = "/tmp/metrics.json"; Path(tmp).write_text(json.dumps(rows))
     subprocess.run(["/usr/bin/python3", str(ROOT / "scripts/r2_upload.py"), tmp, "social/metrics.json", "application/json"], check=False)
     tv = sum(r.get("views") or 0 for r in rows)
-    print(f"wrote social/metrics.json — {len(rows)} posts, {tv:,} total views (fb/ig/yt/tk/x direct backfill)")
+    print(f"wrote social/metrics.json — {len(rows)} posts, {tv:,} total views (fb/ig/yt/tk/x/li direct backfill)")
 
 if __name__ == "__main__":
     main()

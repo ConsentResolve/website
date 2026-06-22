@@ -58,8 +58,8 @@ fetch(C.analyticsUrl+'&t='+Date.now()).then(r=>r.ok?r.json():null).catch(()=>nul
     .map(([l,v,r])=>`<div class="kpi"><div class="n">${n(v)}</div><div class="l">${l}</div><div class="r">${r}</div></div>`).join('');
   if(!a){$('#funnelnote').innerHTML='<div class="empty">Clicks/Demos/Signups load from /api/analytics — showing 0 until the worker deploys + the first visitor lands. Views populate as the metrics fetcher runs.</div>';}
   // views by platform — always show every platform (0 until views accrue)
-  const PLAT={fb:'Facebook',ig:'Instagram',yt:'YouTube',tk:'TikTok',x:'X'};
-  const bp={fb:0,ig:0,yt:0,tk:0,x:0};m.forEach(r=>{if(r.platform in bp)bp[r.platform]+=(+r.views||0);});
+  const PLAT={fb:'Facebook',ig:'Instagram',yt:'YouTube',tk:'TikTok',x:'X',li:'LinkedIn'};
+  const bp={fb:0,ig:0,yt:0,tk:0,x:0,li:0};m.forEach(r=>{if(r.platform in bp)bp[r.platform]+=(+r.views||0);});
   $('#byplat').innerHTML='<div class="cards">'+Object.keys(PLAT).map(k=>`<div class="stat"><div class="n">${n(bp[k])}</div><div class="l">${PLAT[k]} views</div></div>`).join('')+'</div>';
   // top reels → ad candidates
   m.sort((x,y)=>(y.views||0)-(x.views||0));
@@ -98,6 +98,7 @@ HTML = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
   <a class="lk" href="https://studio.youtube.com/" target="_blank">YouTube Studio</a>
   <a class="lk" href="https://www.tiktok.com/tiktokstudio" target="_blank">TikTok Studio</a>
   <a class="lk" href="https://analytics.x.com/" target="_blank">X Analytics</a>
+  <a class="lk" href="https://www.linkedin.com/company/consent-resolve/admin/analytics/visitors/" target="_blank">LinkedIn Analytics</a>
   <a class="lk" href="/fb-calendar" target="_blank">Social calendar</a>
 </div>
 <script>{JS.replace('%CFG%', json.dumps(CFG))}</script></body></html>"""
