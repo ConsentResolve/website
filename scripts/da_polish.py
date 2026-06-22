@@ -104,18 +104,28 @@ def main():
                 "-vf",f"fps={FPS},fade=t=in:st=0:d=0.2","-c:v","libx264","-pix_fmt","yuv420p","-r",str(FPS),
                 "-c:a","aac","-af","apad","-t",f"{secs:.2f}",str(out)])
             cuts.append(("ding", clock+0.1)); clock += secs; clips.append(str(out)); continue
-        # speaking scene: single consistent panel + audio-synced talking bob (no jitter)
+        # speaking scene: registration-perfect lip-flap (closed<->open inpaint twin) + bob
         vo = dur(DA/"vo"/f"{s['id']}.wav"); secs = vo + 0.3
-        bgp = bg_numbers(s); char = AART/f"{s['panel']}.cut.png"
-        bigh = int(H * (1.5 if s["zoom"] >= 0.12 else 1.42))   # tight: big head, body crops off
-        basey = int(-H*0.12)
-        ff(["-loop","1","-t",f"{secs:.2f}","-i",str(bgp),"-loop","1","-t",f"{secs:.2f}","-i",str(char),
-            "-i",str(DA/"vo"/f"{s['id']}.wav"),"-filter_complex",
-            f"[1:v]scale=-1:{bigh}[c];[0:v][c]overlay=x='(W-w)/2':"
-            f"y='{basey}+7*sin(2*PI*5*t)*between(t,0,{vo:.2f})'[v0];"
-            f"[v0]fps={FPS},fade=t=in:st=0:d=0.1[v];[2:a]apad[a]",
-            "-map","[v]","-map","[a]","-t",f"{secs:.2f}","-c:v","libx264","-pix_fmt","yuv420p","-r",str(FPS),
-            "-c:a","aac","-ar","44100","-ac","2",str(out)])
+        bgp = bg_numbers(s); char = AART/f"{s['panel']}.cut.png"; charo = AART/f"{s['panel']}_open.cut.png"
+        bigh = int(H * (1.5 if s["zoom"] >= 0.12 else 1.42)); basey = int(-H*0.12)
+        yb = f"{basey}+7*sin(2*PI*5*t)*between(t,0,{vo:.2f})"
+        wav = str(DA/"vo"/f"{s['id']}.wav")
+        if charo.exists():
+            flap = f"between(t,0,{vo:.2f})*lt(mod(t\\,0.26),0.12)"   # ~3.8Hz mouth flap during speech
+            ff(["-loop","1","-t",f"{secs:.2f}","-i",str(bgp),"-loop","1","-t",f"{secs:.2f}","-i",str(char),
+                "-loop","1","-t",f"{secs:.2f}","-i",str(charo),"-i",wav,"-filter_complex",
+                f"[1:v]scale=-1:{bigh}[c];[2:v]scale=-1:{bigh}[o];"
+                f"[0:v][c]overlay=x='(W-w)/2':y='{yb}'[v1];"
+                f"[v1][o]overlay=x='(W-w)/2':y='{yb}':enable='{flap}'[v2];"
+                f"[v2]fps={FPS},fade=t=in:st=0:d=0.1[v];[3:a]apad[a]",
+                "-map","[v]","-map","[a]","-t",f"{secs:.2f}","-c:v","libx264","-pix_fmt","yuv420p","-r",str(FPS),
+                "-c:a","aac","-ar","44100","-ac","2",str(out)])
+        else:
+            ff(["-loop","1","-t",f"{secs:.2f}","-i",str(bgp),"-loop","1","-t",f"{secs:.2f}","-i",str(char),"-i",wav,
+                "-filter_complex",f"[1:v]scale=-1:{bigh}[c];[0:v][c]overlay=x='(W-w)/2':y='{yb}'[v0];"
+                f"[v0]fps={FPS},fade=t=in:st=0:d=0.1[v];[2:a]apad[a]",
+                "-map","[v]","-map","[a]","-t",f"{secs:.2f}","-c:v","libx264","-pix_fmt","yuv420p","-r",str(FPS),
+                "-c:a","aac","-ar","44100","-ac","2",str(out)])
         cuts.append(("whoosh", clock))
         if s["id"] == "s7": cuts.append(("thud", clock))
         clock += secs; clips.append(str(out))
@@ -130,9 +140,9 @@ def main():
         if not f.exists(): continue
         ins += ["-i",str(f)]; ms=int(max(0,t)*1000); amix.append(f"[{idx}:a]adelay={ms}|{ms},volume=0.5[s{idx}]"); lbls.append(f"[s{idx}]"); idx+=1
     fc = ";".join(amix) + f";{''.join(lbls)}amix=inputs={len(lbls)}:duration=first:dropout_transition=0,dynaudnorm[a]"
-    out = OUT/"A_polished.mp4"
+    out = OUT/"A_lipflap.mp4"
     ff([*ins,"-filter_complex",fc,"-map","0:v","-map","[a]","-c:v","copy","-c:a","aac","-b:a","192k","-movflags","+faststart",str(out)])
-    log(f"[A polish] DONE -> {out} ({dur(out):.1f}s)")
+    log(f"[A lipflap] DONE -> {out} ({dur(out):.1f}s)")
 
 if __name__ == "__main__":
     main()
