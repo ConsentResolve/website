@@ -37,9 +37,9 @@ export async function onRequestGet({ request, env }) {
         name: c.campaign_name || c.name || c.campaign_id || c.id || "campaign",
         leads: num(c, "leads_count", "total_leads", "leads"),
         sent: num(c, "emails_sent_count", "sent_count", "emails_sent", "contacted_count", "sent"),
-        opens: num(c, "open_count", "unique_opens", "opened", "opens"),
-        replies: num(c, "reply_count", "replied", "replies"),
-        interested: num(c, "interested_count", "positive_reply_count", "interested"),
+        opens: num(c, "open_count_unique", "open_count", "unique_opens", "opened"),
+        replies: num(c, "reply_count_unique", "reply_count", "replied"),
+        interested: num(c, "total_opportunities", "interested_count", "positive_reply_count"),
       }));
     } catch { return []; }
   })();
