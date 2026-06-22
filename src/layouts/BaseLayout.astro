@@ -60,11 +60,16 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       <script is:inline type="text/plain" data-usercentrics="TikTok Pixel" set:html={`!function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];ttq.setAndDefer=function(e,n){e[n]=function(){e.push([n].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(e){for(var n=ttq._i[e]||[],i=0;i<ttq.methods.length;i++)ttq.setAndDefer(n,ttq.methods[i]);return n};ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=r;ttq._t=ttq._t||{};ttq._t[e]=+new Date;ttq._o=ttq._o||{};ttq._o[e]=n||{};var s=d.createElement("script");s.type="text/javascript";s.async=!0;s.src=r+"?sdkid="+e+"&lib="+t;var a=d.getElementsByTagName("script")[0];a.parentNode.insertBefore(s,a)};ttq.load('${TIKTOK_PIXEL_ID}');ttq.page()}(window,document,'ttq');`} />
     )}
 
-    <!-- Leadsy AI vtag (visitor identification) -->
-    <script is:inline id="vtag-ai-js" async src="https://r2.leadsy.ai/tag.js" data-pid="1a05vWNgmDU1HfyCP" data-version="062024"></script>
+    <!-- Leadsy AI vtag (visitor identification) — CONSENT-GATED via ConsentResolve/Usercentrics
+         autoblocker: type=text/plain keeps it inert until the user consents to the "Leadsy"
+         service. The data-usercentrics value MUST match the service name configured in the
+         ConsentResolve/Usercentrics dashboard, or the script never loads. -->
+    <script is:inline type="text/plain" data-usercentrics="Leadsy" id="vtag-ai-js" async src="https://r2.leadsy.ai/tag.js" data-pid="1a05vWNgmDU1HfyCP" data-version="062024"></script>
 
-    <!-- RB2B (visitor de-anonymization) -->
-    <script is:inline>
+    <!-- RB2B (visitor de-anonymization) — CONSENT-GATED via ConsentResolve/Usercentrics
+         autoblocker: type=text/plain keeps this inline script inert until the user consents
+         to the "RB2B" service. data-usercentrics MUST match the configured service name. -->
+    <script is:inline type="text/plain" data-usercentrics="RB2B">
       !function(key) {
         if (window.reb2b) return;
         window.reb2b = {loaded: true};
@@ -86,9 +91,15 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       }catch(e){}})();
     </script>
 
-    <!-- Google Analytics (GA4) + Google Ads remarketing (AW-) — one gtag.js loader -->
-    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-6JTD5SZNFY"></script>
-    <script is:inline>
+    <!-- Google Analytics (GA4) + Google Ads remarketing (AW-) — CONSENT-GATED via
+         ConsentResolve/Usercentrics autoblocker. Both ride one gtag.js loader, so they are
+         gated together under the "Google Analytics" service: type=text/plain keeps the loader
+         AND the config inert until consent, then the CMP flips them to executable. The loader
+         must be gated too — otherwise gtag.js fetches (and can set _ga/_gcl cookies) pre-consent.
+         data-usercentrics MUST match the configured service name. (For separate Analytics vs.
+         Ads consent, switch to Google Consent Mode v2 — a larger change.) -->
+    <script is:inline type="text/plain" data-usercentrics="Google Analytics" async src="https://www.googletagmanager.com/gtag/js?id=G-6JTD5SZNFY"></script>
+    <script is:inline type="text/plain" data-usercentrics="Google Analytics">
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
