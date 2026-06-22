@@ -163,6 +163,29 @@ def add_lead(cid, row):
             "company_name": get(row, "company", "company name", "organization", "company name for emails")}
     api("POST", "/leads", body)
 
+def fix_empty_names(cid, rows):
+    """Self-heal: Instantly silently ignores name fields for emails it already knows, so after
+    a load some leads can have blank first/last names. Page the campaign and PATCH any blanks
+    from the CSV (matched by email). Cheap when names already stuck (just reads)."""
+    names = {}
+    for r in rows:
+        em = get(r, "email", "work email").lower()
+        if em: names[em] = (get(r, "first name", "first"), get(r, "last name", "last"))
+    fixed = 0; after = None
+    while True:
+        body = {"campaign": cid, "limit": 100}
+        if after: body["starting_after"] = after
+        resp = api("POST", "/leads/list", body); items = resp.get("items") or []
+        if not items: break
+        for L in items:
+            fn, ln = names.get((L.get("email") or "").lower(), ("", ""))
+            if fn and not L.get("first_name"):
+                api("PATCH", f"/leads/{L['id']}", {"first_name": fn, "last_name": ln}); fixed += 1
+        after = resp.get("next_starting_after")
+        if not after: break
+    if fixed: print(f"  self-heal: patched {fixed} blank names")
+    return fixed
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
     ap = argparse.ArgumentParser()
@@ -196,6 +219,7 @@ def main():
     for (_, r) in push:
         add_lead(cid, r); ok += 1
         if ok % 25 == 0: print(f"  …{ok}/{len(push)}")
+    fix_empty_names(cid, [r for (_, r) in push])   # self-heal blank names (Instantly dedup quirk)
     print(f"DONE. Added {ok} leads to campaign {cid} (PAUSED). Review + launch in Instantly.")
 
 if __name__ == "__main__":
