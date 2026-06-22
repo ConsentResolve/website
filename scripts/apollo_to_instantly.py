@@ -157,10 +157,25 @@ def create_campaign():
     print(f"  created campaign id={cid} (PAUSED — review in Instantly before launch)")
     return cid
 
+# Apollo columns → Instantly custom variables (usable as {{website}}, {{technologies}}, etc.)
+CUSTOM_FIELDS = {
+    "title": ("title",), "website": ("website",),
+    "employees": ("# employees", "num employees", "employees", "company size"),
+    "technologies": ("technologies",), "city": ("city", "company city"),
+    "state": ("state", "company state"), "industry": ("industry",),
+}
+def custom_vars(row):
+    cv = {}
+    for var, cols in CUSTOM_FIELDS.items():
+        v = get(row, *cols)
+        if v: cv[var] = v
+    return cv
+
 def add_lead(cid, row):
     body = {"campaign": cid, "email": get(row, "email", "work email"),
             "first_name": get(row, "first name", "first"), "last_name": get(row, "last name", "last"),
-            "company_name": get(row, "company", "company name", "organization", "company name for emails")}
+            "company_name": get(row, "company", "company name", "organization", "company name for emails"),
+            "custom_variables": custom_vars(row)}
     api("POST", "/leads", body)
 
 def fix_empty_names(cid, rows):
