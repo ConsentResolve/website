@@ -110,24 +110,6 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <!-- Meta Pixel is consent-gated above (PUBLIC_META_PIXEL_ID). The old un-gated
          duplicate was removed — it double-counted PageViews and bypassed consent. -->
 
-    <!-- Smartsupp Live Chat script -->
-    <script is:inline type="text/javascript">
-      var _smartsupp = _smartsupp || {};
-      _smartsupp.key = '6e8d06c809a6aa3b617680bbaad563cd4e2a6d75';
-      window.smartsupp||(function(d) {
-        var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
-        s=d.getElementsByTagName('script')[0];c=d.createElement('script');
-        c.type='text/javascript';c.charset='utf-8';c.async=true;
-        c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
-      })(document);
-    </script>
-    <!-- Below lg the mobile sticky bar provides a "Live Chat" button, so hide
-         Smartsupp's floating launcher there to avoid overlapping the bar. The
-         chat window (#chat-application-iframe) is separate and still opens. -->
-    <style is:inline>
-      @media (max-width: 1023.98px) { #widgetButtonFrame { display: none !important; } }
-    </style>
-
     <!-- iMessage-style notification chime (1.5s after load) -->
     <script is:inline type="text/javascript">
       (function () {
@@ -176,8 +158,10 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       })();
     </script>
 
-    <!-- Microsoft Clarity -->
-    <script is:inline type="text/javascript">
+    <!-- Microsoft Clarity (session recording) — CONSENT-GATED via ConsentResolve/Usercentrics
+         autoblocker: type=text/plain keeps it inert until the user consents to the
+         "Microsoft Clarity" service. data-usercentrics MUST match the configured service name. -->
+    <script is:inline type="text/plain" data-usercentrics="Microsoft Clarity">
       (function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
         t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;

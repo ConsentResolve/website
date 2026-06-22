@@ -35,24 +35,15 @@ const suppress = pathname === "/404/" || pathname === "/404";
       >
         Get Started — $7
       </a>
-      {/* Live Chat — opens Smartsupp (its floating launcher is hidden below lg) */}
-      <button
-        type="button"
-        data-chat-open
+      {/* Email us — replaces the old Smartsupp live-chat button (Smartsupp removed) */}
+      <a
+        href="mailto:hello@consentresolve.com"
         class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/15 hover:bg-white/5"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"></path></svg>
-        Live Chat
-      </button>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"></path><path d="m22 6-10 7L2 6"></path></svg>
+        Email Us
+      </a>
     </div>
   </div>
-
-  <script is:inline>
-    document.querySelectorAll("[data-chat-open]").forEach(function (b) {
-      b.addEventListener("click", function () {
-        if (window.smartsupp) window.smartsupp("chat:open");
-      });
-    });
-  </script>
   </Fragment>
 )}
