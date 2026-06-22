@@ -12,7 +12,7 @@ PUB = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev"
 def load(n):
     p = ROOT / "social" / n
     return json.loads(p.read_text()) if p.exists() else {}
-sched, cards = load("schedule.json"), load("cards.json")
+sched, cards, spend = load("schedule.json"), load("cards.json"), load("spend.json")
 cat = load("sprint-catalog.json"); lib = len(cat) if isinstance(cat, list) else 0
 START, END = datetime.date(2026, 6, 18), datetime.date(2026, 8, 1)
 plat = {"tk": 0, "yt": 0, "ig": 0, "fb": 0}; reels = set()
@@ -23,7 +23,8 @@ for items in sched.values():
             if p in plat: plat[p] += 1
 CFG = {"start": START.isoformat(), "end": END.isoformat(), "days": (END - START).days + 1,
        "platforms": plat, "reels_scheduled": len(reels), "library": lib,
-       "analyticsUrl": "/api/analytics?key=fixme", "metricsUrl": f"{PUB}/social/metrics.json", "logUrl": f"{PUB}/social/post-log.json"}
+       "analyticsUrl": "/api/analytics?key=fixme", "metricsUrl": f"{PUB}/social/metrics.json", "logUrl": f"{PUB}/social/post-log.json",
+       "spend": spend}
 
 CSS = """*{box-sizing:border-box}body{margin:0;background:#0a1628;color:#f5f8fa;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
 header{padding:24px 22px 4px;text-align:center}h1{margin:0;font-size:24px}header p{color:#94a3b8;margin:6px 0 0;font-size:13px}
@@ -56,6 +57,10 @@ fetch(C.analyticsUrl+'&t='+Date.now()).then(r=>r.ok?r.json():null).catch(()=>nul
   $('#kpis').innerHTML=[['Views',views,'social (FB/IG/YT/TikTok/X)'],['Clicks',clicks,'→ '+pf(clicks,views)+' click-thru'],
     ['Demos',demos,'→ '+pf(demos,clicks)+' of clicks'],['Signups',signups,'→ '+pf(signups,demos)+' of demos']]
     .map(([l,v,r])=>`<div class="kpi"><div class="n">${n(v)}</div><div class="l">${l}</div><div class="r">${r}</div></div>`).join('');
+  // cost & CAC (spend is manual input from social/spend.json)
+  const $m=v=>'$'+(+v).toLocaleString(undefined,{maximumFractionDigits:0});
+  const spend=(C.spend&&+C.spend.total)||0;
+  $('#cost').innerHTML='<div class="cards">'+[[$m(spend),'Ad spend (input)'],[demos?$m(spend/demos):'—','Cost / demo'],[signups?$m(spend/signups):'—','Cost / customer']].map(([v,l])=>`<div class="stat"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('')+'</div>';
   if(!a){$('#funnelnote').innerHTML='<div class="empty">Clicks/Demos/Signups load from /api/analytics — showing 0 until the worker deploys + the first visitor lands. Views populate as the metrics fetcher runs.</div>';}
   // views by platform — always show every platform (0 until views accrue)
   const PLAT={fb:'Facebook',ig:'Instagram',yt:'YouTube',tk:'TikTok',x:'X',li:'LinkedIn'};
@@ -101,6 +106,7 @@ HTML = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <div class="wrap">
   <div id="prog" style="font-weight:700;color:#fff"></div><div class="bar"><i id="bar"></i></div>
   <h2>Funnel</h2><div id="kpis" class="kpis"></div><div id="funnelnote" style="margin-top:10px"></div>
+  <h2>Cost &amp; CAC</h2><div id="cost"></div>
   <h2>Views by platform</h2><div id="byplat"></div>
   <h2>Top performers → FB ad candidates</h2><div id="top"></div>
   <h2>Outreach — Instantly (cold email)</h2><div id="instantly"></div>

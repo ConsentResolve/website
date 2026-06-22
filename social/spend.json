@@ -1,0 +1,5 @@
+{
+  "note": "Manual ad-spend input for CAC. Update as you spend on Meta/Google retargeting. 'total' powers the dashboard Cost & CAC section; 'by_wave' is per-industry spend for reference.",
+  "total": 0,
+  "by_wave": { "hvac_2026": 0 }
+}
