@@ -35,11 +35,14 @@ def badges(d, cx, y, items, fs, h, padx, gap):
         ctext(d, x+w/2, y + (h-fs)//2 - 2, b, f, MINT); x += w + gap
 PROPS = ["Exclusive", "Consent-First", "Never Resold", "For Service Pros"]
 
-# 1) Company Page cover 1128x191 (short — compact lockup)
-W, H = 1128, 191; img = base(W, H); d = ImageDraw.Draw(img); cx = W//2
-ctext(d, cx, 36, "Your leads should be yours.", font(46), TEXT)
-ctext(d, cx, 96, "Exclusive  ·  Consent-First  ·  Never Resold  ·  For Service Pros", font(24), MINT)
-ctext(d, cx, 138, "consentresolve.com/demo", font(22), SUB)
+# 1) Company Page cover 1128x191. The page LOGO overlaps the lower-left, so reserve
+# the left ~300px and place text in the right area, vertically centered.
+W, H = 1128, 191; img = base(W, H); d = ImageDraw.Draw(img)
+LOGO_CLEAR = 320
+cx = (LOGO_CLEAR + (W - 50)) // 2           # center of the clear right-hand area
+d.rectangle([cx-46, 44, cx+46, 50], fill=MINT)   # small accent rule
+ctext(d, cx, 64, "Your leads should be yours.", font(44), TEXT)
+ctext(d, cx, 122, "Exclusive · Consent-First · Never Resold · For Service Pros", font(21), MINT)
 out1 = ROOT / "li-company-cover.png"; img.save(out1, "PNG")
 
 # 2) Personal profile banner 1584x396 (roomy — headline + badges + url)
