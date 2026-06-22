@@ -18,8 +18,9 @@ const props = Astro.props as Props;
 
 // Ad-platform pixels — only emitted when the ID env var is set (no-op otherwise).
 // Set in Cloudflare Pages env: PUBLIC_META_PIXEL_ID, PUBLIC_TIKTOK_PIXEL_ID.
-const META_PIXEL_ID = import.meta.env.PUBLIC_META_PIXEL_ID;
+const META_PIXEL_ID = import.meta.env.PUBLIC_META_PIXEL_ID || "1611275646787663";
 const TIKTOK_PIXEL_ID = import.meta.env.PUBLIC_TIKTOK_PIXEL_ID;
+const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; // remarketing tag
 ---
 
 <!doctype html>
@@ -85,29 +86,18 @@ const TIKTOK_PIXEL_ID = import.meta.env.PUBLIC_TIKTOK_PIXEL_ID;
       }catch(e){}})();
     </script>
 
-    <!-- Google Analytics (GA4) -->
+    <!-- Google Analytics (GA4) + Google Ads remarketing (AW-) — one gtag.js loader -->
     <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-6JTD5SZNFY"></script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-6JTD5SZNFY');
+      gtag('config', 'AW-18263188422');
     </script>
 
-    <!-- Meta Pixel -->
-    <script is:inline>
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '1611275646787663');
-      fbq('track', 'PageView');
-    </script>
-    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1611275646787663&ev=PageView&noscript=1" /></noscript>
+    <!-- Meta Pixel is consent-gated above (PUBLIC_META_PIXEL_ID). The old un-gated
+         duplicate was removed — it double-counted PageViews and bypassed consent. -->
 
     <!-- Smartsupp Live Chat script -->
     <script is:inline type="text/javascript">
