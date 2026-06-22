@@ -26,6 +26,9 @@ export async function onRequestGet({ request, env }) {
     by_trade: await all("SELECT COALESCE(NULLIF(trade,''),'(unknown)') k, COUNT(*) c FROM participants GROUP BY k ORDER BY c DESC"),
     by_source: await all("SELECT COALESCE(NULLIF(utm_source,''),'(direct)') k, COUNT(*) c FROM traffic WHERE path LIKE '/demo%' GROUP BY k ORDER BY c DESC"),
     demos_by_source: await all("SELECT COALESCE(NULLIF(json_extract(metadata,'$.src'),''),'(direct)') k, COUNT(*) c FROM events WHERE event_type='registered' GROUP BY k ORDER BY c DESC"),
+    // Per-wave dimension (utm_campaign, e.g. hvac_2026) — drives the per-industry view
+    by_campaign: await all("SELECT COALESCE(NULLIF(utm_campaign,''),'(none)') k, COUNT(*) c FROM traffic WHERE path LIKE '/demo%' GROUP BY k ORDER BY c DESC"),
+    signups_by_trade: await all("SELECT COALESCE(NULLIF(trade,''),'(unknown)') k, COUNT(*) c FROM participants WHERE consent_contact=1 GROUP BY k ORDER BY c DESC"),
     by_day: await all("SELECT substr(created_at,1,10) k, COUNT(*) c FROM participants GROUP BY k ORDER BY k DESC LIMIT 30"),
     metrics: await r2json("social/metrics.json"),
     // Delivery = runner reels (R2 post-log) + worker-queue posts (X / GBP live in D1,

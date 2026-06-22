@@ -25,6 +25,8 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
   <h2>Top performers → FB ad candidates</h2><div id="top"></div>
   <h2>Demos by channel — the integrated funnel</h2>
   <div id="bychannel"></div>
+  <h2>By wave (industry campaign) — one at a time</h2>
+  <div class="two"><div id="bycampaign"></div><div id="bysignuptrade"></div></div>
   <h2>Attribution — what's driving the funnel</h2>
   <div class="two"><div id="bysource"></div><div id="bysrcd"></div></div>
   <div style="margin-top:14px" id="bytrade"></div>
@@ -75,6 +77,9 @@ fetch(C.analyticsUrl+'&t='+Date.now()).then(r=>r.ok?r.json():null).catch(()=>nul
   $('#bysource').innerHTML=tbl(a&&a.by_source,'Clicks by source');
   $('#bysrcd').innerHTML=tbl(a&&a.demos_by_source,'Demos by source');
   $('#bytrade').innerHTML=tbl(a&&a.by_trade,'Demos by trade');
+  // per-wave view (utm_campaign, e.g. hvac_2026) — one industry at a time
+  $('#bycampaign').innerHTML=tbl(a&&a.by_campaign,'Clicks by wave');
+  $('#bysignuptrade').innerHTML=tbl(a&&a.signups_by_trade,'Signups by trade');
   // delivery
   if(log.length){const t={};log.forEach(r=>{const k=r.platform||'?';t[k]=t[k]||{ok:0,n:0};t[k].n++;if(r.status==='ok')t[k].ok++;});
     $('#deliv').innerHTML='<div class="cards">'+Object.entries(t).map(([k,v])=>`<div class="stat"><div class="n">${v.ok}<span class="muted" style="font-size:13px">/${v.n}</span></div><div class="l">${k.toUpperCase()} delivered</div></div>`).join('')+'</div>';
