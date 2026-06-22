@@ -15,7 +15,7 @@ Usage:
 
 Per-industry: copy WAVE below and adjust. HVAC Wave #1 is pre-loaded.
 """
-import argparse, csv, json, os, sys, urllib.request, urllib.error
+import argparse, csv, html, json, os, sys, urllib.request, urllib.error
 from pathlib import Path
 
 # ── Wave config (HVAC #1) ─────────────────────────────────────────────────────
@@ -98,6 +98,10 @@ def score(row):
 
 # ── Instantly API (V2, Bearer) ────────────────────────────────────────────────
 BASE = "https://api.instantly.ai/api/v2"
+def to_html(t):
+    """Instantly stores email bodies as HTML — convert plain text (\\n) to <div> lines
+    and escape & < > (so the UTM URL's & doesn't break the body)."""
+    return "".join((f"<div>{html.escape(ln)}</div>" if ln.strip() else "<div><br></div>") for ln in t.split("\n"))
 def ikey():
     k = os.environ.get("INSTANTLY_API_KEY", "").strip()
     if not k and Path("/tmp/instantly_key.txt").exists():
@@ -128,7 +132,9 @@ def create_campaign():
             "days": {"1": True, "2": True, "3": True, "4": True, "5": True},
             "timezone": WAVE["timezone"]}]},
         "sequences": [{"steps": [
-            {"type": "email", "delay": s["delay"], "variants": s["variants"]} for s in WAVE["sequence"]]}],
+            {"type": "email", "delay": s["delay"],
+             "variants": [{"subject": v["subject"], "body": to_html(v["body"])} for v in s["variants"]]}
+            for s in WAVE["sequence"]]}],
         "email_list": WAVE["inboxes"],
         "daily_limit": WAVE["daily_limit"],
         "stop_on_reply": True, "open_tracking": False, "link_tracking": False,
