@@ -26,7 +26,9 @@ export async function onRequestGet({ request, env }) {
     try {
       if (!env.INSTANTLY_API_KEY) return [];
       const r = await fetch("https://api.instantly.ai/api/v2/campaigns/analytics", {
-        headers: { Authorization: `Bearer ${env.INSTANTLY_API_KEY}` } });
+        headers: { Authorization: `Bearer ${env.INSTANTLY_API_KEY}`, Accept: "application/json",
+          // Instantly's API is behind Cloudflare; a browser-like UA avoids 403/1010 bot blocks.
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" } });
       if (!r.ok) return [];
       const d = await r.json();
       const list = Array.isArray(d) ? d : (d.items || d.data || d.campaigns || []);
