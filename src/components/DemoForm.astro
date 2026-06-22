@@ -150,6 +150,11 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
           // the pixel didn't load (ID unset). This is what the ad campaigns optimize to.
           try { (window as any).fbq?.("track", "Lead"); } catch {}
           try { (window as any).ttq?.track?.("CompleteRegistration"); } catch {}
+          // GA4 lead event (works with the existing G-6JTD5SZNFY config).
+          try { (window as any).gtag?.("event", "generate_lead", { method: "demo_form" }); } catch {}
+          // Google Ads conversion. Create a "Demo signup" conversion action in Google Ads,
+          // then replace REPLACE_WITH_LABEL with its conversion label (the part after the /).
+          try { (window as any).gtag?.("event", "conversion", { send_to: "AW-18263188422/REPLACE_WITH_LABEL" }); } catch {}
           if (data.redirect_url) {
             window.location.assign(data.redirect_url);
             return;
