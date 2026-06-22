@@ -20,6 +20,27 @@ export async function onRequestGet({ request, env }) {
   const visited = await one("SELECT COUNT(*) FROM participants WHERE visited_at IS NOT NULL");
   const consented = await one("SELECT COUNT(*) FROM participants WHERE consented_at IS NOT NULL");
   const enrolled = await one("SELECT COUNT(*) FROM participants WHERE enrolled_at IS NOT NULL");
+  // Instantly campaign analytics (Bearer; guarded so it never breaks the dashboard).
+  // Field names mapped defensively across likely V2 keys; validate on first live campaign.
+  const instantly = await (async () => {
+    try {
+      if (!env.INSTANTLY_API_KEY) return [];
+      const r = await fetch("https://api.instantly.ai/api/v2/campaigns/analytics", {
+        headers: { Authorization: `Bearer ${env.INSTANTLY_API_KEY}` } });
+      if (!r.ok) return [];
+      const d = await r.json();
+      const list = Array.isArray(d) ? d : (d.items || d.data || d.campaigns || []);
+      const num = (o, ...keys) => { for (const k of keys) if (o && o[k] != null) return +o[k] || 0; return 0; };
+      return list.map((c) => ({
+        name: c.campaign_name || c.name || c.campaign_id || c.id || "campaign",
+        leads: num(c, "leads_count", "total_leads", "leads"),
+        sent: num(c, "emails_sent_count", "sent_count", "emails_sent", "contacted_count", "sent"),
+        opens: num(c, "open_count", "unique_opens", "opened", "opens"),
+        replies: num(c, "reply_count", "replied", "replies"),
+        interested: num(c, "interested_count", "positive_reply_count", "interested"),
+      }));
+    } catch { return []; }
+  })();
   return json({
     totals: { clicks, demos, signups },
     funnel: { clicks, registered: demos, visited, consented, enrolled, opted_in: signups },
@@ -30,6 +51,7 @@ export async function onRequestGet({ request, env }) {
     by_campaign: await all("SELECT COALESCE(NULLIF(utm_campaign,''),'(none)') k, COUNT(*) c FROM traffic WHERE path LIKE '/demo%' GROUP BY k ORDER BY c DESC"),
     signups_by_trade: await all("SELECT COALESCE(NULLIF(trade,''),'(unknown)') k, COUNT(*) c FROM participants WHERE consent_contact=1 GROUP BY k ORDER BY c DESC"),
     by_day: await all("SELECT substr(created_at,1,10) k, COUNT(*) c FROM participants GROUP BY k ORDER BY k DESC LIMIT 30"),
+    instantly,
     metrics: await r2json("social/metrics.json"),
     // Delivery = runner reels (R2 post-log) + worker-queue posts (X / GBP live in D1,
     // not the post-log) so the dashboard shows every platform that actually posts.

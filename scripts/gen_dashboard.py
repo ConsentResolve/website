@@ -76,6 +76,9 @@ fetch(C.analyticsUrl+'&t='+Date.now()).then(r=>r.ok?r.json():null).catch(()=>nul
   const grp=(rows)=>{const g={Outreach:0,Social:0,Retargeting:0,Direct:0,Other:0};(rows||[]).forEach(r=>{g[CHGROUP(r.k)]+=(+r.c||0);});return g;};
   const gd=grp(a&&a.demos_by_source);
   $('#bychannel').innerHTML='<div class="cards">'+['Outreach','Social','Retargeting','Direct'].map(k=>`<div class="stat"><div class="n">${n(gd[k])}</div><div class="l">${k} demos</div></div>`).join('')+'</div>';
+  // Outreach — Instantly cold-email campaign analytics
+  const inst=Array.isArray(a&&a.instantly)?a.instantly:[];
+  $('#instantly').innerHTML=inst.length?'<table><tr><th>Campaign</th><th>Leads</th><th>Sent</th><th>Opens</th><th>Replies</th><th>Interested</th></tr>'+inst.map(c=>`<tr><td>${c.name}</td><td>${n(c.leads)}</td><td>${n(c.sent)}</td><td>${n(c.opens)} <span class="muted">${pf(c.opens,c.sent)}</span></td><td>${n(c.replies)} <span class="muted">${pf(c.replies,c.sent)}</span></td><td>${n(c.interested)}</td></tr>`).join('')+'</table>':'<div class="empty">No Instantly campaigns yet — fills in once a wave launches.</div>';
   $('#bysource').innerHTML=tbl(a&&a.by_source,'Clicks by source');
   $('#bysrcd').innerHTML=tbl(a&&a.demos_by_source,'Demos by source');
   $('#bytrade').innerHTML=tbl(a&&a.by_trade,'Demos by trade');
@@ -100,6 +103,7 @@ HTML = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
   <h2>Funnel</h2><div id="kpis" class="kpis"></div><div id="funnelnote" style="margin-top:10px"></div>
   <h2>Views by platform</h2><div id="byplat"></div>
   <h2>Top performers → FB ad candidates</h2><div id="top"></div>
+  <h2>Outreach — Instantly (cold email)</h2><div id="instantly"></div>
   <h2>Demos by channel — the integrated funnel</h2>
   <div id="bychannel"></div>
   <h2>By wave (industry campaign) — one at a time</h2>
