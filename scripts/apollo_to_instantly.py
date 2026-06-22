@@ -30,20 +30,23 @@ WAVE = {
     # low-friction CTA, numbers/$ in subjects, NO link in email 1 (deliverability + reply),
     # spintax openers, breakup finale. Link appears from email 2 (list-based retargeting
     # doesn't need the email click, so removing it from #1 costs nothing).
+    # Instantly syntax: spintax = {{RANDOM | a | b | c}}; sender = {{sendingAccountFirstName}};
+    # signature (carries physical address + unsubscribe for CAN-SPAM) = {{accountSignature}}.
+    # Custom var {{city}} used plain (100% coverage). Link only from email 2.
     "sequence": [
         {"delay": 0, "variants": [
             {"subject": "the 98% leaving {{companyName}}'s site",
              "body": ("Hi {{firstName}},\n\n"
-                      "{Quick question|One quick thing|Quick one} — most {{city|local}}-area homeowners who land on {{companyName}}'s site leave without ever calling. Around 98%, and you never find out who they were.\n\n"
+                      "{{RANDOM | Quick question | One quick thing | Quick one}} — most {{city}}-area homeowners who land on {{companyName}}'s site leave without ever calling. Around 98%, and you never find out who they were.\n\n"
                       "We hand those visitors back as exclusive, consent-first leads — real name, email, and what they need. $7 each, yours alone, never resold.\n\n"
                       "Want me to send a 2-minute demo on a site like yours?\n\n"
-                      "— {{senderName}}, Consent Resolve")},
+                      "— {{sendingAccountFirstName}}\n\n{{accountSignature}}")},
             {"subject": "{{companyName}}'s website visitors",
              "body": ("Hi {{firstName}},\n\n"
-                      "{Quick one|Fast question} — roughly 98% of the homeowners who visit {{companyName}}'s site around {{city|your area}} leave without calling, and you never learn who they were.\n\n"
+                      "{{RANDOM | Quick one | Fast question}} — roughly 98% of the homeowners who visit {{companyName}}'s site around {{city}} leave without calling, and you never learn who they were.\n\n"
                       "We turn them into exclusive, consent-first leads: name, email, what they need. $7 each, only yours, never resold.\n\n"
                       "Worth a 2-minute demo on a site like yours?\n\n"
-                      "— {{senderName}}, Consent Resolve")},
+                      "— {{sendingAccountFirstName}}\n\n{{accountSignature}}")},
         ]},
         {"delay": 3, "variants": [
             {"subject": "$149 vs $7",
@@ -51,14 +54,14 @@ WAVE = {
                       "A shared HVAC lead from the big platforms runs $35–150 and gets sold to 4–5 contractors. A consent-first lead is $7 and only yours.\n\n"
                       "Here's a 2-minute demo on a site like yours: " + DEMO + "\n\n"
                       "Not a fit? Just reply \"no\" and I'll close it out.\n\n"
-                      "— {{senderName}}")},
+                      "— {{sendingAccountFirstName}}\n\n{{accountSignature}}")},
         ]},
         {"delay": 4, "variants": [
             {"subject": "should I close your file, {{firstName}}?",
              "body": ("I don't want to clutter your inbox, {{firstName}}.\n\n"
-                      "If turning the {{city|local}} homeowners who leave {{companyName}}'s site into $7 exclusive leads is ever worth 2 minutes, here's the demo: " + DEMO + "\n\n"
+                      "If turning the {{city}} homeowners who leave {{companyName}}'s site into $7 exclusive leads is ever worth 2 minutes, here's the demo: " + DEMO + "\n\n"
                       "Otherwise I'll leave you to it — good luck this season.\n\n"
-                      "— {{senderName}}")},
+                      "— {{sendingAccountFirstName}}\n\n{{accountSignature}}")},
         ]},
     ],
 }
