@@ -26,26 +26,39 @@ WAVE = {
     "inboxes": ["aaron@getconsentresolve.com", "tyler@getconsentresolve.com",
                 "aaron@tryconsentresolve.com", "tyler@tryconsentresolve.com"],
     "daily_limit": 20, "send_from": "08:00", "send_to": "17:00",
+    # Research-backed (2026): short (<90w), company-specific personalization, ONE binary
+    # low-friction CTA, numbers/$ in subjects, NO link in email 1 (deliverability + reply),
+    # spintax openers, breakup finale. Link appears from email 2 (list-based retargeting
+    # doesn't need the email click, so removing it from #1 costs nothing).
     "sequence": [
         {"delay": 0, "variants": [
-            {"subject": "{{firstName}}, the 98% who leave your site",
-             "body": ("Hi {{firstName}},\n\nQuick one. Most home-service sites lose ~98% of visitors — they look, they leave, you never know who they were.\n\n"
-                      "Consent Resolve hands those visitors back as exclusive, consent-first leads: the homeowner opts in on your own site and comes back to you — real name, email, what they need. $7 a lead, yours alone, never resold. No shared-lead treadmill.\n\n"
-                      f"2-minute demo on a site like yours: {DEMO}\n\nIf it's not relevant, just reply \"no thanks\" and I won't follow up.\n\n— {{{{senderName}}}}, Consent Resolve")},
-            {"subject": "quick one about {{companyName}}'s website leads",
-             "body": ("Hi {{firstName}},\n\nMost HVAC sites lose ~98% of visitors — they look, they leave, you never know who they were.\n\n"
-                      "Consent Resolve gives those visitors back as exclusive, consent-first leads — the homeowner opts in on your site and comes back to you. $7 each, yours alone, never resold.\n\n"
-                      f"2-min demo: {DEMO}\n\nNot relevant? Reply \"no thanks.\"\n\n— {{{{senderName}}}}, Consent Resolve")},
+            {"subject": "the 98% leaving {{companyName}}'s site",
+             "body": ("Hi {{firstName}},\n\n"
+                      "{Quick question|One quick thing|Quick one} — about 98% of the people who visit {{companyName}}'s site leave without ever calling, and you never find out who they were.\n\n"
+                      "We hand those visitors back as exclusive, consent-first leads — real name, email, and what they need. $7 each, yours alone, never resold.\n\n"
+                      "Want me to send a 2-minute demo on a site like yours?\n\n"
+                      "— {{senderName}}, Consent Resolve")},
+            {"subject": "{{companyName}}'s website visitors",
+             "body": ("Hi {{firstName}},\n\n"
+                      "{Quick one|Fast question} — roughly 98% of {{companyName}}'s website visitors leave without calling, and you never learn who they were.\n\n"
+                      "We turn them into exclusive, consent-first leads: name, email, what they need. $7 each, only yours, never resold.\n\n"
+                      "Worth a 2-minute demo on a site like yours?\n\n"
+                      "— {{senderName}}, Consent Resolve")},
         ]},
         {"delay": 3, "variants": [
-            {"subject": "re: the 98%",
-             "body": ("{{firstName}} — following up once.\n\nA shared HVAC lead from the big platforms runs $35–150 and gets sold to 4–5 contractors. A consent-first lead is $7 and only yours.\n\n"
-                      f"2-min demo: {DEMO}\n\nNot for you? Reply and I'll stop.\n\n— {{{{senderName}}}}")},
+            {"subject": "$149 vs $7",
+             "body": ("{{firstName}} — quick follow-up.\n\n"
+                      "A shared HVAC lead from the big platforms runs $35–150 and gets sold to 4–5 contractors. A consent-first lead is $7 and only yours.\n\n"
+                      "Here's a 2-minute demo on a site like yours: " + DEMO + "\n\n"
+                      "Not a fit? Just reply \"no\" and I'll close it out.\n\n"
+                      "— {{senderName}}")},
         ]},
         {"delay": 4, "variants": [
-            {"subject": "last one, {{firstName}}",
-             "body": ("I'll leave it here so I'm not cluttering your inbox, {{firstName}}.\n\n"
-                      f"If recovering the visitors who leave {{{{companyName}}}}'s site without calling is ever worth 2 minutes: {DEMO}\n\nGood luck this season.\n\n— {{{{senderName}}}}")},
+            {"subject": "should I close your file, {{firstName}}?",
+             "body": ("I don't want to clutter your inbox, {{firstName}}.\n\n"
+                      "If turning the visitors who leave {{companyName}}'s site into $7 exclusive leads is ever worth 2 minutes, here's the demo: " + DEMO + "\n\n"
+                      "Otherwise I'll leave you to it — good luck this season.\n\n"
+                      "— {{senderName}}")},
         ]},
     ],
 }
