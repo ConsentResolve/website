@@ -1,0 +1,57 @@
+# $2,000 Lead Disaster — 3-style MVP build log
+
+- `21:48:45` [A] art via e7a2d37d…
+- `21:48:52`   [A] mike_confident ok
+- `21:48:59`   [A] mike_pause ok
+- `21:49:06`   [A] mike_nervous ok
+- `21:49:12`   [A] mike_defeated ok
+- `21:49:19`   [A] frank_coffee ok
+- `21:49:26`   [A] frank_deadpan ok
+- `21:49:33`   [A] frank_eyebrow ok
+- `21:49:40`   [A] frank_camera ok
+- `21:49:47`   [A] frank_approve ok
+- `21:49:47` [A] art done
+- `21:49:47` [B] art via 1526dee6…
+- `21:49:53`   [B] mike_confident ok
+- `21:50:00`   [B] mike_pause ok
+- `21:50:07`   [B] mike_nervous ok
+- `21:50:13`   [B] mike_defeated ok
+- `21:50:20`   [B] frank_coffee ok
+- `21:50:26`   [B] frank_deadpan ok
+- `21:50:32`   [B] frank_eyebrow ok
+- `21:50:39`   [B] frank_camera ok
+- `21:50:45`   [B] frank_approve ok
+- `21:50:45` [B] art done
+- `21:50:45` [C] art via 608b6955…
+- `21:50:57`   [C] mike_confident ok
+- `21:51:08` VOICE: 9 clips
+- `21:51:09`   [C] mike_pause ok
+- `21:51:21`   [C] mike_nervous ok
+- `21:51:32`   [C] mike_defeated ok
+- `21:51:44`   [C] frank_coffee ok
+- `21:51:56`   [C] frank_deadpan ok
+- `21:52:00`   ok s1 (mike) 6.6s
+- `21:52:12` recraft FAIL(0) frank_eyebrow.png: HTTP Error 504: Gateway Timeout
+- `21:52:27`   [C] frank_eyebrow ok
+- `21:52:35`   ok s2 (frank) 1.3s
+- `21:52:41`   [C] frank_camera ok
+- `21:52:52`   [C] frank_approve ok
+- `21:52:52` [C] art done
+- `21:52:52` ALL ART DONE
+- `21:53:26`   ok s3 (mike) 4.1s
+- `21:54:01`   ok s4 (frank) 1.5s
+- `21:54:55`   ok s5 (mike) 3.7s
+- `21:55:30`   ok s6 (frank) 1.3s
+- `21:56:13`   ok s7 (mike) 0.6s
+- `21:56:56`   ok s8 (frank) 4.4s
+- `21:57:31`   ok s10 (frank) 1.3s
+- `21:57:31` VOICE: done — 24.8s of VO
+- `21:57:53` [A] panels via e7a2d37d…
+- `21:57:53` [A] composing + assembling
+- `21:58:08` [A] DONE -> /Users/aaronphillips/GIT/consentresolve2/disaster/out/A.mp4 (33.1s)
+- `21:58:08` [B] panels via 1526dee6…
+- `21:58:08` [B] composing + assembling
+- `21:58:23` [B] DONE -> /Users/aaronphillips/GIT/consentresolve2/disaster/out/B.mp4 (33.1s)
+- `21:58:23` [C] panels via 608b6955…
+- `21:58:23` [C] composing + assembling
+- `21:58:37` [C] DONE -> /Users/aaronphillips/GIT/consentresolve2/disaster/out/C.mp4 (33.1s)
