@@ -67,6 +67,15 @@ fetch(C.analyticsUrl+'&t='+Date.now()).then(r=>r.ok?r.json():null).catch(()=>nul
     m.slice(0,15).map((r,i)=>{const er=r.views?(r.likes||0)/r.views*100:0;const cand=(r.views||0)>=500&&er>=2;return `<tr><td>${i+1}</td><td>${r.name||''}</td><td>${(r.platform||'').toUpperCase()}</td><td>${n(r.views)}</td><td>${n(r.likes)}</td><td>${r.views?er.toFixed(1)+'%':'—'}</td><td>${cand?'<span class="pill ok">boost</span>':'<span class="muted">—</span>'}</td></tr>`;}).join('')+'</table>':'<div class="empty">Engagement fills in as views accrue (~1–2 weeks for real signal).</div>';
   // breakdowns
   const tbl=(rows,h)=>rows&&rows.length?'<table><tr><th>'+h+'</th><th>#</th></tr>'+rows.map(r=>`<tr><td>${r.k}</td><td>${n(r.c)}</td></tr>`).join('')+'</table>':'<div class="empty">No data yet.</div>';
+  // macro-channel grouping (UTM convention) — the integrated-GTM view
+  const CHGROUP=(s)=>{s=(s||'').toLowerCase();
+    if(/instantly|cold|outreach|email/.test(s))return'Outreach';
+    if(/retarget|remarket|pixel/.test(s))return'Retargeting';
+    if(/linkedin|(^|[^a-z])x([^a-z]|$)|twitter|facebook|(^|[^a-z])fb|instagram|(^|[^a-z])ig|youtube|(^|[^a-z])yt|tiktok|(^|[^a-z])tk|gbp|google_business|social/.test(s))return'Social';
+    if(!s||/direct/.test(s))return'Direct';return'Other';};
+  const grp=(rows)=>{const g={Outreach:0,Social:0,Retargeting:0,Direct:0,Other:0};(rows||[]).forEach(r=>{g[CHGROUP(r.k)]+=(+r.c||0);});return g;};
+  const gd=grp(a&&a.demos_by_source);
+  $('#bychannel').innerHTML='<div class="cards">'+['Outreach','Social','Retargeting','Direct'].map(k=>`<div class="stat"><div class="n">${n(gd[k])}</div><div class="l">${k} demos</div></div>`).join('')+'</div>';
   $('#bysource').innerHTML=tbl(a&&a.by_source,'Clicks by source');
   $('#bysrcd').innerHTML=tbl(a&&a.demos_by_source,'Demos by source');
   $('#bytrade').innerHTML=tbl(a&&a.by_trade,'Demos by trade');
@@ -88,6 +97,8 @@ HTML = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
   <h2>Funnel</h2><div id="kpis" class="kpis"></div><div id="funnelnote" style="margin-top:10px"></div>
   <h2>Views by platform</h2><div id="byplat"></div>
   <h2>Top performers → FB ad candidates</h2><div id="top"></div>
+  <h2>Demos by channel — the integrated funnel</h2>
+  <div id="bychannel"></div>
   <h2>Attribution — what's driving the funnel</h2>
   <div class="two"><div id="bysource"></div><div id="bysrcd"></div></div>
   <div style="margin-top:14px" id="bytrade"></div>
