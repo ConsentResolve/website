@@ -6,7 +6,7 @@ Content kept centered/clear of the lower-left logo/avatar zone.
   python3 scripts/li_banner.py
 """
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 ROOT = Path(__file__).resolve().parent.parent
 HANKEN = str(ROOT / "scripts/.fonts/Hanken.ttf")
 MINT, TEXT, SUB = (0, 229, 160), (245, 248, 250), (148, 163, 184)
@@ -35,14 +35,18 @@ def badges(d, cx, y, items, fs, h, padx, gap):
         ctext(d, x+w/2, y + (h-fs)//2 - 2, b, f, MINT); x += w + gap
 PROPS = ["Exclusive", "Consent-First", "Never Resold", "For Service Pros"]
 
-# 1) Company Page cover 1128x191. The page LOGO overlaps the lower-left, so reserve
-# the left ~300px and place text in the right area, vertically centered.
-W, H = 1128, 191; img = base(W, H); d = ImageDraw.Draw(img)
-LOGO_CLEAR = 320
-cx = (LOGO_CLEAR + (W - 50)) // 2           # center of the clear right-hand area
-d.rectangle([cx-46, 44, cx+46, 50], fill=MINT)   # small accent rule
-ctext(d, cx, 64, "Your leads should be yours.", font(44), TEXT)
-ctext(d, cx, 122, "Exclusive · Consent-First · Never Resold · For Service Pros", font(21), MINT)
+# 1) Company Page cover 1128x191 — stylized, NO TEXT (LinkedIn crops it hard and the
+# logo overlaps the lower-left). A symmetric brand motif reads at any crop.
+W, H = 1128, 191; img = base(W, H)
+ov = Image.new("RGBA", (W, H), (0, 0, 0, 0)); od = ImageDraw.Draw(ov)
+for gy in range(18, H, 40):                      # faint dot grid texture
+    for gx in range(18, W, 40):
+        od.ellipse([gx-1.5, gy-1.5, gx+1.5, gy+1.5], fill=(0, 229, 160, 20))
+img = Image.alpha_composite(img.convert("RGBA"), ov).convert("RGB")
+glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))   # soft mint glow, centered
+ImageDraw.Draw(glow).ellipse([W//2-200, H//2-95, W//2+200, H//2+95], fill=(0, 229, 160, 46))
+glow = glow.filter(ImageFilter.GaussianBlur(64))
+img = Image.alpha_composite(img.convert("RGBA"), glow).convert("RGB")
 out1 = ROOT / "li-company-cover.png"; img.save(out1, "PNG")
 
 # 2) Personal profile banner 1584x396 (roomy — headline + badges + url)
