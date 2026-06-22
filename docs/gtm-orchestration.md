@@ -47,16 +47,39 @@ tags the source side (`hvac_2026`). v1 uses both cuts side-by-side (participants
 4. **Owned nurture (Klaviyo — DEFERRED):** engagers who don't convert → permission-based nurture (the consent-first owned engine).
 5. **Convert:** `/demo` → register → activate ($7 leads).
 
-## HVAC — Wave #1
-**Apollo ICP (pull this list for me):**
-- Industry: HVAC / heating & air conditioning contractors
-- Title: Owner / President / GM / Marketing lead
-- Company size: ~5–75 employees (owner-operator to regional)
-- Geo: _TBD — pick the launch metros/states_
-- Verified business email; exclude generic role inboxes where possible; <3% bounce after verification
+## Per-industry research framework (run this for every wave)
+Each trade differs — research before targeting:
+1. **Pain economics** — $/lead, to whom, resold how many times, real CAC → sets message + proves the contrast.
+2. **Lead-buying ecosystem** — which platforms/channels *that trade* buys from.
+3. **Buying signals** — observable (lead-platform presence, Google LSA badge) + Apollo (trade-specific tech stack, intent topics, hiring).
+4. **Geo** — where demand × CPL × competition concentrate (climate/seasonality/regulation differ per trade).
+5. **Decision-maker + size sweet spot.**
+6. **Output** — Apollo filter spec + cross-ref enrichment + message angle.
 
-**Message angle:** the shared-lead treadmill — HVAC leads from the big platforms cost $35–90 and are
-resold to 4–5 contractors; consent-first leads are $7 and exclusive. Tie to HVAC CPL math.
+## HVAC — Wave #1 (researched)
+**Pain economics:** Angi $15–85/lead +~$300/yr resold to **3–8**; Thumbtack $10–75 to 3–5; Angi effective
+CAC ≈ **$2,500**; paid-search CPL **$70–150 (to $250 in hot metros)**, LSA HVAC ~$63. → $7 exclusive
+consent-first lead is a different universe, not a discount.
+
+**Geo: Texas metros — Dallas–Fort Worth, Houston, San Antonio, Austin.** Highest CPL + competition (Dallas
+named most-competitive), Sun-Belt year-round cooling demand, **Central-Time aligned with our inboxes**.
+Wave #2–3 expansion: Phoenix/Tucson, Atlanta, Tampa/Orlando, Charlotte, Las Vegas.
+
+**Apollo ICP (pull this list for me):**
+- Industry: HVAC / Heating, Ventilation & Air Conditioning (NAICS 238220)
+- Location: DFW, Houston, San Antonio, Austin metros
+- Headcount: 5–75 (core 10–50)
+- Titles: Owner / President / Founder / GM / Marketing Manager
+- **Buying-signal technologies:** CallRail, CallTrackingMetrics, ServiceTitan, Housecall Pro, Google Ads
+- **Intent topics:** HVAC marketing / lead generation
+- Verified email (<3% bounce); prefer named inboxes over `info@`
+- **Cross-ref pass:** flag accounts present on Angi/Thumbtack/HomeAdvisor or with a Google LSA badge (= buying now)
+
+**Lead scoring:** when the Apollo export is fed in, Claude ranks by buying signals (tech present, size,
+title seniority, metro, platform presence) so the hottest accounts send first.
+
+**Message angle:** the shared-lead treadmill — a $149 HVAC lead split across 5 contractors vs. a $7
+exclusive consent-first lead. Tie to local CPL math per metro.
 
 **Channels & UTMs:** Instantly `utm_source=instantly` · Meta/Google retarget `retarget_meta`/`retarget_google`
 · organic social `facebook|instagram|x|youtube|tiktok|gbp` — all `utm_campaign=hvac_2026`.
