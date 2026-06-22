@@ -52,7 +52,16 @@ WAVE = {
 
 # ── Scoring (buying signals from the playbook) ────────────────────────────────
 SENIOR = ["owner", "founder", "president", "ceo", "principal", "partner", "general manager", " gm", "vp", "director", "marketing"]
-TECH = ["callrail", "calltrackingmetrics", "servicetitan", "housecall", "google ads", "marchex", "hubspot"]
+# Buying-signal tech, tiered by how strongly it implies "buys leads / has ad budget".
+# NOTE: Apollo technographics detect WEB-visible tech (call tracking, ad pixels, chat,
+# review widgets) reliably; back-office FSM (ServiceTitan etc.) is detected less reliably
+# (via job postings), so FSM is weighted lower here as a signal.
+TECH_T1 = ["callrail", "calltrackingmetrics", "marchex", "whatconverts", "dialpad",        # call tracking = measures bought leads
+           "google ads", "adwords", "bing ads", "microsoft advertising", "doubleclick",    # running paid ads NOW
+           "scorpion", "blue corona", "hibu"]                                              # hired a marketing agency
+TECH_T2 = ["servicetitan", "housecall", "jobber", "fieldedge", "service fusion",           # FSM/CRM = sophisticated operator
+           "servicefusion", "workiz", "podium", "birdeye", "nicejob"]                      # + reputation/reviews = invests in growth
+TECH_T3 = ["intercom", "drift", "tawk", "hubspot", "hotjar", "calendly", "acuity"]         # growth-minded / web-savvy
 METROS = ["dallas", "fort worth", "houston", "san antonio", "austin", "arlington", "plano", "irving", "frisco", "the woodlands", "sugar land", "round rock"]
 
 def get(row, *names):
@@ -78,8 +87,10 @@ def score(row):
         elif 5 <= n <= 75: pts += 12; why.append(f"size {n}")
     except ValueError:
         pass
-    hits = [t for t in TECH if t in tech]
-    if hits: pts += min(30, 10 * len(hits)); why.append("tech:" + "/".join(hits))
+    t1 = [t for t in TECH_T1 if t in tech]; t2 = [t for t in TECH_T2 if t in tech]; t3 = [t for t in TECH_T3 if t in tech]
+    if t1: pts += min(36, 12 * len(t1)); why.append("buys-leads:" + "/".join(t1))
+    if t2: pts += min(20, 8 * len(t2)); why.append("ops:" + "/".join(t2))
+    if t3: pts += min(10, 4 * len(t3)); why.append("growth:" + "/".join(t3))
     if any(m in city for m in METROS) or "tx" in state or "texas" in state: pts += 10; why.append("TX metro")
     if email and "@" in email: pts += 10
     else: pts -= 50; why.append("NO EMAIL")

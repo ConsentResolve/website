@@ -70,7 +70,11 @@ Wave #2–3 expansion: Phoenix/Tucson, Atlanta, Tampa/Orlando, Charlotte, Las Ve
 - Location: DFW, Houston, San Antonio, Austin metros
 - Headcount: 5–75 (core 10–50)
 - Titles: Owner / President / Founder / GM / Marketing Manager
-- **Buying-signal technologies:** CallRail, CallTrackingMetrics, ServiceTitan, Housecall Pro, Google Ads
+- **Buying-signal technologies (tiered — see scoring in `apollo_to_instantly.py`):**
+  - *Tier 1 — buying leads / running ads now (web-detectable, strongest):* CallRail, CallTrackingMetrics, Marchex, WhatConverts, DialPad (call tracking = they measure bought leads); Google/Microsoft Ads pixels; Scorpion, Blue Corona, Hibu (hired a marketing agency)
+  - *Tier 2 — sophisticated operator + budget:* ServiceTitan, Housecall Pro, Jobber, FieldEdge, Service Fusion, Workiz (FSM/CRM); Podium, Birdeye, NiceJob (reputation)
+  - *Tier 3 — growth-minded:* Intercom/Drift/tawk (webchat), HubSpot, Hotjar, Calendly/Acuity
+  - **Detectability caveat:** Apollo reliably detects *web-visible* tech (call tracking, ad pixels, chat, review widgets); back-office FSM (ServiceTitan etc.) is detected less reliably (via job postings) → weighted lower. Per-trade, extend Tier-2 with that trade's stack (e.g. roofing: EagleView, HOVER, AccuLynx).
 - **Intent topics:** HVAC marketing / lead generation
 - Verified email (<3% bounce); prefer named inboxes over `info@`
 - **Cross-ref pass:** flag accounts present on Angi/Thumbtack/HomeAdvisor or with a Google LSA badge (= buying now)
