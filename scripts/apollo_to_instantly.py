@@ -34,13 +34,13 @@ WAVE = {
         {"delay": 0, "variants": [
             {"subject": "the 98% leaving {{companyName}}'s site",
              "body": ("Hi {{firstName}},\n\n"
-                      "{Quick question|One quick thing|Quick one} — about 98% of the people who visit {{companyName}}'s site leave without ever calling, and you never find out who they were.\n\n"
+                      "{Quick question|One quick thing|Quick one} — most {{city|local}}-area homeowners who land on {{companyName}}'s site leave without ever calling. Around 98%, and you never find out who they were.\n\n"
                       "We hand those visitors back as exclusive, consent-first leads — real name, email, and what they need. $7 each, yours alone, never resold.\n\n"
                       "Want me to send a 2-minute demo on a site like yours?\n\n"
                       "— {{senderName}}, Consent Resolve")},
             {"subject": "{{companyName}}'s website visitors",
              "body": ("Hi {{firstName}},\n\n"
-                      "{Quick one|Fast question} — roughly 98% of {{companyName}}'s website visitors leave without calling, and you never learn who they were.\n\n"
+                      "{Quick one|Fast question} — roughly 98% of the homeowners who visit {{companyName}}'s site around {{city|your area}} leave without calling, and you never learn who they were.\n\n"
                       "We turn them into exclusive, consent-first leads: name, email, what they need. $7 each, only yours, never resold.\n\n"
                       "Worth a 2-minute demo on a site like yours?\n\n"
                       "— {{senderName}}, Consent Resolve")},
@@ -56,7 +56,7 @@ WAVE = {
         {"delay": 4, "variants": [
             {"subject": "should I close your file, {{firstName}}?",
              "body": ("I don't want to clutter your inbox, {{firstName}}.\n\n"
-                      "If turning the visitors who leave {{companyName}}'s site into $7 exclusive leads is ever worth 2 minutes, here's the demo: " + DEMO + "\n\n"
+                      "If turning the {{city|local}} homeowners who leave {{companyName}}'s site into $7 exclusive leads is ever worth 2 minutes, here's the demo: " + DEMO + "\n\n"
                       "Otherwise I'll leave you to it — good luck this season.\n\n"
                       "— {{senderName}}")},
         ]},
