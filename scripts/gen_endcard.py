@@ -30,32 +30,23 @@ def card(state):
     padlock(d, W // 2 - 165, 150, 26, MINT)
     ctext(d, W // 2 + 18, 128, "PRIVATE MESSAGE", han(40), MINT)
     d.line([(120, 215), (W - 120, 215)], fill=(255, 255, 255, 30), width=2)
-    # recipients
+    # recipient: the team group (no individual names)
     ctext(d, W // 2, 268, "To", han(34), SLATE)
-    y = 340
-    for ini, name in RECIPIENTS:
-        cx = W // 2
-        d.ellipse([cx - 320, y, cx - 248, y + 72], fill=(0, 229, 160, 255))
-        iw = d.textlength(ini, font=han(30)); d.text((cx - 284 - iw / 2, y + 18), ini, font=han(30), fill=INKMINT)
-        d.text((cx - 224, y + 6), name, font=han(40), fill=WHITE)
-        d.text((cx - 224, y + 48), "Consent Resolve", font=han(26), fill=SLATE)
-        # online dot
-        d.ellipse([cx + 250, y + 28, cx + 270, y + 48], fill=MINT)
-        y += 110
-    # attachment bubble
-    by = 730
-    d.rounded_rectangle([150, by, W - 150, by + 430], radius=34, fill=CARD)
-    # video thumb
-    try:
-        th = Image.open("/tmp/founder-frame.png").convert("RGB").resize((300, 300))
-        m = Image.new("L", (300, 300), 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, 300, 300], radius=26, fill=255)
-        img.paste(th, (200, by + 60), m)
-        d.polygon([(330, by + 175), (330, by + 235), (385, by + 205)], fill=WHITE)
-    except Exception as e:
-        print("thumb skip", e)
-    d.text((540, by + 95), "today.mp4", font=han(38), fill=WHITE)
-    d.text((540, by + 150), "0:48 · 24.1 MB", font=han(30), fill=SLATE)
-    d.text((200, by + 330), "Do NOT share this — just the guys.", font=han(34), fill=SLATE)
+    cx = W // 2; y = 360
+    d.ellipse([cx - 300, y, cx - 212, y + 88], fill=MINT)
+    iw = d.textlength("LZ", font=han(38)); d.text((cx - 256 - iw / 2, y + 22), "LZ", font=han(38), fill=INKMINT)
+    d.text((cx - 188, y + 8), "Lead Zeppelin", font=han(46), fill=WHITE)
+    d.text((cx - 188, y + 58), "Team group · 3 members", font=han(28), fill=SLATE)
+    d.ellipse([cx + 248, y + 34, cx + 270, y + 56], fill=MINT)
+    # attachment bubble — clean video-file glyph (no warped photo)
+    by = 760
+    d.rounded_rectangle([150, by, W - 150, by + 350], radius=34, fill=CARD)
+    gx, gy = 230, by + 65
+    d.rounded_rectangle([gx, gy, gx + 210, gy + 210], radius=24, fill=(13, 33, 40), outline=MINT, width=4)
+    d.polygon([(gx + 82, gy + 64), (gx + 82, gy + 146), (gx + 152, gy + 105)], fill=MINT)
+    d.text((500, by + 86), "today.mp4", font=han(42), fill=WHITE)
+    d.text((500, by + 144), "0:48 · vertical", font=han(30), fill=SLATE)
+    d.text((200, by + 272), "Do NOT share this — just the team.", font=han(32), fill=SLATE)
     # action zone
     ay = 1480
     if state == "compose":
