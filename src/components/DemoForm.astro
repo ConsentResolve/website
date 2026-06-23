@@ -96,6 +96,14 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
       const qTrade = params.get("trade");
       const tradeInput = form.querySelector<HTMLSelectElement>('[name="trade"]');
       if (qTrade && tradeInput && !tradeInput.value) tradeInput.value = qTrade;
+      // Named pre-fill carried from the landing page (Instantly: ?fn= ?co=). No
+      // email/phone in the URL — those stay user-entered.
+      const prefill = (n: string, v: string | null) => {
+        const el = form.querySelector<HTMLInputElement>(`[name="${n}"]`);
+        if (el && v && !el.value) el.value = v;
+      };
+      prefill("name", params.get("fn"));
+      prefill("business_name", params.get("co"));
 
       const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
       const label = form.querySelector<HTMLElement>(".cr-demo-btn-label");

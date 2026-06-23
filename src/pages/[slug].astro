@@ -132,6 +132,15 @@ const TRADE_VIDEOS: Record<string, { intro: string; resume: string; poster?: str
   hvac: { intro: "/video/hvac-intro.mp4", resume: "/video/hvac-resume.mp4", poster: "/video/hvac-poster.jpg" },
 };
 const tradeVid = TRADE_VIDEOS[trade.slug];
+
+// Message-match hero variants — mirror the three retargeting ad angles. The ad
+// link carries ?utm_content=hook|math|reframe and the hero swaps to match what
+// they clicked (biggest conversion lever for paid/cold traffic).
+const HERO_ANGLES: Record<string, string> = {
+  hook: "98% of your site visitors leave. Get them back.",
+  math: "A $149 lead, split 5 ways. Or $7 — all yours.",
+  reframe: "Stop renting your leads. Own them.",
+};
 ---
 
 <BaseLayout
@@ -150,8 +159,9 @@ const tradeVid = TRADE_VIDEOS[trade.slug];
     <div class="container-content relative">
       <div class="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
+          <p data-pers class="mb-4 hidden text-sm font-bold uppercase tracking-[0.16em] text-[color:var(--color-mint-400)]"></p>
           <div class="mb-7"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase icon={TradeIcon}>{trade.name}</Badge></div>
-          <h1 class="display-1 mb-7 text-white">
+          <h1 class="display-1 mb-7 text-white" data-hero-h1 data-a-hook={HERO_ANGLES.hook} data-a-math={HERO_ANGLES.math} data-a-reframe={HERO_ANGLES.reframe}>
             {trade.heroH1}
           </h1>
           <p class="mb-10 max-w-xl text-lg leading-relaxed text-slate-300">
@@ -351,6 +361,32 @@ const tradeVid = TRADE_VIDEOS[trade.slug];
   <AEOAnswer text={trade.aeoAnswer} />
   <FinalCTA heading={trade.finalCtaH2} />
 </BaseLayout>
+
+<!-- Message match + Instantly named personalization. Reads the ad/email link params:
+       ?utm_content=hook|math|reframe  → swap the hero headline to the angle clicked
+       ?fn=&co=&city=                  → personalized greeting + carried to the demo
+     Only low-sensitivity fields (no email/phone) ride in the URL. -->
+<script is:inline>
+  (function () {
+    var p = new URLSearchParams(location.search);
+    var angle = (p.get("utm_content") || p.get("angle") || "").toLowerCase();
+    var h1 = document.querySelector("[data-hero-h1]");
+    if (h1 && angle) { var alt = h1.getAttribute("data-a-" + angle); if (alt) h1.textContent = alt; }
+    var fn = (p.get("fn") || "").trim();
+    if (fn) {
+      var co = (p.get("co") || "").trim(), city = (p.get("city") || "").trim();
+      var g = document.querySelector("[data-pers]");
+      if (g) { g.textContent = (city ? city + " · " : "") + "Built for " + fn + (co ? " at " + co : ""); g.classList.remove("hidden"); }
+    }
+    // carry personalization to the demo so the form pre-fills (name/company)
+    var carry = [];
+    ["fn", "co", "city"].forEach(function (k) { var v = p.get(k); if (v) carry.push(k + "=" + encodeURIComponent(v)); });
+    if (carry.length) {
+      var q = carry.join("&");
+      document.querySelectorAll('a[href*="/demo"]').forEach(function (a) { a.href += (a.href.indexOf("?") > -1 ? "&" : "?") + q; });
+    }
+  })();
+</script>
 
 <!-- Infographic player: the grid is the story, narrated by Tyler and kept in
      beat with the video. Intro drives the LEAK (100 land → 98 ghosts + 2 forms);
