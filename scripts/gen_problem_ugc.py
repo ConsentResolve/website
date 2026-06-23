@@ -10,7 +10,9 @@ says the id isn't a regular avatar. Run in background — polling takes minutes.
 import json, time, sys, urllib.request, urllib.error
 
 KEY = open("/tmp/heygen_key.txt").read().strip()
-AVATAR = "37dd05917aed4e42aa347b4875250793"
+# "Real Tyler" is an avatar GROUP (37dd…); generation needs a LOOK id from inside
+# it. Default look "Green Hat, Matching Shirt"; override via argv[2] to swap looks.
+AVATAR = "026f9397e4e9415b9cb54bab179ab59f"
 VOICE = "92071a8742744d17bc92a02baab2941f"
 TEXT = ("Look, here's the part nobody likes to talk about. Ninety-eight out of a "
         "hundred people hit your website and just leave. You paid for every one of them. "
