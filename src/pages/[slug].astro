@@ -186,15 +186,16 @@ const PROBLEM_VIDEO = "/video/tyler-problem.mp4";
        shows what changes when anonymous visitors become identified leads. -->
   <section class="section bg-[color:var(--color-bg-alt)]" data-ba>
     <div class="container-content">
-      <div class="mx-auto mb-12 max-w-2xl text-center">
+      <div class="mx-auto mb-10 max-w-2xl text-center">
         <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>The problem</Badge></div>
         <h2 class="display-2 text-[color:var(--color-ink)]">
           98 of 100 leave anonymous. Watch what changes when they don't.
         </h2>
         <p class="mt-4 text-[15px] text-[color:var(--color-ink-2)]">{trade.problem}</p>
       </div>
-      <!-- Landscape UGC video (Tyler) -->
-      <div class="mx-auto max-w-3xl">
+      <!-- Two columns: UGC video left, interactive leak grid right (stacks on mobile) -->
+      <div class="grid items-center gap-10 lg:grid-cols-2">
+        <!-- Landscape UGC video (Tyler) -->
         <div class="overflow-hidden rounded-2xl bg-[color:var(--color-navy-900)] shadow-[0_30px_60px_-30px_rgba(10,22,40,0.45)] ring-1 ring-inset ring-[color:var(--color-rule)]">
           <video
             src={PROBLEM_VIDEO}
@@ -205,24 +206,24 @@ const PROBLEM_VIDEO = "/video/tyler-problem.mp4";
             poster="/og-default.png"
           ></video>
         </div>
-      </div>
 
-      <!-- Interactive leak grid: 2 of 100 today; tap After to populate recovery -->
-      <div class="mx-auto mt-12 max-w-2xl text-center">
-        <div class="inline-flex rounded-full bg-white p-1 ring-1 ring-inset ring-[color:var(--color-rule)]">
-          <button data-ba-tab="before" data-cap="Today, only about 2 of every 100 visitors fill out a form. The other 98 leave anonymous — and you paid for every one." class="ba-tab is-active rounded-full px-6 py-2 text-sm font-bold transition-colors">Before</button>
-          <button data-ba-tab="after" data-cap="Illustrative: when the visitors who consent come back as leads, you capture a far bigger share of the 100 — not just the 2." class="ba-tab rounded-full px-6 py-2 text-sm font-bold transition-colors">After</button>
+        <!-- Interactive leak grid: 2 of 100 today; tap After to populate recovery -->
+        <div class="text-center lg:text-left">
+          <div class="inline-flex rounded-full bg-white p-1 ring-1 ring-inset ring-[color:var(--color-rule)]">
+            <button data-ba-tab="before" data-cap="Today, only about 2 of every 100 visitors fill out a form. The other 98 leave anonymous — and you paid for every one." class="ba-tab is-active rounded-full px-6 py-2 text-sm font-bold transition-colors">Before</button>
+            <button data-ba-tab="after" data-cap="Illustrative: when the visitors who consent come back as leads, you capture a far bigger share of the 100 — not just the 2." class="ba-tab rounded-full px-6 py-2 text-sm font-bold transition-colors">After</button>
+          </div>
+          <div class="leakgrid mt-6" data-leak data-state="before" aria-hidden="true">
+            {Array.from({ length: 100 }).map((_, i) => (
+              <span class:list={["leakcell", i < 2 ? "on" : i < 40 ? "rec" : ""]} style={`--i:${i}`}></span>
+            ))}
+          </div>
+          <div class="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-[color:var(--color-ink-muted)] lg:justify-start">
+            <span class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-[2px] bg-[color:var(--color-brand)]"></span> Captured as a lead</span>
+            <span class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-[2px] bg-[color:var(--color-ink)]/10"></span> Leaves anonymous</span>
+          </div>
+          <p class="mt-5 text-sm leading-relaxed text-[color:var(--color-ink-2)]" data-leak-caption>Today, only about 2 of every 100 visitors fill out a form. The other 98 leave anonymous — and you paid for every one.</p>
         </div>
-        <div class="leakgrid mt-7" data-leak data-state="before" aria-hidden="true">
-          {Array.from({ length: 100 }).map((_, i) => (
-            <span class:list={["leakcell", i < 2 ? "on" : i < 40 ? "rec" : ""]} style={`--i:${i}`}></span>
-          ))}
-        </div>
-        <div class="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-[color:var(--color-ink-muted)]">
-          <span class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-[2px] bg-[color:var(--color-brand)]"></span> Captured as a lead</span>
-          <span class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-[2px] bg-[color:var(--color-ink)]/10"></span> Leaves anonymous</span>
-        </div>
-        <p class="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-[color:var(--color-ink-2)]" data-leak-caption>Today, only about 2 of every 100 visitors fill out a form. The other 98 leave anonymous — and you paid for every one.</p>
       </div>
     </div>
   </section>

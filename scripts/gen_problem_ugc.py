@@ -29,23 +29,34 @@ def api(url, body):
     except urllib.error.HTTPError as e:
         return e.code, json.loads(e.read().decode())
 
+GEN = "https://api.heygen.com/v2/video/generate"
+
+def _body(ctype, with_emotion):
+    """Match the UGC-reel attributes: Avatar IV + expressive + super-resolution,
+    speed 1.05, emotion Friendly (omitted if the voice has no emotion support)."""
+    char = {"type": ctype, ("talking_photo_id" if ctype == "talking_photo" else "avatar_id"): AVATAR,
+            "use_avatar_iv_model": True, "talking_style": "expressive", "super_resolution": True}
+    if ctype == "avatar":
+        char["avatar_style"] = "normal"
+    voice = {"type": "text", "voice_id": VOICE, "input_text": TEXT, "speed": 1.05}
+    if with_emotion:
+        voice["emotion"] = "Friendly"
+    return {"caption": False, "video_inputs": [{"character": char, "voice": voice}],
+            "dimension": {"width": 1280, "height": 720}}
+
 def submit():
-    # Standard avatar shape first.
-    body = {"caption": False, "video_inputs": [{
-        "character": {"type": "avatar", "avatar_id": AVATAR, "avatar_style": "normal"},
-        "voice": {"type": "text", "voice_id": VOICE, "input_text": TEXT, "speed": 1.0},
-    }], "dimension": {"width": 1280, "height": 720}}
-    st, r = api("https://api.heygen.com/v2/video/generate", body)
-    print("avatar submit:", st, json.dumps(r)[:300], flush=True)
-    vid = (r.get("data") or {}).get("video_id")
-    if vid:
-        return vid
-    # Fallback: Avatar IV talking_photo shape.
-    body["video_inputs"][0]["character"] = {"type": "talking_photo", "talking_photo_id": AVATAR,
-        "use_avatar_iv_model": True, "talking_style": "expressive", "super_resolution": True}
-    st, r = api("https://api.heygen.com/v2/video/generate", body)
-    print("talking_photo submit:", st, json.dumps(r)[:300], flush=True)
-    return (r.get("data") or {}).get("video_id")
+    # 026f… is a Photo-Avatar look → "avatar" type. Try with emotion, then drop
+    # emotion if the voice doesn't support it; fall back to talking_photo shape.
+    for ctype in ("avatar", "talking_photo"):
+        for emo in (True, False):
+            st, r = api(GEN, _body(ctype, emo))
+            print(f"{ctype} {'emotion' if emo else 'no-emotion'} ->", st, json.dumps(r)[:220], flush=True)
+            vid = (r.get("data") or {}).get("video_id")
+            if vid:
+                return vid
+            if emo and "emotion" not in json.dumps(r).lower():
+                break  # failure unrelated to emotion — try the next character shape
+    return None
 
 def poll(vid):
     url = f"https://api.heygen.com/v1/video_status.get?video_id={vid}"
