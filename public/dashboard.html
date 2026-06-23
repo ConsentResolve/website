@@ -12,6 +12,11 @@ h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#00e5a0;bo
 .kpi{background:#0e1d33;border:1px solid #1e293b;border-radius:14px;padding:16px}
 .kpi .n{font-size:32px;font-weight:800;color:#fff;line-height:1}.kpi .l{font-size:12px;color:#94a3b8;margin-top:6px;text-transform:uppercase;letter-spacing:.06em}
 .kpi .r{font-size:11px;color:#00e5a0;margin-top:6px}
+.snap{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}@media(max-width:880px){.snap{grid-template-columns:repeat(2,1fr)}}@media(max-width:460px){.snap{grid-template-columns:1fr}}
+.bigcard{background:#0e1d33;border:1px solid #1e293b;border-radius:16px;padding:18px}
+.bigcard .bt{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#00e5a0;font-weight:800;margin-bottom:8px}
+.bigcard .br{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-top:1px solid #16233a}.bigcard .br:first-of-type{border-top:0}
+.bigcard .br span{color:#94a3b8;font-size:13px}.bigcard .br b{color:#fff;font-size:22px;font-weight:800;line-height:1}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .stat{background:#0e1d33;border:1px solid #1e293b;border-radius:12px;padding:13px}.stat .n{font-size:22px;font-weight:800;color:#fff}.stat .l{font-size:12px;color:#94a3b8;margin-top:3px}
 table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #16233a}th{color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase}
@@ -26,6 +31,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </header>
 <div class="wrap">
   <div id="prog" style="font-weight:700;color:#fff"></div><div class="bar"><i id="bar"></i></div>
+  <h2>Snapshot</h2><div id="snap"></div>
   <h2>Channel health</h2><div id="channels"></div>
   <h2>Funnel</h2><div id="kpis" class="kpis"></div><div id="funnelnote" style="margin-top:10px"></div>
   <h2>Cost &amp; CAC · content published</h2><div id="cost"></div>
@@ -50,7 +56,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
   <a class="lk" href="/fb-calendar" target="_blank">Social calendar</a>
 </div>
 <script>
-const C={"start": "2026-06-18", "end": "2026-08-01", "days": 45, "platforms": {"tk": 98, "yt": 98, "ig": 73, "fb": 21}, "reels_scheduled": 97, "library": 97, "analyticsUrl": "/api/analytics?key=cr-dash-2026", "metricsUrl": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/metrics.json", "logUrl": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/post-log.json", "spend": {"note": "Manual ad-spend input for CAC. Update as you spend on Meta/Google retargeting. 'total' powers the dashboard Cost & CAC section; 'by_wave' is per-industry spend for reference.", "total": 0, "by_wave": {"hvac_2026": 0}}}, $=s=>document.querySelector(s), n=v=>(v==null?'—':(+v).toLocaleString());
+const C={"start": "2026-06-18", "end": "2026-08-01", "days": 45, "platforms": {"tk": 98, "yt": 98, "ig": 73, "fb": 21}, "reels_scheduled": 97, "library": 97, "post_counts": {"2026-06-18": 5, "2026-06-19": 11, "2026-06-22": 4, "2026-06-23": 4, "2026-06-24": 5, "2026-06-25": 6, "2026-06-26": 8, "2026-06-27": 6, "2026-06-29": 7, "2026-06-30": 7, "2026-07-01": 7, "2026-07-02": 10, "2026-07-03": 9, "2026-07-04": 11, "2026-07-06": 10, "2026-07-07": 9, "2026-07-08": 10, "2026-07-09": 10, "2026-07-10": 10, "2026-07-11": 9, "2026-07-13": 9, "2026-07-14": 11, "2026-07-15": 9, "2026-07-16": 10, "2026-07-17": 9, "2026-07-18": 11, "2026-07-20": 10, "2026-07-21": 9, "2026-07-22": 10, "2026-07-23": 10, "2026-07-24": 10, "2026-07-25": 9, "2026-07-27": 9, "2026-07-28": 11, "2026-07-29": 9, "2026-07-30": 10, "2026-07-31": 7, "2026-08-01": 5, "2026-06-20": 2}, "analyticsUrl": "/api/analytics?key=cr-dash-2026", "metricsUrl": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/metrics.json", "logUrl": "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/post-log.json", "spend": {"note": "Manual ad-spend input for CAC. Update as you spend on Meta/Google retargeting. 'total' powers the dashboard Cost & CAC section; 'by_wave' is per-industry spend for reference.", "total": 0, "by_wave": {"hvac_2026": 0}}}, $=s=>document.querySelector(s), n=v=>(v==null?'—':(+v).toLocaleString());
 const pf=(x,y)=>(y?Math.round(x/y*1000)/10+'%':'—'), $m=v=>'$'+(+v).toLocaleString(undefined,{maximumFractionDigits:0});
 (function(){const s=new Date(C.start+'T00:00:00Z'),e=new Date(C.end+'T00:00:00Z'),now=new Date();
  const day=Math.min(C.days,Math.max(1,Math.floor((now-s)/864e5)+1)),pct=Math.min(100,Math.max(0,Math.round((now-s)/(e-s)*100)));
@@ -69,6 +75,20 @@ function render(a){
   const socialViews=m.reduce((s,r)=>s+(+r.views||0),0), emailOpens=inst.reduce((s,c)=>s+(+c.opens||0),0), views=socialViews+emailOpens;
   const siteClicks=a?a.totals.clicks:0, emailClicks=inst.reduce((s,c)=>s+(+c.clicks||0),0), clicks=siteClicks+emailClicks;
   const demos=a?a.totals.demos:0, signups=a?a.totals.signups:0, published=log.filter(r=>r.status==='ok').length;
+  // Snapshot cards — Posts (scheduled) / Ad spend / Retargeting / Website visitors
+  const PC=C.post_counts||{}, dstr=d=>new Date(Date.now()+d*864e5).toISOString().slice(0,10);
+  let pToday=PC[dstr(0)]||0, pTom=PC[dstr(1)]||0, p7=0; for(let i=0;i<7;i++)p7+=PC[dstr(i)]||0;
+  const ads=a&&a.ads;
+  const sToday=ads?$m(ads.spendToday):'—', s7=ads?$m(ads.spend7):'—', s30=ads?$m(ads.spend30):$m((C.spend&&+C.spend.total)||0);
+  const rtViews=ads?ads.impressions:0, rtClicks=ads?ads.clicks:(a&&a.retarget_clicks||0), rtConv=a?a.retarget_conversions:0;
+  const vis=(a&&a.visitors)||{};
+  const card=(t,rows)=>`<div class="bigcard"><div class="bt">${t}</div>${rows.map(([l,v])=>`<div class="br"><span>${l}</span><b>${v}</b></div>`).join('')}</div>`;
+  $('#snap').innerHTML='<div class="snap">'+
+    card('Posts',[['Today',n(pToday)],['Tomorrow',n(pTom)],['Next 7 days',n(p7)]])+
+    card('Ad spend',[['Today',sToday],['Last 7 days',s7],['Last 30 days',s30]])+
+    card('Retargeting',[['Total views',n(rtViews)],['Total clicks',n(rtClicks)],['Conversions',n(rtConv)]])+
+    card('Website visitors',[['Today',n(vis.today)],['Last 7 days',n(vis.d7)],['Last 30 days',n(vis.d30)]])+
+    '</div>';
   // Channel health row — total posts, last post time, green/red status (latest attempt)
   const CH=['fb','ig','yt','tk','x','li'];const byCh={};log.forEach(r=>{(byCh[r.platform||'?']=byCh[r.platform||'?']||[]).push(r);});
   $('#channels').innerHTML='<div class="cards">'+CH.map(k=>{const rows=(byCh[k]||[]).slice().sort((x,y)=>(y.ts||'').localeCompare(x.ts||''));const total=(byCh[k]||[]).filter(r=>r.status==='ok').length;const last=rows[0];const dot=last?(last.status==='ok'?'green':'red'):'grey';const when=last?((last.ts||last.date||'').replace('T',' ').replace('Z','').slice(0,16)||'—'):'never';return `<div class="stat"><div style="display:flex;align-items:center;gap:8px"><span class="dot ${dot}"></span><b style="color:#fff">${PLATNAME[k]}</b></div><div class="n" style="font-size:20px;margin-top:6px">${n(total)}</div><div class="l">posts · last ${when}</div></div>`;}).join('')+'</div>';

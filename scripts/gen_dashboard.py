@@ -14,14 +14,18 @@ def load(n):
 sched, cards, spend = load("schedule.json"), load("cards.json"), load("spend.json")
 cat = load("sprint-catalog.json"); lib = len(cat) if isinstance(cat, list) else 0
 START, END = datetime.date(2026, 6, 18), datetime.date(2026, 8, 1)
-plat = {"tk": 0, "yt": 0, "ig": 0, "fb": 0}; reels = set()
-for items in sched.values():
+plat = {"tk": 0, "yt": 0, "ig": 0, "fb": 0}; reels = set(); post_counts = {}
+for date, items in sched.items():
+    c = 0
     for it in items:
         reels.add(it.get("name"))
+        c += len(it.get("platforms", []))
+        if it.get("story"): c += 1
         for p in it.get("platforms", []):
             if p in plat: plat[p] += 1
+    post_counts[date] = c
 CFG = {"start": START.isoformat(), "end": END.isoformat(), "days": (END - START).days + 1,
-       "platforms": plat, "reels_scheduled": len(reels), "library": lib,
+       "platforms": plat, "reels_scheduled": len(reels), "library": lib, "post_counts": post_counts,
        "analyticsUrl": "/api/analytics?key=cr-dash-2026", "metricsUrl": f"{PUB}/social/metrics.json", "logUrl": f"{PUB}/social/post-log.json",
        "spend": spend}
 
@@ -37,6 +41,11 @@ h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#00e5a0;bo
 .kpi{background:#0e1d33;border:1px solid #1e293b;border-radius:14px;padding:16px}
 .kpi .n{font-size:32px;font-weight:800;color:#fff;line-height:1}.kpi .l{font-size:12px;color:#94a3b8;margin-top:6px;text-transform:uppercase;letter-spacing:.06em}
 .kpi .r{font-size:11px;color:#00e5a0;margin-top:6px}
+.snap{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}@media(max-width:880px){.snap{grid-template-columns:repeat(2,1fr)}}@media(max-width:460px){.snap{grid-template-columns:1fr}}
+.bigcard{background:#0e1d33;border:1px solid #1e293b;border-radius:16px;padding:18px}
+.bigcard .bt{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#00e5a0;font-weight:800;margin-bottom:8px}
+.bigcard .br{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-top:1px solid #16233a}.bigcard .br:first-of-type{border-top:0}
+.bigcard .br span{color:#94a3b8;font-size:13px}.bigcard .br b{color:#fff;font-size:22px;font-weight:800;line-height:1}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .stat{background:#0e1d33;border:1px solid #1e293b;border-radius:12px;padding:13px}.stat .n{font-size:22px;font-weight:800;color:#fff}.stat .l{font-size:12px;color:#94a3b8;margin-top:3px}
 table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #16233a}th{color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase}
@@ -66,6 +75,20 @@ function render(a){
   const socialViews=m.reduce((s,r)=>s+(+r.views||0),0), emailOpens=inst.reduce((s,c)=>s+(+c.opens||0),0), views=socialViews+emailOpens;
   const siteClicks=a?a.totals.clicks:0, emailClicks=inst.reduce((s,c)=>s+(+c.clicks||0),0), clicks=siteClicks+emailClicks;
   const demos=a?a.totals.demos:0, signups=a?a.totals.signups:0, published=log.filter(r=>r.status==='ok').length;
+  // Snapshot cards — Posts (scheduled) / Ad spend / Retargeting / Website visitors
+  const PC=C.post_counts||{}, dstr=d=>new Date(Date.now()+d*864e5).toISOString().slice(0,10);
+  let pToday=PC[dstr(0)]||0, pTom=PC[dstr(1)]||0, p7=0; for(let i=0;i<7;i++)p7+=PC[dstr(i)]||0;
+  const ads=a&&a.ads;
+  const sToday=ads?$m(ads.spendToday):'—', s7=ads?$m(ads.spend7):'—', s30=ads?$m(ads.spend30):$m((C.spend&&+C.spend.total)||0);
+  const rtViews=ads?ads.impressions:0, rtClicks=ads?ads.clicks:(a&&a.retarget_clicks||0), rtConv=a?a.retarget_conversions:0;
+  const vis=(a&&a.visitors)||{};
+  const card=(t,rows)=>`<div class="bigcard"><div class="bt">${t}</div>${rows.map(([l,v])=>`<div class="br"><span>${l}</span><b>${v}</b></div>`).join('')}</div>`;
+  $('#snap').innerHTML='<div class="snap">'+
+    card('Posts',[['Today',n(pToday)],['Tomorrow',n(pTom)],['Next 7 days',n(p7)]])+
+    card('Ad spend',[['Today',sToday],['Last 7 days',s7],['Last 30 days',s30]])+
+    card('Retargeting',[['Total views',n(rtViews)],['Total clicks',n(rtClicks)],['Conversions',n(rtConv)]])+
+    card('Website visitors',[['Today',n(vis.today)],['Last 7 days',n(vis.d7)],['Last 30 days',n(vis.d30)]])+
+    '</div>';
   // Channel health row — total posts, last post time, green/red status (latest attempt)
   const CH=['fb','ig','yt','tk','x','li'];const byCh={};log.forEach(r=>{(byCh[r.platform||'?']=byCh[r.platform||'?']||[]).push(r);});
   $('#channels').innerHTML='<div class="cards">'+CH.map(k=>{const rows=(byCh[k]||[]).slice().sort((x,y)=>(y.ts||'').localeCompare(x.ts||''));const total=(byCh[k]||[]).filter(r=>r.status==='ok').length;const last=rows[0];const dot=last?(last.status==='ok'?'green':'red'):'grey';const when=last?((last.ts||last.date||'').replace('T',' ').replace('Z','').slice(0,16)||'—'):'never';return `<div class="stat"><div style="display:flex;align-items:center;gap:8px"><span class="dot ${dot}"></span><b style="color:#fff">${PLATNAME[k]}</b></div><div class="n" style="font-size:20px;margin-top:6px">${n(total)}</div><div class="l">posts · last ${when}</div></div>`;}).join('')+'</div>';
@@ -126,6 +149,7 @@ HTML = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 </header>
 <div class="wrap">
   <div id="prog" style="font-weight:700;color:#fff"></div><div class="bar"><i id="bar"></i></div>
+  <h2>Snapshot</h2><div id="snap"></div>
   <h2>Channel health</h2><div id="channels"></div>
   <h2>Funnel</h2><div id="kpis" class="kpis"></div><div id="funnelnote" style="margin-top:10px"></div>
   <h2>Cost &amp; CAC · content published</h2><div id="cost"></div>

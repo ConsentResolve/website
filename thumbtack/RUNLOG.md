@@ -9,3 +9,36 @@ Voice f365d990e89f4c55810722ef4788b85b · build log
 - `10:24:47` SCENES: rendering
 - `10:24:48` SCENES: done (8 stills)
 - `10:24:59`   ok 02_customer 14.5s
+- `10:26:40`   ok 03_contractor 31.8s
+- `10:26:58` tts render FAIL (0) 04_math.wav
+- `10:27:16` tts render FAIL (1) 04_math.wav
+- `10:27:16`   PLACEHOLDER 04_math (flagged)
+- `10:27:34` tts render FAIL (0) 05_complaints.wav
+- `10:27:52` tts render FAIL (1) 05_complaints.wav
+- `10:27:52`   PLACEHOLDER 05_complaints (flagged)
+- `10:28:10` tts render FAIL (0) 06_turn.wav
+- `10:28:28` tts render FAIL (1) 06_turn.wav
+- `10:28:28`   PLACEHOLDER 06_turn (flagged)
+- `10:29:11`   ok 07_end 6.5s
+- `10:29:11` VOICE: done — 72.9s (~1.2 min)
+- `10:33:35` VOICE: 7 clips
+- `10:33:35`   skip 01_hook (exists)
+- `10:33:36`   skip 02_customer (exists)
+- `10:33:36`   skip 03_contractor (exists)
+- `10:35:19`   ok 04_math 39.9s
+- `10:36:44`   ok 05_complaints 32.0s
+- `10:38:09`   ok 06_turn 34.5s
+- `10:38:09`   skip 07_end (exists)
+- `10:38:09` VOICE: done — 176.3s (~2.9 min)
+- `10:38:27` ASSEMBLE: building segment clips
+- `10:38:57`   clip 00 hook         17.4s
+- `10:39:24`   clip 01 customer     14.8s
+- `10:41:28`   clip 02 contractor   32.1s
+- `10:44:39`   clip 03 math         40.2s
+- `10:46:53`   clip 04 complaints   32.3s
+- `10:49:42`   clip 05 turn         34.8s
+- `10:49:49`   clip 06 end          6.8s
+- `10:52:33` ASSEMBLE: done -> /Users/aaronphillips/GIT/consentresolve2/thumbtack/out/thumbtack_hvac.mp4 (2.97 min)
+- `10:54:18` SCENES: rendering
+- `10:54:18` SCENES: done (8 stills)
+- `10:57:08` re-rendered clip_03 (math)

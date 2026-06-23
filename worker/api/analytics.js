@@ -24,6 +24,43 @@ export async function onRequestGet({ request, env }) {
   const visited = await one("SELECT COUNT(*) FROM participants WHERE visited_at IS NOT NULL");
   const consented = await one("SELECT COUNT(*) FROM participants WHERE consented_at IS NOT NULL");
   const enrolled = await one("SELECT COUNT(*) FROM participants WHERE enrolled_at IS NOT NULL");
+  // Website visitors (all pageview beacons in `traffic`) — today / last 7 / last 30 days.
+  const visitors = {
+    today: await one("SELECT COUNT(*) FROM traffic WHERE substr(created_at,1,10)=date('now')"),
+    d7: await one("SELECT COUNT(*) FROM traffic WHERE created_at >= datetime('now','-7 days')"),
+    d30: await one("SELECT COUNT(*) FROM traffic WHERE created_at >= datetime('now','-30 days')"),
+  };
+  // Retargeting conversions = /demo registrations attributed to a retarget_* source;
+  // site clicks from retarget UTMs are a fallback when the Meta insights pull is unavailable.
+  const retarget_conversions = await one("SELECT COUNT(*) FROM events WHERE event_type='registered' AND json_extract(metadata,'$.src') LIKE 'retarget%'");
+  const retarget_clicks = await one("SELECT COUNT(*) FROM traffic WHERE path LIKE '/demo%' AND utm_source LIKE 'retarget%'");
+  // Meta Ads insights (spend + impressions + link clicks, last 30d by day) — powers the
+  // Ad-spend and Retargeting cards. Guarded so a missing token never breaks the dashboard.
+  // Needs META_ACCESS_TOKEN + META_AD_ACCOUNT_ID as Worker secrets; returns null otherwise.
+  const ads = await (async () => {
+    try {
+      const tok = env.META_ACCESS_TOKEN, acctRaw = env.META_AD_ACCOUNT_ID;
+      if (!tok || !acctRaw) return null;
+      const id = acctRaw.startsWith("act_") ? acctRaw : `act_${acctRaw}`;
+      const u = `https://graph.facebook.com/v21.0/${id}/insights?` + new URLSearchParams({
+        access_token: tok, level: "account", time_increment: "1", date_preset: "last_30d",
+        fields: "spend,impressions,inline_link_clicks",
+      });
+      const r = await fetch(u);
+      if (!r.ok) return null;
+      const rows = (await r.json()).data || [];
+      const today = new Date().toISOString().slice(0, 10);
+      const cut7 = new Date(Date.now() - 6 * 864e5).toISOString().slice(0, 10);
+      let spendToday = 0, spend7 = 0, spend30 = 0, impressions = 0, clicks = 0;
+      for (const row of rows) {
+        const day = row.date_start, sp = +row.spend || 0;
+        spend30 += sp; impressions += +row.impressions || 0; clicks += +row.inline_link_clicks || 0;
+        if (day === today) spendToday += sp;
+        if (day >= cut7) spend7 += sp;
+      }
+      return { spendToday, spend7, spend30, impressions, clicks };
+    } catch { return null; }
+  })();
   // Instantly campaign analytics (Bearer; guarded so it never breaks the dashboard).
   // Field names mapped defensively across likely V2 keys; validate on first live campaign.
   const instantly = await (async () => {
