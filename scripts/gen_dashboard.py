@@ -22,7 +22,7 @@ for items in sched.values():
             if p in plat: plat[p] += 1
 CFG = {"start": START.isoformat(), "end": END.isoformat(), "days": (END - START).days + 1,
        "platforms": plat, "reels_scheduled": len(reels), "library": lib,
-       "analyticsUrl": "/api/analytics?key=fixme", "metricsUrl": f"{PUB}/social/metrics.json", "logUrl": f"{PUB}/social/post-log.json",
+       "analyticsUrl": "/api/analytics?key=cr-dash-2026", "metricsUrl": f"{PUB}/social/metrics.json", "logUrl": f"{PUB}/social/post-log.json",
        "spend": spend}
 
 CSS = """*{box-sizing:border-box}body{margin:0;background:#0a1628;color:#f5f8fa;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}

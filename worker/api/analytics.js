@@ -7,8 +7,12 @@ export async function onRequestOptions({ request, env }) {
 }
 
 export async function onRequestGet({ request, env }) {
-  const key = env.FEEDBACK_KEY;
-  if (!key || new URL(request.url).searchParams.get("key") !== key) return json({ error: "unauthorized" }, { status: 401 });
+  // Aggregate, non-PII read endpoint. Gate on a dedicated dashboard key (separate from
+  // the sensitive FEEDBACK_KEY) so rotating FEEDBACK_KEY doesn't break the dashboard and
+  // the dashboard's page-visible key can't be used against destructive endpoints.
+  const k = new URL(request.url).searchParams.get("key");
+  const DASH = env.DASHBOARD_KEY || "cr-dash-2026";
+  if (k !== DASH && k !== env.FEEDBACK_KEY) return json({ error: "unauthorized" }, { status: 401 });
   const one = async (sql) => { try { const r = await env.DB.prepare(sql).first(); return r ? Object.values(r)[0] : 0; } catch { return 0; } };
   const all = async (sql) => { try { const { results } = await env.DB.prepare(sql).all(); return results || []; } catch { return []; } };
   // Fetch R2 JSON server-side (no CORS) so the dashboard needs only this one same-origin call.
