@@ -16,6 +16,7 @@ h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#00e5a0;bo
 .stat{background:#0e1d33;border:1px solid #1e293b;border-radius:12px;padding:13px}.stat .n{font-size:22px;font-weight:800;color:#fff}.stat .l{font-size:12px;color:#94a3b8;margin-top:3px}
 table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #16233a}th{color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase}
 .pill{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;color:#06121f}.ok{background:#00e5a0}.fail{background:#ff8d8d}.muted{color:#64748b}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}.dot.green{background:#00e5a0;box-shadow:0 0 8px #00e5a080}.dot.red{background:#ff8d8d;box-shadow:0 0 8px #ff8d8d80}.dot.grey{background:#475569}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:680px){.two{grid-template-columns:1fr}}
 .empty{color:#64748b;font-size:13px;padding:14px;background:#0e1d33;border:1px dashed #29384f;border-radius:12px}
 .lk{display:inline-block;margin:5px 8px 0 0;background:#16233a;color:#cbd5e1;border:1px solid #1e293b;border-radius:8px;padding:6px 12px;font-size:12px;text-decoration:none}a{color:#7dd3fc}
@@ -25,6 +26,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </header>
 <div class="wrap">
   <div id="prog" style="font-weight:700;color:#fff"></div><div class="bar"><i id="bar"></i></div>
+  <h2>Channel health</h2><div id="channels"></div>
   <h2>Funnel</h2><div id="kpis" class="kpis"></div><div id="funnelnote" style="margin-top:10px"></div>
   <h2>Cost &amp; CAC · content published</h2><div id="cost"></div>
   <h2>Today's posting</h2><div id="today"></div>
@@ -67,6 +69,9 @@ function render(a){
   const socialViews=m.reduce((s,r)=>s+(+r.views||0),0), emailOpens=inst.reduce((s,c)=>s+(+c.opens||0),0), views=socialViews+emailOpens;
   const siteClicks=a?a.totals.clicks:0, emailClicks=inst.reduce((s,c)=>s+(+c.clicks||0),0), clicks=siteClicks+emailClicks;
   const demos=a?a.totals.demos:0, signups=a?a.totals.signups:0, published=log.filter(r=>r.status==='ok').length;
+  // Channel health row — total posts, last post time, green/red status (latest attempt)
+  const CH=['fb','ig','yt','tk','x','li'];const byCh={};log.forEach(r=>{(byCh[r.platform||'?']=byCh[r.platform||'?']||[]).push(r);});
+  $('#channels').innerHTML='<div class="cards">'+CH.map(k=>{const rows=(byCh[k]||[]).slice().sort((x,y)=>(y.ts||'').localeCompare(x.ts||''));const total=(byCh[k]||[]).filter(r=>r.status==='ok').length;const last=rows[0];const dot=last?(last.status==='ok'?'green':'red'):'grey';const when=last?((last.ts||last.date||'').replace('T',' ').replace('Z','').slice(0,16)||'—'):'never';return `<div class="stat"><div style="display:flex;align-items:center;gap:8px"><span class="dot ${dot}"></span><b style="color:#fff">${PLATNAME[k]}</b></div><div class="n" style="font-size:20px;margin-top:6px">${n(total)}</div><div class="l">posts · last ${when}</div></div>`;}).join('')+'</div>';
   $('#kpis').innerHTML=[
     ['Views / Opens',views,socialViews.toLocaleString()+' social + '+emailOpens.toLocaleString()+' email'],
     ['Clicks',clicks,(emailClicks?siteClicks.toLocaleString()+' site + '+emailClicks.toLocaleString()+' email':'→ '+pf(clicks,views)+' of views')],
