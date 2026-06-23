@@ -57,6 +57,13 @@ def card(state):
         ctext(d, W // 2 - 40, ay + 46, "Sending", bri(52), WHITE)
         for i, dx in enumerate((30, 70, 110)):
             d.ellipse([W // 2 + 120 + dx, ay + 70, W // 2 + 138 + dx, ay + 88], fill=SLATE if i else MINT)
+    elif state == "transmitting":
+        d.rounded_rectangle([180, ay, W - 180, ay + 150], radius=40, fill=CARD)
+        padlock(d, W // 2 - 235, ay + 52, 24, MINT)
+        ctext(d, W // 2 + 12, ay + 30, "Encrypting", bri(48), WHITE)
+        # progress bar (mostly filled)
+        d.rounded_rectangle([255, ay + 104, W - 255, ay + 120], radius=8, fill=(40, 55, 75))
+        d.rounded_rectangle([255, ay + 104, int(255 + (W - 510) * 0.72), ay + 120], radius=8, fill=MINT)
     else:  # sent
         cx, cy = W // 2, ay + 30
         d.ellipse([cx - 55, cy - 55, cx + 55, cy + 55], fill=MINT)
@@ -68,6 +75,6 @@ def card(state):
     return img
 
 if __name__ == "__main__":
-    for s in ("compose", "sending", "sent"):
+    for s in ("compose", "sending", "transmitting", "sent"):
         card(s).save(f"/tmp/ec_{s}.png", quality=95)
         print("wrote /tmp/ec_" + s + ".png")

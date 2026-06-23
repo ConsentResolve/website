@@ -35,7 +35,7 @@ def api(url, body=None, method="POST"):
 def submit():
     char = {"type": "avatar", "avatar_id": LOOK, "avatar_style": "normal",
             "use_avatar_iv_model": True, "talking_style": "expressive", "super_resolution": True}
-    voice = {"type": "text", "voice_id": VOICE, "input_text": TEXT, "speed": 1.0}  # no emotion (unsupported)
+    voice = {"type": "text", "voice_id": VOICE, "input_text": TEXT, "speed": 1.05}  # no emotion (unsupported)
     st, r = api(GEN, {"caption": False, "video_inputs": [{"character": char, "voice": voice}],
                       "dimension": {"width": 1080, "height": 1920}})
     print("submit:", st, json.dumps(r)[:240], flush=True)
