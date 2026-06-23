@@ -24,6 +24,11 @@ GRAPH = "https://graph.facebook.com/v21.0"
 LINK = "https://consentresolve.com/demo?utm_source=retarget_meta&utm_medium=paid_social&utm_campaign=hvac_2026"
 PRIMARY = "Stop renting HVAC leads. Recover the ~98% who leave your site — as $7 exclusive, consent-first leads. Real name, email, what they need. 2-minute demo 👇"
 HEADLINE = "Exclusive HVAC leads — $7 each"
+CARD_TEXT = {  # per-angle carousel card copy, matched by filename keyword
+    "math": ("A $149 lead, split 5 ways", "Or $7 — all yours."),
+    "hook": ("98% of your site visitors leave", "Get them back."),
+    "reframe": ("Stop renting your leads", "Own them — $7, consent-first."),
+}
 
 def _env(n, f):
     v = os.environ.get(n, "").strip()
@@ -86,6 +91,7 @@ def main():
     ap.add_argument("--budget", type=float, default=20.0, help="daily budget USD")
     ap.add_argument("--images", nargs="*", default=[], help="static image ad creatives")
     ap.add_argument("--videos", nargs="*", default=[], help="video ad creatives (reel R2 URLs)")
+    ap.add_argument("--carousel", nargs="*", default=[], help="image paths for ONE multi-card carousel ad")
     ap.add_argument("--campaign-id", help="reuse an existing campaign instead of creating a new one")
     ap.add_argument("--adset-id", help="reuse an existing ad set instead of creating a new one")
     ap.add_argument("--push", action="store_true")
@@ -137,7 +143,22 @@ def main():
         ad = post(f"{acct()}/ads", {"name": f"reel-{nm}", "adset_id": aset_id,
             "creative": json.dumps({"creative_id": cr["id"]}), "status": "PAUSED", "access_token": t})
         print("  video ad", ad["id"], "<-", nm); vmade += 1
-    print(f"DONE — {len(a.images)} image ads + {vmade} video ads created PAUSED. Review in Ads Manager, then activate.")
+    cmade = 0
+    if a.carousel:
+        cards = []
+        for im in a.carousel:
+            h = upload_image(im, t)
+            key = next((k for k in CARD_TEXT if k in Path(im).stem), None)
+            nm, desc = CARD_TEXT.get(key, (HEADLINE, "Consent-first HVAC leads — $7, yours alone."))
+            cards.append({"image_hash": h, "link": LINK, "name": nm, "description": desc,
+                          "call_to_action": {"type": "LEARN_MORE", "value": {"link": LINK}}})
+        spec = {"page_id": page(), "link_data": {"link": LINK, "message": PRIMARY,
+                "child_attachments": cards, "multi_share_optimized": True, "multi_share_end_card": True}}
+        cr = post(f"{acct()}/adcreatives", {"name": "carousel-hvac", "object_story_spec": json.dumps(spec), "access_token": t})
+        ad = post(f"{acct()}/ads", {"name": "carousel-hvac", "adset_id": aset_id,
+            "creative": json.dumps({"creative_id": cr["id"]}), "status": "PAUSED", "access_token": t})
+        print(f"  carousel ad {ad['id']} ({len(cards)} cards)"); cmade = 1
+    print(f"DONE — {len(a.images)} image ads + {vmade} video ads + {cmade} carousel created PAUSED. Review in Ads Manager, then activate.")
 
 if __name__ == "__main__":
     main()

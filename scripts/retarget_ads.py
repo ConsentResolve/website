@@ -54,7 +54,7 @@ ANGLES = {
                 "head": [("Own your HVAC leads.", WHITE), ("Don't rent them.", MINT)],
                 "sub": "Consent-first leads — $7, yours alone, never resold."},
 }
-SIZES = {"meta-square": (1080, 1080), "meta-story": (1080, 1920), "landscape": (1200, 628), "square": (1200, 1200)}
+SIZES = {"meta-square": (1080, 1080), "meta-feed-4x5": (1080, 1350), "meta-story": (1080, 1920), "landscape": (1200, 628), "square": (1200, 1200)}
 CTA = "See the 2-minute demo  →"
 
 def render(angle, key, w, h):
