@@ -125,6 +125,13 @@ const bookedJobMath = {
 // "Green Hat, Matching Shirt" + voice 92071…). Shipped as a static asset under
 // public/ (no R2 write creds locally). Regenerate via scripts/gen_problem_ugc.py.
 const PROBLEM_VIDEO = "/video/tyler-problem.mp4";
+
+// Per-trade two-part interactive clips (intro → pause/cue → After animates grid →
+// resume). HVAC is the pilot; trades without an entry fall back to PROBLEM_VIDEO.
+const TRADE_VIDEOS: Record<string, { intro: string; resume: string }> = {
+  hvac: { intro: "/video/hvac-intro.mp4", resume: "/video/hvac-resume.mp4" },
+};
+const tradeVid = TRADE_VIDEOS[trade.slug];
 ---
 
 <BaseLayout
@@ -195,16 +202,17 @@ const PROBLEM_VIDEO = "/video/tyler-problem.mp4";
       </div>
       <!-- Two columns: UGC video left, interactive leak grid right (stacks on mobile) -->
       <div class="grid items-center gap-10 lg:grid-cols-2">
-        <!-- Landscape UGC video (Tyler) -->
+        <!-- Landscape UGC video (Tyler). Two-part interactive clip for trades with
+             a TRADE_VIDEOS entry; single clip otherwise. -->
         <div class="overflow-hidden rounded-2xl bg-[color:var(--color-navy-900)] shadow-[0_30px_60px_-30px_rgba(10,22,40,0.45)] ring-1 ring-inset ring-[color:var(--color-rule)]">
-          <video
-            src={PROBLEM_VIDEO}
-            class="aspect-video h-full w-full object-cover"
-            controls
-            playsinline
-            preload="metadata"
-            poster="/og-default.png"
-          ></video>
+          {tradeVid ? (
+            <Fragment>
+              <video data-vid-intro src={tradeVid.intro} class="aspect-video h-full w-full object-cover" controls playsinline preload="metadata" poster="/og-default.png"></video>
+              <video data-vid-resume src={tradeVid.resume} class="aspect-video hidden h-full w-full object-cover" playsinline preload="metadata"></video>
+            </Fragment>
+          ) : (
+            <video src={PROBLEM_VIDEO} class="aspect-video h-full w-full object-cover" controls playsinline preload="metadata" poster="/og-default.png"></video>
+          )}
         </div>
 
         <!-- Interactive leak grid: 2 of 100 today; tap After to populate recovery -->
@@ -213,6 +221,7 @@ const PROBLEM_VIDEO = "/video/tyler-problem.mp4";
             <button data-ba-tab="before" data-cap="Today, only about 2 of every 100 visitors fill out a form. The other 98 leave anonymous — and you paid for every one." class="ba-tab is-active rounded-full px-6 py-2 text-sm font-bold transition-colors">Before</button>
             <button data-ba-tab="after" data-cap="Illustrative: when the visitors who consent come back as leads, you capture a far bigger share of the 100 — not just the 2." class="ba-tab rounded-full px-6 py-2 text-sm font-bold transition-colors">After</button>
           </div>
+          <p data-cue-hint class="mt-3 hidden text-sm font-semibold text-[color:var(--color-brand-pressed)]">↑ Tap <strong>After</strong> to see what Tyler means — then he'll finish.</p>
           <div class="leakgrid mt-6" data-leak data-state="before" aria-hidden="true">
             {Array.from({ length: 100 }).map((_, i) => (
               <span class:list={["leakcell", i < 2 ? "on" : i < 40 ? "rec" : ""]} style={`--i:${i}`}></span>
@@ -335,20 +344,46 @@ const PROBLEM_VIDEO = "/video/tyler-problem.mp4";
   <FinalCTA heading={trade.finalCtaH2} />
 </BaseLayout>
 
-<!-- Before/After leak-grid toggle — flips the grid state + caption, no island. -->
+<!-- Sequenced problem player: intro video → (ends) cue After → click animates the
+     grid + plays the resume clip. Degrades to a plain Before/After toggle when
+     there's only a single video (no intro/resume). No island. -->
 <script is:inline>
   document.querySelectorAll("[data-ba]").forEach(function (root) {
     var tabs = root.querySelectorAll("[data-ba-tab]");
     var grid = root.querySelector("[data-leak]");
     var cap = root.querySelector("[data-leak-caption]");
+    var intro = root.querySelector("[data-vid-intro]");
+    var resume = root.querySelector("[data-vid-resume]");
+    var hint = root.querySelector("[data-cue-hint]");
+    var afterBtn = root.querySelector('[data-ba-tab="after"]');
+
+    function setState(v) {
+      tabs.forEach(function (t) { t.classList.toggle("is-active", t.getAttribute("data-ba-tab") === v); });
+      if (grid) grid.setAttribute("data-state", v);
+      var btn = root.querySelector('[data-ba-tab="' + v + '"]');
+      if (cap && btn && btn.getAttribute("data-cap")) cap.textContent = btn.getAttribute("data-cap");
+    }
+    function goAfter() {
+      setState("after");
+      if (afterBtn) afterBtn.classList.remove("cue");
+      if (hint) hint.classList.add("hidden");
+      if (intro && resume) {            // swap to the resume clip and play it
+        intro.pause(); intro.classList.add("hidden");
+        resume.classList.remove("hidden");
+        var p = resume.play(); if (p && p.catch) p.catch(function () {});
+      }
+    }
     tabs.forEach(function (btn) {
       btn.addEventListener("click", function () {
-        var v = btn.getAttribute("data-ba-tab");
-        tabs.forEach(function (t) { t.classList.toggle("is-active", t === btn); });
-        if (grid) grid.setAttribute("data-state", v);
-        if (cap && btn.getAttribute("data-cap")) cap.textContent = btn.getAttribute("data-cap");
+        btn.getAttribute("data-ba-tab") === "after" ? goAfter() : setState("before");
       });
     });
+    if (intro && afterBtn) {            // when the intro ends, cue the After button
+      intro.addEventListener("ended", function () {
+        afterBtn.classList.add("cue");
+        if (hint) hint.classList.remove("hidden");
+      });
+    }
   });
 </script>
 
@@ -360,5 +395,8 @@ const PROBLEM_VIDEO = "/video/tyler-problem.mp4";
   .leakcell { aspect-ratio: 1; border-radius: 2px; background: rgba(10, 22, 40, 0.1); transition: background 0.45s ease; transition-delay: calc(var(--i) * 6ms); }
   .leakcell.on { background: var(--color-brand); }
   [data-state="after"] .leakcell.rec { background: var(--color-brand); }
-  @media (prefers-reduced-motion: reduce) { .leakcell { transition: none; } }
+  /* Pulse the After button once the intro clip asks for it. */
+  .ba-tab.cue { background: var(--color-brand); color: var(--color-navy-900); animation: cuePulse 1.3s ease-in-out infinite; }
+  @keyframes cuePulse { 0%,100% { box-shadow: 0 0 0 0 rgba(0,229,160,0.5); } 50% { box-shadow: 0 0 0 7px rgba(0,229,160,0); } }
+  @media (prefers-reduced-motion: reduce) { .leakcell { transition: none; } .ba-tab.cue { animation: none; } }
 </style>
