@@ -13,13 +13,14 @@ Per industry, change the trade words + (when credits allow) the look id.
 import json, time, urllib.request, urllib.error
 
 KEY = open("/tmp/heygen_key.txt").read().strip()
-LOOK = "026f9397e4e9415b9cb54bab179ab59f"   # Real Tyler · "Green Hat, Matching Shirt"
+LOOK = "ef74e672158e4b87a445ffaeb3ad92fc"   # Real Tyler · generated HVAC scene (landscape, by condenser)
 VOICE = "92071a8742744d17bc92a02baab2941f"
 GEN = "https://api.heygen.com/v2/video/generate"
 
 CLIPS = [
     ("hvac-intro",
-     "Quick one for HVAC owners. Every week, a hundred or so homeowners land on your site "
+     # "H-VAC" so the TTS says it as one word (aitch-vack), not "H-V-A-C".
+     "Quick one for H-VAC owners. Every week, a hundred or so homeowners land on your site "
      "looking for AC repair or a new system. But watch this. See those squares on the right? "
      "Only about two of them ever fill out your form. The other ninety-eight leave — and you "
      "paid for every click. Do me a favor: tap that After button, and watch what happens."),
