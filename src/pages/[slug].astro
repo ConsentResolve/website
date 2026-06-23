@@ -128,8 +128,8 @@ const PROBLEM_VIDEO = "/video/tyler-problem.mp4";
 
 // Per-trade two-part interactive clips (intro → pause/cue → After animates grid →
 // resume). HVAC is the pilot; trades without an entry fall back to PROBLEM_VIDEO.
-const TRADE_VIDEOS: Record<string, { intro: string; resume: string }> = {
-  hvac: { intro: "/video/hvac-intro.mp4", resume: "/video/hvac-resume.mp4" },
+const TRADE_VIDEOS: Record<string, { intro: string; resume: string; poster?: string }> = {
+  hvac: { intro: "/video/hvac-intro.mp4", resume: "/video/hvac-resume.mp4", poster: "/video/hvac-poster.jpg" },
 };
 const tradeVid = TRADE_VIDEOS[trade.slug];
 ---
@@ -222,7 +222,7 @@ const tradeVid = TRADE_VIDEOS[trade.slug];
           <div class="overflow-hidden rounded-2xl bg-[color:var(--color-navy-900)] shadow-[0_30px_60px_-30px_rgba(10,22,40,0.45)] ring-1 ring-inset ring-[color:var(--color-rule)]">
             {tradeVid ? (
               <Fragment>
-                <video data-vid-intro src={tradeVid.intro} class="aspect-video h-full w-full object-cover" controls playsinline preload="metadata" poster="/og-default.png"></video>
+                <video data-vid-intro src={tradeVid.intro} class="aspect-video h-full w-full object-cover" controls playsinline preload="metadata" poster={tradeVid.poster ?? "/og-default.png"}></video>
                 <video data-vid-resume src={tradeVid.resume} class="aspect-video hidden h-full w-full object-cover" playsinline preload="metadata"></video>
               </Fragment>
             ) : (
