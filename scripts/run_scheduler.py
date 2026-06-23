@@ -66,19 +66,27 @@ def media_by_name(name, dry):
         urllib.request.urlretrieve(url, tmp)
     return url, tmp
 
-def run(cmd, dry):
-    """Run a poster; return (ok, stdout) so the caller can log the result + post id/url."""
+def run(cmd, dry, attempts=2):
+    """Run a poster; return (ok, stdout). Retries once on failure (the posting APIs
+    occasionally hiccup transiently — e.g. today's TK/YT fails) with a short backoff,
+    so momentary errors self-heal instead of needing a manual rescue."""
     log("RUN" if not dry else "DRY", " ".join(str(c)[:80] for c in cmd[:4]), "...")
     if dry:
         return None, ""
-    p = subprocess.run(cmd, check=False, capture_output=True, text=True)
-    out = (p.stdout or "")
-    if out: print(out[-500:], flush=True)
-    if p.returncode and p.stderr: print(p.stderr[-300:], flush=True)
-    import re as _re
-    ok = p.returncode == 0 and not _re.search(r'(PUBLISH|UPLOAD|upload|buffer HTTP) err|"_err"', out)
-    if not ok and p.stderr: out = (out + "\n" + p.stderr).strip()  # fold stderr in so the real error is captured
-    return ok, out
+    import re as _re, time as _t
+    out = ""
+    for i in range(attempts):
+        p = subprocess.run(cmd, check=False, capture_output=True, text=True)
+        out = (p.stdout or "")
+        ok = p.returncode == 0 and not _re.search(r'(PUBLISH|UPLOAD|upload|buffer HTTP) err|"_err"', out)
+        if not ok and p.stderr: out = (out + "\n" + p.stderr).strip()  # fold stderr in so the real error is captured
+        if ok:
+            if p.stdout: print(p.stdout[-500:], flush=True)
+            return True, out
+        log(f"  attempt {i + 1}/{attempts} failed" + (" — retrying in 8s" if i + 1 < attempts else ""))
+        if p.stderr: print(p.stderr[-300:], flush=True)
+        if i + 1 < attempts: _t.sleep(8)
+    return False, out
 
 def main():
     dry = "--dry-run" in sys.argv
