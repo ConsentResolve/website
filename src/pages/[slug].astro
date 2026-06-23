@@ -9,8 +9,6 @@ import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import FAQ from "~/components/sections/FAQ.astro";
-import RecoveryCalculator from "~/components/ui/RecoveryCalculator.tsx";
-import LeakVisual from "~/components/ui/demo/LeakVisual.astro";
 import VisitorDetailScreen from "~/components/ui/demo/VisitorDetailScreen.astro";
 import RelatedReads from "~/components/sections/RelatedReads.astro";
 import { INDUSTRIES, type Industry } from "~/data/industries";
@@ -68,6 +66,27 @@ const cardLib: Record<string, { Icon: any; title: string; body: string }> = {
 };
 const threeCards = trade.cardKeys.map((k) => cardLib[k]).filter(Boolean);
 
+// Common questions every ICP (owner / office manager / tech) actually asks
+// about Consent Resolve — grounded in real contractor pain points (Reddit
+// r/hvac, r/Contractor; shared-lead-reseller + visitor-ID compliance threads).
+// Shown on every industry page beneath the 3 trade-specific FAQs.
+const COMMON_FAQS = [
+  { q: "How is this different from Angi or HomeAdvisor?", a: "Those are shared-lead resellers — they sell the same homeowner to four or five contractors at once, so you're bidding against everyone who bought the same name. Here, every lead is exclusive to you and never resold: a real name, a consented email, and the pages they viewed, fed into your CRM at a flat $7. It's not a marketplace." },
+  { q: "Is identifying my website visitors even legal?", a: "Yes — it's built consent-first. A privacy-compliant banner asks each visitor for permission, and you only get a lead when they accept. Every lead carries a timestamped consent receipt and a 7-year audit trail, built for TCPA, CIPA, and state privacy laws." },
+  { q: "Isn't this the creepy kind of tracking that emails people who never opted in?", a: "No. The gray-area tools identify people and let you contact them with no permission — that's the part that gets businesses in trouble. Nobody becomes a lead here unless they accept the consent banner first. No consent, no data." },
+  { q: "Are the leads exclusive, or will my competitor get the same name?", a: "Exclusive. A lead recovered on your website is yours alone and is never resold. They were on your site looking at your services, not shopping a marketplace." },
+  { q: "I get website traffic but barely any calls. Why?", a: "Most home-service sites convert only a small share of visitors; the rest read a service page and leave. This recovers the ones who consent, so a visitor already looking at your services becomes a named lead in your CRM instead of an anonymous bounce." },
+  { q: "Does this replace my Google Local Service Ads?", a: "No, it complements them. LSAs bring in searchers; this recovers the visitors who land on your site and would otherwise leave anonymous. Different parts of the same funnel." },
+  { q: "Am I locked into a contract or a monthly minimum?", a: "No long-term contract and no annual membership. It's flat $7 per exclusive lead — card required, cancel anytime." },
+  { q: "How do the leads reach me so I can follow up fast?", a: "Recovered leads feed straight into your CRM — Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, GoHighLevel — with the name, consented email, and services viewed, so you can follow up while the interest is fresh." },
+  { q: "I've wasted money on marketing before. What's different here?", a: "You only pay $7 when an actual visitor on your site consents to become a lead — not for clicks, impressions, or a shared name four competitors also bought. The spend maps to a named, exclusive, consented person who was already looking at your services." },
+];
+// Trade-specific FAQs first, then the common set — used for both display and FAQPage schema.
+const faqItems = [
+  ...trade.faqs.map((f) => ({ question: f.q, answer: f.a })),
+  ...COMMON_FAQS.map((f) => ({ question: f.q, answer: f.a })),
+];
+
 // SEO
 const canonical = `https://consentresolve.com/${trade.slug}-leads/`;
 const schemas = [
@@ -81,7 +100,7 @@ const schemas = [
     tradeSlug: trade.slug,
     description: trade.metaDescription,
   }),
-  faqSchema(trade.faqs.map((f) => ({ question: f.q, answer: f.a }))),
+  faqSchema(faqItems),
 ];
 
 const relatedPosts = await getBlogPostsByCluster(trade.slug);
@@ -101,6 +120,11 @@ const bookedJobMath = {
   shared: { cost: "$575", sub: "$46 a lead · sold to ~4 others · ~1 in 12 books" },
   owned: { cost: "$140", sub: "$7 a lead · exclusive, never resold · yours alone" },
 };
+
+// Problem-section UGC video. STAND-IN: on-message brand reel until the custom
+// HeyGen avatar (37dd…/voice 92071…) is shared into our HeyGen workspace — that
+// id 404s on our API key today. Swap PROBLEM_VIDEO when the avatar renders.
+const PROBLEM_VIDEO = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat.mp4";
 ---
 
 <BaseLayout
@@ -109,36 +133,46 @@ const bookedJobMath = {
   canonical={canonical}
   schema={schemas}
 >
-  <!-- Hero -->
-  <section class="relative overflow-hidden">
+  <!-- Hero — dark so the consent→click→CRM animation reads, with a subtle
+       trade-icon watermark cueing which industry this page is for. -->
+  <section class="section section-dark relative overflow-hidden">
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
-    <div class="container-content section relative">
+    <div aria-hidden="true" class="pointer-events-none absolute -right-24 top-1/2 -translate-y-1/2 opacity-[0.05]">
+      <TradeIcon size={560} stroke={1} color="#ffffff" />
+    </div>
+    <div class="container-content relative">
       <div class="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
-          <div class="mb-7"><Badge tone="brand" variant="soft" size="md" uppercase icon={TradeIcon}>{trade.name}</Badge></div>
-          <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
+          <div class="mb-7"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase icon={TradeIcon}>{trade.name}</Badge></div>
+          <h1 class="display-1 mb-7 text-white">
             {trade.heroH1}
           </h1>
-          <p class="mb-10 max-w-xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
+          <p class="mb-10 max-w-xl text-lg leading-relaxed text-slate-300">
             {trade.heroSubhead}
           </p>
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button href={demoHref("hero")} variant="primary" size="lg">
+            <a
+              href={demoHref("hero")}
+              class="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
+            >
               <IconEye size={18} stroke={2} />
-              See it work on yourself
-            </Button>
-            <Button href="https://dashboard.consentresolve.com/register" variant="outline" size="lg">
-              Get started — $7 a lead
+              Live Demo
+            </a>
+            <a
+              href="https://dashboard.consentresolve.com/register"
+              class="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/20 transition-all hover:bg-white/5"
+            >
+              Get Started
               <IconArrowRight size={18} stroke={2.25} />
-            </Button>
+            </a>
           </div>
           <!-- Trust line -->
-          <ul class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[color:var(--color-ink-2)]">
-            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00A86E" /> $7 per lead, never resold</li>
-            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00A86E" /> Exclusive leads</li>
-            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00A86E" /> Cancel anytime</li>
+          <ul class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-300">
+            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00E5A0" /> $7 per lead, never resold</li>
+            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00E5A0" /> Exclusive leads</li>
+            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00E5A0" /> Cancel anytime</li>
           </ul>
-          <p class="mt-4 text-sm text-[color:var(--color-ink-muted)]">~60-second live demo — the lead it sends is you. No card required.</p>
+          <p class="mt-4 text-sm text-slate-400">~60-second live demo — the lead it sends is you. No card required.</p>
         </div>
         <!-- Hero animation: consent → click → CRM (shared with /features) -->
         <div class="relative">
@@ -148,20 +182,71 @@ const bookedJobMath = {
     </div>
   </section>
 
-  <!-- Problem + urgency — paired with the 98/100 leak visual (the "Hook" ad angle) -->
-  <section class="section section-dark">
+  <!-- The problem — a UGC video carries the message; a Before/After toggle
+       shows what changes when anonymous visitors become identified leads. -->
+  <section class="section bg-[color:var(--color-bg-alt)]" data-ba>
     <div class="container-content">
-      <div class="grid items-center gap-12 lg:grid-cols-2">
-        <div>
-          <div class="mb-5"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>The problem</Badge></div>
-          <h2 class="display-2 text-white">
-            {trade.problem}
-          </h2>
-          <p class="mt-6 text-lg italic text-[color:var(--color-mint-400)]">
-            {trade.urgencyLine}
-          </p>
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>The problem</Badge></div>
+        <h2 class="display-2 text-[color:var(--color-ink)]">
+          98 of 100 leave anonymous. Watch what changes when they don't.
+        </h2>
+        <p class="mt-4 text-[15px] text-[color:var(--color-ink-2)]">{trade.problem}</p>
+      </div>
+      <div class="grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr]">
+        <!-- UGC video -->
+        <div class="mx-auto w-full max-w-[300px]">
+          <div class="relative overflow-hidden rounded-[2rem] bg-[color:var(--color-navy-900)] shadow-[0_30px_60px_-30px_rgba(10,22,40,0.45)] ring-1 ring-inset ring-[color:var(--color-rule)]">
+            <video
+              src={PROBLEM_VIDEO}
+              class="aspect-[9/16] h-full w-full object-cover"
+              controls
+              playsinline
+              preload="metadata"
+              poster="/og-default.png"
+            ></video>
+          </div>
         </div>
-        <LeakVisual />
+        <!-- Before / After toggle -->
+        <div>
+          <div class="mb-5 flex items-center gap-3">
+            <p class="text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">The difference</p>
+            <span class="hidden text-[color:var(--color-ink-muted)] sm:inline">— flip it &rarr;</span>
+          </div>
+          <div class="inline-flex rounded-full bg-[color:var(--color-bg-alt)] p-1 ring-1 ring-inset ring-[color:var(--color-rule)]">
+            <button data-ba-tab="before" class="ba-tab is-active rounded-full px-5 py-2 text-sm font-bold transition-colors">Before</button>
+            <button data-ba-tab="after" class="ba-tab rounded-full px-5 py-2 text-sm font-bold transition-colors">After</button>
+          </div>
+          <!-- BEFORE: anonymous bounce -->
+          <div data-ba-panel="before" class="mt-5 rounded-2xl border border-dashed border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] p-7">
+            <div class="flex items-center gap-4 opacity-70">
+              <div class="flex size-12 items-center justify-center rounded-full bg-[color:var(--color-ink-muted)]/15 font-display text-lg font-bold text-[color:var(--color-ink-muted)]">?</div>
+              <div>
+                <p class="font-display text-lg font-bold text-[color:var(--color-ink-2)]">Anonymous visitor</p>
+                <p class="text-sm text-[color:var(--color-ink-muted)]">Viewed your services · left without a trace</p>
+              </div>
+            </div>
+            <p class="mt-5 text-sm text-[color:var(--color-ink-2)]">You paid for the click. They read your {trade.shortName.toLowerCase()} page, didn't call, and you'll never know who they were — so they call the next shop.</p>
+          </div>
+          <!-- AFTER: identified, consented lead -->
+          <div data-ba-panel="after" class="mt-5 hidden rounded-2xl bg-[color:var(--color-navy-900)] p-7 ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_30px_60px_-30px_rgba(0,229,160,0.4)]">
+            <div class="flex items-center gap-4">
+              <div class="flex size-12 items-center justify-center rounded-full bg-[color:var(--color-mint-400)]/20 font-display text-lg font-bold text-[color:var(--color-mint-400)]">JM</div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <p class="font-display text-lg font-bold text-white">Jordan M.</p>
+                  <span class="rounded bg-[color:var(--color-mint-400)]/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-mint-400)]">Consented</span>
+                </div>
+                <p class="font-mono text-sm text-slate-300">j****@gmail.com</p>
+              </div>
+            </div>
+            <ul class="mt-5 space-y-1.5 text-sm text-slate-300">
+              <li class="flex items-center gap-2"><IconCheck size={15} stroke={2.5} color="#00E5A0" /> Viewed: {trade.shortName} services · Pricing</li>
+              <li class="flex items-center gap-2"><IconCheck size={15} stroke={2.5} color="#00E5A0" /> Fed into your CRM · $7 · yours alone</li>
+              <li class="flex items-center gap-2"><IconCheck size={15} stroke={2.5} color="#00E5A0" /> Timestamped consent receipt</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -169,44 +254,34 @@ const bookedJobMath = {
   <!-- How it works (reused comet) -->
   <HowItWorks />
 
-  <!-- Trade math -->
-  <section class="section">
+  <!-- Trade math (dark) -->
+  <section class="section section-dark">
     <div class="container-content">
       <div class="mx-auto mb-10 max-w-2xl text-center">
-        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>The math</Badge></div>
-        <h2 class="display-2 text-[color:var(--color-ink)]">
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>The math</Badge></div>
+        <h2 class="display-2 text-white">
           Same booked job. Less than a quarter of the cost.
         </h2>
-        <p class="mt-3 text-[15px] text-[color:var(--color-ink-2)]">
+        <p class="mt-3 text-[15px] text-slate-300">
           Shared leads get sold to four contractors at once, so most never book. Recover the traffic you already paid for instead — exclusive, at $7. Here's the same job, both ways.
         </p>
       </div>
       <!-- Booked-job math — the canonical $575 vs $140 comparison -->
       <div class="mx-auto mb-12 grid max-w-3xl gap-5 sm:grid-cols-2">
-        <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)]">
-          <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Shared / bought leads</p>
-          <p class="mt-2 font-display text-4xl font-extrabold text-[color:var(--color-ink)]">{bookedJobMath.shared.cost}<span class="text-lg font-bold text-[color:var(--color-ink-muted)]"> / booked job</span></p>
-          <p class="mt-3 text-sm text-[color:var(--color-ink-2)]">{bookedJobMath.shared.sub}</p>
+        <div class="rounded-2xl bg-white/[0.04] p-7 ring-1 ring-inset ring-white/10">
+          <p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Shared / bought leads</p>
+          <p class="mt-2 font-display text-4xl font-extrabold text-white">{bookedJobMath.shared.cost}<span class="text-lg font-bold text-slate-400"> / booked job</span></p>
+          <p class="mt-3 text-sm text-slate-300">{bookedJobMath.shared.sub}</p>
         </div>
-        <div class="rounded-2xl bg-[color:var(--color-navy-900)] p-7 ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_30px_60px_-30px_rgba(0,229,160,0.4)]">
+        <div class="rounded-2xl bg-[color:var(--color-mint-400)]/10 p-7 ring-1 ring-inset ring-[color:var(--color-mint-400)]/40 shadow-[0_30px_60px_-30px_rgba(0,229,160,0.45)]">
           <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">Your own traffic — Consent Resolve</p>
           <p class="mt-2 font-display text-4xl font-extrabold text-white">{bookedJobMath.owned.cost}<span class="text-lg font-bold text-slate-400"> / booked job</span></p>
           <p class="mt-3 text-sm text-slate-300">{bookedJobMath.owned.sub}</p>
         </div>
       </div>
-      <div class="mx-auto mb-10 max-w-2xl text-center">
-        <p class="text-[15px] text-[color:var(--color-ink-2)]">
-          We pre-loaded an average {trade.shortName.toLowerCase()} job at <strong>{fmtUsd(trade.math.avgJobValue)}</strong>. Slide your real monthly visitors and ticket size to see the recoverable upside.
-        </p>
-      </div>
-      <div class="mx-auto max-w-4xl">
-        <RecoveryCalculator
-          client:visible
-          defaults={{ avgJob: trade.math.avgJobValue, visitors: 2000 }}
-          title={`${trade.name} recovery calculator`}
-          blurb="Set your own assumptions. Illustrative, not a promise."
-        />
-      </div>
+      <p class="mx-auto max-w-2xl text-center text-[15px] text-slate-300">
+        One booked {trade.shortName.toLowerCase()} job runs about <strong class="text-white">{fmtUsd(trade.math.avgJobValue)}</strong> — that single job covers roughly <strong class="text-white">{Math.round(trade.math.avgJobValue / 7).toLocaleString()}</strong> exclusive leads at $7. Illustrative, not a promise.
+      </p>
     </div>
   </section>
 
@@ -239,20 +314,22 @@ const bookedJobMath = {
           A real name and a consented email — with the pages they viewed, what they were shopping for, and a timestamped consent receipt. Yours alone, never resold.
         </p>
       </div>
-      <div class="overflow-x-auto pb-2">
-        <div class="mx-auto min-w-[900px] max-w-5xl">
+      <!-- Capped height + scroll so the full dashboard UI doesn't sprawl vertically. -->
+      <div class="mx-auto max-h-[460px] max-w-5xl overflow-auto rounded-[1.25rem] ring-1 ring-inset ring-white/10">
+        <div class="min-w-[900px]">
           <VisitorDetailScreen />
         </div>
       </div>
+      <p class="mx-auto mt-3 max-w-5xl text-center text-xs text-slate-400">Scroll to explore the full record ↕</p>
     </div>
   </section>
 
-  <!-- Demo CTA band — promote the live demo mid-page -->
-  <section class="bg-[color:var(--color-navy-900)]">
+  <!-- Demo CTA band — promote the live demo mid-page (light, mint-tinted) -->
+  <section class="bg-[color:var(--color-brand-soft)]">
     <div class="container-content py-16">
       <div class="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
-        <h2 class="display-2 text-white">See it work on yourself.</h2>
-        <p class="text-[17px] leading-relaxed text-slate-300">
+        <h2 class="display-2 text-[color:var(--color-ink)]">See it work on yourself.</h2>
+        <p class="text-[17px] leading-relaxed text-[color:var(--color-ink-2)]">
           Register, browse a sample {trade.shortName.toLowerCase()} site, accept the banner — and watch the new-lead notification land in your inbox. The lead is you. About 60 seconds, no card required.
         </p>
         <Button href={demoHref("cta-band")} variant="primary" size="lg">
@@ -265,19 +342,38 @@ const bookedJobMath = {
 
   <ComplianceBand />
 
-  <!-- Trade FAQ -->
+  <!-- Trade FAQ + common questions about Consent Resolve -->
   <FAQ
     headline={`What ${trade.name.toLowerCase()} ask before they start.`}
-    items={trade.faqs.map((f) => ({ question: f.q, answer: f.a }))}
+    items={faqItems}
   />
 
   <!-- From the blog (reciprocal cluster links) -->
   <RelatedReads
     posts={relatedPosts}
     heading={`More for ${trade.name.toLowerCase()} pros`}
-    surface="alt"
   />
 
   <AEOAnswer text={trade.aeoAnswer} />
   <FinalCTA heading={trade.finalCtaH2} />
 </BaseLayout>
+
+<!-- Before/After toggle behavior — pure click handler, no island needed. -->
+<script is:inline>
+  document.querySelectorAll("[data-ba]").forEach(function (root) {
+    var tabs = root.querySelectorAll("[data-ba-tab]");
+    var panels = root.querySelectorAll("[data-ba-panel]");
+    tabs.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var v = btn.getAttribute("data-ba-tab");
+        tabs.forEach(function (t) { t.classList.toggle("is-active", t === btn); });
+        panels.forEach(function (p) { p.classList.toggle("hidden", p.getAttribute("data-ba-panel") !== v); });
+      });
+    });
+  });
+</script>
+
+<style>
+  .ba-tab { color: var(--color-ink-2); }
+  .ba-tab.is-active { background: var(--color-navy-900); color: #fff; }
+</style>

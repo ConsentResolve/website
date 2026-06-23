@@ -2,7 +2,6 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import DemoForm from "~/components/DemoForm.astro";
 import LeakVisual from "~/components/ui/demo/LeakVisual.astro";
-import RecoveryCalculator from "~/components/ui/RecoveryCalculator.tsx";
 
 // Direct-traffic landing for the live demo. Primary registration can also be
 // embedded elsewhere via <DemoForm />. noindex — this is a tool, not content.
@@ -53,26 +52,6 @@ import RecoveryCalculator from "~/components/ui/RecoveryCalculator.tsx";
 
       <div class="mt-14 max-w-3xl">
         <LeakVisual />
-      </div>
-
-      <!-- Motivation for direct /demo traffic: the same ripoff math, CTA scrolls
-           back up to the registration form (the demo IS the conversion here). -->
-      <div class="mt-16">
-        <div class="mx-auto max-w-4xl text-center text-[color:var(--color-on-inverse)]">
-          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--color-brand)]">The lead-site math</p>
-          <h2 class="mt-2 font-display text-2xl font-bold md:text-3xl">While you're here — what are your leads actually costing you?</h2>
-        </div>
-        <div class="mx-auto mt-6 max-w-4xl rounded-3xl bg-white/[0.03] p-3 ring-1 ring-inset ring-white/10 sm:p-4">
-          <RecoveryCalculator
-            client:visible
-            variant="dark"
-            mode="ripoff"
-            title="What your leads really cost"
-            blurb="Your numbers. The only fixed figure is the flat $7."
-            ctaHref="#demo-register"
-            ctaLabel="Register above to try it ↑"
-          />
-        </div>
       </div>
     </div>
   </section>
