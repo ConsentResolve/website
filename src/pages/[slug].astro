@@ -200,6 +200,21 @@ const tradeVid = TRADE_VIDEOS[trade.slug];
         </h2>
         <p class="mt-4 text-[15px] text-[color:var(--color-ink-2)]">{trade.problem}</p>
       </div>
+      <!-- Before/After toggle, centered across the section so its midpoint sits
+           over the column gap: Before reads toward the video (left), After toward
+           the grid (right). Drives the cascade below. -->
+      <div class="mb-10 flex flex-col items-center">
+        <div class="batoggle inline-flex gap-1.5 rounded-2xl bg-[color:var(--color-navy-900)] p-1.5 shadow-[0_18px_40px_-18px_rgba(10,22,40,0.5)]">
+          <button data-ba-tab="before" class="ba-tab is-active inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-extrabold uppercase tracking-[0.12em] transition-all">
+            <IconEyeOff size={17} stroke={2.25} /> Before
+          </button>
+          <button data-ba-tab="after" class="ba-tab inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-extrabold uppercase tracking-[0.12em] transition-all">
+            <IconUserCheck size={17} stroke={2.25} /> After
+          </button>
+        </div>
+        <p data-cue-hint class="mt-3 hidden text-sm font-semibold text-[color:var(--color-brand-pressed)]">↑ Tap <strong>After</strong> to see what Tyler means — then he'll finish.</p>
+      </div>
+
       <!-- Two columns: UGC video left, interactive leak grid right (stacks on mobile) -->
       <div class="grid items-center gap-10 lg:grid-cols-2">
         <!-- Landscape UGC video (Tyler). Two-part interactive clip for trades with
@@ -215,29 +230,14 @@ const tradeVid = TRADE_VIDEOS[trade.slug];
           )}
         </div>
 
-        <!-- Anonymous → named-account cascade. Each cell is a faceless head (+ name
-             bar); tapping After identifies the recoverable ones in a staggered pop.
-             Purely visual — no words in the grid. -->
-        <div class="text-center lg:text-left">
-          <div class="flex justify-center">
-            <div class="batoggle inline-flex gap-1.5 rounded-2xl bg-[color:var(--color-navy-900)] p-1.5 shadow-[0_18px_40px_-18px_rgba(10,22,40,0.5)]">
-              <button data-ba-tab="before" class="ba-tab is-active inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-extrabold uppercase tracking-[0.12em] transition-all">
-                <IconEyeOff size={17} stroke={2.25} /> Before
-              </button>
-              <button data-ba-tab="after" class="ba-tab inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-extrabold uppercase tracking-[0.12em] transition-all">
-                <IconUserCheck size={17} stroke={2.25} /> After
-              </button>
-            </div>
-          </div>
-          <p data-cue-hint class="mt-3 hidden text-sm font-semibold text-[color:var(--color-brand-pressed)]">↑ Tap <strong>After</strong> to see what Tyler means — then he'll finish.</p>
-          <div class="leakgrid mt-6" data-leak data-state="before" aria-hidden="true">
-            {Array.from({ length: 100 }).map((_, i) => (
-              <span class:list={["lc", i < 2 ? "on" : i < 40 ? "rec" : ""]} style={`--i:${i}`}>
-                <i class="lc-head"></i><i class="lc-bar"></i>
-              </span>
-            ))}
-          </div>
-          <p class="mt-6 text-sm leading-relaxed text-[color:var(--color-ink-2)]" data-leak-caption>Today, only about 2 of every 100 visitors fill out a form. The other 98 leave anonymous — and you paid for every one.</p>
+        <!-- Anonymous → named-account cascade (faceless heads → mint named accounts,
+             staggered pop on After). Purely visual — no words in the grid. -->
+        <div class="leakgrid mx-auto" data-leak data-state="before" aria-hidden="true">
+          {Array.from({ length: 100 }).map((_, i) => (
+            <span class:list={["lc", i < 2 ? "on" : i < 40 ? "rec" : ""]} style={`--i:${i}`}>
+              <i class="lc-head"></i><i class="lc-bar"></i>
+            </span>
+          ))}
         </div>
       </div>
     </div>
@@ -406,7 +406,6 @@ const tradeVid = TRADE_VIDEOS[trade.slug];
   /* Anonymous → named-account grid: faceless gray head (+ faint name bar);
      identifying turns the head mint and fills the bar, in a staggered pop. */
   .leakgrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.55rem; max-width: 380px; margin-inline: auto; }
-  @media (min-width: 1024px) { .leakgrid { margin-inline: 0; } }
   .lc { display: flex; flex-direction: column; align-items: center; gap: 3px; }
   .lc-head { width: 62%; aspect-ratio: 1; border-radius: 999px; background: rgba(10, 22, 40, 0.13); transition: background 0.4s ease, transform 0.4s ease; }
   .lc-bar { width: 84%; height: 3px; border-radius: 999px; background: rgba(10, 22, 40, 0.08); transform: scaleX(0.45); opacity: 0.5; transition: all 0.4s ease; }
