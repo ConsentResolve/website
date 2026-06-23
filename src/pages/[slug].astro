@@ -233,15 +233,12 @@ const tradeVid = TRADE_VIDEOS[trade.slug];
              video plays; the 2 greens pulse when the intro ends; tapping After runs
              the staggered conversion + a dramatic finish. -->
         <div class="leakgrid mx-auto" data-leak data-state="before" aria-hidden="true">
-          {Array.from({ length: 100 }).map((_, i) => {
-            const kind = i < 2 ? "on" : i < 40 ? "rec" : "";
-            return (
-              <span class:list={["lc", kind]} style={`--i:${i}`}>
-                <span class="lc-ghost"><IconGhost size={20} stroke={1.7} /></span>
-                {kind && <span class="lc-person"><IconUser size={20} stroke={2} /></span>}
-              </span>
-            );
-          })}
+          {Array.from({ length: 100 }).map((_, i) => (
+            <span class="lc" style={`--i:${i}`}>
+              <span class="lc-ghost"><IconGhost size={20} stroke={1.7} /></span>
+              <span class="lc-person"><IconUser size={20} stroke={2} /></span>
+            </span>
+          ))}
         </div>
       </div>
 
@@ -362,58 +359,89 @@ const tradeVid = TRADE_VIDEOS[trade.slug];
   <FinalCTA heading={trade.finalCtaH2} />
 </BaseLayout>
 
-<!-- Sequenced problem player: intro video → (ends) cue After → click animates the
-     grid + plays the resume clip. Degrades to a plain Before/After toggle when
-     there's only a single video (no intro/resume). No island. -->
+<!-- Infographic player: the grid is the story, narrated by Tyler and kept in
+     beat with the video. Intro drives the LEAK (100 land → 98 ghosts + 2 forms);
+     After plays the resume clip, which drives the RECOVERY (ghosts → named leads),
+     ending on a glow flourish. Falls back to a self-playing story if not played. -->
 <script is:inline>
   document.querySelectorAll("[data-ba]").forEach(function (root) {
     var tabs = root.querySelectorAll("[data-ba-tab]");
     var grid = root.querySelector("[data-leak]");
-    var cap = root.querySelector("[data-leak-caption]");
     var intro = root.querySelector("[data-vid-intro]");
     var resume = root.querySelector("[data-vid-resume]");
     var hint = root.querySelector("[data-cue-hint]");
     var afterBtn = root.querySelector('[data-ba-tab="after"]');
+    var cells = grid ? Array.prototype.slice.call(grid.querySelectorAll(".lc")) : [];
+    var RECOVER = 38; // cells 0,1 = form-fills; 2..39 recoverable; 40..99 stay anonymous
 
-    function setState(v) {
-      tabs.forEach(function (t) { t.classList.toggle("is-active", t.getAttribute("data-ba-tab") === v); });
-      if (grid) grid.setAttribute("data-state", v);
-      var btn = root.querySelector('[data-ba-tab="' + v + '"]');
-      if (cap && btn && btn.getAttribute("data-cap")) cap.textContent = btn.getAttribute("data-cap");
+    function ghost(c) { c.classList.remove("is-lead"); c.classList.add("is-ghost"); }
+    function lead(c) { c.classList.remove("is-ghost"); c.classList.add("is-lead"); }
+    function setActive(v) { tabs.forEach(function (t) { t.classList.toggle("is-active", t.getAttribute("data-ba-tab") === v); }); }
+    function applyLeak(p) {            // p:0..1 → 100 grey people drift to 98 ghosts + 2 greens
+      if (!cells.length) return;
+      if (p > 0.04) { lead(cells[0]); lead(cells[1]); }
+      var n = Math.floor(Math.max(0, (p - 0.1) / 0.5) * 98);
+      for (var i = 2; i < 2 + n && i < 100; i++) if (!cells[i].classList.contains("is-ghost")) ghost(cells[i]);
     }
-    function goAfter() {
-      setState("after");
-      if (afterBtn) afterBtn.classList.remove("cue");
-      if (hint) hint.classList.add("hidden");
-      if (grid) grid.classList.remove("pulse-greens");
-      if (intro && resume) {            // swap to the resume clip and play it
-        intro.pause(); intro.classList.add("hidden");
-        resume.classList.remove("hidden");
-        var p = resume.play(); if (p && p.catch) p.catch(function () {});
-      }
-      // dramatic finish: after the staggered conversion lands, the whole grid recovers
-      if (grid) setTimeout(function () { grid.classList.add("recovered"); }, 1150);
+    function applyRecover(p) {         // p:0..1 → ghosts convert to named leads, in beat
+      if (!cells.length) return;
+      var n = Math.floor(Math.min(1, p / 0.85) * RECOVER);
+      for (var k = 0; k < n; k++) lead(cells[2 + k]);
     }
-    tabs.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        btn.getAttribute("data-ba-tab") === "after" ? goAfter() : setState("before");
-      });
-    });
-    if (intro && afterBtn) {            // when the intro ends, cue After + pulse the 2 greens
-      intro.addEventListener("ended", function () {
-        afterBtn.classList.add("cue");
-        if (hint) hint.classList.remove("hidden");
-        if (grid) grid.classList.add("pulse-greens");
-      });
-    }
-    // Populate the grid (98 ghosts + 2 greens) when the video plays — with a
-    // scroll-into-view trigger and a hard fallback so it never stays invisible.
+    function fullProblem() { if (cells.length) { lead(cells[0]); lead(cells[1]); for (var i = 2; i < 100; i++) ghost(cells[i]); } }
+    function cueAfter() { if (afterBtn) afterBtn.classList.add("cue"); if (hint) hint.classList.remove("hidden"); if (grid) grid.classList.add("pulse-greens"); }
+
     var populated = false;
     function populate() { if (!populated && grid) { populated = true; grid.classList.add("populate"); } }
-    if (intro) intro.addEventListener("play", populate);
+
+    tabs.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var v = btn.getAttribute("data-ba-tab"); setActive(v);
+        if (v === "after") {
+          if (afterBtn) afterBtn.classList.remove("cue");
+          if (hint) hint.classList.add("hidden");
+          if (grid) grid.classList.remove("pulse-greens");
+          if (intro && resume) {
+            intro.pause(); intro.classList.add("hidden"); resume.classList.remove("hidden");
+            var pr = resume.play(); if (pr && pr.catch) pr.catch(function () {});
+          } else {                      // no resume clip → just recover + flourish
+            applyRecover(1); if (grid) setTimeout(function () { grid.classList.add("recovered"); }, 900);
+          }
+        } else {                        // "before" → reset to the problem state
+          if (grid) grid.classList.remove("recovered");
+          fullProblem();
+          if (resume && intro) { resume.pause(); resume.classList.add("hidden"); intro.classList.remove("hidden"); }
+        }
+      });
+    });
+
+    if (intro) {
+      intro.addEventListener("play", populate);
+      intro.addEventListener("timeupdate", function () { if (intro.duration) applyLeak(intro.currentTime / intro.duration); });
+      intro.addEventListener("ended", function () { fullProblem(); cueAfter(); });
+    }
+    if (resume) {
+      resume.addEventListener("timeupdate", function () { if (resume.duration) applyRecover(resume.currentTime / resume.duration); });
+      resume.addEventListener("ended", function () { applyRecover(1); if (grid) grid.classList.add("recovered"); });
+    }
+
+    // Fallback: if the video isn't playing, self-play the LEAK story so the grid
+    // always tells its tale (and is never invisible). Yields to the video if played.
     if (grid && "IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (es) {
-        es.forEach(function (e) { if (e.isIntersecting) { setTimeout(populate, 600); io.disconnect(); } });
+        es.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          io.disconnect(); populate();
+          if (!(intro && !intro.paused)) {
+            var t0 = Date.now();
+            var iv = setInterval(function () {
+              if (intro && !intro.paused) { clearInterval(iv); return; }
+              var p = Math.min(1, (Date.now() - t0) / 2800);
+              applyLeak(p);
+              if (p >= 1) { clearInterval(iv); cueAfter(); }
+            }, 60);
+          }
+        });
       }, { threshold: 0.35 });
       io.observe(grid);
     }
@@ -431,32 +459,36 @@ const tradeVid = TRADE_VIDEOS[trade.slug];
   .ba-tab.cue { background: var(--color-brand); color: var(--color-navy-900); animation: cuePulse 1.25s ease-in-out infinite; }
   @keyframes cuePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 229, 160, 0.55); } 50% { box-shadow: 0 0 0 9px rgba(0, 229, 160, 0); } }
 
-  /* Anonymous → named-account grid: faceless gray head (+ faint name bar);
-     identifying turns the head mint and fills the bar, in a staggered pop. */
+  /* Infographic grid — the story, in 3 states per cell:
+     neutral = grey person (a visitor) · ghost = left anonymous (faded, floating)
+     · lead = recovered named account (mint, pops in). Driven in beat with the video. */
   .leakgrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.45rem; width: 100%; max-width: 360px; margin-inline: auto; border-radius: 18px; transition: box-shadow 0.5s ease, transform 0.4s ease; }
   .lc { display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.55); }
-  .lc-ghost, .lc-person { display: flex; line-height: 0; }
-  /* anonymous = grey ghost; identified = mint person (the 2 form-fills start as people) */
-  .lc-ghost { color: rgba(10, 22, 40, 0.4); }
-  .lc-person { color: var(--color-brand); display: none; }
-  .lc.on .lc-ghost, [data-state="after"] .lc.rec .lc-ghost { display: none; }
-  .lc.on .lc-person, [data-state="after"] .lc.rec .lc-person { display: flex; }
-  /* populate: cells fade/pop in (staggered) when the video starts */
-  .leakgrid.populate .lc { animation: cellIn 0.4s ease forwards; animation-delay: calc(var(--i) * 7ms); }
+  .lc-ghost, .lc-person { display: flex; line-height: 0; transition: color 0.4s ease; }
+  /* neutral (default): grey person, ghost hidden */
+  .lc-person { color: rgba(10, 22, 40, 0.5); }
+  .lc-ghost { display: none; color: rgba(10, 22, 40, 0.3); }
+  /* ghost (left anonymous): faded, gently floating */
+  .lc.is-ghost .lc-person { display: none; }
+  .lc.is-ghost .lc-ghost { display: flex; animation: ghostFloat 3s ease-in-out infinite; }
+  /* lead (recovered, named): mint person that pops in */
+  .lc.is-lead .lc-ghost { display: none; }
+  .lc.is-lead .lc-person { display: flex; color: var(--color-brand); animation: idPop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
+  /* populate: staggered fade/pop in (the 100 land) */
+  .leakgrid.populate .lc { animation: cellIn 0.45s ease forwards; animation-delay: calc(var(--i) * 7ms); }
+  /* the 2 greens pulse when the intro ends, before the recovery */
+  .leakgrid.pulse-greens .lc.is-lead .lc-person { animation: greenPulse 1.1s ease-in-out infinite; }
+  /* dramatic finish: mint glow ring + grid pop + synchronized people pulse */
+  .leakgrid.recovered { box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.55), 0 0 70px rgba(0, 229, 160, 0.5); animation: gridPop 0.7s ease; }
+  .leakgrid.recovered .lc.is-lead .lc-person { animation: idPop 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.4) both !important; }
   @keyframes cellIn { to { opacity: 1; transform: scale(1); } }
-  /* the 2 greens pulse when the intro video ends */
-  .leakgrid.pulse-greens .lc.on .lc-person { animation: greenPulse 1.1s ease-in-out infinite; }
-  @keyframes greenPulse { 0%, 100% { transform: scale(1); filter: none; } 50% { transform: scale(1.4); filter: drop-shadow(0 0 7px rgba(0, 229, 160, 0.9)); } }
-  /* staggered ghost→person pop when After is active */
-  [data-state="after"] .lc.rec .lc-person { animation: idPop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; animation-delay: calc(var(--i) * 9ms); }
-  @keyframes idPop { 0% { transform: scale(0.2); opacity: 0; } 60% { transform: scale(1.3); } 100% { transform: scale(1); opacity: 1; } }
-  /* dramatic finish: the recovered grid flashes a mint glow + every person pulses once */
-  .leakgrid.recovered { box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.5), 0 0 60px rgba(0, 229, 160, 0.45); animation: gridPop 0.6s ease; }
-  .leakgrid.recovered .lc-person { animation: idPop 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.4) both !important; }
+  @keyframes ghostFloat { 0%, 100% { transform: translateY(0); opacity: 0.8; } 50% { transform: translateY(-3px); opacity: 1; } }
+  @keyframes idPop { 0% { transform: scale(0.2); opacity: 0; } 60% { transform: scale(1.35); } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes greenPulse { 0%, 100% { transform: scale(1); filter: none; } 50% { transform: scale(1.45); filter: drop-shadow(0 0 8px rgba(0, 229, 160, 0.95)); } }
   @keyframes gridPop { 0% { transform: scale(1); } 35% { transform: scale(1.05); } 100% { transform: scale(1); } }
   @media (prefers-reduced-motion: reduce) {
     .lc { opacity: 1; transform: none; }
-    .leakgrid.populate .lc, [data-state="after"] .lc.rec .lc-person, .leakgrid.pulse-greens .lc.on .lc-person, .leakgrid.recovered, .leakgrid.recovered .lc-person { animation: none; }
+    .leakgrid.populate .lc, .lc.is-lead .lc-person, .lc.is-ghost .lc-ghost, .leakgrid.pulse-greens .lc.is-lead .lc-person, .leakgrid.recovered, .leakgrid.recovered .lc.is-lead .lc-person { animation: none; }
     .ba-tab.cue { animation: none; }
   }
 </style>
