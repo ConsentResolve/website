@@ -405,10 +405,11 @@ const tradeVid = TRADE_VIDEOS[trade.slug];
 
   /* Anonymous → named-account grid: faceless gray head (+ faint name bar);
      identifying turns the head mint and fills the bar, in a staggered pop. */
-  .leakgrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.55rem; max-width: 380px; margin-inline: auto; }
+  .leakgrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.5rem; width: 100%; max-width: 360px; margin-inline: auto; }
   .lc { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-  .lc-head { width: 68%; aspect-ratio: 1; border-radius: 999px; background: rgba(10, 22, 40, 0.32); transition: background 0.4s ease, transform 0.4s ease; }
-  .lc-bar { width: 84%; height: 3px; border-radius: 999px; background: rgba(10, 22, 40, 0.2); transform: scaleX(0.5); opacity: 0.7; transition: all 0.4s ease; }
+  /* Fixed px (no %, no aspect-ratio) so cells can't collapse when the grid is content-sized. */
+  .lc-head { width: 1.1rem; height: 1.1rem; border-radius: 999px; background: rgba(10, 22, 40, 0.32); transition: background 0.4s ease, transform 0.4s ease; }
+  .lc-bar { width: 1.4rem; height: 0.18rem; border-radius: 999px; background: rgba(10, 22, 40, 0.2); transform: scaleX(0.5); opacity: 0.7; transition: all 0.4s ease; }
   /* baseline-identified (the 2 form-fills) + recovered-after = mint head + filled bar */
   .lc.on .lc-head, [data-state="after"] .lc.rec .lc-head { background: var(--color-brand); }
   .lc.on .lc-bar, [data-state="after"] .lc.rec .lc-bar { background: var(--color-brand); transform: scaleX(1); opacity: 1; }
