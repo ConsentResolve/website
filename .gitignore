@@ -9,3 +9,7 @@ assets/img/
 
 .DS_Store
 scripts/.cache/
+
+# Apollo lead exports — contain PII, never commit
+apollo-contacts-export*.csv
+*.scored.csv
