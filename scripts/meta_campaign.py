@@ -63,6 +63,8 @@ def main():
     ap.add_argument("--name", required=True)
     ap.add_argument("--budget", type=float, default=20.0, help="daily budget USD")
     ap.add_argument("--images", nargs="+", required=True)
+    ap.add_argument("--campaign-id", help="reuse an existing campaign instead of creating a new one")
+    ap.add_argument("--adset-id", help="reuse an existing ad set instead of creating a new one")
     ap.add_argument("--push", action="store_true")
     a = ap.parse_args()
     print(f"Campaign 'Retarget · {a.name}' · audience {a.audience_id} · ${a.budget}/day · {len(a.images)} image ads:")
@@ -71,15 +73,24 @@ def main():
         print("\nDRY RUN. Re-run with --push (+ META_ACCESS_TOKEN/AD_ACCOUNT_ID/PAGE_ID set) to create it all PAUSED.")
         return
     t = tok()
-    camp = post(f"{acct()}/campaigns", {"name": f"Retarget · {a.name}", "objective": "OUTCOME_TRAFFIC",
-        "status": "PAUSED", "special_ad_categories": json.dumps([]), "access_token": t})
-    print("campaign", camp["id"])
-    aset = post(f"{acct()}/adsets", {"name": f"{a.name} · retarget", "campaign_id": camp["id"],
-        "daily_budget": int(a.budget * 100), "billing_event": "IMPRESSIONS", "optimization_goal": "LINK_CLICKS",
-        "bid_strategy": "LOWEST_COST_WITHOUT_CAP",
-        "targeting": json.dumps({"geo_locations": {"countries": ["US"]}, "custom_audiences": [{"id": a.audience_id}]}),
-        "status": "PAUSED", "access_token": t})
-    print("ad set", aset["id"])
+    if a.campaign_id:
+        cid = a.campaign_id; print("reusing campaign", cid)
+    else:
+        camp = post(f"{acct()}/campaigns", {"name": f"Retarget · {a.name}", "objective": "OUTCOME_TRAFFIC",
+            "status": "PAUSED", "special_ad_categories": json.dumps([]),
+            "is_adset_budget_sharing_enabled": "false",  # budget is set at ad-set level
+            "access_token": t})
+        cid = camp["id"]; print("campaign", cid)
+    if a.adset_id:
+        aset_id = a.adset_id; print("reusing ad set", aset_id)
+    else:
+        aset = post(f"{acct()}/adsets", {"name": f"{a.name} · retarget", "campaign_id": cid,
+            "daily_budget": int(a.budget * 100), "billing_event": "IMPRESSIONS", "optimization_goal": "LINK_CLICKS",
+            "bid_strategy": "LOWEST_COST_WITHOUT_CAP",
+            "targeting": json.dumps({"geo_locations": {"countries": ["US"]}, "custom_audiences": [{"id": a.audience_id}],
+                                     "targeting_automation": {"advantage_audience": 0}}),
+            "status": "PAUSED", "access_token": t})
+        aset_id = aset["id"]; print("ad set", aset_id)
     for im in a.images:
         h = upload_image(im, t)
         cr = post(f"{acct()}/adcreatives", {"name": Path(im).stem,
@@ -87,7 +98,7 @@ def main():
                 "image_hash": h, "link": LINK, "message": PRIMARY, "name": HEADLINE,
                 "call_to_action": {"type": "LEARN_MORE", "value": {"link": LINK}}}}),
             "access_token": t})
-        ad = post(f"{acct()}/ads", {"name": Path(im).stem, "adset_id": aset["id"],
+        ad = post(f"{acct()}/ads", {"name": Path(im).stem, "adset_id": aset_id,
             "creative": json.dumps({"creative_id": cr["id"]}), "status": "PAUSED", "access_token": t})
         print("  ad", ad["id"], "<-", Path(im).name)
     print(f"DONE — campaign + ad set + {len(a.images)} ads created PAUSED. Review in Ads Manager, then activate.")
