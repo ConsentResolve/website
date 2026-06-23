@@ -20,10 +20,11 @@ GEN = "https://api.heygen.com/v2/video/generate"
 CLIPS = [
     ("hvac-intro",
      # "H-VAC" so the TTS says it as one word (aitch-vack), not "H-V-A-C".
-     "Quick one for H-VAC owners. Every week, a hundred or so homeowners land on your site "
+     # Ellipsis before the ask = a natural beat so the close doesn't feel rushed.
+     "Quick one for H-VAC owners. Every week, a hundred or so homeowners land on your site, "
      "looking for AC repair or a new system. But watch this. See those squares on the right? "
-     "Only about two of them ever fill out your form. The other ninety-eight leave — and you "
-     "paid for every click. Do me a favor: tap that After button, and watch what happens."),
+     "Only about two of them ever fill out your form. The other ninety-eight just leave — and "
+     "you paid for every click. So go ahead... tap the After button, and watch what happens."),
     ("hvac-resume",
      "There we go. Every square that just lit up is a homeowner who said yes — a real name, a "
      "real email, the exact service they were looking at. Recovered from traffic you already "
@@ -42,7 +43,7 @@ def submit(text):
     char = {"type": "avatar", "avatar_id": LOOK, "avatar_style": "normal",
             "use_avatar_iv_model": True, "talking_style": "expressive", "super_resolution": True}
     for emo in (True, False):
-        voice = {"type": "text", "voice_id": VOICE, "input_text": text, "speed": 1.05}
+        voice = {"type": "text", "voice_id": VOICE, "input_text": text, "speed": 1.0}
         if emo: voice["emotion"] = "Friendly"
         st, r = api(GEN, {"caption": False, "video_inputs": [{"character": char, "voice": voice}],
                           "dimension": {"width": 1280, "height": 720}})
