@@ -57,12 +57,35 @@ def upload_image(path, t):
     img = (r.get("images") or {}).get(fn) or next(iter((r.get("images") or {}).values()), {})
     return img.get("hash")
 
+def upload_video(url, t):
+    """Meta fetches the video from a public URL (our R2 reels) — no local download."""
+    return post(f"{acct()}/advideos", {"file_url": url, "access_token": t}).get("id")
+def wait_video(vid, t, timeout=300):
+    import time as _t; waited = 0
+    while waited < timeout:
+        q = urllib.parse.urlencode({"access_token": t, "fields": "status"})
+        try: d = json.load(urllib.request.urlopen(f"{GRAPH}/{vid}?{q}", timeout=30))
+        except urllib.error.HTTPError: return False
+        st = ((d.get("status") or {}).get("video_status")) or ""
+        if st == "ready": return True
+        if st == "error": return False
+        _t.sleep(8); waited += 8
+    return False
+def video_thumb(vid, t):
+    q = urllib.parse.urlencode({"access_token": t, "fields": "thumbnails{uri,is_preferred}"})
+    try: d = json.load(urllib.request.urlopen(f"{GRAPH}/{vid}?{q}", timeout=30))
+    except urllib.error.HTTPError: return None
+    thumbs = ((d.get("thumbnails") or {}).get("data")) or []
+    pref = next((x for x in thumbs if x.get("is_preferred")), thumbs[0] if thumbs else None)
+    return pref.get("uri") if pref else None
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--audience-id", required=True)
     ap.add_argument("--name", required=True)
     ap.add_argument("--budget", type=float, default=20.0, help="daily budget USD")
-    ap.add_argument("--images", nargs="+", required=True)
+    ap.add_argument("--images", nargs="*", default=[], help="static image ad creatives")
+    ap.add_argument("--videos", nargs="*", default=[], help="video ad creatives (reel R2 URLs)")
     ap.add_argument("--campaign-id", help="reuse an existing campaign instead of creating a new one")
     ap.add_argument("--adset-id", help="reuse an existing ad set instead of creating a new one")
     ap.add_argument("--push", action="store_true")
@@ -101,7 +124,20 @@ def main():
         ad = post(f"{acct()}/ads", {"name": Path(im).stem, "adset_id": aset_id,
             "creative": json.dumps({"creative_id": cr["id"]}), "status": "PAUSED", "access_token": t})
         print("  ad", ad["id"], "<-", Path(im).name)
-    print(f"DONE — campaign + ad set + {len(a.images)} ads created PAUSED. Review in Ads Manager, then activate.")
+    vmade = 0
+    for vurl in a.videos:
+        nm = vurl.split("/")[-1].replace(".mp4", "")
+        vid = upload_video(vurl, t); print("video uploaded:", vid, "<-", nm, "(processing…)")
+        if not wait_video(vid, t): print(f"  {nm}: video not ready in time — skipping"); continue
+        spec = {"page_id": page(), "video_data": {"video_id": vid, "message": PRIMARY, "title": HEADLINE,
+                "call_to_action": {"type": "LEARN_MORE", "value": {"link": LINK}}}}
+        th = video_thumb(vid, t)
+        if th: spec["video_data"]["image_url"] = th
+        cr = post(f"{acct()}/adcreatives", {"name": f"reel-{nm}", "object_story_spec": json.dumps(spec), "access_token": t})
+        ad = post(f"{acct()}/ads", {"name": f"reel-{nm}", "adset_id": aset_id,
+            "creative": json.dumps({"creative_id": cr["id"]}), "status": "PAUSED", "access_token": t})
+        print("  video ad", ad["id"], "<-", nm); vmade += 1
+    print(f"DONE — {len(a.images)} image ads + {vmade} video ads created PAUSED. Review in Ads Manager, then activate.")
 
 if __name__ == "__main__":
     main()
