@@ -25,6 +25,7 @@ import * as xTrigger from "./api/x-trigger.js";
 import * as xMetrics from "./api/x-metrics.js";
 import * as requeue from "./api/requeue.js";
 import * as gbpStatus from "./api/gbp-status.js";
+import * as adminReset from "./api/admin-reset.js";
 import * as admin from "./admin.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
@@ -47,6 +48,7 @@ const ROUTES = {
   "/api/x-metrics": xMetrics,
   "/api/requeue": requeue,
   "/api/gbp-status": gbpStatus,
+  "/api/admin-reset": adminReset,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
