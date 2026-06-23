@@ -218,7 +218,7 @@ const tradeVid = TRADE_VIDEOS[trade.slug];
       <!-- Two columns: UGC video left (green-bordered), interactive leak grid right -->
       <div class="grid items-center gap-10 lg:grid-cols-2">
         <!-- Left: UGC video with a mint border -->
-        <div class="overflow-hidden rounded-2xl bg-[color:var(--color-navy-900)] shadow-[0_30px_60px_-30px_rgba(10,22,40,0.45)] ring-2 ring-[color:var(--color-mint-400)]/60">
+        <div class="overflow-hidden bg-[color:var(--color-navy-900)] shadow-[0_30px_60px_-30px_rgba(10,22,40,0.45)] border-[6px] border-[color:var(--color-navy-900)]">
           {tradeVid ? (
             <Fragment>
               <video data-vid-intro src={tradeVid.intro} class="aspect-video h-full w-full object-cover" controls playsinline preload="metadata" poster={tradeVid.poster ?? "/og-default.png"}></video>
@@ -242,13 +242,6 @@ const tradeVid = TRADE_VIDEOS[trade.slug];
         </div>
       </div>
 
-      <!-- Live Demo CTA — centered across the section, mirroring the toggle band -->
-      <div class="mt-12 flex justify-center">
-        <Button href={demoHref("problem")} variant="primary" size="lg">
-          <IconEye size={18} stroke={2} />
-          Live Demo
-        </Button>
-      </div>
     </div>
   </section>
 
