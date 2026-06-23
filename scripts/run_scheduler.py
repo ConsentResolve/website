@@ -77,6 +77,7 @@ def run(cmd, dry):
     if p.returncode and p.stderr: print(p.stderr[-300:], flush=True)
     import re as _re
     ok = p.returncode == 0 and not _re.search(r'(PUBLISH|UPLOAD|upload|buffer HTTP) err|"_err"', out)
+    if not ok and p.stderr: out = (out + "\n" + p.stderr).strip()  # fold stderr in so the real error is captured
     return ok, out
 
 def main():
@@ -147,6 +148,8 @@ def main():
                         bj = _j.loads([l for l in out.strip().splitlines() if l.strip().startswith("{")][-1])
                         note = (bj.get("__typename", "") + ((": " + bj["message"]) if bj.get("message") else "")).strip(": ")
                     except Exception: pass
+                if not ok and not note and out:  # no structured message (e.g. a YT traceback) — capture the raw error tail
+                    note = " ".join(out.split())[-200:]
                 results.append({"ts": NOW, "date": date, "slot": it.get("slot", slot), "name": it.get("name", angle),
                                 "platform": p, "ptype": "reel", "status": "ok" if ok else "fail", "pid": pid, "url": purl, "note": note})
         # LinkedIn via Buffer (interim until native LinkedIn API approval). Once per run

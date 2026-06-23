@@ -40,6 +40,7 @@ export async function onRequestGet({ request, env }) {
         opens: num(c, "open_count_unique", "open_count", "unique_opens", "opened"),
         replies: num(c, "reply_count_unique", "reply_count", "replied"),
         interested: num(c, "total_opportunities", "interested_count", "positive_reply_count"),
+        clicks: num(c, "link_click_count_unique", "link_click_count", "clicks"),
       }));
     } catch { return []; }
   })();

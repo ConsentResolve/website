@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""public/dashboard.html (noindex) — campaign PERFORMANCE dashboard.
-Headline funnel: Views (social, metrics.json) → Clicks (/demo landings) → Demos
-(registered) → Signups (opted-in). Clicks/Demos/Signups come from the worker
-/api/analytics (D1, same-origin, key-gated); Views + per-reel engagement from R2
-metrics.json; delivery from R2 post-log.json. Plan/coverage baked from the schedule.
-Supporting analytics surface what's working (by platform, trade, source, top reels)."""
+"""public/dashboard.html (noindex) — marketing performance dashboard for the exec team.
+Funnel: Views/Opens (social views + email opens) → Clicks (site + email) → Demos →
+Signups. Data from worker /api/analytics (D1 + Instantly) + R2 metrics/post-log.
+On-demand refresh, content-published count, friendly content names, and a
+"Today's posting" panel (per-platform + errors) for quick trouble-spotting."""
 import json, datetime
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
@@ -28,6 +27,9 @@ CFG = {"start": START.isoformat(), "end": END.isoformat(), "days": (END - START)
 
 CSS = """*{box-sizing:border-box}body{margin:0;background:#0a1628;color:#f5f8fa;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
 header{padding:24px 22px 4px;text-align:center}h1{margin:0;font-size:24px}header p{color:#94a3b8;margin:6px 0 0;font-size:13px}
+.toolbar{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:10px}
+button.rf{background:#00e5a0;color:#06121f;border:0;border-radius:8px;padding:8px 18px;font-weight:800;font-size:13px;cursor:pointer}button.rf:hover{background:#00f5b0}
+#updated{color:#64748b;font-size:12px}
 .wrap{max-width:1080px;margin:0 auto;padding:8px 20px 60px}
 .bar{height:12px;background:#0e1d33;border:1px solid #1e293b;border-radius:8px;overflow:hidden;margin:12px 0 2px}.bar>i{display:block;height:100%;background:linear-gradient(90deg,#00e5a0,#00f5b0)}
 h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#00e5a0;border-top:1px solid #16233a;padding-top:16px;margin:30px 0 10px}
@@ -43,81 +45,96 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 .empty{color:#64748b;font-size:13px;padding:14px;background:#0e1d33;border:1px dashed #29384f;border-radius:12px}
 .lk{display:inline-block;margin:5px 8px 0 0;background:#16233a;color:#cbd5e1;border:1px solid #1e293b;border-radius:8px;padding:6px 12px;font-size:12px;text-decoration:none}a{color:#7dd3fc}
 """
-JS = """
+JS = r"""
 const C=%CFG%, $=s=>document.querySelector(s), n=v=>(v==null?'—':(+v).toLocaleString());
+const pf=(x,y)=>(y?Math.round(x/y*1000)/10+'%':'—'), $m=v=>'$'+(+v).toLocaleString(undefined,{maximumFractionDigits:0});
 (function(){const s=new Date(C.start+'T00:00:00Z'),e=new Date(C.end+'T00:00:00Z'),now=new Date();
  const day=Math.min(C.days,Math.max(1,Math.floor((now-s)/864e5)+1)),pct=Math.min(100,Math.max(0,Math.round((now-s)/(e-s)*100)));
  $('#prog').textContent='Day '+day+' of '+C.days+' · '+C.reels_scheduled+' reels scheduled';$('#bar').style.width=pct+'%';})();
-const pf=(x,y)=>(y?Math.round(x/y*1000)/10+'%':'—');
-fetch(C.analyticsUrl+'&t='+Date.now()).then(r=>r.ok?r.json():null).catch(()=>null).then(a=>{
-  const m=Array.isArray(a&&a.metrics)?a.metrics:[], log=Array.isArray(a&&a.delivery)?a.delivery:[];
-  const views=m.reduce((s,r)=>s+(+r.views||0),0);
-  const clicks=a?a.totals.clicks:0, demos=a?a.totals.demos:0, signups=a?a.totals.signups:0;
-  // headline funnel
-  $('#kpis').innerHTML=[['Views',views,'social (FB/IG/YT/TikTok/X)'],['Clicks',clicks,'→ '+pf(clicks,views)+' click-thru'],
-    ['Demos',demos,'→ '+pf(demos,clicks)+' of clicks'],['Signups',signups,'→ '+pf(signups,demos)+' of demos']]
+const PLATNAME={fb:'Facebook',ig:'Instagram',yt:'YouTube',tk:'TikTok',x:'X',li:'LinkedIn',gbp:'GBP',google_business_profile:'GBP'};
+const NAMES={'invoice-new':'Lead-spend math','race-new':'The footrace','ftc-new':'FTC $7.2M fine','robot-new':'Billed for your own customer','ghost-new':'30 ghosts','math-new':'$100 vs $7 math','credit-new':'No refunds, only credit','creepy-new':'Consent vs creepy','twice-new':'Sold twice','policy-new':'Their dashboard, their rules','ownership-new':'Stop renting leads','leak-stat':'The 98% leak','leak-confession':"Your site isn't broken",'nonugc-leak-contrarian':'The leak is the model','nonugc-math-stat':'$575 per booked job','leah-roofing':'Front desk · 98% leak','leah-speed':'Front desk · speed-to-lead','leah-ghost':'Done chasing dead numbers','leah-consent':'Consent vs creepy','leah-cost':'Per-booked-job math'};
+function fname(s){s=(s||'').trim();if(!s)return'—';if(NAMES[s])return NAMES[s];
+  let m=s.match(/shoptalk-?0*(\d+)/i);if(m)return'Shop Talk #'+m[1];
+  m=s.match(/^exp-?0*(\d+)/i);if(m)return'Experiment #'+m[1];
+  m=s.match(/story-(\w+)/i);if(m)return'Story · '+m[1];
+  return s.replace(/[-_]/g,' ').replace(/\b(tiktok|new|orig|test)\b/gi,'').replace(/\s+/g,' ').trim().replace(/\b\w/g,c=>c.toUpperCase())||s;}
+const tbl=(rows,h)=>rows&&rows.length?'<table><tr><th>'+h+'</th><th>#</th></tr>'+rows.map(r=>`<tr><td>${r.k}</td><td>${n(r.c)}</td></tr>`).join('')+'</table>':'<div class="empty">No data yet.</div>';
+
+function render(a){
+  const m=Array.isArray(a&&a.metrics)?a.metrics:[], log=Array.isArray(a&&a.delivery)?a.delivery:[], inst=Array.isArray(a&&a.instantly)?a.instantly:[];
+  const socialViews=m.reduce((s,r)=>s+(+r.views||0),0), emailOpens=inst.reduce((s,c)=>s+(+c.opens||0),0), views=socialViews+emailOpens;
+  const siteClicks=a?a.totals.clicks:0, emailClicks=inst.reduce((s,c)=>s+(+c.clicks||0),0), clicks=siteClicks+emailClicks;
+  const demos=a?a.totals.demos:0, signups=a?a.totals.signups:0, published=log.filter(r=>r.status==='ok').length;
+  $('#kpis').innerHTML=[
+    ['Views / Opens',views,socialViews.toLocaleString()+' social + '+emailOpens.toLocaleString()+' email'],
+    ['Clicks',clicks,(emailClicks?siteClicks.toLocaleString()+' site + '+emailClicks.toLocaleString()+' email':'→ '+pf(clicks,views)+' of views')],
+    ['Demos',demos,'→ '+pf(demos,clicks)+' of clicks'],
+    ['Signups',signups,'→ '+pf(signups,demos)+' of demos']]
     .map(([l,v,r])=>`<div class="kpi"><div class="n">${n(v)}</div><div class="l">${l}</div><div class="r">${r}</div></div>`).join('');
-  // cost & CAC (spend is manual input from social/spend.json)
-  const $m=v=>'$'+(+v).toLocaleString(undefined,{maximumFractionDigits:0});
+  $('#funnelnote').innerHTML=a?'':'<div class="empty">Loads from /api/analytics — shows 0 until the worker deploys + data flows.</div>';
   const spend=(C.spend&&+C.spend.total)||0;
-  $('#cost').innerHTML='<div class="cards">'+[[$m(spend),'Ad spend (input)'],[demos?$m(spend/demos):'—','Cost / demo'],[signups?$m(spend/signups):'—','Cost / customer']].map(([v,l])=>`<div class="stat"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('')+'</div>';
-  if(!a){$('#funnelnote').innerHTML='<div class="empty">Clicks/Demos/Signups load from /api/analytics — showing 0 until the worker deploys + the first visitor lands. Views populate as the metrics fetcher runs.</div>';}
-  // views by platform — always show every platform (0 until views accrue)
-  const PLAT={fb:'Facebook',ig:'Instagram',yt:'YouTube',tk:'TikTok',x:'X',li:'LinkedIn'};
+  $('#cost').innerHTML='<div class="cards">'+[[$m(spend),'Ad spend (input)'],[demos?$m(spend/demos):'—','Cost / demo'],[signups?$m(spend/signups):'—','Cost / customer'],[n(published),'Content published']].map(([v,l])=>`<div class="stat"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('')+'</div>';
+  // Today's posting
+  const today=new Date().toISOString().slice(0,10);
+  const tlog=log.filter(r=>((r.ts||'').slice(0,10)===today)||(r.date===today));
+  const tt={};tlog.forEach(r=>{const k=r.platform||'?';tt[k]=tt[k]||{ok:0,fail:0};r.status==='ok'?tt[k].ok++:tt[k].fail++;});
+  const okT=tlog.filter(r=>r.status==='ok').length, failT=tlog.length-okT;
+  $('#today').innerHTML='<div class="cards">'+
+    `<div class="stat"><div class="n">${n(okT)}</div><div class="l">Posted today</div></div>`+
+    `<div class="stat"><div class="n" style="${failT?'color:#ff8d8d':''}">${n(failT)}</div><div class="l">Failed today</div></div>`+
+    Object.entries(tt).map(([k,v])=>`<div class="stat"><div class="n">${v.ok}${v.fail?' <span class="pill fail">'+v.fail+'✗</span>':''}</div><div class="l">${PLATNAME[k]||k}</div></div>`).join('')+'</div>'+
+    (failT?'<table style="margin-top:12px"><tr><th>Time</th><th>Platform</th><th>Content</th><th>Error</th></tr>'+tlog.filter(r=>r.status!=='ok').map(r=>`<tr><td class="muted">${(r.ts||'').slice(11,16)}</td><td>${PLATNAME[r.platform]||r.platform||''}</td><td>${fname(r.name)}</td><td class="muted">${r.note||'(no detail captured — runner logs it after the next deploy)'}</td></tr>`).join('')+'</table>':(tlog.length?'':'<div class="empty">Nothing posted today yet.</div>'));
+  // views by platform
   const bp={fb:0,ig:0,yt:0,tk:0,x:0,li:0};m.forEach(r=>{if(r.platform in bp)bp[r.platform]+=(+r.views||0);});
-  $('#byplat').innerHTML='<div class="cards">'+Object.keys(PLAT).map(k=>`<div class="stat"><div class="n">${n(bp[k])}</div><div class="l">${PLAT[k]} views</div></div>`).join('')+'</div>';
-  // top reels → ad candidates
+  $('#byplat').innerHTML='<div class="cards">'+Object.keys(bp).map(k=>`<div class="stat"><div class="n">${n(bp[k])}</div><div class="l">${PLATNAME[k]} views</div></div>`).join('')+'</div>';
+  // top performers (friendly names)
   m.sort((x,y)=>(y.views||0)-(x.views||0));
-  $('#top').innerHTML=m.length?'<table><tr><th>#</th><th>Reel</th><th>Platform</th><th>Views</th><th>Likes</th><th>Eng.</th><th>Ad?</th></tr>'+
-    m.slice(0,15).map((r,i)=>{const er=r.views?(r.likes||0)/r.views*100:0;const cand=(r.views||0)>=500&&er>=2;return `<tr><td>${i+1}</td><td>${r.name||''}</td><td>${(r.platform||'').toUpperCase()}</td><td>${n(r.views)}</td><td>${n(r.likes)}</td><td>${r.views?er.toFixed(1)+'%':'—'}</td><td>${cand?'<span class="pill ok">boost</span>':'<span class="muted">—</span>'}</td></tr>`;}).join('')+'</table>':'<div class="empty">Engagement fills in as views accrue (~1–2 weeks for real signal).</div>';
-  // breakdowns
-  const tbl=(rows,h)=>rows&&rows.length?'<table><tr><th>'+h+'</th><th>#</th></tr>'+rows.map(r=>`<tr><td>${r.k}</td><td>${n(r.c)}</td></tr>`).join('')+'</table>':'<div class="empty">No data yet.</div>';
-  // macro-channel grouping (UTM convention) — the integrated-GTM view
-  const CHGROUP=(s)=>{s=(s||'').toLowerCase();
-    if(/instantly|cold|outreach|email/.test(s))return'Outreach';
-    if(/retarget|remarket|pixel/.test(s))return'Retargeting';
-    if(/linkedin|(^|[^a-z])x([^a-z]|$)|twitter|facebook|(^|[^a-z])fb|instagram|(^|[^a-z])ig|youtube|(^|[^a-z])yt|tiktok|(^|[^a-z])tk|gbp|google_business|social/.test(s))return'Social';
-    if(!s||/direct/.test(s))return'Direct';return'Other';};
+  $('#top').innerHTML=m.length?'<table><tr><th>#</th><th>Content</th><th>Platform</th><th>Views</th><th>Likes</th><th>Eng.</th><th>Ad?</th></tr>'+m.slice(0,15).map((r,i)=>{const er=r.views?(r.likes||0)/r.views*100:0,cand=(r.views||0)>=500&&er>=2;return `<tr><td>${i+1}</td><td>${fname(r.name)}</td><td>${(r.platform||'').toUpperCase()}</td><td>${n(r.views)}</td><td>${n(r.likes)}</td><td>${r.views?er.toFixed(1)+'%':'—'}</td><td>${cand?'<span class="pill ok">boost</span>':'<span class="muted">—</span>'}</td></tr>`;}).join('')+'</table>':'<div class="empty">Engagement fills in as views accrue (~1–2 weeks).</div>';
+  // Instantly (with clicks)
+  $('#instantly').innerHTML=inst.length?'<table><tr><th>Campaign</th><th>Leads</th><th>Sent</th><th>Opens</th><th>Clicks</th><th>Replies</th><th>Interested</th></tr>'+inst.map(c=>`<tr><td>${c.name}</td><td>${n(c.leads)}</td><td>${n(c.sent)}</td><td>${n(c.opens)} <span class="muted">${pf(c.opens,c.sent)}</span></td><td>${n(c.clicks)}</td><td>${n(c.replies)} <span class="muted">${pf(c.replies,c.sent)}</span></td><td>${n(c.interested)}</td></tr>`).join('')+'</table>':'<div class="empty">No Instantly campaigns yet — fills in once a wave launches.</div>';
+  // channel grouping
+  const CHGROUP=(s)=>{s=(s||'').toLowerCase();if(/instantly|cold|outreach|email/.test(s))return'Outreach';if(/retarget|remarket|pixel/.test(s))return'Retargeting';if(/linkedin|(^|[^a-z])x([^a-z]|$)|twitter|facebook|(^|[^a-z])fb|instagram|(^|[^a-z])ig|youtube|(^|[^a-z])yt|tiktok|(^|[^a-z])tk|gbp|google_business|social/.test(s))return'Social';if(!s||/direct/.test(s))return'Direct';return'Other';};
   const grp=(rows)=>{const g={Outreach:0,Social:0,Retargeting:0,Direct:0,Other:0};(rows||[]).forEach(r=>{g[CHGROUP(r.k)]+=(+r.c||0);});return g;};
   const gd=grp(a&&a.demos_by_source);
   $('#bychannel').innerHTML='<div class="cards">'+['Outreach','Social','Retargeting','Direct'].map(k=>`<div class="stat"><div class="n">${n(gd[k])}</div><div class="l">${k} demos</div></div>`).join('')+'</div>';
-  // Outreach — Instantly cold-email campaign analytics
-  const inst=Array.isArray(a&&a.instantly)?a.instantly:[];
-  $('#instantly').innerHTML=inst.length?'<table><tr><th>Campaign</th><th>Leads</th><th>Sent</th><th>Opens</th><th>Replies</th><th>Interested</th></tr>'+inst.map(c=>`<tr><td>${c.name}</td><td>${n(c.leads)}</td><td>${n(c.sent)}</td><td>${n(c.opens)} <span class="muted">${pf(c.opens,c.sent)}</span></td><td>${n(c.replies)} <span class="muted">${pf(c.replies,c.sent)}</span></td><td>${n(c.interested)}</td></tr>`).join('')+'</table>':'<div class="empty">No Instantly campaigns yet — fills in once a wave launches.</div>';
   $('#bysource').innerHTML=tbl(a&&a.by_source,'Clicks by source');
   $('#bysrcd').innerHTML=tbl(a&&a.demos_by_source,'Demos by source');
   $('#bytrade').innerHTML=tbl(a&&a.by_trade,'Demos by trade');
-  // per-wave view (utm_campaign, e.g. hvac_2026) — one industry at a time
   $('#bycampaign').innerHTML=tbl(a&&a.by_campaign,'Clicks by wave');
   $('#bysignuptrade').innerHTML=tbl(a&&a.signups_by_trade,'Signups by trade');
-  // delivery
+  // delivery (all-time)
   if(log.length){const t={};log.forEach(r=>{const k=r.platform||'?';t[k]=t[k]||{ok:0,n:0};t[k].n++;if(r.status==='ok')t[k].ok++;});
-    $('#deliv').innerHTML='<div class="cards">'+Object.entries(t).map(([k,v])=>`<div class="stat"><div class="n">${v.ok}<span class="muted" style="font-size:13px">/${v.n}</span></div><div class="l">${k.toUpperCase()} delivered</div></div>`).join('')+'</div>';
+    $('#deliv').innerHTML='<div class="cards">'+Object.entries(t).map(([k,v])=>`<div class="stat"><div class="n">${v.ok}<span class="muted" style="font-size:13px">/${v.n}</span></div><div class="l">${PLATNAME[k]||k.toUpperCase()} delivered</div></div>`).join('')+'</div>';
     const probs=log.filter(r=>r.status!=='ok'||r.note).slice(-20).reverse();
-    $('#issues').innerHTML=probs.length?'<table><tr><th>When</th><th>Platform</th><th>Reel</th><th>Status</th><th>Detail / response</th></tr>'+probs.map(r=>`<tr><td class="muted">${(r.ts||'').replace('T',' ').replace('Z','')}</td><td>${(r.platform||'').toUpperCase()}</td><td>${r.name||''}</td><td><span class="pill ${r.status==='ok'?'ok':'fail'}">${r.status}</span></td><td class="muted">${r.note||''}</td></tr>`).join('')+'</table>':'';
-  }
-  else $('#deliv').innerHTML='<div class="empty">No posts delivered yet — fills after the first successful run.</div>';
-});
+    $('#issues').innerHTML=probs.length?'<table><tr><th>When</th><th>Platform</th><th>Content</th><th>Status</th><th>Detail</th></tr>'+probs.map(r=>`<tr><td class="muted">${(r.ts||'').replace('T',' ').replace('Z','')}</td><td>${PLATNAME[r.platform]||(r.platform||'').toUpperCase()}</td><td>${fname(r.name)}</td><td><span class="pill ${r.status==='ok'?'ok':'fail'}">${r.status}</span></td><td class="muted">${r.note||''}</td></tr>`).join('')+'</table>':'';
+  } else $('#deliv').innerHTML='<div class="empty">No posts delivered yet.</div>';
+}
+function load(){const u=$('#updated');if(u)u.textContent='loading…';
+  fetch(C.analyticsUrl+'&t='+Date.now()).then(r=>r.ok?r.json():null).catch(()=>null).then(a=>{render(a);if(u)u.textContent='Updated '+new Date().toLocaleTimeString();});}
+$('#refresh').addEventListener('click',load);
+load();
 """
 HTML = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
 <title>Consent Resolve — performance dashboard</title><style>{CSS}</style></head><body>
-<header><h1>Performance dashboard</h1><p>Views → Clicks → Demos → Signups · updates live as data flows</p></header>
+<header><h1>Performance dashboard</h1><p>Views/Opens → Clicks → Demos → Signups · live marketing overview</p>
+  <div class="toolbar"><button class="rf" id="refresh">↻ Refresh stats</button><span id="updated"></span></div>
+</header>
 <div class="wrap">
   <div id="prog" style="font-weight:700;color:#fff"></div><div class="bar"><i id="bar"></i></div>
   <h2>Funnel</h2><div id="kpis" class="kpis"></div><div id="funnelnote" style="margin-top:10px"></div>
-  <h2>Cost &amp; CAC</h2><div id="cost"></div>
+  <h2>Cost &amp; CAC · content published</h2><div id="cost"></div>
+  <h2>Today's posting</h2><div id="today"></div>
   <h2>Views by platform</h2><div id="byplat"></div>
-  <h2>Top performers → FB ad candidates</h2><div id="top"></div>
+  <h2>Top performers → ad candidates</h2><div id="top"></div>
   <h2>Outreach — Instantly (cold email)</h2><div id="instantly"></div>
-  <h2>Demos by channel — the integrated funnel</h2>
-  <div id="bychannel"></div>
+  <h2>Demos by channel — the integrated funnel</h2><div id="bychannel"></div>
   <h2>By wave (industry campaign) — one at a time</h2>
   <div class="two"><div id="bycampaign"></div><div id="bysignuptrade"></div></div>
   <h2>Attribution — what's driving the funnel</h2>
   <div class="two"><div id="bysource"></div><div id="bysrcd"></div></div>
   <div style="margin-top:14px" id="bytrade"></div>
-  <h2>Delivery</h2><div id="deliv"></div><div id="issues" style="margin-top:12px"></div>
+  <h2>Delivery (all-time)</h2><div id="deliv"></div><div id="issues" style="margin-top:12px"></div>
   <h2>Native analytics</h2>
   <a class="lk" href="https://www.facebook.com/latest/insights" target="_blank">Facebook</a>
   <a class="lk" href="https://www.instagram.com/" target="_blank">Instagram</a>
@@ -129,4 +146,4 @@ HTML = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 </div>
 <script>{JS.replace('%CFG%', json.dumps(CFG))}</script></body></html>"""
 (ROOT / "public/dashboard.html").write_text(HTML)
-print(f"wrote public/dashboard.html — funnel dashboard ({CFG['reels_scheduled']} reels scheduled); KPIs load from /api/analytics + metrics.json + post-log.json")
+print(f"wrote public/dashboard.html — refresh + content-count + today's-posting + email-inclusive funnel ({CFG['reels_scheduled']} reels scheduled)")
