@@ -32,7 +32,7 @@ def submit():
     body = {"caption": False, "video_inputs": [{
         "character": {"type": "avatar", "avatar_id": AVATAR, "avatar_style": "normal"},
         "voice": {"type": "text", "voice_id": VOICE, "input_text": TEXT, "speed": 1.0},
-    }], "dimension": {"width": 1080, "height": 1920}}
+    }], "dimension": {"width": 1280, "height": 720}}
     st, r = api("https://api.heygen.com/v2/video/generate", body)
     print("avatar submit:", st, json.dumps(r)[:300], flush=True)
     vid = (r.get("data") or {}).get("video_id")

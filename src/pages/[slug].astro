@@ -193,60 +193,36 @@ const PROBLEM_VIDEO = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/socia
         </h2>
         <p class="mt-4 text-[15px] text-[color:var(--color-ink-2)]">{trade.problem}</p>
       </div>
-      <div class="grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr]">
-        <!-- UGC video -->
-        <div class="mx-auto w-full max-w-[300px]">
-          <div class="relative overflow-hidden rounded-[2rem] bg-[color:var(--color-navy-900)] shadow-[0_30px_60px_-30px_rgba(10,22,40,0.45)] ring-1 ring-inset ring-[color:var(--color-rule)]">
-            <video
-              src={PROBLEM_VIDEO}
-              class="aspect-[9/16] h-full w-full object-cover"
-              controls
-              playsinline
-              preload="metadata"
-              poster="/og-default.png"
-            ></video>
-          </div>
+      <!-- Landscape UGC video (Tyler) -->
+      <div class="mx-auto max-w-3xl">
+        <div class="overflow-hidden rounded-2xl bg-[color:var(--color-navy-900)] shadow-[0_30px_60px_-30px_rgba(10,22,40,0.45)] ring-1 ring-inset ring-[color:var(--color-rule)]">
+          <video
+            src={PROBLEM_VIDEO}
+            class="aspect-video h-full w-full object-cover"
+            controls
+            playsinline
+            preload="metadata"
+            poster="/og-default.png"
+          ></video>
         </div>
-        <!-- Before / After toggle -->
-        <div>
-          <div class="mb-5 flex items-center gap-3">
-            <p class="text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">The difference</p>
-            <span class="hidden text-[color:var(--color-ink-muted)] sm:inline">— flip it &rarr;</span>
-          </div>
-          <div class="inline-flex rounded-full bg-[color:var(--color-bg-alt)] p-1 ring-1 ring-inset ring-[color:var(--color-rule)]">
-            <button data-ba-tab="before" class="ba-tab is-active rounded-full px-5 py-2 text-sm font-bold transition-colors">Before</button>
-            <button data-ba-tab="after" class="ba-tab rounded-full px-5 py-2 text-sm font-bold transition-colors">After</button>
-          </div>
-          <!-- BEFORE: anonymous bounce -->
-          <div data-ba-panel="before" class="mt-5 rounded-2xl border border-dashed border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] p-7">
-            <div class="flex items-center gap-4 opacity-70">
-              <div class="flex size-12 items-center justify-center rounded-full bg-[color:var(--color-ink-muted)]/15 font-display text-lg font-bold text-[color:var(--color-ink-muted)]">?</div>
-              <div>
-                <p class="font-display text-lg font-bold text-[color:var(--color-ink-2)]">Anonymous visitor</p>
-                <p class="text-sm text-[color:var(--color-ink-muted)]">Viewed your services · left without a trace</p>
-              </div>
-            </div>
-            <p class="mt-5 text-sm text-[color:var(--color-ink-2)]">You paid for the click. They read your {trade.shortName.toLowerCase()} page, didn't call, and you'll never know who they were — so they call the next shop.</p>
-          </div>
-          <!-- AFTER: identified, consented lead -->
-          <div data-ba-panel="after" class="mt-5 hidden rounded-2xl bg-[color:var(--color-navy-900)] p-7 ring-1 ring-inset ring-[color:var(--color-mint-400)]/30 shadow-[0_30px_60px_-30px_rgba(0,229,160,0.4)]">
-            <div class="flex items-center gap-4">
-              <div class="flex size-12 items-center justify-center rounded-full bg-[color:var(--color-mint-400)]/20 font-display text-lg font-bold text-[color:var(--color-mint-400)]">JM</div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <p class="font-display text-lg font-bold text-white">Jordan M.</p>
-                  <span class="rounded bg-[color:var(--color-mint-400)]/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-mint-400)]">Consented</span>
-                </div>
-                <p class="font-mono text-sm text-slate-300">j****@gmail.com</p>
-              </div>
-            </div>
-            <ul class="mt-5 space-y-1.5 text-sm text-slate-300">
-              <li class="flex items-center gap-2"><IconCheck size={15} stroke={2.5} color="#00E5A0" /> Viewed: {trade.shortName} services · Pricing</li>
-              <li class="flex items-center gap-2"><IconCheck size={15} stroke={2.5} color="#00E5A0" /> Fed into your CRM · $7 · yours alone</li>
-              <li class="flex items-center gap-2"><IconCheck size={15} stroke={2.5} color="#00E5A0" /> Timestamped consent receipt</li>
-            </ul>
-          </div>
+      </div>
+
+      <!-- Interactive leak grid: 2 of 100 today; tap After to populate recovery -->
+      <div class="mx-auto mt-12 max-w-2xl text-center">
+        <div class="inline-flex rounded-full bg-white p-1 ring-1 ring-inset ring-[color:var(--color-rule)]">
+          <button data-ba-tab="before" data-cap="Today, only about 2 of every 100 visitors fill out a form. The other 98 leave anonymous — and you paid for every one." class="ba-tab is-active rounded-full px-6 py-2 text-sm font-bold transition-colors">Before</button>
+          <button data-ba-tab="after" data-cap="Illustrative: when the visitors who consent come back as leads, you capture a far bigger share of the 100 — not just the 2." class="ba-tab rounded-full px-6 py-2 text-sm font-bold transition-colors">After</button>
         </div>
+        <div class="leakgrid mt-7" data-leak data-state="before" aria-hidden="true">
+          {Array.from({ length: 100 }).map((_, i) => (
+            <span class:list={["leakcell", i < 2 ? "on" : i < 40 ? "rec" : ""]} style={`--i:${i}`}></span>
+          ))}
+        </div>
+        <div class="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-[color:var(--color-ink-muted)]">
+          <span class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-[2px] bg-[color:var(--color-brand)]"></span> Captured as a lead</span>
+          <span class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-[2px] bg-[color:var(--color-ink)]/10"></span> Leaves anonymous</span>
+        </div>
+        <p class="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-[color:var(--color-ink-2)]" data-leak-caption>Today, only about 2 of every 100 visitors fill out a form. The other 98 leave anonymous — and you paid for every one.</p>
       </div>
     </div>
   </section>
@@ -358,16 +334,18 @@ const PROBLEM_VIDEO = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/socia
   <FinalCTA heading={trade.finalCtaH2} />
 </BaseLayout>
 
-<!-- Before/After toggle behavior — pure click handler, no island needed. -->
+<!-- Before/After leak-grid toggle — flips the grid state + caption, no island. -->
 <script is:inline>
   document.querySelectorAll("[data-ba]").forEach(function (root) {
     var tabs = root.querySelectorAll("[data-ba-tab]");
-    var panels = root.querySelectorAll("[data-ba-panel]");
+    var grid = root.querySelector("[data-leak]");
+    var cap = root.querySelector("[data-leak-caption]");
     tabs.forEach(function (btn) {
       btn.addEventListener("click", function () {
         var v = btn.getAttribute("data-ba-tab");
         tabs.forEach(function (t) { t.classList.toggle("is-active", t === btn); });
-        panels.forEach(function (p) { p.classList.toggle("hidden", p.getAttribute("data-ba-panel") !== v); });
+        if (grid) grid.setAttribute("data-state", v);
+        if (cap && btn.getAttribute("data-cap")) cap.textContent = btn.getAttribute("data-cap");
       });
     });
   });
@@ -376,4 +354,10 @@ const PROBLEM_VIDEO = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/socia
 <style>
   .ba-tab { color: var(--color-ink-2); }
   .ba-tab.is-active { background: var(--color-navy-900); color: #fff; }
+  /* Leak grid — 2 of 100 lit by default; "After" lights the recoverable cells. */
+  .leakgrid { display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 0.4rem; }
+  .leakcell { aspect-ratio: 1; border-radius: 2px; background: rgba(10, 22, 40, 0.1); transition: background 0.45s ease; transition-delay: calc(var(--i) * 6ms); }
+  .leakcell.on { background: var(--color-brand); }
+  [data-state="after"] .leakcell.rec { background: var(--color-brand); }
+  @media (prefers-reduced-motion: reduce) { .leakcell { transition: none; } }
 </style>
