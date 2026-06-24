@@ -593,26 +593,28 @@ const HERO_ANGLES: Record<string, string> = {
   [data-vid-cta]:not(.hidden) { display: flex; animation: statIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
   @keyframes statIn { 0% { opacity: 0; transform: translateY(10px) scale(0.94); } 100% { opacity: 1; transform: none; } }
 
-  /* TEST: embedded demo form — (1) reset to the LIGHT theme so it's readable
-     inside the dark section (otherwise --color-ink is white → white-on-white
-     inputs), (2) compact every field so it fits the fixed window without scroll. */
-  [data-demo-form] {
-    --color-ink: #0a1628;
-    --color-ink-2: #475569;
-    --color-ink-muted: #94a3b8;
-    --color-rule: #e2e8f0;
-    --color-bg-alt: #ffffff;
+  /* TEST: embedded demo form — DARK + compact, only Trade + Name + Email.
+     The only readability bug in the dark section is the inputs' hardcoded
+     bg-white (white text on white); everything else is already light via
+     section-dark, so we just re-skin the inputs dark and hide two fields. */
+  [data-demo-form] :global(.cr-demo-card) { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.12); padding: 0.9rem 1rem; border-radius: 0.85rem; }
+  [data-demo-form] :global(.cr-demo-card h3) { font-size: 1.1rem; }
+  [data-demo-form] :global(.cr-demo-card > p) { font-size: 0.74rem; line-height: 1.35; margin-top: 0.25rem; }
+  [data-demo-form] :global(.cr-demo-form) { margin-top: 0.7rem; }
+  [data-demo-form] :global(.cr-demo-form > * + *) { margin-top: 0.6rem !important; }
+  [data-demo-form] :global(.cr-demo-form label > span) { font-size: 0.72rem; margin-bottom: 0.15rem; }
+  [data-demo-form] :global(.cr-demo-form input), [data-demo-form] :global(.cr-demo-form select) {
+    background: rgba(255, 255, 255, 0.06) !important; color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.16) !important; padding: 0.45rem 0.6rem !important; font-size: 0.82rem;
   }
-  [data-demo-form] :global(.cr-demo-card) { padding: 0.85rem 1rem; border-radius: 0.85rem; }
-  [data-demo-form] :global(.cr-demo-card h3) { font-size: 1.05rem; }
-  [data-demo-form] :global(.cr-demo-card > p) { font-size: 0.72rem; line-height: 1.3; margin-top: 0.2rem; }
-  [data-demo-form] :global(.cr-demo-form) { margin-top: 0.65rem; }
-  [data-demo-form] :global(.cr-demo-form > * + *) { margin-top: 0.45rem !important; }
-  [data-demo-form] :global(.cr-demo-form label > span) { font-size: 0.68rem; margin-bottom: 0.1rem; }
-  [data-demo-form] :global(.cr-demo-form input), [data-demo-form] :global(.cr-demo-form select) { padding: 0.38rem 0.55rem !important; font-size: 0.8rem; }
+  [data-demo-form] :global(.cr-demo-form input::placeholder) { color: rgba(255, 255, 255, 0.4); }
+  [data-demo-form] :global(.cr-demo-form select option) { color: #0a1628; }
   [data-demo-form] :global(.cr-demo-form .grid) { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-  [data-demo-form] :global(.cr-demo-form label.flex) { font-size: 0.66rem; }
-  [data-demo-form] :global(.cr-demo-form button[type="submit"]) { padding: 0.5rem 1rem !important; font-size: 0.8rem; }
+  /* keep only Name (1) + Email (2); hide Business name (3) + Phone (4) */
+  [data-demo-form] :global(.cr-demo-form .grid > label:nth-child(3)),
+  [data-demo-form] :global(.cr-demo-form .grid > label:nth-child(4)) { display: none; }
+  [data-demo-form] :global(.cr-demo-form label.flex) { font-size: 0.7rem; }
+  [data-demo-form] :global(.cr-demo-form button[type="submit"]) { padding: 0.55rem 1rem !important; font-size: 0.82rem; }
   [data-demo-form] :global(.cr-demo-form > p:last-child) { display: none; }  /* drop the fine print in the compact embed */
 
   @media (prefers-reduced-motion: reduce) {
