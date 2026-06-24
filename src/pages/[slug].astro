@@ -210,22 +210,9 @@ const HERO_ANGLES: Record<string, string> = {
         </h2>
         <p class="mt-4 text-[15px] text-slate-300">{trade.problem}</p>
       </div>
-      <!-- Before/After toggle, centered across the section so its midpoint sits
-           over the column gap: Before reads toward the video (left), After toward
-           the grid (right). Drives the cascade below. -->
-      <div class="mb-10 flex flex-col items-center">
-        <div class="batoggle inline-flex gap-1.5 rounded-2xl bg-white/[0.06] p-1.5 ring-1 ring-inset ring-white/10 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.55)]">
-          <button data-ba-tab="before" class="ba-tab is-active inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-extrabold uppercase tracking-[0.12em] transition-all">
-            <IconEyeOff size={17} stroke={2.25} /> Before
-          </button>
-          <button data-ba-tab="after" class="ba-tab inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-extrabold uppercase tracking-[0.12em] transition-all">
-            <IconUserCheck size={17} stroke={2.25} /> After
-          </button>
-        </div>
-        <p data-cue-hint class="mt-3 hidden text-sm font-semibold text-[color:var(--color-mint-400)]">↑ Tap <strong>After</strong> to see what Tyler means — then he'll finish.</p>
-      </div>
-
-      <!-- Two columns: UGC video left (embedded, borderless), interactive grid right -->
+      <!-- Two columns: UGC video left (embedded, borderless), interactive grid right.
+           The story is driven entirely by the video: play it → the 98 vanish → an
+           end-screen CTA reveals the recovery. No toggle. -->
       <div class="grid items-center gap-10 lg:grid-cols-2">
         <!-- Left: UGC video — embedded flush, no frame. On end, a CTA overlay
              replaces the freeze-frame and points to the After toggle. -->
@@ -245,10 +232,11 @@ const HERO_ANGLES: Record<string, string> = {
         </div>
 
         <!-- Right: a subtle browser window framing the visitor grid + final stat.
-             Starts as 100 ghosts (2 transition to a lead). On play the 98 get X'd
-             out and vanish; tapping After lights them up ghost→check→person, then
-             the stat fills the box. -->
-        <div class="mx-auto w-full max-w-[400px] overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] shadow-[0_24px_60px_-34px_rgba(0,0,0,0.8)]">
+             Address bar is trade-specific by default ({trade.slug}-website.com) and
+             gets overridden with the prospect's real domain when Instantly passes
+             ?domain=. Starts as 100 ghosts (2 transition to a lead); on play the 98
+             get X'd out and vanish; the recovery lights them up ghost→✓→person. -->
+        <div class="mx-auto w-full max-w-[560px] overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] shadow-[0_24px_60px_-34px_rgba(0,0,0,0.8)]">
           <!-- browser chrome -->
           <div class="flex items-center gap-1.5 border-b border-white/10 bg-white/[0.03] px-3 py-2">
             <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
@@ -256,11 +244,11 @@ const HERO_ANGLES: Record<string, string> = {
             <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
             <span class="ml-2 inline-flex flex-1 items-center gap-1.5 truncate rounded-md bg-white/[0.05] px-2.5 py-1 text-[11px] text-slate-400">
               <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
-              your-website.com
+              <span data-addr>{trade.slug}-website.com</span>
             </span>
           </div>
           <!-- content -->
-          <div class="relative p-4">
+          <div class="relative p-5">
             <div class="leakgrid" data-leak data-state="before" aria-hidden="true">
               {Array.from({ length: 100 }).map((_, i) => (
                 <span class="lc" style={`--i:${i}`}>
@@ -473,33 +461,29 @@ const HERO_ANGLES: Record<string, string> = {
       }, 250 + RECOVER * stagger + 450);
     }
 
-    // BEFORE tab: reset to the problem (100 ghosts, 2 leads), then the leave/vanish
-    function runProblem() {
-      stopTimers(); hideStat(); vanished = false;
-      if (grid) grid.classList.remove("recovered", "pulse-greens");
-      allGhost(); keepTwoLeads(); doVanish();
+    function cueAfter() { if (grid) grid.classList.add("pulse-greens"); }
+
+    // No toggle: the end-screen CTA is the only way forward. Swap to the resume
+    // clip and light up the recovery (ghost → ✓ → person), then the stat.
+    function goAfter() {
+      if (vidCta) vidCta.classList.add("hidden");
+      if (grid) grid.classList.remove("pulse-greens");
+      if (intro && resume) { intro.pause(); intro.classList.add("hidden"); resume.classList.remove("hidden"); var pr = resume.play(); if (pr && pr.catch) pr.catch(function () {}); }
+      runRecover();
     }
-    function cueAfter() { if (afterBtn) afterBtn.classList.add("cue"); if (hint) hint.classList.remove("hidden"); if (grid) grid.classList.add("pulse-greens"); }
 
-    tabs.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var v = btn.getAttribute("data-ba-tab"); setActive(v);
-        if (vidCta) vidCta.classList.add("hidden");
-        if (v === "after") {
-          if (afterBtn) afterBtn.classList.remove("cue");
-          if (hint) hint.classList.add("hidden");
-          if (intro && resume) { intro.pause(); intro.classList.add("hidden"); resume.classList.remove("hidden"); var pr = resume.play(); if (pr && pr.catch) pr.catch(function () {}); }
-          runRecover();
-        } else {
-          if (resume && intro) { resume.pause(); resume.classList.add("hidden"); intro.classList.remove("hidden"); }
-          runProblem();
-        }
-      });
-    });
+    // Personalize the address bar: Instantly can pass ?domain= (the prospect's
+    // real site); otherwise it stays the trade-specific default in the markup.
+    var addr = root.querySelector("[data-addr]");
+    var dom = new URLSearchParams(location.search).get("domain");
+    if (addr && dom) {
+      dom = dom.replace(/^https?:\/\//i, "").replace(/^www\./i, "").replace(/\/.*$/, "").trim();
+      if (dom) addr.textContent = dom;
+    }
 
-    // The video drives the BEFORE climax only — at ~10s the 98 leave. Nothing
-    // runs until the user hits Play.
-    if (ctaBtn) ctaBtn.addEventListener("click", function () { if (afterBtn) afterBtn.click(); });
+    // The video drives the BEFORE climax — at ~10s the 98 leave; on end, the CTA.
+    // Nothing runs until the user hits Play.
+    if (ctaBtn) ctaBtn.addEventListener("click", goAfter);
     if (intro) {
       intro.addEventListener("play", function () { if (vidCta) vidCta.classList.add("hidden"); });
       intro.addEventListener("timeupdate", function () {
@@ -529,7 +513,7 @@ const HERO_ANGLES: Record<string, string> = {
   /* Infographic grid (on dark) — the story, per cell:
      ghost (anonymous visitor, default) → ✓ (consented) → person (identified lead).
      In BEFORE, the 98 ghosts get an X struck over them and vanish. */
-  .leakgrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.5rem; width: 100%; max-width: 360px; margin-inline: auto; border-radius: 18px; transition: box-shadow 0.5s ease, transform 0.4s ease; }
+  .leakgrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.55rem; width: 100%; max-width: 500px; margin-inline: auto; border-radius: 18px; transition: box-shadow 0.5s ease, transform 0.4s ease; }
   .lc { position: relative; aspect-ratio: 1; opacity: 0; transform: scale(0.55); }
   .lc-ghost, .lc-check, .lc-person, .lc-x { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; line-height: 0; opacity: 0; transition: opacity 0.4s ease; }
   /* default = ghost (anonymous), gently floating */
