@@ -214,9 +214,9 @@ const HERO_ANGLES: Record<string, string> = {
            The story is driven entirely by the video: play it → the 98 vanish → an
            end-screen CTA reveals the recovery. No toggle. -->
       <div class="grid items-center gap-10 lg:grid-cols-2">
-        <!-- Left: UGC video — embedded flush, no frame, sized to ~75% of the column
-             (centered). On end, a CTA overlay replaces the freeze-frame. -->
-        <div class="relative mx-auto w-3/4 overflow-hidden rounded-xl">
+        <!-- Left: UGC video — embedded flush, no frame. On end, a CTA overlay
+             replaces the freeze-frame. -->
+        <div class="relative overflow-hidden rounded-xl">
           {tradeVid ? (
             <Fragment>
               <video data-vid-intro src={tradeVid.intro} class="block aspect-video h-full w-full object-cover" controls playsinline preload="metadata" poster={tradeVid.poster ?? "/og-default.png"}></video>
@@ -236,7 +236,7 @@ const HERO_ANGLES: Record<string, string> = {
              gets overridden with the prospect's real domain when Instantly passes
              ?domain=. Starts as 100 ghosts (2 transition to a lead); on play the 98
              get X'd out and vanish; the recovery lights them up ghost→✓→person. -->
-        <div class="mx-auto w-full max-w-[560px] overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] shadow-[0_24px_60px_-34px_rgba(0,0,0,0.8)]">
+        <div class="mx-auto w-full max-w-[420px] overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] shadow-[0_24px_60px_-34px_rgba(0,0,0,0.8)]">
           <!-- browser chrome -->
           <div class="flex items-center gap-1.5 border-b border-white/10 bg-white/[0.03] px-3 py-2">
             <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
