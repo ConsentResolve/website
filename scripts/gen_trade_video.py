@@ -27,6 +27,16 @@ LOOKS = {
     "general-contractor": "27ab2d9e954b4a47bfa9e586ac96a5e2",  # "Hard-Hatted, Vest-Clad Home Builder" (framing site)
     "tree-removal": "e647136ad7e04328a9badd7a1285e22d",  # "The Uniformed Tree Removalist Amidst Felling Trees"
     "locksmith": "690dc51a71674d32ba67dfb779234d11",     # "The Locksmith from the Open Van"
+    "painter": "51b3332be0d64a9a9380a7257364a7a2",       # "The Hat Painter of the Fresh Room"
+    "deck-fence": "652760527770435aa35baac6afb3a5b4",    # "Tyler, the Deck Builder ... Half-Finished Deck"
+    "garage-door": "f85d51f26f054a80aece9ded860f1a1b",   # "The Nifty Uniformed Door Repairman"
+    "appliance-repair": "add6cb79b8ca4f48a87d91fb1131b86e",  # "The Washer-Dryer Fixer Amidst the Folded Clothes"
+    "house-cleaning": "62fc3b77a45442148e3aac4eb799153a",   # "The Upscale Glove Cleaner"
+    "power-washing": "3ebcdd4c246c4053a63bc06200ae2711",    # "The Uniformed Driveway-Splitter"
+    "pest-control": "3d91b5fa45c942d5aa94cb811e0cb38d",     # "The Proton Pack Pest Controller"
+    "lawn-care": "1928b6275cc342b2ad894b6dfb7fc646",        # "The Uniformed Lawn Perfectionist"
+    "mobile-car-service": "adc4f0d406cf4d1fb3dbe96525137710",  # "Tyler, The Open-Hood Mechanic"
+    "handyman": "a02a73fbc5be4e258662d9c80ea4c026",         # "The Indoor Handyman with Finished IKEA"
 }
 
 # Per-trade script fragments. {who} = audience opener, {service} = what they shop.
