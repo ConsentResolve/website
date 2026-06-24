@@ -470,19 +470,25 @@ const HERO_ANGLES: Record<string, string> = {
       for (var k = 0; k < RECOVER; k++) lead(cells[k], 250 + k * stagger);
       later(function () {
         if (grid) grid.classList.add("recovered");
-        if (stat) stat.classList.remove("hidden");
+        if (stat && !demoForm) stat.classList.remove("hidden");  // TEST: the form replaces the stat at the 2nd clip's end
       }, 250 + RECOVER * stagger + 450);
     }
 
     function cueAfter() { if (grid) grid.classList.add("pulse-greens"); }
 
     // No toggle: the end-screen CTA is the only way forward. Swap to the resume
-    // clip and light up the recovery (ghost → ✓ → person), then the stat.
+    // clip, play it, and light up the recovery (ghost → ✓ → person). The end
+    // payoff (stat, or the TEST form) only shows when the 2nd clip finishes.
     function goAfter() {
       if (vidCta) vidCta.classList.add("hidden");
       if (grid) grid.classList.remove("pulse-greens");
-      if (demoForm) { demoForm.classList.remove("hidden"); return; }  // TEST: reveal form inside the static window
-      if (intro && resume) { intro.pause(); intro.classList.add("hidden"); resume.classList.remove("hidden"); var pr = resume.play(); if (pr && pr.catch) pr.catch(function () {}); }
+      if (intro && resume) {
+        intro.pause(); intro.classList.add("hidden"); resume.classList.remove("hidden"); resume.controls = true;
+        var pr = resume.play();
+        if (pr && pr.catch) pr.catch(function () {   // if the 2nd clip can't autoplay, still reveal the payoff after the recovery
+          if (demoForm) later(function () { demoForm.classList.remove("hidden"); }, 6500);
+        });
+      }
       runRecover();
     }
 
@@ -527,6 +533,10 @@ const HERO_ANGLES: Record<string, string> = {
         if (!started) return;
         doVanish(); cueAfter(); if (vidCta) vidCta.classList.remove("hidden");  // the after-CTA appears
       });
+    }
+    // TEST: the demo form appears only when the 2nd (resume) clip finishes.
+    if (resume) {
+      resume.addEventListener("ended", function () { if (demoForm) demoForm.classList.remove("hidden"); });
     }
 
     // Initial state: 100 ghosts; 2 of them transition ghost → ✓ → person.
