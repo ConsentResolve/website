@@ -20,6 +20,16 @@ import {
   IconCalendar,
 } from "@tabler/icons-react";
 
+// Trade-aware demo record. Defaults preserve the original water-heater example
+// for non-trade usages (/demo, etc.); the industry pages pass their own service.
+const {
+  service = "water heater replacement",
+  serviceSlug = "water-heater-replacement",
+  query = "austin water heater repair",
+  tag = "water-heater-quote",
+  intent = "Water heater replacement quote",
+} = Astro.props as { service?: string; serviceSlug?: string; query?: string; tag?: string; intent?: string };
+
 const handle = "j*****y@example.com";
 const initials = "JE";
 const consentedAgo = "43m ago";
@@ -27,12 +37,12 @@ const audit = "0x4f9c8a7e2b1d…";
 
 const timeline: { time: string; title: string; meta?: string; icon: any; tone: "default" | "brand" | "muted" }[] = [
   { time: "12m ago",      title: "Returned to /pricing",                                meta: "Second visit · viewed for 1m 14s", icon: IconRefresh, tone: "default" },
-  { time: "31m ago",      title: "Pushed to CRM (HubSpot)",                             meta: "Contact created · tag: 'water-heater-quote'", icon: IconArrowRight, tone: "brand" },
+  { time: "31m ago",      title: "Pushed to CRM (HubSpot)",                             meta: `Contact created · tag: '${tag}'`, icon: IconArrowRight, tone: "brand" },
   { time: "43m ago",      title: "Consented to identification",                         meta: "Banner v3.2.1 · signed, timestamped audit trail", icon: IconShieldCheck, tone: "brand" },
-  { time: "44m ago",      title: "Viewed /services/water-heater-replacement",           meta: "1m 47s on page · scrolled to 92%", icon: IconEye, tone: "default" },
+  { time: "44m ago",      title: `Viewed /services/${serviceSlug}`,                     meta: "1m 47s on page · scrolled to 92%", icon: IconEye, tone: "default" },
   { time: "47m ago",      title: "Viewed /pricing",                                     meta: "2m 12s on page", icon: IconEye, tone: "default" },
   { time: "52m ago",      title: "Viewed /services",                                    meta: "48s on page", icon: IconEye, tone: "default" },
-  { time: "1h 8m ago",    title: "First visit · landed on /",                           meta: "Source: Google search · 'austin water heater repair'", icon: IconHome, tone: "muted" },
+  { time: "1h 8m ago",    title: "First visit · landed on /",                           meta: `Source: Google search · '${query}'`, icon: IconHome, tone: "muted" },
 ];
 ---
 
@@ -157,11 +167,11 @@ const timeline: { time: string; title: string; meta?: string; icon: any; tone: "
         <dl class="vd-dl">
           <div>
             <dt>Captured intent</dt>
-            <dd class="vd-intent">Water heater replacement quote</dd>
+            <dd class="vd-intent">{intent}</dd>
           </div>
           <div>
             <dt>Source</dt>
-            <dd>Google · "austin water heater repair"</dd>
+            <dd>Google · "{query}"</dd>
           </div>
           <div>
             <dt>Device</dt>

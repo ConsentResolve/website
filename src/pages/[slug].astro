@@ -134,6 +134,33 @@ const TRADE_VIDEOS: Record<string, { intro: string; resume: string; poster?: str
 };
 const tradeVid = TRADE_VIDEOS[trade.slug];
 
+// Trade-specific service for the live product preview (the visitor record shows
+// the homeowner shopping THIS trade's service, not a generic water heater).
+const DEMO_SERVICE: Record<string, string> = {
+  "general-contractor": "kitchen remodel",
+  handyman: "drywall repair",
+  "tree-removal": "tree removal",
+  hvac: "AC replacement",
+  plumber: "water heater replacement",
+  locksmith: "lock rekey",
+  electrician: "panel upgrade",
+  roofing: "roof replacement",
+  painter: "interior painting",
+  "deck-fence": "fence installation",
+  "garage-door": "garage door repair",
+  "appliance-repair": "refrigerator repair",
+  "house-cleaning": "deep cleaning",
+  "pest-control": "termite treatment",
+  "power-washing": "house washing",
+  "lawn-care": "lawn treatment",
+  "mobile-car-service": "mobile oil change",
+};
+const demoSvc = DEMO_SERVICE[trade.slug] ?? "water heater replacement";
+const demoSlug = demoSvc.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+const demoQuery = `${demoSvc} near me`;
+const demoTag = `${demoSlug}-quote`;
+const demoIntent = `${demoSvc.charAt(0).toUpperCase()}${demoSvc.slice(1)} quote`;
+
 // Message-match hero variants — mirror the three retargeting ad angles. The ad
 // link carries ?utm_content=hook|math|reframe and the hero swaps to match what
 // they clicked (biggest conversion lever for paid/cold traffic).
@@ -352,7 +379,7 @@ const HERO_ANGLES: Record<string, string> = {
       <!-- Capped height + scroll so the full dashboard UI doesn't sprawl vertically. -->
       <div class="mx-auto max-h-[460px] max-w-5xl overflow-auto rounded-[1.25rem] ring-1 ring-inset ring-white/10">
         <div class="min-w-[900px]">
-          <VisitorDetailScreen />
+          <VisitorDetailScreen service={demoSvc} serviceSlug={demoSlug} query={demoQuery} tag={demoTag} intent={demoIntent} />
         </div>
       </div>
       <p class="mx-auto mt-3 max-w-5xl text-center text-xs text-slate-400">Scroll to explore the full record ↕</p>
