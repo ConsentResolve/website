@@ -3,8 +3,8 @@
  * ConsentFlowSlideshow — the canonical "how it works in 3" hero animation.
  *
  * A dark, CSS-only slideshow that cross-fades three cards on a 9s loop
- * (3s each): (1) the "I Accept" button rises on a consent banner, (2) a
- * cursor moves in and clicks "I Accept", (3) an email flies into the CRM.
+ * (3s each): (1) the "I Accept" button rises on a consent banner, (2) the
+ * "I Accept" button is pressed/activated, (3) an email flies into the CRM.
  *
  * Extracted June 2026 from /features/ so the SAME animation ships on the
  * features hero AND every /[trade]-leads/ industry landing-page hero. To
@@ -14,7 +14,7 @@
  * freezes the rest). The cards carry their own dark background + glow, so
  * the component drops onto a light OR dark hero without extra treatment.
  */
-import { IconPointer, IconMail } from "@tabler/icons-react";
+import { IconMail } from "@tabler/icons-react";
 
 const flowSteps: { n: number; hex: string; kind: "banner" | "cursor" | "crm"; title: string; body: string }[] = [
   { n: 1, hex: "#00E5A0", kind: "banner", title: "Consent Banner Appears", body: "A privacy-compliant banner asks visitors for permission to identify them." },
@@ -41,7 +41,6 @@ const flowSteps: { n: number; hex: string; kind: "banner" | "cursor" | "crm"; ti
         {s.kind === "cursor" && (
           <div class="sc sc-cursor">
             <span class="sc-accept sc-accept--press">I Accept</span>
-            <span class="sc-pointer"><IconPointer size={22} stroke={2} /></span>
           </div>
         )}
         {s.kind === "crm" && (
@@ -163,7 +162,7 @@ const flowSteps: { n: number; hex: string; kind: "banner" | "cursor" | "crm"; ti
     19%, 30%  { transform: translateY(0); opacity: 1; }
     34%, 100% { transform: translateY(150%); opacity: 0; }
   }
-  /* (2) CURSOR — "I Accept" sits left; pointer moves in and clicks it */
+  /* (2) CONSENT — "I Accept" is pressed/activated (self-press, no cursor) */
   .sc-cursor .sc-accept--press {
     animation: btnPress 9s ease-in-out infinite;
     animation-delay: calc(var(--i) * 3s);
@@ -172,24 +171,6 @@ const flowSteps: { n: number; hex: string; kind: "banner" | "cursor" | "crm"; ti
     0%, 15%   { transform: scale(1); filter: brightness(1); }
     19%, 23%  { transform: scale(0.92); filter: brightness(1.18); }
     27%, 100% { transform: scale(1); filter: brightness(1); }
-  }
-  .sc-pointer {
-    position: absolute;
-    left: 0;
-    top: 0;
-    color: #f8fafc;
-    transform: translate(5.4rem, 2.3rem) scale(0.9);
-    opacity: 0;
-    animation: curMove 9s ease-in-out infinite;
-    animation-delay: calc(var(--i) * 3s);
-  }
-  @keyframes curMove {
-    0%        { transform: translate(5.4rem, 2.3rem) scale(0.9); opacity: 0; }
-    7%        { opacity: 1; }
-    17%       { transform: translate(2.1rem, 0.7rem) scale(1); opacity: 1; }
-    19%, 23%  { transform: translate(2.1rem, 0.7rem) scale(0.84); opacity: 1; }
-    27%       { transform: translate(2.1rem, 0.7rem) scale(1); opacity: 1; }
-    31%, 100% { opacity: 0; }
   }
   /* (3) CRM — email chip on left, envelope flies to the CRM box on right */
   .sc-crm { justify-content: space-between; }
@@ -261,8 +242,8 @@ const flowSteps: { n: number; hex: string; kind: "banner" | "cursor" | "crm"; ti
     .flowcard { animation: none; opacity: 0; }
     .flowcard:first-child { opacity: 1; }
     .flow-dots { display: none; }
-    .sc-accept, .sc-pointer, .sc-flyer, .sc-chip--to { animation: none !important; }
+    .sc-accept, .sc-flyer, .sc-chip--to { animation: none !important; }
     .sc-banner .sc-accept { transform: none; opacity: 1; }
-    .sc-pointer, .sc-flyer { display: none; }
+    .sc-flyer { display: none; }
   }
 </style>
