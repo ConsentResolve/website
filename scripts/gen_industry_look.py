@@ -13,6 +13,8 @@ GROUP = "37dd05917aed4e42aa347b4875250793"   # Real Tyler
 HVAC_PROMPT = ("HVAC service technician wearing a navy company polo shirt, standing in a "
                "suburban backyard beside a residential air-conditioning condenser unit, "
                "bright natural daylight, friendly confident expression, looking at the camera")
+# Optional: pass a custom scene prompt as the LAST argv (after "gen"); falls back to HVAC.
+PROMPT = next((a for a in sys.argv[1:] if a != "gen" and len(a) > 25), HVAC_PROMPT)
 
 def call(method, url, body=None):
     data = json.dumps(body).encode() if body is not None else None

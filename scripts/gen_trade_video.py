@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""Render the two-part interactive problem video per trade, reusing the proven
+shared "Real Tyler" landscape look. Custom per-trade SCENES aren't possible (the
+photo-avatar regenerates its trained backyard scene regardless of prompt), so the
+scene is shared and only the spoken SCRIPT changes per trade.
+
+  python3 scripts/gen_trade_video.py electrician roofing      # render these slugs
+  python3 scripts/gen_trade_video.py all                      # every trade w/ a script below
+
+Prints `CLIP <slug>-<intro|resume>: <url>` per clip. Download + crop + deploy
+separately (clips carry HeyGen's 34px white pillarbox bars — crop them).
+"""
+import json, time, sys, urllib.request, urllib.error
+
+KEY = open("/tmp/heygen_key.txt").read().strip()
+LOOK = "ef74e672158e4b87a445ffaeb3ad92fc"   # shared Real Tyler landscape look (HVAC scene)
+VOICE = "92071a8742744d17bc92a02baab2941f"  # Real Tyler voice
+GEN = "https://api.heygen.com/v2/video/generate"
+
+# Per-trade script fragments. {who} = audience opener, {service} = what they shop.
+TRADES = {
+    "appliance-repair":   ("appliance repair pros",  "a fridge that quit or a broken dryer"),
+    "deck-fence":         ("deck and fence builders", "a new deck or a fence"),
+    "electrician":        ("electricians",            "a panel upgrade or a wiring problem"),
+    "garage-door":        ("garage door pros",        "a broken spring or a new door"),
+    "general-contractor": ("general contractors",     "a remodel or an addition"),
+    "handyman":           ("handymen",                "a repair or a punch-list of odd jobs"),
+    "house-cleaning":     ("house cleaning pros",      "a deep clean or recurring service"),
+    "lawn-care":          ("lawn care pros",           "a lawn treatment or a mowing plan"),
+    "locksmith":          ("locksmiths",               "a lockout or a rekey"),
+    "mobile-car-service": ("mobile mechanics",         "a repair right in their driveway"),
+    "painter":            ("painters",                 "an interior or exterior paint job"),
+    "pest-control":       ("pest control pros",        "a termite or pest treatment"),
+    "plumber":            ("plumbers",                 "a water heater or a leak"),
+    "power-washing":      ("power washing pros",       "a house or driveway wash"),
+    "roofing":            ("roofers",                  "a roof repair or a full replacement"),
+    "tree-removal":       ("tree service pros",        "a removal or storm cleanup"),
+}
+
+def intro_text(who, service):
+    return (f"Quick one for {who}. Let's look at what happens when a hundred homeowners land on your "
+            f"site, looking for {service}. Watch this. See those website visitors on the right? Only "
+            "about two of them ever fill out your form. The other ninety-eight? They just leave — and you "
+            "paid for every click. So go ahead... tap the After button, and watch what happens.")
+
+# Resume is trade-agnostic — the payoff is the same regardless of trade.
+RESUME = ("There we go. Every visitor that just lit up is a homeowner who said yes — a real name, a "
+          "real email, the exact service they were looking at. Recovered from traffic you already "
+          "paid for. Seven dollars each, exclusive to you, never resold. Same hundred visitors — "
+          "you just stopped letting ninety-eight of them walk.")
+
+def api(url, body=None, method="POST"):
+    data = json.dumps(body).encode() if body is not None else None
+    req = urllib.request.Request(url, data=data, headers={"X-Api-Key": KEY, "Content-Type": "application/json"}, method=method)
+    try:
+        r = urllib.request.urlopen(req, timeout=120); return r.status, json.load(r)
+    except urllib.error.HTTPError as e:
+        return e.code, json.loads(e.read().decode())
+
+def submit(text):
+    char = {"type": "avatar", "avatar_id": LOOK, "avatar_style": "normal",
+            "use_avatar_iv_model": True, "talking_style": "expressive", "super_resolution": True}
+    for emo in (True, False):
+        voice = {"type": "text", "voice_id": VOICE, "input_text": text, "speed": 1.0}
+        if emo: voice["emotion"] = "Friendly"
+        st, r = api(GEN, {"caption": False, "video_inputs": [{"character": char, "voice": voice}],
+                          "dimension": {"width": 1280, "height": 720}})
+        vid = (r.get("data") or {}).get("video_id")
+        if vid: return vid
+        print("  submit fail:", st, json.dumps(r)[:160], flush=True)
+        if "emotion" not in json.dumps(r).lower(): break
+    return None
+
+def wait(vid):
+    for _ in range(150):
+        st, d = api(f"https://api.heygen.com/v1/video_status.get?video_id={vid}", method="GET")
+        s = (d.get("data") or {}).get("status")
+        if s == "completed": return (d["data"]).get("video_url")
+        if s in ("failed", "error"): return None
+        time.sleep(10)
+    return None
+
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    slugs = list(TRADES) if (not args or args[0] == "all") else args
+    jobs = []  # (clipname, video_id)
+    for slug in slugs:
+        if slug not in TRADES:
+            print(f"SKIP unknown slug: {slug}", flush=True); continue
+        who, service = TRADES[slug]
+        for name, text in ((f"{slug}-intro", intro_text(who, service)), (f"{slug}-resume", RESUME)):
+            vid = submit(text)
+            print(f"{name} video_id:", vid, flush=True)
+            jobs.append((name, vid))
+    for name, vid in jobs:
+        url = wait(vid) if vid else None
+        print(f"CLIP {name}: {url}", flush=True)
