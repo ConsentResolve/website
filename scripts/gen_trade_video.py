@@ -24,6 +24,7 @@ LOOKS = {
     "roofing": "cea42e3698464f84ad9c9a6541f5f9d8",   # "Rooftop Shingle Layer"
     "plumber": "1f7d9f63eb6c461081a69a52a44638ba",   # "The Squatted Sink Fixer"
     "electrician": "6ae09512665643a0b23b92c7ea4649c4",  # "Lightning Bolt Hat Tyler" (open breaker panel)
+    "general-contractor": "27ab2d9e954b4a47bfa9e586ac96a5e2",  # "Hard-Hatted, Vest-Clad Home Builder" (framing site)
 }
 
 # Per-trade script fragments. {who} = audience opener, {service} = what they shop.
