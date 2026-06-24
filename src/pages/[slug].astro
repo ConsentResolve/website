@@ -214,9 +214,9 @@ const HERO_ANGLES: Record<string, string> = {
            The story is driven entirely by the video: play it → the 98 vanish → an
            end-screen CTA reveals the recovery. No toggle. -->
       <div class="grid items-center gap-10 lg:grid-cols-2">
-        <!-- Left: UGC video — embedded flush, no frame. On end, a CTA overlay
-             replaces the freeze-frame and points to the After toggle. -->
-        <div class="relative overflow-hidden rounded-xl">
+        <!-- Left: UGC video — embedded flush, no frame, sized to ~75% of the column
+             (centered). On end, a CTA overlay replaces the freeze-frame. -->
+        <div class="relative mx-auto w-3/4 overflow-hidden rounded-xl">
           {tradeVid ? (
             <Fragment>
               <video data-vid-intro src={tradeVid.intro} class="block aspect-video h-full w-full object-cover" controls playsinline preload="metadata" poster={tradeVid.poster ?? "/og-default.png"}></video>
