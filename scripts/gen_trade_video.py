@@ -22,6 +22,8 @@ GEN = "https://api.heygen.com/v2/video/generate"
 # Slugs without an entry fall back to the shared HVAC look above.
 LOOKS = {
     "roofing": "cea42e3698464f84ad9c9a6541f5f9d8",   # "Rooftop Shingle Layer"
+    "plumber": "1f7d9f63eb6c461081a69a52a44638ba",   # "The Squatted Sink Fixer"
+    "electrician": "6ae09512665643a0b23b92c7ea4649c4",  # "Lightning Bolt Hat Tyler" (open breaker panel)
 }
 
 # Per-trade script fragments. {who} = audience opener, {service} = what they shop.
