@@ -446,6 +446,17 @@ const HERO_ANGLES: Record<string, string> = {
       if (grid) grid.classList.add("recovered");
       if (stat) setTimeout(function () { stat.classList.remove("hidden"); }, 650);
     }
+    var selfRecovering = false;
+    function selfRecover() {            // drive the refill ourselves when the resume clip can't autoplay
+      if (selfRecovering) return; selfRecovering = true;
+      var t0 = Date.now();
+      var iv = setInterval(function () {
+        if (resume && !resume.paused && resume.currentTime > 0) { clearInterval(iv); return; } // video took over
+        var p = Math.min(1, (Date.now() - t0) / 6000);
+        applyRecover(p);
+        if (p >= 1) { clearInterval(iv); finishRecover(); }
+      }, 80);
+    }
     function problemState() { if (cells.length) { leadCheck(cells[0]); leadCheck(cells[1]); for (var i = 2; i < 100; i++) ghost(cells[i]); } }
     function cueAfter() { if (afterBtn) afterBtn.classList.add("cue"); if (hint) hint.classList.remove("hidden"); if (grid) grid.classList.add("pulse-greens"); }
 
@@ -463,7 +474,10 @@ const HERO_ANGLES: Record<string, string> = {
           if (intro && resume) {
             intro.pause(); intro.classList.add("hidden"); resume.classList.remove("hidden");
             var pr = resume.play(); if (pr && pr.catch) pr.catch(function () {});
-          } else { setTimeout(finishRecover, 700); }
+            // if the clip can't autoplay (browser policy), self-run the refill after
+            // the ghosts clear so the payoff always plays
+            setTimeout(function () { if (recovered === 0 && (!resume || resume.paused || !resume.currentTime)) selfRecover(); }, 1400);
+          } else { setTimeout(selfRecover, 1200); }
         } else {                        // "before" → back to the leak (98 ghosts visible)
           if (grid) { grid.classList.remove("recovered"); }
           if (stat) stat.classList.add("hidden");
