@@ -409,6 +409,9 @@ const HERO_ANGLES: Record<string, string> = {
       var g = document.querySelector("[data-pers]");
       if (g) { g.textContent = (city ? city + " · " : "") + "Built for " + fn + (co ? " at " + co : ""); g.classList.remove("hidden"); }
     }
+    // open the demo in a NEW TAB from every demo link on this landing page
+    // (hero, CTA band, secondary + mobile sticky) so the page stays open
+    document.querySelectorAll('a[href*="/demo"]').forEach(function (a) { a.target = "_blank"; a.rel = "noopener"; });
     // carry personalization to the demo so the form pre-fills (name/company)
     var carry = [];
     ["fn", "co", "city"].forEach(function (k) { var v = p.get(k); if (v) carry.push(k + "=" + encodeURIComponent(v)); });
