@@ -19,7 +19,13 @@ import argparse, csv, html, json, os, sys, urllib.request, urllib.error
 from pathlib import Path
 
 # ── Wave config (HVAC #1) ─────────────────────────────────────────────────────
-DEMO = "https://consentresolve.com/demo?utm_source=instantly&utm_medium=email&utm_campaign=hvac_2026"
+# Point cold email at the HVAC industry landing page (message-matched per email:
+# email 2 = the "$149 vs $7" math angle, email 3 = the "98% leave" hook). fn is last
+# so a rare space-in-name only truncates harmlessly. co/city omitted on purpose —
+# they often contain spaces that break auto-linkified plain-text URLs in email.
+_LP = "https://consentresolve.com/hvac-leads/?utm_source=instantly&utm_medium=email&utm_campaign=hvac_2026"
+LP_MATH = _LP + "&utm_content=math&fn={{firstName}}"
+LP_HOOK = _LP + "&utm_content=hook&fn={{firstName}}"
 WAVE = {
     "name": "Contractors – Consent-First · HVAC TX (2026)",
     "timezone": "America/Chicago",                       # Central
@@ -52,14 +58,14 @@ WAVE = {
             {"subject": "$149 vs $7",
              "body": ("{{firstName}} — quick follow-up.\n\n"
                       "A shared HVAC lead from the big platforms runs $35–150 and gets sold to 4–5 contractors. A consent-first lead is $7 and only yours.\n\n"
-                      "Here's a 2-minute demo on a site like yours: " + DEMO + "\n\n"
+                      "Here's a 2-minute demo on a site like yours: " + LP_MATH + "\n\n"
                       "Not a fit? Just reply \"no\" and I'll close it out.\n\n"
                       "— {{sendingAccountFirstName}}\n\n{{accountSignature}}")},
         ]},
         {"delay": 4, "variants": [
             {"subject": "should I close your file, {{firstName}}?",
              "body": ("I don't want to clutter your inbox, {{firstName}}.\n\n"
-                      "If turning the {{city}} homeowners who leave {{companyName}}'s site into $7 exclusive leads is ever worth 2 minutes, here's the demo: " + DEMO + "\n\n"
+                      "If turning the {{city}} homeowners who leave {{companyName}}'s site into $7 exclusive leads is ever worth 2 minutes, here's the demo: " + LP_HOOK + "\n\n"
                       "Otherwise I'll leave you to it — good luck this season.\n\n"
                       "— {{sendingAccountFirstName}}\n\n{{accountSignature}}")},
         ]},
