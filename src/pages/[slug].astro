@@ -592,6 +592,29 @@ const HERO_ANGLES: Record<string, string> = {
   /* end-of-intro CTA overlay on the video */
   [data-vid-cta]:not(.hidden) { display: flex; animation: statIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
   @keyframes statIn { 0% { opacity: 0; transform: translateY(10px) scale(0.94); } 100% { opacity: 1; transform: none; } }
+
+  /* TEST: embedded demo form — (1) reset to the LIGHT theme so it's readable
+     inside the dark section (otherwise --color-ink is white → white-on-white
+     inputs), (2) compact every field so it fits the fixed window without scroll. */
+  [data-demo-form] {
+    --color-ink: #0a1628;
+    --color-ink-2: #475569;
+    --color-ink-muted: #94a3b8;
+    --color-rule: #e2e8f0;
+    --color-bg-alt: #ffffff;
+  }
+  [data-demo-form] :global(.cr-demo-card) { padding: 0.85rem 1rem; border-radius: 0.85rem; }
+  [data-demo-form] :global(.cr-demo-card h3) { font-size: 1.05rem; }
+  [data-demo-form] :global(.cr-demo-card > p) { font-size: 0.72rem; line-height: 1.3; margin-top: 0.2rem; }
+  [data-demo-form] :global(.cr-demo-form) { margin-top: 0.65rem; }
+  [data-demo-form] :global(.cr-demo-form > * + *) { margin-top: 0.45rem !important; }
+  [data-demo-form] :global(.cr-demo-form label > span) { font-size: 0.68rem; margin-bottom: 0.1rem; }
+  [data-demo-form] :global(.cr-demo-form input), [data-demo-form] :global(.cr-demo-form select) { padding: 0.38rem 0.55rem !important; font-size: 0.8rem; }
+  [data-demo-form] :global(.cr-demo-form .grid) { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  [data-demo-form] :global(.cr-demo-form label.flex) { font-size: 0.66rem; }
+  [data-demo-form] :global(.cr-demo-form button[type="submit"]) { padding: 0.5rem 1rem !important; font-size: 0.8rem; }
+  [data-demo-form] :global(.cr-demo-form > p:last-child) { display: none; }  /* drop the fine print in the compact embed */
+
   @media (prefers-reduced-motion: reduce) {
     .lc { opacity: 1; transform: none; }
     .lc-ghost, .lc-check, .lc-person, .lc-x { transition: none; }
