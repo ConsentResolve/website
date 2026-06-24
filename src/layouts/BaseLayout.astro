@@ -122,10 +122,10 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     </script>
 
     <!-- Crisp live chat — CONSENT-GATED via ConsentResolve/Usercentrics autoblocker:
-         type=text/plain keeps it inert until the user consents to the "Crisp" service.
-         data-usercentrics MUST match a "Crisp" service configured in the CMP, or the
-         chat stays blocked and never loads. Consistent with the consent-first model. -->
-    <script is:inline type="text/plain" data-usercentrics="Crisp">window.$crisp=[];window.CRISP_WEBSITE_ID="0f8e9b05-1b94-4781-904d-2abef252374d";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+         type=text/plain keeps it inert until the user consents to the "Crisp Chat" service.
+         data-usercentrics MUST match the EXACT service name in the CMP/Termageddon
+         ("Crisp Chat"), or the chat stays blocked forever. Consistent with consent-first. -->
+    <script is:inline type="text/plain" data-usercentrics="Crisp Chat">window.$crisp=[];window.CRISP_WEBSITE_ID="0f8e9b05-1b94-4781-904d-2abef252374d";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
   </head>
   <body class="bg-[color:var(--color-bg)] text-[color:var(--color-ink)]">
     <a href="#main" class="skip-link">Skip to content</a>
