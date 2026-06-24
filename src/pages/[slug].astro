@@ -19,7 +19,7 @@ import { IconArrowRight, IconEye, IconCheck,
   IconHome, IconBrush, IconLayoutBoardSplit, IconBuildingWarehouse, IconHome2,
   IconSparkles, IconBugOff, IconBath, IconLeaf, IconCar,
   IconBellRinging, IconClipboardCheck, IconMapPin, IconRefresh,
-  IconPlugConnected, IconLock, IconUserCheck, IconEyeOff, IconGhost, IconUser,
+  IconPlugConnected, IconLock, IconUserCheck, IconGhost, IconUser,
 } from "@tabler/icons-react";
 
 export async function getStaticPaths() {
@@ -408,13 +408,10 @@ const HERO_ANGLES: Record<string, string> = {
      then fills the box with the result. Nothing auto-runs — it waits for Play/tap. -->
 <script is:inline>
   document.querySelectorAll("[data-ba]").forEach(function (root) {
-    var tabs = root.querySelectorAll("[data-ba-tab]");
     var grid = root.querySelector("[data-leak]");
     var intro = root.querySelector("[data-vid-intro]");
     var resume = root.querySelector("[data-vid-resume]");
-    var hint = root.querySelector("[data-cue-hint]");
     var stat = root.querySelector("[data-stat]");
-    var afterBtn = root.querySelector('[data-ba-tab="after"]');
     var vidCta = root.querySelector("[data-vid-cta]");
     var ctaBtn = root.querySelector("[data-cta-after]");
     var cells = grid ? Array.prototype.slice.call(grid.querySelectorAll(".lc")) : [];
@@ -427,7 +424,6 @@ const HERO_ANGLES: Record<string, string> = {
     function ghost(c) { clear(c); }                 // a bare .lc shows the ghost
     function allGhost() { for (var i = 0; i < cells.length; i++) ghost(cells[i]); }
     function hideStat() { if (stat) stat.classList.add("hidden"); }
-    function setActive(v) { tabs.forEach(function (t) { t.classList.toggle("is-active", t.getAttribute("data-ba-tab") === v); }); }
 
     // ghost → ✓ → person (smooth), with an optional start delay
     function lead(c, delay) {
@@ -436,7 +432,6 @@ const HERO_ANGLES: Record<string, string> = {
         later(function () { c.classList.remove("is-check"); c.classList.add("is-lead"); }, 340);
       }, delay || 0);
     }
-    function keepTwoLeads() { [0, 1].forEach(function (i) { if (cells[i]) { clear(cells[i]); cells[i].classList.add("is-lead"); } }); }
 
     // BEFORE: the 98 (cells 2..99) get X'd out and disappear; the 2 forms stay
     function doVanish() {
@@ -501,15 +496,6 @@ const HERO_ANGLES: Record<string, string> = {
 </script>
 
 <style>
-  /* Dramatic Before/After toggle (rides on a navy chip; active = mint). */
-  .ba-tab { color: #94a3b8; }
-  .ba-tab :global(svg) { opacity: 0.8; }
-  .ba-tab:not(.is-active):hover { color: #fff; }
-  .ba-tab.is-active { background: var(--color-brand); color: var(--color-navy-900); box-shadow: 0 10px 24px -10px rgba(0, 229, 160, 0.6); }
-  .ba-tab.is-active :global(svg) { opacity: 1; }
-  .ba-tab.cue { background: var(--color-brand); color: var(--color-navy-900); animation: cuePulse 1.25s ease-in-out infinite; }
-  @keyframes cuePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 229, 160, 0.55); } 50% { box-shadow: 0 0 0 9px rgba(0, 229, 160, 0); } }
-
   /* Infographic grid (on dark) — the story, per cell:
      ghost (anonymous visitor, default) → ✓ (consented) → person (identified lead).
      In BEFORE, the 98 ghosts get an X struck over them and vanish. */
@@ -558,6 +544,5 @@ const HERO_ANGLES: Record<string, string> = {
     .lc { opacity: 1; transform: none; }
     .lc-ghost, .lc-check, .lc-person, .lc-x { transition: none; }
     .leakgrid.populate .lc, .lc-ghost, .lc.is-check .lc-check, .lc.is-lead .lc-person, .lc.is-vanishing, .lc.is-vanishing .lc-x, .leakgrid.pulse-greens .lc.is-lead .lc-person, .leakgrid.recovered, [data-stat]:not(.hidden), [data-vid-cta]:not(.hidden) { animation: none; }
-    .ba-tab.cue { animation: none; }
   }
 </style>
