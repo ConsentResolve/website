@@ -10,6 +10,7 @@ import FinalCTA from "~/components/sections/FinalCTA.astro";
 import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import FAQ from "~/components/sections/FAQ.astro";
 import VisitorDetailScreen from "~/components/ui/demo/VisitorDetailScreen.astro";
+import DemoForm from "~/components/DemoForm.astro"; // TEST: embedded in the browser window at video end
 import RelatedReads from "~/components/sections/RelatedReads.astro";
 import { INDUSTRIES, type Industry } from "~/data/industries";
 import { getBlogPostsByCluster } from "~/lib/resources";
@@ -214,13 +215,20 @@ const HERO_ANGLES: Record<string, string> = {
            The story is driven entirely by the video: play it → the 98 vanish → an
            end-screen CTA reveals the recovery. No toggle. -->
       <div class="grid items-center gap-10 lg:grid-cols-2">
-        <!-- Left: UGC video — embedded flush, no frame. On end, a CTA overlay
-             replaces the freeze-frame. -->
-        <div class="relative overflow-hidden rounded-xl">
+        <!-- Left: UGC video — embedded flush, no frame. Hover plays a muted preview
+             (from the start); clicking the custom play button plays it with sound
+             from the start. On end, a CTA overlay replaces the freeze-frame. -->
+        <div data-vid-wrap class="group relative overflow-hidden rounded-xl">
           {tradeVid ? (
             <Fragment>
-              <video data-vid-intro src={tradeVid.intro} class="block aspect-video h-full w-full object-cover" controls playsinline preload="metadata" poster={tradeVid.poster ?? "/og-default.png"}></video>
+              <video data-vid-intro src={tradeVid.intro} class="block aspect-video h-full w-full object-cover" playsinline preload="metadata" poster={tradeVid.poster ?? "/og-default.png"}></video>
               <video data-vid-resume src={tradeVid.resume} class="block aspect-video hidden h-full w-full object-cover" playsinline preload="metadata"></video>
+              <!-- custom play button (hover-highlight); hidden once really playing -->
+              <button type="button" data-playbtn aria-label="Play video with sound" class="absolute inset-0 z-20 flex items-center justify-center">
+                <span class="vidplay-circle flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--color-brand)] ring-4 ring-white/80 shadow-[0_10px_30px_-6px_rgba(0,229,160,0.65)] transition-all duration-200 group-hover:scale-110 group-hover:ring-white group-hover:shadow-[0_16px_46px_-6px_rgba(0,229,160,0.95)]">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" class="ml-0.5 text-[color:var(--color-navy-900)]" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+                </span>
+              </button>
               <div data-vid-cta class="absolute inset-0 z-10 hidden flex-col items-center justify-center gap-3 bg-[color:var(--color-navy-900)]/75 px-6 text-center backdrop-blur-[2px]">
                 <p class="font-display text-xl font-bold text-white sm:text-2xl">Now watch them come back.</p>
                 <button type="button" data-cta-after class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-6 py-3 text-sm font-bold text-[color:var(--color-navy-900)] shadow-[0_12px_34px_-8px_rgba(0,229,160,0.7)] transition-transform hover:scale-[1.03]">Tap “After” to see how →</button>
@@ -262,6 +270,12 @@ const HERO_ANGLES: Record<string, string> = {
             <div data-stat class="absolute inset-0 z-10 hidden flex-col items-center justify-center bg-[color:var(--color-navy-900)]/85 text-center backdrop-blur-[2px]">
               <p class="font-display text-4xl font-extrabold text-white sm:text-5xl">≈ 40 leads <span class="text-[color:var(--color-mint-400)]">· $280</span></p>
               <p class="mt-2 px-4 text-xs text-slate-400">40 recovered leads × $7 a lead · results may vary.</p>
+            </div>
+            {/* TEST (reversible): the demo form replaces the grid in the browser
+                window when the video ends. Revert = delete this block + the
+                [data-demo-form] reveal in the script; the grid/CTA flow returns. */}
+            <div data-demo-form class="hidden">
+              <DemoForm trade={trade.slug} heading="Catch the 98 — see it live" sub="See it on yourself: register, browse a sample site, consent, and watch the lead land in your inbox. The lead is you." />
             </div>
           </div>
         </div>
@@ -414,6 +428,9 @@ const HERO_ANGLES: Record<string, string> = {
     var stat = root.querySelector("[data-stat]");
     var vidCta = root.querySelector("[data-vid-cta]");
     var ctaBtn = root.querySelector("[data-cta-after]");
+    var vidWrap = root.querySelector("[data-vid-wrap]");
+    var playBtn = root.querySelector("[data-playbtn]");
+    var demoForm = root.querySelector("[data-demo-form]");  // TEST (reversible)
     var cells = grid ? Array.prototype.slice.call(grid.querySelectorAll(".lc")) : [];
     var RECOVER = 40;        // cells 0..39 light up as recovered leads → $280
     var timers = [], vanished = false;
@@ -476,15 +493,43 @@ const HERO_ANGLES: Record<string, string> = {
       if (dom) addr.textContent = dom;
     }
 
-    // The video drives the BEFORE climax — at ~10s the 98 leave; on end, the CTA.
-    // Nothing runs until the user hits Play.
     if (ctaBtn) ctaBtn.addEventListener("click", goAfter);
+
+    // Video playback. Hover = muted preview from the start; clicking the play
+    // button = play with sound from the start. The BEFORE climax (98 leave) and
+    // the end payoff only run once it's *really* playing (clicked).
+    var started = false;
+    function realPlay() {
+      started = true;
+      if (playBtn) playBtn.classList.add("hidden");
+      if (intro) { intro.muted = false; intro.controls = true; try { intro.currentTime = 0; } catch (e) {} var pr = intro.play(); if (pr && pr.catch) pr.catch(function () {}); }
+    }
+    if (playBtn) playBtn.addEventListener("click", realPlay);
+    if (vidWrap && intro) {
+      vidWrap.addEventListener("mouseenter", function () {
+        if (started) return;
+        intro.muted = true; try { intro.currentTime = 0; } catch (e) {}
+        var pr = intro.play(); if (pr && pr.catch) pr.catch(function () {});
+      });
+      vidWrap.addEventListener("mouseleave", function () {
+        if (started) return;
+        intro.pause(); try { intro.currentTime = 0; } catch (e) {}  // back to the start
+      });
+    }
     if (intro) {
       intro.addEventListener("play", function () { if (vidCta) vidCta.classList.add("hidden"); });
       intro.addEventListener("timeupdate", function () {
-        if (intro.duration && intro.currentTime / intro.duration > 0.52) doVanish();
+        if (started && intro.duration && intro.currentTime / intro.duration > 0.52) doVanish();
       });
-      intro.addEventListener("ended", function () { doVanish(); cueAfter(); if (vidCta) vidCta.classList.remove("hidden"); });
+      intro.addEventListener("ended", function () {
+        if (!started) return;
+        doVanish();
+        if (demoForm) {   // TEST: the demo form replaces the grid in the browser window
+          later(function () { if (grid) grid.classList.add("hidden"); if (stat) stat.classList.add("hidden"); demoForm.classList.remove("hidden"); }, 800);
+        } else {          // default flow: end-screen CTA → recovery
+          cueAfter(); if (vidCta) vidCta.classList.remove("hidden");
+        }
+      });
     }
 
     // Initial state: 100 ghosts; 2 of them transition ghost → ✓ → person.

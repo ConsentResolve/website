@@ -41,14 +41,18 @@ img = Image.alpha_composite(img, grad)
 d = ImageDraw.Draw(img)
 
 # --- Glowing mint play button (the click magnet), lower-center over the chest ---
-cx, cy, r = W // 2, 430, 64
-glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-ImageDraw.Draw(glow).ellipse([cx - r * 2, cy - r * 2, cx + r * 2, cy + r * 2], fill=(*MINT, 120))
-img = Image.alpha_composite(img, glow.filter(ImageFilter.GaussianBlur(40)))
+# Pass "noplay" as an extra arg to skip it (e.g. when the page draws its own
+# custom play button overlay, so the poster shouldn't bake one in).
+if "noplay" not in sys.argv:
+    cx, cy, r = W // 2, 430, 64
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(glow).ellipse([cx - r * 2, cy - r * 2, cx + r * 2, cy + r * 2], fill=(*MINT, 120))
+    img = Image.alpha_composite(img, glow.filter(ImageFilter.GaussianBlur(40)))
+    d = ImageDraw.Draw(img)
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(*MINT, 255), outline=(255, 255, 255, 230), width=5)
+    tri = r * 0.46
+    d.polygon([(cx - tri * 0.6, cy - tri), (cx - tri * 0.6, cy + tri), (cx + tri, cy)], fill=NAVY)
 d = ImageDraw.Draw(img)
-d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(*MINT, 255), outline=(255, 255, 255, 230), width=5)
-tri = r * 0.46
-d.polygon([(cx - tri * 0.6, cy - tri), (cx - tri * 0.6, cy + tri), (cx + tri, cy)], fill=NAVY)
 
 # --- Logo (top-left, small) ---
 try:
