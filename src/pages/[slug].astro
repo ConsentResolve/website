@@ -10,7 +10,7 @@ import FinalCTA from "~/components/sections/FinalCTA.astro";
 import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import FAQ from "~/components/sections/FAQ.astro";
 import VisitorDetailScreen from "~/components/ui/demo/VisitorDetailScreen.astro";
-import DemoForm from "~/components/DemoForm.astro"; // TEST: embedded in the browser window at video end
+import DemoForm from "~/components/DemoForm.astro"; // embedded in the browser window as the end-of-video CTA
 import RelatedReads from "~/components/sections/RelatedReads.astro";
 import { INDUSTRIES, type Industry } from "~/data/industries";
 import { getBlogPostsByCluster } from "~/lib/resources";
@@ -273,10 +273,10 @@ const HERO_ANGLES: Record<string, string> = {
               <p class="font-display text-4xl font-extrabold text-white sm:text-5xl">≈ 40 leads <span class="text-[color:var(--color-mint-400)]">· $280</span></p>
               <p class="mt-2 px-4 text-xs text-slate-400">40 recovered leads × $7 a lead · results may vary.</p>
             </div>
-            {/* TEST (reversible): the demo form overlays the grid INSIDE the fixed
-                browser window (scrolls internally; window never resizes) when the
-                after-CTA is tapped. Revert = delete this block + the [data-demo-form]
-                branch in goAfter(); the grid → recovery flow returns. */}
+            {/* End-of-video CTA: after the 2nd clip plays out the recovery, the
+                demo form overlays the grid INSIDE the fixed browser window (scrolls
+                internally; window never resizes). The grid → "$280" recovery stat
+                remains the built-in fallback if this form block is ever removed. */}
             <div data-demo-form class="absolute inset-0 z-20 hidden overflow-y-auto bg-[color:var(--color-navy-900)] p-3">
               <DemoForm trade={trade.slug} newTab heading="Catch the 98 — see it live" sub="Register, browse a sample site, consent — and watch the lead land in your inbox. The lead is you." />
             </div>
@@ -436,7 +436,7 @@ const HERO_ANGLES: Record<string, string> = {
     var ctaBtn = root.querySelector("[data-cta-after]");
     var vidWrap = root.querySelector("[data-vid-wrap]");
     var playBtn = root.querySelector("[data-playbtn]");
-    var demoForm = root.querySelector("[data-demo-form]");  // TEST (reversible)
+    var demoForm = root.querySelector("[data-demo-form]");  // end-of-video CTA (falls back to the $280 stat if absent)
     var cells = grid ? Array.prototype.slice.call(grid.querySelectorAll(".lc")) : [];
     var RECOVER = 40;        // cells 0..39 light up as recovered leads → $280
     var timers = [], vanished = false;
@@ -475,7 +475,7 @@ const HERO_ANGLES: Record<string, string> = {
       for (var k = 0; k < RECOVER; k++) lead(cells[k], 250 + k * stagger);
       later(function () {
         if (grid) grid.classList.add("recovered");
-        if (stat && !demoForm) stat.classList.remove("hidden");  // TEST: the form replaces the stat at the 2nd clip's end
+        if (stat && !demoForm) stat.classList.remove("hidden");  // fallback stat only when there's no end-of-video form
       }, 250 + RECOVER * stagger + 450);
     }
 
@@ -483,7 +483,7 @@ const HERO_ANGLES: Record<string, string> = {
 
     // No toggle: the end-screen CTA is the only way forward. Swap to the resume
     // clip, play it, and light up the recovery (ghost → ✓ → person). The end
-    // payoff (stat, or the TEST form) only shows when the 2nd clip finishes.
+    // payoff (the demo form, or the $280 stat fallback) shows when the clip ends.
     function goAfter() {
       if (vidCta) vidCta.classList.add("hidden");
       if (grid) grid.classList.remove("pulse-greens");
@@ -539,7 +539,7 @@ const HERO_ANGLES: Record<string, string> = {
         doVanish(); cueAfter(); if (vidCta) vidCta.classList.remove("hidden");  // the after-CTA appears
       });
     }
-    // TEST: the demo form appears only when the 2nd (resume) clip finishes.
+    // The demo form appears when the 2nd (resume) clip finishes.
     if (resume) {
       resume.addEventListener("ended", function () { if (demoForm) demoForm.classList.remove("hidden"); });
     }
@@ -598,7 +598,7 @@ const HERO_ANGLES: Record<string, string> = {
   [data-vid-cta]:not(.hidden) { display: flex; animation: statIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
   @keyframes statIn { 0% { opacity: 0; transform: translateY(10px) scale(0.94); } 100% { opacity: 1; transform: none; } }
 
-  /* TEST: embedded demo form — DARK + compact, only Trade + Name + Email.
+  /* Embedded end-of-video demo form — DARK + compact, only Trade + Name + Email.
      The only readability bug in the dark section is the inputs' hardcoded
      bg-white (white text on white); everything else is already light via
      section-dark, so we just re-skin the inputs dark and hide two fields. */
