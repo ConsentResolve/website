@@ -171,6 +171,8 @@ const HERO_ANGLES: Record<string, string> = {
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
             <a
               href={demoHref("hero")}
+              target="_blank"
+              rel="noopener"
               class="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
             >
               <IconEye size={18} stroke={2} />
@@ -276,7 +278,7 @@ const HERO_ANGLES: Record<string, string> = {
                 after-CTA is tapped. Revert = delete this block + the [data-demo-form]
                 branch in goAfter(); the grid → recovery flow returns. */}
             <div data-demo-form class="absolute inset-0 z-20 hidden overflow-y-auto bg-[color:var(--color-navy-900)] p-3">
-              <DemoForm trade={trade.slug} heading="Catch the 98 — see it live" sub="Register, browse a sample site, consent — and watch the lead land in your inbox. The lead is you." />
+              <DemoForm trade={trade.slug} newTab heading="Catch the 98 — see it live" sub="Register, browse a sample site, consent — and watch the lead land in your inbox. The lead is you." />
             </div>
           </div>
         </div>
@@ -365,7 +367,7 @@ const HERO_ANGLES: Record<string, string> = {
         <p class="text-[17px] leading-relaxed text-[color:var(--color-ink-2)]">
           Register, browse a sample {trade.shortName.toLowerCase()} site, accept the banner — and watch the new-lead notification land in your inbox. The lead is you. About 60 seconds, no card required.
         </p>
-        <Button href={demoHref("cta-band")} variant="primary" size="lg">
+        <Button href={demoHref("cta-band")} target="_blank" rel="noopener" variant="primary" size="lg">
           <IconEye size={18} stroke={2} />
           Try the live demo
         </Button>

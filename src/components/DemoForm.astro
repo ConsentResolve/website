@@ -7,10 +7,11 @@
 //
 // Turnstile renders only when PUBLIC_TURNSTILE_SITE_KEY is set, so the form
 // works before the widget is configured.
-const { trade = "", heading = "See it work on yourself", sub = "Register, browse a sample site, consent — and watch the lead notification land in your inbox. The lead is you. About 60 seconds." } = Astro.props as {
+const { trade = "", heading = "See it work on yourself", sub = "Register, browse a sample site, consent — and watch the lead notification land in your inbox. The lead is you. About 60 seconds.", newTab = false } = Astro.props as {
   trade?: string;
   heading?: string;
   sub?: string;
+  newTab?: boolean; // open the post-register demo in a new tab (keeps the current page open)
 };
 import { TRADE_OPTIONS } from "../../worker/_lib/trades.js";
 const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
@@ -20,7 +21,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
   {heading && <h3 class="font-display text-2xl font-bold tracking-tight text-[color:var(--color-ink)]">{heading}</h3>}
   {sub && <p class="mt-2 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{sub}</p>}
 
-  <form class="cr-demo-form mt-6 space-y-4" action="/api/register" method="POST" novalidate>
+  <form class="cr-demo-form mt-6 space-y-4" action="/api/register" method="POST" novalidate data-new-tab={newTab ? "1" : undefined}>
     {/* Honeypot — hidden from humans, catches bots. */}
     <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">
       <label>Leave this empty <input type="text" name="hp" tabindex="-1" autocomplete="off" /></label>
@@ -128,6 +129,11 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
         e.preventDefault();
         errEl?.classList.add("hidden");
 
+        // New-tab mode (embedded on a landing page): open the tab NOW, synchronously
+        // inside the click gesture, so popup blockers allow it; we point it at the
+        // demo URL once the server responds (and close it if the request fails).
+        const demoTab = form.dataset.newTab ? window.open("", "_blank") : null;
+
         const fd = new FormData(form);
         const payload: Record<string, unknown> = {
           name: fd.get("name"),
@@ -164,11 +170,18 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
           // then replace REPLACE_WITH_LABEL with its conversion label (the part after the /).
           try { (window as any).gtag?.("event", "conversion", { send_to: "AW-18263188422/REPLACE_WITH_LABEL" }); } catch {}
           if (data.redirect_url) {
-            window.location.assign(data.redirect_url);
+            if (demoTab) {
+              demoTab.location.href = data.redirect_url;   // demo opens in the new tab; this page stays
+              if (btn) btn.disabled = false;
+              if (label) label.textContent = "Demo opened in a new tab ↗";
+            } else {
+              window.location.assign(data.redirect_url);
+            }
             return;
           }
           throw new Error("No redirect returned.");
         } catch (err) {
+          if (demoTab) demoTab.close();   // request failed → don't leave a blank tab open
           // Network/JS failure → let the native POST proceed (Option B).
           if (err instanceof TypeError) {
             form.submit();
