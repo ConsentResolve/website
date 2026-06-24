@@ -271,11 +271,12 @@ const HERO_ANGLES: Record<string, string> = {
               <p class="font-display text-4xl font-extrabold text-white sm:text-5xl">≈ 40 leads <span class="text-[color:var(--color-mint-400)]">· $280</span></p>
               <p class="mt-2 px-4 text-xs text-slate-400">40 recovered leads × $7 a lead · results may vary.</p>
             </div>
-            {/* TEST (reversible): the demo form replaces the grid in the browser
-                window when the video ends. Revert = delete this block + the
-                [data-demo-form] reveal in the script; the grid/CTA flow returns. */}
-            <div data-demo-form class="hidden">
-              <DemoForm trade={trade.slug} heading="Catch the 98 — see it live" sub="See it on yourself: register, browse a sample site, consent, and watch the lead land in your inbox. The lead is you." />
+            {/* TEST (reversible): the demo form overlays the grid INSIDE the fixed
+                browser window (scrolls internally; window never resizes) when the
+                after-CTA is tapped. Revert = delete this block + the [data-demo-form]
+                branch in goAfter(); the grid → recovery flow returns. */}
+            <div data-demo-form class="absolute inset-0 z-20 hidden overflow-y-auto bg-[color:var(--color-navy-900)] p-3">
+              <DemoForm trade={trade.slug} heading="Catch the 98 — see it live" sub="Register, browse a sample site, consent — and watch the lead land in your inbox. The lead is you." />
             </div>
           </div>
         </div>
@@ -480,6 +481,7 @@ const HERO_ANGLES: Record<string, string> = {
     function goAfter() {
       if (vidCta) vidCta.classList.add("hidden");
       if (grid) grid.classList.remove("pulse-greens");
+      if (demoForm) { demoForm.classList.remove("hidden"); return; }  // TEST: reveal form inside the static window
       if (intro && resume) { intro.pause(); intro.classList.add("hidden"); resume.classList.remove("hidden"); var pr = resume.play(); if (pr && pr.catch) pr.catch(function () {}); }
       runRecover();
     }
@@ -523,12 +525,7 @@ const HERO_ANGLES: Record<string, string> = {
       });
       intro.addEventListener("ended", function () {
         if (!started) return;
-        doVanish();
-        if (demoForm) {   // TEST: the demo form replaces the grid in the browser window
-          later(function () { if (grid) grid.classList.add("hidden"); if (stat) stat.classList.add("hidden"); demoForm.classList.remove("hidden"); }, 800);
-        } else {          // default flow: end-screen CTA → recovery
-          cueAfter(); if (vidCta) vidCta.classList.remove("hidden");
-        }
+        doVanish(); cueAfter(); if (vidCta) vidCta.classList.remove("hidden");  // the after-CTA appears
       });
     }
 
