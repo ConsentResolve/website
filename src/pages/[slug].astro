@@ -201,20 +201,20 @@ const HERO_ANGLES: Record<string, string> = {
 
   <!-- The problem — a UGC video carries the message; a Before/After toggle
        shows what changes when anonymous visitors become identified leads. -->
-  <section class="section bg-[color:var(--color-bg-alt)]" data-ba>
+  <section class="section section-dark" data-ba>
     <div class="container-content">
       <div class="mx-auto mb-10 max-w-2xl text-center">
-        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>The problem</Badge></div>
-        <h2 class="display-2 text-[color:var(--color-ink)]">
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>The problem</Badge></div>
+        <h2 class="display-2 text-white">
           98 of 100 leave anonymous.
         </h2>
-        <p class="mt-4 text-[15px] text-[color:var(--color-ink-2)]">{trade.problem}</p>
+        <p class="mt-4 text-[15px] text-slate-300">{trade.problem}</p>
       </div>
       <!-- Before/After toggle, centered across the section so its midpoint sits
            over the column gap: Before reads toward the video (left), After toward
            the grid (right). Drives the cascade below. -->
       <div class="mb-10 flex flex-col items-center">
-        <div class="batoggle inline-flex gap-1.5 rounded-2xl bg-[color:var(--color-navy-900)] p-1.5 shadow-[0_18px_40px_-18px_rgba(10,22,40,0.5)]">
+        <div class="batoggle inline-flex gap-1.5 rounded-2xl bg-white/[0.06] p-1.5 ring-1 ring-inset ring-white/10 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.55)]">
           <button data-ba-tab="before" class="ba-tab is-active inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-extrabold uppercase tracking-[0.12em] transition-all">
             <IconEyeOff size={17} stroke={2.25} /> Before
           </button>
@@ -222,13 +222,13 @@ const HERO_ANGLES: Record<string, string> = {
             <IconUserCheck size={17} stroke={2.25} /> After
           </button>
         </div>
-        <p data-cue-hint class="mt-3 hidden text-sm font-semibold text-[color:var(--color-brand-pressed)]">↑ Tap <strong>After</strong> to see what Tyler means — then he'll finish.</p>
+        <p data-cue-hint class="mt-3 hidden text-sm font-semibold text-[color:var(--color-mint-400)]">↑ Tap <strong>After</strong> to see what Tyler means — then he'll finish.</p>
       </div>
 
       <!-- Two columns: UGC video left (green-bordered), interactive leak grid right -->
       <div class="grid items-center gap-10 lg:grid-cols-2">
         <!-- Left: UGC video with a mint border -->
-        <div class="overflow-hidden bg-[color:var(--color-navy-900)] shadow-[0_30px_60px_-30px_rgba(10,22,40,0.45)] border-[6px] border-[color:var(--color-navy-900)]">
+        <div class="overflow-hidden bg-black shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)] border-[6px] border-black ring-1 ring-inset ring-white/10">
           {tradeVid ? (
             <Fragment>
               <video data-vid-intro src={tradeVid.intro} class="aspect-video h-full w-full object-cover" controls playsinline preload="metadata" poster={tradeVid.poster ?? "/og-default.png"}></video>
@@ -245,13 +245,20 @@ const HERO_ANGLES: Record<string, string> = {
         <div class="leakgrid mx-auto" data-leak data-state="before" aria-hidden="true">
           {Array.from({ length: 100 }).map((_, i) => (
             <span class="lc" style={`--i:${i}`}>
-              <span class="lc-ghost"><IconGhost size={20} stroke={1.7} /></span>
               <span class="lc-person"><IconUser size={20} stroke={2} /></span>
+              <span class="lc-ghost"><IconGhost size={20} stroke={1.7} /></span>
+              <span class="lc-check"><IconCheck size={22} stroke={2.75} /></span>
+              <i class="lc-x"></i>
             </span>
           ))}
         </div>
       </div>
 
+      <!-- Final stat — funnel filled: ~40 leads at $7. Revealed when recovery completes. -->
+      <div data-stat class="mt-12 hidden text-center">
+        <p class="font-display text-4xl font-extrabold text-white sm:text-5xl">≈ 40 leads <span class="text-[color:var(--color-mint-400)]">· $280</span></p>
+        <p class="mt-2 text-xs text-slate-400">40 recovered leads × $7 a lead · results may vary.</p>
+      </div>
     </div>
   </section>
 
@@ -399,25 +406,47 @@ const HERO_ANGLES: Record<string, string> = {
     var intro = root.querySelector("[data-vid-intro]");
     var resume = root.querySelector("[data-vid-resume]");
     var hint = root.querySelector("[data-cue-hint]");
+    var stat = root.querySelector("[data-stat]");
     var afterBtn = root.querySelector('[data-ba-tab="after"]');
     var cells = grid ? Array.prototype.slice.call(grid.querySelectorAll(".lc")) : [];
-    var RECOVER = 38; // cells 0,1 = form-fills; 2..39 recoverable; 40..99 stay anonymous
+    var RECOVER = 38; // cells 0,1 = form-fills; 2..39 recoverable; 40..99 leave for good
+    var vanished = false, recovered = 0;
 
-    function ghost(c) { c.classList.remove("is-lead"); c.classList.add("is-ghost"); }
-    function lead(c) { c.classList.remove("is-ghost"); c.classList.add("is-lead"); }
+    function clear(c) { c.classList.remove("is-ghost", "is-vanishing", "is-gone", "is-person", "is-lead"); }
+    function ghost(c) { if (c.classList.contains("is-ghost") || c.classList.contains("is-gone") || c.classList.contains("is-vanishing")) return; clear(c); c.classList.add("is-ghost"); }
+    function leadCheck(c) { clear(c); c.classList.add("is-lead"); }
+    function leadPerson(c) {            // person pops in (big→small), then becomes a ✓
+      if (c.classList.contains("is-lead")) return;
+      clear(c); c.classList.add("is-person");
+      setTimeout(function () { if (c.classList.contains("is-person")) { c.classList.remove("is-person"); c.classList.add("is-lead"); } }, 450);
+    }
     function setActive(v) { tabs.forEach(function (t) { t.classList.toggle("is-active", t.getAttribute("data-ba-tab") === v); }); }
-    function applyLeak(p) {            // p:0..1 → 100 grey people drift to 98 ghosts + 2 greens
+
+    function applyLeak(p) {             // 100 people → 2 forms (✓) + 98 ghosts
       if (!cells.length) return;
-      if (p > 0.04) { lead(cells[0]); lead(cells[1]); }
-      var n = Math.floor(Math.max(0, (p - 0.1) / 0.5) * 98);
-      for (var i = 2; i < 2 + n && i < 100; i++) if (!cells[i].classList.contains("is-ghost")) ghost(cells[i]);
+      if (p > 0.04) { leadCheck(cells[0]); leadCheck(cells[1]); }
+      var n = Math.floor(Math.max(0, (p - 0.1) / 0.4) * 98);
+      for (var i = 2; i < 2 + n && i < 100; i++) ghost(cells[i]);
     }
-    function applyRecover(p) {         // p:0..1 → ghosts convert to named leads, in beat
+    function doVanish() {               // X out the ghosts and make them disappear (~10s beat)
+      if (vanished) return; vanished = true;
+      for (var i = 2; i < 100; i++) (function (c, k) { setTimeout(function () {
+        if (c.classList.contains("is-lead")) return;
+        c.classList.add("is-vanishing");
+        setTimeout(function () { if (!c.classList.contains("is-lead")) c.classList.add("is-gone"); }, 800);
+      }, k * 12); })(cells[i], i - 2);
+    }
+    function applyRecover(p) {          // empty slots fill back up with leads, in beat
       if (!cells.length) return;
-      var n = Math.floor(Math.min(1, p / 0.85) * RECOVER);
-      for (var k = 0; k < n; k++) lead(cells[2 + k]);
+      var target = Math.floor(Math.min(1, p / 0.8) * RECOVER);
+      for (; recovered < target; recovered++) leadPerson(cells[2 + recovered]);
     }
-    function fullProblem() { if (cells.length) { lead(cells[0]); lead(cells[1]); for (var i = 2; i < 100; i++) ghost(cells[i]); } }
+    function finishRecover() {
+      for (; recovered < RECOVER; recovered++) leadPerson(cells[2 + recovered]);
+      if (grid) grid.classList.add("recovered");
+      if (stat) setTimeout(function () { stat.classList.remove("hidden"); }, 650);
+    }
+    function problemState() { if (cells.length) { leadCheck(cells[0]); leadCheck(cells[1]); for (var i = 2; i < 100; i++) ghost(cells[i]); } }
     function cueAfter() { if (afterBtn) afterBtn.classList.add("cue"); if (hint) hint.classList.remove("hidden"); if (grid) grid.classList.add("pulse-greens"); }
 
     var populated = false;
@@ -430,15 +459,15 @@ const HERO_ANGLES: Record<string, string> = {
           if (afterBtn) afterBtn.classList.remove("cue");
           if (hint) hint.classList.add("hidden");
           if (grid) grid.classList.remove("pulse-greens");
+          doVanish();
           if (intro && resume) {
             intro.pause(); intro.classList.add("hidden"); resume.classList.remove("hidden");
             var pr = resume.play(); if (pr && pr.catch) pr.catch(function () {});
-          } else {                      // no resume clip → just recover + flourish
-            applyRecover(1); if (grid) setTimeout(function () { grid.classList.add("recovered"); }, 900);
-          }
-        } else {                        // "before" → reset to the problem state
-          if (grid) grid.classList.remove("recovered");
-          fullProblem();
+          } else { setTimeout(finishRecover, 700); }
+        } else {                        // "before" → back to the leak (98 ghosts visible)
+          if (grid) { grid.classList.remove("recovered"); }
+          if (stat) stat.classList.add("hidden");
+          vanished = false; recovered = 0; problemState();
           if (resume && intro) { resume.pause(); resume.classList.add("hidden"); intro.classList.remove("hidden"); }
         }
       });
@@ -446,16 +475,20 @@ const HERO_ANGLES: Record<string, string> = {
 
     if (intro) {
       intro.addEventListener("play", populate);
-      intro.addEventListener("timeupdate", function () { if (intro.duration) applyLeak(intro.currentTime / intro.duration); });
-      intro.addEventListener("ended", function () { fullProblem(); cueAfter(); });
+      intro.addEventListener("timeupdate", function () {
+        if (!intro.duration) return;
+        var p = intro.currentTime / intro.duration;
+        applyLeak(p);
+        if (p > 0.52) doVanish();       // ~10s: X out the ghosts
+      });
+      intro.addEventListener("ended", function () { doVanish(); leadCheck(cells[0]); leadCheck(cells[1]); cueAfter(); });
     }
     if (resume) {
       resume.addEventListener("timeupdate", function () { if (resume.duration) applyRecover(resume.currentTime / resume.duration); });
-      resume.addEventListener("ended", function () { applyRecover(1); if (grid) grid.classList.add("recovered"); });
+      resume.addEventListener("ended", finishRecover);
     }
 
-    // Fallback: if the video isn't playing, self-play the LEAK story so the grid
-    // always tells its tale (and is never invisible). Yields to the video if played.
+    // Fallback: self-play leak → vanish → cue if the video isn't played (never blank).
     if (grid && "IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (es) {
         es.forEach(function (e) {
@@ -465,9 +498,9 @@ const HERO_ANGLES: Record<string, string> = {
             var t0 = Date.now();
             var iv = setInterval(function () {
               if (intro && !intro.paused) { clearInterval(iv); return; }
-              var p = Math.min(1, (Date.now() - t0) / 2800);
+              var p = Math.min(1, (Date.now() - t0) / 3200);
               applyLeak(p);
-              if (p >= 1) { clearInterval(iv); cueAfter(); }
+              if (p >= 1) { clearInterval(iv); doVanish(); setTimeout(cueAfter, 1400); }
             }, 60);
           }
         });
@@ -488,36 +521,58 @@ const HERO_ANGLES: Record<string, string> = {
   .ba-tab.cue { background: var(--color-brand); color: var(--color-navy-900); animation: cuePulse 1.25s ease-in-out infinite; }
   @keyframes cuePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 229, 160, 0.55); } 50% { box-shadow: 0 0 0 9px rgba(0, 229, 160, 0); } }
 
-  /* Infographic grid — the story, in 3 states per cell:
-     neutral = grey person (a visitor) · ghost = left anonymous (faded, floating)
-     · lead = recovered named account (mint, pops in). Driven in beat with the video. */
-  .leakgrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.45rem; width: 100%; max-width: 360px; margin-inline: auto; border-radius: 18px; transition: box-shadow 0.5s ease, transform 0.4s ease; }
-  .lc { display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.55); }
-  .lc-ghost, .lc-person { display: flex; line-height: 0; transition: color 0.4s ease; }
-  /* neutral (default): grey person, ghost hidden */
-  .lc-person { color: rgba(10, 22, 40, 0.5); }
-  .lc-ghost { display: none; color: rgba(10, 22, 40, 0.3); }
-  /* ghost (left anonymous): faded, gently floating */
-  .lc.is-ghost .lc-person { display: none; }
-  .lc.is-ghost .lc-ghost { display: flex; animation: ghostFloat 3s ease-in-out infinite; }
-  /* lead (recovered, named): mint person that pops in */
-  .lc.is-lead .lc-ghost { display: none; }
-  .lc.is-lead .lc-person { display: flex; color: var(--color-brand); animation: idPop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
+  /* Infographic grid (on dark) — the funnel story, per cell:
+     neutral person (a visitor) → ghost (left anonymous) → X'd out + vanishes (gone)
+     → [After] person pops in BIG then settles → ✓ (captured lead). Beat-matched to video. */
+  .leakgrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.5rem; width: 100%; max-width: 360px; margin-inline: auto; border-radius: 18px; transition: box-shadow 0.5s ease, transform 0.4s ease; }
+  .lc { position: relative; aspect-ratio: 1; opacity: 0; transform: scale(0.55); }
+  .lc-person, .lc-ghost, .lc-check, .lc-x { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; line-height: 0; opacity: 0; transition: opacity 0.35s ease; }
+  /* neutral (default): light person; others hidden */
+  .lc-person { color: rgba(255, 255, 255, 0.5); opacity: 1; }
+  .lc-ghost { color: rgba(255, 255, 255, 0.42); }
+  .lc-check { color: var(--color-brand); }
+  /* CSS X — two crossed red bars struck over a ghost as it's removed */
+  .lc-x::before, .lc-x::after { content: ""; position: absolute; top: 50%; left: 50%; width: 80%; height: 3px; border-radius: 2px; background: #ff5a5a; }
+  .lc-x::before { transform: translate(-50%, -50%) rotate(45deg); }
+  .lc-x::after { transform: translate(-50%, -50%) rotate(-45deg); }
+  /* ghost: faded, gently floating */
+  .lc.is-ghost .lc-person { opacity: 0; }
+  .lc.is-ghost .lc-ghost { opacity: 1; animation: ghostFloat 3s ease-in-out infinite; }
+  /* vanishing: keep ghost, strike an X, then shrink + fade away */
+  .lc.is-vanishing .lc-person { opacity: 0; }
+  .lc.is-vanishing .lc-ghost { opacity: 1; }
+  .lc.is-vanishing .lc-x { opacity: 1; animation: xPop 0.28s ease both; }
+  .lc.is-vanishing { animation: vanishOut 0.55s ease 0.25s forwards; }
+  .lc.is-gone { opacity: 0 !important; }
+  /* recovery step 1: person pops in BIG then settles smaller (funnel fills) */
+  .lc.is-person { opacity: 1; }
+  .lc.is-person .lc-ghost, .lc.is-person .lc-x, .lc.is-person .lc-check { opacity: 0; }
+  .lc.is-person .lc-person { color: var(--color-brand); animation: bigPop 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.5) both; }
+  /* recovery step 2: ✓ replaces the person (captured lead) */
+  .lc.is-lead { opacity: 1; }
+  .lc.is-lead .lc-person, .lc.is-lead .lc-ghost, .lc.is-lead .lc-x { opacity: 0; }
+  .lc.is-lead .lc-check { opacity: 1; animation: checkPop 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.5) both; }
   /* populate: staggered fade/pop in (the 100 land) */
   .leakgrid.populate .lc { animation: cellIn 0.45s ease forwards; animation-delay: calc(var(--i) * 7ms); }
-  /* the 2 greens pulse when the intro ends, before the recovery */
-  .leakgrid.pulse-greens .lc.is-lead .lc-person { animation: greenPulse 1.1s ease-in-out infinite; }
-  /* dramatic finish: mint glow ring + grid pop + synchronized people pulse */
+  /* the 2 form-fills pulse when the intro ends, before recovery */
+  .leakgrid.pulse-greens .lc.is-lead .lc-check { animation: greenPulse 1.1s ease-in-out infinite; }
+  /* dramatic finish: mint glow ring + grid pop */
   .leakgrid.recovered { box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.55), 0 0 70px rgba(0, 229, 160, 0.5); animation: gridPop 0.7s ease; }
-  .leakgrid.recovered .lc.is-lead .lc-person { animation: idPop 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.4) both !important; }
   @keyframes cellIn { to { opacity: 1; transform: scale(1); } }
   @keyframes ghostFloat { 0%, 100% { transform: translateY(0); opacity: 0.8; } 50% { transform: translateY(-3px); opacity: 1; } }
-  @keyframes idPop { 0% { transform: scale(0.2); opacity: 0; } 60% { transform: scale(1.35); } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes bigPop { 0% { transform: scale(0); opacity: 0; } 55% { transform: scale(1.7); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes checkPop { 0% { transform: scale(0.2); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
+  @keyframes xPop { 0% { transform: scale(0); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+  @keyframes vanishOut { to { opacity: 0; transform: scale(0.25) rotate(-8deg); } }
   @keyframes greenPulse { 0%, 100% { transform: scale(1); filter: none; } 50% { transform: scale(1.45); filter: drop-shadow(0 0 8px rgba(0, 229, 160, 0.95)); } }
   @keyframes gridPop { 0% { transform: scale(1); } 35% { transform: scale(1.05); } 100% { transform: scale(1); } }
+  /* final stat reveal */
+  [data-stat]:not(.hidden) { animation: statIn 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+  @keyframes statIn { 0% { opacity: 0; transform: translateY(14px) scale(0.92); } 100% { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) {
     .lc { opacity: 1; transform: none; }
-    .leakgrid.populate .lc, .lc.is-lead .lc-person, .lc.is-ghost .lc-ghost, .leakgrid.pulse-greens .lc.is-lead .lc-person, .leakgrid.recovered, .leakgrid.recovered .lc.is-lead .lc-person { animation: none; }
+    .lc-person, .lc-ghost, .lc-check, .lc-x { transition: none; }
+    .leakgrid.populate .lc, .lc.is-person .lc-person, .lc.is-lead .lc-check, .lc.is-ghost .lc-ghost, .lc.is-vanishing, .lc.is-vanishing .lc-x, .leakgrid.pulse-greens .lc.is-lead .lc-check, .leakgrid.recovered, [data-stat]:not(.hidden) { animation: none; }
     .ba-tab.cue { animation: none; }
   }
 </style>

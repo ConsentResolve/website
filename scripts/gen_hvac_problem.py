@@ -21,10 +21,10 @@ CLIPS = [
     ("hvac-intro",
      # "H-VAC" so the TTS says it as one word (aitch-vack), not "H-V-A-C".
      # Ellipsis before the ask = a natural beat so the close doesn't feel rushed.
-     "Quick one for H-VAC owners. Every week, a hundred or so homeowners land on your site, "
-     "looking for AC repair or a new system. But watch this. See those squares on the right? "
-     "Only about two of them ever fill out your form. The other ninety-eight just leave — and "
-     "you paid for every click. So go ahead... tap the After button, and watch what happens."),
+     "Quick one for H-VAC owners. Let's look at what happens when a hundred homeowners land on your "
+     "site, looking for AC repair or a new system. Watch this. See those squares on the right? Only "
+     "about two of them ever fill out your form. The other ninety-eight? They just leave — and you "
+     "paid for every click. So go ahead... tap the After button, and watch what happens."),
     ("hvac-resume",
      "There we go. Every square that just lit up is a homeowner who said yes — a real name, a "
      "real email, the exact service they were looking at. Recovered from traffic you already "
