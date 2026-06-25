@@ -51,10 +51,21 @@ const breadcrumbs = [
   { name: typeLabel, href: typeHref },
   { name: data.title, href: new URL(data.canonical_url).pathname },
 ];
+
+// Title strategy (title-strategy.md §3): <title> = seo_title, with the brand
+// suffix appended only when it still fits the 60-char hard cap. Social title
+// (og/twitter) = the authored og_hook — the punchy, numeral-led line.
+const BRAND_SUFFIX = " · Consent Resolve";
+const seoTitle =
+  data.seo_title.length + BRAND_SUFFIX.length <= 60
+    ? `${data.seo_title}${BRAND_SUFFIX}`
+    : data.seo_title;
+const ogTitle = data.og_hook || data.seo_title;
 ---
 
 <BaseLayout
-  title={data.seo_title}
+  title={seoTitle}
+  ogTitle={ogTitle}
   description={data.seo_description}
   canonical={data.canonical_url}
   ogType="article"
