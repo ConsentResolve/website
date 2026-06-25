@@ -26,6 +26,8 @@ import * as xMetrics from "./api/x-metrics.js";
 import * as requeue from "./api/requeue.js";
 import * as gbpStatus from "./api/gbp-status.js";
 import * as admin from "./admin.js";
+import * as crm from "./crm.js";
+import * as crmLeads from "./api/crm-leads.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -47,6 +49,7 @@ const ROUTES = {
   "/api/x-metrics": xMetrics,
   "/api/requeue": requeue,
   "/api/gbp-status": gbpStatus,
+  "/api/crm/leads": crmLeads,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
@@ -55,6 +58,18 @@ const NO_DB = new Set(["/api/preview"]);
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    // CRM app (gated: admin session OR ?key=<CRM_KEY>). Worker-rendered like /admin.
+    if (url.pathname === "/crm" || url.pathname.startsWith("/crm/")) {
+      try {
+        return await crm.handle({ request, env, ctx });
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ error: "crm_error", detail: String(err).slice(0, 300) }),
+          { status: 500, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } }
+        );
+      }
+    }
 
     // Authenticated admin (dynamic, Worker-rendered). Handles its own auth.
     if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
