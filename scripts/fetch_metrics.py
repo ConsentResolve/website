@@ -44,16 +44,23 @@ def fb_backfill():
     rows = []
     for vid, (desc, url) in seen.items():
         views = likes = comments = shares = reach = None
-        try:
-            d = get(f"{GRAPH}/{vid}?fields=views,likes.summary(true),comments.summary(true),shares&access_token={q}")
+        try:  # core (proven) — views + likes; never bundle unknown fields here or a bad one 400s the lot
+            d = get(f"{GRAPH}/{vid}?fields=views,likes.summary(true)&access_token={q}")
             views = d.get("views"); likes = (d.get("likes", {}).get("summary", {}) or {}).get("total_count")
-            comments = (d.get("comments", {}).get("summary", {}) or {}).get("total_count")
-            shares = (d.get("shares") or {}).get("count")
             if views is None:  # Reels often need video_insights instead of the views field
                 ins = get(f"{GRAPH}/{vid}/video_insights?metric=total_video_views&access_token={q}")
                 views = (ins.get("data") or [{}])[0].get("values", [{}])[0].get("value")
         except Exception as e: print(f"fb views {vid}:", e)
-        # Reach (proper denom) — try the post-reach insight; falls back to views in the scorer.
+        # Rich signals — each in its own best-effort call so an unsupported field (e.g.
+        # `shares` on Reels) only loses itself, never the core views/likes.
+        try:
+            dc = get(f"{GRAPH}/{vid}?fields=comments.summary(true)&access_token={q}")
+            comments = (dc.get("comments", {}).get("summary", {}) or {}).get("total_count")
+        except Exception: pass
+        try:
+            ds = get(f"{GRAPH}/{vid}?fields=shares&access_token={q}")
+            shares = (ds.get("shares") or {}).get("count")
+        except Exception: pass
         try:
             ri = get(f"{GRAPH}/{vid}/video_insights?metric=post_impressions_unique&access_token={q}")
             reach = (ri.get("data") or [{}])[0].get("values", [{}])[0].get("value")
@@ -140,7 +147,7 @@ def yt_backfill():
     if not p.exists(): return []
     rows = []
     try:
-        t = json.loads(p.read_text())
+        t = json.loads(p.read_text().strip().lstrip("﻿"))  # tolerate BOM/whitespace from secret paste
         data = urllib.parse.urlencode({"client_id": t["client_id"], "client_secret": t["client_secret"],
             "refresh_token": t["refresh_token"], "grant_type": "refresh_token"}).encode()
         tok = json.loads(urllib.request.urlopen(urllib.request.Request("https://oauth2.googleapis.com/token", data=data), timeout=30).read())["access_token"]
