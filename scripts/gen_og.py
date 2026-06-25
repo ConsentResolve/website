@@ -142,8 +142,16 @@ def render(out, kicker, headline, subline, accent=None, slug=None, blog=False):
         y += 14; sf = font(HAN, 30)
         for ln in wrap(d, subline, sf, text_w)[:2]:
             d.text((PAD, y), ln, font=sf, fill=SLATE); y += 40
-    # footer url
-    d.text((PAD, H - 64), "consentresolve.com", font=font(HAN, 26), fill=(148, 163, 184))
+    # CTA pill (lifts social click-through) + url to the right
+    cta = "Try the live demo  →"
+    cf = font(HAN, 28)
+    padx, pady = 28, 15
+    pill_w = int(d.textlength(cta, font=cf) + 2 * padx)
+    pill_h = 30 + 2 * pady
+    py0 = H - 52 - pill_h
+    d.rounded_rectangle([PAD, py0, PAD + pill_w, py0 + pill_h], radius=pill_h // 2, fill=MINT)
+    d.text((PAD + padx, py0 + pady - 2), cta, font=cf, fill=NAVY)
+    d.text((PAD + pill_w + 26, py0 + (pill_h - 26) // 2), "consentresolve.com", font=font(HAN, 26), fill=(148, 163, 184))
     img.save(out, quality=92)
     print("wrote", Path(out).relative_to(ROOT))
 

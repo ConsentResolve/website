@@ -10,7 +10,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "7 min"
 og_hook: "Every job sits in front of 20 future customers."
-seo_title: "How to Market to Neighbors After a Job (Neighbor Marketing Guide)"
+seo_title: "How to Market to Neighbors After a Job"
 seo_description: "A step-by-step neighbor-marketing system for home-service contractors: timing the postcard, automating by job-address radius, and building dense route clusters."
 focus_keyword: "neighbor marketing contractors"
 canonical_url: "https://consentresolve.com/resources/how-to-guides/market-to-neighbors-after-every-job/"

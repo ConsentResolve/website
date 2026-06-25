@@ -10,7 +10,7 @@ updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "It's the one thing that turns a risky text into a legal one. Here's how."
 excerpt: "Express written consent is the agreement the TCPA requires before you text or robocall a lead. Here's what it must include, and how to get it the right way."
-seo_title: "What Is Express Written Consent? A Plain-English Guide for Contractors"
+seo_title: "What Is Express Written Consent?"
 seo_description: "Express written consent is the agreement the TCPA requires before you text or robocall a lead. Here's what it must include, and how to get it the right way."
 focus_keyword: "what is express written consent"
 canonical_url: "https://consentresolve.com/resources/plain-language-explainers/what-is-express-written-consent/"

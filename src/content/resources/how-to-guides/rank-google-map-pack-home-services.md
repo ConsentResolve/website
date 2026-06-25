@@ -10,8 +10,8 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "9 min"
 og_hook: "3 map results get the clicks. Here's how to own one."
-seo_title: "How to Rank in the Google Map Pack for Home Services (Step-by-Step)"
-seo_description: "A step-by-step Google Business Profile system to rank your HVAC, plumbing, roofing, or electrical company in the Google Map Pack and capture local search traffic."
+seo_title: "How to Rank in the Google Map Pack for Home Services"
+seo_description: "A step-by-step Google Business Profile system to rank your HVAC, plumbing, roofing, or electrical company in the Google Map Pack and capture local search"
 focus_keyword: "google map pack ranking"
 canonical_url: "https://consentresolve.com/resources/how-to-guides/rank-google-map-pack-home-services/"
 category: "Local SEO"

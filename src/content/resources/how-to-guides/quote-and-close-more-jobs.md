@@ -11,7 +11,7 @@ updated_at: 2026-06-09
 read_time: "8 min"
 og_hook: "Stop being the cheapest. Close at your rate."
 seo_title: "How to Quote and Close More Jobs Without Lowering Your Price"
-seo_description: "A step-by-step closing guide for home-service contractors: option pricing, value anchoring, same-day quotes, estimate follow-up, and financing to win at your rate."
+seo_description: "A step-by-step closing guide for home-service contractors: option pricing, value anchoring, same-day quotes, estimate follow-up"
 focus_keyword: "close more jobs contractor"
 canonical_url: "https://consentresolve.com/resources/how-to-guides/quote-and-close-more-jobs/"
 category: "Sales"

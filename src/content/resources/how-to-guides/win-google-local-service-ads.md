@@ -10,7 +10,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "8 min"
 og_hook: "The leads you don't dispute are the budget you lose."
-seo_title: "How to Win Google Local Service Ads Without Overpaying (Contractor Guide)"
+seo_title: "How to Win Google Local Service Ads Without Overpaying"
 seo_description: "Step-by-step guide for home-service contractors to set up, optimize, and dispute Google Local Service Ads (LSA) so you only pay for real leads."
 focus_keyword: "google local service ads"
 canonical_url: "https://consentresolve.com/resources/how-to-guides/win-google-local-service-ads/"

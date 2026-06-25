@@ -10,7 +10,7 @@ updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "One bad email blast can cost $53,088 per message. Here's the rulebook."
 excerpt: "CAN-SPAM is the federal law for marketing emails. Here's what it requires, why it matters for home-service contractors, and how to send email the safe way."
-seo_title: "What Is the CAN-SPAM Act? A Plain-English Guide for Contractors"
+seo_title: "What Is the CAN-SPAM Act?"
 seo_description: "CAN-SPAM is the federal law for marketing emails. Here's what it requires, why it matters for home-service contractors, and how to send email the safe way."
 focus_keyword: "what is the can-spam act"
 canonical_url: "https://consentresolve.com/resources/plain-language-explainers/what-is-can-spam-act/"
