@@ -62,7 +62,7 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 <section data-pane="leads">
   <div class="bar">
     <select id="fInd"><option value="all">All industries</option></select>
-    <select id="fSrc"><option value="all">All sources</option><option value="demo">Demo form</option><option value="instantly">Instantly</option><option value="crisp">Crisp</option><option value="manual">Manual</option></select>
+    <select id="fSrc"><option value="all">All sources</option><option value="demo">Demo form</option><option value="instantly">Instantly</option><option value="crisp">Crisp</option><option value="apollo">Apollo</option><option value="manual">Manual</option></select>
     <input id="fQ" placeholder="Search" style="flex:1;min-width:120px">
     <button class="btn" id="add">+ Add lead</button>
   </div>
@@ -88,8 +88,10 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 </section>
 <section data-pane="settings" hidden>
   <div class="card" style="padding:16px;margin-bottom:14px"><div style="font-weight:600;margin-bottom:8px">Gmail — two-way email</div><div id="gmailWrap" class="muted tiny">Loading…</div></div>
-  <div class="card" style="padding:16px"><div style="font-weight:600;margin-bottom:8px">Webhook — paste into Crisp</div>
-    <div class="muted tiny" style="margin-bottom:4px">Crisp (Settings → Webhooks):</div><input id="whCrisp" readonly style="width:100%">
+  <div class="card" style="padding:16px"><div style="font-weight:600;margin-bottom:8px">Webhooks</div>
+    <div class="muted tiny" style="margin-bottom:4px">Crisp (Settings → Webhooks):</div><input id="whCrisp" readonly style="width:100%;margin-bottom:10px">
+    <div class="muted tiny" style="margin-bottom:4px">Apollo (push identified visitors here):</div><input id="whApollo" readonly style="width:100%">
+    <div class="muted tiny" style="margin-top:8px">Apollo visitors arrive flagged “identified” — retargeting/intel only, blocked from outreach.</div>
   </div>
 </section>
 </div>
@@ -98,7 +100,7 @@ var KEY=new URLSearchParams(location.search).get("key")||"";
 var ALL=[],SEL=null;
 function api(p){var sep=p.indexOf("?")>-1?"&":"?";return fetch(p+(KEY?sep+"key="+encodeURIComponent(KEY):""),{credentials:"same-origin"});}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
-var SRC={demo:["rgba(0,229,160,.16)","#7ff0cd"],instantly:["rgba(55,138,221,.18)","#9cc6f3"],crisp:["rgba(127,119,221,.2)","#bcb6f2"],rb2b:["rgba(239,159,39,.18)","#f0c27a"],manual:["rgba(148,163,184,.18)","#cbd5e1"]};
+var SRC={demo:["rgba(0,229,160,.16)","#7ff0cd"],instantly:["rgba(55,138,221,.18)","#9cc6f3"],crisp:["rgba(127,119,221,.2)","#bcb6f2"],apollo:["rgba(239,159,39,.18)","#f0c27a"],rb2b:["rgba(239,159,39,.18)","#f0c27a"],manual:["rgba(148,163,184,.18)","#cbd5e1"]};
 function srcPill(s){var c=SRC[s]||SRC.manual;return '<span class="pill" style="background:'+c[0]+';color:'+c[1]+'">'+esc(s||"manual")+'</span>';}
 function stagePill(st,status){if(status==="won")return '<span class="pill" style="background:rgba(0,229,160,.16);color:#7ff0cd">won</span>';if(status==="lost")return '<span class="pill" style="background:rgba(239,75,74,.18);color:#f4a3a3">lost</span>';return '<span class="pill" style="background:rgba(255,255,255,.08);color:#cbd5e1">'+esc(st||"new")+'</span>';}
 function money(v){v=Number(v)||0;return v?"$"+v.toLocaleString():"—";}
@@ -169,7 +171,7 @@ var dn=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];var cells=[];for(var i=0;i<7;
 document.getElementById("weekLabel").textContent="Week of "+monday.toISOString().slice(0,10);
 document.getElementById("cal").innerHTML=cells.map(function(d){var ds=d.toISOString().slice(0,10);var dp=posts.filter(function(p){return (p.at||"").slice(0,10)===ds;});var chips=dp.map(function(p){var c=pcolor[(p.platform||"").toLowerCase()]||"#888780";return '<div class="chip" style="background:'+c+'">'+esc((p.platform||"").replace(/_/g," "))+'</div>';}).join("")||'<div class="muted tiny">—</div>';return '<div class="calcell"><div class="muted tiny" style="margin-bottom:5px">'+dn[d.getUTCDay()]+' '+d.getUTCDate()+'</div>'+chips+'</div>';}).join("");}
 
-function ensureSettings(){var o=location.origin;var wc=document.getElementById("whCrisp");if(wc)wc.value=o+"/api/crm/crisp?key="+encodeURIComponent(KEY);api("/api/crm/gmail/status").then(function(r){return r.json();}).then(function(d){renderGmailAccounts(d);});}
+function ensureSettings(){var o=location.origin;var wc=document.getElementById("whCrisp");if(wc)wc.value=o+"/api/crm/crisp?key="+encodeURIComponent(KEY);var wa=document.getElementById("whApollo");if(wa)wa.value=o+"/api/crm/apollo?key="+encodeURIComponent(KEY);api("/api/crm/gmail/status").then(function(r){return r.json();}).then(function(d){renderGmailAccounts(d);});}
 function renderGmailAccounts(d){var w=document.getElementById("gmailWrap");if(!d||d.error){w.textContent="unavailable";return;}
 var accts=(d.accounts||[]).map(function(a){return '<div class="row" style="cursor:default"><div style="flex:1">'+esc(a.email)+'</div><span class="pill" style="background:rgba(0,229,160,.16);color:#7ff0cd">connected</span></div>';}).join("")||'<div class="muted tiny">No accounts connected yet.</div>';
 var cfg=d.configured?"":'<div style="background:rgba(239,159,39,.14);color:#f0c27a;border-radius:8px;padding:9px 11px;margin-bottom:10px">Set GMAIL_CLIENT_ID + GMAIL_CLIENT_SECRET in Cloudflare first (or reuse GOOGLE_*), then redeploy.</div>';
