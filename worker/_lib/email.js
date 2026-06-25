@@ -132,6 +132,58 @@ export function renderEmail(env, p, baseUrl, modeOverride) {
   return { subject: `Your free ${t.label} quote from ${t.biz} — let's get you booked`, html: promoHtml(p, env, baseUrl) };
 }
 
+// Internal "new demo signup" alert -> the team inbox (hello@consentresolve.com,
+// aliased into Instantly's Unibox), so every website/demo-form lead lands in the
+// same place as cold-email replies. reply_to is the lead's email, so a reply in
+// Unibox goes straight to the prospect. No unsubscribe footer (internal mail).
+function notifyLeadHtml(p, t, meta) {
+  return `<!doctype html><html><body style="margin:0;padding:24px;background:#f1f5f9;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:${NAVY}">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto">
+    <tr><td style="padding:20px 28px;background:${NAVY};border-radius:14px 14px 0 0">
+      <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:${MINT};font-weight:700">Consent Resolve · Lead</div>
+      <div style="font-size:20px;font-weight:700;color:#fff;margin-top:6px">New demo signup${meta.repeat ? " (returning)" : ""}</div>
+    </td></tr>
+    <tr><td style="padding:24px 28px;background:#fff;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 14px 14px">
+      <p style="margin:0 0 16px;font-size:14px;line-height:1.5;color:#475569">Someone just registered on the website demo. Reply to this email to reach them directly.</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse">
+        ${row("Name", esc(p.name || "—"))}
+        ${row("Email", `<a href="mailto:${esc(p.email)}" style="color:#0369a1;font-weight:600">${esc(p.email)}</a>`)}
+        ${row("Business", esc(p.business_name || "—"))}
+        ${row("Trade", esc(t.label || p.trade || "—"))}
+        ${row("Phone", esc(p.phone || "—"))}
+        ${row("Consent to contact", p.consent_contact ? "Yes" : "No")}
+        ${row("Source", esc(meta.src || "direct"))}
+        ${row("Came from", esc(meta.ref || "—"))}
+        ${row("Time", esc(meta.time || ""))}
+      </table>
+    </td></tr>
+  </table></body></html>`;
+}
+
+export async function sendLeadNotification(env, p, meta = {}) {
+  if (!env.RESEND_API_KEY) return { ok: false, error: "missing_resend_key" };
+  const to = env.LEADS_NOTIFY_EMAIL || "hello@consentresolve.com";
+  const t = tradeProfile(p.trade);
+  const subject = `New demo signup${meta.repeat ? " (returning)" : ""}: ${p.name || "Unknown"}${p.trade ? " — " + (t.label || p.trade) : ""}`;
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from: env.FROM_EMAIL || "demo@consentresolve.com",
+      to: [to],
+      reply_to: p.email || undefined,
+      subject,
+      html: notifyLeadHtml(p, t, meta),
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    return { ok: false, error: `resend_${res.status}`, detail: text.slice(0, 400) };
+  }
+  return { ok: true, data: await res.json().catch(() => ({})) };
+}
+
 export async function sendRevealEmail(env, p, baseUrl) {
   if (!env.RESEND_API_KEY) return { ok: false, error: "missing_resend_key" };
 

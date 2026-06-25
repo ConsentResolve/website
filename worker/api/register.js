@@ -7,6 +7,7 @@
 import { corsHeaders, json, clientIp, baseOrigin } from "../_lib/http.js";
 import { verifyTurnstile } from "../_lib/turnstile.js";
 import { uuid, nowIso, insertParticipant, getByEmail, updateParticipant, logEvent, recentRegistrations } from "../_lib/db.js";
+import { sendLeadNotification } from "../_lib/email.js";
 
 const SAMPLE_PATH = "/demo/sample/";
 const RATE_LIMIT = 8; // registrations per IP per minute
@@ -15,7 +16,7 @@ export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   const cors = corsHeaders(request, env);
   const ct = (request.headers.get("Content-Type") || "").toLowerCase();
   const isForm = ct.includes("application/x-www-form-urlencoded") || ct.includes("multipart/form-data");
@@ -70,11 +71,15 @@ export async function onRequestPost({ request, env }) {
     return fail(isForm, origin, cors, "turnstile", "Bot check failed. Please try again.");
   }
 
+  const src = (request.headers.get("Cookie") || "").match(/cr_src=([^;]+)/)?.[1] || "";
+
   // Duplicate email -> reuse the existing token (idempotent re-entry).
   let token;
+  let repeat = false;
   try {
     const existing = await getByEmail(env, email);
     if (existing) {
+      repeat = true;
       token = existing.id;
       await updateParticipant(env, token, {
         name,
@@ -83,7 +88,7 @@ export async function onRequestPost({ request, env }) {
         phone: phone || existing.phone,
         consent_contact: consent_contact ? 1 : 0,
       });
-      await logEvent(env, token, "registered", { repeat: true, src: (request.headers.get("Cookie") || "").match(/cr_src=([^;]+)/)?.[1] || "" });
+      await logEvent(env, token, "registered", { repeat: true, src });
     } else {
       token = uuid();
       await insertParticipant(env, {
@@ -98,11 +103,20 @@ export async function onRequestPost({ request, env }) {
         user_agent: request.headers.get("User-Agent") || null,
         created_at: nowIso(),
       });
-      await logEvent(env, token, "registered", { trade: trade || null, src: (request.headers.get("Cookie") || "").match(/cr_src=([^;]+)/)?.[1] || "" });
+      await logEvent(env, token, "registered", { trade: trade || null, src });
     }
   } catch (err) {
     return fail(isForm, origin, cors, "server", "Something went wrong. Please try again.", 500);
   }
+
+  // Notify the team inbox (hello@consentresolve.com -> Instantly Unibox) so every
+  // website/demo signup lands beside the cold-email replies. Non-blocking.
+  const notify = sendLeadNotification(
+    env,
+    { id: token, name, email, business_name, trade, phone, consent_contact },
+    { src: src ? decodeURIComponent(src) : "direct", ref: request.headers.get("Referer") || "", time: nowIso(), repeat },
+  ).catch(() => {});
+  if (typeof waitUntil === "function") waitUntil(notify); else await notify;
 
   const redirectUrl = `${origin}${SAMPLE_PATH}?dt=${encodeURIComponent(token)}`;
   const cookie = `dt=${token}; Domain=.consentresolve.com; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=3600`;
