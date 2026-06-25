@@ -7,7 +7,7 @@ GraphQL post metrics, since TikTok's own API has no view endpoint for us) — so
 views count, including manual posts and ones made before delivery-logging existed.
 Matches each post back to a reel name by caption when possible. (X is skipped — no
 usable view API.) Creds from /tmp (same as the posters). Best-effort per call."""
-import json, os, re, subprocess, urllib.request, urllib.parse
+import json, os, re, subprocess, urllib.request, urllib.parse, datetime
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PUB = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev"
@@ -43,22 +43,41 @@ def fb_backfill():
         except Exception as e: print(f"fb {edge}:", e)
     rows = []
     for vid, (desc, url) in seen.items():
-        views = likes = None
+        views = likes = comments = shares = reach = None
         try:
-            d = get(f"{GRAPH}/{vid}?fields=views,likes.summary(true)&access_token={q}")
+            d = get(f"{GRAPH}/{vid}?fields=views,likes.summary(true),comments.summary(true),shares&access_token={q}")
             views = d.get("views"); likes = (d.get("likes", {}).get("summary", {}) or {}).get("total_count")
+            comments = (d.get("comments", {}).get("summary", {}) or {}).get("total_count")
+            shares = (d.get("shares") or {}).get("count")
             if views is None:  # Reels often need video_insights instead of the views field
                 ins = get(f"{GRAPH}/{vid}/video_insights?metric=total_video_views&access_token={q}")
                 views = (ins.get("data") or [{}])[0].get("values", [{}])[0].get("value")
         except Exception as e: print(f"fb views {vid}:", e)
-        rows.append({"name": match(desc), "platform": "fb", "views": views, "likes": likes, "url": url})
+        # Reach (proper denom) — try the post-reach insight; falls back to views in the scorer.
+        try:
+            ri = get(f"{GRAPH}/{vid}/video_insights?metric=post_impressions_unique&access_token={q}")
+            reach = (ri.get("data") or [{}])[0].get("values", [{}])[0].get("value")
+        except Exception: pass
+        rows.append({"name": match(desc), "platform": "fb", "views": views, "likes": likes,
+                     "comments": comments, "shares": shares, "reach": reach, "url": url})
     return rows
+
+def ig_insights(mid, metrics):
+    """One insights call -> {metric_name: value}. Best-effort; missing metrics omitted."""
+    out = {}
+    try:
+        ins = get(f"{GRAPH}/{mid}/insights?metric={metrics}&access_token={urllib.parse.quote(FBTOK)}")
+        for it in ins.get("data", []):
+            out[it.get("name")] = (it.get("values") or [{}])[0].get("value")
+    except Exception:
+        pass
+    return out
 
 def ig_backfill():
     if not (FBTOK and IG): return []
     rows = []
     try:
-        d = get(f"{GRAPH}/{IG}/media?fields=id,caption,permalink,media_product_type,like_count&limit=40&access_token={urllib.parse.quote(FBTOK)}")
+        d = get(f"{GRAPH}/{IG}/media?fields=id,caption,permalink,media_product_type,like_count,comments_count&limit=40&access_token={urllib.parse.quote(FBTOK)}")
         for m in d.get("data", []):
             if m.get("media_product_type") not in ("REELS", "VIDEO"): continue
             views = None
@@ -68,7 +87,17 @@ def ig_backfill():
                     views = (ins.get("data") or [{}])[0].get("values", [{}])[0].get("value")
                     if views is not None: break
                 except Exception: continue
-            rows.append({"name": match(m.get("caption")), "platform": "ig", "views": views, "likes": m.get("like_count"), "url": m.get("permalink", "")})
+            # Rich scoring signals (highest-weight first): reach (denom), saved, shares.
+            # ig_reels_avg_watch_time enables hold rate. reelsSkipRatePct = newest metric
+            # (Apr 2026) — confirm the exact key against a live response; left out until then.
+            ri = ig_insights(m["id"], "reach,saved,shares,ig_reels_avg_watch_time")
+            rows.append({
+                "name": match(m.get("caption")), "platform": "ig",
+                "views": views, "likes": m.get("like_count"), "comments": m.get("comments_count"),
+                "reach": ri.get("reach"), "saved": ri.get("saved"), "shares": ri.get("shares"),
+                "igReelsAvgWatchTimeMs": ri.get("ig_reels_avg_watch_time"),
+                "url": m.get("permalink", ""),
+            })
     except Exception as e: print("ig backfill:", e)
     return rows
 
@@ -118,13 +147,30 @@ def yt_backfill():
         ch = get(f"https://www.googleapis.com/youtube/v3/channels?part=contentDetails&mine=true&access_token={tok}")
         up = ch["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
         pl = get(f"https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults=40&playlistId={up}&access_token={tok}")
-        ids = ",".join(i["contentDetails"]["videoId"] for i in pl.get("items", []))
+        vid_ids = [i["contentDetails"]["videoId"] for i in pl.get("items", [])]
+        ids = ",".join(vid_ids)
+        # Rich signals come from the YouTube *Analytics* API (separate from Data API
+        # statistics): averageViewPercentage (hold rate) + shares, one query keyed by video.
+        analytics = {}
+        try:
+            today = datetime.date.today().isoformat()
+            ar = get("https://youtubeanalytics.googleapis.com/v2/reports?" + urllib.parse.urlencode({
+                "ids": "channel==MINE", "startDate": "2020-01-01", "endDate": today,
+                "metrics": "averageViewPercentage,shares", "dimensions": "video",
+                "filters": "video==" + ";".join(vid_ids), "access_token": tok}))
+            cols = [c["name"] for c in ar.get("columnHeaders", [])]
+            for row in ar.get("rows", []):
+                rec = dict(zip(cols, row))
+                analytics[rec.get("video")] = rec
+        except Exception as e: print("yt analytics:", e)
         if ids:
             vd = get(f"https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id={ids}&access_token={tok}")
             for v in vd.get("items", []):
-                s = v.get("statistics", {})
+                s = v.get("statistics", {}); a = analytics.get(v["id"], {})
                 rows.append({"name": match(v["snippet"].get("title")), "platform": "yt",
                              "views": int(s.get("viewCount", 0)) or None, "likes": int(s["likeCount"]) if "likeCount" in s else None,
+                             "comments": int(s["commentCount"]) if "commentCount" in s else None,
+                             "shares": a.get("shares"), "averageViewPercentage": a.get("averageViewPercentage"),
                              "url": f"https://www.youtube.com/shorts/{v['id']}"})
     except Exception as e: print("yt backfill:", e)
     return rows
