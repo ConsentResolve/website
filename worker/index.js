@@ -31,6 +31,7 @@ import * as crmLeads from "./api/crm-leads.js";
 import * as crmAnalytics from "./api/crm-analytics.js";
 import * as crmSpend from "./api/crm-spend.js";
 import * as crmSocial from "./api/crm-social.js";
+import * as crmGmail from "./api/crm-gmail.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -56,6 +57,9 @@ const ROUTES = {
   "/api/crm/analytics": crmAnalytics,
   "/api/crm/spend": crmSpend,
   "/api/crm/social": crmSocial,
+  "/api/crm/gmail/auth": crmGmail,
+  "/api/crm/gmail/callback": crmGmail,
+  "/api/crm/gmail/status": crmGmail,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
