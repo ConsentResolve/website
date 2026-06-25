@@ -37,6 +37,7 @@ export interface ComparePage {
   type: CompareType;
   // SEO
   titleTag: string;
+  ogTitle?: string;
   metaDescription: string;
   // Hero
   eyebrow: string;
@@ -79,7 +80,8 @@ export const COMPARE_PAGES: ComparePage[] = [
     brand: "Thumbtack",
     brandColor: "#04b760",
     type: "reseller",
-    titleTag: "More Booked Jobs From Your Thumbtack Spend | Consent Resolve",
+    titleTag: "More Jobs From Your Thumbtack Spend · Consent Resolve",
+    ogTitle: "Keep your Thumbtack spend. Recover the 98% who don't call.",
     metaDescription: "Thumbtack already sends contractors traffic — about 98 of every 100 of them bounce. Recover the bounce with consent, feed it back into your funnel, and book more jobs on the same Thumbtack budget. Flat $7 per recovered lead.",
     eyebrow: "Channel ROI · Thumbtack",
     h1: "More booked jobs from the Thumbtack budget you already spend.",
@@ -128,7 +130,8 @@ export const COMPARE_PAGES: ComparePage[] = [
     brand: "Angi",
     brandColor: "#a3151c",
     type: "reseller",
-    titleTag: "More Booked Jobs From Your Angi Spend | Consent Resolve",
+    titleTag: "More Jobs From Your Angi Spend · Consent Resolve",
+    ogTitle: "Keep your Angi spend. Recover the 98% who don't call.",
     metaDescription: "Angi already sends contractors traffic — about 98 of every 100 of them bounce. Recover the bounce with consent, feed it back into your funnel, and book more jobs on the same Angi budget. Flat $7 per recovered lead.",
     eyebrow: "Channel ROI · Angi",
     h1: "More booked jobs from the Angi budget you already spend.",
@@ -177,7 +180,8 @@ export const COMPARE_PAGES: ComparePage[] = [
     brand: "HomeAdvisor",
     brandColor: "#f48120",
     type: "reseller",
-    titleTag: "More Booked Jobs From Your HomeAdvisor Spend | Consent Resolve",
+    titleTag: "More Jobs From Your HomeAdvisor Spend · Consent Resolve",
+    ogTitle: "Keep your HomeAdvisor spend. Recover the 98% who don't call.",
     metaDescription: "HomeAdvisor already sends contractors traffic — about 98 of every 100 of them bounce. Recover the bounce with consent, feed it back into your funnel, and book more jobs on the same HomeAdvisor budget. Flat $7 per recovered lead.",
     eyebrow: "Channel ROI · HomeAdvisor",
     h1: "More booked jobs from the HomeAdvisor budget you already spend.",
@@ -226,7 +230,8 @@ export const COMPARE_PAGES: ComparePage[] = [
     brand: "Google LSA",
     brandColor: "#1a73e8",
     type: "complement",
-    titleTag: "More Booked Jobs From Your Google LSA Spend | Consent Resolve",
+    titleTag: "More Jobs From Your Google LSA Spend · Consent Resolve",
+    ogTitle: "Keep your LSA spend. Recover the 98% who don't call.",
     metaDescription: "Google LSA already sends contractors calls and visitors — about 98 of every 100 site visitors bounce without dialing. Recover the bounce with consent, feed it back into your funnel, and book more jobs on the same LSA budget.",
     eyebrow: "Channel ROI · Google LSA",
     h1: "More booked jobs from the LSA budget you already spend.",
