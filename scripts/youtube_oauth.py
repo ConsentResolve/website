@@ -20,10 +20,13 @@ if not (CLIENT_ID and CLIENT_SECRET):
 PORT = 8765
 REDIRECT = f"http://127.0.0.1:{PORT}/"
 # youtube.force-ssl unlocks playlists, captions, thumbnails, channel sections + scheduling
-# (uploads + read still covered). Re-run this to upgrade an upload-only token.
+# (uploads + read still covered). yt-analytics.readonly unlocks the YouTube Analytics
+# API (averageViewPercentage + shares for the social scoring dashboard).
+# Re-run this to upgrade an existing token with the new scope.
 SCOPES = ("https://www.googleapis.com/auth/youtube.upload "
           "https://www.googleapis.com/auth/youtube.force-ssl "
-          "https://www.googleapis.com/auth/youtube.readonly")
+          "https://www.googleapis.com/auth/youtube.readonly "
+          "https://www.googleapis.com/auth/yt-analytics.readonly")
 AUTH = ("https://accounts.google.com/o/oauth2/v2/auth?" + urllib.parse.urlencode({
     "client_id": CLIENT_ID, "redirect_uri": REDIRECT, "response_type": "code",
     "scope": SCOPES, "access_type": "offline", "prompt": "consent", "include_granted_scopes": "true"}))
