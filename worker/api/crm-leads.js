@@ -62,9 +62,9 @@ export async function onRequestPost({ request, env }) {
   const before = await getLead(env, body.id);
   if (!before) return json({ error: "not_found" }, { status: 404 }, cors);
 
-  // Guardrail: RB2B-identified (non-consented) leads can't be moved into outreach stages.
+  // Guardrail: identified (non-consented) visitors can't be moved into outreach stages.
   if (before.lead.consent_status === "identified" && ["contacted", "qualified", "demo", "proposal"].includes(body.stage)) {
-    return json({ error: "consent_blocked", message: "Identified (RB2B) visitors have not consented — retargeting/intel only, not outreach." }, { status: 403 }, cors);
+    return json({ error: "consent_blocked", message: "Identified visitors have not consented — retargeting/intel only, not outreach." }, { status: 403 }, cors);
   }
 
   await updateLead(env, body.id, body);
