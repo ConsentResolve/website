@@ -15,6 +15,8 @@ export async function crmAuthed(request, env) {
   const key = new URL(request.url).searchParams.get("key") || "";
   return Boolean(key && key === crmKey(env));
 }
+// Token for inbound webhooks (Crisp, RB2B). Separate secret if set, else the CRM key.
+export function crmWebhookToken(env) { return env.CRM_WEBHOOK_TOKEN || crmKey(env); }
 
 export async function ensureCrmSchema(env) {
   await env.DB.batch([
@@ -131,6 +133,10 @@ export async function upsertLead(env, lead) {
     lead.consent_status || "consented", lead.utm_source || null, lead.utm_campaign || null,
     lead.notes || null, now, now
   ).run();
+  if (lead.email) {
+    const row = await env.DB.prepare("SELECT id FROM crm_leads WHERE email=?").bind(lead.email).first();
+    if (row && row.id) return row.id;
+  }
   return id;
 }
 
