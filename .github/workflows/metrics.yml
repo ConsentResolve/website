@@ -1,8 +1,9 @@
 name: metrics-refresh
 
-# Refreshes social/metrics.json (FB/IG/YT views + likes) for the performance
-# dashboard. Read-only — posts NOTHING. Runs a few times a day on its own cron so
-# the dashboard has fresh numbers without triggering a full post run.
+# Refreshes social/metrics.json for the performance + CRM scoring dashboards.
+# Read-only — posts NOTHING. Pulls all 6 channels with the rubric signals
+# (FB/IG/YT shares+saves+reach+retention; TikTok/LinkedIn via Buffer; X via the
+# worker x-metrics endpoint). Runs a few times a day on its own cron.
 
 on:
   schedule:
@@ -22,10 +23,13 @@ jobs:
           printf '%s' "${{ secrets.CR_IG_ID }}"       > /tmp/cr_ig_id.txt
           printf '%s' '${{ secrets.YT_TOKEN_JSON }}'  > /tmp/yt_token.json
           printf '%s' '${{ secrets.R2_JSON }}'        > /tmp/r2.json
+          printf '%s' "${{ secrets.BUFFER_TOKEN }}"   > /tmp/buffer_token.txt   # TikTok + LinkedIn
 
       - name: Refresh engagement metrics
+        env:
+          ANALYTICS_KEY: ${{ secrets.FEEDBACK_KEY }}   # lets x_backfill read /api/x-metrics
         run: python3 scripts/fetch_metrics.py
 
       - name: Clean up credentials
         if: always()
-        run: rm -f /tmp/fb_page_id.txt /tmp/fb_page_token.txt /tmp/cr_ig_id.txt /tmp/yt_token.json /tmp/r2.json
+        run: rm -f /tmp/fb_page_id.txt /tmp/fb_page_token.txt /tmp/cr_ig_id.txt /tmp/yt_token.json /tmp/r2.json /tmp/buffer_token.txt
