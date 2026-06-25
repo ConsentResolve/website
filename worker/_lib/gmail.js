@@ -63,6 +63,47 @@ export async function listGmailAccounts(env) {
   return rows.map((r) => ({ email: r.provider.slice(6), connected_at: r.updated_at }));
 }
 
+function b64url(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = ""; for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+// Search a connected inbox for the thread with a lead (messages from/to them).
+export async function searchThread(env, account, leadEmail, max) {
+  const tok = await gAccessToken(env, account);
+  if (!tok) return { error: "no_token" };
+  const q = encodeURIComponent("from:" + leadEmail + " OR to:" + leadEmail);
+  const lr = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=" + (max || 8) + "&q=" + q, { headers: { Authorization: "Bearer " + tok } });
+  const lj = await lr.json();
+  if (lj.error) return { error: (lj.error && lj.error.message) || "list_failed" };
+  const ids = (lj.messages || []).map((m) => m.id);
+  const msgs = [];
+  for (const id of ids) {
+    const mr = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/" + id + "?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date", { headers: { Authorization: "Bearer " + tok } });
+    const m = await mr.json();
+    if (m.error) continue;
+    const h = {}; ((m.payload && m.payload.headers) || []).forEach((x) => { h[x.name.toLowerCase()] = x.value; });
+    msgs.push({ id: m.id, threadId: m.threadId, from: h.from || "", subject: h.subject || "", date: h.date || "", snippet: m.snippet || "", fromMe: (h.from || "").toLowerCase().indexOf(account.toLowerCase()) > -1 });
+  }
+  msgs.reverse();
+  return { messages: msgs, threadId: msgs.length ? msgs[msgs.length - 1].threadId : null, lastSubject: msgs.length ? msgs[msgs.length - 1].subject : "" };
+}
+
+// Send (or reply, if threadId) as the connected account.
+export async function sendMessage(env, account, to, subject, body, threadId) {
+  const tok = await gAccessToken(env, account);
+  if (!tok) return { error: "no_token" };
+  const raw = b64url("To: " + to + "\r\nSubject: " + subject + "\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + body);
+  const payload = { raw }; if (threadId) payload.threadId = threadId;
+  const r = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+    method: "POST", headers: { Authorization: "Bearer " + tok, "Content-Type": "application/json" }, body: JSON.stringify(payload),
+  });
+  const j = await r.json();
+  if (j.error) return { error: (j.error && j.error.message) || "send_failed" };
+  return { ok: true, id: j.id, threadId: j.threadId };
+}
+
 export async function gAccessToken(env, email) {
   await ensureTokens(env);
   const row = await env.DB.prepare("SELECT * FROM social_tokens WHERE provider=?").bind("gmail:" + email).first();

@@ -60,6 +60,8 @@ const ROUTES = {
   "/api/crm/gmail/auth": crmGmail,
   "/api/crm/gmail/callback": crmGmail,
   "/api/crm/gmail/status": crmGmail,
+  "/api/crm/gmail/thread": crmGmail,
+  "/api/crm/gmail/send": crmGmail,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
