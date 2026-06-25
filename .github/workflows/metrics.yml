@@ -14,7 +14,7 @@ jobs:
   metrics:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Materialize credentials (read-only metrics creds)
         run: |
