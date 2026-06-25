@@ -32,6 +32,7 @@ export interface Industry {
   cardCopy: string;
   // SEO
   titleTag: string;
+  ogTitle?: string;             // social-share title (og/twitter); falls back to titleTag minus brand suffix
   metaDescription: string;
   keywords: string;
   // AEO
@@ -60,7 +61,8 @@ export const INDUSTRIES: Industry[] = [
     iconKey: "IconBuildingCommunity",
     illustration: "/illustrations/trades/01-general-contractor.svg",
     cardCopy: "Catch the homeowners pricing a remodel, addition, or whole-house renovation before they call three other GCs. Real names, real budgets, $7 per exclusive general-contractor lead — never resold.",
-    titleTag: "Exclusive General Contractor Leads | Consent Resolve",
+    titleTag: "General Contractor Leads — Yours Alone · Consent Resolve",
+    ogTitle: "General contractor leads that call you back — yours alone, never resold",
     metaDescription: "Identify the homeowners pricing a remodel or addition on your site — only after they consent. Real names and emails, yours alone, flat $7.",
     keywords: "general contractor leads, remodeling leads, home addition leads, GC lead generation",
     aeoAnswer: "General contractors get exclusive leads with Consent Resolve by identifying the homeowners already researching a remodel or addition on their website. After the homeowner consents, you get a recovered record fed into your funnel. Each lead is yours alone — never resold — for $7.",
@@ -132,7 +134,8 @@ export const INDUSTRIES: Industry[] = [
     iconKey: "IconAirConditioning",
     illustration: "/illustrations/trades/04-hvac.svg",
     cardCopy: "The \"no-cool\" calls before they hit the next contractor's voicemail. Identify the homeowners shopping AC replacement, furnace repair, or maintenance plans — $7 per exclusive HVAC lead, never resold.",
-    titleTag: "Exclusive HVAC & AC Leads | Consent Resolve",
+    titleTag: "HVAC Leads That Are Yours Alone · Consent Resolve",
+    ogTitle: "HVAC leads that call you back — yours alone, never resold",
     metaDescription: "See the homeowners pricing a new AC, furnace, or no-cool fix on your site — only after they consent. Real names and emails, yours alone, flat $7.",
     keywords: "HVAC leads, AC repair leads, furnace replacement leads, HVAC lead generation",
     aeoAnswer: "HVAC pros get exclusive leads with Consent Resolve by identifying the homeowners already pricing a system or repair on their site. After they consent, you get a recovered record routed into your funnel while it still matters. Leads are yours alone for $7.",
@@ -156,7 +159,8 @@ export const INDUSTRIES: Industry[] = [
     iconKey: "IconDroplet",
     illustration: "/illustrations/trades/05-plumber.svg",
     cardCopy: "Water heater quotes, re-pipes, and burst-pipe shoppers — captured at consent and fed into your funnel as a consented email. Flat $7 per exclusive plumber lead, never sold to another shop.",
-    titleTag: "Exclusive Plumbing Leads | Consent Resolve",
+    titleTag: "Plumber Leads That Are Yours Alone · Consent Resolve",
+    ogTitle: "Plumber leads that call you back — yours alone, never resold",
     metaDescription: "See the homeowners pricing a water heater, re-pipe, or burst-pipe fix on your site — only after they consent. Real names and emails, yours alone, flat $7.",
     keywords: "plumbing leads, plumber leads, water heater leads, plumbing lead generation",
     aeoAnswer: "Plumbers get exclusive recovered leads with Consent Resolve by identifying the homeowners already pricing a plumbing job on their site. After they consent, the recovered record is fed back into the plumber's retargeting and CRM so the homeowner returns via the funnel. Recovered leads are yours alone for $7 — incremental on top of every ad channel.",
@@ -204,7 +208,8 @@ export const INDUSTRIES: Industry[] = [
     iconKey: "IconBolt",
     illustration: "/illustrations/trades/07-electrician.svg",
     cardCopy: "Panel upgrades, EV-charger installs, and rewire-pricing homeowners fed into your funnel in real time. Real names and emails, $7 per exclusive electrician lead — yours alone.",
-    titleTag: "Exclusive Electrical Leads | Consent Resolve",
+    titleTag: "Electrician Leads That Are Yours Alone · Consent Resolve",
+    ogTitle: "Electrician leads that call you back — yours alone, never resold",
     metaDescription: "See the homeowners pricing a panel upgrade, EV charger, or rewire on your site — only after they consent. Real names and emails, yours alone, flat $7.",
     keywords: "electrician leads, electrical leads, panel upgrade leads, EV charger install leads",
     aeoAnswer: "Electricians get exclusive leads with Consent Resolve by identifying the homeowners already pricing a panel upgrade, EV charger, or rewire on their site. After they consent, you get a recovered record routed into your funnel while they're ready to buy. Leads are yours alone for $7.",
@@ -228,7 +233,8 @@ export const INDUSTRIES: Industry[] = [
     iconKey: "IconHome",
     illustration: "/illustrations/trades/08-roofing.svg",
     cardCopy: "Homeowners pricing a re-roof, storm damage, or leak repair on your site — captured before any competitor knows they exist. One signed re-roof pays for a year of $7 exclusive roofing leads.",
-    titleTag: "Exclusive Roofing Leads | Consent Resolve",
+    titleTag: "Roofing Leads That Are Yours Alone · Consent Resolve",
+    ogTitle: "Roofing leads that call you back — yours alone, never resold",
     metaDescription: "See the homeowners pricing a new roof, storm damage, or leak repair on your site — only after they consent. Real names and emails, yours alone, flat $7.",
     keywords: "roofing leads, roof replacement leads, storm damage roofing leads, roofer lead generation",
     aeoAnswer: "Roofers get exclusive leads with Consent Resolve by identifying the homeowners already pricing a roof on their site. After they consent, the recovered record feeds your retargeting and email so you stay in front of them — not the storm chasers. Leads are exclusive — yours alone — for $7.",

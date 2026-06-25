@@ -4,6 +4,10 @@ import { buildCanonical, organizationSchema, websiteSchema } from "~/lib/seo";
 
 interface Props {
   title: string;
+  /** Social-share title (og:title + twitter:title). Optional — when omitted it
+   *  falls back to `title` minus the trailing brand suffix (og:site_name already
+   *  supplies brand attribution in the unfurl). See title-strategy.md §6. */
+  ogTitle?: string;
   description: string;
   canonical?: string;
   noindex?: boolean;
@@ -14,6 +18,7 @@ interface Props {
 
 const {
   title,
+  ogTitle,
   description,
   canonical,
   noindex = false,
@@ -25,6 +30,10 @@ const {
 const fullCanonical = canonical ?? buildCanonical(Astro.url.pathname);
 const ogImageUrl = new URL(ogImage, SITE.url).toString();
 const allSchema = [organizationSchema, websiteSchema, ...schema];
+
+// Social title: explicit ogTitle, else strip a trailing " · Consent Resolve" or
+// " | Consent Resolve" suffix from the SEO title so unconverted pages degrade gracefully.
+const socialTitle = ogTitle ?? title.replace(/\s*[·|]\s*Consent Resolve\b.*$/i, "").trim();
 ---
 
 <title>{title}</title>
@@ -33,14 +42,14 @@ const allSchema = [organizationSchema, websiteSchema, ...schema];
 {noindex && <meta name="robots" content="noindex,follow" />}
 
 <meta property="og:type" content={ogType} />
-<meta property="og:title" content={title} />
+<meta property="og:title" content={socialTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={fullCanonical} />
 <meta property="og:image" content={ogImageUrl} />
 <meta property="og:site_name" content={SITE.name} />
 
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content={title} />
+<meta name="twitter:title" content={socialTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImageUrl} />
 
