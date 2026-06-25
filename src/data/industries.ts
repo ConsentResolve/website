@@ -87,7 +87,7 @@ export const INDUSTRIES: Industry[] = [
     titleTag: "Exclusive Handyman Leads | Consent Resolve",
     metaDescription: "See the homeowners shopping your site for repairs and to-do lists — only after they consent. Real names and emails, yours alone, flat $7.",
     keywords: "handyman leads, home repair leads, handyman jobs near me, handyman lead generation",
-    aeoAnswer: "Handymen get exclusive leads with Consent Resolve by identifying the homeowners browsing their site for repairs and odd jobs. Once the homeowner consents, you get a recovered record routed into your funnel. Leads are yours alone for $7 — no platform sharing them with five other handymen.",
+    aeoAnswer: "Handymen get exclusive leads with Consent Resolve by identifying the homeowners browsing their site for repairs and odd jobs. Once the homeowner consents, you get a recovered record routed into your funnel. Leads are yours alone for $7 — not auctioned or shared with five other handymen.",
     heroH1: "Exclusive handyman leads — yours alone, never resold.",
     heroSubhead: "Handyman work runs on volume and speed. See the homeowners shopping your site for a to-do list, recover the bounce when they consent, and let your funnel keep you in front of them so they book with you, not the next guy.",
     problem: "Most handyman jobs start with a quick search and a website peek. The homeowner doesn't call — they keep scrolling. The handyman who stays in front of them usually fills the slot.",

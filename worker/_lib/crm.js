@@ -57,7 +57,7 @@ export async function syncFromParticipants(env) {
 export async function listLeads(env, opts = {}) {
   await ensureCrmSchema(env);
   await syncFromParticipants(env);
-  const where = [], binds = [];
+  const where = ["status != 'deleted'"], binds = [];
   if (opts.industry && opts.industry !== "all") { where.push("industry = ?"); binds.push(opts.industry); }
   if (opts.source && opts.source !== "all") { where.push("source = ?"); binds.push(opts.source); }
   const q = "SELECT * FROM crm_leads" + (where.length ? " WHERE " + where.join(" AND ") : "") +
@@ -100,6 +100,13 @@ export async function addActivity(env, leadId, type, body, actor) {
   await env.DB.prepare("INSERT INTO crm_activity (id, lead_id, type, body, actor, at) VALUES (?,?,?,?,?,?)")
     .bind(uuid(), leadId, type, body || "", actor || "system", nowIso()).run();
   await env.DB.prepare("UPDATE crm_leads SET last_activity = ? WHERE id = ?").bind(nowIso(), leadId).run();
+}
+
+// Soft-delete: keep the row (so demo signups aren't re-imported by sync) but
+// hide it from the list + analytics.
+export async function deleteLead(env, id) {
+  await ensureCrmSchema(env);
+  await env.DB.prepare("UPDATE crm_leads SET status='deleted', last_activity=? WHERE id=?").bind(nowIso(), id).run();
 }
 
 // Insert/merge a lead from any source (manual add + future Crisp/RB2B/Instantly ingest).
@@ -150,7 +157,7 @@ export async function computeAnalytics(env) {
   await ensureSpend(env);
   await syncFromParticipants(env);
   const leadRows = (await env.DB.prepare(
-    "SELECT COALESCE(industry,'(unknown)') AS ind, COUNT(*) AS leads, SUM(CASE WHEN status='won' THEN 1 ELSE 0 END) AS won, SUM(CASE WHEN status='won' THEN value_usd ELSE 0 END) AS revenue FROM crm_leads GROUP BY ind"
+    "SELECT COALESCE(industry,'(unknown)') AS ind, COUNT(*) AS leads, SUM(CASE WHEN status='won' THEN 1 ELSE 0 END) AS won, SUM(CASE WHEN status='won' THEN value_usd ELSE 0 END) AS revenue FROM crm_leads WHERE status != 'deleted' GROUP BY ind"
   ).all()).results || [];
   const demoRows = (await env.DB.prepare(
     "SELECT trade AS ind, COUNT(*) AS demos FROM participants WHERE consented_at IS NOT NULL GROUP BY trade"

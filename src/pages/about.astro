@@ -55,7 +55,7 @@ const commitments = [
 ];
 
 const aboutFaqs = [
-  { question: "What is Consent Resolve?", answer: "Consent Resolve is a consent-first website visitor identification platform. It turns anonymous visitors on your own website into named, contactable sales leads — but only after each visitor gives explicit consent, which is logged with a timestamp. Leads cost a flat $7 each and are exclusive to one business, never resold." },
+  { question: "What is Consent Resolve?", answer: "Consent Resolve is a consent-first website visitor identification layer. It turns anonymous visitors on your own website into named, contactable sales leads — but only after each visitor gives explicit consent, which is logged with a timestamp. Leads cost a flat $7 each and are exclusive to one business, never resold." },
   { question: "Is Consent Resolve a lead marketplace like Angi or HomeAdvisor?", answer: "No. Marketplaces sell the same homeowner to multiple contractors and own the customer relationship. Consent Resolve identifies visitors already on your own website — people who found you — and delivers each one exclusively to you. You are recovering your own traffic, not bidding against four competitors for a stranger." },
   { question: "Is website visitor identification legal?", answer: "It depends entirely on consent. Identifying visitors without their knowledge has triggered wiretapping lawsuits under laws like the California Invasion of Privacy Act. Consent Resolve only identifies visitors who explicitly opt in, and logs every consent with a timestamp — so each lead carries its own proof of lawful collection." },
   { question: "Who founded Consent Resolve?", answer: "Consent Resolve was founded in December 2025 by Andy Mentges (CEO, also CEO of VerticalResponse), Jason Beyke (COO, also COO of VerticalResponse), and Aaron Phillips (CMO, former cPanel executive). The team has 25+ years of experience building internet companies, including 50+ acquisitions and Capitol Hill testimony on internet policy." },
@@ -117,7 +117,7 @@ const aboutPageNode = {
   "@id": `${SITE.url}/about/#webpage`,
   url: `${SITE.url}/about/`,
   name: "About Consent Resolve — The Consent-First Visitor Identification Company",
-  description: "Who Consent Resolve is, why the company exists, and the team behind the consent-first visitor identification platform for home-service contractors.",
+  description: "Who Consent Resolve is, why the company exists, and the team behind the consent-first visitor identification layer for home-service contractors.",
   inLanguage: "en-US",
   isPartOf: { "@id": `${SITE.url}/#website` },
   about: { "@id": ORG },
@@ -189,7 +189,7 @@ const schemas = [aboutPageNode, breadcrumbNode, ...personNodes, faqSchema(aboutF
           <Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>The short version</Badge>
           <h2 class="display-2 mt-5 text-white">What is Consent Resolve?</h2>
           <p class="mt-5 text-[15px] leading-relaxed text-slate-300">
-            <strong class="text-white">Consent Resolve is a consent-first website visitor identification platform.</strong> It turns the anonymous visitors already on your website into named, contactable sales leads — but only after each visitor explicitly says yes. Every consent is logged with a timestamp, every lead carries its own audit trail, and every lead is exclusive: sold to one business, never resold.
+            <strong class="text-white">Consent Resolve is a consent-first website visitor identification layer.</strong> It turns the anonymous visitors already on your website into named, contactable sales leads — but only after each visitor explicitly says yes. Every consent is logged with a timestamp, every lead carries its own audit trail, and every lead is exclusive: sold to one business, never resold.
           </p>
           <p class="mt-4 text-[15px] leading-relaxed text-slate-300">
             Traditional visitor-ID tools match people against identity databases without their knowledge. That practice has fueled a wave of wiretapping lawsuits under laws like the California Invasion of Privacy Act. We built Consent Resolve so home-service contractors can recover lost website traffic <strong class="text-white">without carrying that legal risk</strong> — at a flat <a href="/pricing/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">$7 per lead</a>, cancel anytime. See exactly <a href="/how-it-works/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">how it works</a> or read <a href="/why-consent-first/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">why consent-first matters</a>.

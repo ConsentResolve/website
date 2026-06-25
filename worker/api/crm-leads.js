@@ -6,7 +6,7 @@
 
 import { json, corsHeaders } from "../_lib/http.js";
 import { isAuthed } from "../_lib/auth.js";
-import { listLeads, getLead, updateLead, addActivity, upsertLead } from "../_lib/crm.js";
+import { listLeads, getLead, updateLead, addActivity, upsertLead, deleteLead } from "../_lib/crm.js";
 
 export function crmKey(env) {
   return env.CRM_KEY || env.DASHBOARD_KEY || "cr-dash-2026";
@@ -50,6 +50,12 @@ export async function onRequestPost({ request, env }) {
     const id = await upsertLead(env, body);
     await addActivity(env, id, "note", "Lead added manually", body.actor || "manual");
     return json({ ok: true, id }, {}, cors);
+  }
+
+  if (body.action === "delete") {
+    if (!body.id) return json({ error: "id_required" }, { status: 400 }, cors);
+    await deleteLead(env, body.id);
+    return json({ ok: true, deleted: true }, {}, cors);
   }
 
   if (!body.id) return json({ error: "id_required" }, { status: 400 }, cors);
