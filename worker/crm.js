@@ -166,8 +166,8 @@ var dn=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];var cells=[];for(var i=0;i<7;
 document.getElementById("weekLabel").textContent="Week of "+monday.toISOString().slice(0,10);
 document.getElementById("cal").innerHTML=cells.map(function(d){var ds=d.toISOString().slice(0,10);var dp=posts.filter(function(p){return (p.at||"").slice(0,10)===ds;});var chips=dp.map(function(p){var c=pcolor[(p.platform||"").toLowerCase()]||"#888780";return '<div class="chip" style="background:'+c+'">'+esc((p.platform||"").replace(/_/g," "))+'</div>';}).join("")||'<div class="muted tiny">—</div>';return '<div class="calcell"><div class="muted tiny" style="margin-bottom:5px">'+dn[d.getUTCDay()]+' '+d.getUTCDate()+'</div>'+chips+'</div>';}).join("");}
 
-function ensureSettings(){api("/api/crm/gmail/status").then(function(r){return r.json();}).then(function(d){renderGmail(d);});}
-function renderGmail(d){var w=document.getElementById("gmailWrap");if(!d||d.error){w.textContent="unavailable";return;}
+function ensureSettings(){api("/api/crm/gmail/status").then(function(r){return r.json();}).then(function(d){renderGmailAccounts(d);});}
+function renderGmailAccounts(d){var w=document.getElementById("gmailWrap");if(!d||d.error){w.textContent="unavailable";return;}
 var accts=(d.accounts||[]).map(function(a){return '<div class="row" style="cursor:default"><div style="flex:1">'+esc(a.email)+'</div><span class="pill" style="background:rgba(0,229,160,.16);color:#7ff0cd">connected</span></div>';}).join("")||'<div class="muted tiny">No accounts connected yet.</div>';
 var cfg=d.configured?"":'<div style="background:rgba(239,159,39,.14);color:#f0c27a;border-radius:8px;padding:9px 11px;margin-bottom:10px">Set GMAIL_CLIENT_ID + GMAIL_CLIENT_SECRET in Cloudflare first (or reuse GOOGLE_*), then redeploy.</div>';
 w.innerHTML=cfg+accts+'<div style="margin-top:12px"><button class="btn" id="gConnect"'+(d.configured?"":" disabled")+'>+ Connect Gmail account</button></div><div class="muted tiny" style="margin-top:10px">Authorized redirect URI to register on the OAuth client:<br><code style="color:#cbd5e1">'+esc(d.redirect_uri||"")+'</code></div>';
