@@ -51,7 +51,7 @@ export const organizationSchema = {
   },
   image: `${SITE.url}/og-default.png`,
   description:
-    "Consent Resolve is a consent-first website visitor identification platform. It identifies anonymous website visitors as sales leads only after each visitor gives explicit, logged consent — eliminating the wiretapping and privacy-law exposure created by traditional visitor-ID and pixel-tracking tools. Leads come from the customer's own website traffic, are sold exclusively, never resold, at a flat $7 per lead. Not a shared-lead marketplace.",
+    "Consent Resolve is a consent-first website visitor identification layer. It identifies anonymous website visitors as sales leads only after each visitor gives explicit, logged consent — eliminating the wiretapping and privacy-law exposure created by traditional visitor-ID and pixel-tracking tools. Leads come from the customer's own website traffic, are sold exclusively, never resold, at a flat $7 per lead. Not a shared-lead marketplace.",
   slogan: "Consent-first by design. Audit trail on every lead.",
   foundingDate: "2025-12-01",
   foundingLocation: {
