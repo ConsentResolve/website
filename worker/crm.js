@@ -83,8 +83,14 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
   <div class="card" id="spendList"></div>
 </section>
 <section data-pane="social" hidden>
-  <div class="bar"><div class="muted tiny" id="weekLabel"></div></div>
-  <div class="calgrid" id="cal"></div>
+  <div class="bar"><div class="muted tiny" id="socMeta">Loading…</div><button class="ghost" id="socRefresh" style="margin-left:auto">Refresh</button></div>
+  <div style="font-weight:600;margin:8px 0 8px">Channel creative grades</div>
+  <div id="socChannels" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px"></div>
+  <div style="font-weight:600;margin:18px 0 8px">Creative leaderboard</div>
+  <div id="socBoard"></div>
+  <div style="font-weight:600;margin:18px 0 8px">Google Business Profile</div>
+  <div class="card" id="socGbp" style="padding:14px"></div>
+  <div class="muted tiny" id="socNote" style="margin-top:12px"></div>
 </section>
 <section data-pane="settings" hidden>
   <div class="card" style="padding:16px;margin-bottom:14px"><div style="font-weight:600;margin-bottom:8px">Gmail — two-way email</div><div id="gmailWrap" class="muted tiny">Loading…</div></div>
@@ -154,7 +160,7 @@ fetch("/api/crm/leads"+(KEY?"?key="+encodeURIComponent(KEY):""),{method:"POST",h
 
 function load(selId){api("/api/crm/leads").then(function(r){return r.json();}).then(function(d){if(d.error){document.getElementById("list").innerHTML='<div class="soon">'+esc(d.error)+' — append ?key=</div>';return;}ALL=d.leads||[];fillIndustries();render();if(selId)selPick(selId);});}
 
-var ANALYTICS=null,SOCIAL=null;
+var ANALYTICS=null,SCORES=null;
 function tile(l,n){return '<div class="tile"><div class="l">'+l+'</div><div class="n">'+n+'</div></div>';}
 function ensureAnalytics(){if(ANALYTICS){return;}api("/api/crm/analytics").then(function(r){return r.json();}).then(function(d){ANALYTICS=d;renderIndustries();renderRoas();});}
 function renderIndustries(){if(!ANALYTICS)return;var inds=ANALYTICS.industries||[];var sel=document.getElementById("indSel");if(!sel.options.length){sel.innerHTML=inds.map(function(x){return '<option>'+esc(x.industry)+'</option>';}).join("");sel.onchange=drawIndustry;}drawIndustry();}
@@ -168,12 +174,23 @@ document.getElementById("roasChannels").innerHTML=keys.length?keys.map(function(
 api("/api/crm/spend").then(function(r){return r.json();}).then(function(d){var s=d.spend||[];document.getElementById("spendList").innerHTML=s.length?s.map(function(r){return '<div class="row" style="cursor:default"><div style="flex:1">'+esc(r.channel)+' <span class="muted">'+esc(r.industry||"")+'</span></div><div class="muted tiny">'+esc((r.period||r.created_at||"").slice(0,10))+'</div><div style="width:80px;text-align:right;font-weight:700">'+money(r.amount_usd)+'</div></div>';}).join(""):'<div class="soon">No spend entries.</div>';});}
 function doAddSpend(){var amount=prompt("Amount $ (e.g. 1200)");if(!amount)return;var channel=prompt("Channel (instantly/apollo/crisp/meta/google/other)","meta")||"other";var industry=prompt("Industry slug (e.g. hvac)","")||"";var period=prompt("Period (YYYY-MM, optional)","")||"";
 fetch("/api/crm/spend"+(KEY?"?key="+encodeURIComponent(KEY):""),{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({amount_usd:amount,channel:channel,industry:industry,period:period})}).then(function(r){return r.json();}).then(function(res){if(res.error){alert(res.error);return;}ANALYTICS=null;ensureAnalytics();});}
-function ensureSocial(){if(SOCIAL){renderSocial();return;}api("/api/crm/social").then(function(r){return r.json();}).then(function(d){SOCIAL=d.posts||[];renderSocial();});}
-function renderSocial(){var posts=SOCIAL||[];var now=new Date();var monday=new Date(now);monday.setUTCDate(now.getUTCDate()-((now.getUTCDay()+6)%7));monday.setUTCHours(0,0,0,0);
-var pcolor={x:"#888780",twitter:"#888780",linkedin_company:"#378ADD",linkedin:"#378ADD",facebook:"#7F77DD",google_business_profile:"#639922",instagram:"#D4537E"};
-var dn=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];var cells=[];for(var i=0;i<7;i++){var d=new Date(monday);d.setUTCDate(monday.getUTCDate()+i);cells.push(d);}
-document.getElementById("weekLabel").textContent="Week of "+monday.toISOString().slice(0,10);
-document.getElementById("cal").innerHTML=cells.map(function(d){var ds=d.toISOString().slice(0,10);var dp=posts.filter(function(p){return (p.at||"").slice(0,10)===ds;});var chips=dp.map(function(p){var c=pcolor[(p.platform||"").toLowerCase()]||"#888780";return '<div class="chip" style="background:'+c+'">'+esc((p.platform||"").replace(/_/g," "))+'</div>';}).join("")||'<div class="muted tiny">—</div>';return '<div class="calcell"><div class="muted tiny" style="margin-bottom:5px">'+dn[d.getUTCDay()]+' '+d.getUTCDate()+'</div>'+chips+'</div>';}).join("");}
+var CHNAME={youtube:"YouTube",instagram:"Instagram",facebook:"Facebook",x:"X",linkedin:"LinkedIn",tiktok:"TikTok"};
+function covPill(c){var m={FULL:["rgba(0,229,160,.16)","#7ff0cd"],PARTIAL:["rgba(239,159,39,.18)","#f0c27a"],MINIMAL:["rgba(136,135,128,.2)","#b9b7ad"]};var x=m[c]||m.MINIMAL;return '<span class="pill" style="background:'+x[0]+';color:'+x[1]+'">'+c+'</span>';}
+function gradeColor(g){if(g==="A"||g==="B")return "#00e5a0";if(g==="C")return "#f0c27a";if(g==="D"||g==="F")return "#f08a8a";return "#888780";}
+function ensureSocial(){if(SCORES){renderScores();return;}var sm=document.getElementById("socMeta");if(sm)sm.textContent="Loading…";api("/api/crm/social/scores").then(function(r){return r.json();}).then(function(d){SCORES=d;renderScores();}).catch(function(){if(sm)sm.textContent="Failed to load scores.";});}
+function renderScores(){var d=SCORES||{};
+document.getElementById("socMeta").textContent="As of "+(d.generatedAt||"—")+" · "+(d.totalPosts||0)+" posts, "+(d.gradedPosts||0)+" graded";
+document.getElementById("socChannels").innerHTML=(d.channels||[]).map(function(c){
+var g=c.grade||"—";var sub=c.grade?("avg "+c.avgComposite):(c.posts?("warming up · "+c.posts+" below floor"):"no data yet");
+return '<div class="card" style="padding:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><span style="font-weight:600;font-size:13px">'+CHNAME[c.channel]+'</span>'+covPill(c.coverage)+'</div><div style="font-size:30px;font-weight:800;line-height:1.1;color:'+gradeColor(c.grade)+'">'+g+'</div><div class="muted tiny">'+sub+'</div><div class="muted tiny">'+c.gradedPosts+'/'+c.posts+' graded'+(c.graduates?(" · "+c.graduates+" ⭐"):"")+'</div></div>';
+}).join("");
+var lb=d.leaderboard||[];
+document.getElementById("socBoard").innerHTML=lb.length?lb.map(function(s,i){
+return '<div class="row" style="cursor:default"><div style="width:22px" class="muted tiny">'+(i+1)+'</div><div style="width:70px"><span style="font-weight:800;color:'+gradeColor(s.grade)+'">'+s.grade+'</span> <span class="muted tiny">'+s.composite+'</span></div><div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(String(s.name))+' <span class="muted tiny">'+(CHNAME[s.platform]||s.platform)+'</span></div>'+covPill(s.coverage)+(s.graduate?'<span class="pill" style="background:rgba(0,229,160,.16);color:#7ff0cd;margin-left:6px">GRADUATE</span>':"")+'<div style="width:62px;text-align:right" class="muted tiny">'+(s.views||0)+' v</div></div>';
+}).join(""):'<div class="soon">No posts above the distribution floor yet — channels are warming up. Grades appear once a post clears the floor (IG/FB 500 reach; YT/X/LI/TT ~900 views/impr).</div>';
+var gb=d.gbp||{};document.getElementById("socGbp").innerHTML=gb.available?"":'<div class="muted tiny">'+esc(gb.note||"GBP pending.")+'</div>';
+document.getElementById("socNote").textContent=d.note||"";
+var rb=document.getElementById("socRefresh");if(rb)rb.onclick=function(){SCORES=null;ensureSocial();};}
 
 function ensureSettings(){var o=location.origin;var wc=document.getElementById("whCrisp");if(wc)wc.value=o+"/api/crm/crisp?key="+encodeURIComponent(KEY);var wa=document.getElementById("whApollo");if(wa)wa.value=o+"/api/crm/apollo?key="+encodeURIComponent(KEY);
 var at=document.getElementById("apTest");if(at)at.onclick=function(){var m=document.getElementById("apMsg");m.textContent="Testing…";api("/api/crm/apollo/sync?test=1").then(function(r){return r.json();}).then(function(d){m.textContent=d.ok?("✓ connected · "+d.total_contacts+" contacts"):("✗ "+(d.message||d.error||"failed"));});};
