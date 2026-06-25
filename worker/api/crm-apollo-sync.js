@@ -6,7 +6,7 @@
 // Gated by the CRM session/key. Run requires APOLLO_CONTACTS_LABEL (or ?label=)
 // so we never import the entire Apollo contact DB.
 import { json, corsHeaders } from "../_lib/http.js";
-import { crmAuthed, upsertLead, addActivity } from "../_lib/crm.js";
+import { crmAuthed, upsertLead, addActivity, ensureCrmSchema } from "../_lib/crm.js";
 
 async function apolloSearch(env, page, perPage, extra) {
   const body = Object.assign({ api_key: env.APOLLO_API_KEY, page: page || 1, per_page: perPage || 25 }, extra || {});
@@ -41,25 +41,47 @@ export async function onRequestGet({ request, env }) {
   // Apollo filters by label ID (not name) via contact_label_ids — so this must be the LIST ID.
   const label = env.APOLLO_CONTACTS_LABEL || url.searchParams.get("label") || "";
   if (!label) return json({ ok: false, error: "no_label", message: "Set APOLLO_CONTACTS_LABEL to your Apollo visitors-list ID (from the list URL), or pass ?label=<id>." }, { status: 400 }, cors);
+  const out = await doSync(env, label);
+  return json(out, out.ok ? {} : { status: out.status || 502 }, cors);
+}
+
+// Incremental sync: pull the visitors list, insert ONLY new emails (dedup against
+// existing leads). Existing visitors are left untouched — so a frequent cron adds
+// no activity-log churn and doesn't re-float known leads. Returns a plain result.
+async function doSync(env, label) {
+  await ensureCrmSchema(env);
+  const existing = new Set();
+  try {
+    const r0 = await env.DB.prepare("SELECT email FROM crm_leads WHERE email IS NOT NULL").all();
+    for (const row of r0.results || []) existing.add(String(row.email).toLowerCase());
+  } catch (_) {}
 
   let synced = 0, skipped = 0, pages = 0;
   for (let page = 1; page <= 8; page++) {
     const r = await apolloSearch(env, page, 25, { contact_label_ids: [label] });
-    if (r.status !== 200) return json({ ok: false, status: r.status, synced, error: errOf(r) }, {}, cors);
+    if (r.status !== 200) return { ok: false, status: r.status, synced, error: errOf(r) };
     const contacts = (r.data && r.data.contacts) || [];
     if (!contacts.length) break;
     pages++;
     for (const c of contacts) {
       const email = (c.email || "").toLowerCase();
+      if (!email || existing.has(email)) { skipped++; continue; } // only genuinely new contacts
       const name = [c.first_name, c.last_name].filter(Boolean).join(" ") || c.name || "";
       const company = (c.organization && c.organization.name) || c.account_name || c.organization_name || "";
-      if (!email && !name && !company) { skipped++; continue; }
-      const id = await upsertLead(env, { source: "apollo", email: email || null, name, company, consent_status: "identified", notes: c.linkedin_url ? "LinkedIn: " + c.linkedin_url : null });
+      const id = await upsertLead(env, { source: "apollo", email, name, company, consent_status: "identified", notes: c.linkedin_url ? "LinkedIn: " + c.linkedin_url : null });
       await addActivity(env, id, "identified", "Synced from Apollo" + (company ? " · " + company : ""), "apollo");
+      existing.add(email);
       synced++;
     }
     const totalPages = (r.data && r.data.pagination && r.data.pagination.total_pages) || 1;
     if (page >= totalPages) break;
   }
-  return json({ ok: true, synced, skipped, pages, label }, {}, cors);
+  return { ok: true, synced, skipped, pages, label };
+}
+
+// Called from the scheduled() cron in index.js. No-op until both the API key and
+// the visitors-list label are configured.
+export async function runScheduledSync(env) {
+  if (!env.APOLLO_API_KEY || !env.APOLLO_CONTACTS_LABEL) return { ok: false, skipped: "unconfigured" };
+  return doSync(env, env.APOLLO_CONTACTS_LABEL);
 }

@@ -141,6 +141,20 @@ export default {
   // missing). On success the row is marked published with the live post URL; on
   // error it stays ready_to_publish and retries next eligible run.
   async scheduled(event, env, ctx) {
+    // Apollo visitor sync — frequent cron. Incremental (only new emails), so it's
+    // cheap to run often. No-op until APOLLO_API_KEY + APOLLO_CONTACTS_LABEL are set.
+    if (event.cron === "*/5 * * * *") {
+      if (!env.DB) return;
+      try {
+        const out = await crmApolloSync.runScheduledSync(env);
+        if (out && out.synced) console.log(`[apollo] synced ${out.synced} new (${out.skipped} skipped)`);
+      } catch (err) {
+        console.log(`[apollo] sync error: ${String(err).slice(0, 160)}`);
+      }
+      return;
+    }
+
+    // Daily social drip.
     if (env.SOCIAL_AUTOPOST_ENABLED !== "true" || !env.DB) return;
     const now = Date.now();
     for (const platform of LAUNCH_PLATFORMS) {

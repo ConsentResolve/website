@@ -30,7 +30,10 @@
   // adapter self-skips without its creds). Apply worker/social-queue.sql +
   // worker/social-tokens.sql to D1 and seed the queue before enabling.
   "triggers": {
-    "crons": ["0 15 * * *"]
+    // "0 15 * * *" → daily social drip. "*/5 * * * *" → Apollo visitor sync
+    // (no-op until APOLLO_API_KEY + APOLLO_CONTACTS_LABEL are set). scheduled()
+    // in worker/index.js branches on event.cron.
+    "crons": ["0 15 * * *", "*/5 * * * *"]
   },
   //
   // Non-secret config. Secrets (set via `wrangler secret put` or the dashboard —
