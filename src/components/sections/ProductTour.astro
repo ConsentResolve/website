@@ -145,25 +145,20 @@ const stages: Stage[] = [
             </ul>
           </div>
 
-          {/* Screen */}
+          {/* Screen — framed like the industry "live product preview": the real
+               dashboard UI at native size in a capped, scroll-to-explore ring frame
+               (no toy browser chrome; the screens carry their own app shell). */}
           <div class="tour-step-screen">
-            <div class="tour-frame">
-              <div class="tour-chrome" aria-hidden="true">
-                <span class="tour-chrome-dot" style="background:#FF5F57"></span>
-                <span class="tour-chrome-dot" style="background:#FEBC2E"></span>
-                <span class="tour-chrome-dot" style="background:#28C840"></span>
-                <span class="tour-chrome-url">dashboard.consentresolve.com/{stage.path}</span>
-              </div>
-              <div class="tour-screen" style={`--screen-scale:${stage.scale}`}>
-                <div class="tour-screen-scale">
-                  {stage.screen === "consent"        && <ConsentScreen />}
-                  {stage.screen === "visitors"       && <VisitorsScreen />}
-                  {stage.screen === "visitor-detail" && <VisitorDetailScreen />}
-                  {stage.screen === "integrations"   && <IntegrationsScreen />}
-                  {stage.screen === "dashboard"      && <DashboardScreen />}
-                </div>
+            <div class="tour-shot">
+              <div class="tour-shot-native">
+                {stage.screen === "consent"        && <ConsentScreen />}
+                {stage.screen === "visitors"       && <VisitorsScreen />}
+                {stage.screen === "visitor-detail" && <VisitorDetailScreen />}
+                {stage.screen === "integrations"   && <IntegrationsScreen />}
+                {stage.screen === "dashboard"      && <DashboardScreen />}
               </div>
             </div>
+            <p class="tour-shot-cap">Scroll to explore the screen ↕</p>
           </div>
         </div>
       </div>
@@ -311,59 +306,25 @@ const stages: Stage[] = [
     background: var(--color-brand-soft);
   }
 
-  /* Screen column */
+  /* Screen column — matches the industry "live product preview": the real
+     dashboard UI at native width inside a capped, scroll-to-explore ring frame. */
   .tour-step-screen { position: relative; }
-  .tour-frame {
-    position: relative;
+  .tour-shot {
+    max-height: 460px;
+    overflow: auto;
     border-radius: 1.25rem;
-    overflow: hidden;
     background: var(--color-bg);
     box-shadow:
-      0 0 0 1px rgba(10, 22, 40, 0.08),
+      0 0 0 1px var(--color-rule),
       0 40px 80px -28px rgba(10, 22, 40, 0.45),
       0 12px 24px -8px rgba(10, 22, 40, 0.22);
+    -webkit-overflow-scrolling: touch;
   }
-  .tour-chrome {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.6rem 0.85rem;
-    background: linear-gradient(180deg, #fafbfc 0%, #f1f5f9 100%);
-    border-bottom: 1px solid rgba(10, 22, 40, 0.08);
-  }
-  .tour-chrome-dot {
-    display: inline-block;
-    width: 11px; height: 11px;
-    border-radius: 9999px;
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
-  }
-  .tour-chrome-url {
-    flex: 1;
-    margin: 0 0.6rem;
+  .tour-shot-native { min-width: 760px; }
+  .tour-shot-cap {
+    margin-top: 0.7rem;
     text-align: center;
-    font-family: var(--font-mono, ui-monospace, monospace);
-    font-size: 11.5px;
-    color: rgba(10, 22, 40, 0.6);
-    background: white;
-    border: 1px solid rgba(10, 22, 40, 0.06);
-    border-radius: 0.5rem;
-    padding: 0.32rem 0.7rem;
-    max-width: 360px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .tour-screen {
-    position: relative;
-    aspect-ratio: 16 / 10;
-    overflow: hidden;
-    background: var(--color-bg);
-  }
-  .tour-screen-scale {
-    width: calc(100% / var(--screen-scale, 0.62));
-    height: calc(100% / var(--screen-scale, 0.62));
-    transform: scale(var(--screen-scale, 0.62));
-    transform-origin: top left;
-    pointer-events: none;
+    font-size: 0.72rem;
+    color: var(--color-ink-muted);
   }
 </style>

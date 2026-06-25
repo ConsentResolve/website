@@ -1,13 +1,16 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Badge from "~/components/ui/Badge.astro";
+import Button from "~/components/ui/Button.astro";
+import FeatureCard from "~/components/ui/FeatureCard.astro";
 import HowItWorks from "~/components/sections/HowItWorks.astro";
 import ProductTour from "~/components/sections/ProductTour.astro";
-import IllustrationCard from "~/components/ui/IllustrationCard.astro";
+import ConsentFlowSlideshow from "~/components/sections/ConsentFlowSlideshow.astro";
 import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FAQSection from "~/components/sections/FAQSection.astro";
+import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
-import { IconArrowRight, IconEye } from "@tabler/icons-react";
+import { IconArrowRight, IconEye, IconCheck, IconUserCheck, IconLock, IconShieldCheck } from "@tabler/icons-react";
 import { breadcrumbSchema, howToSchema, faqSchema } from "~/lib/seo";
 import { HOMEPAGE_FAQS } from "~/data/homepageFaqs";
 
@@ -29,6 +32,21 @@ const howTo = howToSchema({
     { name: "More calls, more jobs", text: "The homeowner re-enters the funnel on their own time and calls the contractor — a warm inbound from a visitor who would otherwise have bounced. Same ad budget, more booked jobs." },
   ],
 });
+
+// Demo is the conversion action; tag clicks so they attribute to this page.
+const demoHref = (slot: string) =>
+  `/demo/?utm_source=how-it-works&utm_medium=site&utm_content=${slot}`;
+
+// Canonical "booked job" math — the same $575 vs $140 comparison used on the
+// industry pages, kept trade-agnostic here.
+const bookedJobMath = {
+  shared: { cost: "$575", sub: "$46 a lead · sold to ~4 others · ~1 in 12 books" },
+  owned: { cost: "$140", sub: "$7 a lead · exclusive, never resold · yours alone" },
+};
+
+// Plain-English answer for answer engines (mirrors the industry AEO blocks).
+const aeoAnswer =
+  "Consent Resolve is a consent-first website-visitor identification layer for home-service contractors. When a homeowner lands on your site and accepts the consent banner, it identifies them — a real name and a consented email, with the pages they viewed and a timestamped consent record — and feeds that lead into the retargeting, email, and CRM tools you already run. Every lead is exclusive to you and never resold, at a flat $7 per recovered lead with no contract. It complements your existing ads (Google, Local Service Ads, Meta) by recovering the roughly 98% of visitors who would otherwise leave without contacting you.";
 ---
 
 <BaseLayout
@@ -37,69 +55,140 @@ const howTo = howToSchema({
   description="From an anonymous bounce to a booked job in five steps. Same ad budget, more inbound calls. Walk through the consent-first recovery flow and the five product screens you'll actually use."
   schema={[breadcrumbs, howTo, faqSchema(HOMEPAGE_FAQS)]}
 >
-  <!-- Hero -->
-  <section class="relative overflow-hidden">
+  <!-- Hero (dark) — mirrors the industry pages: consent→click→CRM animation,
+       dual CTAs, and the trust line. -->
+  <section class="section section-dark relative overflow-hidden">
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
-    <div class="container-content section relative">
-      <div class="mx-auto max-w-3xl text-center">
-        <div class="mb-7 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>How it works</Badge></div>
-        <h1 class="display-1 mb-7 text-[color:var(--color-ink)]">
-          How an Anonymous Homeowner Becomes Your Next Booked Job —<br/>
-          <span class="text-[color:var(--color-brand)]">In Five Steps.</span>
-        </h1>
-        <p class="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-          You already pay to drive traffic. About <a href="/stats/#anonymous-traffic" class="underline decoration-dotted underline-offset-2 hover:text-[color:var(--color-brand-pressed)]">98 of every 100 homeowners leave without contacting you</a>. The five steps below recover them — with consent — and feed them back into the funnel you already run. Same ad budget. No new ad spend.
-        </p>
-        <div class="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <a
-            href="https://dashboard.consentresolve.com/register"
-            class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
-          >
-            Get Started
-            <IconArrowRight size={16} stroke={2.5} />
-          </a>
-          <a
-            href="#product-tour"
-            class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-rule)] transition-all hover:ring-[color:var(--color-mint-400)]/60"
-          >
-            <IconEye size={16} stroke={2} />
-            Jump to the tour
-          </a>
+    <div class="container-content relative">
+      <div class="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+        <div>
+          <div class="mb-7"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>How it works</Badge></div>
+          <h1 class="display-1 mb-7 text-white">
+            How an Anonymous Homeowner Becomes Your Next Booked Job —
+            <span class="text-[color:var(--color-brand)]">In Five Steps.</span>
+          </h1>
+          <p class="mb-10 max-w-xl text-lg leading-relaxed text-slate-300">
+            You already pay to drive traffic. About <a href="/stats/#anonymous-traffic" class="underline decoration-dotted underline-offset-2 hover:text-[color:var(--color-mint-400)]">98 of every 100 homeowners leave without contacting you</a>. The five steps below recover them — with consent — and feed them back into the funnel you already run. Same ad budget. No new ad spend.
+          </p>
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <a
+              href={demoHref("hero")}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
+            >
+              <IconEye size={18} stroke={2} />
+              Live Demo
+            </a>
+            <a
+              href="https://dashboard.consentresolve.com/register"
+              class="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/20 transition-all hover:bg-white/5"
+            >
+              Get Started
+              <IconArrowRight size={18} stroke={2.25} />
+            </a>
+          </div>
+          <ul class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-300">
+            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00E5A0" /> $7 per lead, never resold</li>
+            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00E5A0" /> Exclusive leads</li>
+            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00E5A0" /> Cancel anytime</li>
+          </ul>
+          <p class="mt-4 text-sm text-slate-400">~60-second live demo — the lead it sends is you. No card required.</p>
+        </div>
+        <!-- Hero animation: consent → click → CRM (shared with /features + industry pages) -->
+        <div class="relative">
+          <ConsentFlowSlideshow />
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Canonical five-step flow (single source of truth, shared with /style-guide/how-it-works/) -->
+  <!-- The five-step flow (light) — canonical StepFlow, shared with the industry pages -->
   <HowItWorks />
 
-  <!-- Guided product tour — five product screens with annotations -->
-  <ProductTour />
+  <!-- The problem (dark) — static, no video: the bounce these five steps recover -->
+  <section class="section section-dark">
+    <div class="container-content">
+      <div class="grid items-center gap-12 lg:grid-cols-2">
+        <div>
+          <div class="mb-5"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>The problem</Badge></div>
+          <h2 class="display-2 text-white">98 of 100 visitors leave anonymous.</h2>
+          <p class="mt-5 max-w-xl text-[17px] leading-relaxed text-slate-300">
+            You already pay to drive the traffic. Most homeowners read a service page and leave without ever calling — no name, no email, no second chance. That's the bounce Consent Resolve recovers: the visitor was already on your site, looking at your services, and would otherwise vanish.
+          </p>
+          <p class="mt-5 text-sm text-slate-400">
+            They're not shopping a marketplace — they're on <em>your</em> site. Recover the ones who consent and they become a named lead in the CRM you already run.
+          </p>
+        </div>
+        <!-- Big stat (static) -->
+        <div class="mx-auto w-full max-w-md rounded-[1.5rem] bg-white/[0.04] p-10 text-center ring-1 ring-inset ring-white/10">
+          <p class="font-display text-[5.5rem] font-extrabold leading-none text-[color:var(--color-mint-400)]">98%</p>
+          <p class="mt-4 text-lg font-semibold text-white">of website visitors leave without contacting you</p>
+          <p class="mt-3 text-sm text-slate-400">
+            Across home-service sites. <a href="/stats/#anonymous-traffic" class="underline decoration-dotted underline-offset-2 hover:text-[color:var(--color-mint-400)]">See the benchmarks and sources →</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <!-- What makes it different -->
-  <section class="section">
+  <!-- The math (light) — the canonical $575 vs $140 booked-job comparison -->
+  <section class="section bg-[color:var(--color-bg-alt)]">
+    <div class="container-content">
+      <div class="mx-auto mb-10 max-w-2xl text-center">
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>The math</Badge></div>
+        <h2 class="display-2 text-[color:var(--color-ink)]">
+          Same booked job. Less than a quarter of the cost.
+        </h2>
+        <p class="mt-3 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+          Shared leads get sold to four contractors at once, so most never book. Recover the traffic you already paid for instead — exclusive, at $7. Here's the same job, both ways.
+        </p>
+      </div>
+      <div class="mx-auto grid max-w-3xl gap-5 sm:grid-cols-2">
+        <div class="rounded-2xl bg-[color:var(--color-bg)] p-7 ring-1 ring-inset ring-[color:var(--color-rule)]">
+          <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Shared / bought leads</p>
+          <p class="mt-2 font-display text-4xl font-extrabold text-[color:var(--color-ink)]">{bookedJobMath.shared.cost}<span class="text-lg font-bold text-[color:var(--color-ink-muted)]"> / booked job</span></p>
+          <p class="mt-3 text-sm text-[color:var(--color-ink-2)]">{bookedJobMath.shared.sub}</p>
+        </div>
+        <div class="rounded-2xl bg-[color:var(--color-brand-soft)] p-7 ring-1 ring-inset ring-[color:var(--color-brand)]/40 shadow-[0_30px_60px_-30px_rgba(0,229,160,0.35)]">
+          <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Your own traffic — Consent Resolve</p>
+          <p class="mt-2 font-display text-4xl font-extrabold text-[color:var(--color-ink)]">{bookedJobMath.owned.cost}<span class="text-lg font-bold text-[color:var(--color-ink-muted)]"> / booked job</span></p>
+          <p class="mt-3 text-sm text-[color:var(--color-ink-2)]">{bookedJobMath.owned.sub}</p>
+        </div>
+      </div>
+      <p class="mx-auto mt-8 max-w-2xl text-center text-[15px] text-[color:var(--color-ink-2)]">
+        One booked home-service job runs hundreds to thousands of dollars — a single job pays for a lot of $7 leads. Illustrative, not a promise.
+      </p>
+    </div>
+  </section>
+
+  <!-- What makes it different (dark) — the three things every other lead tool gets wrong -->
+  <section class="section section-dark">
     <div class="container-content">
       <div class="mb-14 text-center">
-        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>What makes it different</Badge></div>
-        <h2 class="display-2 mx-auto max-w-2xl text-[color:var(--color-ink)]">
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>What makes it different</Badge></div>
+        <h2 class="display-2 mx-auto max-w-2xl text-white">
           The three things every other lead tool gets wrong.
         </h2>
       </div>
       <div class="grid gap-6 md:grid-cols-3">
-        <IllustrationCard
-          illustration="/illustrations/features/02-consent-checkmark.svg"
+        <FeatureCard
+          variant="showcase-dark"
+          icon={IconUserCheck}
           title="Only after consent."
           body="No shadow-tracking. A name appears only when a homeowner agrees — and every consent gets a timestamp and a signed audit ID."
           href="/features/consent-first-identification/"
         />
-        <IllustrationCard
-          illustration="/illustrations/style/07-lead-house-lock.svg"
+        <FeatureCard
+          variant="showcase-dark"
+          icon={IconLock}
           title="Yours alone."
           body="One lead, one shop. Never resold, never auctioned, never shared with three other contractors in your town."
           href="/features/exclusive-leads/"
         />
-        <IllustrationCard
-          illustration="/illustrations/style/08-shield-doc.svg"
+        <FeatureCard
+          variant="showcase-dark"
+          icon={IconShieldCheck}
           title="Audit-ready consent records."
           body="Every recovery carries a signed, timestamped consent record. One regulator request, one demand letter — and you have the receipt."
           href="/features/built-in-compliance/"
@@ -108,7 +197,36 @@ const howTo = howToSchema({
     </div>
   </section>
 
+  <!-- Guided product tour (light) — the five real screens, framed like the
+       industry "live product preview" (native size, scroll to explore) -->
+  <ProductTour />
+
+  <!-- Demo CTA band (dark) — see it work on yourself -->
+  <section class="section section-dark">
+    <div class="container-content">
+      <div class="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
+        <div><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Live demo</Badge></div>
+        <h2 class="display-2 text-white">See it work on yourself.</h2>
+        <p class="text-[17px] leading-relaxed text-slate-300">
+          Register, browse a sample site, accept the banner — and watch the new-lead notification land in your inbox. The lead is you. About 60 seconds, no card required.
+        </p>
+        <Button href={demoHref("cta-band")} target="_blank" rel="noopener" variant="primary" size="lg">
+          <IconEye size={18} stroke={2} />
+          Try the live demo
+        </Button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Compliance (light) -->
   <ComplianceBand />
+
+  <!-- FAQ (dark) -->
   <FAQSection />
+
+  <!-- Plain-English answer (light) — for answer engines -->
+  <AEOAnswer text={aeoAnswer} />
+
+  <!-- Final CTA (dark) -->
   <FinalCTA />
 </BaseLayout>
