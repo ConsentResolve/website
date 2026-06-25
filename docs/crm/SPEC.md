@@ -167,6 +167,24 @@ Lead, MQL/active, demo (registered+consented), customer (won), revenue (`value_u
 spend (tool subs + ad spend), **CPL, cost/demo, CAC, ROAS = revenue/spend, win-rate** —
 all sliceable by industry + channel + period. (Finalize exact definitions in review.)
 
+## 10b. Gmail two-way setup (slice 3)
+
+Restricted scopes (`gmail.readonly`, `gmail.send`): an **Internal** Workspace OAuth
+app needs no Google verification; **External** apps do (or run in Testing mode with
+the accounts as test users — refresh tokens expire after 7 days).
+
+1. Google Cloud → enable the **Gmail API**.
+2. OAuth consent screen: **Internal** if the sending accounts are one Workspace org;
+   add scopes `gmail.readonly` + `gmail.send`.
+3. OAuth client (**Web**) → Authorized redirect URI:
+   `https://consentresolve.com/api/crm/gmail/callback`
+4. Set `GMAIL_CLIENT_ID` + `GMAIL_CLIENT_SECRET` in Cloudflare (or reuse the existing
+   `GOOGLE_*` client by adding the redirect URI + scopes to it). Redeploy the **latest**
+   build so env vars apply.
+5. CRM → **Settings → Connect Gmail account** → approve, once per sending account.
+   Tokens land in `social_tokens` as `gmail:<email>`. Then read/reply lights up in the
+   lead detail (also ingests Instantly cold replies, which arrive in those inboxes).
+
 ## 11. Decisions (LOCKED 2026-06-25)
 
 1. **Reply from Gmail:** ✅ **Full Gmail-API two-way inside the CRM.** Read + send as the connected Google accounts, threaded on the lead. Replies are NOT routed through Instantly. → moved into **MVP**.
