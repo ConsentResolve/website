@@ -14,7 +14,7 @@ const { title, description, slug, eyebrow = "Style Guide" } = Astro.props as Pro
 const neighbors = slug ? getNeighbors(slug) : { prev: null, next: null };
 ---
 
-<BaseLayout title={`${title} · Consent Resolve Style Guide`} description={description} noindex>
+<BaseLayout title={`${title} · Consent Resolve Style Guide`} ogTitle={`${title} · Consent Resolve Style Guide`} description={description} noindex>
   <div class="bg-[color:var(--color-bg)]">
     <div class="mx-auto grid max-w-[1320px] gap-12 px-6 py-12 lg:grid-cols-[260px_1fr]">
       <!-- Sidebar -->
