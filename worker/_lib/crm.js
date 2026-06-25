@@ -4,6 +4,17 @@
 // signups in `participants` are mirrored in automatically.
 
 import { uuid, nowIso } from "./db.js";
+import { isAuthed } from "./auth.js";
+
+// Shared gate for CRM endpoints: admin session OR ?key=<CRM_KEY|DASHBOARD_KEY>.
+export function crmKey(env) {
+  return env.CRM_KEY || env.DASHBOARD_KEY || "cr-dash-2026";
+}
+export async function crmAuthed(request, env) {
+  if (await isAuthed(request, env)) return true;
+  const key = new URL(request.url).searchParams.get("key") || "";
+  return Boolean(key && key === crmKey(env));
+}
 
 export async function ensureCrmSchema(env) {
   await env.DB.batch([
@@ -114,4 +125,76 @@ export async function upsertLead(env, lead) {
     lead.notes || null, now, now
   ).run();
   return id;
+}
+
+// ── Spend (manual tool subs + ad spend) ─────────────────────────────────────
+export async function ensureSpend(env) {
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS crm_spend (
+    id TEXT PRIMARY KEY, industry TEXT, channel TEXT, amount_usd REAL,
+    period TEXT, note TEXT, created_at TEXT
+  )`).run();
+}
+export async function listSpend(env) {
+  await ensureSpend(env);
+  return (await env.DB.prepare("SELECT * FROM crm_spend ORDER BY created_at DESC LIMIT 300").all()).results || [];
+}
+export async function addSpend(env, s) {
+  await ensureSpend(env);
+  await env.DB.prepare("INSERT INTO crm_spend (id, industry, channel, amount_usd, period, note, created_at) VALUES (?,?,?,?,?,?,?)")
+    .bind(uuid(), s.industry || null, s.channel || "other", Number(s.amount_usd) || 0, s.period || null, s.note || null, nowIso()).run();
+}
+
+// ── Per-industry funnel + ROAS ──────────────────────────────────────────────
+export async function computeAnalytics(env) {
+  await ensureCrmSchema(env);
+  await ensureSpend(env);
+  await syncFromParticipants(env);
+  const leadRows = (await env.DB.prepare(
+    "SELECT COALESCE(industry,'(unknown)') AS ind, COUNT(*) AS leads, SUM(CASE WHEN status='won' THEN 1 ELSE 0 END) AS won, SUM(CASE WHEN status='won' THEN value_usd ELSE 0 END) AS revenue FROM crm_leads GROUP BY ind"
+  ).all()).results || [];
+  const demoRows = (await env.DB.prepare(
+    "SELECT trade AS ind, COUNT(*) AS demos FROM participants WHERE consented_at IS NOT NULL GROUP BY trade"
+  ).all()).results || [];
+  const spendRows = (await env.DB.prepare(
+    "SELECT COALESCE(industry,'(unknown)') AS ind, channel, SUM(amount_usd) AS amt FROM crm_spend GROUP BY ind, channel"
+  ).all()).results || [];
+
+  const map = {};
+  const row = (ind) => map[ind] || (map[ind] = { industry: ind, visits: 0, leads: 0, demos: 0, won: 0, revenue: 0, spend: 0 });
+  leadRows.forEach((r) => { const x = row(r.ind); x.leads = r.leads || 0; x.won = r.won || 0; x.revenue = r.revenue || 0; });
+  demoRows.forEach((r) => { if (r.ind) row(r.ind).demos = r.demos || 0; });
+  const byChannel = {};
+  spendRows.forEach((r) => { row(r.ind).spend += r.amt || 0; byChannel[r.channel] = (byChannel[r.channel] || 0) + (r.amt || 0); });
+
+  for (const ind of Object.keys(map)) {
+    try {
+      const v = await env.DB.prepare("SELECT COUNT(*) AS n FROM traffic WHERE path LIKE ?").bind("/" + ind + "-leads%").first();
+      map[ind].visits = (v && v.n) || 0;
+    } catch (_) {}
+  }
+
+  const industries = Object.values(map).map((x) => {
+    x.cpl = x.leads ? Math.round(x.spend / x.leads) : 0;
+    x.cac = x.won ? Math.round(x.spend / x.won) : 0;
+    x.winRate = x.demos ? Math.round((100 * x.won) / x.demos) : 0;
+    x.roas = x.spend ? Math.round((x.revenue / x.spend) * 10) / 10 : 0;
+    return x;
+  }).sort((a, b) => b.leads - a.leads);
+
+  const totals = industries.reduce((t, x) => {
+    t.visits += x.visits; t.leads += x.leads; t.demos += x.demos; t.won += x.won; t.revenue += x.revenue; t.spend += x.spend; return t;
+  }, { visits: 0, leads: 0, demos: 0, won: 0, revenue: 0, spend: 0 });
+  totals.roas = totals.spend ? Math.round((totals.revenue / totals.spend) * 10) / 10 : 0;
+  totals.cac = totals.won ? Math.round(totals.spend / totals.won) : 0;
+  totals.cpl = totals.leads ? Math.round(totals.spend / totals.leads) : 0;
+  return { industries, totals, byChannel };
+}
+
+// ── Social calendar (published + scheduled from social_queue) ───────────────
+export async function socialCalendar(env) {
+  try {
+    return (await env.DB.prepare(
+      "SELECT platform, status, resource_slug, post_url, COALESCE(published_at, scheduled_at) AS at FROM social_queue WHERE COALESCE(published_at, scheduled_at) IS NOT NULL ORDER BY at DESC LIMIT 400"
+    ).all()).results || [];
+  } catch (_) { return []; }
 }

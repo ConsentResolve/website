@@ -28,6 +28,9 @@ import * as gbpStatus from "./api/gbp-status.js";
 import * as admin from "./admin.js";
 import * as crm from "./crm.js";
 import * as crmLeads from "./api/crm-leads.js";
+import * as crmAnalytics from "./api/crm-analytics.js";
+import * as crmSpend from "./api/crm-spend.js";
+import * as crmSocial from "./api/crm-social.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -50,6 +53,9 @@ const ROUTES = {
   "/api/requeue": requeue,
   "/api/gbp-status": gbpStatus,
   "/api/crm/leads": crmLeads,
+  "/api/crm/analytics": crmAnalytics,
+  "/api/crm/spend": crmSpend,
+  "/api/crm/social": crmSocial,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).

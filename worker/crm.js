@@ -41,6 +41,14 @@ button.ghost{background:none;border:1px solid var(--line);color:var(--ink);borde
 .tl .it{position:relative;margin-bottom:10px}.tl .it:before{content:"";position:absolute;left:-18px;top:5px;width:7px;height:7px;border-radius:50%;background:var(--mint)}
 label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 .soon{padding:40px;text-align:center;color:var(--mut)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+.tile{background:var(--surf2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.tile .l{font-size:12px;color:var(--mut)}.tile .n{font-size:22px;font-weight:700;margin-top:2px}
+.track{height:8px;background:var(--surf2);border-radius:999px;overflow:hidden;margin-top:4px}
+.fill{height:100%;background:var(--mint)}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.calcell{border:1px solid var(--line);border-radius:8px;min-height:84px;padding:6px}
+.chip{font-size:10.5px;padding:3px 5px;border-radius:4px;color:#fff;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style></head><body>
 <header><div class="logo">✓</div><div style="font-weight:600">Consent Resolve <span class="muted">CRM</span></div><div class="muted tiny" style="margin-left:auto" id="count"></div></header>
 <nav>
@@ -62,9 +70,21 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
     <div class="card detail" id="detail"><div class="soon">Select a lead</div></div>
   </div>
 </section>
-<section data-pane="industry" hidden><div class="soon">Per-industry funnel — building next (slice 4).</div></section>
-<section data-pane="roas" hidden><div class="soon">Spend &amp; ROAS — building next (slice 5).</div></section>
-<section data-pane="social" hidden><div class="soon">Social calendar — building next (slice 6).</div></section>
+<section data-pane="industry" hidden>
+  <div class="bar"><select id="indSel"></select></div>
+  <div class="tiles" id="indTiles"></div>
+  <div class="card" style="padding:16px"><div class="muted tiny" style="margin-bottom:10px">Funnel</div><div id="indFunnel"></div></div>
+</section>
+<section data-pane="roas" hidden>
+  <div class="tiles" id="roasTiles"></div>
+  <div class="bar" style="justify-content:space-between"><div class="muted tiny">Spend by channel</div><button class="ghost" id="addSpend">+ Add spend</button></div>
+  <div class="card" style="padding:16px;margin-bottom:14px" id="roasChannels"></div>
+  <div class="card" id="spendList"></div>
+</section>
+<section data-pane="social" hidden>
+  <div class="bar"><div class="muted tiny" id="weekLabel"></div></div>
+  <div class="calgrid" id="cal"></div>
+</section>
 </div>
 <script>
 var KEY=new URLSearchParams(location.search).get("key")||"";
@@ -113,8 +133,29 @@ fetch("/api/crm/leads"+(KEY?"?key="+encodeURIComponent(KEY):""),{method:"POST",h
 
 function load(selId){api("/api/crm/leads").then(function(r){return r.json();}).then(function(d){if(d.error){document.getElementById("list").innerHTML='<div class="soon">'+esc(d.error)+' — append ?key=</div>';return;}ALL=d.leads||[];fillIndustries();render();if(selId)selPick(selId);});}
 
-document.getElementById("fQ").oninput=render;document.getElementById("fInd").onchange=render;document.getElementById("fSrc").onchange=render;document.getElementById("add").onclick=add;
-[].forEach.call(document.querySelectorAll("nav button"),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll("nav button"),function(x){x.classList.remove("active");});b.classList.add("active");[].forEach.call(document.querySelectorAll("[data-pane]"),function(p){p.hidden=p.getAttribute("data-pane")!==b.getAttribute("data-v");});};});
+var ANALYTICS=null,SOCIAL=null;
+function tile(l,n){return '<div class="tile"><div class="l">'+l+'</div><div class="n">'+n+'</div></div>';}
+function ensureAnalytics(){if(ANALYTICS){return;}api("/api/crm/analytics").then(function(r){return r.json();}).then(function(d){ANALYTICS=d;renderIndustries();renderRoas();});}
+function renderIndustries(){if(!ANALYTICS)return;var inds=ANALYTICS.industries||[];var sel=document.getElementById("indSel");if(!sel.options.length){sel.innerHTML=inds.map(function(x){return '<option>'+esc(x.industry)+'</option>';}).join("");sel.onchange=drawIndustry;}drawIndustry();}
+function drawIndustry(){var inds=ANALYTICS.industries||[];var name=document.getElementById("indSel").value||(inds[0]&&inds[0].industry);var x=null;inds.forEach(function(i){if(i.industry===name)x=i;});x=x||inds[0];if(!x){document.getElementById("indTiles").innerHTML='<div class="soon">No data yet.</div>';document.getElementById("indFunnel").innerHTML="";return;}
+document.getElementById("indTiles").innerHTML=tile("Cost / lead",x.cpl?"$"+x.cpl:"—")+tile("Cost / booked",x.cac?"$"+x.cac:"—")+tile("Win rate",x.demos?x.winRate+"%":"—")+tile("Revenue",money(x.revenue));
+var steps=[["Visits",x.visits],["Leads",x.leads],["Demos",x.demos],["Booked",x.won]];var max=Math.max(1,x.visits,x.leads);
+document.getElementById("indFunnel").innerHTML=steps.map(function(s){var pct=Math.round(100*s[1]/max);return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>'+s[0]+'</span><span style="font-weight:700">'+s[1]+'</span></div><div class="track"><div class="fill" style="width:'+Math.max(2,pct)+'%"></div></div></div>';}).join("");}
+function renderRoas(){if(!ANALYTICS)return;var t=ANALYTICS.totals||{};document.getElementById("roasTiles").innerHTML=tile("Spend",money(t.spend))+tile("Revenue",money(t.revenue))+tile("ROAS",(t.roas||0)+"×")+tile("Blended CAC",t.cac?"$"+t.cac:"—");
+var bc=ANALYTICS.byChannel||{};var keys=Object.keys(bc);var max=1;keys.forEach(function(k){if(bc[k]>max)max=bc[k];});
+document.getElementById("roasChannels").innerHTML=keys.length?keys.map(function(k){var pct=Math.round(100*bc[k]/max);return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>'+esc(k)+'</span><span style="font-weight:700">'+money(bc[k])+'</span></div><div class="track"><div class="fill" style="width:'+Math.max(2,pct)+'%"></div></div></div>';}).join(""):'<div class="muted tiny">No spend logged yet — add some with “+ Add spend”.</div>';
+api("/api/crm/spend").then(function(r){return r.json();}).then(function(d){var s=d.spend||[];document.getElementById("spendList").innerHTML=s.length?s.map(function(r){return '<div class="row" style="cursor:default"><div style="flex:1">'+esc(r.channel)+' <span class="muted">'+esc(r.industry||"")+'</span></div><div class="muted tiny">'+esc((r.period||r.created_at||"").slice(0,10))+'</div><div style="width:80px;text-align:right;font-weight:700">'+money(r.amount_usd)+'</div></div>';}).join(""):'<div class="soon">No spend entries.</div>';});}
+function doAddSpend(){var amount=prompt("Amount $ (e.g. 1200)");if(!amount)return;var channel=prompt("Channel (instantly/apollo/crisp/meta/google/other)","meta")||"other";var industry=prompt("Industry slug (e.g. hvac)","")||"";var period=prompt("Period (YYYY-MM, optional)","")||"";
+fetch("/api/crm/spend"+(KEY?"?key="+encodeURIComponent(KEY):""),{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({amount_usd:amount,channel:channel,industry:industry,period:period})}).then(function(r){return r.json();}).then(function(res){if(res.error){alert(res.error);return;}ANALYTICS=null;ensureAnalytics();});}
+function ensureSocial(){if(SOCIAL){renderSocial();return;}api("/api/crm/social").then(function(r){return r.json();}).then(function(d){SOCIAL=d.posts||[];renderSocial();});}
+function renderSocial(){var posts=SOCIAL||[];var now=new Date();var monday=new Date(now);monday.setUTCDate(now.getUTCDate()-((now.getUTCDay()+6)%7));monday.setUTCHours(0,0,0,0);
+var pcolor={x:"#888780",twitter:"#888780",linkedin_company:"#378ADD",linkedin:"#378ADD",facebook:"#7F77DD",google_business_profile:"#639922",instagram:"#D4537E"};
+var dn=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];var cells=[];for(var i=0;i<7;i++){var d=new Date(monday);d.setUTCDate(monday.getUTCDate()+i);cells.push(d);}
+document.getElementById("weekLabel").textContent="Week of "+monday.toISOString().slice(0,10);
+document.getElementById("cal").innerHTML=cells.map(function(d){var ds=d.toISOString().slice(0,10);var dp=posts.filter(function(p){return (p.at||"").slice(0,10)===ds;});var chips=dp.map(function(p){var c=pcolor[(p.platform||"").toLowerCase()]||"#888780";return '<div class="chip" style="background:'+c+'">'+esc((p.platform||"").replace(/_/g," "))+'</div>';}).join("")||'<div class="muted tiny">—</div>';return '<div class="calcell"><div class="muted tiny" style="margin-bottom:5px">'+dn[d.getUTCDay()]+' '+d.getUTCDate()+'</div>'+chips+'</div>';}).join("");}
+
+document.getElementById("fQ").oninput=render;document.getElementById("fInd").onchange=render;document.getElementById("fSrc").onchange=render;document.getElementById("add").onclick=add;document.getElementById("addSpend").onclick=doAddSpend;
+[].forEach.call(document.querySelectorAll("nav button"),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll("nav button"),function(x){x.classList.remove("active");});b.classList.add("active");var v=b.getAttribute("data-v");[].forEach.call(document.querySelectorAll("[data-pane]"),function(p){p.hidden=p.getAttribute("data-pane")!==v;});if(v==="industry"||v==="roas")ensureAnalytics();if(v==="social")ensureSocial();};});
 load();
 </script></body></html>`;
 
