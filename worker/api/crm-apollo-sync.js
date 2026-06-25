@@ -38,12 +38,13 @@ export async function onRequestGet({ request, env }) {
   }
 
   // Real sync (label-scoped, so we don't pull the whole DB).
+  // Apollo filters by label ID (not name) via contact_label_ids — so this must be the LIST ID.
   const label = env.APOLLO_CONTACTS_LABEL || url.searchParams.get("label") || "";
-  if (!label) return json({ ok: false, error: "no_label", message: "Set APOLLO_CONTACTS_LABEL (the Apollo Contacts list your website visitors are added to), or pass ?label=." }, { status: 400 }, cors);
+  if (!label) return json({ ok: false, error: "no_label", message: "Set APOLLO_CONTACTS_LABEL to your Apollo visitors-list ID (from the list URL), or pass ?label=<id>." }, { status: 400 }, cors);
 
   let synced = 0, skipped = 0, pages = 0;
   for (let page = 1; page <= 8; page++) {
-    const r = await apolloSearch(env, page, 25, { contact_label_names: [label] });
+    const r = await apolloSearch(env, page, 25, { contact_label_ids: [label] });
     if (r.status !== 200) return json({ ok: false, status: r.status, synced, error: errOf(r) }, {}, cors);
     const contacts = (r.data && r.data.contacts) || [];
     if (!contacts.length) break;

@@ -94,7 +94,7 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
     <div class="muted tiny" style="margin-top:8px">Apollo visitors arrive flagged “identified” — retargeting/intel only, blocked from outreach.</div>
   </div>
   <div class="card" style="padding:16px;margin-top:14px"><div style="font-weight:600;margin-bottom:6px">Apollo API sync</div>
-    <div class="muted tiny" style="margin-bottom:8px">Pulls contacts from your Apollo list (set APOLLO_CONTACTS_LABEL) into the CRM as identified leads.</div>
+    <div class="muted tiny" style="margin-bottom:8px">Pulls contacts from your Apollo visitors list into the CRM as identified leads. Set APOLLO_CONTACTS_LABEL to the list ID.</div>
     <button class="ghost" id="apTest">Test connection</button> <button class="ghost" id="apSync">Sync now</button> <span class="muted tiny" id="apMsg" style="margin-left:6px"></span>
   </div>
 </section>
