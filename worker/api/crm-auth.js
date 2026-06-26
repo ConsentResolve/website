@@ -6,8 +6,27 @@
 // Reuses the Gmail OAuth client (GMAIL_/GOOGLE_CLIENT_ID+SECRET). The Google client
 // must list this callback as an Authorized redirect URI. Allowlist: CRM_ALLOWED_EMAILS.
 import { json } from "../_lib/http.js";
-import { gClientId, gClientSecret, emailFromIdToken } from "../_lib/gmail.js";
-import { createUserSession, crmSessionCookie, crmClearCookie, crmSessionEmail, emailAllowed } from "../_lib/auth.js";
+import { gClientId, gClientSecret } from "../_lib/gmail.js";
+import { createUserSession, crmSessionCookie, crmClearCookie, crmSessionEmail } from "../_lib/auth.js";
+
+// Decode a Google id_token payload (no signature check needed — it came straight
+// from Google's token endpoint over TLS). Returns {email, email_verified, hd, ...}.
+function decodeJwt(idToken) {
+  try { return JSON.parse(atob(((idToken || "").split(".")[1] || "").replace(/-/g, "+").replace(/_/g, "/"))); }
+  catch { return {}; }
+}
+// Lock sign-in to a Workspace org via the `hd` (hosted-domain) claim
+// (CRM_ALLOWED_DOMAIN) and/or a specific email allowlist (CRM_ALLOWED_EMAILS).
+// At least one gate must be configured, and email must be verified.
+function allowed(env, claims) {
+  if (!claims.email || claims.email_verified === false) return false;
+  const domain = (env.CRM_ALLOWED_DOMAIN || "").toLowerCase().trim();
+  const list = (env.CRM_ALLOWED_EMAILS || "").toLowerCase().split(/[,\s]+/).filter(Boolean);
+  if (!domain && !list.length) return false;                               // must configure a gate
+  if (domain && (claims.hd || "").toLowerCase() !== domain) return false;  // org/domain lock
+  if (list.length && !list.includes(claims.email.toLowerCase())) return false;
+  return true;
+}
 
 const origin = (request, env) => env.SITE_URL || new URL(request.url).origin;
 const cbUri = (request, env) => origin(request, env) + "/api/crm/auth/callback";
@@ -34,6 +53,7 @@ export async function onRequestGet({ request, env }) {
       client_id: gClientId(env), redirect_uri: cbUri(request, env), response_type: "code",
       scope: "openid email profile", access_type: "online", prompt: "select_account", state: next,
     });
+    if (env.CRM_ALLOWED_DOMAIN) p.set("hd", env.CRM_ALLOWED_DOMAIN); // scope the account picker to the org
     return Response.redirect("https://accounts.google.com/o/oauth2/v2/auth?" + p.toString(), 302);
   }
 
@@ -50,10 +70,11 @@ export async function onRequestGet({ request, env }) {
       });
       tok = await r.json();
     } catch (_) {}
-    const email = emailFromIdToken(tok.id_token || "");
+    const claims = decodeJwt(tok.id_token || "");
+    const email = claims.email;
     if (!email) return html("<p>Could not read your Google email.</p>", 400);
-    if (!emailAllowed(env, email)) {
-      return html(`<div style="font-size:18px;font-weight:600;color:#f08a8a">Access denied</div><p style="color:#94a3b8;margin-top:12px"><b>${email}</b> isn't on the CRM allowlist. Ask an admin to add it to CRM_ALLOWED_EMAILS.</p>`, 403);
+    if (!allowed(env, claims)) {
+      return html(`<div style="font-size:18px;font-weight:600;color:#f08a8a">Access denied</div><p style="color:#94a3b8;margin-top:12px"><b>${email}</b> isn't allowed. This CRM is locked to its organization — sign in with your company Google account.</p>`, 403);
     }
     const sess = await createUserSession(env, email);
     return new Response(null, { status: 302, headers: { Location: next, "Set-Cookie": crmSessionCookie(sess) } });
