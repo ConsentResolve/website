@@ -93,7 +93,7 @@ def ig_backfill():
         print(f"ig media: {len(data)} items, types {types}")  # diagnostic — see what IG returns
         if data:  # one-time: show exactly what Instagram returns for the first reel's insights
             try:
-                ins = get(f"{GRAPH}/{data[0]['id']}/insights?metric=reach,plays,saved,shares&access_token={urllib.parse.quote(FBTOK)}")
+                ins = get(f"{GRAPH}/{data[0]['id']}/insights?metric=reach,views,saved,shares&access_token={urllib.parse.quote(FBTOK)}")
                 print("ig insights sample:", json.dumps(ins)[:400])
             except urllib.error.HTTPError as e:
                 print("ig insights ERROR:", e.code, e.read().decode("utf-8", "replace")[:300])
@@ -104,7 +104,7 @@ def ig_backfill():
             is_video = m.get("media_type") == "VIDEO"             # REELS + feed videos are media_type VIDEO
             # denom: reach works for images + video; reels also expose views/plays
             views = None
-            for metric in (("views", "plays", "reach") if is_video else ("reach",)):
+            for metric in (("views", "reach") if is_video else ("reach",)):  # 'plays' deprecated by Meta
                 try:
                     ins = get(f"{GRAPH}/{m['id']}/insights?metric={metric}&access_token={urllib.parse.quote(FBTOK)}")
                     views = (ins.get("data") or [{}])[0].get("values", [{}])[0].get("value")
