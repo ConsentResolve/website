@@ -84,24 +84,29 @@ def ig_backfill():
     if not (FBTOK and IG): return []
     rows = []
     try:
-        d = get(f"{GRAPH}/{IG}/media?fields=id,caption,permalink,media_product_type,like_count,comments_count&limit=40&access_token={urllib.parse.quote(FBTOK)}")
-        for m in d.get("data", []):
-            if m.get("media_product_type") not in ("REELS", "VIDEO"): continue
+        d = get(f"{GRAPH}/{IG}/media?fields=id,caption,permalink,media_type,media_product_type,like_count,comments_count&limit=50&access_token={urllib.parse.quote(FBTOK)}")
+        data = d.get("data", [])
+        types = {}
+        for m in data:
+            k = (m.get("media_product_type") or "?") + "/" + (m.get("media_type") or "?")
+            types[k] = types.get(k, 0) + 1
+        print(f"ig media: {len(data)} items, types {types}")  # diagnostic — see what IG returns
+        for m in data:
+            if m.get("media_product_type") == "STORY": continue   # stories expire; not a creative test
+            is_video = m.get("media_type") == "VIDEO"             # REELS + feed videos are media_type VIDEO
+            # denom: reach works for images + video; reels also expose views/plays
             views = None
-            for metric in ("views", "plays", "reach"):  # Meta renamed reel "plays" -> "views"; reach is the last-resort fallback
+            for metric in (("views", "plays", "reach") if is_video else ("reach",)):
                 try:
                     ins = get(f"{GRAPH}/{m['id']}/insights?metric={metric}&access_token={urllib.parse.quote(FBTOK)}")
                     views = (ins.get("data") or [{}])[0].get("values", [{}])[0].get("value")
                     if views is not None: break
                 except Exception: continue
-            # Rich scoring signals (highest-weight first): reach (denom), saved, shares.
-            # ig_reels_avg_watch_time enables hold rate. reelsSkipRatePct = newest metric
-            # (Apr 2026) — confirm the exact key against a live response; left out until then.
-            ri = ig_insights(m["id"], "reach,saved,shares,ig_reels_avg_watch_time")
+            ri = ig_insights(m["id"], "reach,saved,shares" + (",ig_reels_avg_watch_time" if is_video else ""))
             rows.append({
-                "name": match(m.get("caption")), "platform": "ig",
-                "views": views, "likes": m.get("like_count"), "comments": m.get("comments_count"),
-                "reach": ri.get("reach"), "saved": ri.get("saved"), "shares": ri.get("shares"),
+                "name": match(m.get("caption")), "platform": "ig", "isVideo": is_video,
+                "views": views, "reach": ri.get("reach"), "saved": ri.get("saved"), "shares": ri.get("shares"),
+                "comments": m.get("comments_count"), "likes": m.get("like_count"),
                 "igReelsAvgWatchTimeMs": ri.get("ig_reels_avg_watch_time"),
                 "url": m.get("permalink", ""),
             })
@@ -232,7 +237,7 @@ def channel_stats():
 def main():
     channel_stats()
     rows = fb_backfill() + ig_backfill() + yt_backfill() + tk_backfill() + x_backfill() + li_backfill()
-    rows = [r for r in rows if (r.get("views") or 0) > 0 or r.get("likes")]
+    rows = [r for r in rows if (r.get("views") or 0) > 0 or r.get("likes") or r.get("reach")]
     tmp = "/tmp/metrics.json"; Path(tmp).write_text(json.dumps(rows))
     subprocess.run(["/usr/bin/python3", str(ROOT / "scripts/r2_upload.py"), tmp, "social/metrics.json", "application/json"], check=False)
     tv = sum(r.get("views") or 0 for r in rows)
