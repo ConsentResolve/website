@@ -116,3 +116,30 @@ export async function onRequestGet({ request, env }) {
   ).bind(status).all()).results || [];
   return json({ conversations: rows }, {}, cors);
 }
+
+// Status machine A/B/C (BUILD-PLAN P1-9): open | snoozed(+snooze_days) | archived.
+// (D=Convert-to-Lead lands with the pipeline slice.)
+export async function onRequestPost({ request, env }) {
+  const cors = corsHeaders(request, env);
+  if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
+  await ensureCrmV2Schema(env);
+  let b = {};
+  try { b = await request.json(); } catch { return json({ error: "bad_json" }, { status: 400 }, cors); }
+  if (!b.id) return json({ error: "id_required" }, { status: 400 }, cors);
+  const status = ["open", "snoozed", "archived"].includes(b.status) ? b.status : "open";
+  let snooze = null;
+  if (status === "snoozed") snooze = new Date(Date.now() + (Number(b.snooze_days) || 3) * 86400000).toISOString();
+  await env.DB.prepare(
+    "UPDATE conversations SET status=?, snooze_until=?, updated_at=datetime('now') WHERE id=?"
+  ).bind(status, snooze, b.id).run();
+  return json({ ok: true, status, snooze_until: snooze }, {}, cors);
+}
+
+// Snooze sweep (BUILD-PLAN P1-10): resurface due conversations. Called from the cron.
+export async function sweepSnoozed(env) {
+  await ensureCrmV2Schema(env);
+  const r = await env.DB.prepare(
+    "UPDATE conversations SET status='open', unread=1, updated_at=datetime('now') WHERE status='snoozed' AND snooze_until IS NOT NULL AND snooze_until<=datetime('now')"
+  ).run();
+  return (r.meta && r.meta.changes) || 0;
+}

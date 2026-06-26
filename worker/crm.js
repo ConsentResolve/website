@@ -55,6 +55,7 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 </style></head><body>
 <header><div class="logo">✓</div><div style="font-weight:600">Consent Resolve <span class="muted">CRM</span></div><div class="muted tiny" style="margin-left:auto" id="count"></div><div class="muted tiny" id="userBox" style="margin-left:14px"></div></header>
 <nav>
+<a data-v="inbox" href="/crm/inbox">Inbox</a>
 <a data-v="leads" href="/crm/leads">Leads</a>
 <a data-v="industry" href="/crm/industry">Industries</a>
 <a data-v="roas" href="/crm/roas">ROAS</a>
@@ -63,7 +64,17 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 <a data-v="settings" href="/crm/settings">Settings</a>
 </nav>
 <div class="wrap">
-<section data-pane="leads">
+<section data-pane="inbox" hidden>
+  <div class="bar">
+    <select id="ibFilter"><option value="open">Open</option><option value="snoozed">Snoozed</option><option value="archived">Archived</option></select>
+    <button class="ghost" id="ibPoll" style="margin-left:auto">Sync now</button>
+  </div>
+  <div class="grid">
+    <div class="card" id="ibList"></div>
+    <div class="card detail" id="ibThread"><div class="soon">Select a conversation</div></div>
+  </div>
+</section>
+<section data-pane="leads" hidden>
   <div class="bar">
     <select id="fInd"><option value="all">All industries</option></select>
     <select id="fSrc"><option value="all">All sources</option><option value="demo">Demo form</option><option value="instantly">Instantly</option><option value="crisp">Crisp</option><option value="apollo">Apollo</option><option value="manual">Manual</option></select>
@@ -232,15 +243,34 @@ var cfg=d.configured?"":'<div style="background:rgba(239,159,39,.14);color:#f0c2
 w.innerHTML=cfg+accts+'<div style="margin-top:12px"><button class="btn" id="gConnect"'+(d.configured?"":" disabled")+'>+ Connect Gmail account</button></div><div class="muted tiny" style="margin-top:10px">Authorized redirect URI to register on the OAuth client:<br><code style="color:#cbd5e1">'+esc(d.redirect_uri||"")+'</code></div>';
 var gc=document.getElementById("gConnect");if(gc)gc.onclick=function(){location.href="/api/crm/gmail/auth"+(KEY?"?key="+encodeURIComponent(KEY):"");};}
 
+var CONVS=[],CONV=null,_ibInit=false;
+function chBadge(ch){var m={email:["rgba(0,229,160,.16)","#7ff0cd","hello@"],instantly:["rgba(55,138,221,.18)","#9cc6f3","Instantly"],crisp:["rgba(127,119,221,.2)","#bcb6f2","Crisp"],meta_lead:["rgba(239,159,39,.18)","#f0c27a","Meta"]};var x=m[ch]||["rgba(148,163,184,.18)","#cbd5e1",ch||"?"];return '<span class="pill" style="background:'+x[0]+';color:'+x[1]+'">'+esc(x[2])+'</span>';}
+function ibWhen(s){return s?esc(String(s).replace("T"," ").slice(0,16)):"";}
+function ensureInbox(){if(!_ibInit){_ibInit=true;var f=document.getElementById("ibFilter");if(f)f.onchange=loadInbox;var p=document.getElementById("ibPoll");if(p)p.onclick=function(){var b=this;b.textContent="Syncing…";api("/api/crm/inbox?poll=1").then(function(r){return r.json();}).then(function(){b.textContent="Sync now";loadInbox();}).catch(function(){b.textContent="Sync now";});};}loadInbox();}
+function loadInbox(){var st=document.getElementById("ibFilter");var status=st?st.value:"open";api("/api/crm/inbox?status="+encodeURIComponent(status)).then(function(r){return r.json();}).then(function(d){CONVS=d.conversations||[];renderConvList();});}
+function renderConvList(){var el=document.getElementById("ibList");if(!CONVS.length){el.innerHTML='<div class="soon">No conversations.</div>';return;}
+el.innerHTML=CONVS.map(function(c){var who=c.full_name||c.primary_email||c.company_name||"(unknown)";var dot=c.unread?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00e5a0;margin-right:6px"></span>':"";return '<div class="row" data-id="'+esc(c.id)+'"><div style="flex:1;min-width:0"><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+dot+esc(who)+'</div><div class="muted tiny" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(c.subject||c.last_message_preview||"")+'</div></div><div style="text-align:right;flex-shrink:0;margin-left:8px">'+chBadge(c.channel)+'<div class="muted tiny" style="margin-top:4px">'+ibWhen(c.last_message_at)+'</div></div></div>';}).join("");
+[].forEach.call(el.querySelectorAll(".row"),function(r){r.onclick=function(){openConv(r.getAttribute("data-id"));};});}
+function openConv(id){[].forEach.call(document.querySelectorAll("#ibList .row"),function(r){r.classList.toggle("sel",r.getAttribute("data-id")===id);});api("/api/crm/inbox?id="+encodeURIComponent(id)).then(function(r){return r.json();}).then(function(d){renderThread(d);});}
+function renderThread(d){var c=d&&d.conversation;var box=document.getElementById("ibThread");if(!c){box.innerHTML='<div class="soon">Not found.</div>';return;}CONV=c;var who=c.full_name||c.primary_email||"(unknown)";
+var msgs=(d.messages||[]).map(function(m){var mine=m.direction==="out";return '<div style="margin-bottom:10px;padding:9px 11px;border-radius:9px;background:'+(mine?"rgba(0,229,160,.08)":"var(--surf2)")+'"><div class="tiny muted">'+(mine?"Us":esc(who))+' · '+ibWhen(m.sent_at||m.created_at)+'</div><div class="tiny" style="margin-top:4px;white-space:pre-wrap">'+esc(m.body_text||"")+'</div></div>';}).join("")||'<div class="muted tiny">No messages.</div>';
+var head='<div style="margin-bottom:12px"><div style="font-weight:600">'+esc(who)+'</div><div class="muted tiny" style="margin-top:3px">'+chBadge(c.channel)+' '+esc(c.primary_email||"")+(c.company_name?(" · "+esc(c.company_name)):"")+'</div></div>';
+var actions='<div class="bar" style="margin-bottom:12px">'+(c.status!=="snoozed"?'<button class="ghost" id="ibSnooze">Snooze</button>':"")+(c.status!=="archived"?'<button class="ghost" id="ibArchive">Archive</button>':"")+(c.status!=="open"?'<button class="ghost" id="ibOpen">Reopen</button>':"")+'<span class="muted tiny" id="ibMsg" style="align-self:center"></span></div>';
+box.innerHTML=head+actions+'<div class="tl">'+msgs+'</div>';
+var sn=document.getElementById("ibSnooze");if(sn)sn.onclick=function(){var days=prompt("Snooze for how many days?","3");if(!days)return;setConvStatus(c.id,"snoozed",days);};
+var ar=document.getElementById("ibArchive");if(ar)ar.onclick=function(){setConvStatus(c.id,"archived");};
+var op=document.getElementById("ibOpen");if(op)op.onclick=function(){setConvStatus(c.id,"open");};}
+function setConvStatus(id,status,days){var m=document.getElementById("ibMsg");if(m)m.textContent="Saving…";fetch("/api/crm/inbox",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({id:id,status:status,snooze_days:days?Number(days):null})}).then(function(r){return r.json();}).then(function(res){if(res.error){if(m)m.textContent=res.error;return;}document.getElementById("ibThread").innerHTML='<div class="soon">Select a conversation</div>';loadInbox();});}
 document.getElementById("fQ").oninput=render;document.getElementById("fInd").onchange=render;document.getElementById("fSrc").onchange=render;document.getElementById("add").onclick=add;document.getElementById("addSpend").onclick=doAddSpend;
 // Standalone pages: the active section comes from the URL path (/crm/<section>);
 // nav items are real links that carry the ?key. On load, show that section's pane
 // and load only its data.
-var SEC=location.pathname.split("/")[2]||"leads";if(["leads","industry","roas","social","status","settings"].indexOf(SEC)<0)SEC="leads";
+var SEC=location.pathname.split("/")[2]||"inbox";if(["inbox","leads","industry","roas","social","status","settings"].indexOf(SEC)<0)SEC="inbox";
 if(new URLSearchParams(location.search).get("connected"))SEC="settings";
 [].forEach.call(document.querySelectorAll("nav a"),function(a){var v=a.getAttribute("data-v");a.setAttribute("href","/crm/"+v+location.search);if(v===SEC)a.classList.add("active");else a.classList.remove("active");});
 [].forEach.call(document.querySelectorAll("[data-pane]"),function(p){p.hidden=p.getAttribute("data-pane")!==SEC;});
-if(SEC==="industry"||SEC==="roas")ensureAnalytics();
+if(SEC==="inbox")ensureInbox();
+else if(SEC==="industry"||SEC==="roas")ensureAnalytics();
 else if(SEC==="social")ensureSocial();
 else if(SEC==="status")ensureStatus();
 else if(SEC==="settings")ensureSettings();

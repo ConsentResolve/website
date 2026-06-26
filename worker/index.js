@@ -184,6 +184,13 @@ export default {
       } catch (err) {
         console.log(`[instantly] poll error: ${String(err).slice(0, 160)}`);
       }
+      // Resurface due snoozed conversations (BUILD-PLAN P1-10).
+      try {
+        const woke = await crmInbox.sweepSnoozed(env);
+        if (woke) console.log(`[inbox] resurfaced ${woke} snoozed`);
+      } catch (err) {
+        console.log(`[inbox] snooze sweep error: ${String(err).slice(0, 160)}`);
+      }
       return;
     }
 
