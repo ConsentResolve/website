@@ -127,28 +127,31 @@ def buffer_backfill(service, platform):
         return json.loads(urllib.request.urlopen(req, timeout=45).read())
     rows = []
     try:
-        ar = bq("{ account { organizations { id } channels { id service } } }")
-        if ar.get("errors"): print(f"{platform} buffer api errors:", str(ar.get("errors"))[:200])
-        acc = (ar.get("data") or {}).get("account") or {}
-        services = [(c.get("service") or "?") for c in (acc.get("channels") or [])]
-        org = ((acc.get("organizations") or [{}])[0]).get("id")
-        chans = [c["id"] for c in (acc.get("channels") or []) if (c.get("service") or "").lower() == service]
-        print(f"{platform}: org={'yes' if org else 'no'} channel_services={services} matched={len(chans)}")
-        if not (org and chans): return []
-        Q = ("query($in:PostsInput!,$f:Int){ posts(input:$in, first:$f){ edges { node { "
-             "status text metrics { name value } } } } }")
-        d = bq(Q, {"in": {"organizationId": org, "filter": {"channelIds": chans}}, "f": 100})
+        # 1) organization id (account.organizations is allowed; account.channels is NOT).
+        orgr = bq("{ account { organizations { id } } }")
+        if orgr.get("errors"): print(f"{platform} org errors:", str(orgr.get("errors"))[:200])
+        org = (((orgr.get("data") or {}).get("account") or {}).get("organizations") or [{}])[0].get("id")
+        if not org: print(f"{platform}: no organization"); return []
+        # 2) channels via the top-level channels(input:{organizationId}) query (per docs).
+        chq = '{ channels(input:{organizationId:"' + org + '"}){ id service name } }'
+        cr = bq(chq)
+        if cr.get("errors"): print(f"{platform} channels errors:", str(cr.get("errors"))[:200])
+        chans_all = (cr.get("data") or {}).get("channels") or []
+        services = [(c.get("service") or "?") for c in chans_all]
+        chans = [c["id"] for c in chans_all if (c.get("service") or "").lower() == service]
+        print(f"{platform}: channel_services={services} matched={len(chans)}")
+        if not chans: return []
+        # 3) sent posts + metrics for those channels (IDs inlined to avoid GraphQL var-type issues).
+        ids = json.dumps(chans)
+        Q = ('{ posts(input:{organizationId:"' + org + '", filter:{status:sent, channelIds:' + ids +
+             '}}){ edges { node { text metrics { name value } } } } }')
+        d = bq(Q)
         if d.get("errors"): print(f"{platform} posts errors:", str(d.get("errors"))[:200])
         edges = (((d.get("data") or {}).get("posts") or {}).get("edges")) or []
-        statuses = {}
-        for e in edges:
-            st = (e.get("node") or {}).get("status")
-            statuses[st] = statuses.get(st, 0) + 1
-        print(f"{platform}: {len(edges)} posts, statuses {statuses}")
+        print(f"{platform}: {len(edges)} sent posts")
         sampled = [False]
         for e in edges:
             nd = e.get("node") or {}
-            if nd.get("status") != "sent": continue
             mm = {}
             for m in (nd.get("metrics") or []):
                 key = str(m.get("name") or m.get("type") or "").lower()
