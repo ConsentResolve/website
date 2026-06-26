@@ -52,10 +52,16 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .calcell{border:1px solid var(--line);border-radius:8px;min-height:84px;padding:6px}
 .chip{font-size:10.5px;padding:3px 5px;border-radius:4px;color:#fff;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plboard{display:flex;gap:12px;overflow-x:auto;align-items:flex-start;padding-bottom:8px}
+.plcol{flex:1 0 175px;min-width:175px;background:var(--surf2);border-radius:10px;padding:8px}
+.plcolhead{font-weight:600;font-size:12px;margin-bottom:8px}
+.plcard{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:8px;padding:9px;margin-bottom:8px;cursor:pointer}
+.plcard:hover{border-color:var(--mint)}
 </style></head><body>
 <header><div class="logo">✓</div><div style="font-weight:600">Consent Resolve <span class="muted">CRM</span></div><div class="muted tiny" style="margin-left:auto" id="count"></div><div class="muted tiny" id="userBox" style="margin-left:14px"></div></header>
 <nav>
 <a data-v="inbox" href="/crm/inbox">Inbox</a>
+<a data-v="pipeline" href="/crm/pipeline">Pipeline</a>
 <a data-v="leads" href="/crm/leads">Leads</a>
 <a data-v="industry" href="/crm/industry">Industries</a>
 <a data-v="roas" href="/crm/roas">ROAS</a>
@@ -73,6 +79,10 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
     <div class="card" id="ibList"></div>
     <div class="card detail" id="ibThread"><div class="soon">Select a conversation</div></div>
   </div>
+</section>
+<section data-pane="pipeline" hidden>
+  <div class="bar"><div class="muted tiny" id="plMeta"></div><select id="plView" style="margin-left:auto"><option value="bands">Probability bands</option><option value="month">Close month</option></select></div>
+  <div id="plBoard" class="plboard"></div>
 </section>
 <section data-pane="leads" hidden>
   <div class="bar">
@@ -255,23 +265,46 @@ function openConv(id){[].forEach.call(document.querySelectorAll("#ibList .row"),
 function renderThread(d){var c=d&&d.conversation;var box=document.getElementById("ibThread");if(!c){box.innerHTML='<div class="soon">Not found.</div>';return;}CONV=c;var who=c.full_name||c.primary_email||"(unknown)";
 var msgs=(d.messages||[]).map(function(m){var mine=m.direction==="out";return '<div style="margin-bottom:10px;padding:9px 11px;border-radius:9px;background:'+(mine?"rgba(0,229,160,.08)":"var(--surf2)")+'"><div class="tiny muted">'+(mine?"Us":esc(who))+' · '+ibWhen(m.sent_at||m.created_at)+'</div><div class="tiny" style="margin-top:4px;white-space:pre-wrap">'+esc(m.body_text||"")+'</div></div>';}).join("")||'<div class="muted tiny">No messages.</div>';
 var head='<div style="margin-bottom:12px"><div style="font-weight:600">'+esc(who)+'</div><div class="muted tiny" style="margin-top:3px">'+chBadge(c.channel)+' '+esc(c.primary_email||"")+(c.company_name?(" · "+esc(c.company_name)):"")+'</div></div>';
-var actions='<div class="bar" style="margin-bottom:12px">'+(c.status!=="snoozed"?'<button class="ghost" id="ibSnooze">Snooze</button>':"")+(c.status!=="archived"?'<button class="ghost" id="ibArchive">Archive</button>':"")+(c.status!=="open"?'<button class="ghost" id="ibOpen">Reopen</button>':"")+'<span class="muted tiny" id="ibMsg" style="align-self:center"></span></div>';
+var actions='<div class="bar" style="margin-bottom:12px">'+(c.status!=="converted"?'<button class="btn" id="ibConvert">Convert to Lead</button>':'<span class="pill" style="background:rgba(0,229,160,.16);color:#7ff0cd;align-self:center">converted</span>')+(c.status!=="snoozed"?'<button class="ghost" id="ibSnooze">Snooze</button>':"")+(c.status!=="archived"?'<button class="ghost" id="ibArchive">Archive</button>':"")+(c.status!=="open"?'<button class="ghost" id="ibOpen">Reopen</button>':"")+'<span class="muted tiny" id="ibMsg" style="align-self:center"></span></div>';
 var composer=c.channel==="email"?'<div style="margin-top:14px"><textarea id="ibReply" rows="3" placeholder="Reply to '+esc(who)+'…" style="width:100%"></textarea><div style="margin-top:8px"><button class="btn" id="ibSend">Send</button> <span class="muted tiny" id="ibSendMsg"></span></div></div>':(c.channel==="instantly"?'<div class="muted tiny" style="margin-top:14px">Replying to Instantly threads — coming next (routes back out the campaign mailbox).</div>':"");
 box.innerHTML=head+actions+'<div class="tl">'+msgs+'</div>'+composer;
 var snd=document.getElementById("ibSend");if(snd)snd.onclick=function(){var ta=document.getElementById("ibReply");var t=(ta&&ta.value||"").trim();if(!t)return;var mm=document.getElementById("ibSendMsg");mm.textContent="Sending…";snd.disabled=true;fetch("/api/crm/inbox",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({id:c.id,reply:t})}).then(function(r){return r.json();}).then(function(res){snd.disabled=false;if(res.error){mm.textContent=res.message||res.error;return;}mm.textContent="Sent ✓";openConv(c.id);}).catch(function(){snd.disabled=false;mm.textContent="Failed";});};
+var cv=document.getElementById("ibConvert");if(cv)cv.onclick=function(){var mm=document.getElementById("ibMsg");mm.textContent="Converting…";fetch("/api/crm/inbox",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({id:c.id,convert:true})}).then(function(r){return r.json();}).then(function(res){if(res.error){mm.textContent=res.error;return;}mm.textContent="Converted ✓ — see Pipeline";openConv(c.id);}).catch(function(){mm.textContent="Failed";});};
 var sn=document.getElementById("ibSnooze");if(sn)sn.onclick=function(){var days=prompt("Snooze for how many days?","3");if(!days)return;setConvStatus(c.id,"snoozed",days);};
 var ar=document.getElementById("ibArchive");if(ar)ar.onclick=function(){setConvStatus(c.id,"archived");};
 var op=document.getElementById("ibOpen");if(op)op.onclick=function(){setConvStatus(c.id,"open");};}
 function setConvStatus(id,status,days){var m=document.getElementById("ibMsg");if(m)m.textContent="Saving…";fetch("/api/crm/inbox",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({id:id,status:status,snooze_days:days?Number(days):null})}).then(function(r){return r.json();}).then(function(res){if(res.error){if(m)m.textContent=res.error;return;}document.getElementById("ibThread").innerHTML='<div class="soon">Select a conversation</div>';loadInbox();});}
+var DEALS=[],DUSERS=[];
+function money2(c){var n=(Number(c)||0)/100;return "$"+n.toLocaleString(undefined,{maximumFractionDigits:0});}
+function ensurePipeline(){var v=document.getElementById("plView");if(v&&!v._w){v._w=1;v.onchange=renderBoard;}api("/api/crm/deals").then(function(r){return r.json();}).then(function(d){DEALS=d.deals||[];DUSERS=d.users||[];renderBoard();});}
+function bandOf(p){p=Number(p)||0;if(p>=100)return 4;if(p>=76)return 3;if(p>=51)return 2;if(p>=26)return 1;return 0;}
+function weighted(d){return (Number(d.value_cents)||0)*(d.lead_status==="won"?1:(Number(d.close_probability)||0)/100);}
+function renderBoard(){var view=(document.getElementById("plView")||{}).value||"bands";var board=document.getElementById("plBoard");var active=DEALS.filter(function(d){return d.lead_status!=="lost";});
+var totalW=0;active.forEach(function(d){if(d.lead_status==="active")totalW+=weighted(d);});
+document.getElementById("plMeta").textContent=active.length+" deals · weighted "+money2(totalW);
+var cols=[],keys=[];
+if(view==="bands"){var labels=["0–25%","26–50%","51–75%","76–99%","Won"];for(var i=0;i<5;i++){cols.push([]);keys.push(labels[i]);}active.forEach(function(d){var idx=d.lead_status==="won"?4:bandOf(d.close_probability);cols[idx].push(d);});}
+else{var byM={};active.forEach(function(d){var m=(d.expected_close_date||"").slice(0,7)||"(no date)";(byM[m]=byM[m]||[]).push(d);});Object.keys(byM).sort().forEach(function(m){keys.push(m);cols.push(byM[m]);});if(!keys.length){keys.push("(no deals)");cols.push([]);}}
+board.innerHTML=cols.map(function(list,i){var sum=0;list.forEach(function(d){sum+=weighted(d);});var cards=list.map(dealCard).join("")||'<div class="muted tiny" style="padding:8px">—</div>';return '<div class="plcol"><div class="plcolhead">'+esc(keys[i])+' <span class="muted tiny">'+list.length+' · '+money2(sum)+'</span></div>'+cards+'</div>';}).join("")||'<div class="soon">No deals yet — convert a conversation in the Inbox.</div>';
+[].forEach.call(board.querySelectorAll(".plcard"),function(el){el.onclick=function(){editDeal(el.getAttribute("data-id"));};});}
+function dealCard(d){return '<div class="plcard" data-id="'+esc(d.id)+'"><div style="font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(d.company_name||d.contact_name||d.title||"(deal)")+'</div><div class="muted tiny" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(d.contact_name||d.contact_email||"")+'</div><div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px"><span>'+money2(d.value_cents)+'</span><span class="muted">'+(d.lead_status==="won"?"WON":((Number(d.close_probability)||0)+"%"))+'</span></div><div class="muted tiny" style="margin-top:3px">'+(d.expected_close_date?esc(d.expected_close_date):"no close date")+(d.owner_name?(" · "+esc(d.owner_name)):"")+'</div></div>';}
+function editDeal(id){var d=null;for(var i=0;i<DEALS.length;i++)if(DEALS[i].id===id)d=DEALS[i];if(!d)return;
+var status=prompt("Status — active / won / lost",d.lead_status||"active");if(status===null)return;status=status.trim().toLowerCase();if(["active","won","lost"].indexOf(status)<0)status="active";
+var patch={id:id,lead_status:status};
+if(status==="active"){var prob=prompt("Close probability (0-100)",d.close_probability!=null?d.close_probability:"");if(prob!==null&&prob!=="")patch.close_probability=Math.max(0,Math.min(100,Math.round(Number(prob)||0)));
+var val=prompt("Deal value in $",d.value_cents?Math.round(d.value_cents/100):"");if(val!==null&&val!=="")patch.value_cents=Math.round((Number(val)||0)*100);
+var cd=prompt("Expected close date (YYYY-MM-DD)",d.expected_close_date||"");if(cd!==null)patch.expected_close_date=cd.trim()||null;}
+fetch("/api/crm/deals",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify(patch)}).then(function(r){return r.json();}).then(function(res){if(res.error){alert(res.error);return;}ensurePipeline();});}
 document.getElementById("fQ").oninput=render;document.getElementById("fInd").onchange=render;document.getElementById("fSrc").onchange=render;document.getElementById("add").onclick=add;document.getElementById("addSpend").onclick=doAddSpend;
 // Standalone pages: the active section comes from the URL path (/crm/<section>);
 // nav items are real links that carry the ?key. On load, show that section's pane
 // and load only its data.
-var SEC=location.pathname.split("/")[2]||"inbox";if(["inbox","leads","industry","roas","social","status","settings"].indexOf(SEC)<0)SEC="inbox";
+var SEC=location.pathname.split("/")[2]||"inbox";if(["inbox","pipeline","leads","industry","roas","social","status","settings"].indexOf(SEC)<0)SEC="inbox";
 if(new URLSearchParams(location.search).get("connected"))SEC="settings";
 [].forEach.call(document.querySelectorAll("nav a"),function(a){var v=a.getAttribute("data-v");a.setAttribute("href","/crm/"+v+location.search);if(v===SEC)a.classList.add("active");else a.classList.remove("active");});
 [].forEach.call(document.querySelectorAll("[data-pane]"),function(p){p.hidden=p.getAttribute("data-pane")!==SEC;});
 if(SEC==="inbox")ensureInbox();
+else if(SEC==="pipeline")ensurePipeline();
 else if(SEC==="industry"||SEC==="roas")ensureAnalytics();
 else if(SEC==="social")ensureSocial();
 else if(SEC==="status")ensureStatus();

@@ -41,6 +41,7 @@ import * as crmAuth from "./api/crm-auth.js";
 import * as crmMigrate from "./api/crm-migrate.js";
 import * as crmInbox from "./api/crm-inbox.js";
 import * as crmInstantly from "./api/crm-instantly.js";
+import * as crmDeals from "./api/crm-deals.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -80,6 +81,7 @@ const ROUTES = {
   "/api/crm/migrate": crmMigrate,
   "/api/crm/inbox": crmInbox,
   "/api/crm/instantly": crmInstantly,
+  "/api/crm/deals": crmDeals,
   "/api/crm/auth/login": crmAuth,
   "/api/crm/auth/callback": crmAuth,
   "/api/crm/auth/logout": crmAuth,

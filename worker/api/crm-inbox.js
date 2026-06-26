@@ -7,7 +7,7 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { gAccessToken, sendMessage } from "../_lib/gmail.js";
-import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce } from "../_lib/crm-v2.js";
+import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2 } from "../_lib/crm-v2.js";
 
 function inboxAccounts(env) {
   return (env.CRM_INBOX_EMAILS || "hello@consentresolve.com").split(/[,\s]+/).map((s) => s.trim().toLowerCase()).filter(Boolean);
@@ -173,6 +173,28 @@ export async function onRequestPost({ request, env }) {
       return json({ error: "instantly_reply_pending", message: "Instantly reply endpoint is being wired next." }, { status: 400 }, cors);
     }
     return json({ error: "unsupported_channel", channel: conv.channel }, { status: 400 }, cors);
+  }
+
+  // Convert to Lead (status D, BUILD-PLAN P3-4): create a deal from the conversation,
+  // mark it converted (stays linked + replyable).
+  if (b.convert) {
+    const conv = await env.DB.prepare("SELECT * FROM conversations WHERE id=?").bind(b.id).first();
+    if (!conv) return json({ error: "not_found" }, { status: 404 }, cors);
+    let companyId = conv.company_id;
+    if (!companyId && conv.contact_id) {
+      const ct = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(conv.contact_id).first();
+      companyId = ct && ct.company_id;
+    }
+    if (!companyId) return json({ error: "no_company" }, { status: 400 }, cors);
+    const me = await currentUser(request, env);
+    const owner = me ? me.id : await adminUserId(env);
+    const dealId = ulid();
+    await env.DB.prepare(
+      "INSERT INTO deals (id, company_id, primary_contact_id, origin_conversation_id, owner_id, title, lead_status) VALUES (?, ?, ?, ?, ?, ?, 'active')"
+    ).bind(dealId, companyId, conv.contact_id || null, conv.id, owner, conv.subject || "New deal").run();
+    await env.DB.prepare("UPDATE conversations SET status='converted', updated_at=datetime('now') WHERE id=?").bind(conv.id).run();
+    await addActivityV2(env, { actorId: owner, entityType: "deal", entityId: dealId, action: "converted", meta: { conversation_id: conv.id } });
+    return json({ ok: true, deal_id: dealId }, {}, cors);
   }
 
   const status = ["open", "snoozed", "archived"].includes(b.status) ? b.status : "open";
