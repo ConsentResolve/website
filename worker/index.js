@@ -40,6 +40,7 @@ import * as crmStatus from "./api/crm-status.js";
 import * as crmAuth from "./api/crm-auth.js";
 import * as crmMigrate from "./api/crm-migrate.js";
 import * as crmInbox from "./api/crm-inbox.js";
+import * as crmInstantly from "./api/crm-instantly.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -68,6 +69,7 @@ const ROUTES = {
   "/api/crm/gmail/auth": crmGmail,
   "/api/crm/gmail/callback": crmGmail,
   "/api/crm/gmail/status": crmGmail,
+  "/api/crm/gmail/disconnect": crmGmail,
   "/api/crm/gmail/thread": crmGmail,
   "/api/crm/gmail/send": crmGmail,
   "/api/crm/crisp": crmCrisp,
@@ -77,6 +79,7 @@ const ROUTES = {
   "/api/crm/status": crmStatus,
   "/api/crm/migrate": crmMigrate,
   "/api/crm/inbox": crmInbox,
+  "/api/crm/instantly": crmInstantly,
   "/api/crm/auth/login": crmAuth,
   "/api/crm/auth/callback": crmAuth,
   "/api/crm/auth/logout": crmAuth,

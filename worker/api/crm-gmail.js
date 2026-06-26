@@ -43,6 +43,15 @@ export async function onRequestGet({ request, env }) {
     return json({ configured: !!gClientId(env), redirect_uri: gRedirect(env), accounts: await listGmailAccounts(env) }, {}, cors);
   }
 
+  // Disconnect a connected mailbox (e.g. retiring the Instantly sending domains from the
+  // CRM now that their replies come via the Instantly Unibox adapter). Drops the token row.
+  if (path === "/api/crm/gmail/disconnect") {
+    const email = (url.searchParams.get("email") || "").toLowerCase();
+    if (!email) return json({ error: "email_required" }, { status: 400 }, cors);
+    await env.DB.prepare("DELETE FROM social_tokens WHERE provider=?").bind("gmail:" + email).run();
+    return json({ ok: true, disconnected: email, accounts: await listGmailAccounts(env) }, {}, cors);
+  }
+
   if (path === "/api/crm/gmail/thread") {
     const email = (url.searchParams.get("email") || "").toLowerCase();
     if (!email) return json({ error: "email_required" }, { status: 400 }, cors);
