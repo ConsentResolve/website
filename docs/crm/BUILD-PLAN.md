@@ -51,6 +51,11 @@
 - **Scope:** Bind a normalize **Queue** + a send **Queue** (with retry/DLQ), a KV namespace (enrichment cache, `credentials_ref`), ULID helper, and `FREE_EMAIL_DOMAINS` config list (spec §4).
 - **Done-when:** Queues round-trip a test message; KV read/write works.
 
+### P0-4 · ~~Migrate `crm_leads`~~ → **CLEAN SLATE (skipped 2026-06-26)**  — **Size S**
+- **Decision:** existing leads are throwaway → **don't migrate; wipe and start fresh.** `/api/crm/migrate?wipe=1` clears legacy `crm_leads`/`crm_activity` + all v2 transactional tables, preserving `users` + `channel_accounts`. v2 model starts empty for P1 ingest.
+
+<details><summary>(original migration ticket, retained for reference)</summary>
+
 ### P0-4 · Migrate `crm_leads` → companies/contacts/deals  — **Size M**
 - **Scope:** One-time backfill: each `crm_leads` row → contact (+ company by email domain) → deal (`value_cents`, `owner_id`, `lead_status`). Log provenance to `activities`. Idempotent, re-runnable. **No hard-delete** of `crm_leads` (keep as fallback).
 - **Depends:** P0-1.

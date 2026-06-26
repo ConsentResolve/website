@@ -2,8 +2,11 @@
 // (BUILD-PLAN P0-4). CRM-gated. Re-runnable — contact_identifiers UNIQUE(type,value)
 // on the email is the dedup guard, so already-migrated leads are skipped.
 //   GET  /api/crm/migrate            -> dry-run preview (counts + sample)
-//   GET  /api/crm/migrate?run=1      -> execute
-// crm_leads is NEVER deleted (kept as fallback per spec §12: archive, don't hard-delete).
+//   GET  /api/crm/migrate?run=1      -> execute backfill
+//   GET  /api/crm/migrate?wipe=1     -> CLEAN SLATE: delete legacy crm_leads/crm_activity
+//                                       + all v2 transactional rows; PRESERVE users +
+//                                       channel_accounts. (Aaron: existing leads are
+//                                       throwaway — start fresh instead of migrating.)
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { ensureCrmV2Schema, ulid, emailDomain, findOrCreateCompany, addActivityV2, adminUserId } from "../_lib/crm-v2.js";
@@ -20,8 +23,24 @@ export async function onRequestPost(ctx) { return run(ctx); }
 async function run({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
-  const dry = new URL(request.url).searchParams.get("run") !== "1";
+  const url = new URL(request.url);
   await ensureCrmV2Schema(env);
+
+  // Clean-slate wipe (explicit). Clears legacy + v2 transactional rows; keeps users +
+  // channel_accounts. Idempotent (wiping empty tables is a no-op). Table names are
+  // hardcoded constants — no injection surface.
+  if (url.searchParams.get("wipe") === "1") {
+    const tables = ["crm_leads", "crm_activity", "notes", "activities", "messages",
+                    "conversations", "deals", "contact_identifiers", "contacts", "companies"];
+    const deleted = {};
+    for (const t of tables) {
+      try { const r = await env.DB.prepare("DELETE FROM " + t).run(); deleted[t] = (r.meta && r.meta.changes) || 0; }
+      catch (e) { deleted[t] = "skip(" + String(e).slice(0, 40) + ")"; }
+    }
+    return json({ ok: true, wiped: true, deleted, preserved: ["users", "channel_accounts"] }, {}, cors);
+  }
+
+  const dry = url.searchParams.get("run") !== "1";
   const adminId = await adminUserId(env);
 
   const leads = (await env.DB.prepare("SELECT * FROM crm_leads").all()).results || [];
