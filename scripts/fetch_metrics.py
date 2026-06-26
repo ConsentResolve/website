@@ -203,7 +203,7 @@ def yt_backfill():
             ar = get("https://youtubeanalytics.googleapis.com/v2/reports?" + urllib.parse.urlencode({
                 "ids": "channel==MINE", "startDate": "2020-01-01", "endDate": today,
                 "metrics": "averageViewPercentage,shares", "dimensions": "video",
-                "filters": "video==" + ";".join(vid_ids), "access_token": tok}))
+                "filters": "video==" + ",".join(vid_ids), "access_token": tok}))  # comma-separated, not ;
             cols = [c["name"] for c in ar.get("columnHeaders", [])]
             for row in ar.get("rows", []):
                 rec = dict(zip(cols, row))
