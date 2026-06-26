@@ -38,6 +38,7 @@ import * as crmApolloSync from "./api/crm-apollo-sync.js";
 import * as crmSocialScores from "./api/crm-social-scores.js";
 import * as crmStatus from "./api/crm-status.js";
 import * as crmAuth from "./api/crm-auth.js";
+import * as crmMigrate from "./api/crm-migrate.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -73,6 +74,7 @@ const ROUTES = {
   "/api/crm/apollo/sync": crmApolloSync,
   "/api/crm/social/scores": crmSocialScores,
   "/api/crm/status": crmStatus,
+  "/api/crm/migrate": crmMigrate,
   "/api/crm/auth/login": crmAuth,
   "/api/crm/auth/callback": crmAuth,
   "/api/crm/auth/logout": crmAuth,
