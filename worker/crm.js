@@ -184,10 +184,12 @@ document.getElementById("socChannels").innerHTML=(d.channels||[]).map(function(c
 var g=c.grade||"—";var sub=c.grade?("avg "+c.avgComposite):(c.posts?("warming up · "+c.posts+" below floor"):"no data yet");
 return '<div class="card" style="padding:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><span style="font-weight:600;font-size:13px">'+CHNAME[c.channel]+'</span>'+covPill(c.coverage)+'</div><div style="font-size:30px;font-weight:800;line-height:1.1;color:'+gradeColor(c.grade)+'">'+g+'</div><div class="muted tiny">'+sub+'</div><div class="muted tiny">'+c.gradedPosts+'/'+c.posts+' graded'+(c.graduates?(" · "+c.graduates+" ⭐"):"")+'</div></div>';
 }).join("");
-var lb=d.leaderboard||[];
-document.getElementById("socBoard").innerHTML=lb.length?lb.map(function(s,i){
-return '<div class="row" style="cursor:default"><div style="width:22px" class="muted tiny">'+(i+1)+'</div><div style="width:70px"><span style="font-weight:800;color:'+gradeColor(s.grade)+'">'+s.grade+'</span> <span class="muted tiny">'+s.composite+'</span></div><div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(String(s.name))+' <span class="muted tiny">'+(CHNAME[s.platform]||s.platform)+'</span></div>'+covPill(s.coverage)+(s.graduate?'<span class="pill" style="background:rgba(0,229,160,.16);color:#7ff0cd;margin-left:6px">GRADUATE</span>':"")+'<div style="width:62px;text-align:right" class="muted tiny">'+(s.views||0)+' v</div></div>';
-}).join(""):'<div class="soon">No posts above the distribution floor yet — channels are warming up. Grades appear once a post clears the floor (IG/FB 500 reach; YT/X/LI/TT ~900 views/impr).</div>';
+var ps=d.posts||[];var hint=(d.gradedPosts?"":'<div class="muted tiny" style="margin-bottom:8px">Below-floor posts shown for visibility — grades appear once a post clears the floor (IG/FB 500 reach; YT/X/LI/TT ~900 views/impr).</div>');
+document.getElementById("socBoard").innerHTML=ps.length?(hint+ps.map(function(s,i){
+var left=s.graded?'<div style="width:70px"><span style="font-weight:800;color:'+gradeColor(s.grade)+'">'+s.grade+'</span> <span class="muted tiny">'+s.composite+'</span></div>':'<div style="width:70px"><span class="pill" style="background:rgba(136,135,128,.2);color:#b9b7ad">below floor</span></div>';
+var tail=s.graded?(covPill(s.coverage)+(s.graduate?'<span class="pill" style="background:rgba(0,229,160,.16);color:#7ff0cd;margin-left:6px">GRADUATE</span>':"")):"";
+return '<div class="row" style="cursor:default"><div style="width:22px" class="muted tiny">'+(i+1)+'</div>'+left+'<div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(String(s.name))+' <span class="muted tiny">'+(CHNAME[s.platform]||s.platform)+'</span></div>'+tail+'<div style="width:96px;text-align:right" class="muted tiny">'+(s.views||0)+' v · '+(s.likes||0)+' ♥</div></div>';
+}).join("")):'<div class="soon">No posts pulled yet — check channel credentials (IG/Buffer/YouTube) in the metrics Action.</div>';
 var gb=d.gbp||{};document.getElementById("socGbp").innerHTML=gb.available?"":'<div class="muted tiny">'+esc(gb.note||"GBP pending.")+'</div>';
 document.getElementById("socNote").textContent=d.note||"";
 var rb=document.getElementById("socRefresh");if(rb)rb.onclick=function(){SCORES=null;ensureSocial();};}

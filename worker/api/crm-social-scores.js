@@ -64,6 +64,12 @@ export async function onRequestGet({ request, env }) {
     .sort((a, b) => b.composite - a.composite)
     .map((s) => ({ name: s.name, platform: s.platform, grade: s.grade, composite: s.composite, coverage: s.coverage, graduate: s.graduateToPaid, views: s.views, likes: s.likes, url: s.url, reason: s.reason }));
 
+  // All posts (graded + below-floor), so the dashboard always shows real activity:
+  // graded first by composite, then warming-up posts by views.
+  const posts = scored
+    .map((s) => ({ name: s.name, platform: s.platform, graded: s.graded, grade: s.grade, composite: s.composite, coverage: s.coverage, graduate: s.graduateToPaid, views: s.views, likes: s.likes, url: s.url }))
+    .sort((a, b) => (a.graded !== b.graded ? (a.graded ? -1 : 1) : a.graded ? (b.composite || 0) - (a.composite || 0) : (b.views || 0) - (a.views || 0)));
+
   const ungraded = scored.filter((s) => !s.graded).length;
 
   // GBP scorecard — pending Google Business Profile API approval (separate model).
@@ -72,7 +78,7 @@ export async function onRequestGet({ request, env }) {
   return json({
     generatedAt: new Date().toISOString().slice(0, 16).replace("T", " ") + " UTC",
     totalPosts: scored.length, gradedPosts: scored.length - ungraded, ungraded,
-    channels, leaderboard, gbp,
+    channels, leaderboard, posts, gbp,
     note: rows.length ? "Scoring on current signals (views+likes). Coverage upgrades to FULL once fetch_metrics.py captures shares/saves/retention." : "No metrics.json found on R2 yet.",
   }, {}, cors);
 }
