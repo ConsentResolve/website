@@ -21,8 +21,8 @@ a{color:var(--mint)}
 header{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line)}
 .logo{width:22px;height:22px;border-radius:6px;background:var(--mint);color:#04342c;display:flex;align-items:center;justify-content:center;font-weight:800}
 nav{display:flex;gap:4px;padding:0 12px;border-bottom:1px solid var(--line)}
-nav button{background:none;border:none;border-bottom:2px solid transparent;color:var(--mut);padding:10px 14px;cursor:pointer;font-size:13px}
-nav button.active{color:#fff;border-bottom-color:var(--mint)}
+nav a{background:none;border:none;border-bottom:2px solid transparent;color:var(--mut);padding:10px 14px;cursor:pointer;font-size:13px;text-decoration:none}
+nav a.active{color:#fff;border-bottom-color:var(--mint)}
 .wrap{padding:16px 18px;max-width:1100px;margin:0 auto}
 .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 select,input,textarea{background:var(--surf2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 9px;font-size:13px}
@@ -52,11 +52,12 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 </style></head><body>
 <header><div class="logo">✓</div><div style="font-weight:600">Consent Resolve <span class="muted">CRM</span></div><div class="muted tiny" style="margin-left:auto" id="count"></div></header>
 <nav>
-<button class="active" data-v="leads">Leads</button>
-<button data-v="industry">Industries</button>
-<button data-v="roas">ROAS</button>
-<button data-v="social">Social</button>
-<button data-v="settings">Settings</button>
+<a data-v="leads" href="/crm/leads">Leads</a>
+<a data-v="industry" href="/crm/industry">Industries</a>
+<a data-v="roas" href="/crm/roas">ROAS</a>
+<a data-v="social" href="/crm/social">Social</a>
+<a data-v="status" href="/crm/status">Status</a>
+<a data-v="settings" href="/crm/settings">Settings</a>
 </nav>
 <div class="wrap">
 <section data-pane="leads">
@@ -91,6 +92,15 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
   <div style="font-weight:600;margin:18px 0 8px">Google Business Profile</div>
   <div class="card" id="socGbp" style="padding:14px"></div>
   <div class="muted tiny" id="socNote" style="margin-top:12px"></div>
+</section>
+<section data-pane="status" hidden>
+  <div class="bar"><div class="muted tiny" id="stMeta">Loading…</div><button class="ghost" id="stRefresh" style="margin-left:auto">Refresh</button></div>
+  <div style="font-weight:600;margin:8px 0 8px">API connections</div>
+  <div id="stIntegrations" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px">
+    <div><div style="font-weight:600;margin-bottom:8px">Last post</div><div class="card" id="stLast" style="padding:14px"></div></div>
+    <div><div style="font-weight:600;margin-bottom:8px">Next post</div><div class="card" id="stNext" style="padding:14px"></div></div>
+  </div>
 </section>
 <section data-pane="settings" hidden>
   <div class="card" style="padding:16px;margin-bottom:14px"><div style="font-weight:600;margin-bottom:8px">Gmail — two-way email</div><div id="gmailWrap" class="muted tiny">Loading…</div></div>
@@ -195,6 +205,15 @@ return '<div class="row" style="cursor:default"><div style="width:22px" class="m
 var gb=d.gbp||{};document.getElementById("socGbp").innerHTML=gb.available?"":'<div class="muted tiny">'+esc(gb.note||"GBP pending.")+'</div>';
 document.getElementById("socNote").textContent=d.note||"";
 var rb=document.getElementById("socRefresh");if(rb)rb.onclick=function(){SCORES=null;ensureSocial();};}
+var STATUS=null;
+function stDot(ok){return '<span style="display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin-right:7px;background:'+(ok===true?"#00e5a0":ok===false?"#f08a8a":"#888780")+'"></span>';}
+function ensureStatus(){if(STATUS){renderStatus();return;}var m=document.getElementById("stMeta");if(m)m.textContent="Loading…";api("/api/crm/status").then(function(r){return r.json();}).then(function(d){STATUS=d;renderStatus();}).catch(function(){if(m)m.textContent="Failed to load status.";});}
+function renderStatus(){var d=STATUS||{};document.getElementById("stMeta").textContent="As of "+(d.generatedAt||"—");
+document.getElementById("stIntegrations").innerHTML=(d.integrations||[]).map(function(i){return '<div class="card" style="padding:12px"><div style="font-weight:600;font-size:13px">'+stDot(i.connected)+esc(i.label)+'</div><div class="muted tiny" style="margin-top:5px">'+esc(i.detail||"")+'</div></div>';}).join("");
+function pc(p,empty){if(!p)return '<div class="muted tiny">'+empty+'</div>';return '<div style="font-weight:600">'+esc(String(p.name||p.platform))+'</div><div class="muted tiny" style="margin-top:4px">'+esc(p.platform||"")+(p.at?(" · "+esc(p.at)):"")+'</div>'+(p.url?('<div class="tiny" style="margin-top:5px"><a href="'+esc(p.url)+'" target="_blank" style="color:#7ff0cd">view →</a></div>'):"");}
+document.getElementById("stLast").innerHTML=pc(d.lastPost,"No published posts yet.");
+document.getElementById("stNext").innerHTML=pc(d.nextPost,"Nothing queued.");
+var sr=document.getElementById("stRefresh");if(sr)sr.onclick=function(){STATUS=null;ensureStatus();};}
 
 function ensureSettings(){var o=location.origin;var wc=document.getElementById("whCrisp");if(wc)wc.value=o+"/api/crm/crisp?key="+encodeURIComponent(KEY);var wa=document.getElementById("whApollo");if(wa)wa.value=o+"/api/crm/apollo?key="+encodeURIComponent(KEY);
 var at=document.getElementById("apTest");if(at)at.onclick=function(){var m=document.getElementById("apMsg");m.textContent="Testing…";api("/api/crm/apollo/sync?test=1").then(function(r){return r.json();}).then(function(d){m.textContent=d.ok?("✓ connected · "+d.total_contacts+" contacts"):("✗ "+(d.message||d.error||"failed"));});};
@@ -207,9 +226,18 @@ w.innerHTML=cfg+accts+'<div style="margin-top:12px"><button class="btn" id="gCon
 var gc=document.getElementById("gConnect");if(gc)gc.onclick=function(){location.href="/api/crm/gmail/auth"+(KEY?"?key="+encodeURIComponent(KEY):"");};}
 
 document.getElementById("fQ").oninput=render;document.getElementById("fInd").onchange=render;document.getElementById("fSrc").onchange=render;document.getElementById("add").onclick=add;document.getElementById("addSpend").onclick=doAddSpend;
-[].forEach.call(document.querySelectorAll("nav button"),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll("nav button"),function(x){x.classList.remove("active");});b.classList.add("active");var v=b.getAttribute("data-v");[].forEach.call(document.querySelectorAll("[data-pane]"),function(p){p.hidden=p.getAttribute("data-pane")!==v;});if(v==="industry"||v==="roas")ensureAnalytics();if(v==="social")ensureSocial();if(v==="settings")ensureSettings();};});
-load();
-if(new URLSearchParams(location.search).get("connected")){var sb=null;[].forEach.call(document.querySelectorAll("nav button"),function(b){if(b.getAttribute("data-v")==="settings")sb=b;});if(sb)sb.click();}
+// Standalone pages: the active section comes from the URL path (/crm/<section>);
+// nav items are real links that carry the ?key. On load, show that section's pane
+// and load only its data.
+var SEC=(location.pathname.match(/\/crm\/([a-z]+)/)||[])[1]||"leads";
+if(new URLSearchParams(location.search).get("connected"))SEC="settings";
+[].forEach.call(document.querySelectorAll("nav a"),function(a){var v=a.getAttribute("data-v");a.setAttribute("href","/crm/"+v+location.search);if(v===SEC)a.classList.add("active");else a.classList.remove("active");});
+[].forEach.call(document.querySelectorAll("[data-pane]"),function(p){p.hidden=p.getAttribute("data-pane")!==SEC;});
+if(SEC==="industry"||SEC==="roas")ensureAnalytics();
+else if(SEC==="social")ensureSocial();
+else if(SEC==="status")ensureStatus();
+else if(SEC==="settings")ensureSettings();
+else load();
 </script></body></html>`;
 
 export async function handle({ request, env }) {

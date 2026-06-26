@@ -27,7 +27,7 @@ export async function onRequestGet({ request, env }) {
     const email = emailFromIdToken(data.id_token || "");
     if (!email) return new Response("could not read account email from token", { status: 400 });
     await saveGmail(env, email, data);
-    return Response.redirect(gBase(env) + "/crm?key=" + encodeURIComponent(state) + "&connected=" + encodeURIComponent(email), 302);
+    return Response.redirect(gBase(env) + "/crm/settings?key=" + encodeURIComponent(state) + "&connected=" + encodeURIComponent(email), 302);
   }
 
   const cors = corsHeaders(request, env);

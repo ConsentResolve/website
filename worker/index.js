@@ -36,6 +36,7 @@ import * as crmCrisp from "./api/crm-crisp.js";
 import * as crmApollo from "./api/crm-apollo.js";
 import * as crmApolloSync from "./api/crm-apollo-sync.js";
 import * as crmSocialScores from "./api/crm-social-scores.js";
+import * as crmStatus from "./api/crm-status.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -70,6 +71,7 @@ const ROUTES = {
   "/api/crm/apollo": crmApollo,
   "/api/crm/apollo/sync": crmApolloSync,
   "/api/crm/social/scores": crmSocialScores,
+  "/api/crm/status": crmStatus,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
