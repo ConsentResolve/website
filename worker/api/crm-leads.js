@@ -5,7 +5,7 @@
 //   POST /api/crm/leads { create:true, ... } -> { ok, id } (manual add)
 
 import { json, corsHeaders } from "../_lib/http.js";
-import { isAuthed } from "../_lib/auth.js";
+import { isAuthed, crmSessionEmail } from "../_lib/auth.js";
 import { listLeads, getLead, updateLead, addActivity, upsertLead, deleteLead } from "../_lib/crm.js";
 
 export function crmKey(env) {
@@ -13,9 +13,8 @@ export function crmKey(env) {
 }
 
 async function authed(request, env) {
-  if (await isAuthed(request, env)) return true;
-  const key = new URL(request.url).searchParams.get("key") || "";
-  return key && key === crmKey(env);
+  if (await isAuthed(request, env)) return true;           // /admin password session
+  return Boolean(await crmSessionEmail(request, env));      // Google CRM sign-in (cr_crm cookie)
 }
 
 export async function onRequestOptions({ request, env }) {

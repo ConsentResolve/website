@@ -249,9 +249,7 @@ fetch("/api/crm/auth/me",{credentials:"same-origin"}).then(function(r){return r.
 </script></body></html>`;
 
 export async function handle({ request, env }) {
-  const url = new URL(request.url);
-  const key = url.searchParams.get("key") || "";
-  const ok = (await isAuthed(request, env)) || (await crmSessionEmail(request, env)) || (key && key === crmKey(env));
+  const ok = (await isAuthed(request, env)) || (await crmSessionEmail(request, env));
   const headers = { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" };
   if (!ok) return new Response(LOGIN_HTML, { status: 401, headers });
   return new Response(PAGE_HTML, { headers });

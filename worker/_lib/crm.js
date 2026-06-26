@@ -12,9 +12,7 @@ export function crmKey(env) {
 }
 export async function crmAuthed(request, env) {
   if (await isAuthed(request, env)) return true;           // /admin password session
-  if (await crmSessionEmail(request, env)) return true;    // Google CRM sign-in (cr_crm cookie)
-  const key = new URL(request.url).searchParams.get("key") || "";
-  return Boolean(key && key === crmKey(env));              // ?key fallback (automation / break-glass)
+  return Boolean(await crmSessionEmail(request, env));     // Google CRM sign-in only (cr_crm cookie)
 }
 // Token for inbound webhooks (Crisp, RB2B). Separate secret if set, else the CRM key.
 export function crmWebhookToken(env) { return env.CRM_WEBHOOK_TOKEN || crmKey(env); }
