@@ -21,46 +21,63 @@ async function instantlyGet(env, path) {
   return { ok: r.ok, status: r.status, body };
 }
 const listOf = (b) => (Array.isArray(b) ? b : (b && (b.items || b.data || b.emails || b.results)) || []);
-const pick = (o, ...keys) => { for (const k of keys) if (o && o[k] != null && o[k] !== "") return o[k]; return null; };
+const lc = (s) => String(s || "").toLowerCase();
+const tsOf = (m) => m.timestamp_email || m.timestamp_created || "";
+// Outbound = sent from one of our warmed mailboxes (from === eaccount). A reply is the
+// opposite. ue_type:1 (sent) is the fallback when from/eaccount are missing.
+const isOutbound = (m) => { const f = lc(m.from_address_email), ea = lc(m.eaccount); return f && ea ? f === ea : Number(m.ue_type) === 1; };
+const bodyOf = (m) => (m.body && (m.body.text || m.body.html)) || "";
+const stripRe = (s) => String(s || "").replace(/^(re|fwd?):\s*/i, "").trim();
+function htmlToText(s) {
+  return String(s || "")
+    .replace(/<br\s*\/?>/gi, "\n").replace(/<\/(div|p|tr|li|h[1-6])>/gi, "\n").replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&#39;|&apos;/gi, "'").replace(/&quot;/gi, '"')
+    .replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+}
 
-export async function pollInstantly(env, { limit = 50 } = {}) {
+// Pull recent Instantly emails, group by thread, and ingest ONLY threads that received a
+// reply (a non-no-reply path keeps cold sends out of the inbox). The full thread is stored
+// for context; direction per message comes from from===eaccount.
+export async function pollInstantly(env, { limit = 100 } = {}) {
   if (!env.INSTANTLY_API_KEY) return { error: "no_key" };
   await ensureCrmV2Schema(env);
   const res = await instantlyGet(env, "/emails?limit=" + limit);
   if (!res.ok) return { error: "list_failed", status: res.status, detail: String(res.body).slice(0, 160) };
   const list = listOf(res.body);
-  let ingested = 0, skipped = 0, outbound = 0;
+
+  const threads = {};
+  for (const e of list) { const t = e.thread_id || e.id; (threads[t] = threads[t] || []).push(e); }
+
+  let convCount = 0, msgCount = 0, threadsSkipped = 0;
   const sample = [];
-  for (const e of list) {
-    const fromEmail = String(pick(e, "from_address_email", "from_address", "from", "lead_email") || "").toLowerCase();
-    const eaccount = String(pick(e, "eaccount", "account", "from_account") || "").toLowerCase();
-    const ueType = pick(e, "ue_type", "email_type", "type");
-    // Inbound = a reply FROM the lead. Instantly types vary; fall back to from!=eaccount.
-    const isInbound = ueType === 2 || ueType === "2" || ueType === "received" ||
-                      (!!eaccount && !!fromEmail && fromEmail !== eaccount);
-    if (!isInbound) { outbound++; continue; }
-    const leadEmail = fromEmail || String(pick(e, "lead_email") || "").toLowerCase();
-    if (!leadEmail) { skipped++; continue; }
-    const subject = pick(e, "subject", "email_subject") || "";
-    const bodyText = pick(e, "body_text", "text", "content_preview", "snippet") || (e.body && e.body.text) || "";
-    const bodyHtml = pick(e, "body_html", "html") || (e.body && e.body.html) || "";
-    const sentAt = pick(e, "timestamp_created", "timestamp", "created_at", "date", "sent_at");
-    const thread = pick(e, "thread_id", "message_id", "id");
-    const campaign = pick(e, "campaign_id", "campaign");
-    const extMsgId = String(pick(e, "message_id", "id") || (String(thread) + "|" + leadEmail));
+  for (const tid of Object.keys(threads)) {
+    const msgs = threads[tid].sort((a, b) => String(tsOf(a)).localeCompare(String(tsOf(b))));
+    if (!msgs.some((m) => !isOutbound(m))) { threadsSkipped++; continue; } // no reply yet → skip
+    const ref = msgs.find((m) => m.lead) || msgs[msgs.length - 1];
+    const leadEmail = lc(ref.lead || ref.from_address_email);
+    if (!leadEmail) { threadsSkipped++; continue; }
+    const eaccount = lc((msgs.find((m) => m.eaccount) || {}).eaccount);
+    const campaign = (msgs.find((m) => m.campaign_id) || {}).campaign_id || null;
+    const last = msgs[msgs.length - 1];
     const contactId = await findOrCreateContactByEmail(env, leadEmail, { source: "instantly" });
     const convId = await upsertConversationByThread(env, {
-      channel: "instantly", externalThreadId: String(thread || extMsgId), contactId, subject,
-      sourceDetail: campaign ? String(campaign) : (eaccount || null), channelAccountId: eaccount || null,
-      incoming: true, lastAt: sentAt, preview: String(bodyText || subject).slice(0, 160),
+      channel: "instantly", externalThreadId: tid, contactId, subject: stripRe(msgs[0].subject),
+      sourceDetail: campaign || eaccount || null, channelAccountId: eaccount || null,
+      incoming: !isOutbound(last), lastAt: tsOf(last), preview: htmlToText(bodyOf(last)).slice(0, 160),
     });
-    const r = await insertMessageOnce(env, {
-      conversationId: convId, direction: "in", channel: "instantly",
-      externalMessageId: extMsgId, bodyText, bodyHtml, sentAt,
-    });
-    if (!r.existed) { ingested++; if (sample.length < 3) sample.push({ from: leadEmail, subject, eaccount, campaign }); }
+    for (const m of msgs) {
+      const out = isOutbound(m);
+      const r = await insertMessageOnce(env, {
+        conversationId: convId, direction: out ? "out" : "in", channel: "instantly",
+        externalMessageId: m.message_id || m.id, bodyText: htmlToText(bodyOf(m)),
+        bodyHtml: (m.body && m.body.html) || "", sentAt: tsOf(m),
+      });
+      if (!r.existed) msgCount++;
+    }
+    convCount++;
+    if (sample.length < 3) sample.push({ lead: leadEmail, eaccount, campaign, subject: stripRe(msgs[0].subject), msgs: msgs.length });
   }
-  return { total: list.length, ingested, skipped, outbound, sample };
+  return { emails: list.length, threads: Object.keys(threads).length, replied_threads: convCount, threadsSkipped, messages_ingested: msgCount, sample };
 }
 
 export async function onRequestOptions({ request, env }) {

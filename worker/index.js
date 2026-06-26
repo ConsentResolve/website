@@ -175,6 +175,15 @@ export default {
       } catch (err) {
         console.log(`[inbox] poll error: ${String(err).slice(0, 160)}`);
       }
+      // Instantly Unibox: ingest campaign replies as channel='instantly'. No-op without key.
+      try {
+        if (env.INSTANTLY_API_KEY) {
+          const r = await crmInstantly.pollInstantly(env, { limit: 100 });
+          if (r && r.messages_ingested) console.log(`[instantly] +${r.messages_ingested} msgs across ${r.replied_threads} replied threads`);
+        }
+      } catch (err) {
+        console.log(`[instantly] poll error: ${String(err).slice(0, 160)}`);
+      }
       return;
     }
 
