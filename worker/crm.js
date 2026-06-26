@@ -236,7 +236,7 @@ document.getElementById("fQ").oninput=render;document.getElementById("fInd").onc
 // Standalone pages: the active section comes from the URL path (/crm/<section>);
 // nav items are real links that carry the ?key. On load, show that section's pane
 // and load only its data.
-var SEC=(location.pathname.match(/\/crm\/([a-z]+)/)||[])[1]||"leads";
+var SEC=location.pathname.split("/")[2]||"leads";if(["leads","industry","roas","social","status","settings"].indexOf(SEC)<0)SEC="leads";
 if(new URLSearchParams(location.search).get("connected"))SEC="settings";
 [].forEach.call(document.querySelectorAll("nav a"),function(a){var v=a.getAttribute("data-v");a.setAttribute("href","/crm/"+v+location.search);if(v===SEC)a.classList.add("active");else a.classList.remove("active");});
 [].forEach.call(document.querySelectorAll("[data-pane]"),function(p){p.hidden=p.getAttribute("data-pane")!==SEC;});
