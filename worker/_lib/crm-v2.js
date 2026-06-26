@@ -150,3 +150,57 @@ export async function findOrCreateCompany(env, { name, domain }) {
   await env.DB.prepare("INSERT INTO companies (id, name) VALUES (?, ?)").bind(id, "(unknown)").run();
   return id;
 }
+
+// Identity v0 (P1-6): match an email to a contact via contact_identifiers, else create
+// the contact + its company. Full resolution engine (provisional/merge) is P2-3.
+export async function findOrCreateContactByEmail(env, email, opts = {}) {
+  const e = String(email || "").toLowerCase().trim();
+  if (!e) return null;
+  const idr = await env.DB.prepare(
+    "SELECT contact_id FROM contact_identifiers WHERE type='email' AND value=?"
+  ).bind(e).first();
+  if (idr) return idr.contact_id;
+  const companyId = await findOrCreateCompany(env, { name: opts.company, domain: emailDomain(e) });
+  const contactId = ulid();
+  await env.DB.prepare(
+    "INSERT INTO contacts (id, company_id, full_name, primary_email, phone, source, is_provisional) VALUES (?, ?, ?, ?, ?, ?, 0)"
+  ).bind(contactId, companyId, opts.name || null, e, opts.phone || null, opts.source || null).run();
+  await env.DB.prepare(
+    "INSERT INTO contact_identifiers (id, contact_id, type, value, verified) VALUES (?, ?, 'email', ?, 1) ON CONFLICT(type, value) DO NOTHING"
+  ).bind(ulid(), contactId, e).run();
+  return contactId;
+}
+
+// One conversation per (channel, external_thread_id). Updates rollup on each new message.
+export async function upsertConversationByThread(env, c) {
+  const ex = await env.DB.prepare(
+    "SELECT id FROM conversations WHERE channel=? AND external_thread_id=?"
+  ).bind(c.channel, c.externalThreadId || "").first();
+  if (ex) {
+    await env.DB.prepare(
+      "UPDATE conversations SET last_message_at=?, last_message_preview=?, contact_id=COALESCE(contact_id, ?), company_id=COALESCE(company_id, ?), unread=CASE WHEN ?=1 THEN 1 ELSE unread END, updated_at=datetime('now') WHERE id=?"
+    ).bind(c.lastAt || null, c.preview || null, c.contactId || null, c.companyId || null, c.incoming ? 1 : 0, ex.id).run();
+    return ex.id;
+  }
+  const id = ulid();
+  await env.DB.prepare(
+    "INSERT INTO conversations (id, contact_id, company_id, channel, source_detail, channel_account_id, external_thread_id, subject, status, unread, last_message_at, last_message_preview) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open', ?, ?, ?)"
+  ).bind(id, c.contactId || null, c.companyId || null, c.channel, c.sourceDetail || null,
+         c.channelAccountId || null, c.externalThreadId || null, c.subject || null,
+         c.incoming ? 1 : 0, c.lastAt || null, c.preview || null).run();
+  return id;
+}
+
+// Insert a message, deduped on external_message_id (idempotent re-polls).
+export async function insertMessageOnce(env, m) {
+  if (m.externalMessageId) {
+    const ex = await env.DB.prepare("SELECT id FROM messages WHERE external_message_id=?").bind(m.externalMessageId).first();
+    if (ex) return { id: ex.id, existed: true };
+  }
+  const id = ulid();
+  await env.DB.prepare(
+    "INSERT INTO messages (id, conversation_id, direction, channel, author_id, external_message_id, in_reply_to_external, body_text, body_html, sent_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+  ).bind(id, m.conversationId, m.direction, m.channel, m.authorId || null, m.externalMessageId || null,
+         m.inReplyTo || null, m.bodyText || null, m.bodyHtml || null, m.sentAt || null).run();
+  return { id, existed: false };
+}

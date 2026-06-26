@@ -39,6 +39,7 @@ import * as crmSocialScores from "./api/crm-social-scores.js";
 import * as crmStatus from "./api/crm-status.js";
 import * as crmAuth from "./api/crm-auth.js";
 import * as crmMigrate from "./api/crm-migrate.js";
+import * as crmInbox from "./api/crm-inbox.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -75,6 +76,7 @@ const ROUTES = {
   "/api/crm/social/scores": crmSocialScores,
   "/api/crm/status": crmStatus,
   "/api/crm/migrate": crmMigrate,
+  "/api/crm/inbox": crmInbox,
   "/api/crm/auth/login": crmAuth,
   "/api/crm/auth/callback": crmAuth,
   "/api/crm/auth/logout": crmAuth,
@@ -161,6 +163,14 @@ export default {
         if (out && out.synced) console.log(`[apollo] synced ${out.synced} new (${out.skipped} skipped)`);
       } catch (err) {
         console.log(`[apollo] sync error: ${String(err).slice(0, 160)}`);
+      }
+      // Unified inbox: pull new mail for the configured mailbox(es). No-op until a
+      // CRM_INBOX_EMAILS account (default hello@) is Gmail-OAuth connected.
+      try {
+        const polled = await crmInbox.pollAllInboxes(env);
+        for (const p of polled) if (p && p.ingested) console.log(`[inbox] ${p.account}: +${p.ingested} of ${p.seen}`);
+      } catch (err) {
+        console.log(`[inbox] poll error: ${String(err).slice(0, 160)}`);
       }
       return;
     }
