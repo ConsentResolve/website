@@ -46,6 +46,8 @@ import * as crmEnrich from "./api/crm-enrich.js";
 import * as crmAnalytics2 from "./api/crm-analytics2.js";
 import * as crmMeta from "./api/crm-meta.js";
 import * as crmPresence from "./api/crm-presence.js";
+import * as crmContact from "./api/crm-contact.js";
+import * as crmMerge from "./api/crm-merge.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -90,6 +92,8 @@ const ROUTES = {
   "/api/crm/analytics2": crmAnalytics2,
   "/api/crm/meta": crmMeta,
   "/api/crm/presence": crmPresence,
+  "/api/crm/contact": crmContact,
+  "/api/crm/merge": crmMerge,
   "/api/crm/auth/login": crmAuth,
   "/api/crm/auth/callback": crmAuth,
   "/api/crm/auth/logout": crmAuth,
