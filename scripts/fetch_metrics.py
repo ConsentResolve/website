@@ -7,7 +7,7 @@ GraphQL post metrics, since TikTok's own API has no view endpoint for us) — so
 views count, including manual posts and ones made before delivery-logging existed.
 Matches each post back to a reel name by caption when possible. (X is skipped — no
 usable view API.) Creds from /tmp (same as the posters). Best-effort per call."""
-import json, os, re, subprocess, urllib.request, urllib.parse, datetime
+import json, os, re, subprocess, urllib.request, urllib.parse, urllib.error, datetime
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PUB = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev"
@@ -91,6 +91,14 @@ def ig_backfill():
             k = (m.get("media_product_type") or "?") + "/" + (m.get("media_type") or "?")
             types[k] = types.get(k, 0) + 1
         print(f"ig media: {len(data)} items, types {types}")  # diagnostic — see what IG returns
+        if data:  # one-time: show exactly what Instagram returns for the first reel's insights
+            try:
+                ins = get(f"{GRAPH}/{data[0]['id']}/insights?metric=reach,plays,saved,shares&access_token={urllib.parse.quote(FBTOK)}")
+                print("ig insights sample:", json.dumps(ins)[:400])
+            except urllib.error.HTTPError as e:
+                print("ig insights ERROR:", e.code, e.read().decode("utf-8", "replace")[:300])
+            except Exception as e:
+                print("ig insights err:", str(e)[:200])
         for m in data:
             if m.get("media_product_type") == "STORY": continue   # stories expire; not a creative test
             is_video = m.get("media_type") == "VIDEO"             # REELS + feed videos are media_type VIDEO
