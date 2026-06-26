@@ -84,7 +84,7 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 </section>
 <section data-pane="social" hidden>
   <div class="bar"><div class="muted tiny" id="socMeta">Loading…</div><button class="ghost" id="socRefresh" style="margin-left:auto">Refresh</button></div>
-  <div style="font-weight:600;margin:8px 0 8px">Channel creative grades</div>
+  <div style="font-weight:600;margin:8px 0 8px">Channel warm-up grades <span class="muted tiny" style="font-weight:400">— growth trajectory (needs 2+ daily snapshots)</span></div>
   <div id="socChannels" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px"></div>
   <div style="font-weight:600;margin:18px 0 8px">Creative leaderboard</div>
   <div id="socBoard"></div>
@@ -181,8 +181,10 @@ function ensureSocial(){if(SCORES){renderScores();return;}var sm=document.getEle
 function renderScores(){var d=SCORES||{};
 document.getElementById("socMeta").textContent="As of "+(d.generatedAt||"—")+" · "+(d.totalPosts||0)+" posts, "+(d.gradedPosts||0)+" graded";
 document.getElementById("socChannels").innerHTML=(d.channels||[]).map(function(c){
-var g=c.grade||"—";var sub=c.grade?("avg "+c.avgComposite):(c.posts?("warming up · "+c.posts+" below floor"):"no data yet");
-return '<div class="card" style="padding:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><span style="font-weight:600;font-size:13px">'+CHNAME[c.channel]+'</span>'+covPill(c.coverage)+'</div><div style="font-size:30px;font-weight:800;line-height:1.1;color:'+gradeColor(c.grade)+'">'+g+'</div><div class="muted tiny">'+sub+'</div><div class="muted tiny">'+c.gradedPosts+'/'+c.posts+' graded'+(c.graduates?(" · "+c.graduates+" ⭐"):"")+'</div></div>';
+var g=c.grade||"—";
+var fol=(c.followers!=null)?(c.followers.toLocaleString()+" followers"+(c.followerDelta?(" · "+(c.followerDelta>0?"+":"")+c.followerDelta):"")):"warm-up: baseline pending";
+var cre=c.creativeGrade?("creative "+c.creativeGrade):(c.posts?(c.posts+" posts · warming up"):"no posts yet");
+return '<div class="card" style="padding:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><span style="font-weight:600;font-size:13px">'+CHNAME[c.channel]+'</span>'+covPill(c.coverage)+'</div><div style="font-size:30px;font-weight:800;line-height:1.1;color:'+gradeColor(c.grade)+'">'+g+'</div><div class="muted tiny">'+fol+'</div><div class="muted tiny">'+cre+'</div></div>';
 }).join("");
 var ps=d.posts||[];var hint=(d.gradedPosts?"":'<div class="muted tiny" style="margin-bottom:8px">Below-floor posts shown for visibility — grades appear once a post clears the floor (IG/FB 500 reach; YT/X/LI/TT ~900 views/impr).</div>');
 document.getElementById("socBoard").innerHTML=ps.length?(hint+ps.map(function(s,i){

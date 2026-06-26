@@ -193,7 +193,44 @@ def x_backfill():
     except Exception as e:
         print("x backfill:", e); return []
 
+def channel_stats():
+    """Snapshot follower/subscriber counts per channel -> appended dated history in
+    social/channel-stats.json. Powers the warm-up (growth-trajectory) grades, which
+    are meaningful even when posts are below the creative distribution floor."""
+    snap = {"date": datetime.date.today().isoformat()}
+    if FBTOK and PAGE:
+        try:
+            d = get(f"{GRAPH}/{PAGE}?fields=followers_count,fan_count&access_token={urllib.parse.quote(FBTOK)}")
+            snap["fb"] = d.get("followers_count") or d.get("fan_count")
+        except Exception as e: print("fb followers:", e)
+    if FBTOK and IG:
+        try:
+            d = get(f"{GRAPH}/{IG}?fields=followers_count&access_token={urllib.parse.quote(FBTOK)}")
+            snap["ig"] = d.get("followers_count")
+        except Exception as e: print("ig followers:", e)
+    p = Path("/tmp/yt_token.json")
+    if p.exists():
+        try:
+            t = json.loads(p.read_text().strip().lstrip("﻿"))
+            data = urllib.parse.urlencode({"client_id": t["client_id"], "client_secret": t["client_secret"],
+                "refresh_token": t["refresh_token"], "grant_type": "refresh_token"}).encode()
+            tok = json.loads(urllib.request.urlopen(urllib.request.Request("https://oauth2.googleapis.com/token", data=data), timeout=30).read())["access_token"]
+            ch = get(f"https://www.googleapis.com/youtube/v3/channels?part=statistics&mine=true&access_token={tok}")
+            snap["yt"] = int(ch["items"][0]["statistics"]["subscriberCount"])
+        except Exception as e: print("yt subs:", e)
+    try:
+        hist = get(f"{PUB}/social/channel-stats.json")
+        if not isinstance(hist, list): hist = []
+    except Exception: hist = []
+    hist = [h for h in hist if h.get("date") != snap["date"]]  # replace today's if re-run
+    hist.append(snap)
+    hist = sorted(hist, key=lambda h: h.get("date", ""))[-60:]
+    tmp = "/tmp/channel-stats.json"; Path(tmp).write_text(json.dumps(hist))
+    subprocess.run(["/usr/bin/python3", str(ROOT / "scripts/r2_upload.py"), tmp, "social/channel-stats.json", "application/json"], check=False)
+    print(f"wrote social/channel-stats.json — {snap}")
+
 def main():
+    channel_stats()
     rows = fb_backfill() + ig_backfill() + yt_backfill() + tk_backfill() + x_backfill() + li_backfill()
     rows = [r for r in rows if (r.get("views") or 0) > 0 or r.get("likes")]
     tmp = "/tmp/metrics.json"; Path(tmp).write_text(json.dumps(rows))

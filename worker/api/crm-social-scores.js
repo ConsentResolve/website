@@ -6,7 +6,7 @@
 // emits the richer fields (shares/saves/retention/hook).
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
-import { fromInstagram, fromYouTube, fromFacebook, fromX, fromLinkedIn, fromTikTok, scorePost, gradeFromComposite, scoreGbp } from "../_lib/social-scoring.js";
+import { fromInstagram, fromYouTube, fromFacebook, fromX, fromLinkedIn, fromTikTok, scorePost, scoreWarmup, gradeFromComposite, scoreGbp } from "../_lib/social-scoring.js";
 
 const R2 = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev";
 const CH = { yt: "youtube", ig: "instagram", fb: "facebook", x: "x", li: "linkedin", tk: "tiktok" };
@@ -45,16 +45,36 @@ export async function onRequestGet({ request, env }) {
     scored.push({ ...s, name: r.name || r.url || s.postId, url: r.url || "", views: r.views ?? p.denom ?? 0, likes: r.likes ?? null, platform: p.channel });
   }
 
-  // Per-channel creative summary (avg composite of graded posts → letter grade).
+  // Warm-up (growth trajectory) — from the dated follower-count snapshots on R2.
+  let chstats = [];
+  try { const r = await fetch(`${R2}/social/channel-stats.json`); if (r.ok) chstats = await r.json(); } catch (_) {}
+  const latest = chstats[chstats.length - 1] || {};
+  const prev = chstats[chstats.length - 2] || {};
+  const STATKEY = { youtube: "yt", instagram: "ig", facebook: "fb" }; // channels we snapshot followers for
+  const trend = (cur, old) => {
+    if (cur == null || old == null) return null;            // need two snapshots
+    if (cur > old) return (cur - old) / Math.max(1, old) > 0.05 ? "accelerating" : "steady";
+    return cur < old ? "declining" : "flat";
+  };
+
+  // Per-channel summary: warm-up grade (growth) + creative avg (graded posts).
   const channels = ORDER.map((ch) => {
     const all = scored.filter((s) => s.platform === ch);
     const graded = all.filter((s) => s.graded && s.composite != null);
     const avg = graded.length ? Math.round((graded.reduce((a, s) => a + s.composite, 0) / graded.length) * 10) / 10 : null;
+    const key = STATKEY[ch];
+    const followers = key ? latest[key] ?? null : null;
+    const prevFollowers = key ? prev[key] ?? null : null;
+    const ft = trend(followers, prevFollowers);
+    const warm = ft ? scoreWarmup({ channel: ch, followerGrowthTrend: ft, distributionGrowthTrend: ft }) : null;
     return {
       channel: ch, coverage: COVERAGE[ch],
       posts: all.length, gradedPosts: graded.length,
-      avgComposite: avg, grade: avg != null ? gradeFromComposite(avg) : null,
+      avgComposite: avg, creativeGrade: avg != null ? gradeFromComposite(avg) : null,
       graduates: graded.filter((s) => s.graduateToPaid).length,
+      followers, followerDelta: followers != null && prevFollowers != null ? followers - prevFollowers : null,
+      warmupGrade: warm ? warm.grade : null,
+      grade: warm ? warm.grade : (avg != null ? gradeFromComposite(avg) : null), // card headline
     };
   });
 
