@@ -3,14 +3,17 @@
 // calls /api/crm/leads. Slice 1: Leads list + lead detail with editable
 // stage/status/value/owner + activity timeline. Other tabs are placeholders.
 
-import { isAuthed } from "./_lib/auth.js";
+import { isAuthed, crmSessionEmail } from "./_lib/auth.js";
 import { crmKey } from "./api/crm-leads.js";
 
 const LOGIN_HTML = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Consent Resolve CRM</title>
 <body style="margin:0;background:#0a1628;color:#e2e8f0;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center">
 <div><div style="font-size:20px;font-weight:600;color:#00e5a0">Consent Resolve CRM</div>
-<p style="color:#94a3b8;max-width:340px;margin:14px auto">Sign in at <a href="/admin" style="color:#00e5a0">/admin</a>, or open this page with <code style="color:#cbd5e1">?key=</code> appended.</p></div></body>`;
+<p style="color:#94a3b8;max-width:340px;margin:14px auto 20px">Sign in with your authorized Google account to continue.</p>
+<a id="gbtn" href="/api/crm/auth/login" style="display:inline-flex;align-items:center;gap:10px;background:#fff;color:#1f2937;font-weight:600;text-decoration:none;padding:11px 18px;border-radius:8px"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M45 24c0-1.6-.1-3.1-.4-4.5H24v9h11.8c-.5 2.7-2 5-4.3 6.6v5.5h7C42.6 36.7 45 30.9 45 24z"/><path fill="#34A853" d="M24 46c5.8 0 10.6-1.9 14.2-5.2l-7-5.5c-1.9 1.3-4.4 2.1-7.2 2.1-5.5 0-10.2-3.7-11.9-8.7H5v5.6C8.6 41.1 15.7 46 24 46z"/><path fill="#FBBC05" d="M12.1 28.7c-.4-1.3-.7-2.7-.7-4.7s.3-3.4.7-4.7v-5.6H5C3.6 16.6 3 20.2 3 24s.6 7.4 2 10.3l7.1-5.6z"/><path fill="#EA4335" d="M24 9.5c3.1 0 5.9 1.1 8.1 3.2l6-6C34.6 3.1 29.8 1 24 1 15.7 1 8.6 5.9 5 13.7l7.1 5.6C13.8 13.2 18.5 9.5 24 9.5z"/></svg>Sign in with Google</a>
+<p style="color:#64748b;font-size:12px;margin-top:18px">Admins can also use <a href="/admin" style="color:#64748b">/admin</a>.</p></div>
+<script>var b=document.getElementById("gbtn");if(b)b.href="/api/crm/auth/login?next="+encodeURIComponent(location.pathname);</script></body>`;
 
 const PAGE_HTML = `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Consent Resolve CRM</title>
@@ -50,7 +53,7 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 .calcell{border:1px solid var(--line);border-radius:8px;min-height:84px;padding:6px}
 .chip{font-size:10.5px;padding:3px 5px;border-radius:4px;color:#fff;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style></head><body>
-<header><div class="logo">✓</div><div style="font-weight:600">Consent Resolve <span class="muted">CRM</span></div><div class="muted tiny" style="margin-left:auto" id="count"></div></header>
+<header><div class="logo">✓</div><div style="font-weight:600">Consent Resolve <span class="muted">CRM</span></div><div class="muted tiny" style="margin-left:auto" id="count"></div><div class="muted tiny" id="userBox" style="margin-left:14px"></div></header>
 <nav>
 <a data-v="leads" href="/crm/leads">Leads</a>
 <a data-v="industry" href="/crm/industry">Industries</a>
@@ -101,6 +104,8 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
     <div><div style="font-weight:600;margin-bottom:8px">Last post</div><div class="card" id="stLast" style="padding:14px"></div></div>
     <div><div style="font-weight:600;margin-bottom:8px">Next post</div><div class="card" id="stNext" style="padding:14px"></div></div>
   </div>
+  <div style="font-weight:600;margin:18px 0 8px">Pipeline &amp; schedule</div>
+  <div id="stPipeline" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
 </section>
 <section data-pane="settings" hidden>
   <div class="card" style="padding:16px;margin-bottom:14px"><div style="font-weight:600;margin-bottom:8px">Gmail — two-way email</div><div id="gmailWrap" class="muted tiny">Loading…</div></div>
@@ -213,6 +218,8 @@ document.getElementById("stIntegrations").innerHTML=(d.integrations||[]).map(fun
 function pc(p,empty){if(!p)return '<div class="muted tiny">'+empty+'</div>';return '<div style="font-weight:600">'+esc(String(p.name||p.platform))+'</div><div class="muted tiny" style="margin-top:4px">'+esc(p.platform||"")+(p.at?(" · "+esc(p.at)):"")+'</div>'+(p.url?('<div class="tiny" style="margin-top:5px"><a href="'+esc(p.url)+'" target="_blank" style="color:#7ff0cd">view →</a></div>'):"");}
 document.getElementById("stLast").innerHTML=pc(d.lastPost,"No published posts yet.");
 document.getElementById("stNext").innerHTML=pc(d.nextPost,"Nothing queued.");
+var pp=d.pipeline||{};function pcard(l,v){return '<div class="card" style="padding:12px"><div class="muted tiny">'+l+'</div><div style="font-weight:600;font-size:13px;margin-top:4px">'+esc(v||"—")+'</div></div>';}
+var sp=document.getElementById("stPipeline");if(sp)sp.innerHTML=pcard("Metrics last refreshed",pp.metricsUpdatedAt)+pcard("Next metrics refresh",pp.nextMetricsRefresh)+pcard("Next social drip",pp.nextSocialDrip)+pcard("Apollo sync",pp.apolloSync);
 var sr=document.getElementById("stRefresh");if(sr)sr.onclick=function(){STATUS=null;ensureStatus();};}
 
 function ensureSettings(){var o=location.origin;var wc=document.getElementById("whCrisp");if(wc)wc.value=o+"/api/crm/crisp?key="+encodeURIComponent(KEY);var wa=document.getElementById("whApollo");if(wa)wa.value=o+"/api/crm/apollo?key="+encodeURIComponent(KEY);
@@ -238,12 +245,13 @@ else if(SEC==="social")ensureSocial();
 else if(SEC==="status")ensureStatus();
 else if(SEC==="settings")ensureSettings();
 else load();
+fetch("/api/crm/auth/me",{credentials:"same-origin"}).then(function(r){return r.json();}).then(function(d){var u=document.getElementById("userBox");if(u&&d&&d.email)u.innerHTML=esc(d.email)+' · <a href="/api/crm/auth/logout" style="color:#7ff0cd;text-decoration:none">sign out</a>';}).catch(function(){});
 </script></body></html>`;
 
 export async function handle({ request, env }) {
   const url = new URL(request.url);
   const key = url.searchParams.get("key") || "";
-  const ok = (await isAuthed(request, env)) || (key && key === crmKey(env));
+  const ok = (await isAuthed(request, env)) || (await crmSessionEmail(request, env)) || (key && key === crmKey(env));
   const headers = { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" };
   if (!ok) return new Response(LOGIN_HTML, { status: 401, headers });
   return new Response(PAGE_HTML, { headers });

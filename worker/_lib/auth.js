@@ -90,3 +90,33 @@ export function checkPassword(env, given) {
 export function adminConfigured(env) {
   return Boolean(env.ADMIN_PASSWORD && env.ADMIN_SESSION_SECRET);
 }
+
+// ── CRM user session (Google sign-in) ───────────────────────────────────────
+// Site-scoped (Path=/) HMAC cookie carrying the signed-in email, so /crm + the
+// /api/crm/* data routes authenticate via the cookie instead of ?key in the URL
+// (the existing cr_admin cookie is Path=/admin, so it never reached /crm).
+const CRM_TTL = 30 * 24 * 60 * 60; // 30 days
+
+export async function createUserSession(env, email) {
+  if (!env.ADMIN_SESSION_SECRET) throw new Error("ADMIN_SESSION_SECRET not set");
+  const payload = b64url(enc.encode(JSON.stringify({ email, exp: Math.floor(Date.now() / 1000) + CRM_TTL })));
+  const key = await hmacKey(env.ADMIN_SESSION_SECRET);
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(payload));
+  return `${payload}.${b64url(sig)}`;
+}
+export function crmSessionCookie(token) {
+  return `cr_crm=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${CRM_TTL}`;
+}
+export function crmClearCookie() {
+  return `cr_crm=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`;
+}
+export async function crmSessionEmail(request, env) {
+  const c = parseCookies(request);
+  const d = await verifySession(env, c["cr_crm"]);
+  return d && d.email ? d.email : null;
+}
+// Allowlist: only these emails may sign in (env CRM_ALLOWED_EMAILS, comma/space separated).
+export function emailAllowed(env, email) {
+  const list = (env.CRM_ALLOWED_EMAILS || "").toLowerCase().split(/[,\s]+/).filter(Boolean);
+  return list.length > 0 && list.includes(String(email || "").toLowerCase());
+}

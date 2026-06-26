@@ -21,8 +21,8 @@ export async function onRequestGet({ request, env }) {
   const all = async (sql) => { try { const r = await env.DB.prepare(sql).all(); return r.results || []; } catch { return []; } };
 
   // Social channels — connected = the fetcher is pulling posts for them.
-  let metrics = [];
-  try { const r = await fetch(`${R2}/social/metrics.json`); if (r.ok) metrics = await r.json(); } catch (_) {}
+  let metrics = [], metricsLM = null;
+  try { const r = await fetch(`${R2}/social/metrics.json`); if (r.ok) { metrics = await r.json(); metricsLM = r.headers.get("last-modified"); } } catch (_) {}
   const counts = {};
   for (const m of metrics) counts[m.platform] = (counts[m.platform] || 0) + 1;
   const integrations = [];
@@ -43,8 +43,23 @@ export async function onRequestGet({ request, env }) {
   const lp = await first("SELECT platform, resource_slug, post_url, published_at FROM social_queue WHERE status='published' AND published_at IS NOT NULL ORDER BY published_at DESC LIMIT 1");
   const np = await first("SELECT platform, resource_slug, scheduled_at, status FROM social_queue WHERE status IN ('scheduled','ready_to_publish') ORDER BY COALESCE(scheduled_at, created_at) ASC LIMIT 1");
 
+  // Pipeline freshness + next scheduled runs (GH metrics Action = 0 */6; worker
+  // crons: social drip 0 15, Apollo sync */5).
+  const now = new Date();
+  const fmtUtc = (d) => (d ? d.toISOString().slice(0, 16).replace("T", " ") + " UTC" : null);
+  const nextMetrics = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), (Math.floor(now.getUTCHours() / 6) + 1) * 6, 0, 0));
+  let nextSocial = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 15, 0, 0));
+  if (nextSocial <= now) nextSocial = new Date(nextSocial.getTime() + 86400000);
+  const pipeline = {
+    metricsUpdatedAt: metricsLM ? fmtUtc(new Date(metricsLM)) : null,
+    nextMetricsRefresh: fmtUtc(nextMetrics),
+    nextSocialDrip: fmtUtc(nextSocial),
+    apolloSync: "every 5 min",
+  };
+
   return json({
     generatedAt: new Date().toISOString().slice(0, 16).replace("T", " ") + " UTC",
+    pipeline,
     integrations,
     lastPost: lp ? { platform: PLABEL[lp.platform] || lp.platform, name: lp.resource_slug, url: lp.post_url || "", at: ts(lp.published_at) } : null,
     nextPost: np ? { platform: PLABEL[np.platform] || np.platform, name: np.resource_slug, at: ts(np.scheduled_at) || np.status, url: "" } : null,
