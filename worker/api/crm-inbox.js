@@ -123,8 +123,13 @@ export async function onRequestGet({ request, env }) {
     const msgs = (await env.DB.prepare(
       "SELECT id, direction, channel, body_text, body_html, sent_at, created_at FROM messages WHERE conversation_id=? ORDER BY COALESCE(sent_at, created_at) ASC"
     ).bind(id).all()).results || [];
+    let contact = null, company = null;
+    if (conv.contact_id) {
+      contact = await env.DB.prepare("SELECT * FROM contacts WHERE id=?").bind(conv.contact_id).first();
+      if (contact && contact.company_id) company = await env.DB.prepare("SELECT * FROM companies WHERE id=?").bind(contact.company_id).first();
+    }
     await env.DB.prepare("UPDATE conversations SET unread=0 WHERE id=?").bind(id).run();
-    return json({ conversation: conv, messages: msgs }, {}, cors);
+    return json({ conversation: conv, messages: msgs, contact, company }, {}, cors);
   }
 
   const status = url.searchParams.get("status") || "open";
