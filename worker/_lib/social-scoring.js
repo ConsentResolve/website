@@ -82,7 +82,11 @@ export function fromTikTok(r) {
 }
 
 // ── Config: floors, weights, bands ([CALIBRATE] with your trailing medians) ──
-export const FLOORS = { reach: 500, impressions: 900, views: 900 };
+// [CALIBRATE] Early-stage floors — channels are warming up (posts in the tens–low
+// hundreds), so the established-channel floors (500/900) would never let anything
+// grade. Lowered so posts with real reach start scoring. Raise toward 500/900 as
+// reach grows (grades at very low denominators are directional, not definitive).
+export const FLOORS = { reach: 50, impressions: 50, views: 50 };
 
 const WEIGHTS_VIDEO = { share: 0.30, save: 0.25, hold: 0.20, hook: 0.15, eng: 0.10 };
 const WEIGHTS_STATIC = { share: 0.40, save: 0.35, eng: 0.25 };
