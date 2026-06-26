@@ -8,6 +8,11 @@ to /tmp/fb_page_token.txt. Works for either source:
   • A personal USER token (only if your personal account is a Page admin) — set
     FB_USER_TOKEN plus FB_APP_ID/FB_APP_SECRET to exchange it for long-lived.
 
+For Instagram insights (reel reach/saves/shares in the social dashboard) the source
+FB_USER_TOKEN must include scopes: instagram_basic + instagram_manage_insights
+(+ pages_read_engagement). Without instagram_manage_insights, media insights return
+"(#10) Application does not have permission for this action".
+
 Env:
   FB_USER_TOKEN  (required) — system-user token OR Explorer user token
   FB_APP_ID, FB_APP_SECRET  (optional) — enables the long-lived exchange + scope check
@@ -62,4 +67,5 @@ if APPID and SECRET:
     print(f"  scopes: {', '.join(scopes)}")
     print(f"  expires: {'never' if exp == 0 else exp}")
     print(f"  pages_manage_posts present: {'pages_manage_posts' in scopes}")
+    print(f"  instagram_manage_insights present: {'instagram_manage_insights' in scopes}  (needed for IG reel insights)")
 print("\nNext: copy this token into the FB_PAGE_TOKEN GitHub secret →  cat /tmp/fb_page_token.txt")
