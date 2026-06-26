@@ -7,6 +7,7 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { gAccessToken, sendMessage } from "../_lib/gmail.js";
+import { sendInstantlyReply } from "./crm-instantly.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2 } from "../_lib/crm-v2.js";
 
 function inboxAccounts(env) {
@@ -175,7 +176,19 @@ export async function onRequestPost({ request, env }) {
       return json({ ok: true, sent: "email", to }, {}, cors);
     }
     if (conv.channel === "instantly") {
-      return json({ error: "instantly_reply_pending", message: "Instantly reply endpoint is being wired next." }, { status: 400 }, cors);
+      const eaccount = conv.channel_account_id;
+      if (!eaccount) return json({ error: "no_eaccount" }, { status: 400 }, cors);
+      const last = await env.DB.prepare(
+        "SELECT external_message_id FROM messages WHERE conversation_id=? AND external_message_id IS NOT NULL ORDER BY COALESCE(sent_at, created_at) DESC LIMIT 1"
+      ).bind(conv.id).first();
+      if (!last || !last.external_message_id) return json({ error: "no_reply_target" }, { status: 400 }, cors);
+      const subject = conv.subject ? "Re: " + conv.subject.replace(/^re:\s*/i, "") : "Re:";
+      const res = await sendInstantlyReply(env, { eaccount, replyToUuid: last.external_message_id, subject, body });
+      if (res.error) return json({ error: res.error }, { status: 400 }, cors);
+      const now = new Date().toISOString();
+      await insertMessageOnce(env, { conversationId: conv.id, direction: "out", channel: "instantly", externalMessageId: res.id, bodyText: body, sentAt: now });
+      await env.DB.prepare("UPDATE conversations SET last_message_at=?, last_message_preview=?, unread=0, updated_at=datetime('now') WHERE id=?").bind(now, body.slice(0, 160), conv.id).run();
+      return json({ ok: true, sent: "instantly" }, {}, cors);
     }
     return json({ error: "unsupported_channel", channel: conv.channel }, { status: 400 }, cors);
   }

@@ -69,7 +69,7 @@ export async function pollInstantly(env, { limit = 100 } = {}) {
       const out = isOutbound(m);
       const r = await insertMessageOnce(env, {
         conversationId: convId, direction: out ? "out" : "in", channel: "instantly",
-        externalMessageId: m.message_id || m.id, bodyText: htmlToText(bodyOf(m)),
+        externalMessageId: m.id || m.message_id, bodyText: htmlToText(bodyOf(m)), // store Instantly id (= reply_to_uuid)
         bodyHtml: (m.body && m.body.html) || "", sentAt: tsOf(m),
       });
       if (!r.existed) msgCount++;
@@ -78,6 +78,20 @@ export async function pollInstantly(env, { limit = 100 } = {}) {
     if (sample.length < 3) sample.push({ lead: leadEmail, eaccount, campaign, subject: stripRe(msgs[0].subject), msgs: msgs.length });
   }
   return { emails: list.length, threads: Object.keys(threads).length, replied_threads: convCount, threadsSkipped, messages_ingested: msgCount, sample };
+}
+
+// Send a reply out the SAME warmed mailbox via Instantly (P1-5, send-to-origin).
+// reply_to_uuid is the Instantly email `id` we stored as external_message_id.
+export async function sendInstantlyReply(env, { eaccount, replyToUuid, subject, body }) {
+  if (!env.INSTANTLY_API_KEY) return { error: "no_key" };
+  const res = await fetch(BASE + "/emails/reply", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json", "User-Agent": UA, Authorization: "Bearer " + env.INSTANTLY_API_KEY },
+    body: JSON.stringify({ eaccount, reply_to_uuid: replyToUuid, subject, body: { text: body, html: String(body || "").replace(/\n/g, "<br>") } }),
+  });
+  let j = {}; try { j = await res.json(); } catch (_) {}
+  if (!res.ok) return { error: String((j && (j.error || j.message)) || ("http_" + res.status)).slice(0, 160), status: res.status };
+  return { ok: true, id: j.id || (j.email && j.email.id) || null };
 }
 
 export async function onRequestOptions({ request, env }) {
