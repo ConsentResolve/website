@@ -171,6 +171,34 @@ export async function findOrCreateContactByEmail(env, email, opts = {}) {
   return contactId;
 }
 
+// Resolve a contact by a non-email identifier (crisp_session, meta_psid, …), creating a
+// provisional contact if new (spec §4 — anonymous chat/social, no email yet).
+export async function findOrCreateContactByIdentifier(env, type, value, opts = {}) {
+  const v = String(value || "").trim();
+  if (!v) return null;
+  const idr = await env.DB.prepare("SELECT contact_id FROM contact_identifiers WHERE type=? AND value=?").bind(type, v).first();
+  if (idr) return idr.contact_id;
+  const companyId = await findOrCreateCompany(env, { name: opts.company || opts.name });
+  const contactId = ulid();
+  await env.DB.prepare(
+    "INSERT INTO contacts (id, company_id, full_name, source, is_provisional) VALUES (?, ?, ?, ?, 1)"
+  ).bind(contactId, companyId, opts.name || null, opts.source || null).run();
+  await env.DB.prepare(
+    "INSERT INTO contact_identifiers (id, contact_id, type, value, verified) VALUES (?, ?, ?, ?, 0) ON CONFLICT(type, value) DO NOTHING"
+  ).bind(ulid(), contactId, type, v).run();
+  return contactId;
+}
+
+// Attach an identifier to an existing contact (idempotent) — e.g. linking a crisp_session
+// to the contact we matched by email.
+export async function linkIdentifier(env, contactId, type, value) {
+  const v = String(value || "").trim();
+  if (!contactId || !v) return;
+  await env.DB.prepare(
+    "INSERT INTO contact_identifiers (id, contact_id, type, value, verified) VALUES (?, ?, ?, ?, 0) ON CONFLICT(type, value) DO NOTHING"
+  ).bind(ulid(), contactId, type, v).run();
+}
+
 // One conversation per (channel, external_thread_id). Updates rollup on each new message.
 export async function upsertConversationByThread(env, c) {
   const ex = await env.DB.prepare(
