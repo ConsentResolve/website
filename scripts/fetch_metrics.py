@@ -145,13 +145,25 @@ def buffer_backfill(service, platform):
             st = (e.get("node") or {}).get("status")
             statuses[st] = statuses.get(st, 0) + 1
         print(f"{platform}: {len(edges)} posts, statuses {statuses}")
+        sampled = [False]
         for e in edges:
             nd = e.get("node") or {}
             if nd.get("status") != "sent": continue
-            mm = {m["name"]: m["value"] for m in (nd.get("metrics") or [])}
-            views = mm.get("Views") if mm.get("Views") is not None else mm.get("Impressions")
-            likes = mm.get("Reactions") if mm.get("Reactions") is not None else mm.get("Likes")
-            rows.append({"name": match(nd.get("text")), "platform": platform, "views": views, "likes": likes, "url": ""})
+            mm = {}
+            for m in (nd.get("metrics") or []):
+                key = str(m.get("name") or m.get("type") or "").lower()
+                if key: mm[key] = m.get("value")
+            if mm and not sampled[0]:
+                print(f"{platform} metric names: {list(mm.keys())}"); sampled[0] = True  # learn Buffer's exact names
+            def pick(*ks):
+                for k in ks:
+                    if mm.get(k) is not None: return mm.get(k)
+                return None
+            rows.append({"name": match(nd.get("text")), "platform": platform,
+                "views": pick("views", "impressions", "plays", "reach"),
+                "likes": pick("reactions", "likes"),
+                "shares": pick("shares", "reposts", "retweets"),
+                "comments": pick("comments", "replies"), "url": ""})
     except Exception as e: print(f"{platform} backfill:", e)
     return rows
 
