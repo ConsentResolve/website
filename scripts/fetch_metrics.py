@@ -118,7 +118,7 @@ def buffer_backfill(service, platform):
     Buffer's GraphQL — Buffer surfaces metrics the platform's own API doesn't give us.
     views<-Views|Impressions, likes<-Reactions|Likes. Token from /tmp/buffer_token.txt."""
     tok = _read("/tmp/buffer_token.txt") or os.environ.get("BUFFER_TOKEN", "")
-    if not tok: return []
+    if not tok: print(f"{platform}: no BUFFER_TOKEN"); return []
     def bq(query, var=None):
         body = {"query": query}
         if var: body["variables"] = var
@@ -127,14 +127,25 @@ def buffer_backfill(service, platform):
         return json.loads(urllib.request.urlopen(req, timeout=45).read())
     rows = []
     try:
-        acc = (bq("{ account { organizations { id } channels { id service } } }").get("data") or {}).get("account") or {}
+        ar = bq("{ account { organizations { id } channels { id service } } }")
+        if ar.get("errors"): print(f"{platform} buffer api errors:", str(ar.get("errors"))[:200])
+        acc = (ar.get("data") or {}).get("account") or {}
+        services = [(c.get("service") or "?") for c in (acc.get("channels") or [])]
         org = ((acc.get("organizations") or [{}])[0]).get("id")
         chans = [c["id"] for c in (acc.get("channels") or []) if (c.get("service") or "").lower() == service]
+        print(f"{platform}: org={'yes' if org else 'no'} channel_services={services} matched={len(chans)}")
         if not (org and chans): return []
         Q = ("query($in:PostsInput!,$f:Int){ posts(input:$in, first:$f){ edges { node { "
              "status text metrics { name value } } } } }")
         d = bq(Q, {"in": {"organizationId": org, "filter": {"channelIds": chans}}, "f": 100})
-        for e in (((d.get("data") or {}).get("posts") or {}).get("edges")) or []:
+        if d.get("errors"): print(f"{platform} posts errors:", str(d.get("errors"))[:200])
+        edges = (((d.get("data") or {}).get("posts") or {}).get("edges")) or []
+        statuses = {}
+        for e in edges:
+            st = (e.get("node") or {}).get("status")
+            statuses[st] = statuses.get(st, 0) + 1
+        print(f"{platform}: {len(edges)} posts, statuses {statuses}")
+        for e in edges:
             nd = e.get("node") or {}
             if nd.get("status") != "sent": continue
             mm = {m["name"]: m["value"] for m in (nd.get("metrics") or [])}
