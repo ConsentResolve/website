@@ -62,6 +62,7 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 <nav>
 <a data-v="inbox" href="/crm/inbox">Inbox</a>
 <a data-v="pipeline" href="/crm/pipeline">Pipeline</a>
+<a data-v="analytics" href="/crm/analytics">Analytics</a>
 <a data-v="leads" href="/crm/leads">Leads</a>
 <a data-v="industry" href="/crm/industry">Industries</a>
 <a data-v="roas" href="/crm/roas">ROAS</a>
@@ -83,6 +84,16 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 <section data-pane="pipeline" hidden>
   <div class="bar"><div class="muted tiny" id="plMeta"></div><select id="plView" style="margin-left:auto"><option value="bands">Probability bands</option><option value="month">Close month</option></select></div>
   <div id="plBoard" class="plboard"></div>
+</section>
+<section data-pane="analytics" hidden>
+  <div class="bar"><div class="muted tiny" id="anMeta">Loading…</div></div>
+  <div class="tiles" id="anTiles"></div>
+  <div style="font-weight:600;margin:16px 0 8px">Weighted forecast by close month</div>
+  <div class="card" style="padding:14px" id="anForecast"></div>
+  <div style="font-weight:600;margin:16px 0 8px">Source / vertical attribution</div>
+  <div class="card" id="anAttr"></div>
+  <div style="font-weight:600;margin:16px 0 8px">By owner</div>
+  <div class="card" id="anOwner"></div>
 </section>
 <section data-pane="leads" hidden>
   <div class="bar">
@@ -303,16 +314,29 @@ if(status==="active"){var prob=prompt("Close probability (0-100)",d.close_probab
 var val=prompt("Deal value in $",d.value_cents?Math.round(d.value_cents/100):"");if(val!==null&&val!=="")patch.value_cents=Math.round((Number(val)||0)*100);
 var cd=prompt("Expected close date (YYYY-MM-DD)",d.expected_close_date||"");if(cd!==null)patch.expected_close_date=cd.trim()||null;}
 fetch("/api/crm/deals",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify(patch)}).then(function(r){return r.json();}).then(function(res){if(res.error){alert(res.error);return;}ensurePipeline();});}
+function num(n){return (Number(n)||0).toLocaleString();}
+function ensureAna2(){var m=document.getElementById("anMeta");if(m)m.textContent="Loading…";api("/api/crm/analytics2").then(function(r){return r.json();}).then(renderAna2).catch(function(){if(m)m.textContent="Failed to load.";});}
+function renderAna2(d){var t=d.totals||{},stl=d.speedToLead||{},f=d.funnel||{};
+document.getElementById("anMeta").textContent="As of "+(d.generatedAt||"");
+function tl(l,v){return '<div class="tile"><div class="l">'+l+'</div><div class="n">'+v+'</div></div>';}
+document.getElementById("anTiles").innerHTML=tl("Weighted pipeline","$"+num(t.weighted_pipeline_usd))+tl("Won","$"+num(t.won_usd))+tl("Speed-to-lead",(stl.avg_hours!=null?stl.avg_hours+"h":"—"))+tl("Funnel",num(f.conversations)+" → "+num(f.leads)+" → "+num(f.won));
+var fc=d.forecast||[];var max=1;fc.forEach(function(r){if((r.weighted_usd||0)>max)max=r.weighted_usd;});
+document.getElementById("anForecast").innerHTML=fc.length?fc.map(function(r){var pct=Math.round(((r.weighted_usd||0)/max)*100);return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+esc(r.month)+'</span><span>$'+num(r.weighted_usd)+' · '+r.deals+' deal'+(r.deals===1?"":"s")+'</span></div><div class="track"><div class="fill" style="width:'+pct+'%"></div></div></div>';}).join(""):'<div class="muted tiny">No dated active deals yet.</div>';
+var at=d.attribution||[];
+document.getElementById("anAttr").innerHTML=at.length?('<div class="row" style="font-weight:600;cursor:default"><div style="flex:1">Channel · Source</div><div style="width:54px;text-align:right">Conv</div><div style="width:54px;text-align:right">Leads</div><div style="width:46px;text-align:right">Won</div></div>'+at.map(function(r){return '<div class="row" style="cursor:default"><div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.channel||"?")+' · '+esc(r.source||"")+'</div><div style="width:54px;text-align:right">'+num(r.conversations)+'</div><div style="width:54px;text-align:right">'+num(r.leads)+'</div><div style="width:46px;text-align:right">'+num(r.won)+'</div></div>';}).join("")):'<div class="muted tiny" style="padding:10px">No conversations yet.</div>';
+var ow=d.byOwner||[];
+document.getElementById("anOwner").innerHTML=ow.length?('<div class="row" style="font-weight:600;cursor:default"><div style="flex:1">Owner</div><div style="width:50px;text-align:right">Active</div><div style="width:96px;text-align:right">Weighted</div><div style="width:66px;text-align:right">Win rate</div></div>'+ow.map(function(r){var wl=(r.won||0)+(r.lost||0);var wr=wl>0?Math.round((r.won||0)/wl*100)+"%":"—";return '<div class="row" style="cursor:default"><div style="flex:1">'+esc(r.name)+'</div><div style="width:50px;text-align:right">'+num(r.active_deals)+'</div><div style="width:96px;text-align:right">$'+num(r.weighted_usd)+'</div><div style="width:66px;text-align:right">'+wr+'</div></div>';}).join("")):'<div class="muted tiny" style="padding:10px">No deals yet.</div>';}
 document.getElementById("fQ").oninput=render;document.getElementById("fInd").onchange=render;document.getElementById("fSrc").onchange=render;document.getElementById("add").onclick=add;document.getElementById("addSpend").onclick=doAddSpend;
 // Standalone pages: the active section comes from the URL path (/crm/<section>);
 // nav items are real links that carry the ?key. On load, show that section's pane
 // and load only its data.
-var SEC=location.pathname.split("/")[2]||"inbox";if(["inbox","pipeline","leads","industry","roas","social","status","settings"].indexOf(SEC)<0)SEC="inbox";
+var SEC=location.pathname.split("/")[2]||"inbox";if(["inbox","pipeline","analytics","leads","industry","roas","social","status","settings"].indexOf(SEC)<0)SEC="inbox";
 if(new URLSearchParams(location.search).get("connected"))SEC="settings";
 [].forEach.call(document.querySelectorAll("nav a"),function(a){var v=a.getAttribute("data-v");a.setAttribute("href","/crm/"+v+location.search);if(v===SEC)a.classList.add("active");else a.classList.remove("active");});
 [].forEach.call(document.querySelectorAll("[data-pane]"),function(p){p.hidden=p.getAttribute("data-pane")!==SEC;});
 if(SEC==="inbox")ensureInbox();
 else if(SEC==="pipeline")ensurePipeline();
+else if(SEC==="analytics")ensureAna2();
 else if(SEC==="industry"||SEC==="roas")ensureAnalytics();
 else if(SEC==="social")ensureSocial();
 else if(SEC==="status")ensureStatus();
