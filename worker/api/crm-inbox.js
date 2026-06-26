@@ -91,6 +91,27 @@ export async function onRequestGet({ request, env }) {
     return json({ ok: true, polled: await pollAllInboxes(env), accounts: inboxAccounts(env) }, {}, cors);
   }
 
+  // Debug: list recent mail across ALL labels (not just inbox) with labelIds, so we can
+  // see where a message landed (Spam/archived) vs. what the in:inbox poll matches.
+  if (url.searchParams.get("debug") === "1") {
+    const out = [];
+    for (const acct of inboxAccounts(env)) {
+      const tok = await gAccessToken(env, acct);
+      if (!tok) { out.push({ account: acct, error: "no_token" }); continue; }
+      const lr = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=15&q=" + encodeURIComponent("newer_than:2d"), { headers: { Authorization: "Bearer " + tok } });
+      const lj = await lr.json();
+      const msgs = [];
+      for (const ref of (lj.messages || []).slice(0, 15)) {
+        const mr = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/" + ref.id + "?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date", { headers: { Authorization: "Bearer " + tok } });
+        const m = await mr.json();
+        const h = {}; ((m.payload && m.payload.headers) || []).forEach((x) => { h[x.name.toLowerCase()] = x.value; });
+        msgs.push({ from: h.from || "", subject: h.subject || "", date: h.date || "", labels: m.labelIds || [] });
+      }
+      out.push({ account: acct, q: "newer_than:2d (all labels)", count: (lj.messages || []).length, messages: msgs });
+    }
+    return json({ debug: out }, {}, cors);
+  }
+
   const id = url.searchParams.get("id");
   if (id) {
     const conv = await env.DB.prepare(
