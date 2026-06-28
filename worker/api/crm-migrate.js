@@ -9,7 +9,7 @@
 //                                       throwaway — start fresh instead of migrating.)
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
-import { ensureCrmV2Schema, ulid, emailDomain, findOrCreateCompany, addActivityV2, adminUserId } from "../_lib/crm-v2.js";
+import { ensureCrmV2Schema, ulid, emailDomain, findOrCreateCompany, addActivityV2, adminUserId, isAdmin } from "../_lib/crm-v2.js";
 
 // crm_leads.status (open|won|lost|closed) -> deals.lead_status (active|won|lost).
 function mapStatus(s) { return s === "won" ? "won" : s === "lost" ? "lost" : "active"; }
@@ -23,13 +23,17 @@ export async function onRequestPost(ctx) { return run(ctx); }
 async function run({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
+  // Admin-only — this endpoint both migrates and (destructively) wipes data.
+  if (!(await isAdmin(request, env))) return json({ error: "forbidden", message: "Admin role required." }, { status: 403 }, cors);
   const url = new URL(request.url);
   await ensureCrmV2Schema(env);
 
-  // Clean-slate wipe (explicit). Clears legacy + v2 transactional rows; keeps users +
-  // channel_accounts. Idempotent (wiping empty tables is a no-op). Table names are
-  // hardcoded constants — no injection surface.
+  // Clean-slate wipe (explicit + double-confirmed). Clears legacy + v2 transactional rows;
+  // keeps users + channel_accounts. Table names are hardcoded constants — no injection.
   if (url.searchParams.get("wipe") === "1") {
+    if (url.searchParams.get("confirm") !== "ERASE") {
+      return json({ error: "confirm_required", message: "Destructive. Re-run with &confirm=ERASE to wipe." }, { status: 400 }, cors);
+    }
     const tables = ["crm_leads", "crm_activity", "notes", "activities", "messages",
                     "conversations", "deals", "contact_identifiers", "contacts", "companies"];
     const deleted = {};

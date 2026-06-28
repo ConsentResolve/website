@@ -63,9 +63,7 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 <a data-v="inbox" href="/crm/inbox">Inbox</a>
 <a data-v="pipeline" href="/crm/pipeline">Pipeline</a>
 <a data-v="analytics" href="/crm/analytics">Analytics</a>
-<a data-v="leads" href="/crm/leads">Leads</a>
-<a data-v="industry" href="/crm/industry">Industries</a>
-<a data-v="roas" href="/crm/roas">ROAS</a>
+<a data-v="roas" href="/crm/roas">Spend</a>
 <a data-v="social" href="/crm/social">Social</a>
 <a data-v="status" href="/crm/status">Status</a>
 <a data-v="settings" href="/crm/settings">Settings</a>

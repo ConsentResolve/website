@@ -16,9 +16,24 @@ export async function onRequestGet({ request, env }) {
   return new Response("forbidden", { status: 403 });
 }
 
+// Verify Meta's X-Hub-Signature-256 (HMAC-SHA256 of the raw body with the app secret).
+async function verifySig(raw, header, secret) {
+  if (!secret) return true; // not configured yet → allow (open like other webhooks)
+  const sig = String(header || "").replace(/^sha256=/, "");
+  if (!sig) return false;
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(raw));
+  const hex = Array.from(new Uint8Array(mac)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return hex === sig;
+}
+
 export async function onRequestPost({ request, env }) {
+  const raw = await request.text();
+  if (!(await verifySig(raw, request.headers.get("X-Hub-Signature-256"), env.META_APP_SECRET))) {
+    return json({ error: "bad_signature" }, { status: 403 });
+  }
   let body = {};
-  try { body = await request.json(); } catch { return json({ ok: true, skipped: "bad_json" }); }
+  try { body = JSON.parse(raw); } catch { return json({ ok: true, skipped: "bad_json" }); }
   try {
     await ensureCrmV2Schema(env);
     const token = env.FB_PAGE_TOKEN || env.META_PAGE_TOKEN || "";

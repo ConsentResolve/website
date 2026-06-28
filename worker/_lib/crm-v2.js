@@ -117,6 +117,11 @@ export async function currentUser(request, env) {
   await ensureCrmV2Schema(env);
   return await getUserByEmail(env, email);
 }
+// True only if the signed-in CRM user has the admin role (gates destructive ops).
+export async function isAdmin(request, env) {
+  const u = await currentUser(request, env);
+  return !!(u && u.role === "admin" && u.active);
+}
 export async function adminUserId(env) {
   const r = await env.DB.prepare("SELECT id FROM users WHERE role='admin' AND active=1 ORDER BY created_at LIMIT 1").first();
   return r ? r.id : null;

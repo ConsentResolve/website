@@ -9,7 +9,7 @@ import { crmAuthed } from "../_lib/crm.js";
 import { gAccessToken, sendMessage } from "../_lib/gmail.js";
 import { sendInstantlyReply } from "./crm-instantly.js";
 import { sendCrispMessage } from "./crm-crisp.js";
-import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2 } from "../_lib/crm-v2.js";
+import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2, isAdmin } from "../_lib/crm-v2.js";
 
 function inboxAccounts(env) {
   return (env.CRM_INBOX_EMAILS || "hello@consentresolve.com").split(/[,\s]+/).map((s) => s.trim().toLowerCase()).filter(Boolean);
@@ -94,8 +94,9 @@ export async function onRequestGet({ request, env }) {
   }
 
   // Debug: list recent mail across ALL labels (not just inbox) with labelIds, so we can
-  // see where a message landed (Spam/archived) vs. what the in:inbox poll matches.
+  // see where a message landed (Spam/archived) vs. what the in:inbox poll matches. Admin-only.
   if (url.searchParams.get("debug") === "1") {
+    if (!(await isAdmin(request, env))) return json({ error: "forbidden" }, { status: 403 }, cors);
     const out = [];
     for (const acct of inboxAccounts(env)) {
       const tok = await gAccessToken(env, acct);
