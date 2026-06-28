@@ -36,6 +36,19 @@ export async function sendCrispMessage(env, sessionId, text) {
   return { ok: true, id: (j.data && j.data.fingerprint) || null };
 }
 
+// Fetch the full message history of a Crisp conversation (both sides) for the CRM thread.
+// Needs the same plugin creds as sending. Returns null if unconfigured/unavailable.
+export async function getCrispTranscript(env, sessionId) {
+  const wid = env.CRISP_WEBSITE_ID, id = env.CRISP_IDENTIFIER, key = env.CRISP_KEY;
+  if (!wid || !id || !key || !sessionId) return null;
+  const r = await fetch("https://api.crisp.chat/v1/website/" + wid + "/conversation/" + sessionId + "/messages", {
+    headers: { Authorization: "Basic " + btoa(id + ":" + key), "X-Crisp-Tier": "plugin" },
+  });
+  let j = {}; try { j = await r.json(); } catch (_) {}
+  if (!r.ok || !j || j.error) return null;
+  return Array.isArray(j.data) ? j.data : [];
+}
+
 export async function onRequestPost({ request, env }) {
   if ((new URL(request.url).searchParams.get("key") || "") !== crmWebhookToken(env)) return json({ error: "unauthorized" }, { status: 401 });
   let body = {};

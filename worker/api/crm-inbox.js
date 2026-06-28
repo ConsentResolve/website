@@ -8,7 +8,7 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { gAccessToken, sendMessage } from "../_lib/gmail.js";
 import { sendInstantlyReply } from "./crm-instantly.js";
-import { sendCrispMessage } from "./crm-crisp.js";
+import { sendCrispMessage, getCrispTranscript } from "./crm-crisp.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2, isAdmin } from "../_lib/crm-v2.js";
 
 function inboxAccounts(env) {
@@ -123,6 +123,22 @@ export async function onRequestGet({ request, env }) {
          LEFT JOIN companies co ON co.id=cv.company_id WHERE cv.id=?`
     ).bind(id).first();
     if (!conv) return json({ error: "not_found" }, { status: 404 }, cors);
+    // For Crisp, pull the full transcript (both sides) live and sync it in, so the CRM
+    // shows the whole chat — not just the visitor's incoming messages. No-op without creds.
+    if (conv.channel === "crisp") {
+      try {
+        const tx = await getCrispTranscript(env, conv.external_thread_id);
+        for (const m of (tx || [])) {
+          const text = typeof m.content === "string" ? m.content : (m.content && (m.content.text || m.content.value)) || "";
+          if (!text) continue;
+          await insertMessageOnce(env, {
+            conversationId: id, direction: m.from === "operator" ? "out" : "in", channel: "crisp",
+            externalMessageId: m.fingerprint != null ? String(m.fingerprint) : null,
+            bodyText: text, sentAt: m.timestamp ? new Date(m.timestamp).toISOString() : null,
+          });
+        }
+      } catch (_) {}
+    }
     const msgs = (await env.DB.prepare(
       "SELECT id, direction, channel, body_text, body_html, sent_at, created_at FROM messages WHERE conversation_id=? ORDER BY COALESCE(sent_at, created_at) ASC"
     ).bind(id).all()).results || [];
