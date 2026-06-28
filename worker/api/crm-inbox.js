@@ -130,8 +130,12 @@ export async function onRequestGet({ request, env }) {
       contact = await env.DB.prepare("SELECT * FROM contacts WHERE id=?").bind(conv.contact_id).first();
       if (contact && contact.company_id) company = await env.DB.prepare("SELECT * FROM companies WHERE id=?").bind(contact.company_id).first();
     }
+    const users = (await env.DB.prepare("SELECT id, name FROM users WHERE active=1 ORDER BY name").all()).results || [];
+    const notes = (await env.DB.prepare(
+      "SELECT n.id, n.body, n.created_at, u.name AS author FROM notes n LEFT JOIN users u ON u.id=n.author_id WHERE n.conversation_id=? ORDER BY n.created_at DESC"
+    ).bind(id).all()).results || [];
     await env.DB.prepare("UPDATE conversations SET unread=0 WHERE id=?").bind(id).run();
-    return json({ conversation: conv, messages: msgs, contact, company }, {}, cors);
+    return json({ conversation: conv, messages: msgs, contact, company, users, notes }, {}, cors);
   }
 
   const status = url.searchParams.get("status") || "open";
@@ -206,6 +210,28 @@ export async function onRequestPost({ request, env }) {
     await env.DB.prepare("UPDATE conversations SET last_message_at=?, last_message_preview=?, unread=0, updated_at=datetime('now') WHERE id=?").bind(now, body.slice(0, 160), conv.id).run();
     await addActivityV2(env, { actorId: authorId, entityType: "conversation", entityId: conv.id, action: "replied", meta: { channel: conv.channel, via: sentVia } });
     return json({ ok: true, sent: sentVia }, {}, cors);
+  }
+
+  // Assign a conversation to a rep (A — inbox assignment, spec §7).
+  if (b.assignee_id !== undefined) {
+    const aid = b.assignee_id || null;
+    if (aid) { const u = await env.DB.prepare("SELECT id FROM users WHERE id=?").bind(aid).first(); if (!u) return json({ error: "bad_user" }, { status: 400 }, cors); }
+    await env.DB.prepare("UPDATE conversations SET assignee_id=?, updated_at=datetime('now') WHERE id=?").bind(aid, b.id).run();
+    const me = await currentUser(request, env);
+    await addActivityV2(env, { actorId: me ? me.id : null, entityType: "conversation", entityId: b.id, action: "assigned", meta: { assignee_id: aid } });
+    return json({ ok: true, assignee_id: aid }, {}, cors);
+  }
+
+  // Add an internal note on the conversation (A — notes, spec §3).
+  if (b.note !== undefined) {
+    const text = String(b.note || "").trim();
+    if (!text) return json({ error: "empty_note" }, { status: 400 }, cors);
+    const conv = await env.DB.prepare("SELECT contact_id FROM conversations WHERE id=?").bind(b.id).first();
+    if (!conv) return json({ error: "not_found" }, { status: 404 }, cors);
+    const me = await currentUser(request, env);
+    await env.DB.prepare("INSERT INTO notes (id, author_id, conversation_id, contact_id, body) VALUES (?, ?, ?, ?, ?)").bind(ulid(), me ? me.id : null, b.id, conv.contact_id || null, text).run();
+    await addActivityV2(env, { actorId: me ? me.id : null, entityType: "conversation", entityId: b.id, action: "note" });
+    return json({ ok: true }, {}, cors);
   }
 
   // Convert to Lead (status D, BUILD-PLAN P3-4): create a deal from the conversation,

@@ -8,6 +8,7 @@ import { corsHeaders, json, clientIp, baseOrigin } from "../_lib/http.js";
 import { verifyTurnstile } from "../_lib/turnstile.js";
 import { uuid, nowIso, insertParticipant, getByEmail, updateParticipant, logEvent, recentRegistrations } from "../_lib/db.js";
 import { sendLeadNotification } from "../_lib/email.js";
+import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce } from "../_lib/crm-v2.js";
 
 const SAMPLE_PATH = "/demo/sample/";
 const RATE_LIMIT = 8; // registrations per IP per minute
@@ -117,6 +118,25 @@ export async function onRequestPost({ request, env, waitUntil }) {
     { src: src ? decodeURIComponent(src) : "direct", ref: request.headers.get("Referer") || "", time: nowIso(), repeat },
   ).catch(() => {});
   if (typeof waitUntil === "function") waitUntil(notify); else await notify;
+
+  // Mirror into the v2 unified inbox as a demo_form conversation (non-blocking).
+  const mirror = (async () => {
+    if (!env.DB) return;
+    await ensureCrmV2Schema(env);
+    const contactId = await findOrCreateContactByEmail(env, email, { name, phone, company: business_name, source: "demo_form" });
+    if (!contactId) return;
+    const convId = await upsertConversationByThread(env, {
+      channel: "demo_form", externalThreadId: "demo:" + token, contactId,
+      subject: "Demo request" + (business_name ? " — " + business_name : ""), sourceDetail: trade || null,
+      incoming: true, lastAt: nowIso(), preview: [name, business_name, trade].filter(Boolean).join(" · ").slice(0, 160) || "Demo form",
+    });
+    await insertMessageOnce(env, {
+      conversationId: convId, direction: "in", channel: "demo_form", externalMessageId: "demo:" + token,
+      bodyText: "Demo request\nName: " + name + "\nEmail: " + email + (business_name ? "\nBusiness: " + business_name : "") + (trade ? "\nTrade: " + trade : "") + (phone ? "\nPhone: " + phone : ""),
+      sentAt: nowIso(),
+    });
+  })().catch(() => {});
+  if (typeof waitUntil === "function") waitUntil(mirror); else await mirror;
 
   const redirectUrl = `${origin}${SAMPLE_PATH}?dt=${encodeURIComponent(token)}`;
   const cookie = `dt=${token}; Domain=.consentresolve.com; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=3600`;
