@@ -41,6 +41,13 @@ export async function onRequestPost({ request, env }) {
   let body = {};
   try { body = await request.json(); } catch { return json({ ok: true, skipped: "bad_json" }); }
   try {
+    // Only ingest a real inbound visitor message. Skip other event types (compose/typing,
+    // profile updates) and operator/system messages — otherwise one chat doubles up.
+    const event = String(body.event || "");
+    if (event && event !== "message:received") return json({ ok: true, skipped: "event:" + event });
+    const from = String(deepFind(body, ["from"], 0) || "").toLowerCase();
+    if (from && from !== "user" && from !== "visitor") return json({ ok: true, skipped: "from:" + from });
+
     const email = String(deepFind(body, ["email", "user_email"], 0) || "").toLowerCase();
     const name = String(deepFind(body, ["nickname", "name", "first_name"], 0) || "");
     const session = String(deepFind(body, ["session_id", "session"], 0) || "");
