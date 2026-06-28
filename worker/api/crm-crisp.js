@@ -20,6 +20,22 @@ function deepFind(obj, keys, depth) {
   return null;
 }
 
+// Outbound reply to a Crisp conversation (spec §5). Needs the plugin creds
+// CRISP_WEBSITE_ID / CRISP_IDENTIFIER / CRISP_KEY; no-ops clearly if unset.
+export async function sendCrispMessage(env, sessionId, text) {
+  const wid = env.CRISP_WEBSITE_ID, id = env.CRISP_IDENTIFIER, key = env.CRISP_KEY;
+  if (!wid || !id || !key) return { error: "crisp_unconfigured", message: "Set CRISP_WEBSITE_ID / CRISP_IDENTIFIER / CRISP_KEY to reply to Crisp chats." };
+  if (!sessionId) return { error: "no_session" };
+  const r = await fetch("https://api.crisp.chat/v1/website/" + wid + "/conversation/" + sessionId + "/message", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: "Basic " + btoa(id + ":" + key), "X-Crisp-Tier": "plugin" },
+    body: JSON.stringify({ type: "text", from: "operator", origin: "chat", content: text }),
+  });
+  let j = {}; try { j = await r.json(); } catch (_) {}
+  if (!r.ok) return { error: "crisp_send_failed", message: String((j && j.reason) || r.status).slice(0, 120) };
+  return { ok: true, id: (j.data && j.data.fingerprint) || null };
+}
+
 export async function onRequestPost({ request, env }) {
   if ((new URL(request.url).searchParams.get("key") || "") !== crmWebhookToken(env)) return json({ error: "unauthorized" }, { status: 401 });
   let body = {};

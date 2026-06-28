@@ -8,6 +8,7 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { gAccessToken, sendMessage } from "../_lib/gmail.js";
 import { sendInstantlyReply } from "./crm-instantly.js";
+import { sendCrispMessage } from "./crm-crisp.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2 } from "../_lib/crm-v2.js";
 
 function inboxAccounts(env) {
@@ -154,8 +155,10 @@ export async function onRequestPost({ request, env }) {
   try { b = await request.json(); } catch { return json({ error: "bad_json" }, { status: 400 }, cors); }
   if (!b.id) return json({ error: "id_required" }, { status: 400 }, cors);
 
-  // Reply (send-to-origin, BUILD-PLAN P1-8). Routes by the conversation's channel —
-  // email replies go out via hello@'s Gmail; instantly replies are wired next.
+  // Reply, send-to-origin (BUILD-PLAN P1-8). Routes by channel: email→Gmail (hello@),
+  // instantly→Instantly reply (warmed mailbox), crisp→Crisp REST, meta_lead/demo_form→
+  // email to the captured address (spec §5: form sources reply by email, never Messenger).
+  // Logs the reply to activities with the sending rep (per-rep attribution).
   if (b.reply !== undefined) {
     const body = String(b.reply || "").trim();
     if (!body) return json({ error: "empty_reply" }, { status: 400 }, cors);
@@ -163,34 +166,46 @@ export async function onRequestPost({ request, env }) {
       "SELECT cv.*, c.primary_email FROM conversations cv LEFT JOIN contacts c ON c.id=cv.contact_id WHERE cv.id=?"
     ).bind(b.id).first();
     if (!conv) return json({ error: "not_found" }, { status: 404 }, cors);
+    const me = await currentUser(request, env);
+    const authorId = me ? me.id : null;
+    const subj = conv.subject ? "Re: " + conv.subject.replace(/^re:\s*/i, "") : "Re: your inquiry";
+    let externalId = null, sentVia = conv.channel;
+
     if (conv.channel === "email") {
-      const account = conv.channel_account_id || inboxAccounts(env)[0];
       const to = conv.primary_email;
       if (!to) return json({ error: "no_recipient" }, { status: 400 }, cors);
-      const subject = conv.subject ? "Re: " + conv.subject.replace(/^re:\s*/i, "") : "(no subject)";
-      const res = await sendMessage(env, account, to, subject, body, conv.external_thread_id);
+      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], to, subj, body, conv.external_thread_id);
       if (res.error) return json({ error: res.error }, { status: 400 }, cors);
-      const now = new Date().toISOString();
-      await insertMessageOnce(env, { conversationId: conv.id, direction: "out", channel: "email", externalMessageId: res.id, bodyText: body, sentAt: now });
-      await env.DB.prepare("UPDATE conversations SET last_message_at=?, last_message_preview=?, unread=0, updated_at=datetime('now') WHERE id=?").bind(now, body.slice(0, 160), conv.id).run();
-      return json({ ok: true, sent: "email", to }, {}, cors);
-    }
-    if (conv.channel === "instantly") {
+      externalId = res.id;
+    } else if (conv.channel === "meta_lead" || conv.channel === "demo_form") {
+      const to = conv.primary_email;
+      if (!to) return json({ error: "no_email", message: "No email on file for this lead — call only." }, { status: 400 }, cors);
+      const res = await sendMessage(env, inboxAccounts(env)[0], to, subj, body, null); // new email thread, not Messenger
+      if (res.error) return json({ error: res.error }, { status: 400 }, cors);
+      externalId = res.id; sentVia = "email";
+    } else if (conv.channel === "instantly") {
       const eaccount = conv.channel_account_id;
       if (!eaccount) return json({ error: "no_eaccount" }, { status: 400 }, cors);
       const last = await env.DB.prepare(
         "SELECT external_message_id FROM messages WHERE conversation_id=? AND external_message_id IS NOT NULL ORDER BY COALESCE(sent_at, created_at) DESC LIMIT 1"
       ).bind(conv.id).first();
       if (!last || !last.external_message_id) return json({ error: "no_reply_target" }, { status: 400 }, cors);
-      const subject = conv.subject ? "Re: " + conv.subject.replace(/^re:\s*/i, "") : "Re:";
-      const res = await sendInstantlyReply(env, { eaccount, replyToUuid: last.external_message_id, subject, body });
+      const res = await sendInstantlyReply(env, { eaccount, replyToUuid: last.external_message_id, subject: subj, body });
       if (res.error) return json({ error: res.error }, { status: 400 }, cors);
-      const now = new Date().toISOString();
-      await insertMessageOnce(env, { conversationId: conv.id, direction: "out", channel: "instantly", externalMessageId: res.id, bodyText: body, sentAt: now });
-      await env.DB.prepare("UPDATE conversations SET last_message_at=?, last_message_preview=?, unread=0, updated_at=datetime('now') WHERE id=?").bind(now, body.slice(0, 160), conv.id).run();
-      return json({ ok: true, sent: "instantly" }, {}, cors);
+      externalId = res.id;
+    } else if (conv.channel === "crisp") {
+      const res = await sendCrispMessage(env, conv.external_thread_id, body);
+      if (res.error) return json({ error: res.error, message: res.message }, { status: 400 }, cors);
+      externalId = res.id;
+    } else {
+      return json({ error: "unsupported_channel", channel: conv.channel }, { status: 400 }, cors);
     }
-    return json({ error: "unsupported_channel", channel: conv.channel }, { status: 400 }, cors);
+
+    const now = new Date().toISOString();
+    await insertMessageOnce(env, { conversationId: conv.id, direction: "out", channel: conv.channel, authorId, externalMessageId: externalId, bodyText: body, sentAt: now });
+    await env.DB.prepare("UPDATE conversations SET last_message_at=?, last_message_preview=?, unread=0, updated_at=datetime('now') WHERE id=?").bind(now, body.slice(0, 160), conv.id).run();
+    await addActivityV2(env, { actorId: authorId, entityType: "conversation", entityId: conv.id, action: "replied", meta: { channel: conv.channel, via: sentVia } });
+    return json({ ok: true, sent: sentVia }, {}, cors);
   }
 
   // Convert to Lead (status D, BUILD-PLAN P3-4): create a deal from the conversation,
