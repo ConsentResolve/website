@@ -1,0 +1,722 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Badge from "~/components/ui/Badge.astro";
+import Button from "~/components/ui/Button.astro";
+import FeatureCard from "~/components/ui/FeatureCard.astro";
+import HowItWorks from "~/components/sections/HowItWorks.astro";
+import ConsentFlowSlideshow from "~/components/sections/ConsentFlowSlideshow.astro";
+import ComplianceBand from "~/components/sections/ComplianceBand.astro";
+import FinalCTA from "~/components/sections/FinalCTA.astro";
+import AEOAnswer from "~/components/sections/AEOAnswer.astro";
+import FAQ from "~/components/sections/FAQ.astro";
+import VisitorDetailScreen from "~/components/ui/demo/VisitorDetailScreen.astro";
+import DemoForm from "~/components/DemoForm.astro"; // embedded in the browser window as the end-of-video CTA
+import RelatedReads from "~/components/sections/RelatedReads.astro";
+import { INDUSTRIES, type Industry } from "~/data/industries";
+import { getBlogPostsByCluster } from "~/lib/resources";
+import { breadcrumbSchema, faqSchema, industryServiceSchema } from "~/lib/seo";
+import { IconArrowRight, IconEye, IconCheck,
+  IconBuilding, IconTool, IconAirConditioning, IconDroplet, IconKey, IconBolt,
+  IconHome, IconBrush, IconLayoutBoardSplit, IconBuildingWarehouse, IconHome2,
+  IconSparkles, IconBugOff, IconBath, IconLeaf, IconCar,
+  IconBellRinging, IconClipboardCheck, IconMapPin, IconRefresh,
+  IconPlugConnected, IconLock, IconUserCheck, IconGhost, IconUser,
+} from "@tabler/icons-react";
+
+// Static EXPERIMENT copy of the HVAC leads page (route /hvac-leads-v2, noindex).
+// Tries: video/infographic promoted up + the 3-step ConsentFlowSlideshow enlarged and
+// centered, leading into the How-It-Works steps. If approved, fold back into [slug].astro.
+const trade = INDUSTRIES.find((t) => t.slug === "hvac") as Industry;
+
+// Map iconKey -> safe Tabler component
+const iconMap: Record<string, any> = {
+  IconBuildingCommunity: IconBuilding,
+  IconTool,
+  IconTrees: IconLeaf,
+  IconAirConditioning,
+  IconDroplet,
+  IconKey,
+  IconBolt,
+  IconHome,
+  IconPaint: IconBrush,
+  IconFence: IconLayoutBoardSplit,
+  IconGarage: IconBuildingWarehouse,
+  IconFridge: IconHome2,
+  IconSparkles,
+  IconBug: IconBugOff,
+  IconSpray: IconBath,
+  IconPlant: IconLeaf,
+  IconCar,
+};
+const TradeIcon = iconMap[trade.iconKey] ?? IconTool;
+
+// Card library — the 3 cards each industry page picks from
+const cardLib: Record<string, { Icon: any; title: string; body: string }> = {
+  "on-phone-five":  { Icon: IconBellRinging,    title: "On your phone in five.",       body: "Slack, text, or email the second a homeowner consents — so your funnel timing is right and you're ready when the warm inbound comes." },
+  "why-shopping":   { Icon: IconClipboardCheck, title: "Why they're shopping.",         body: "What they were looking for — captured the moment they consent. Your funnel re-engages already knowing the job." },
+  "mapped-zip":     { Icon: IconMapPin,         title: "Mapped to your zip.",           body: "Every lead drops a pin on your service-area map. Filter by zip, route, or distance from the shop." },
+  "came-back":      { Icon: IconRefresh,        title: "They came back? You'll know.",  body: "Return-visit alerts fire when a known homeowner is back on your site. Time your funnel right." },
+  "crm":            { Icon: IconPlugConnected,  title: "Lands in your CRM.",            body: "Pushes straight to Jobber, Housecall Pro, ServiceTitan, GoHighLevel, HubSpot, Klaviyo — or anything else through a webhook." },
+  "yours-alone":    { Icon: IconLock,           title: "Yours alone, never resold.",    body: "Not auctioned to four other shops. Not flipped next week. One consent, one contractor — you." },
+  "real-numbers":   { Icon: IconUserCheck,      title: "Real names. Real emails.",      body: "A consented, deliverable email, enriched with name and location where available — the actual homeowner, not a household label, not a P.O. box." },
+};
+const threeCards = trade.cardKeys.map((k) => cardLib[k]).filter(Boolean);
+
+// Common questions every ICP (owner / office manager / tech) actually asks
+// about Consent Resolve — grounded in real contractor pain points (Reddit
+// r/hvac, r/Contractor; shared-lead-reseller + visitor-ID compliance threads).
+// Shown on every industry page beneath the 3 trade-specific FAQs.
+const COMMON_FAQS = [
+  { q: "How is this different from Angi or HomeAdvisor?", a: "Those are shared-lead resellers — they sell the same homeowner to four or five contractors at once, so you're bidding against everyone who bought the same name. Here, every lead is exclusive to you and never resold: a real name, a consented email, and the pages they viewed, fed into your CRM at a flat $7. It's not a marketplace." },
+  { q: "Is identifying my website visitors even legal?", a: "Yes — it's built consent-first. A privacy-compliant banner asks each visitor for permission, and you only get a lead when they accept. Every lead carries a timestamped consent receipt and a 7-year audit trail, built for TCPA, CIPA, and state privacy laws." },
+  { q: "Isn't this the creepy kind of tracking that emails people who never opted in?", a: "No. The gray-area tools identify people and let you contact them with no permission — that's the part that gets businesses in trouble. Nobody becomes a lead here unless they accept the consent banner first. No consent, no data." },
+  { q: "Are the leads exclusive, or will my competitor get the same name?", a: "Exclusive. A lead recovered on your website is yours alone and is never resold. They were on your site looking at your services, not shopping a marketplace." },
+  { q: "I get website traffic but barely any calls. Why?", a: "Most home-service sites convert only a small share of visitors; the rest read a service page and leave. This recovers the ones who consent, so a visitor already looking at your services becomes a named lead in your CRM instead of an anonymous bounce." },
+  { q: "Does this replace my Google Local Service Ads?", a: "No, it complements them. LSAs bring in searchers; this recovers the visitors who land on your site and would otherwise leave anonymous. Different parts of the same funnel." },
+  { q: "Am I locked into a contract or a monthly minimum?", a: "No long-term contract and no annual membership. It's flat $7 per exclusive lead — card required, cancel anytime." },
+  { q: "How do the leads reach me so I can follow up fast?", a: "Recovered leads feed straight into your CRM — Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, GoHighLevel — with the name, consented email, and services viewed, so you can follow up while the interest is fresh." },
+  { q: "I've wasted money on marketing before. What's different here?", a: "You only pay $7 when an actual visitor on your site consents to become a lead — not for clicks, impressions, or a shared name four competitors also bought. The spend maps to a named, exclusive, consented person who was already looking at your services." },
+];
+// Trade-specific FAQs first, then the common set — used for both display and FAQPage schema.
+const faqItems = [
+  ...trade.faqs.map((f) => ({ question: f.q, answer: f.a })),
+  ...COMMON_FAQS.map((f) => ({ question: f.q, answer: f.a })),
+];
+
+// SEO
+const canonical = `https://consentresolve.com/${trade.slug}-leads/`;
+const schemas = [
+  breadcrumbSchema([
+    { name: "Home", href: "/" },
+    { name: "Industries", href: "/industries/" },
+    { name: trade.name, href: `/${trade.slug}-leads/` },
+  ]),
+  industryServiceSchema({
+    tradeName: trade.name,
+    tradeSlug: trade.slug,
+    description: trade.metaDescription,
+  }),
+  faqSchema(faqItems),
+];
+
+const relatedPosts = await getBlogPostsByCluster(trade.slug);
+
+const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
+
+// Demo is the primary CTA on these paid-ad landing pages. Per-trade UTM so
+// landing-page demo clicks attribute to the trade; the original ad source is
+// preserved separately in the first-party cr_src cookie (set on first hit),
+// so this never clobbers ad attribution. `trade` prefills the demo form.
+const demoHref = (slot: string) =>
+  `/demo/?utm_source=${trade.slug}-leads&utm_medium=landing_page&utm_content=${slot}&trade=${trade.slug}`;
+
+// Canonical "booked job" math — one comparison used everywhere (demo,
+// landing pages, ads). $7/lead stays the offer; this is the proof.
+const bookedJobMath = {
+  shared: { cost: "$575", sub: "$46 a lead · sold to ~4 others · ~1 in 12 books" },
+  owned: { cost: "$140", sub: "$7 a lead · exclusive, never resold · yours alone" },
+};
+
+// Problem-section UGC video — landscape Tyler (HeyGen, "Real Tyler" group look
+// "Green Hat, Matching Shirt" + voice 92071…). Shipped as a static asset under
+// public/ (no R2 write creds locally). Regenerate via scripts/gen_problem_ugc.py.
+const PROBLEM_VIDEO = "/video/tyler-problem.mp4";
+
+// Per-trade two-part interactive clips (intro → pause/cue → After animates grid →
+// resume). HVAC is the pilot; trades without an entry fall back to PROBLEM_VIDEO.
+const TRADE_VIDEOS: Record<string, { intro: string; resume: string; poster?: string }> = {
+  hvac: { intro: "/video/hvac-intro.mp4", resume: "/video/hvac-resume.mp4", poster: "/video/hvac-poster.jpg" },
+  "general-contractor": { intro: "/video/general-contractor-intro.mp4", resume: "/video/general-contractor-resume.mp4", poster: "/video/general-contractor-poster.jpg" },
+  "appliance-repair": { intro: "/video/appliance-repair-intro.mp4", resume: "/video/appliance-repair-resume.mp4", poster: "/video/appliance-repair-poster.jpg" },
+  "deck-fence": { intro: "/video/deck-fence-intro.mp4", resume: "/video/deck-fence-resume.mp4", poster: "/video/deck-fence-poster.jpg" },
+  electrician: { intro: "/video/electrician-intro.mp4", resume: "/video/electrician-resume.mp4", poster: "/video/electrician-poster.jpg" },
+  "garage-door": { intro: "/video/garage-door-intro.mp4", resume: "/video/garage-door-resume.mp4", poster: "/video/garage-door-poster.jpg" },
+  roofing: { intro: "/video/roofing-intro.mp4", resume: "/video/roofing-resume.mp4", poster: "/video/roofing-poster.jpg" },
+  plumber: { intro: "/video/plumber-intro.mp4", resume: "/video/plumber-resume.mp4", poster: "/video/plumber-poster.jpg" },
+  "tree-removal": { intro: "/video/tree-removal-intro.mp4", resume: "/video/tree-removal-resume.mp4", poster: "/video/tree-removal-poster.jpg" },
+  locksmith: { intro: "/video/locksmith-intro.mp4", resume: "/video/locksmith-resume.mp4", poster: "/video/locksmith-poster.jpg" },
+  painter: { intro: "/video/painter-intro.mp4", resume: "/video/painter-resume.mp4", poster: "/video/painter-poster.jpg" },
+  "house-cleaning": { intro: "/video/house-cleaning-intro.mp4", resume: "/video/house-cleaning-resume.mp4", poster: "/video/house-cleaning-poster.jpg" },
+  "power-washing": { intro: "/video/power-washing-intro.mp4", resume: "/video/power-washing-resume.mp4", poster: "/video/power-washing-poster.jpg" },
+  "pest-control": { intro: "/video/pest-control-intro.mp4", resume: "/video/pest-control-resume.mp4", poster: "/video/pest-control-poster.jpg" },
+  "lawn-care": { intro: "/video/lawn-care-intro.mp4", resume: "/video/lawn-care-resume.mp4", poster: "/video/lawn-care-poster.jpg" },
+  "mobile-car-service": { intro: "/video/mobile-car-service-intro.mp4", resume: "/video/mobile-car-service-resume.mp4", poster: "/video/mobile-car-service-poster.jpg" },
+  handyman: { intro: "/video/handyman-intro.mp4", resume: "/video/handyman-resume.mp4", poster: "/video/handyman-poster.jpg" },
+};
+const tradeVid = TRADE_VIDEOS[trade.slug];
+
+// Trade-specific service for the live product preview (the visitor record shows
+// the homeowner shopping THIS trade's service, not a generic water heater).
+const DEMO_SERVICE: Record<string, string> = {
+  "general-contractor": "kitchen remodel",
+  handyman: "drywall repair",
+  "tree-removal": "tree removal",
+  hvac: "AC replacement",
+  plumber: "water heater replacement",
+  locksmith: "lock rekey",
+  electrician: "panel upgrade",
+  roofing: "roof replacement",
+  painter: "interior painting",
+  "deck-fence": "fence installation",
+  "garage-door": "garage door repair",
+  "appliance-repair": "refrigerator repair",
+  "house-cleaning": "deep cleaning",
+  "pest-control": "termite treatment",
+  "power-washing": "house washing",
+  "lawn-care": "lawn treatment",
+  "mobile-car-service": "mobile oil change",
+};
+const demoSvc = DEMO_SERVICE[trade.slug] ?? "water heater replacement";
+const demoSlug = demoSvc.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+const demoQuery = `${demoSvc} near me`;
+const demoTag = `${demoSlug}-quote`;
+const demoIntent = `${demoSvc.charAt(0).toUpperCase()}${demoSvc.slice(1)} quote`;
+
+// Message-match hero variants — mirror the three retargeting ad angles. The ad
+// link carries ?utm_content=hook|math|reframe and the hero swaps to match what
+// they clicked (biggest conversion lever for paid/cold traffic).
+// {coPos} = company-possessive ("Acme Air's"), falls back to "your". Filled +
+// highlighted client-side from the ?co= link param (see personalization script).
+const HERO_ANGLES: Record<string, string> = {
+  hook: "98% of {coPos} site visitors leave. Get them back.",
+  math: "A $149 lead, split 5 ways. Or $7 — all yours.",
+  reframe: "Stop renting {coPos} leads. Own them.",
+};
+---
+
+<BaseLayout
+  ogImage={`/og/industry-${trade.slug}.png`}
+  title={trade.titleTag}
+  ogTitle={trade.ogTitle}
+  description={trade.metaDescription}
+  canonical={canonical}
+  schema={schemas}
+  noindex
+>
+  <!-- Hero — dark so the consent→click→CRM animation reads, with a subtle
+       trade-icon watermark cueing which industry this page is for. -->
+  <section class="section section-dark relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
+    <div aria-hidden="true" class="pointer-events-none absolute -right-24 top-1/2 -translate-y-1/2 opacity-[0.05]">
+      <TradeIcon size={560} stroke={1} color="#ffffff" />
+    </div>
+    <div class="container-content relative">
+      <div class="mx-auto max-w-3xl text-center">
+        <div>
+          <p data-pers class="mb-4 hidden text-sm font-bold uppercase tracking-[0.16em] text-[color:var(--color-mint-400)]"></p>
+          <div class="mb-7"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase icon={TradeIcon}>{trade.name}</Badge></div>
+          <h1 class="display-1 mb-7 text-white" data-hero-h1 data-a-hook={HERO_ANGLES.hook} data-a-math={HERO_ANGLES.math} data-a-reframe={HERO_ANGLES.reframe}>
+            {trade.heroH1}
+          </h1>
+          <p class="mb-10 max-w-xl text-lg leading-relaxed text-slate-300">
+            {trade.heroSubhead}
+          </p>
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
+            <a
+              href={demoHref("hero")}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
+            >
+              <IconEye size={18} stroke={2} />
+              Live Demo
+            </a>
+            <a
+              href="https://dashboard.consentresolve.com/register"
+              class="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/20 transition-all hover:bg-white/5"
+            >
+              Get Started
+              <IconArrowRight size={18} stroke={2.25} />
+            </a>
+          </div>
+          <!-- Trust line -->
+          <ul class="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-300">
+            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00E5A0" /> $7 per lead, never resold</li>
+            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00E5A0" /> Exclusive leads</li>
+            <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00E5A0" /> Cancel anytime</li>
+          </ul>
+          <p class="mt-4 text-sm text-slate-400">~60-second live demo — the lead it sends is you. No card required.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The problem — a UGC video carries the message; a Before/After toggle
+       shows what changes when anonymous visitors become identified leads. -->
+  <section class="section section-dark" data-ba>
+    <div class="container-content">
+      <div class="mx-auto mb-10 max-w-2xl text-center">
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>The problem</Badge></div>
+        <h2 class="display-2 text-white">
+          98 of 100 leave anonymous.
+        </h2>
+        <p class="mt-4 text-[15px] text-slate-300">{trade.problem}</p>
+      </div>
+      <!-- Two columns: UGC video left (embedded, borderless), interactive grid right.
+           The story is driven entirely by the video: play it → the 98 vanish → an
+           end-screen CTA reveals the recovery. No toggle. -->
+      <div class="grid items-center gap-10 lg:grid-cols-2">
+        <!-- Left: UGC video — embedded flush, no frame. Hover plays a muted preview
+             (from the start); clicking the custom play button plays it with sound
+             from the start. On end, a CTA overlay replaces the freeze-frame. -->
+        <div data-vid-wrap class="group relative overflow-hidden rounded-xl">
+          {tradeVid ? (
+            <Fragment>
+              <video data-vid-intro src={tradeVid.intro} class="block aspect-video h-full w-full object-cover" playsinline preload="metadata" poster={tradeVid.poster ?? "/og-default.png"}></video>
+              <video data-vid-resume src={tradeVid.resume} class="block aspect-video hidden h-full w-full object-cover" playsinline preload="metadata"></video>
+              <!-- custom play button (hover-highlight); hidden once really playing -->
+              <button type="button" data-playbtn aria-label="Play video with sound" class="absolute inset-0 z-20 flex items-center justify-center">
+                <span class="vidplay-circle flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--color-brand)] ring-4 ring-white/80 shadow-[0_10px_30px_-6px_rgba(0,229,160,0.65)] transition-all duration-200 group-hover:scale-110 group-hover:ring-white group-hover:shadow-[0_16px_46px_-6px_rgba(0,229,160,0.95)]">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" class="ml-0.5 text-[color:var(--color-navy-900)]" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+                </span>
+              </button>
+              <div data-vid-cta class="absolute inset-0 z-10 hidden flex-col items-center justify-center gap-3 bg-[color:var(--color-navy-900)]/75 px-6 text-center backdrop-blur-[2px]">
+                <p class="font-display text-xl font-bold text-white sm:text-2xl">Now watch them come back.</p>
+                <button type="button" data-cta-after class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-6 py-3 text-sm font-bold text-[color:var(--color-navy-900)] shadow-[0_12px_34px_-8px_rgba(0,229,160,0.7)] transition-transform hover:scale-[1.03]">Tap “After” to see how →</button>
+              </div>
+            </Fragment>
+          ) : (
+            <video src={PROBLEM_VIDEO} class="block aspect-video h-full w-full object-cover" controls playsinline preload="metadata" poster="/og-default.png"></video>
+          )}
+        </div>
+
+        <!-- Right: a subtle browser window framing the visitor grid + final stat.
+             Address bar is trade-specific by default ({trade.slug}-website.com) and
+             gets overridden with the prospect's real domain when Instantly passes
+             ?domain=. Starts as 100 ghosts (2 transition to a lead); on play the 98
+             get X'd out and vanish; the recovery lights them up ghost→✓→person. -->
+        <div class="mx-auto w-full max-w-[420px] overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] shadow-[0_24px_60px_-34px_rgba(0,0,0,0.8)]">
+          <!-- browser chrome -->
+          <div class="flex items-center gap-1.5 border-b border-white/10 bg-white/[0.03] px-3 py-2">
+            <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
+            <span class="ml-2 inline-flex flex-1 items-center gap-1.5 truncate rounded-md bg-white/[0.05] px-2.5 py-1 text-[11px] text-slate-400">
+              <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+              <span data-addr>{trade.slug}-website.com</span>
+            </span>
+          </div>
+          <!-- content -->
+          <div class="relative p-5">
+            <div class="leakgrid" data-leak data-state="before" aria-hidden="true">
+              {Array.from({ length: 100 }).map((_, i) => (
+                <span class="lc" style={`--i:${i}`}>
+                  <span class="lc-ghost"><IconGhost size={20} stroke={1.7} /></span>
+                  <span class="lc-check"><IconCheck size={22} stroke={2.75} /></span>
+                  <span class="lc-person"><IconUser size={20} stroke={2} /></span>
+                  <i class="lc-x"></i>
+                </span>
+              ))}
+            </div>
+            <div data-stat class="absolute inset-0 z-10 hidden flex-col items-center justify-center bg-[color:var(--color-navy-900)]/85 text-center backdrop-blur-[2px]">
+              <p class="font-display text-4xl font-extrabold text-white sm:text-5xl">≈ 40 leads <span class="text-[color:var(--color-mint-400)]">· $280</span></p>
+              <p class="mt-2 px-4 text-xs text-slate-400">40 recovered leads × $7 a lead · results may vary.</p>
+            </div>
+            {/* End-of-video CTA: after the 2nd clip plays out the recovery, the
+                demo form overlays the grid INSIDE the fixed browser window (scrolls
+                internally; window never resizes). The grid → "$280" recovery stat
+                remains the built-in fallback if this form block is ever removed. */}
+            <div data-demo-form class="absolute inset-0 z-20 hidden overflow-y-auto bg-[color:var(--color-navy-900)] p-3">
+              <DemoForm trade={trade.slug} newTab heading="Catch the 98 — see it live" sub="Register, browse a sample site, consent — and watch the lead land in your inbox. The lead is you." />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3-step consent → click → CRM animation, promoted + enlarged + centered, leading into the steps. -->
+  <section class="section section-dark">
+    <div class="container-content">
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>How it works</Badge></div>
+        <h2 class="display-2 text-white">From anonymous visitor to consented lead.</h2>
+        <p class="mt-4 text-[15px] text-slate-300">Three steps, on your own site — here's what happens the moment a visitor consents.</p>
+      </div>
+      <div class="mx-auto max-w-4xl">
+        <ConsentFlowSlideshow />
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works (reused comet) -->
+  <HowItWorks />
+
+  <!-- Trade math (dark) -->
+  <section class="section section-dark">
+    <div class="container-content">
+      <div class="mx-auto mb-10 max-w-2xl text-center">
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>The math</Badge></div>
+        <h2 class="display-2 text-white">
+          Same booked job. Less than a quarter of the cost.
+        </h2>
+        <p class="mt-3 text-[15px] text-slate-300">
+          Shared leads get sold to four contractors at once, so most never book. Recover the traffic you already paid for instead — exclusive, at $7. Here's the same job, both ways.
+        </p>
+      </div>
+      <!-- Booked-job math — the canonical $575 vs $140 comparison -->
+      <div class="mx-auto mb-12 grid max-w-3xl gap-5 sm:grid-cols-2">
+        <div class="rounded-2xl bg-white/[0.04] p-7 ring-1 ring-inset ring-white/10">
+          <p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Shared / bought leads</p>
+          <p class="mt-2 font-display text-4xl font-extrabold text-white">{bookedJobMath.shared.cost}<span class="text-lg font-bold text-slate-400"> / booked job</span></p>
+          <p class="mt-3 text-sm text-slate-300">{bookedJobMath.shared.sub}</p>
+        </div>
+        <div class="rounded-2xl bg-[color:var(--color-mint-400)]/10 p-7 ring-1 ring-inset ring-[color:var(--color-mint-400)]/40 shadow-[0_30px_60px_-30px_rgba(0,229,160,0.45)]">
+          <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">Your own traffic — Consent Resolve</p>
+          <p class="mt-2 font-display text-4xl font-extrabold text-white">{bookedJobMath.owned.cost}<span class="text-lg font-bold text-slate-400"> / booked job</span></p>
+          <p class="mt-3 text-sm text-slate-300">{bookedJobMath.owned.sub}</p>
+        </div>
+      </div>
+      <p class="mx-auto max-w-2xl text-center text-[15px] text-slate-300">
+        One booked {trade.shortName.toLowerCase()} job runs about <strong class="text-white">{fmtUsd(trade.math.avgJobValue)}</strong> — that single job covers roughly <strong class="text-white">{Math.round(trade.math.avgJobValue / 7).toLocaleString()}</strong> exclusive leads at $7. Illustrative, not a promise.
+      </p>
+    </div>
+  </section>
+
+  <!-- Why it fits — 3 cards -->
+  <section class="section bg-[color:var(--color-bg-alt)]">
+    <div class="container-content">
+      <div class="mx-auto mb-14 max-w-2xl text-center">
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Why it fits {trade.name.toLowerCase()}</Badge></div>
+        <h2 class="display-2 text-[color:var(--color-ink)]">
+          The three things that move the needle for your trade.
+        </h2>
+      </div>
+      <div class="grid gap-6 md:grid-cols-3">
+        {threeCards.map((c) => (
+          <FeatureCard variant="showcase" icon={c.Icon} title={c.title} body={c.body} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Live product preview — the actual visitor record that lands in your dashboard -->
+  <section class="section section-dark">
+    <div class="container-content">
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>The actual product</Badge></div>
+        <h2 class="display-2 text-white">
+          This is what lands in <span data-pp="coPos">your</span> dashboard.
+        </h2>
+        <p class="mt-4 text-[17px] leading-relaxed text-slate-300">
+          A real name and a consented email — with the pages they viewed, what they were shopping for, and a timestamped consent receipt. Yours alone, never resold.
+        </p>
+      </div>
+      <!-- Capped height + scroll so the full dashboard UI doesn't sprawl vertically. -->
+      <div class="mx-auto max-h-[460px] max-w-5xl overflow-auto rounded-[1.25rem] ring-1 ring-inset ring-white/10">
+        <div class="min-w-[900px]">
+          <VisitorDetailScreen service={demoSvc} serviceSlug={demoSlug} query={demoQuery} tag={demoTag} intent={demoIntent} />
+        </div>
+      </div>
+      <p class="mx-auto mt-3 max-w-5xl text-center text-xs text-slate-400">Scroll to explore the full record ↕</p>
+    </div>
+  </section>
+
+  <!-- Demo CTA band — promote the live demo mid-page (light, mint-tinted) -->
+  <section class="bg-[color:var(--color-brand-soft)]">
+    <div class="container-content py-16">
+      <div class="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
+        <h2 class="display-2 text-[color:var(--color-ink)]">See it work on yourself.</h2>
+        <p class="text-[17px] leading-relaxed text-[color:var(--color-ink-2)]">
+          Register, browse a sample {trade.shortName.toLowerCase()} site, accept the banner — and watch the new-lead notification land in your inbox. The lead is you. About 60 seconds, no card required.
+        </p>
+        <Button href={demoHref("cta-band")} target="_blank" rel="noopener" variant="primary" size="lg">
+          <IconEye size={18} stroke={2} />
+          Try the live demo
+        </Button>
+      </div>
+    </div>
+  </section>
+
+  <ComplianceBand />
+
+  <!-- Trade FAQ + common questions about Consent Resolve -->
+  <FAQ
+    headline={`What ${trade.name.toLowerCase()} ask before they start.`}
+    items={faqItems}
+  />
+
+  <!-- From the blog (reciprocal cluster links) -->
+  <RelatedReads
+    posts={relatedPosts}
+    heading={`More for ${trade.name.toLowerCase()} pros`}
+  />
+
+  <AEOAnswer text={trade.aeoAnswer} />
+  <FinalCTA heading={trade.finalCtaH2} />
+</BaseLayout>
+
+<!-- Message match + Instantly named personalization. Reads the ad/email link params:
+       ?utm_content=hook|math|reframe  → swap the hero headline to the angle clicked
+       ?fn=&co=&city=                  → personalized greeting + carried to the demo
+     Only low-sensitivity fields (no email/phone) ride in the URL. -->
+<script is:inline>
+  (function () {
+    var p = new URLSearchParams(location.search);
+    var angle = (p.get("utm_content") || p.get("angle") || "").toLowerCase();
+    var fn = (p.get("fn") || "").trim();
+    var co = (p.get("co") || "").trim();
+    var city = (p.get("city") || "").trim();
+    var coPos = co ? co + "’s" : "your"; // "Acme Air’s" or "your"
+    var MINT = "var(--color-mint-400)";
+    // token -> {value, highlight?} ; the existing word in the markup is the fallback
+    var vals = {
+      coPos: { v: coPos, on: !!co },
+      co: { v: co || "your business", on: !!co },
+      city: { v: city || "your area", on: !!city },
+      fn: { v: fn || "there", on: !!fn },
+    };
+
+    // Hero headline: take the clicked angle (or the per-trade default), then fill the
+    // {coPos} token with a highlighted company name (graceful "your" fallback).
+    var h1 = document.querySelector("[data-hero-h1]");
+    if (h1) {
+      var base = (angle && h1.getAttribute("data-a-" + angle)) || h1.textContent;
+      if (base.indexOf("{coPos}") > -1) {
+        var parts = base.split("{coPos}");
+        h1.textContent = "";
+        h1.appendChild(document.createTextNode(parts[0]));
+        var sp = document.createElement("span");
+        sp.textContent = coPos;
+        if (co) sp.style.color = MINT;
+        h1.appendChild(sp);
+        h1.appendChild(document.createTextNode(parts.slice(1).join("{coPos}")));
+      } else if (angle) {
+        h1.textContent = base;
+      }
+    }
+
+    // Fill every [data-pp] token in the copy; highlight in brand mint when we have real data.
+    document.querySelectorAll("[data-pp]").forEach(function (el) {
+      var slot = vals[el.getAttribute("data-pp")];
+      if (!slot) return;
+      el.textContent = slot.v;
+      if (slot.on) el.style.color = MINT;
+    });
+
+    // Personalized greeting eyebrow (shows when we have city / name / company).
+    var g = document.querySelector("[data-pers]");
+    if (g && (fn || co || city)) {
+      var bits = [];
+      if (city) bits.push(city);
+      if (fn) bits.push("Built for " + fn + (co ? " at " + co : ""));
+      else if (co) bits.push("Built for " + co);
+      if (bits.length) { g.textContent = bits.join(" · "); g.classList.remove("hidden"); }
+    }
+
+    // Open the demo in a new tab + carry fn/co/city so the demo form pre-fills (name/company).
+    var demoLinks = document.querySelectorAll('a[href*="/demo"]');
+    demoLinks.forEach(function (a) { a.target = "_blank"; a.rel = "noopener"; });
+    var carry = [];
+    ["fn", "co", "city"].forEach(function (k) { var v = p.get(k); if (v) carry.push(k + "=" + encodeURIComponent(v)); });
+    if (carry.length) { var q = carry.join("&"); demoLinks.forEach(function (a) { a.href += (a.href.indexOf("?") > -1 ? "&" : "?") + q; }); }
+  })();
+</script>
+
+<!-- Infographic player: the right-hand box is the story. It starts as 100
+     anonymous ghosts (2 transition to a lead). Playing the video X's out the 98
+     that leave; tapping After lights them up ghost → ✓ → person, one at a time,
+     then fills the box with the result. Nothing auto-runs — it waits for Play/tap. -->
+<script is:inline>
+  document.querySelectorAll("[data-ba]").forEach(function (root) {
+    var grid = root.querySelector("[data-leak]");
+    var intro = root.querySelector("[data-vid-intro]");
+    var resume = root.querySelector("[data-vid-resume]");
+    var stat = root.querySelector("[data-stat]");
+    var vidCta = root.querySelector("[data-vid-cta]");
+    var ctaBtn = root.querySelector("[data-cta-after]");
+    var vidWrap = root.querySelector("[data-vid-wrap]");
+    var playBtn = root.querySelector("[data-playbtn]");
+    var demoForm = root.querySelector("[data-demo-form]");  // end-of-video CTA (falls back to the $280 stat if absent)
+    var cells = grid ? Array.prototype.slice.call(grid.querySelectorAll(".lc")) : [];
+    var RECOVER = 40;        // cells 0..39 light up as recovered leads → $280
+    var timers = [], vanished = false;
+
+    function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+    function stopTimers() { timers.forEach(clearTimeout); timers = []; }
+    function clear(c) { c.classList.remove("is-check", "is-lead", "is-vanishing", "is-gone"); }
+    function ghost(c) { clear(c); }                 // a bare .lc shows the ghost
+    function allGhost() { for (var i = 0; i < cells.length; i++) ghost(cells[i]); }
+    function hideStat() { if (stat) stat.classList.add("hidden"); }
+
+    // ghost → ✓ → person (smooth), with an optional start delay
+    function lead(c, delay) {
+      later(function () {
+        clear(c); c.classList.add("is-check");
+        later(function () { c.classList.remove("is-check"); c.classList.add("is-lead"); }, 340);
+      }, delay || 0);
+    }
+
+    // BEFORE: the 98 (cells 2..99) get X'd out and disappear; the 2 forms stay
+    function doVanish() {
+      if (vanished || !cells.length) return; vanished = true;
+      for (var i = 2; i < 100; i++) (function (c, k) { later(function () {
+        if (c.classList.contains("is-lead")) return;
+        c.classList.add("is-vanishing");
+        later(function () { c.classList.add("is-gone"); }, 760);
+      }, k * 14); })(cells[i], i - 2);
+    }
+
+    // AFTER: ghost → ✓ → person, one at a time, then reveal the stat in the box
+    function runRecover() {
+      stopTimers(); hideStat(); vanished = false;
+      if (grid) grid.classList.remove("recovered", "pulse-greens");
+      allGhost();
+      var stagger = 105;
+      for (var k = 0; k < RECOVER; k++) lead(cells[k], 250 + k * stagger);
+      later(function () {
+        if (grid) grid.classList.add("recovered");
+        if (stat && !demoForm) stat.classList.remove("hidden");  // fallback stat only when there's no end-of-video form
+      }, 250 + RECOVER * stagger + 450);
+    }
+
+    function cueAfter() { if (grid) grid.classList.add("pulse-greens"); }
+
+    // No toggle: the end-screen CTA is the only way forward. Swap to the resume
+    // clip, play it, and light up the recovery (ghost → ✓ → person). The end
+    // payoff (the demo form, or the $280 stat fallback) shows when the clip ends.
+    function goAfter() {
+      if (vidCta) vidCta.classList.add("hidden");
+      if (grid) grid.classList.remove("pulse-greens");
+      if (intro && resume) {
+        intro.pause(); intro.classList.add("hidden"); resume.classList.remove("hidden"); resume.controls = true;
+        var pr = resume.play();
+        if (pr && pr.catch) pr.catch(function () {   // if the 2nd clip can't autoplay, still reveal the payoff after the recovery
+          if (demoForm) later(function () { demoForm.classList.remove("hidden"); }, 6500);
+        });
+      }
+      runRecover();
+    }
+
+    // Personalize the address bar: Instantly can pass ?domain= (the prospect's
+    // real site); otherwise it stays the trade-specific default in the markup.
+    var addr = root.querySelector("[data-addr]");
+    var dom = new URLSearchParams(location.search).get("domain");
+    if (addr && dom) {
+      dom = dom.replace(/^https?:\/\//i, "").replace(/^www\./i, "").replace(/\/.*$/, "").trim();
+      if (dom) addr.textContent = dom;
+    }
+
+    if (ctaBtn) ctaBtn.addEventListener("click", goAfter);
+
+    // Video playback. Hover = muted preview from the start; clicking the play
+    // button = play with sound from the start. The BEFORE climax (98 leave) and
+    // the end payoff only run once it's *really* playing (clicked).
+    var started = false;
+    function realPlay() {
+      started = true;
+      if (playBtn) playBtn.classList.add("hidden");
+      if (intro) { intro.muted = false; intro.controls = true; try { intro.currentTime = 0; } catch (e) {} var pr = intro.play(); if (pr && pr.catch) pr.catch(function () {}); }
+    }
+    if (playBtn) playBtn.addEventListener("click", realPlay);
+    if (vidWrap && intro) {
+      vidWrap.addEventListener("mouseenter", function () {
+        if (started) return;
+        intro.muted = true; try { intro.currentTime = 0; } catch (e) {}
+        var pr = intro.play(); if (pr && pr.catch) pr.catch(function () {});
+      });
+      vidWrap.addEventListener("mouseleave", function () {
+        if (started) return;
+        intro.pause(); try { intro.currentTime = 0; } catch (e) {}  // back to the start
+      });
+    }
+    if (intro) {
+      intro.addEventListener("play", function () { if (vidCta) vidCta.classList.add("hidden"); });
+      intro.addEventListener("timeupdate", function () {
+        if (started && intro.duration && intro.currentTime / intro.duration > 0.52) doVanish();
+      });
+      intro.addEventListener("ended", function () {
+        if (!started) return;
+        doVanish(); cueAfter(); if (vidCta) vidCta.classList.remove("hidden");  // the after-CTA appears
+      });
+    }
+    // The demo form appears when the 2nd (resume) clip finishes.
+    if (resume) {
+      resume.addEventListener("ended", function () { if (demoForm) demoForm.classList.remove("hidden"); });
+    }
+
+    // Initial state: 100 ghosts; 2 of them transition ghost → ✓ → person.
+    if (grid && cells.length) {
+      grid.classList.add("populate");
+      lead(cells[0], 700); lead(cells[1], 1150);
+    }
+  });
+</script>
+
+<style>
+  /* Infographic grid (on dark) — the story, per cell:
+     ghost (anonymous visitor, default) → ✓ (consented) → person (identified lead).
+     In BEFORE, the 98 ghosts get an X struck over them and vanish. */
+  .leakgrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.55rem; width: 100%; max-width: 500px; margin-inline: auto; border-radius: 18px; transition: box-shadow 0.5s ease, transform 0.4s ease; }
+  .lc { position: relative; aspect-ratio: 1; opacity: 0; transform: scale(0.55); }
+  .lc-ghost, .lc-check, .lc-person, .lc-x { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; line-height: 0; opacity: 0; transition: opacity 0.4s ease; }
+  /* default = ghost (anonymous), gently floating */
+  .lc-ghost { color: rgba(255, 255, 255, 0.45); opacity: 1; animation: ghostFloat 3s ease-in-out infinite; }
+  .lc-check { color: var(--color-brand); }
+  .lc-person { color: var(--color-brand); }
+  /* CSS X — two crossed red bars struck over a ghost as it leaves */
+  .lc-x::before, .lc-x::after { content: ""; position: absolute; top: 50%; left: 50%; width: 80%; height: 3px; border-radius: 2px; background: #ff5a5a; }
+  .lc-x::before { transform: translate(-50%, -50%) rotate(45deg); }
+  .lc-x::after { transform: translate(-50%, -50%) rotate(-45deg); }
+  /* ✓ — consented (intermediate) */
+  .lc.is-check .lc-ghost { opacity: 0; animation: none; }
+  .lc.is-check .lc-check { opacity: 1; animation: checkPop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.5) both; }
+  /* person — identified lead (final) */
+  .lc.is-lead .lc-ghost, .lc.is-lead .lc-check { opacity: 0; animation: none; }
+  .lc.is-lead .lc-person { opacity: 1; animation: bigPop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.5) both; }
+  /* vanishing: ghost + X, then shrink + fade away */
+  .lc.is-vanishing .lc-ghost { opacity: 1; animation: none; }
+  .lc.is-vanishing .lc-x { opacity: 1; animation: xPop 0.28s ease both; }
+  .lc.is-vanishing { animation: vanishOut 0.55s ease 0.22s forwards; }
+  .lc.is-gone { opacity: 0 !important; }
+  /* populate: staggered fade/scale in (the 100 ghosts land) */
+  .leakgrid.populate .lc { animation: cellIn 0.45s ease forwards; animation-delay: calc(var(--i) * 6ms); }
+  /* the 2 leads pulse when the intro ends */
+  .leakgrid.pulse-greens .lc.is-lead .lc-person { animation: greenPulse 1.1s ease-in-out infinite; }
+  /* finish: mint glow ring + grid pop */
+  .leakgrid.recovered { box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.5), 0 0 70px rgba(0, 229, 160, 0.45); animation: gridPop 0.7s ease; }
+  @keyframes cellIn { to { opacity: 1; transform: scale(1); } }
+  @keyframes ghostFloat { 0%, 100% { transform: translateY(0); opacity: 0.85; } 50% { transform: translateY(-3px); opacity: 1; } }
+  @keyframes bigPop { 0% { transform: scale(0); } 55% { transform: scale(1.55); } 100% { transform: scale(1); } }
+  @keyframes checkPop { 0% { transform: scale(0.2); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
+  @keyframes xPop { 0% { transform: scale(0); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+  @keyframes vanishOut { to { opacity: 0; transform: scale(0.25) rotate(-8deg); } }
+  @keyframes greenPulse { 0%, 100% { transform: scale(1); filter: none; } 50% { transform: scale(1.4); filter: drop-shadow(0 0 8px rgba(0, 229, 160, 0.95)); } }
+  @keyframes gridPop { 0% { transform: scale(1); } 35% { transform: scale(1.05); } 100% { transform: scale(1); } }
+  /* final stat reveal — fills the right-hand box */
+  [data-stat]:not(.hidden) { display: flex; animation: statIn 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+  /* end-of-intro CTA overlay on the video */
+  [data-vid-cta]:not(.hidden) { display: flex; animation: statIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+  @keyframes statIn { 0% { opacity: 0; transform: translateY(10px) scale(0.94); } 100% { opacity: 1; transform: none; } }
+
+  /* Embedded end-of-video demo form — DARK + compact, only Trade + Name + Email.
+     The only readability bug in the dark section is the inputs' hardcoded
+     bg-white (white text on white); everything else is already light via
+     section-dark, so we just re-skin the inputs dark and hide two fields. */
+  [data-demo-form] :global(.cr-demo-card) { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.12); padding: 0.9rem 1rem; border-radius: 0.85rem; }
+  [data-demo-form] :global(.cr-demo-card h3) { font-size: 1.1rem; }
+  [data-demo-form] :global(.cr-demo-card > p) { font-size: 0.74rem; line-height: 1.35; margin-top: 0.25rem; }
+  [data-demo-form] :global(.cr-demo-form) { margin-top: 0.7rem; }
+  [data-demo-form] :global(.cr-demo-form > * + *) { margin-top: 0.6rem !important; }
+  [data-demo-form] :global(.cr-demo-form label > span) { font-size: 0.72rem; margin-bottom: 0.15rem; }
+  [data-demo-form] :global(.cr-demo-form input), [data-demo-form] :global(.cr-demo-form select) {
+    background: rgba(255, 255, 255, 0.06) !important; color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.16) !important; padding: 0.45rem 0.6rem !important; font-size: 0.82rem;
+  }
+  [data-demo-form] :global(.cr-demo-form input::placeholder) { color: rgba(255, 255, 255, 0.4); }
+  [data-demo-form] :global(.cr-demo-form select option) { color: #0a1628; }
+  [data-demo-form] :global(.cr-demo-form .grid) { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  /* keep only Name (1) + Email (2); hide Business name (3) + Phone (4) */
+  [data-demo-form] :global(.cr-demo-form .grid > label:nth-child(3)),
+  [data-demo-form] :global(.cr-demo-form .grid > label:nth-child(4)) { display: none; }
+  [data-demo-form] :global(.cr-demo-form label.flex) { font-size: 0.7rem; }
+  [data-demo-form] :global(.cr-demo-form .cf-turnstile) { display: none; }  /* hide the bulky light Turnstile box in the compact dark embed */
+  [data-demo-form] :global(.cr-demo-form button[type="submit"]) { padding: 0.55rem 1rem !important; font-size: 0.82rem; }
+  [data-demo-form] :global(.cr-demo-form > p:last-child) { display: none; }  /* drop the fine print in the compact embed */
+
+  @media (prefers-reduced-motion: reduce) {
+    .lc { opacity: 1; transform: none; }
+    .lc-ghost, .lc-check, .lc-person, .lc-x { transition: none; }
+    .leakgrid.populate .lc, .lc-ghost, .lc.is-check .lc-check, .lc.is-lead .lc-person, .lc.is-vanishing, .lc.is-vanishing .lc-x, .leakgrid.pulse-greens .lc.is-lead .lc-person, .leakgrid.recovered, [data-stat]:not(.hidden), [data-vid-cta]:not(.hidden) { animation: none; }
+  }
+</style>
