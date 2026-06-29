@@ -220,6 +220,11 @@ const HERO_ANGLES: Record<string, string> = {
                   <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" class="ml-0.5 text-[color:var(--color-navy-900)]" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
                 </span>
               </button>
+              <!-- Big unmute control — shown when the hover preview falls back to muted (sound autoplay blocked). -->
+              <button type="button" data-unmute aria-label="Tap for sound" style="display:none" class="absolute bottom-3 right-3 z-30 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-navy-900)]/85 px-4 py-2.5 text-sm font-bold text-white ring-1 ring-inset ring-white/30 backdrop-blur transition-all hover:bg-[color:var(--color-navy-900)] hover:ring-[color:var(--color-mint-400)]">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M19 5a9 9 0 0 1 0 14"></path></svg>
+                Tap for sound
+              </button>
               <div data-vid-cta class="absolute inset-0 z-10 hidden flex-col items-center justify-center gap-3 bg-[color:var(--color-navy-900)]/75 px-6 text-center backdrop-blur-[2px]">
                 <p class="font-display text-xl font-bold text-white sm:text-2xl">Now watch them come back.</p>
                 <button type="button" data-cta-after class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-6 py-3 text-sm font-bold text-[color:var(--color-navy-900)] shadow-[0_12px_34px_-8px_rgba(0,229,160,0.7)] transition-transform hover:scale-[1.03]">Tap “After” to see how →</button>
@@ -551,21 +556,45 @@ const HERO_ANGLES: Record<string, string> = {
     // button = play with sound from the start. The BEFORE climax (98 leave) and
     // the end payoff only run once it's *really* playing (clicked).
     var started = false;
+    var unmuteBtn = root.querySelector("[data-unmute]");
+    function hideUnmute() { if (unmuteBtn) unmuteBtn.style.display = "none"; }
+    function showUnmute() { if (unmuteBtn) unmuteBtn.style.display = "inline-flex"; }
     function realPlay() {
       started = true;
       if (playBtn) playBtn.classList.add("hidden");
+      hideUnmute();
       if (intro) { intro.muted = false; intro.controls = true; try { intro.currentTime = 0; } catch (e) {} var pr = intro.play(); if (pr && pr.catch) pr.catch(function () {}); }
     }
     if (playBtn) playBtn.addEventListener("click", realPlay);
+    // The big "Tap for sound" button: unmute + keep playing from where it is (a user gesture, so audio is allowed).
+    if (unmuteBtn && intro) {
+      unmuteBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        intro.muted = false;
+        var pr = intro.play(); if (pr && pr.catch) pr.catch(function () {});
+        hideUnmute();
+      });
+    }
     if (vidWrap && intro) {
       vidWrap.addEventListener("mouseenter", function () {
         if (started) return;
-        intro.muted = true; try { intro.currentTime = 0; } catch (e) {}
-        var pr = intro.play(); if (pr && pr.catch) pr.catch(function () {});
+        try { intro.currentTime = 0; } catch (e) {}
+        // Try to play WITH sound; if the browser blocks unmuted autoplay, fall back to
+        // muted playback and reveal the big "Tap for sound" button.
+        intro.muted = false;
+        var pr = intro.play();
+        if (pr && pr.then) {
+          pr.then(function () { hideUnmute(); }).catch(function () {
+            intro.muted = true;
+            var p2 = intro.play(); if (p2 && p2.catch) p2.catch(function () {});
+            showUnmute();
+          });
+        } else { showUnmute(); }
       });
       vidWrap.addEventListener("mouseleave", function () {
         if (started) return;
         intro.pause(); try { intro.currentTime = 0; } catch (e) {}  // back to the start
+        hideUnmute();
       });
     }
     if (intro) {
