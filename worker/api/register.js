@@ -110,14 +110,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
     return fail(isForm, origin, cors, "server", "Something went wrong. Please try again.", 500);
   }
 
-  // Notify the team inbox (hello@consentresolve.com -> Instantly Unibox) so every
-  // website/demo signup lands beside the cold-email replies. Non-blocking.
-  const notify = sendLeadNotification(
-    env,
-    { id: token, name, email, business_name, trade, phone, consent_contact },
-    { src: src ? decodeURIComponent(src) : "direct", ref: request.headers.get("Referer") || "", time: nowIso(), repeat },
-  ).catch(() => {});
-  if (typeof waitUntil === "function") waitUntil(notify); else await notify;
+  // The team-inbox notification (hello@) is DEFERRED ~10–15 min and sent by the cron
+  // sweep (sweepDemoNotifications), so it can report how far the prospect got in the
+  // demo. The signup is stored now; the email follows once their progress settles.
 
   // Mirror into the v2 unified inbox as a demo_form conversation (non-blocking).
   const mirror = (async () => {

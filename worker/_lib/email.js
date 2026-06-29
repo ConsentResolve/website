@@ -144,7 +144,11 @@ function notifyLeadHtml(p, t, meta) {
       <div style="font-size:20px;font-weight:700;color:#fff;margin-top:6px">New demo signup${meta.repeat ? " (returning)" : ""}</div>
     </td></tr>
     <tr><td style="padding:24px 28px;background:#fff;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 14px 14px">
-      <p style="margin:0 0 16px;font-size:14px;line-height:1.5;color:#475569">Someone just registered on the website demo. Reply to this email to reach them directly.</p>
+      <p style="margin:0 0 14px;font-size:14px;line-height:1.5;color:#475569">Registered on the website demo ~10–15 minutes ago. Reply to this email to reach them directly.</p>
+      ${meta.progress ? `<div style="margin:0 0 16px;padding:12px 14px;background:#ecfdf5;border:1px solid ${MINT};border-radius:8px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#0f766e">How far they got</div>
+        <div style="font-size:14px;color:${NAVY};margin-top:4px;font-weight:600">${esc(meta.progress.detail)}</div>
+      </div>` : ""}
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse">
         ${row("Name", esc(p.name || "—"))}
         ${row("Email", `<a href="mailto:${esc(p.email)}" style="color:#0369a1;font-weight:600">${esc(p.email)}</a>`)}
@@ -152,9 +156,9 @@ function notifyLeadHtml(p, t, meta) {
         ${row("Trade", esc(t.label || p.trade || "—"))}
         ${row("Phone", esc(p.phone || "—"))}
         ${row("Consent to contact", p.consent_contact ? "Yes" : "No")}
-        ${row("Source", esc(meta.src || "direct"))}
-        ${row("Came from", esc(meta.ref || "—"))}
-        ${row("Time", esc(meta.time || ""))}
+        ${row("Submitted", esc(meta.registeredAt || meta.time || ""))}
+        ${meta.visitedAt ? row("Started sample demo", esc(meta.visitedAt)) : ""}
+        ${meta.consentedAt ? row("Accepted consent", esc(meta.consentedAt)) : ""}
       </table>
     </td></tr>
   </table></body></html>`;
@@ -164,13 +168,19 @@ export async function sendLeadNotification(env, p, meta = {}) {
   if (!env.RESEND_API_KEY) return { ok: false, error: "missing_resend_key" };
   const to = env.LEADS_NOTIFY_EMAIL || "hello@consentresolve.com";
   const t = tradeProfile(p.trade);
-  const subject = `New demo signup${meta.repeat ? " (returning)" : ""}: ${p.name || "Unknown"}${p.trade ? " — " + (t.label || p.trade) : ""}`;
+  const prog = meta.progress ? ` · ${meta.progress.short}` : "";
+  const subject = `New demo signup${meta.repeat ? " (returning)" : ""}: ${p.name || "Unknown"}${p.trade ? " — " + (t.label || p.trade) : ""}${prog}`;
+  // "From the prospect," done the deliverable way: the display NAME is the person who
+  // submitted (the actual send address must be a domain we've verified), and reply-to is
+  // their email — so it reads as them in the inbox and a reply goes straight to them.
+  const fromAddr = env.FROM_EMAIL || "demo@consentresolve.com";
+  const fromName = String(p.name || "Demo signup").replace(/["<>\r\n,]/g, " ").trim().slice(0, 60) || "Demo signup";
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: env.FROM_EMAIL || "demo@consentresolve.com",
+      from: `${fromName} <${fromAddr}>`,
       to: [to],
       reply_to: p.email || undefined,
       subject,

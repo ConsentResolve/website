@@ -52,6 +52,8 @@ import * as crmMeta from "./api/crm-meta.js";
 import * as crmPresence from "./api/crm-presence.js";
 import * as crmContact from "./api/crm-contact.js";
 import * as crmMerge from "./api/crm-merge.js";
+import * as crmDemoNotify from "./api/crm-demo-notify.js";
+import { sweepDemoNotifications } from "./_lib/demo-notify.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -102,6 +104,7 @@ const ROUTES = {
   "/api/crm/presence": crmPresence,
   "/api/crm/contact": crmContact,
   "/api/crm/merge": crmMerge,
+  "/api/crm/demo-notify": crmDemoNotify,
   "/api/crm/auth/login": crmAuth,
   "/api/crm/auth/callback": crmAuth,
   "/api/crm/auth/logout": crmAuth,
@@ -212,6 +215,13 @@ export default {
         if (woke) console.log(`[inbox] resurfaced ${woke} snoozed`);
       } catch (err) {
         console.log(`[inbox] snooze sweep error: ${String(err).slice(0, 160)}`);
+      }
+      // Deferred demo-signup notifications -> hello@ ~12 min after submit, with demo progress.
+      try {
+        const dn = await sweepDemoNotifications(env, { minMinutes: 12 });
+        if (dn && dn.sent) console.log(`[demo-notify] sent ${dn.sent} of ${dn.scanned}`);
+      } catch (err) {
+        console.log(`[demo-notify] error: ${String(err).slice(0, 160)}`);
       }
       return;
     }
