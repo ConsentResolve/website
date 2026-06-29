@@ -160,6 +160,12 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
             throw new Error(data.message || "Something went wrong. Please try again.");
           }
           const data = await res.json();
+          // Remember name/email (first-party) so the Crisp chat pre-fills next time.
+          // Only read back inside the consent-gated chat block, so it's processed post-consent.
+          try {
+            const _e = String(payload.email || ""); const _n = String(payload.name || "");
+            if (_e) document.cookie = "cr_id=" + encodeURIComponent(JSON.stringify({ n: _n, e: _e })) + "; Path=/; Max-Age=15552000; SameSite=Lax";
+          } catch {}
           // Ad-platform conversion events (fire before navigating away). No-op if
           // the pixel didn't load (ID unset). This is what the ad campaigns optimize to.
           try { (window as any).fbq?.("track", "Lead"); } catch {}

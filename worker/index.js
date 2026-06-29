@@ -18,6 +18,7 @@ import * as socialQueue from "./api/social-queue.js";
 import * as feedback from "./api/feedback.js";
 import * as queue from "./api/queue.js";
 import * as hit from "./api/hit.js";
+import * as identify from "./api/identify.js";
 import * as analytics from "./api/analytics.js";
 import * as liStatus from "./api/li-status.js";
 import * as xStatus from "./api/x-status.js";
@@ -62,6 +63,7 @@ const ROUTES = {
   "/api/feedback": feedback,
   "/api/queue": queue,
   "/api/hit": hit,
+  "/api/identify": identify,
   "/api/analytics": analytics,
   "/api/li-status": liStatus,
   "/api/x-status": xStatus,

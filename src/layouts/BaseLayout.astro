@@ -125,7 +125,12 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
          type=text/plain keeps it inert until the user consents to the "Crisp Chat" service.
          data-usercentrics MUST match the EXACT service name in the CMP/Termageddon
          ("Crisp Chat"), or the chat stays blocked forever. Consistent with consent-first. -->
-    <script is:inline type="text/plain" data-usercentrics="Crisp Chat">window.$crisp=[];window.CRISP_WEBSITE_ID="0f8e9b05-1b94-4781-904d-2abef252374d";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+    <script is:inline type="text/plain" data-usercentrics="Crisp Chat">window.$crisp=[];window.CRISP_WEBSITE_ID="0f8e9b05-1b94-4781-904d-2abef252374d";
+      /* Pre-fill the chat from a prior first-party identity (cr_id), if we have one (consent-gated: this whole block only runs post-consent). */
+      try{var _raw=(document.cookie.match(/(?:^|;\s*)cr_id=([^;]+)/)||[])[1];if(_raw){var _d=JSON.parse(decodeURIComponent(_raw));if(_d&&_d.e)window.$crisp.push(["set","user/email",[_d.e]]);if(_d&&_d.n)window.$crisp.push(["set","user/nickname",[_d.n]]);}}catch(e){}
+      /* On email entry: remember it (pre-fill next time) + stitch cr_vid -> contact. */
+      window.$crisp.push(["on","user:email",function(em){try{var nm="";try{nm=window.$crisp.get("user/nickname")||"";}catch(_){}document.cookie="cr_id="+encodeURIComponent(JSON.stringify({n:nm,e:em}))+"; Path=/; Max-Age=15552000; SameSite=Lax";var vid=(document.cookie.match(/(?:^|;\s*)cr_vid=([^;]+)/)||[])[1]||"";if(vid){var s=JSON.stringify({vid:vid,email:em,name:nm});if(navigator.sendBeacon){navigator.sendBeacon("/api/identify",new Blob([s],{type:"application/json"}));}else{fetch("/api/identify",{method:"POST",headers:{"Content-Type":"application/json"},body:s,keepalive:true});}}}catch(e){}}]);
+      (function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
   </head>
   <body class="bg-[color:var(--color-bg)] text-[color:var(--color-ink)]">
     <a href="#main" class="skip-link">Skip to content</a>
