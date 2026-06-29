@@ -168,8 +168,37 @@ export async function onRequestGet({ request, env }) {
         }
       }
     } catch (_) {}
+    // On-site intel: session-stitched pageviews (path / source / referrer / time) + a
+    // session-based time-on-site estimate, so the intel pane can show where they came
+    // from, what they read, and how engaged they are.
+    let intel = null;
+    try {
+      if (conv.contact_id) {
+        await env.DB.prepare("CREATE TABLE IF NOT EXISTS visitor_links (vid TEXT, contact_id TEXT, email TEXT, created_at TEXT DEFAULT (datetime('now')), UNIQUE(vid, contact_id))").run();
+        const vids = ((await env.DB.prepare("SELECT vid FROM visitor_links WHERE contact_id=?").bind(conv.contact_id).all()).results || []).map((v) => v.vid).filter(Boolean);
+        let pvs = [];
+        if (vids.length) {
+          const ph = vids.map(() => "?").join(",");
+          pvs = (await env.DB.prepare("SELECT path, utm_source, utm_campaign, ref, created_at FROM traffic WHERE vid IN (" + ph + ") ORDER BY created_at ASC LIMIT 300").bind(...vids).all()).results || [];
+        }
+        let secs = 0;
+        for (let i = 1; i < pvs.length; i++) { const g = (new Date(pvs[i].created_at) - new Date(pvs[i - 1].created_at)) / 1000; if (g > 0 && g < 1800) secs += g; }
+        if (pvs.length === 1) secs = 30;
+        const srcRow = pvs.find((p) => p.utm_source) || pvs.find((p) => p.ref);
+        const campRow = pvs.find((p) => p.utm_campaign);
+        intel = {
+          pageCount: pvs.length,
+          pages: pvs.slice(-40).reverse().map((p) => ({ path: p.path, source: p.utm_source || null, ref: p.ref || null, at: p.created_at })),
+          firstSeen: pvs.length ? pvs[0].created_at : null,
+          lastSeen: pvs.length ? pvs[pvs.length - 1].created_at : null,
+          timeOnSiteSec: Math.round(secs),
+          source: srcRow ? (srcRow.utm_source || srcRow.ref) : null,
+          campaign: campRow ? campRow.utm_campaign : null,
+        };
+      }
+    } catch (_) {}
     await env.DB.prepare("UPDATE conversations SET unread=0 WHERE id=?").bind(id).run();
-    return json({ conversation: conv, messages: msgs, contact, company, users, notes, demo }, {}, cors);
+    return json({ conversation: conv, messages: msgs, contact, company, users, notes, demo, intel }, {}, cors);
   }
 
   const status = url.searchParams.get("status") || "open";
