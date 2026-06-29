@@ -43,6 +43,8 @@ import * as crmMigrate from "./api/crm-migrate.js";
 import * as crmInbox from "./api/crm-inbox.js";
 import * as crmInstantly from "./api/crm-instantly.js";
 import * as crmInstantlyCampaign from "./api/crm-instantly-campaign.js";
+import * as crmLeadTokens from "./api/crm-lead-tokens.js";
+import * as leadPrefill from "./api/lead-prefill.js";
 import * as crmDeals from "./api/crm-deals.js";
 import * as crmEnrich from "./api/crm-enrich.js";
 import * as crmAnalytics2 from "./api/crm-analytics2.js";
@@ -91,6 +93,8 @@ const ROUTES = {
   "/api/crm/inbox": crmInbox,
   "/api/crm/instantly": crmInstantly,
   "/api/crm/instantly/campaign": crmInstantlyCampaign,
+  "/api/crm/instantly/leadtokens": crmLeadTokens,
+  "/api/lead-prefill": leadPrefill,
   "/api/crm/deals": crmDeals,
   "/api/crm/enrich": crmEnrich,
   "/api/crm/analytics2": crmAnalytics2,
