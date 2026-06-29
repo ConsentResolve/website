@@ -13,8 +13,13 @@ const PROGRESS = {
 
 export async function sweepDemoNotifications(env, { minMinutes = 12 } = {}) {
   if (!env.DB) return { sent: 0, scanned: 0 };
-  // One-time column add (idempotent: D1 throws if it already exists -> ignore).
-  try { await env.DB.prepare("ALTER TABLE participants ADD COLUMN notified_at TEXT").run(); } catch (_) {}
+  // One-time column add (idempotent: D1 throws if it already exists -> ignore). On the
+  // FIRST run (column just created) backfill existing rows as already-notified — they
+  // were emailed by the old immediate path, so the sweep must not re-notify them.
+  try {
+    await env.DB.prepare("ALTER TABLE participants ADD COLUMN notified_at TEXT").run();
+    await env.DB.prepare("UPDATE participants SET notified_at = created_at WHERE notified_at IS NULL").run();
+  } catch (_) {}
 
   const now = Date.now();
   const cutoff = new Date(now - minMinutes * 60000).toISOString();   // old enough to settle
