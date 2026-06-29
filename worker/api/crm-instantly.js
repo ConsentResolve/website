@@ -8,7 +8,7 @@
 // NOTE: v2 /emails field names are validated via ?raw=1 before the cron is enabled — the
 // mapping below is defensive across likely keys until confirmed on live data.
 import { json, corsHeaders } from "../_lib/http.js";
-import { crmAuthed } from "../_lib/crm.js";
+import { crmAuthed, crmWebhookToken } from "../_lib/crm.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce } from "../_lib/crm-v2.js";
 
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
@@ -114,4 +114,23 @@ export async function onRequestGet({ request, env }) {
     return json({ ok: true, result: await pollInstantly(env, { limit: Number(url.searchParams.get("limit")) || 50 }) }, {}, cors);
   }
   return json({ ok: true, hint: "?raw=1 to inspect the /emails shape, ?poll=1 to ingest replies" }, {}, cors);
+}
+
+// Instantly reply webhook (real-time). Gate by ?key=<CRM_WEBHOOK_TOKEN>. On a reply event
+// we re-poll (reusing the proven ingest path, so we don't depend on the webhook's exact
+// payload shape). The */5 cron stays as a fallback if a webhook is ever missed.
+export async function onRequestPost({ request, env }) {
+  if ((new URL(request.url).searchParams.get("key") || "") !== crmWebhookToken(env)) {
+    return json({ error: "unauthorized" }, { status: 401 });
+  }
+  let b = {};
+  try { b = await request.json(); } catch (_) {}
+  const evt = String(b.event_type || b.event || b.type || "").toLowerCase();
+  if (evt && !/repl/.test(evt)) return json({ ok: true, skipped: evt }); // only act on reply events
+  try {
+    const r = await pollInstantly(env, { limit: 50 });
+    return json({ ok: true, ...r });
+  } catch (e) {
+    return json({ ok: true, error: String(e).slice(0, 120) });
+  }
 }
