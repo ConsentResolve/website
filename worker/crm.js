@@ -283,7 +283,7 @@ function openContact360(cid){var box=document.getElementById("ibThread");if(box)
 function renderContact360(d){var box=document.getElementById("ibThread");if(!box)return;if(!d||d.error){box.innerHTML='<div class="soon">'+esc((d&&d.error)||"Not found")+'</div>';return;}
 var ct=d.contact||{},co=d.company||{},st=d.stats||{};var who=ct.full_name||ct.primary_email||"(unknown)";
 function tl(l,v){return '<div class="tile"><div class="l">'+l+'</div><div class="n">'+v+'</div></div>';}
-var back='<div style="margin-bottom:10px"><a href="#" id="c360back" style="color:#7ff0cd;text-decoration:none">← back to conversation</a></div>';
+var back='<div style="margin-bottom:10px;display:flex;justify-content:space-between"><a href="#" id="c360back" style="color:#7ff0cd;text-decoration:none">← back to conversation</a><a href="#" id="c360merge" data-cid="'+esc(ct.id||"")+'" class="muted tiny" style="text-decoration:none">merge into…</a></div>';
 var head='<div style="font-weight:600;font-size:15px">'+esc(who)+'</div><div class="muted tiny" style="margin-bottom:10px">'+esc(ct.primary_email||"")+(ct.phone?(" · "+esc(ct.phone)):"")+(co&&co.name?(" · "+esc(co.name)):"")+'</div>';
 var stats='<div class="tiles" style="margin-bottom:6px">'+tl("Conversations",st.conversations||0)+tl("Channels",(st.channels||[]).length)+tl("Deals",st.deals||0)+tl("Speed-to-lead",st.speed_to_lead_hours!=null?(st.speed_to_lead_hours+"h"):"—")+'</div>';
 var convs='<div style="font-weight:600;margin:12px 0 6px">Conversations across channels</div>'+((d.conversations||[]).length?d.conversations.map(function(cv){return '<div class="row" data-cid="'+esc(cv.id)+'" style="cursor:pointer"><div style="flex:1;min-width:0"><div class="tiny" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(cv.subject||cv.last_message_preview||"(no subject)")+'</div></div>'+chBadge(cv.channel)+'<span class="muted tiny" style="margin-left:6px">'+ibWhen(cv.last_message_at)+'</span></div>';}).join(""):'<div class="muted tiny">None.</div>');
@@ -295,6 +295,7 @@ return '<div class="it"><div class="tiny">'+esc(e.action||"")+(e.actor?(" · "+e
 }).join(""):'<div class="muted tiny">No history yet.</div>')+'</div>';
 box.innerHTML=back+head+stats+convs+deals+tlh;
 var bk=document.getElementById("c360back");if(bk)bk.onclick=function(ev){ev.preventDefault();if(CONV)openConv(CONV.id);};
+var mg=document.getElementById("c360merge");if(mg)mg.onclick=function(ev){ev.preventDefault();var em=prompt("Merge THIS contact into another contact — enter the other contact's email:");if(!em)return;fetch("/api/crm/merge",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({from_id:mg.getAttribute("data-cid"),into_email:em.trim()})}).then(function(r){return r.json();}).then(function(res){if(res.error){alert(res.error);return;}if(res.into_id)openContact360(res.into_id);});};
 [].forEach.call(box.querySelectorAll(".row[data-cid]"),function(r){r.onclick=function(){openConv(r.getAttribute("data-cid"));};});}
 function profilePanel(contact,company){if(!contact)return "";
 var enr=null,org=null;try{enr=contact.enrichment?JSON.parse(contact.enrichment):null;}catch(e){}try{org=company&&company.enrichment?JSON.parse(company.enrichment):null;}catch(e){}

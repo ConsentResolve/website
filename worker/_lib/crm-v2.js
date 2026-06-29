@@ -25,6 +25,11 @@ export function emailDomain(email) {
   const m = String(email || "").toLowerCase().match(/@([^@\s]+)$/);
   return m ? m[1] : "";
 }
+// Normalize a phone to comparable digits (strip formatting + leading US 1).
+export function normPhone(p) {
+  const d = String(p || "").replace(/\D/g, "");
+  return d.length === 11 && d[0] === "1" ? d.slice(1) : d;
+}
 
 // Seed roster (BUILD-PLAN P0-2 — Andy/Aaron/Tyler/Jason). Idempotent via users.email UNIQUE.
 const SEED_USERS = [
@@ -173,6 +178,7 @@ export async function findOrCreateContactByEmail(env, email, opts = {}) {
   await env.DB.prepare(
     "INSERT INTO contact_identifiers (id, contact_id, type, value, verified) VALUES (?, ?, 'email', ?, 1) ON CONFLICT(type, value) DO NOTHING"
   ).bind(ulid(), contactId, e).run();
+  if (opts.phone) { const np = normPhone(opts.phone); if (np.length >= 10) await linkIdentifier(env, contactId, "phone", np); }
   return contactId;
 }
 
