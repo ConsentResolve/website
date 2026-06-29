@@ -180,10 +180,12 @@ const demoIntent = `${demoSvc.charAt(0).toUpperCase()}${demoSvc.slice(1)} quote`
 // Message-match hero variants — mirror the three retargeting ad angles. The ad
 // link carries ?utm_content=hook|math|reframe and the hero swaps to match what
 // they clicked (biggest conversion lever for paid/cold traffic).
+// {coPos} = company-possessive ("Acme Air's"), falls back to "your". Filled +
+// highlighted client-side from the ?co= link param (see personalization script).
 const HERO_ANGLES: Record<string, string> = {
-  hook: "98% of your site visitors leave. Get them back.",
+  hook: "98% of {coPos} site visitors leave. Get them back.",
   math: "A $149 lead, split 5 ways. Or $7 — all yours.",
-  reframe: "Stop renting your leads. Own them.",
+  reframe: "Stop renting {coPos} leads. Own them.",
 };
 ---
 
@@ -388,7 +390,7 @@ const HERO_ANGLES: Record<string, string> = {
       <div class="mx-auto mb-12 max-w-2xl text-center">
         <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>The actual product</Badge></div>
         <h2 class="display-2 text-white">
-          This is what lands in your dashboard.
+          This is what lands in <span data-pp="coPos">your</span> dashboard.
         </h2>
         <p class="mt-4 text-[17px] leading-relaxed text-slate-300">
           A real name and a consented email — with the pages they viewed, what they were shopping for, and a timestamped consent receipt. Yours alone, never resold.
@@ -446,24 +448,62 @@ const HERO_ANGLES: Record<string, string> = {
   (function () {
     var p = new URLSearchParams(location.search);
     var angle = (p.get("utm_content") || p.get("angle") || "").toLowerCase();
-    var h1 = document.querySelector("[data-hero-h1]");
-    if (h1 && angle) { var alt = h1.getAttribute("data-a-" + angle); if (alt) h1.textContent = alt; }
     var fn = (p.get("fn") || "").trim();
-    if (fn) {
-      var co = (p.get("co") || "").trim(), city = (p.get("city") || "").trim();
-      var g = document.querySelector("[data-pers]");
-      if (g) { g.textContent = (city ? city + " · " : "") + "Built for " + fn + (co ? " at " + co : ""); g.classList.remove("hidden"); }
+    var co = (p.get("co") || "").trim();
+    var city = (p.get("city") || "").trim();
+    var coPos = co ? co + "’s" : "your"; // "Acme Air’s" or "your"
+    var MINT = "var(--color-mint-400)";
+    // token -> {value, highlight?} ; the existing word in the markup is the fallback
+    var vals = {
+      coPos: { v: coPos, on: !!co },
+      co: { v: co || "your business", on: !!co },
+      city: { v: city || "your area", on: !!city },
+      fn: { v: fn || "there", on: !!fn },
+    };
+
+    // Hero headline: take the clicked angle (or the per-trade default), then fill the
+    // {coPos} token with a highlighted company name (graceful "your" fallback).
+    var h1 = document.querySelector("[data-hero-h1]");
+    if (h1) {
+      var base = (angle && h1.getAttribute("data-a-" + angle)) || h1.textContent;
+      if (base.indexOf("{coPos}") > -1) {
+        var parts = base.split("{coPos}");
+        h1.textContent = "";
+        h1.appendChild(document.createTextNode(parts[0]));
+        var sp = document.createElement("span");
+        sp.textContent = coPos;
+        if (co) sp.style.color = MINT;
+        h1.appendChild(sp);
+        h1.appendChild(document.createTextNode(parts.slice(1).join("{coPos}")));
+      } else if (angle) {
+        h1.textContent = base;
+      }
     }
-    // open the demo in a NEW TAB from every demo link on this landing page
-    // (hero, CTA band, secondary + mobile sticky) so the page stays open
-    document.querySelectorAll('a[href*="/demo"]').forEach(function (a) { a.target = "_blank"; a.rel = "noopener"; });
-    // carry personalization to the demo so the form pre-fills (name/company)
+
+    // Fill every [data-pp] token in the copy; highlight in brand mint when we have real data.
+    document.querySelectorAll("[data-pp]").forEach(function (el) {
+      var slot = vals[el.getAttribute("data-pp")];
+      if (!slot) return;
+      el.textContent = slot.v;
+      if (slot.on) el.style.color = MINT;
+    });
+
+    // Personalized greeting eyebrow (shows when we have city / name / company).
+    var g = document.querySelector("[data-pers]");
+    if (g && (fn || co || city)) {
+      var bits = [];
+      if (city) bits.push(city);
+      if (fn) bits.push("Built for " + fn + (co ? " at " + co : ""));
+      else if (co) bits.push("Built for " + co);
+      if (bits.length) { g.textContent = bits.join(" · "); g.classList.remove("hidden"); }
+    }
+
+    // Open the demo in a new tab + carry fn/co/city so the demo form pre-fills (name/company).
+    var demoLinks = document.querySelectorAll('a[href*="/demo"]');
+    demoLinks.forEach(function (a) { a.target = "_blank"; a.rel = "noopener"; });
     var carry = [];
     ["fn", "co", "city"].forEach(function (k) { var v = p.get(k); if (v) carry.push(k + "=" + encodeURIComponent(v)); });
-    if (carry.length) {
-      var q = carry.join("&");
-      document.querySelectorAll('a[href*="/demo"]').forEach(function (a) { a.href += (a.href.indexOf("?") > -1 ? "&" : "?") + q; });
-    }
+    if (carry.length) { var q = carry.join("&"); demoLinks.forEach(function (a) { a.href += (a.href.indexOf("?") > -1 ? "&" : "?") + q; }); }
   })();
 </script>
 
