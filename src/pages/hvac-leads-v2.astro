@@ -4,7 +4,6 @@ import Badge from "~/components/ui/Badge.astro";
 import Button from "~/components/ui/Button.astro";
 import FeatureCard from "~/components/ui/FeatureCard.astro";
 import HowItWorks from "~/components/sections/HowItWorks.astro";
-import ConsentFlowSlideshow from "~/components/sections/ConsentFlowSlideshow.astro";
 import ComplianceBand from "~/components/sections/ComplianceBand.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import AEOAnswer from "~/components/sections/AEOAnswer.astro";
@@ -200,6 +199,14 @@ const HERO_ANGLES: Record<string, string> = {
       <TradeIcon size={560} stroke={1} color="#ffffff" />
     </div>
     <div class="container-content relative">
+      <!-- Headline above the video. -->
+      <div class="mx-auto mb-10 max-w-3xl text-center">
+        <p data-pers class="mb-4 hidden text-sm font-bold uppercase tracking-[0.16em] text-[color:var(--color-mint-400)]"></p>
+        <div class="mb-6"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase icon={TradeIcon}>{trade.name}</Badge></div>
+        <h1 class="display-1 text-white" data-hero-h1 data-a-hook={HERO_ANGLES.hook} data-a-math={HERO_ANGLES.math} data-a-reframe={HERO_ANGLES.reframe}>
+          {trade.heroH1}
+        </h1>
+      </div>
       <!-- Two columns: UGC video left (embedded, borderless), interactive grid right.
            The story is driven entirely by the video: play it → the 98 vanish → an
            end-screen CTA reveals the recovery. No toggle. -->
@@ -270,46 +277,16 @@ const HERO_ANGLES: Record<string, string> = {
           </div>
         </div>
       </div>
-      <!-- Headline + CTAs, directly below the promoted video. -->
-      <div class="mx-auto mt-14 max-w-3xl text-center">
-        <p data-pers class="mb-4 hidden text-sm font-bold uppercase tracking-[0.16em] text-[color:var(--color-mint-400)]"></p>
-        <div class="mb-7"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase icon={TradeIcon}>{trade.name}</Badge></div>
-        <h1 class="display-1 mb-6 text-white" data-hero-h1 data-a-hook={HERO_ANGLES.hook} data-a-math={HERO_ANGLES.math} data-a-reframe={HERO_ANGLES.reframe}>
-          {trade.heroH1}
-        </h1>
-        <p class="mx-auto mb-9 max-w-xl text-lg leading-relaxed text-slate-300">
-          {trade.heroSubhead}
-        </p>
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
-          <a href={demoHref("hero")} target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white">
-            <IconEye size={18} stroke={2} />
-            Live Demo
-          </a>
-          <a href="https://dashboard.consentresolve.com/register" class="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/20 transition-all hover:bg-white/5">
-            Get Started
-            <IconArrowRight size={18} stroke={2.25} />
-          </a>
-        </div>
-        <ul class="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-300">
-          <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00E5A0" /> $7 per lead, never resold</li>
-          <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00E5A0" /> Exclusive leads</li>
-          <li class="flex items-center gap-1.5"><IconCheck size={16} stroke={2.5} color="#00E5A0" /> Cancel anytime</li>
-        </ul>
-        <p class="mx-auto mt-6 max-w-2xl text-[15px] text-slate-300">{trade.problem}</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 3-step consent → click → CRM animation, promoted + enlarged + centered, leading into the steps. -->
-  <section class="section section-dark">
-    <div class="container-content">
-      <div class="mx-auto mb-12 max-w-2xl text-center">
-        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>How it works</Badge></div>
-        <h2 class="display-2 text-white">From anonymous visitor to consented lead.</h2>
-        <p class="mt-4 text-[15px] text-slate-300">Three steps, on your own site — here's what happens the moment a visitor consents.</p>
-      </div>
-      <div class="mx-auto max-w-4xl">
-        <ConsentFlowSlideshow />
+      <!-- CTAs below the video: Get Started + Chat with Tyler (opens Crisp). -->
+      <div class="mx-auto mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <a href="https://dashboard.consentresolve.com/register" class="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white">
+          Get Started
+          <IconArrowRight size={18} stroke={2.25} />
+        </a>
+        <button type="button" onclick="window.$crisp && window.$crisp.push(['do','chat:open'])" class="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/20 transition-all hover:bg-white/5">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"></path><path d="M8 9h8M8 13h5"></path></svg>
+          Chat with Tyler
+        </button>
       </div>
     </div>
   </section>
