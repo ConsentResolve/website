@@ -602,7 +602,7 @@ const HERO_ANGLES: Record<string, string> = {
     // Video playback. Hover = muted preview from the start; clicking the play
     // button = play with sound from the start. The BEFORE climax (98 leave) and
     // the end payoff only run once it's *really* playing (clicked).
-    var started = false;
+    var started = false, done = false;
     var unmuteBtn = root.querySelector("[data-unmute]");
     function hideUnmute() { if (unmuteBtn) unmuteBtn.style.display = "none"; }
     function showUnmute() { if (unmuteBtn) unmuteBtn.style.display = "inline-flex"; }
@@ -622,7 +622,7 @@ const HERO_ANGLES: Record<string, string> = {
     }
     if (vidWrap && intro) {
       vidWrap.addEventListener("mouseenter", function () {
-        if (started) return;
+        if (started || done) return;
         try { intro.currentTime = 0; } catch (e) {}
         // Try to play WITH sound; if the browser blocks unmuted autoplay, fall back to
         // muted playback and reveal the big "Tap for sound" button.
@@ -637,19 +637,24 @@ const HERO_ANGLES: Record<string, string> = {
         } else { showUnmute(); }
       });
       vidWrap.addEventListener("mouseleave", function () {
-        if (started) return;
+        if (started || done) return;  // once it has played through, keep the continue-CTA up
         intro.pause(); try { intro.currentTime = 0; } catch (e) {}  // back to the start
         hideUnmute();
+        // reset the grid story so the next hover replays cleanly from the top
+        stopTimers(); vanished = false;
+        if (grid) grid.classList.remove("recovered", "pulse-greens");
+        allGhost(); if (cells.length) { lead(cells[0], 0); lead(cells[1], 200); }
+        if (vidCta) vidCta.classList.add("hidden");
       });
     }
     if (intro) {
       intro.addEventListener("play", function () { if (vidCta) vidCta.classList.add("hidden"); });
       intro.addEventListener("timeupdate", function () {
-        if (started && intro.duration && intro.currentTime / intro.duration > 0.52) doVanish();
+        if (intro.duration && intro.currentTime / intro.duration > 0.52) doVanish();
       });
       intro.addEventListener("ended", function () {
-        if (!started) return;
-        doVanish(); cueAfter(); if (vidCta) vidCta.classList.remove("hidden");  // the after-CTA appears
+        done = true;  // story complete (hover or sound) — keep the continue-CTA up even if the mouse leaves
+        doVanish(); cueAfter(); if (vidCta) vidCta.classList.remove("hidden");  // "click to continue" appears
       });
     }
     // The demo form appears when the 2nd (resume) clip finishes.
