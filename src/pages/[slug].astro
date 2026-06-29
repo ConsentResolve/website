@@ -602,7 +602,7 @@ const HERO_ANGLES: Record<string, string> = {
     // Video playback. Hover = muted preview from the start; clicking the play
     // button = play with sound from the start. The BEFORE climax (98 leave) and
     // the end payoff only run once it's *really* playing (clicked).
-    var started = false, done = false;
+    var started = false, done = false, previewing = false;
     var unmuteBtn = root.querySelector("[data-unmute]");
     function hideUnmute() { if (unmuteBtn) unmuteBtn.style.display = "none"; }
     function showUnmute() { if (unmuteBtn) unmuteBtn.style.display = "inline-flex"; }
@@ -621,30 +621,15 @@ const HERO_ANGLES: Record<string, string> = {
       });
     }
     if (vidWrap && intro) {
+      // Start the muted preview on the FIRST hover and show the "Tap for sound" button.
+      // It keeps playing on hover-out (no pause/reset); the unmute button restarts it
+      // from the beginning with sound (see realPlay).
       vidWrap.addEventListener("mouseenter", function () {
-        if (started || done) return;
-        try { intro.currentTime = 0; } catch (e) {}
-        // Try to play WITH sound; if the browser blocks unmuted autoplay, fall back to
-        // muted playback and reveal the big "Tap for sound" button.
-        intro.muted = false;
-        var pr = intro.play();
-        if (pr && pr.then) {
-          pr.then(function () { hideUnmute(); }).catch(function () {
-            intro.muted = true;
-            var p2 = intro.play(); if (p2 && p2.catch) p2.catch(function () {});
-            showUnmute();
-          });
-        } else { showUnmute(); }
-      });
-      vidWrap.addEventListener("mouseleave", function () {
-        if (started || done) return;  // once it has played through, keep the continue-CTA up
-        intro.pause(); try { intro.currentTime = 0; } catch (e) {}  // back to the start
-        hideUnmute();
-        // reset the grid story so the next hover replays cleanly from the top
-        stopTimers(); vanished = false;
-        if (grid) grid.classList.remove("recovered", "pulse-greens");
-        allGhost(); if (cells.length) { lead(cells[0], 0); lead(cells[1], 200); }
-        if (vidCta) vidCta.classList.add("hidden");
+        if (started || done || previewing) return;
+        previewing = true;
+        intro.muted = true; try { intro.currentTime = 0; } catch (e) {}
+        var pr = intro.play(); if (pr && pr.catch) pr.catch(function () {});
+        showUnmute();
       });
     }
     if (intro) {
@@ -653,7 +638,7 @@ const HERO_ANGLES: Record<string, string> = {
         if (intro.duration && intro.currentTime / intro.duration > 0.52) doVanish();
       });
       intro.addEventListener("ended", function () {
-        done = true;  // story complete (hover or sound) — keep the continue-CTA up even if the mouse leaves
+        done = true; hideUnmute();  // story complete — show the continue-CTA, hide the sound button
         doVanish(); cueAfter(); if (vidCta) vidCta.classList.remove("hidden");  // "click to continue" appears
       });
     }
