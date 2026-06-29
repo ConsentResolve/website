@@ -291,6 +291,7 @@ var deals=(d.deals||[]).length?('<div style="font-weight:600;margin:14px 0 6px">
 var tlh='<div style="font-weight:600;margin:14px 0 6px">Full timeline</div><div class="tl">'+((d.timeline||[]).length?d.timeline.map(function(e){
 if(e.kind==="message"){var mine=e.direction==="out";return '<div style="margin-bottom:8px;padding:8px 10px;border-radius:8px;background:'+(mine?"rgba(0,229,160,.08)":"var(--surf2)")+'"><div class="tiny muted">'+(mine?"Us":esc(who))+' · '+chBadge(e.channel)+' · '+ibWhen(e.at)+'</div><div class="tiny" style="margin-top:3px;white-space:pre-wrap">'+esc((e.text||"").slice(0,400))+'</div></div>';}
 if(e.kind==="note"){return '<div style="margin-bottom:8px;padding:8px 10px;border-radius:8px;background:rgba(239,159,39,.08)"><div class="tiny muted">Note · '+esc(e.author||"")+' · '+ibWhen(e.at)+'</div><div class="tiny" style="margin-top:3px;white-space:pre-wrap">'+esc(e.text||"")+'</div></div>';}
+if(e.kind==="pageview"){return '<div class="it"><div class="tiny muted">👁 viewed '+esc(e.path||"")+(e.source?(" · "+esc(e.source)):"")+'</div><div class="muted tiny">'+ibWhen(e.at)+'</div></div>';}
 return '<div class="it"><div class="tiny">'+esc(e.action||"")+(e.actor?(" · "+esc(e.actor)):"")+'</div><div class="muted tiny">'+ibWhen(e.at)+'</div></div>';
 }).join(""):'<div class="muted tiny">No history yet.</div>')+'</div>';
 box.innerHTML=back+head+stats+convs+deals+tlh;

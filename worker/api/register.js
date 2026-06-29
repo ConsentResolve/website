@@ -125,6 +125,14 @@ export async function onRequestPost({ request, env, waitUntil }) {
     await ensureCrmV2Schema(env);
     const contactId = await findOrCreateContactByEmail(env, email, { name, phone, company: business_name, source: "demo_form" });
     if (!contactId) return;
+    // Session-stitch: tie this visitor's anonymous pageviews (cr_vid cookie) to the contact.
+    try {
+      const m = (request.headers.get("cookie") || "").match(/(?:^|;\s*)cr_vid=([^;]+)/);
+      if (m && m[1]) {
+        await env.DB.prepare("CREATE TABLE IF NOT EXISTS visitor_links (vid TEXT, contact_id TEXT, email TEXT, created_at TEXT DEFAULT (datetime('now')), UNIQUE(vid, contact_id))").run();
+        await env.DB.prepare("INSERT INTO visitor_links (vid, contact_id, email) VALUES (?, ?, ?) ON CONFLICT(vid, contact_id) DO NOTHING").bind(m[1].slice(0, 40), contactId, email).run();
+      }
+    } catch (_) {}
     const convId = await upsertConversationByThread(env, {
       channel: "demo_form", externalThreadId: "demo:" + token, contactId,
       subject: "Demo request" + (business_name ? " — " + business_name : ""), sourceDetail: trade || null,

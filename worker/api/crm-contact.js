@@ -33,7 +33,19 @@ export async function onRequestGet({ request, env }) {
   const notes = await all("SELECT n.body, n.created_at, u.name AS author FROM notes n LEFT JOIN users u ON u.id=n.author_id WHERE n.contact_id=? ORDER BY n.created_at DESC", id);
   const acts = await all("SELECT a.action, a.created_at, u.name AS actor FROM activities a LEFT JOIN users u ON u.id=a.actor_id WHERE a.entity_type='contact' AND a.entity_id=? ORDER BY a.created_at DESC LIMIT 50", id);
 
+  // Session-stitched pageviews: the visitor's pre-identification browsing (via cr_vid).
+  let pageviews = [];
+  try {
+    await env.DB.prepare("CREATE TABLE IF NOT EXISTS visitor_links (vid TEXT, contact_id TEXT, email TEXT, created_at TEXT DEFAULT (datetime('now')), UNIQUE(vid, contact_id))").run();
+    const vids = (await all("SELECT vid FROM visitor_links WHERE contact_id=?", id)).map((v) => v.vid).filter(Boolean);
+    if (vids.length) {
+      const ph = vids.map(() => "?").join(",");
+      pageviews = await all("SELECT path, utm_source, created_at FROM traffic WHERE vid IN (" + ph + ") ORDER BY created_at DESC LIMIT 100", ...vids);
+    }
+  } catch (_) {}
+
   const timeline = [];
+  for (const p of pageviews) timeline.push({ kind: "pageview", at: p.created_at, path: p.path, source: p.utm_source });
   for (const m of msgs) timeline.push({ kind: "message", at: m.sent_at || m.created_at, channel: m.channel, direction: m.direction, text: m.body_text || "" });
   for (const n of notes) timeline.push({ kind: "note", at: n.created_at, text: n.body, author: n.author });
   for (const a of acts) timeline.push({ kind: "activity", at: a.created_at, action: a.action, actor: a.actor });
@@ -52,7 +64,7 @@ export async function onRequestGet({ request, env }) {
   const stats = {
     first_seen: firstSeen, conversations: conversations.length,
     channels: [...new Set(conversations.map((c) => c.channel))],
-    deals: deals.length, messages: msgs.length, speed_to_lead_hours: stl,
+    deals: deals.length, messages: msgs.length, speed_to_lead_hours: stl, pageviews: pageviews.length,
   };
 
   return json({ contact, company, conversations, deals, timeline, stats }, {}, cors);

@@ -12,6 +12,9 @@ async function ensure(env) {
        created_at TEXT DEFAULT (datetime('now'))
      )`
   ).run();
+  // Anonymous visitor id for session-stitching (added to the existing table).
+  try { await env.DB.prepare("ALTER TABLE traffic ADD COLUMN vid TEXT").run(); } catch (_) {}
+  try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_traffic_vid ON traffic(vid)").run(); } catch (_) {}
 }
 
 export async function onRequestOptions({ request, env }) {
@@ -24,7 +27,7 @@ export async function onRequestPost({ request, env }) {
   try { b = await request.json(); } catch { return json({ ok: false }); }
   await ensure(env);
   const s = (v, n) => (v || "").toString().slice(0, n);
-  await env.DB.prepare("INSERT INTO traffic (path, utm_source, utm_campaign, ref, created_at) VALUES (?,?,?,?,?)")
-    .bind(s(b.path, 200), s(b.utm_source, 60), s(b.utm_campaign, 80), s(b.ref, 200), new Date().toISOString()).run();
+  await env.DB.prepare("INSERT INTO traffic (path, utm_source, utm_campaign, ref, vid, created_at) VALUES (?,?,?,?,?,?)")
+    .bind(s(b.path, 200), s(b.utm_source, 60), s(b.utm_campaign, 80), s(b.ref, 200), s(b.vid, 40), new Date().toISOString()).run();
   return json({ ok: true });
 }

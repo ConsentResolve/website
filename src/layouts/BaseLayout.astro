@@ -80,7 +80,11 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <script is:inline>
       (function(){try{var u=new URL(location.href);var src=u.searchParams.get("utm_source")||"";
         if(src&&!/(^|;\s*)cr_src=/.test(document.cookie)){document.cookie="cr_src="+encodeURIComponent(src)+"; Path=/; Max-Age=2592000; SameSite=Lax";}
-        var b={path:location.pathname,utm_source:src,utm_campaign:u.searchParams.get("utm_campaign")||"",ref:document.referrer||""};
+        // Anonymous first-party visitor id — stays anonymous until the visitor identifies
+        // themselves (demo form), at which point we stitch their prior pageviews to the contact.
+        var vid=(document.cookie.match(/(?:^|;\s*)cr_vid=([^;]+)/)||[])[1];
+        if(!vid){vid=Date.now().toString(36)+Math.random().toString(36).slice(2,10);document.cookie="cr_vid="+vid+"; Path=/; Max-Age=31536000; SameSite=Lax";}
+        var b={path:location.pathname,utm_source:src,utm_campaign:u.searchParams.get("utm_campaign")||"",ref:document.referrer||"",vid:vid};
         var s=JSON.stringify(b);
         if(navigator.sendBeacon){navigator.sendBeacon("/api/hit",new Blob([s],{type:"application/json"}));}
         else{fetch("/api/hit",{method:"POST",headers:{"Content-Type":"application/json"},body:s,keepalive:true});}
