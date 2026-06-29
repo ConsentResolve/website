@@ -199,22 +199,17 @@ const HERO_ANGLES: Record<string, string> = {
       <TradeIcon size={560} stroke={1} color="#ffffff" />
     </div>
     <div class="container-content relative">
-      <!-- Headline above the video (compact so the video stays high). -->
-      <div class="mx-auto mb-8 max-w-2xl text-center">
-        <p data-pers class="mb-3 hidden text-sm font-bold uppercase tracking-[0.16em] text-[color:var(--color-mint-400)]"></p>
-        <div class="mb-4"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase icon={TradeIcon}>{trade.name}</Badge></div>
-        <h1 class="text-2xl font-extrabold tracking-tight text-white sm:text-3xl lg:text-4xl" data-hero-h1 data-a-hook={HERO_ANGLES.hook} data-a-math={HERO_ANGLES.math} data-a-reframe={HERO_ANGLES.reframe}>
-          {trade.heroH1}
-        </h1>
-      </div>
-      <!-- Two columns: UGC video left (embedded, borderless), interactive grid right.
-           The story is driven entirely by the video: play it → the 98 vanish → an
-           end-screen CTA reveals the recovery. No toggle. -->
+      <!-- Two columns: LEFT = headline + video + CTAs (stacked, aligned to the video); RIGHT = the animation grid. -->
       <div class="grid items-center gap-10 lg:grid-cols-2">
-        <!-- Left: UGC video — embedded flush, no frame. Hover plays a muted preview
-             (from the start); clicking the custom play button plays it with sound
-             from the start. On end, a CTA overlay replaces the freeze-frame. -->
-        <div data-vid-wrap class="group relative overflow-hidden rounded-xl">
+        <!-- LEFT column: headline above the video, CTAs below it. -->
+        <div>
+          <p data-pers class="mb-3 hidden text-sm font-bold uppercase tracking-[0.16em] text-[color:var(--color-mint-400)]"></p>
+          <div class="mb-4"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase icon={TradeIcon}>{trade.name}</Badge></div>
+          <h1 class="mb-6 text-2xl font-extrabold tracking-tight text-white sm:text-3xl lg:text-4xl" data-hero-h1 data-a-hook={HERO_ANGLES.hook} data-a-math={HERO_ANGLES.math} data-a-reframe={HERO_ANGLES.reframe}>
+            {trade.heroH1}
+          </h1>
+          <!-- UGC video -->
+          <div data-vid-wrap class="group relative overflow-hidden rounded-xl">
           {tradeVid ? (
             <Fragment>
               <video data-vid-intro src={tradeVid.intro} class="block aspect-video h-full w-full object-cover" playsinline preload="metadata" poster={tradeVid.poster ?? "/og-default.png"}></video>
@@ -233,6 +228,18 @@ const HERO_ANGLES: Record<string, string> = {
           ) : (
             <video src={PROBLEM_VIDEO} class="block aspect-video h-full w-full object-cover" controls playsinline preload="metadata" poster="/og-default.png"></video>
           )}
+        </div>
+          <!-- CTAs directly below the video -->
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <a href="https://dashboard.consentresolve.com/register" class="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white">
+              Get Started
+              <IconArrowRight size={18} stroke={2.25} />
+            </a>
+            <button type="button" onclick="window.$crisp && window.$crisp.push(['do','chat:open'])" class="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/20 transition-all hover:bg-white/5">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"></path><path d="M8 9h8M8 13h5"></path></svg>
+              Chat with Tyler
+            </button>
+          </div>
         </div>
 
         <!-- Right: a subtle browser window framing the visitor grid + final stat.
@@ -276,17 +283,6 @@ const HERO_ANGLES: Record<string, string> = {
             </div>
           </div>
         </div>
-      </div>
-      <!-- CTAs below the video: Get Started + Chat with Tyler (opens Crisp). -->
-      <div class="mx-auto mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <a href="https://dashboard.consentresolve.com/register" class="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white">
-          Get Started
-          <IconArrowRight size={18} stroke={2.25} />
-        </a>
-        <button type="button" onclick="window.$crisp && window.$crisp.push(['do','chat:open'])" class="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/20 transition-all hover:bg-white/5">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"></path><path d="M8 9h8M8 13h5"></path></svg>
-          Chat with Tyler
-        </button>
       </div>
     </div>
   </section>
