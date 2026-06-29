@@ -126,13 +126,16 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
          data-usercentrics MUST match the EXACT service name in the CMP/Termageddon
          ("Crisp Chat"), or the chat stays blocked forever. Consistent with consent-first. -->
     <script is:inline type="text/plain" data-usercentrics="Crisp Chat">window.$crisp=[];window.CRISP_WEBSITE_ID="0f8e9b05-1b94-4781-904d-2abef252374d";
-      /* Pre-fill the chat from a prior first-party identity (cr_id), if we have one (consent-gated: this whole block only runs post-consent). */
-      try{var _raw=(document.cookie.match(/(?:^|;\s*)cr_id=([^;]+)/)||[])[1];if(_raw){var _d=JSON.parse(decodeURIComponent(_raw));if(_d&&_d.e)window.$crisp.push(["set","user/email",[_d.e]]);if(_d&&_d.n)window.$crisp.push(["set","user/nickname",[_d.n]]);}}catch(e){}
-      /* No prior identity but the cold-email link carried an opaque token (?ld=): resolve it server-side (email never in the URL), pre-fill the chat + remember for next time. Post-consent only (this whole block is consent-gated). */
-      try{var _ld=(location.search.match(/[?&]ld=([^&]+)/)||[])[1];if(_ld&&!_raw){fetch("/api/lead-prefill?ld="+encodeURIComponent(_ld)).then(function(r){return r.json();}).then(function(d){if(d&&d.ok&&d.e){window.$crisp.push(["set","user/email",[d.e]]);if(d.n)window.$crisp.push(["set","user/nickname",[d.n]]);document.cookie="cr_id="+encodeURIComponent(JSON.stringify({n:d.n||"",e:d.e}))+"; Path=/; Max-Age=15552000; SameSite=Lax";}}).catch(function(){});}}catch(e){}
+      /* Crisp loader — deferred so any identity is set BEFORE the chatbox boots (Crisp only pre-fills the pre-chat form from user/email if it's set before load). */
+      function _loadCrisp(){if(window.__crispLoaded)return;window.__crispLoaded=1;var d=document,s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);}
+      /* Pre-fill from a prior first-party identity (cr_id), set synchronously before load. Consent-gated: this whole block only runs post-consent. */
+      var _raw=(document.cookie.match(/(?:^|;\s*)cr_id=([^;]+)/)||[])[1];
+      try{if(_raw){var _d=JSON.parse(decodeURIComponent(_raw));if(_d&&_d.e)window.$crisp.push(["set","user/email",[_d.e]]);if(_d&&_d.n)window.$crisp.push(["set","user/nickname",[_d.n]]);}}catch(e){}
       /* On email entry: remember it (pre-fill next time) + stitch cr_vid -> contact. */
       window.$crisp.push(["on","user:email",function(em){try{var nm="";try{nm=window.$crisp.get("user/nickname")||"";}catch(_){}document.cookie="cr_id="+encodeURIComponent(JSON.stringify({n:nm,e:em}))+"; Path=/; Max-Age=15552000; SameSite=Lax";var vid=(document.cookie.match(/(?:^|;\s*)cr_vid=([^;]+)/)||[])[1]||"";if(vid){var s=JSON.stringify({vid:vid,email:em,name:nm});if(navigator.sendBeacon){navigator.sendBeacon("/api/identify",new Blob([s],{type:"application/json"}));}else{fetch("/api/identify",{method:"POST",headers:{"Content-Type":"application/json"},body:s,keepalive:true});}}}catch(e){}}]);
-      (function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+      /* Cold-email link carried an opaque token (?ld=): resolve it server-side (email NEVER in the URL), set the email, THEN load Crisp so the pre-chat form is pre-filled. Fallback loads the chat anyway if the lookup is slow/fails. */
+      var _ld=(location.search.match(/[?&]ld=([^&]+)/)||[])[1];
+      if(_ld&&!_raw){var _done=false,_go=function(){if(_done)return;_done=true;_loadCrisp();};fetch("/api/lead-prefill?ld="+encodeURIComponent(_ld)).then(function(r){return r.json();}).then(function(d){if(d&&d.ok&&d.e){window.$crisp.push(["set","user/email",[d.e]]);if(d.n)window.$crisp.push(["set","user/nickname",[d.n]]);document.cookie="cr_id="+encodeURIComponent(JSON.stringify({n:d.n||"",e:d.e}))+"; Path=/; Max-Age=15552000; SameSite=Lax";}_go();}).catch(_go);setTimeout(_go,2500);}else{_loadCrisp();}</script>
   </head>
   <body class="bg-[color:var(--color-bg)] text-[color:var(--color-ink)]">
     <a href="#main" class="skip-link">Skip to content</a>
