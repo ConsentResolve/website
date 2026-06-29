@@ -16,7 +16,7 @@ const PROGRESS = {
   emailed:    { short: "completed demo",   detail: "Completed the demo — accepted consent and saw the reveal (the demo lead was them)." },
   enrolled:   { short: "completed demo",   detail: "Completed the demo — accepted consent, saw the reveal, and entered the nurture sequence." },
 };
-const progressFor = (status) =>
+export const progressFor = (status) =>
   PROGRESS[status] || { short: status || "unknown", detail: "Reached demo stage: " + (status || "unknown") + "." };
 
 export async function sweepDemoNotifications(env, { minMinutes = 12, email = null } = {}) {

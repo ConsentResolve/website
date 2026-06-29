@@ -10,6 +10,8 @@ import { gAccessToken, sendMessage } from "../_lib/gmail.js";
 import { sendInstantlyReply } from "./crm-instantly.js";
 import { sendCrispMessage, getCrispTranscript } from "./crm-crisp.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2, isAdmin } from "../_lib/crm-v2.js";
+import { getByEmail } from "../_lib/db.js";
+import { progressFor } from "../_lib/demo-notify.js";
 
 function inboxAccounts(env) {
   return (env.CRM_INBOX_EMAILS || "hello@consentresolve.com").split(/[,\s]+/).map((s) => s.trim().toLowerCase()).filter(Boolean);
@@ -151,8 +153,23 @@ export async function onRequestGet({ request, env }) {
     const notes = (await env.DB.prepare(
       "SELECT n.id, n.body, n.created_at, u.name AS author FROM notes n LEFT JOIN users u ON u.id=n.author_id WHERE n.conversation_id=? ORDER BY n.created_at DESC"
     ).bind(id).all()).results || [];
+    // Live demo progress: if this contact has a demo-form participant record, surface how
+    // far they got (registered -> visited -> consented -> emailed/enrolled), read fresh.
+    let demo = null;
+    try {
+      const pemail = (contact && contact.primary_email) || conv.primary_email;
+      if (pemail) {
+        const part = await getByEmail(env, String(pemail).toLowerCase());
+        if (part) {
+          const pf = progressFor(part.status);
+          demo = { status: part.status, short: pf.short, detail: pf.detail,
+                   registeredAt: part.created_at || null, visitedAt: part.visited_at || null,
+                   consentedAt: part.consented_at || null, samplePage: part.sample_page || null };
+        }
+      }
+    } catch (_) {}
     await env.DB.prepare("UPDATE conversations SET unread=0 WHERE id=?").bind(id).run();
-    return json({ conversation: conv, messages: msgs, contact, company, users, notes }, {}, cors);
+    return json({ conversation: conv, messages: msgs, contact, company, users, notes, demo }, {}, cors);
   }
 
   const status = url.searchParams.get("status") || "open";
