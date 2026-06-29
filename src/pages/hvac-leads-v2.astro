@@ -230,12 +230,12 @@ const HERO_ANGLES: Record<string, string> = {
           )}
         </div>
           <!-- CTAs directly below the video -->
-          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <a href="https://dashboard.consentresolve.com/register" class="inline-flex items-center gap-1.5 rounded-lg bg-[color:var(--color-mint-400)] px-4 py-2 text-sm font-semibold text-[color:var(--color-navy-900)] transition-all hover:bg-[color:var(--color-mint-300)] hover:shadow-[0_8px_24px_-8px_rgba(0,229,160,0.6)]">
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+            <a href="https://dashboard.consentresolve.com/register" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[color:var(--color-mint-400)] px-4 py-2.5 text-sm font-semibold text-[color:var(--color-navy-900)] transition-all hover:bg-[color:var(--color-mint-300)] hover:shadow-[0_8px_24px_-8px_rgba(0,229,160,0.6)]">
               Get Started
               <IconArrowRight size={16} stroke={2.25} />
             </a>
-            <button type="button" onclick="window.$crisp && window.$crisp.push(['do','chat:open'])" class="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white ring-1 ring-inset ring-white/25 transition-all hover:bg-white/5">
+            <button type="button" onclick="window.$crisp && window.$crisp.push(['do','chat:open'])" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold text-white ring-1 ring-inset ring-white/25 transition-all hover:bg-white/5">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"></path><path d="M8 9h8M8 13h5"></path></svg>
               Chat with Tyler
             </button>
@@ -288,15 +288,13 @@ const HERO_ANGLES: Record<string, string> = {
   </section>
 
   <!-- How it works (reused comet) -->
-  <HowItWorks />
-
-  <!-- Watch-it-work: opens the consent → click → CRM animation as a modal demo. -->
-  <div class="bg-[color:var(--color-navy-900)] pb-16 pt-2 text-center">
+  <!-- HowItWorks (five steps) with the modal-demo button rendered INSIDE the section via slot. -->
+  <HowItWorks>
     <button type="button" data-demo-open class="inline-flex items-center gap-2 rounded-lg bg-[color:var(--color-mint-400)] px-5 py-2.5 text-sm font-semibold text-[color:var(--color-navy-900)] shadow-[0_10px_30px_-10px_rgba(0,229,160,0.6)] transition-all hover:bg-[color:var(--color-mint-300)]">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
       Watch it work — see the 5 steps live
     </button>
-  </div>
+  </HowItWorks>
 
   <!-- Trade math (dark) -->
   <section class="section section-dark">

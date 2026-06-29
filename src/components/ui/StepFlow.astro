@@ -123,6 +123,9 @@ const gridTemplateColumns = steps
           </Fragment>
         ))}
       </ol>
+      {Astro.slots.has("default") && (
+        <div class="mt-12 flex justify-center"><slot /></div>
+      )}
     </div>
   </section>
 )}
