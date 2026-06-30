@@ -145,6 +145,14 @@ def api(method, path, body=None):
     except urllib.error.HTTPError as e:
         sys.exit(f"Instantly API {method} {path} -> {e.code}: {e.read().decode()[:300]}")
 
+def build_sequences():
+    """The WAVE sequence in Instantly's API shape — shared by create + update so a
+    campaign edit applies everywhere 'in one scoop'."""
+    return [{"steps": [
+        {"type": "email", "delay": s["delay"],
+         "variants": [{"subject": v["subject"], "body": to_html(v["body"])} for v in s["variants"]]}
+        for s in WAVE["sequence"]]}]
+
 def create_campaign():
     payload = {
         "name": WAVE["name"],
@@ -153,10 +161,7 @@ def create_campaign():
             "timing": {"from": WAVE["send_from"], "to": WAVE["send_to"]},
             "days": {"1": True, "2": True, "3": True, "4": True, "5": True},
             "timezone": WAVE["timezone"]}]},
-        "sequences": [{"steps": [
-            {"type": "email", "delay": s["delay"],
-             "variants": [{"subject": v["subject"], "body": to_html(v["body"])} for v in s["variants"]]}
-            for s in WAVE["sequence"]]}],
+        "sequences": build_sequences(),
         "email_list": WAVE["inboxes"],
         "daily_limit": WAVE["daily_limit"],
         "stop_on_reply": True, "open_tracking": False, "link_tracking": False,
@@ -210,14 +215,59 @@ def fix_empty_names(cid, rows):
     if fixed: print(f"  self-heal: patched {fixed} blank names")
     return fixed
 
+# ── Campaign list + update (apply WAVE to an existing/live campaign) ───────────
+def list_campaigns():
+    r = api("GET", "/campaigns?limit=100")
+    items = r.get("items") or r.get("data") or (r if isinstance(r, list) else [])
+    print(f"{'ID':38} {'STATUS':8} NAME")
+    for c in items:
+        print(f"{str(c.get('id','')):38} {str(c.get('status','')):8} {c.get('name','')}")
+    print(f"\n{len(items)} campaign(s). (status: 0/1=draft/active varies by account)")
+    return items
+
+def _seq_summary(seq):
+    steps = (seq[0].get("steps") if seq else []) or []
+    if not steps:
+        return "  (no steps)"
+    out = []
+    for i, st in enumerate(steps):
+        subs = " | ".join(v.get("subject", "") for v in (st.get("variants") or []))
+        out.append(f"  step {i+1} (delay {st.get('delay')}d): {subs}")
+    return "\n".join(out)
+
+def update_campaign(cid, apply=False):
+    cur = api("GET", f"/campaigns/{cid}")
+    print(f"Target campaign: {cur.get('name')}  (id={cid}, status={cur.get('status')})\n")
+    print("CURRENT sequence (live):")
+    print(_seq_summary(cur.get("sequences") or []))
+    new_seq = build_sequences()
+    print("\nNEW sequence (from WAVE config):")
+    print(_seq_summary(new_seq))
+    if not apply:
+        print("\nDRY RUN — re-run with --apply to PATCH this campaign's sequence.")
+        print("Campaign STATUS is left unchanged (a paused campaign stays paused — you launch it).")
+        return
+    api("PATCH", f"/campaigns/{cid}", {"sequences": new_seq})
+    print(f"\n✅ Applied WAVE sequence to {cid}. Status unchanged — review + launch in Instantly when ready.")
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("csv", help="Apollo CSV export")
+    ap.add_argument("csv", nargs="?", help="Apollo CSV export")
     ap.add_argument("--top", type=int, default=200, help="how many top-ranked leads to push")
     ap.add_argument("--push", action="store_true", help="create campaign + add leads (else dry-run)")
     ap.add_argument("--campaign-id", help="add to an existing campaign instead of creating one")
+    ap.add_argument("--list-campaigns", action="store_true", help="list Instantly campaigns (id/status/name)")
+    ap.add_argument("--update-campaign", metavar="ID", help="apply the WAVE sequence to an existing/live campaign")
+    ap.add_argument("--apply", action="store_true", help="with --update-campaign: PATCH for real (else dry-run diff)")
     a = ap.parse_args()
+
+    if a.list_campaigns:
+        list_campaigns(); return
+    if a.update_campaign:
+        update_campaign(a.update_campaign, apply=a.apply); return
+    if not a.csv:
+        ap.error("csv is required (or use --list-campaigns / --update-campaign ID)")
 
     rows = list(csv.DictReader(open(a.csv, newline="", encoding="utf-8-sig")))
     scored = sorted(((score(r), r) for r in rows), key=lambda x: x[0][0], reverse=True)
