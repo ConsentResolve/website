@@ -10,6 +10,7 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed, crmWebhookToken } from "../_lib/crm.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce } from "../_lib/crm-v2.js";
+import { waveFunnel } from "../_lib/instantly.js";
 
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 const BASE = "https://api.instantly.ai/api/v2";
@@ -41,6 +42,9 @@ function htmlToText(s) {
 export async function pollInstantly(env, { limit = 100 } = {}) {
   if (!env.INSTANTLY_API_KEY) return { error: "no_key" };
   await ensureCrmV2Schema(env);
+  // Self-heal: an earlier (abandoned) ingest path wrote messages with 'inst:'-prefixed ids.
+  // This canonical path uses the raw Instantly id, so purge any orphan duplicates.
+  try { await env.DB.prepare("DELETE FROM messages WHERE external_message_id LIKE 'inst:%'").run(); } catch (_) {}
   const res = await instantlyGet(env, "/emails?limit=" + limit);
   if (!res.ok) return { error: "list_failed", status: res.status, detail: String(res.body).slice(0, 160) };
   const list = listOf(res.body);
@@ -101,6 +105,17 @@ export async function onRequestOptions({ request, env }) {
 export async function onRequestGet({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
+  // Closed-loop wave funnel works on first-party data even without the key (key only adds
+  // the Instantly send stats), so handle it before the no-key guard.
+  if (new URL(request.url).searchParams.get("funnel") === "1") {
+    const u = new URL(request.url);
+    const funnel = await waveFunnel(env, {
+      campaignId: u.searchParams.get("campaign") || null,
+      utmCampaign: u.searchParams.get("utm") || null,
+      trade: u.searchParams.get("trade") || null,
+    });
+    return json({ configured: !!env.INSTANTLY_API_KEY, funnel }, {}, cors);
+  }
   if (!env.INSTANTLY_API_KEY) return json({ error: "no_key", message: "INSTANTLY_API_KEY not set in Cloudflare" }, { status: 400 }, cors);
   const url = new URL(request.url);
 

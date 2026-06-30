@@ -56,7 +56,6 @@ import * as crmDemoNotify from "./api/crm-demo-notify.js";
 import { sweepDemoNotifications } from "./_lib/demo-notify.js";
 import { autoEnrichSweep } from "./_lib/apollo.js";
 import { metaConfigured, syncMetaSpend } from "./_lib/meta.js";
-import { instantlyConfigured, ingestInstantlyReplies } from "./_lib/instantly.js";
 import * as crmMetaAds from "./api/crm-meta-ads.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
@@ -246,15 +245,6 @@ export default {
         }
       } catch (err) {
         console.log(`[meta-spend] error: ${String(err).slice(0, 160)}`);
-      }
-      // Instantly cold-email replies → unified inbox (stitched to contact by email).
-      try {
-        if (instantlyConfigured(env)) {
-          const ir = await ingestInstantlyReplies(env, { limit: 100 });
-          if (ir && ir.ingested) console.log(`[instantly] ingested ${ir.ingested} replies of ${ir.scanned}`);
-        }
-      } catch (err) {
-        console.log(`[instantly] error: ${String(err).slice(0, 160)}`);
       }
       return;
     }
