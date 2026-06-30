@@ -37,6 +37,7 @@ import * as crmCrisp from "./api/crm-crisp.js";
 import * as crmApollo from "./api/crm-apollo.js";
 import * as crmApolloSync from "./api/crm-apollo-sync.js";
 import * as crmSocialScores from "./api/crm-social-scores.js";
+import * as crmSocialPromote from "./api/crm-social-promote.js";
 import * as crmStatus from "./api/crm-status.js";
 import * as crmAuth from "./api/crm-auth.js";
 import * as crmMigrate from "./api/crm-migrate.js";
@@ -95,6 +96,7 @@ const ROUTES = {
   "/api/crm/apollo": crmApollo,
   "/api/crm/apollo/sync": crmApolloSync,
   "/api/crm/social/scores": crmSocialScores,
+  "/api/crm/social/promote": crmSocialPromote,
   "/api/crm/status": crmStatus,
   "/api/crm/migrate": crmMigrate,
   "/api/crm/inbox": crmInbox,
