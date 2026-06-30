@@ -34,7 +34,12 @@ export async function onRequestPost({ request, env }) {
   if (!contact.primary_email) return json({ error: "no_email" }, { status: 400 }, cors);
 
   const m = await apolloMatch(env, contact.primary_email);
-  if (!m.ok) return json({ error: "apollo_error", status: m.status, detail: String((m.raw && (m.raw.error || m.raw.message)) || "").slice(0, 160) }, { status: 200 }, cors);
+  if (!m.ok) {
+    const detail = m.status === 403
+      ? "Your Apollo plan doesn't include the People Enrichment (match) API. Enable API access / upgrade the plan in Apollo, or use a key that has it."
+      : (String((m.raw && (m.raw.error || m.raw.message)) || "").slice(0, 160) || ("Apollo error " + m.status));
+    return json({ error: "apollo_error", status: m.status, detail }, { status: 200 }, cors);
+  }
   if (!m.person) return json({ ok: true, matched: false, note: "No Apollo match for this email." }, {}, cors);
 
   const p = m.person;
