@@ -258,8 +258,9 @@ async function postGBP(env, p) {
   );
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const det = data.error?.details ? " :: " + JSON.stringify(data.error.details).slice(0, 400) : "";
-    return { ok: false, error: (data.error?.message || `gbp_http_${res.status}`) + det };
+    // Pack diagnostics into the error string (the trigger endpoint forwards `error`).
+    const diag = ` [status ${res.status}; path accounts/${acct}/locations/${loc}; media ${img ? "yes" : "no"}; raw ${JSON.stringify(data).slice(0, 280)}]`;
+    return { ok: false, error: (data.error?.message || `gbp_http_${res.status}`) + diag };
   }
   return { ok: true, post_id: data.name || null, post_url: data.searchUrl || null };
 }
