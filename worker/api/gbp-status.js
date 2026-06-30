@@ -4,19 +4,19 @@
 // GBP queue. postGBP needs GOOGLE_CLIENT_ID/SECRET, GOOGLE_REFRESH_TOKEN, GBP_ACCOUNT_ID,
 // GBP_LOCATION_ID — any missing one yields "missing_credentials".
 import { json } from "../_lib/http.js";
+import { googleAccessToken, getTokens } from "../_lib/publish.js";
 
+// Probe the SAME token path postGBP uses: googleAccessToken prefers the D1 token from the
+// in-CRM "Connect GBP" re-auth and only falls back to env.GOOGLE_REFRESH_TOKEN. So this now
+// reflects whether posting will actually work (not just the old static env secret).
 async function probeGoogle(env) {
-  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !env.GOOGLE_REFRESH_TOKEN) return "missing_credentials";
+  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) return "missing_credentials";
+  const t = await getTokens(env, "google");
+  const src = t && t.refresh_token ? "in-CRM re-auth (D1)" : env.GOOGLE_REFRESH_TOKEN ? "env secret" : null;
+  if (!src) return "not connected — use Connect GBP in the Status tab";
   try {
-    const res = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ grant_type: "refresh_token", client_id: env.GOOGLE_CLIENT_ID,
-        client_secret: env.GOOGLE_CLIENT_SECRET, refresh_token: env.GOOGLE_REFRESH_TOKEN }),
-    });
-    const d = await res.json().catch(() => ({}));
-    if (res.ok && d.access_token) return "live — token refresh ok";
-    return `FAILED (${res.status}): ${d.error || d.error_description || "no access_token"}`;
+    const tok = await googleAccessToken(env);
+    return tok ? `live — token ok (${src})` : "FAILED — token refresh returned nothing";
   } catch (e) { return "error: " + e; }
 }
 
