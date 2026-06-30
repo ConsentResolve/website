@@ -197,8 +197,35 @@ export async function onRequestGet({ request, env }) {
         };
       }
     } catch (_) {}
+    // Paid-ad attribution: flag valuable paid-sourced leads + an avg cost-per-lead
+    // (logged channel spend / leads from that channel). Detected from the stitched
+    // utm_source or a Meta Lead-Ad conversation.
+    let paid = null;
+    try {
+      const PAID = { facebook: "facebook", fb: "facebook", instagram: "facebook", ig: "facebook", meta: "facebook", google: "google", googleads: "google", adwords: "google", gads: "google", youtube: "google", bing: "bing", tiktok: "tiktok", linkedin: "linkedin" };
+      const src = intel && intel.source ? String(intel.source).toLowerCase() : "";
+      let platform = PAID[src] || null;
+      if (!platform && conv.channel === "meta_lead") platform = "facebook";
+      if (platform) {
+        const sp = await env.DB.prepare("SELECT COALESCE(SUM(amount_usd),0) AS amt FROM crm_spend WHERE lower(channel) LIKE ?").bind("%" + platform + "%").first();
+        const spend = sp ? Number(sp.amt) : 0;
+        let leads = 0;
+        try {
+          const lr = await env.DB.prepare("SELECT COUNT(DISTINCT vl.contact_id) AS n FROM visitor_links vl JOIN traffic t ON t.vid=vl.vid WHERE lower(t.utm_source) LIKE ?").bind("%" + platform + "%").first();
+          leads += lr ? Number(lr.n) : 0;
+          if (platform === "facebook") { const ml = await env.DB.prepare("SELECT COUNT(DISTINCT contact_id) AS n FROM conversations WHERE channel='meta_lead'").first(); leads += ml ? Number(ml.n) : 0; }
+        } catch (_) {}
+        paid = {
+          isPaid: true, platform,
+          source: (intel && intel.source) || (conv.channel === "meta_lead" ? "meta lead ad" : platform),
+          campaign: (intel && intel.campaign) || null,
+          spendUsd: spend, leads,
+          costPerLeadUsd: (spend > 0 && leads > 0) ? Math.round(spend / leads) : null,
+        };
+      }
+    } catch (_) {}
     await env.DB.prepare("UPDATE conversations SET unread=0 WHERE id=?").bind(id).run();
-    return json({ conversation: conv, messages: msgs, contact, company, users, notes, demo, intel }, {}, cors);
+    return json({ conversation: conv, messages: msgs, contact, company, users, notes, demo, intel, paid }, {}, cors);
   }
 
   const status = url.searchParams.get("status") || "open";
