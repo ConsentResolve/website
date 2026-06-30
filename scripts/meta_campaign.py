@@ -84,9 +84,71 @@ def video_thumb(vid, t):
     pref = next((x for x in thumbs if x.get("is_preferred")), thumbs[0] if thumbs else None)
     return pref.get("uri") if pref else None
 
+# ── Lead Ads (Instant Forms) ───────────────────────────────────────────────────
+# Native in-Facebook form (no landing page). objective OUTCOME_LEADS; on-submit the
+# meta_lead webhook (api/crm-meta.js) drops the lead into the CRM inbox + cost-per-lead.
+LEAD_FORM = {
+    "name": "Consent Resolve — Exclusive HVAC Leads",
+    "intro_headline": "Exclusive HVAC leads — $7 each, yours alone",
+    "intro_paragraph": "Recover the ~98% of homeowners who land on your site and leave without calling. "
+                       "Real name, email, and what they need — consent-first, never resold. "
+                       "Tell us where to send your 2-minute demo.",
+    "questions": ["FULL_NAME", "EMAIL", "PHONE", "COMPANY_NAME"],
+    "privacy_url": "https://consentresolve.com/privacy-policy/",
+    "ty_title": "You're in — check your email",
+    "ty_body": "We'll send your 2-minute demo shortly. Want it now?",
+    "ty_button": "See the demo",
+    "ty_url": "https://consentresolve.com/hvac-leads/?utm_source=meta_lead&utm_medium=paid_social&utm_campaign=hvac_2026",
+}
+
+def create_lead_form(t):
+    r = post(f"{page()}/leadgen_forms", {
+        "name": LEAD_FORM["name"], "locale": "EN_US",
+        "questions": json.dumps([{"type": q} for q in LEAD_FORM["questions"]]),
+        "privacy_policy": json.dumps({"url": LEAD_FORM["privacy_url"], "link_text": "Privacy Policy"}),
+        "context_card": json.dumps({"title": LEAD_FORM["intro_headline"], "style": "PARAGRAPH_STYLE",
+                                    "content": [LEAD_FORM["intro_paragraph"]], "button_text": "Get my demo"}),
+        "thank_you_page": json.dumps({"title": LEAD_FORM["ty_title"], "body": LEAD_FORM["ty_body"],
+                                      "button_type": "VIEW_WEBSITE", "button_text": LEAD_FORM["ty_button"],
+                                      "website_url": LEAD_FORM["ty_url"]}),
+        "follow_up_action_url": LEAD_FORM["ty_url"], "access_token": t})
+    return r["id"]
+
+def lead_ads(a, t):
+    form_id = a.form_id or create_lead_form(t)
+    print("lead form", form_id)
+    cid = a.campaign_id
+    if cid: print("reusing campaign", cid)
+    else:
+        camp = post(f"{acct()}/campaigns", {"name": f"Lead Ads · {a.name}", "objective": "OUTCOME_LEADS",
+            "status": "PAUSED", "special_ad_categories": json.dumps([]), "access_token": t})
+        cid = camp["id"]; print("campaign", cid)
+    tgt = {"geo_locations": {"countries": ["US"]}, "targeting_automation": {"advantage_audience": 0}}
+    if a.audience_id: tgt["custom_audiences"] = [{"id": a.audience_id}]
+    aset_id = a.adset_id
+    if aset_id: print("reusing ad set", aset_id)
+    else:
+        aset = post(f"{acct()}/adsets", {"name": f"{a.name} · leads", "campaign_id": cid,
+            "daily_budget": int(a.budget * 100), "billing_event": "IMPRESSIONS", "optimization_goal": "LEAD_GENERATION",
+            "bid_strategy": "LOWEST_COST_WITHOUT_CAP", "destination_type": "ON_AD",
+            "promoted_object": json.dumps({"page_id": page()}), "targeting": json.dumps(tgt),
+            "status": "PAUSED", "access_token": t})
+        aset_id = aset["id"]; print("ad set", aset_id)
+    for im in a.images:
+        h = upload_image(im, t)
+        spec = {"page_id": page(), "link_data": {"image_hash": h, "link": LEAD_FORM["ty_url"],
+                "message": PRIMARY, "name": HEADLINE,
+                "call_to_action": {"type": "SIGN_UP", "value": {"lead_gen_form_id": form_id}}}}
+        cr = post(f"{acct()}/adcreatives", {"name": Path(im).stem + "-lead",
+            "object_story_spec": json.dumps(spec), "access_token": t})
+        ad = post(f"{acct()}/ads", {"name": Path(im).stem + "-lead", "adset_id": aset_id,
+            "creative": json.dumps({"creative_id": cr["id"]}), "status": "PAUSED", "access_token": t})
+        print("  lead ad", ad["id"], "<-", Path(im).name)
+    print(f"DONE — lead form + {len(a.images)} lead ads created PAUSED. Review in Ads Manager, then activate.")
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--audience-id", required=True)
+    ap.add_argument("--audience-id", help="custom audience to target (optional for --lead-form)")
     ap.add_argument("--name", required=True)
     ap.add_argument("--budget", type=float, default=20.0, help="daily budget USD")
     ap.add_argument("--images", nargs="*", default=[], help="static image ad creatives")
@@ -94,8 +156,19 @@ def main():
     ap.add_argument("--carousel", nargs="*", default=[], help="image paths for ONE multi-card carousel ad")
     ap.add_argument("--campaign-id", help="reuse an existing campaign instead of creating a new one")
     ap.add_argument("--adset-id", help="reuse an existing ad set instead of creating a new one")
+    ap.add_argument("--lead-form", action="store_true", help="build a Lead Ads (Instant Form) campaign instead of a traffic campaign")
+    ap.add_argument("--form-id", help="reuse an existing leadgen form id")
     ap.add_argument("--push", action="store_true")
     a = ap.parse_args()
+    if a.lead_form:
+        print(f"Lead Ads · {a.name} · ${a.budget}/day · {len(a.images)} lead ads" + (f" · audience {a.audience_id}" if a.audience_id else " · broad/US"))
+        for im in a.images: print("   -", im)
+        if not a.push:
+            print("\nDRY RUN. Re-run with --push (+ META_ACCESS_TOKEN/AD_ACCOUNT_ID/PAGE_ID) to create the lead form + ads PAUSED.")
+            return
+        lead_ads(a, tok()); return
+    if not a.audience_id:
+        sys.exit("--audience-id is required for a retarget campaign (or use --lead-form for Lead Ads).")
     print(f"Campaign 'Retarget · {a.name}' · audience {a.audience_id} · ${a.budget}/day · {len(a.images)} image ads:")
     for im in a.images: print("   -", im)
     if not a.push:
