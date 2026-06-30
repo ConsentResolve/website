@@ -60,6 +60,15 @@ export async function googleAdsStatus(env) {
       if (!res.ok) { out.error = (d.error && d.error.message) || ("http " + res.status); return out; }
       out.connected = true;
       out.customers = (d.resourceNames || []).map((r) => String(r).split("/").pop());
+      // listAccessibleCustomers works even on a Test-access token, so probe a real data read
+      // to distinguish "approved (Basic)" from "still Test access — awaiting Google approval".
+      if (out.customers.length) {
+        const probe = await listConversionActions(env, out.customers[0]);
+        if (probe.ok) out.dataAccess = "ok";
+        else if (/DEVELOPER_TOKEN_NOT_APPROVED|test account/i.test((probe.detail || "") + (probe.error || ""))) {
+          out.dataAccess = "pending"; out.accessNote = "Awaiting Google Basic-access approval (developer token is Test-only).";
+        } else { out.dataAccess = "error"; out.accessNote = probe.error; }
+      }
       return out;
     } catch (e) { lastErr = String(e).slice(0, 120); }
   }
