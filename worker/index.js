@@ -55,6 +55,8 @@ import * as crmMerge from "./api/crm-merge.js";
 import * as crmDemoNotify from "./api/crm-demo-notify.js";
 import { sweepDemoNotifications } from "./_lib/demo-notify.js";
 import { autoEnrichSweep } from "./_lib/apollo.js";
+import { metaConfigured, syncMetaSpend } from "./_lib/meta.js";
+import * as crmMetaAds from "./api/crm-meta-ads.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -102,6 +104,7 @@ const ROUTES = {
   "/api/crm/enrich": crmEnrich,
   "/api/crm/analytics2": crmAnalytics2,
   "/api/crm/meta": crmMeta,
+  "/api/crm/meta/spend": crmMetaAds,
   "/api/crm/presence": crmPresence,
   "/api/crm/contact": crmContact,
   "/api/crm/merge": crmMerge,
@@ -232,6 +235,16 @@ export default {
         }
       } catch (err) {
         console.log(`[apollo-auto] error: ${String(err).slice(0, 160)}`);
+      }
+      // Meta ad-spend sync (~4×/day): pull live spend into crm_spend so cost-per-lead +
+      // ROAS reflect real numbers. Idempotent per calendar month.
+      try {
+        if (metaConfigured(env) && [3, 9, 15, 21].includes(new Date().getUTCHours()) && new Date().getUTCMinutes() < 5) {
+          const ms = await syncMetaSpend(env);
+          if (ms && ms.ok) console.log(`[meta-spend] synced ${ms.synced} campaigns, $${ms.total} (${ms.period})`);
+        }
+      } catch (err) {
+        console.log(`[meta-spend] error: ${String(err).slice(0, 160)}`);
       }
       return;
     }
