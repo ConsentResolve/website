@@ -10,7 +10,7 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed, crmWebhookToken } from "../_lib/crm.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce } from "../_lib/crm-v2.js";
-import { waveFunnel } from "../_lib/instantly.js";
+import { waveFunnel, accountHealth } from "../_lib/instantly.js";
 
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 const BASE = "https://api.instantly.ai/api/v2";
@@ -115,6 +115,9 @@ export async function onRequestGet({ request, env }) {
       trade: u.searchParams.get("trade") || null,
     });
     return json({ configured: !!env.INSTANTLY_API_KEY, funnel }, {}, cors);
+  }
+  if (new URL(request.url).searchParams.get("health") === "1") {
+    return json(await accountHealth(env), {}, cors);
   }
   if (!env.INSTANTLY_API_KEY) return json({ error: "no_key", message: "INSTANTLY_API_KEY not set in Cloudflare" }, { status: 400 }, cors);
   const url = new URL(request.url);

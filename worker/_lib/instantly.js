@@ -26,6 +26,32 @@ async function instPost(env, path, body) {
   return { ok: res.ok, status: res.status, body: j };
 }
 
+// #5 — deliverability health per sending inbox. Surfaces Instantly's warmup score, setup
+// state, and daily cap so an unhealthy mailbox is caught before it tanks a wave.
+export async function accountHealth(env) {
+  if (!instantlyConfigured(env)) return { configured: false, accounts: [], healthy: 0, total: 0, dailyCapacity: 0 };
+  const r = await instGet(env, "/accounts?limit=100");
+  const items = (r.body && r.body.items) || [];
+  const accounts = items.map((a) => {
+    const w = a.warmup || {};
+    const score = a.stat_warmup_score == null ? null : Number(a.stat_warmup_score);
+    let health = "ok";
+    if (a.setup_pending) health = "error";
+    else if (a.warmup_status !== 1 || (score != null && score < 90)) health = "warn";
+    return {
+      email: a.email, score, dailyLimit: Number(a.daily_limit || 0),
+      warmupReplyRate: Number(w.reply_rate || 0), setupPending: !!a.setup_pending,
+      warmupActive: a.warmup_status === 1, health,
+    };
+  });
+  return {
+    configured: true, accounts,
+    healthy: accounts.filter((a) => a.health === "ok").length,
+    total: accounts.length,
+    dailyCapacity: accounts.reduce((s, a) => s + a.dailyLimit, 0),
+  };
+}
+
 // #3 — lead-status + engagement sync. Cache each campaign lead's status/opens/replies/clicks
 // keyed by email so the intel pane can show cold-email engagement per contact, and ensure a
 // contact exists for any lead that has replied (pipeline entry). Paginated, idempotent upsert.
