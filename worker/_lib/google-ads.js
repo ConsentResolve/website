@@ -33,7 +33,7 @@ export async function gadsAccessToken(env) {
 
 function adsHeaders(env, token) {
   const h = { Authorization: "Bearer " + token, "developer-token": env.GOOGLE_ADS_DEVELOPER_TOKEN, "Content-Type": "application/json" };
-  if (env.GOOGLE_ADS_LOGIN_CUSTOMER_ID) h["login-customer-id"] = String(env.GOOGLE_ADS_LOGIN_CUSTOMER_ID).replace(/-/g, "");
+  if (env.GOOGLE_ADS_LOGIN_CUSTOMER_ID) h["login-customer-id"] = String(env.GOOGLE_ADS_LOGIN_CUSTOMER_ID).replace(/[^0-9]/g, "");
   return h;
 }
 
@@ -67,7 +67,7 @@ export async function googleAdsStatus(env) {
 // Read conversion actions (GAQL) for a customer — used to auto-resolve the on-site conversion
 // label. Returns [{ name, id, tagSnippetLabel? }]. Requires GOOGLE_ADS_CUSTOMER_ID.
 export async function listConversionActions(env, customerId) {
-  const cid = String(customerId || env.GOOGLE_ADS_CUSTOMER_ID || "").replace(/-/g, "");
+  const cid = String(customerId || env.GOOGLE_ADS_CUSTOMER_ID || "").replace(/[^0-9]/g, "");
   if (!cid) return { ok: false, error: "no_customer_id" };
   const token = await gadsAccessToken(env);
   if (!token) return { ok: false, error: "no_token" };
