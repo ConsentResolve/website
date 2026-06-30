@@ -39,6 +39,7 @@ import * as crmApolloSync from "./api/crm-apollo-sync.js";
 import * as crmSocialScores from "./api/crm-social-scores.js";
 import * as crmSocialPromote from "./api/crm-social-promote.js";
 import * as crmGbpAuth from "./api/crm-gbp-auth.js";
+import * as crmGadsAuth from "./api/crm-gads-auth.js";
 import * as crmStatus from "./api/crm-status.js";
 import * as crmAuth from "./api/crm-auth.js";
 import * as crmMigrate from "./api/crm-migrate.js";
@@ -102,6 +103,9 @@ const ROUTES = {
   "/api/crm/gbp/callback": crmGbpAuth,
   "/api/crm/gbp/status": crmGbpAuth,
   "/api/crm/gbp/locations": crmGbpAuth,
+  "/api/crm/gads/auth": crmGadsAuth,
+  "/api/crm/gads/callback": crmGadsAuth,
+  "/api/crm/gads/status": crmGadsAuth,
   "/api/crm/status": crmStatus,
   "/api/crm/migrate": crmMigrate,
   "/api/crm/inbox": crmInbox,

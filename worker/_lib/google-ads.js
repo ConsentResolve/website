@@ -1,0 +1,71 @@
+// Google Ads API — connection + read helpers for the internal CRM (our own single account).
+// OAuth (adwords scope) refresh token lives in D1 "google_ads" (set by the in-CRM Connect flow);
+// developer token + login-customer-id are Cloudflare secrets. Inert until configured.
+//   secrets: GOOGLE_ADS_DEVELOPER_TOKEN, GOOGLE_ADS_LOGIN_CUSTOMER_ID, GOOGLE_CLIENT_ID/SECRET
+import { getTokens, saveTokens } from "./publish.js";
+
+const VER = "v18";
+const BASE = "https://googleads.googleapis.com/" + VER;
+
+export function googleAdsConfigured(env) {
+  return !!(env.GOOGLE_ADS_DEVELOPER_TOKEN && env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
+}
+
+// Access token from the adwords-scope refresh token (D1, set by Connect Google Ads).
+export async function gadsAccessToken(env) {
+  const t = await getTokens(env, "google_ads");
+  const refresh = (t && t.refresh_token) || env.GOOGLE_ADS_REFRESH_TOKEN;
+  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !refresh) return null;
+  if (t && t.access_token && t.expires_at && new Date(t.expires_at) > new Date(Date.now() + 60000)) return t.access_token;
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ grant_type: "refresh_token", client_id: env.GOOGLE_CLIENT_ID, client_secret: env.GOOGLE_CLIENT_SECRET, refresh_token: refresh }),
+  });
+  const d = await res.json().catch(() => ({}));
+  if (!res.ok || !d.access_token) return null;
+  await saveTokens(env, "google_ads", { access_token: d.access_token, refresh_token: refresh, expires_at: new Date(Date.now() + (d.expires_in || 3600) * 1000).toISOString() });
+  return d.access_token;
+}
+
+function adsHeaders(env, token) {
+  const h = { Authorization: "Bearer " + token, "developer-token": env.GOOGLE_ADS_DEVELOPER_TOKEN, "Content-Type": "application/json" };
+  if (env.GOOGLE_ADS_LOGIN_CUSTOMER_ID) h["login-customer-id"] = String(env.GOOGLE_ADS_LOGIN_CUSTOMER_ID).replace(/-/g, "");
+  return h;
+}
+
+// Connection probe: lists the accounts the token can access (no customer-id needed). This
+// surfaces whether the dev token + OAuth + (Basic) access are all live.
+export async function googleAdsStatus(env) {
+  if (!googleAdsConfigured(env)) return { configured: false };
+  const t = await getTokens(env, "google_ads");
+  const hasToken = !!(t && t.refresh_token) || !!env.GOOGLE_ADS_REFRESH_TOKEN;
+  const out = { configured: true, hasToken, connected: false, loginCustomerId: env.GOOGLE_ADS_LOGIN_CUSTOMER_ID || null, customers: [] };
+  if (!hasToken) { out.note = "Not connected — click Connect Google Ads."; return out; }
+  const token = await gadsAccessToken(env);
+  if (!token) { out.error = "token refresh failed — reconnect"; return out; }
+  try {
+    const res = await fetch(BASE + "/customers:listAccessibleCustomers", { headers: adsHeaders(env, token) });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) { out.error = (d.error && d.error.message) || ("http " + res.status); return out; }
+    out.connected = true;
+    out.customers = (d.resourceNames || []).map((r) => String(r).split("/").pop());
+    return out;
+  } catch (e) { out.error = String(e).slice(0, 120); return out; }
+}
+
+// Read conversion actions (GAQL) for a customer — used to auto-resolve the on-site conversion
+// label. Returns [{ name, id, tagSnippetLabel? }]. Requires GOOGLE_ADS_CUSTOMER_ID.
+export async function listConversionActions(env, customerId) {
+  const cid = String(customerId || env.GOOGLE_ADS_CUSTOMER_ID || "").replace(/-/g, "");
+  if (!cid) return { ok: false, error: "no_customer_id" };
+  const token = await gadsAccessToken(env);
+  if (!token) return { ok: false, error: "no_token" };
+  const query = "SELECT conversion_action.id, conversion_action.name, conversion_action.type, conversion_action.status FROM conversion_action";
+  const res = await fetch(BASE + "/customers/" + cid + "/googleAds:search", {
+    method: "POST", headers: adsHeaders(env, token), body: JSON.stringify({ query }),
+  });
+  const d = await res.json().catch(() => ({}));
+  if (!res.ok) return { ok: false, error: (d.error && d.error.message) || ("http " + res.status) };
+  const rows = (d.results || []).map((r) => ({ id: r.conversionAction?.id, name: r.conversionAction?.name, type: r.conversionAction?.type, status: r.conversionAction?.status }));
+  return { ok: true, conversionActions: rows };
+}
