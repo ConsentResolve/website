@@ -224,8 +224,16 @@ export async function onRequestGet({ request, env }) {
         };
       }
     } catch (_) {}
+    // Cold-email engagement (Instantly lead sync, #3) by the contact's email.
+    let coldEmail = null;
+    try {
+      if (contact && contact.primary_email) {
+        const cl = await env.DB.prepare("SELECT * FROM instantly_leads WHERE email=?").bind(String(contact.primary_email).toLowerCase()).first();
+        if (cl) coldEmail = { status: cl.status, opens: cl.opens, replies: cl.replies, clicks: cl.clicks, campaign: cl.campaign };
+      }
+    } catch (_) {}
     await env.DB.prepare("UPDATE conversations SET unread=0 WHERE id=?").bind(id).run();
-    return json({ conversation: conv, messages: msgs, contact, company, users, notes, demo, intel, paid }, {}, cors);
+    return json({ conversation: conv, messages: msgs, contact, company, users, notes, demo, intel, paid, coldEmail }, {}, cors);
   }
 
   const status = url.searchParams.get("status") || "open";

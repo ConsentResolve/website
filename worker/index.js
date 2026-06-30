@@ -56,6 +56,7 @@ import * as crmDemoNotify from "./api/crm-demo-notify.js";
 import { sweepDemoNotifications } from "./_lib/demo-notify.js";
 import { autoEnrichSweep } from "./_lib/apollo.js";
 import { metaConfigured, syncMetaSpend } from "./_lib/meta.js";
+import { instantlyConfigured, syncInstantlyLeads } from "./_lib/instantly.js";
 import * as crmMetaAds from "./api/crm-meta-ads.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
@@ -245,6 +246,15 @@ export default {
         }
       } catch (err) {
         console.log(`[meta-spend] error: ${String(err).slice(0, 160)}`);
+      }
+      // Instantly lead-status + engagement sync (~2×/day) for the active HVAC wave.
+      try {
+        if (instantlyConfigured(env) && [6, 18].includes(new Date().getUTCHours()) && new Date().getUTCMinutes() < 5) {
+          const ils = await syncInstantlyLeads(env, { campaignId: "db0041db-080e-4d33-9816-4e66ddd9239c" });
+          if (ils && ils.synced) console.log(`[instantly-leads] synced ${ils.synced}, ${ils.repliers} repliers`);
+        }
+      } catch (err) {
+        console.log(`[instantly-leads] error: ${String(err).slice(0, 160)}`);
       }
       return;
     }
