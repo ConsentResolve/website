@@ -1,7 +1,7 @@
 // GET  /api/crm/spend -> { spend:[...] }
 // POST /api/crm/spend { industry, channel, amount_usd, period?, note? } -> { ok }
 import { json, corsHeaders } from "../_lib/http.js";
-import { crmAuthed, listSpend, addSpend } from "../_lib/crm.js";
+import { crmAuthed, listSpend, addSpend, deleteSpend } from "../_lib/crm.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -16,6 +16,8 @@ export async function onRequestPost({ request, env }) {
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
   let b = {};
   try { b = await request.json(); } catch { return json({ error: "bad_json" }, { status: 400 }, cors); }
+  // Router only dispatches GET/POST, so delete rides on POST: { delete:true, id }.
+  if (b.delete && b.id) { await deleteSpend(env, b.id); return json({ ok: true, deleted: b.id }, {}, cors); }
   if (!b.amount_usd) return json({ error: "amount_required" }, { status: 400 }, cors);
   await addSpend(env, b);
   return json({ ok: true }, {}, cors);

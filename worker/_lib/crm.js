@@ -155,6 +155,10 @@ export async function addSpend(env, s) {
   await env.DB.prepare("INSERT INTO crm_spend (id, industry, channel, amount_usd, period, note, created_at) VALUES (?,?,?,?,?,?,?)")
     .bind(uuid(), s.industry || null, s.channel || "other", Number(s.amount_usd) || 0, s.period || null, s.note || null, nowIso()).run();
 }
+export async function deleteSpend(env, id) {
+  await ensureSpend(env);
+  await env.DB.prepare("DELETE FROM crm_spend WHERE id=?").bind(id).run();
+}
 
 // ── Per-industry funnel + ROAS ──────────────────────────────────────────────
 export async function computeAnalytics(env) {
