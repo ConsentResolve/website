@@ -31,9 +31,12 @@ export async function gadsAccessToken(env) {
   return d.access_token;
 }
 
-function adsHeaders(env, token) {
+function adsHeaders(env, token, loginCid) {
   const h = { Authorization: "Bearer " + token, "developer-token": env.GOOGLE_ADS_DEVELOPER_TOKEN, "Content-Type": "application/json" };
-  if (env.GOOGLE_ADS_LOGIN_CUSTOMER_ID) h["login-customer-id"] = String(env.GOOGLE_ADS_LOGIN_CUSTOMER_ID).replace(/[^0-9]/g, "");
+  // login-customer-id = the MANAGER when accessing a managed client, else the account itself
+  // (directly-owned accounts). Callers querying a specific customer pass that customer id.
+  const lc = loginCid || env.GOOGLE_ADS_LOGIN_CUSTOMER_ID;
+  if (lc) h["login-customer-id"] = String(lc).replace(/[^0-9]/g, "");
   return h;
 }
 
@@ -75,7 +78,7 @@ export async function listConversionActions(env, customerId) {
   let lastErr = "all API versions 404";
   for (const ver of apiVersions(env)) {
     const res = await fetch(gurl(ver, "/customers/" + cid + "/googleAds:search"), {
-      method: "POST", headers: adsHeaders(env, token), body: JSON.stringify({ query }),
+      method: "POST", headers: adsHeaders(env, token, cid), body: JSON.stringify({ query }),
     });
     if (res.status === 404) { lastErr = `version ${ver}: 404`; continue; }
     const d = await res.json().catch(() => ({}));
