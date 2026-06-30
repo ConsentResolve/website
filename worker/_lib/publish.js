@@ -245,23 +245,25 @@ async function postGBP(env, p) {
   if (!token) return { ok: false, error: "google_token_refresh_failed" };
   const summary = composeText(p, "google_business_profile").slice(0, 1500);
   const img = abs(p.image_url);
-  const post = {
+  const endpoint = `https://mybusiness.googleapis.com/v4/accounts/${acct}/locations/${loc}/localPosts`;
+  const base = {
     topicType: "STANDARD", // required by the localPosts API for a "What's new" post
     languageCode: "en-US",
     summary,
     ...(p.utm_url ? { callToAction: { actionType: "LEARN_MORE", url: p.utm_url } } : {}),
-    ...(img ? { media: [{ mediaFormat: "PHOTO", sourceUrl: img }] } : {}),
   };
-  const res = await fetch(
-    `https://mybusiness.googleapis.com/v4/accounts/${acct}/locations/${loc}/localPosts`,
-    { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(post) }
-  );
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    // Pack diagnostics into the error string (the trigger endpoint forwards `error`).
-    const diag = ` [status ${res.status}; path accounts/${acct}/locations/${loc}; media ${img ? "yes" : "no"}; raw ${JSON.stringify(data).slice(0, 280)}]`;
-    return { ok: false, error: (data.error?.message || `gbp_http_${res.status}`) + diag };
+  const send = async (body) => {
+    const r = await fetch(endpoint, { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const d = await r.json().catch(() => ({}));
+    return { r, d };
+  };
+  let { r: res, d: data } = await send(img ? { ...base, media: [{ mediaFormat: "PHOTO", sourceUrl: img }] } : base);
+  // If Google can't fetch the post image (some featured images 404), retry text-only so the
+  // post still publishes — the CTA button is what drives clicks anyway.
+  if (!res.ok && img && /fetching image|"code":\s*1000/i.test(JSON.stringify(data))) {
+    ({ r: res, d: data } = await send(base));
   }
+  if (!res.ok) return { ok: false, error: (data.error?.message || `gbp_http_${res.status}`) + (data.error?.details ? " :: " + JSON.stringify(data.error.details).slice(0, 200) : "") };
   return { ok: true, post_id: data.name || null, post_url: data.searchUrl || null };
 }
 
