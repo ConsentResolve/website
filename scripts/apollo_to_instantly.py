@@ -256,7 +256,8 @@ def update_campaign(cid, apply=False, src=None):
         print("Campaign STATUS is left unchanged (a paused campaign stays paused — you launch it).")
         return
     api("PATCH", f"/campaigns/{cid}", {"sequences": new_seq})
-    print(f"\n✅ Applied WAVE sequence to {cid}. Status unchanged — review + launch in Instantly when ready.")
+    origin = f"copied from {src}" if src else "from WAVE config"
+    print(f"\n✅ Applied sequence ({origin}) to {cid}. Status unchanged — review + launch in Instantly when ready.")
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
