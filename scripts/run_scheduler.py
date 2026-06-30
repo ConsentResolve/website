@@ -12,7 +12,7 @@ Usage:
   python3 scripts/run_scheduler.py --date 2026-06-15
   python3 scripts/run_scheduler.py --dry-run       # show plan, post nothing
 """
-import sys, json, subprocess, datetime, urllib.request, os
+import sys, json, subprocess, datetime, urllib.request, urllib.parse, os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -88,6 +88,53 @@ def run(cmd, dry, attempts=2):
         if i + 1 < attempts: _t.sleep(8)
     return False, out
 
+CR_BASE = "https://consentresolve.com"
+def _reel_url(name):
+    """Resolve a winning reel name to its public R2 video URL across known buckets (HEAD)."""
+    for sub in ("social/sprint", "social/shoptalk", "social/exp", "social"):
+        u = f"{PUB}/{sub}/{name}.mp4"
+        try:
+            if urllib.request.urlopen(urllib.request.Request(u, method="HEAD"), timeout=12).status == 200:
+                return u
+        except Exception:
+            continue
+    return None
+
+def inject_organic_boosts(items, slot):
+    """Score->promote loop (organic). Append CRM-flagged winners to this run. Gated on
+    FEEDBACK_KEY (a GH secret) — a pure no-op until that's set, so the daily flow is unchanged.
+    Returns the list of queue ids boosted (to mark after posting). 1 per slotted run."""
+    fk = os.environ.get("FEEDBACK_KEY", "").strip()
+    if not fk or slot == "all":
+        return []
+    boosted = []
+    try:
+        u = f"{CR_BASE}/api/crm/social/promote?mode=organic&status=queued&key=" + urllib.parse.quote(fk)
+        q = json.loads(urllib.request.urlopen(u, timeout=20).read()).get("queue", [])
+        for it in q[:1]:
+            vu = _reel_url(it["name"])
+            if not vu:
+                log(f"  boost {it['name']}: no R2 video — leaving queued"); continue
+            items.append({"name": it["name"], "url": vu, "platforms": ["ig", "fb", "yt", "tk"],
+                          "kind": "nonugc", "slot": slot,
+                          "caption": "Worth a fresh look \U0001F447 turn your own site traffic into consent-first leads. https://consentresolve.com/demo?utm_source=organic&utm_medium=social&utm_campaign=reboost",
+                          "yt_title": it["name"].replace("-", " ").title()})
+            boosted.append(it["id"]); log(f"  organic re-boost: {it['name']}")
+    except Exception as e:
+        log(f"  organic boost fetch failed: {e}")
+    return boosted
+
+def mark_boosts(ids):
+    fk = os.environ.get("FEEDBACK_KEY", "").strip()
+    for bid in ids:
+        try:
+            u = f"{CR_BASE}/api/crm/social/promote?key=" + urllib.parse.quote(fk)
+            r = urllib.request.Request(u, data=json.dumps({"mark": True, "id": bid, "status": "boosted"}).encode(),
+                                       method="POST", headers={"Content-Type": "application/json"})
+            urllib.request.urlopen(r, timeout=20)
+        except Exception:
+            pass
+
 def main():
     dry = "--dry-run" in sys.argv
     date = datetime.date.today().isoformat()
@@ -97,6 +144,7 @@ def main():
     items = SCHED.get(date, [])
     if slot != "all":  # staggered cron: only this time-of-day's items (am/mid/pm)
         items = [it for it in items if it.get("slot", "mid") == slot]
+    boost_ids = inject_organic_boosts(items, slot)  # no-op unless FEEDBACK_KEY is set
     if not items:
         log(f"{date}: nothing scheduled" + (f" for slot '{slot}'." if slot != "all" else ".")); return
     PY = "/usr/bin/python3" if Path("/usr/bin/python3").exists() else "python3"
@@ -189,6 +237,8 @@ def main():
                                 "platform": "ig", "ptype": "story", "status": "ok" if ok else "fail", "pid": "", "url": ""})
     if not dry:
         post_log.append(results)
+        if boost_ids:
+            mark_boosts(boost_ids)  # flip re-boosted winners to 'boosted' so they don't repeat
     log(f"done. ({len(results)} result(s) logged)")
 
 if __name__ == "__main__":
