@@ -82,7 +82,7 @@ export async function listConversionActions(env, customerId) {
     });
     if (res.status === 404) { lastErr = `version ${ver}: 404`; continue; }
     const d = await res.json().catch(() => ({}));
-    if (!res.ok) return { ok: false, error: (d.error && d.error.message) || ("http " + res.status) };
+    if (!res.ok) return { ok: false, error: (d.error && d.error.message) || ("http " + res.status), status: d.error && d.error.status, detail: JSON.stringify((d.error && d.error.details) || d.error || {}).slice(0, 400) };
     const rows = (d.results || []).map((r) => {
       const ca = r.conversionAction || {};
       let label = null;
