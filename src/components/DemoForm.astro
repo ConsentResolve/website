@@ -168,7 +168,19 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
           } catch {}
           // Ad-platform conversion events (fire before navigating away). No-op if
           // the pixel didn't load (ID unset). This is what the ad campaigns optimize to.
-          try { (window as any).fbq?.("track", "Lead"); } catch {}
+          try {
+            const _fbq = (window as any).fbq;
+            if (_fbq) {
+              // Pixel is loaded → the visitor consented to the Facebook Pixel service. Fire the
+              // browser Lead event with an event_id, then mirror it server-side via CAPI with the
+              // SAME id (deduped). CAPI runs ONLY here, inside the consent gate — it never sends a
+              // conversion for a non-consented visitor (keeps us consent-first).
+              const _eid = (self.crypto && (crypto as any).randomUUID) ? (crypto as any).randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2);
+              _fbq("track", "Lead", {}, { eventID: _eid });
+              const _ck = (k: string) => { const m = document.cookie.match(new RegExp("(?:^|; )" + k + "=([^;]*)")); return m ? decodeURIComponent(m[1]) : undefined; };
+              fetch("/api/meta-capi", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ event_id: _eid, email: String(payload.email || ""), event_source_url: location.href, fbp: _ck("_fbp"), fbc: _ck("_fbc") }) }).catch(() => {});
+            }
+          } catch {}
           try { (window as any).ttq?.track?.("CompleteRegistration"); } catch {}
           // GA4 lead event (works with the existing G-6JTD5SZNFY config).
           try { (window as any).gtag?.("event", "generate_lead", { method: "demo_form" }); } catch {}
