@@ -39,7 +39,19 @@ export async function onRequestGet({ request, env }) {
   const path = url.pathname;
 
   if (path === "/api/crm/auth/me") {
-    return json({ email: await crmSessionEmail(request, env) }, { headers: { "Cache-Control": "no-store" } });
+    const email = await crmSessionEmail(request, env);
+    // Apollo has no credit-balance API, so we surface our own spend: enrichments run via
+    // the CRM this calendar month (~1 credit each). The header links to Apollo for the
+    // true remaining balance.
+    let apolloUsed = null;
+    if (email && env.DB) {
+      try {
+        const mo = new Date().toISOString().slice(0, 7) + "-01";
+        const r = await env.DB.prepare("SELECT COUNT(*) AS n FROM activities WHERE action='enriched' AND created_at >= ?").bind(mo).first();
+        apolloUsed = r ? Number(r.n) : 0;
+      } catch (_) {}
+    }
+    return json({ email, apolloUsed }, { headers: { "Cache-Control": "no-store" } });
   }
 
   if (path === "/api/crm/auth/logout") {

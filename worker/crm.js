@@ -402,7 +402,7 @@ else if(SEC==="social")ensureSocial();
 else if(SEC==="status")ensureStatus();
 else if(SEC==="settings")ensureSettings();
 else load();
-fetch("/api/crm/auth/me",{credentials:"same-origin"}).then(function(r){return r.json();}).then(function(d){var u=document.getElementById("userBox");if(u&&d&&d.email)u.innerHTML=esc(d.email)+' · <a href="/api/crm/auth/logout" style="color:#7ff0cd;text-decoration:none">sign out</a>';}).catch(function(){});
+fetch("/api/crm/auth/me",{credentials:"same-origin"}).then(function(r){return r.json();}).then(function(d){var u=document.getElementById("userBox");if(!u||!d||!d.email)return;var ap=(d.apolloUsed!=null)?(' · <a href="https://app.apollo.io/#/settings/credits/current" target="_blank" rel="noopener" title="Apollo enrichments run via the CRM this month (~1 credit each). Apollo has no balance API — click for your remaining balance." style="color:#7ff0cd;text-decoration:none">Apollo: '+d.apolloUsed+' this mo. ↗</a>'):"";u.innerHTML=esc(d.email)+ap+' · <a href="/api/crm/auth/logout" style="color:#7ff0cd;text-decoration:none">sign out</a>';}).catch(function(){});
 setInterval(presenceBeat,20000);presenceBeat();
 </script></body></html>`;
 
