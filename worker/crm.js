@@ -76,13 +76,13 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 <header><div class="logo">✓</div><div style="font-weight:600">Consent Resolve <span class="muted">CRM</span></div><div class="muted tiny" style="margin-left:auto" id="count"></div><div class="muted tiny" id="userBox" style="margin-left:14px"></div></header>
 <nav>
 <a data-v="inbox" href="/crm/inbox">Inbox</a>
-<a data-v="live" href="/crm/live">What's Live</a>
 <a data-v="pipeline" href="/crm/pipeline">Pipeline</a>
 <a data-v="analytics" href="/crm/analytics">Analytics</a>
 <a data-v="roas" href="/crm/roas">Spend</a>
 <a data-v="social" href="/crm/social">Social</a>
 <a data-v="status" href="/crm/status">Status</a>
 <a data-v="settings" href="/crm/settings">Settings</a>
+<a data-v="live" href="/crm/live">What's Live</a>
 </nav>
 <section data-pane="inbox" hidden class="ibapp">
   <div class="ibcol iblist">
