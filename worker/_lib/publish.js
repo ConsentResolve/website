@@ -214,7 +214,7 @@ async function postX(env, p) {
 }
 
 // ── Google Business Profile (localPosts; stable refresh token) ───────────────
-async function googleAccessToken(env) {
+export async function googleAccessToken(env) {
   const clientId = env.GOOGLE_CLIENT_ID, clientSecret = env.GOOGLE_CLIENT_SECRET;
   const cached = await getTokens(env, "google");
   // Prefer the refresh token from the in-CRM "Connect GBP" re-auth (D1); fall back to the

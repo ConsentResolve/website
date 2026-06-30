@@ -8,7 +8,7 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed, crmKey } from "../_lib/crm.js";
 import { gBase } from "../_lib/gmail.js";
-import { getTokens, saveTokens } from "../_lib/publish.js";
+import { getTokens, saveTokens, googleAccessToken } from "../_lib/publish.js";
 
 const AUTH = "https://accounts.google.com/o/oauth2/v2/auth";
 const TOKEN = "https://oauth2.googleapis.com/token";
@@ -72,6 +72,28 @@ export async function onRequestGet({ request, env }) {
       connected: !!(t && t.refresh_token),
       account_id: env.GBP_ACCOUNT_ID || null, location_id: env.GBP_LOCATION_ID || null,
     }, {}, cors);
+  }
+
+  // Discover the account + location IDs using the stored token (Account-Mgmt + Business-Info
+  // APIs) — so the IDs can be set from the CRM without the gbp_ids.py CLI.
+  if (path === "/api/crm/gbp/locations") {
+    const token = await googleAccessToken(env);
+    if (!token) return json({ error: "no_token", message: "Connect / re-auth GBP first." }, { status: 400 }, cors);
+    const aRes = await fetch("https://mybusinessaccountmanagement.googleapis.com/v1/accounts", { headers: { Authorization: "Bearer " + token } });
+    const aData = await aRes.json().catch(() => ({}));
+    if (!aRes.ok) return json({ error: "accounts_failed", status: aRes.status, detail: (aData.error && aData.error.message) || "" }, { status: 200 }, cors);
+    const accounts = [];
+    for (const a of (aData.accounts || [])) {
+      const accId = String(a.name || "").split("/")[1] || "";
+      let locs = [];
+      try {
+        const lRes = await fetch("https://mybusinessbusinessinformation.googleapis.com/v1/" + a.name + "/locations?readMask=name,title&pageSize=100", { headers: { Authorization: "Bearer " + token } });
+        const lData = await lRes.json().catch(() => ({}));
+        locs = (lData.locations || []).map((l) => ({ location_id: String(l.name || "").split("/").pop(), title: l.title || "" }));
+      } catch (_) {}
+      accounts.push({ account_id: accId, account_name: a.accountName || "", locations: locs });
+    }
+    return json({ ok: true, accounts }, {}, cors);
   }
 
   return json({ error: "not_found" }, { status: 404 }, cors);

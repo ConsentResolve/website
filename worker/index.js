@@ -101,6 +101,7 @@ const ROUTES = {
   "/api/crm/gbp/auth": crmGbpAuth,
   "/api/crm/gbp/callback": crmGbpAuth,
   "/api/crm/gbp/status": crmGbpAuth,
+  "/api/crm/gbp/locations": crmGbpAuth,
   "/api/crm/status": crmStatus,
   "/api/crm/migrate": crmMigrate,
   "/api/crm/inbox": crmInbox,
