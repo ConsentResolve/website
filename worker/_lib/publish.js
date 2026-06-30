@@ -63,14 +63,14 @@ export function composeText(p, platform) {
 }
 
 // ── OAuth token store (D1: social_tokens) ───────────────────────────────────
-async function getTokens(env, provider) {
+export async function getTokens(env, provider) {
   try {
     return await env.DB.prepare("SELECT * FROM social_tokens WHERE provider = ?").bind(provider).first();
   } catch {
     return null;
   }
 }
-async function saveTokens(env, provider, { access_token, refresh_token, expires_at }) {
+export async function saveTokens(env, provider, { access_token, refresh_token, expires_at }) {
   await env.DB.prepare(
     `INSERT INTO social_tokens (provider, access_token, refresh_token, expires_at, updated_at)
      VALUES (?, ?, ?, ?, ?)
@@ -215,9 +215,12 @@ async function postX(env, p) {
 
 // ── Google Business Profile (localPosts; stable refresh token) ───────────────
 async function googleAccessToken(env) {
-  const clientId = env.GOOGLE_CLIENT_ID, clientSecret = env.GOOGLE_CLIENT_SECRET, refresh = env.GOOGLE_REFRESH_TOKEN;
-  if (!clientId || !clientSecret || !refresh) return null;
+  const clientId = env.GOOGLE_CLIENT_ID, clientSecret = env.GOOGLE_CLIENT_SECRET;
   const cached = await getTokens(env, "google");
+  // Prefer the refresh token from the in-CRM "Connect GBP" re-auth (D1); fall back to the
+  // static env secret. This lets a browser re-connect self-heal an expired token.
+  const refresh = (cached && cached.refresh_token) || env.GOOGLE_REFRESH_TOKEN;
+  if (!clientId || !clientSecret || !refresh) return null;
   if (cached && cached.access_token && cached.expires_at && new Date(cached.expires_at) > new Date(Date.now() + 60000)) {
     return cached.access_token;
   }
