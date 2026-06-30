@@ -5,17 +5,8 @@
 //   to conserve Apollo credits and keep the consent-first brand clean.
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
-import { ensureCrmV2Schema, addActivityV2, currentUser, adminUserId } from "../_lib/crm-v2.js";
-
-async function apolloMatch(env, email) {
-  const res = await fetch("https://api.apollo.io/api/v1/people/match", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json", "Cache-Control": "no-cache", "X-Api-Key": env.APOLLO_API_KEY },
-    body: JSON.stringify({ api_key: env.APOLLO_API_KEY, email, reveal_personal_emails: false }),
-  });
-  let j = {}; try { j = await res.json(); } catch (_) {}
-  return { ok: res.ok, status: res.status, person: j.person || null, raw: j };
-}
+import { ensureCrmV2Schema, currentUser, adminUserId } from "../_lib/crm-v2.js";
+import { enrichContactById } from "../_lib/apollo.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -29,33 +20,17 @@ export async function onRequestPost({ request, env }) {
   let b = {};
   try { b = await request.json(); } catch { return json({ error: "bad_json" }, { status: 400 }, cors); }
   if (!b.contact_id) return json({ error: "contact_id_required" }, { status: 400 }, cors);
-  const contact = await env.DB.prepare("SELECT * FROM contacts WHERE id=?").bind(b.contact_id).first();
-  if (!contact) return json({ error: "not_found" }, { status: 404 }, cors);
-  if (!contact.primary_email) return json({ error: "no_email" }, { status: 400 }, cors);
-
-  const m = await apolloMatch(env, contact.primary_email);
-  if (!m.ok) {
-    const detail = m.status === 403
-      ? "Your Apollo plan doesn't include the People Enrichment (match) API. Enable API access / upgrade the plan in Apollo, or use a key that has it."
-      : (String((m.raw && (m.raw.error || m.raw.message)) || "").slice(0, 160) || ("Apollo error " + m.status));
-    return json({ error: "apollo_error", status: m.status, detail }, { status: 200 }, cors);
-  }
-  if (!m.person) return json({ ok: true, matched: false, note: "No Apollo match for this email." }, {}, cors);
-
-  const p = m.person;
-  const phone = (p.phone_numbers && p.phone_numbers[0] && (p.phone_numbers[0].sanitized_number || p.phone_numbers[0].raw_number)) || null;
-  await env.DB.prepare(
-    "UPDATE contacts SET enrichment=?, title=COALESCE(?, title), phone=COALESCE(phone, ?), apollo_person_id=?, full_name=COALESCE(full_name, ?), updated_at=datetime('now') WHERE id=?"
-  ).bind(JSON.stringify(p), p.title || null, phone, p.id || null, p.name || null, contact.id).run();
-
-  const org = p.organization;
-  if (org && contact.company_id) {
-    await env.DB.prepare(
-      "UPDATE companies SET enrichment=?, apollo_org_id=COALESCE(?, apollo_org_id), domain=COALESCE(domain, ?), name=COALESCE(name, ?), updated_at=datetime('now') WHERE id=?"
-    ).bind(JSON.stringify(org), org.id || null, org.primary_domain || null, org.name || null, contact.company_id).run();
-  }
 
   const me = await currentUser(request, env);
-  await addActivityV2(env, { actorId: me ? me.id : await adminUserId(env), entityType: "contact", entityId: contact.id, action: "enriched", meta: { source: "apollo", email: contact.primary_email } });
-  return json({ ok: true, matched: true, person: p }, {}, cors);
+  const r = await enrichContactById(env, b.contact_id, { actorId: me ? me.id : await adminUserId(env) });
+  if (r.error === "no_email") return json({ error: "no_email" }, { status: 400 }, cors);
+  if (r.error === "not_found") return json({ error: "not_found" }, { status: 404 }, cors);
+  if (r.error === "apollo_error") {
+    const detail = r.status === 403
+      ? "Your Apollo plan doesn't include the People Enrichment (match) API. Enable API access / upgrade the plan in Apollo, or use a key that has it."
+      : (String((r.raw && (r.raw.error || r.raw.message)) || "").slice(0, 160) || ("Apollo error " + r.status));
+    return json({ error: "apollo_error", status: r.status, detail }, { status: 200 }, cors);
+  }
+  if (!r.matched) return json({ ok: true, matched: false, note: r.org ? "Company enriched (no individual match)." : "No Apollo match for this email." }, {}, cors);
+  return json({ ok: true, matched: true, person: r.person }, {}, cors);
 }

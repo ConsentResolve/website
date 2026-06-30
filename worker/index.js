@@ -54,6 +54,7 @@ import * as crmContact from "./api/crm-contact.js";
 import * as crmMerge from "./api/crm-merge.js";
 import * as crmDemoNotify from "./api/crm-demo-notify.js";
 import { sweepDemoNotifications } from "./_lib/demo-notify.js";
+import { autoEnrichSweep } from "./_lib/apollo.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -222,6 +223,15 @@ export default {
         if (dn && dn.sent) console.log(`[demo-notify] sent ${dn.sent} of ${dn.scanned}`);
       } catch (err) {
         console.log(`[demo-notify] error: ${String(err).slice(0, 160)}`);
+      }
+      // Credit-gated Apollo auto-enrich: newest un-enriched business-email contacts.
+      try {
+        if (env.APOLLO_API_KEY) {
+          const ae = await autoEnrichSweep(env, { limit: 8 });
+          if (ae && ae.enriched) console.log(`[apollo-auto] enriched ${ae.enriched} of ${ae.scanned}`);
+        }
+      } catch (err) {
+        console.log(`[apollo-auto] error: ${String(err).slice(0, 160)}`);
       }
       return;
     }
