@@ -235,14 +235,22 @@ def _seq_summary(seq):
         out.append(f"  step {i+1} (delay {st.get('delay')}d): {subs}")
     return "\n".join(out)
 
-def update_campaign(cid, apply=False):
+def update_campaign(cid, apply=False, src=None):
     cur = api("GET", f"/campaigns/{cid}")
     print(f"Target campaign: {cur.get('name')}  (id={cid}, status={cur.get('status')})\n")
     print("CURRENT sequence (live):")
     print(_seq_summary(cur.get("sequences") or []))
-    new_seq = build_sequences()
-    print("\nNEW sequence (from WAVE config):")
+    if src:
+        srcc = api("GET", f"/campaigns/{src}")
+        new_seq = srcc.get("sequences") or []
+        print(f"\nNEW sequence (copied FROM '{srcc.get('name')}', id={src}):")
+    else:
+        new_seq = build_sequences()
+        print("\nNEW sequence (from WAVE config):")
     print(_seq_summary(new_seq))
+    if not new_seq:
+        print("\n⚠️  Source sequence is empty — aborting (won't blank out the live campaign).")
+        return
     if not apply:
         print("\nDRY RUN — re-run with --apply to PATCH this campaign's sequence.")
         print("Campaign STATUS is left unchanged (a paused campaign stays paused — you launch it).")
@@ -259,13 +267,14 @@ def main():
     ap.add_argument("--campaign-id", help="add to an existing campaign instead of creating one")
     ap.add_argument("--list-campaigns", action="store_true", help="list Instantly campaigns (id/status/name)")
     ap.add_argument("--update-campaign", metavar="ID", help="apply the WAVE sequence to an existing/live campaign")
+    ap.add_argument("--from", dest="from_campaign", metavar="ID", help="copy the sequence FROM this campaign (e.g. Test123) instead of the WAVE config")
     ap.add_argument("--apply", action="store_true", help="with --update-campaign: PATCH for real (else dry-run diff)")
     a = ap.parse_args()
 
     if a.list_campaigns:
         list_campaigns(); return
     if a.update_campaign:
-        update_campaign(a.update_campaign, apply=a.apply); return
+        update_campaign(a.update_campaign, apply=a.apply, src=a.from_campaign); return
     if not a.csv:
         ap.error("csv is required (or use --list-campaigns / --update-campaign ID)")
 
