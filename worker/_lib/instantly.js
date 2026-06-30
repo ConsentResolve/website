@@ -59,7 +59,8 @@ export async function syncInstantlyLeads(env, { campaignId, maxPages = 20 } = {}
   if (!instantlyConfigured(env) || !env.DB || !campaignId) return { synced: 0, repliers: 0 };
   await ensureCrmV2Schema(env);
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS instantly_leads (email TEXT PRIMARY KEY, campaign TEXT, status INTEGER, opens INTEGER, replies INTEGER, clicks INTEGER, summary TEXT, updated_at TEXT)").run();
-  let after = null, synced = 0, repliers = 0, pages = 0;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS crm_suppressions (email TEXT PRIMARY KEY, reason TEXT, source TEXT, created_at TEXT)").run();
+  let after = null, synced = 0, repliers = 0, suppressed = 0, pages = 0;
   while (pages < maxPages) {
     const body = { campaign: campaignId, limit: 100 };
     if (after) body.starting_after = after;
@@ -78,12 +79,18 @@ export async function syncInstantlyLeads(env, { campaignId, maxPages = 20 } = {}
         repliers++;
         try { await findOrCreateContactByEmail(env, email, { source: "instantly", name: [L.first_name, L.last_name].filter(Boolean).join(" ") || null }); } catch (_) {}
       }
+      // #6 — suppression: unsubscribed (3) or bounced (<0) → cross-channel do-not-contact list.
+      const st = Number(L.status || 0);
+      if (st === 3 || st < 0) {
+        suppressed++;
+        try { await env.DB.prepare("INSERT INTO crm_suppressions (email, reason, source, created_at) VALUES (?,?,?,datetime('now')) ON CONFLICT(email) DO UPDATE SET reason=excluded.reason, source=excluded.source").bind(email, st === 3 ? "unsubscribed" : "bounced", "instantly").run(); } catch (_) {}
+      }
     }
     after = r.body && r.body.next_starting_after;
     pages++;
     if (!after || !items.length) break;
   }
-  return { synced, repliers };
+  return { synced, repliers, suppressed };
 }
 
 // #2 — closed-loop attribution for a cold-email wave. Joins Instantly's send funnel with

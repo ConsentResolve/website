@@ -224,16 +224,19 @@ export async function onRequestGet({ request, env }) {
         };
       }
     } catch (_) {}
-    // Cold-email engagement (Instantly lead sync, #3) by the contact's email.
-    let coldEmail = null;
+    // Cold-email engagement (#3) + cross-channel suppression (#6) by the contact's email.
+    let coldEmail = null, suppressed = null;
     try {
       if (contact && contact.primary_email) {
-        const cl = await env.DB.prepare("SELECT * FROM instantly_leads WHERE email=?").bind(String(contact.primary_email).toLowerCase()).first();
+        const em = String(contact.primary_email).toLowerCase();
+        const cl = await env.DB.prepare("SELECT * FROM instantly_leads WHERE email=?").bind(em).first();
         if (cl) coldEmail = { status: cl.status, opens: cl.opens, replies: cl.replies, clicks: cl.clicks, campaign: cl.campaign };
+        const sp = await env.DB.prepare("SELECT reason, source FROM crm_suppressions WHERE email=?").bind(em).first();
+        if (sp) suppressed = { reason: sp.reason, source: sp.source };
       }
     } catch (_) {}
     await env.DB.prepare("UPDATE conversations SET unread=0 WHERE id=?").bind(id).run();
-    return json({ conversation: conv, messages: msgs, contact, company, users, notes, demo, intel, paid, coldEmail }, {}, cors);
+    return json({ conversation: conv, messages: msgs, contact, company, users, notes, demo, intel, paid, coldEmail, suppressed }, {}, cors);
   }
 
   const status = url.searchParams.get("status") || "open";
