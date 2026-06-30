@@ -93,5 +93,16 @@ export async function waveFunnel(env, { campaignId, utmCampaign, trade } = {}) {
   out.repliesInbox = ri ? Number(ri.n) : 0;
   const w = await q("SELECT COUNT(*) n, COALESCE(SUM(d.value_cents),0) v FROM deals d JOIN contacts c ON c.id=d.primary_contact_id WHERE c.source='instantly' AND d.lead_status='won'");
   if (w) { out.won = Number(w.n); out.revenueUsd = Math.round(Number(w.v) / 100); }
+  // #4 — cost efficiency + stage conversion rates. Instantly spend comes from the same
+  // crm_spend log (channel 'instantly'); the user logs the subscription / lead-gen cost there.
+  const sp = await q("SELECT COALESCE(SUM(amount_usd),0) v FROM crm_spend WHERE lower(channel) LIKE '%instantly%'");
+  out.spendUsd = sp ? Math.round(Number(sp.v)) : 0;
+  const repliedN = (out.instantly && out.instantly.replied) || out.repliesInbox || 0;
+  const leadsN = (out.instantly && out.instantly.leads) || 0;
+  const per = (n) => (out.spendUsd > 0 && n > 0) ? Math.round(out.spendUsd / n) : null;
+  out.costPer = { landed: per(out.landed), reply: per(repliedN), demo: per(out.demos), won: per(out.won) };
+  const rate = (a, b) => (b > 0) ? Math.round((100 * a) / b) : null;
+  out.rates = { reply: rate(repliedN, leadsN), land: rate(out.landed, leadsN), demo: rate(out.demos, out.landed), win: rate(out.won, out.demos) };
+  if (out.spendUsd > 0 && out.revenueUsd > 0) out.roas = Math.round((out.revenueUsd / out.spendUsd) * 10) / 10;
   return out;
 }
