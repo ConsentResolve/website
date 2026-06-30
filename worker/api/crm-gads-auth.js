@@ -7,7 +7,15 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed, crmKey } from "../_lib/crm.js";
 import { gBase } from "../_lib/gmail.js";
 import { saveTokens } from "../_lib/publish.js";
-import { googleAdsStatus } from "../_lib/google-ads.js";
+import { googleAdsStatus, listConversionActions } from "../_lib/google-ads.js";
+
+// CRM session OR ?key=<FEEDBACK_KEY> for the read endpoints (status/conversions) so the
+// label can be fetched/automated outside a browser session.
+async function readAuthed(request, env) {
+  if (await crmAuthed(request, env)) return true;
+  const k = new URL(request.url).searchParams.get("key");
+  return !!(env.FEEDBACK_KEY && k === env.FEEDBACK_KEY);
+}
 
 const AUTH = "https://accounts.google.com/o/oauth2/v2/auth";
 const TOKEN = "https://oauth2.googleapis.com/token";
@@ -48,8 +56,18 @@ export async function onRequestGet({ request, env }) {
     return Response.redirect(gBase(env) + "/crm/status?key=" + encodeURIComponent(state) + "&gads=connected", 302);
   }
 
-  if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
+  // Read endpoints — CRM session or ?key=.
+  if (path === "/api/crm/gads/status" || path === "/api/crm/gads/conversions") {
+    if (!(await readAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
+    if (path === "/api/crm/gads/status") {
+      const s = await googleAdsStatus(env);
+      return json({ ...s, redirect_uri: redirectUri(env), has_dev_token: !!env.GOOGLE_ADS_DEVELOPER_TOKEN }, {}, cors);
+    }
+    const customer = url.searchParams.get("customer") || env.GOOGLE_ADS_CUSTOMER_ID || null;
+    return json(await listConversionActions(env, customer), {}, cors);
+  }
 
+  if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
   if (path === "/api/crm/gads/auth") {
     if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
       return json({ error: "no_client", message: "GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET must be set in Cloudflare." }, { status: 400 }, cors);
@@ -60,11 +78,6 @@ export async function onRequestGet({ request, env }) {
       scope: SCOPE, access_type: "offline", prompt: "consent", include_granted_scopes: "true", state,
     }).toString();
     return Response.redirect(u, 302);
-  }
-
-  if (path === "/api/crm/gads/status") {
-    const s = await googleAdsStatus(env);
-    return json({ ...s, redirect_uri: redirectUri(env), has_dev_token: !!env.GOOGLE_ADS_DEVELOPER_TOKEN }, {}, cors);
   }
 
   return json({ error: "not_found" }, { status: 404 }, cors);

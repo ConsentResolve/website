@@ -71,7 +71,7 @@ export async function listConversionActions(env, customerId) {
   if (!cid) return { ok: false, error: "no_customer_id" };
   const token = await gadsAccessToken(env);
   if (!token) return { ok: false, error: "no_token" };
-  const query = "SELECT conversion_action.id, conversion_action.name, conversion_action.type, conversion_action.status FROM conversion_action";
+  const query = "SELECT conversion_action.id, conversion_action.name, conversion_action.type, conversion_action.status, conversion_action.tag_snippets FROM conversion_action";
   let lastErr = "all API versions 404";
   for (const ver of apiVersions(env)) {
     const res = await fetch(gurl(ver, "/customers/" + cid + "/googleAds:search"), {
@@ -80,7 +80,15 @@ export async function listConversionActions(env, customerId) {
     if (res.status === 404) { lastErr = `version ${ver}: 404`; continue; }
     const d = await res.json().catch(() => ({}));
     if (!res.ok) return { ok: false, error: (d.error && d.error.message) || ("http " + res.status) };
-    const rows = (d.results || []).map((r) => ({ id: r.conversionAction?.id, name: r.conversionAction?.name, type: r.conversionAction?.type, status: r.conversionAction?.status }));
+    const rows = (d.results || []).map((r) => {
+      const ca = r.conversionAction || {};
+      let label = null;
+      for (const ts of (ca.tagSnippets || [])) {
+        const m = /AW-\d+\/([\w-]+)/.exec(ts.eventSnippet || ts.globalSiteTag || "");
+        if (m) { label = m[1]; break; }
+      }
+      return { id: ca.id, name: ca.name, type: ca.type, status: ca.status, label };
+    });
     return { ok: true, apiVersion: ver, conversionActions: rows };
   }
   return { ok: false, error: lastErr };

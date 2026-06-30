@@ -106,6 +106,7 @@ const ROUTES = {
   "/api/crm/gads/auth": crmGadsAuth,
   "/api/crm/gads/callback": crmGadsAuth,
   "/api/crm/gads/status": crmGadsAuth,
+  "/api/crm/gads/conversions": crmGadsAuth,
   "/api/crm/status": crmStatus,
   "/api/crm/migrate": crmMigrate,
   "/api/crm/inbox": crmInbox,
