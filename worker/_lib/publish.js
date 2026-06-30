@@ -246,6 +246,7 @@ async function postGBP(env, p) {
   const summary = composeText(p, "google_business_profile").slice(0, 1500);
   const img = abs(p.image_url);
   const post = {
+    topicType: "STANDARD", // required by the localPosts API for a "What's new" post
     languageCode: "en-US",
     summary,
     ...(p.utm_url ? { callToAction: { actionType: "LEARN_MORE", url: p.utm_url } } : {}),
@@ -256,7 +257,10 @@ async function postGBP(env, p) {
     { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(post) }
   );
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) return { ok: false, error: data.error?.message || `gbp_http_${res.status}` };
+  if (!res.ok) {
+    const det = data.error?.details ? " :: " + JSON.stringify(data.error.details).slice(0, 400) : "";
+    return { ok: false, error: (data.error?.message || `gbp_http_${res.status}`) + det };
+  }
   return { ok: true, post_id: data.name || null, post_url: data.searchUrl || null };
 }
 
