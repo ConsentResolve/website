@@ -163,18 +163,7 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
   <div id="stPipeline" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
 </section>
 <section data-pane="settings" hidden>
-  <div class="card" style="padding:16px;margin-bottom:14px"><div style="font-weight:600;margin-bottom:8px">Suggested merges <span class="muted tiny" style="font-weight:400">— anonymous contacts that match a known person</span></div><div id="mergeWrap" class="muted tiny">—</div></div>
-  <div class="card" style="padding:16px;margin-bottom:14px"><div style="font-weight:600;margin-bottom:8px">Gmail — two-way email</div><div id="gmailWrap" class="muted tiny">Loading…</div></div>
-  <div class="card" style="padding:16px"><div style="font-weight:600;margin-bottom:8px">Webhooks</div>
-    <div class="muted tiny" style="margin-bottom:4px">Crisp (Settings → Webhooks):</div><input id="whCrisp" readonly style="width:100%;margin-bottom:10px">
-    <div class="muted tiny" style="margin-bottom:4px">Apollo (push identified visitors here):</div><input id="whApollo" readonly style="width:100%">
-    <div class="muted tiny" style="margin:10px 0 4px">Instantly (Settings → Integrations/Webhooks → on reply):</div><input id="whInstantly" readonly style="width:100%">
-    <div class="muted tiny" style="margin-top:8px">Apollo visitors arrive flagged “identified” — retargeting/intel only, blocked from outreach.</div>
-  </div>
-  <div class="card" style="padding:16px;margin-top:14px"><div style="font-weight:600;margin-bottom:6px">Apollo API sync</div>
-    <div class="muted tiny" style="margin-bottom:8px">Pulls contacts from your Apollo visitors list into the CRM as identified leads. Set APOLLO_CONTACTS_LABEL to the list ID.</div>
-    <button class="ghost" id="apTest">Test connection</button> <button class="ghost" id="apSync">Sync now</button> <span class="muted tiny" id="apMsg" style="margin-left:6px"></span>
-  </div>
+  <div class="card" style="padding:16px;margin-bottom:14px"><div style="font-weight:600;margin-bottom:8px">Gmail — two-way email <span class="muted tiny" style="font-weight:400">— hello@consentresolve.com</span></div><div id="gmailWrap" class="muted tiny">Loading…</div></div>
 </section>
 </div>
 <script>
