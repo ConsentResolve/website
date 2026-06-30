@@ -3,7 +3,7 @@
 //   POST /api/crm/meta/spend -> runs syncMetaSpend, writing this month into crm_spend
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
-import { metaConfigured, fetchMetaSpend, syncMetaSpend } from "../_lib/meta.js";
+import { metaConfigured, fetchMetaSpend, syncMetaSpend, fetchMetaStatus } from "../_lib/meta.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -15,7 +15,8 @@ export async function onRequestGet({ request, env }) {
   if (!metaConfigured(env)) return json({ configured: false }, {}, cors);
   const month = await fetchMetaSpend(env, { datePreset: "this_month" });
   const last30 = await fetchMetaSpend(env, { datePreset: "last_30d" });
-  return json({ configured: true, month, last30 }, {}, cors);
+  const status = await fetchMetaStatus(env);
+  return json({ configured: true, month, last30, status }, {}, cors);
 }
 
 export async function onRequestPost({ request, env }) {

@@ -41,6 +41,22 @@ export async function fetchMetaSpend(env, { datePreset = "this_month" } = {}) {
   return { ok: true, configured: true, datePreset, total: Math.round(total * 100) / 100, rows };
 }
 
+// Campaign statuses + custom-audience sizes — so the CRM can show whether a retarget
+// campaign is paused/active and whether its audience is big enough to deliver (Meta needs
+// ~1,000 matched for a Custom Audience). Read-only.
+export async function fetchMetaStatus(env) {
+  if (!metaConfigured(env)) return { configured: false };
+  const c = await metaGet(env, acct(env) + "/campaigns", { fields: "name,effective_status", limit: "50" });
+  const a = await metaGet(env, acct(env) + "/customaudiences", { fields: "name,approximate_count,delivery_status", limit: "50" });
+  const campaigns = (((c.body && c.body.data) || [])).map((x) => ({ name: x.name, status: x.effective_status }));
+  const audiences = (((a.body && a.body.data) || [])).map((x) => ({
+    name: x.name,
+    count: x.approximate_count != null ? Number(x.approximate_count) : null,
+    ready: !!(x.delivery_status && x.delivery_status.code === 200),
+  }));
+  return { configured: true, campaigns, audiences, error: c.error ? (c.error.message || "") : (a.error ? (a.error.message || "") : null) };
+}
+
 // Idempotent: replace this calendar month's Meta-sourced rows in crm_spend with the live
 // figures (channel="facebook", note="meta:<campaign_id>:<name>"). Safe to run on a cron.
 export async function syncMetaSpend(env) {
