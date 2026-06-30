@@ -109,6 +109,8 @@ export async function waveFunnel(env, { campaignId, utmCampaign, trade } = {}) {
       replied: Number(r.reply_count || 0) || null,
       opportunities: Number(r.total_opportunities || 0) || null,
     };
+    const cmp = await instGet(env, "/campaigns/" + campaignId);
+    if (cmp.ok && cmp.body) { out.campaignStatus = cmp.body.status != null ? cmp.body.status : null; out.campaignName = cmp.body.name || null; }
   }
   if (!env.DB) return out;
   const q = async (sql, ...b) => { try { return await env.DB.prepare(sql).bind(...b).first(); } catch (_) { return null; } };
