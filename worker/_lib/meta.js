@@ -125,7 +125,12 @@ export async function addEmailsToAudience(env, audienceId, emails) {
 // Creates a full OUTCOME_LEADS campaign (lead form + campaign + ad set + creatives + ads),
 // all PAUSED, from the Cloudflare Meta secret — so it can be launched without exposing the
 // token locally. On-submit leads ingest via api/crm-meta.js. Activate separately (spends money).
-const emsg = (r) => (r.error && r.error.message) || ("graph " + r.status);
+const emsg = (r) => {
+  const e = (r && r.error) || {};
+  const parts = [e.message, e.error_user_title, e.error_user_msg].filter(Boolean);
+  const base = parts.length ? parts.join(" · ") : ("graph " + (r && r.status));
+  return base + (e.error_subcode ? " [subcode " + e.error_subcode + "]" : "") + (e.code ? " (code " + e.code + ")" : "");
+};
 const LEAD_FORM = {
   name: "Consent Resolve — Exclusive HVAC Leads",
   intro_headline: "Exclusive HVAC leads — $7 each, yours alone",
@@ -149,23 +154,25 @@ const AD_IMAGES = [
   "https://consentresolve.com/ads/hvac_math_4x5.png",
 ];
 
-export async function launchLeadFormCampaign(env, { budgetCents = 10000, name = "HVAC US 2026" } = {}) {
+export async function launchLeadFormCampaign(env, { budgetCents = 10000, name = "HVAC US 2026", formId = null } = {}) {
   if (!metaConfigured(env)) return { ok: false, error: "not_configured" };
   const page = env.FACEBOOK_PAGE_ID;
   if (!page) return { ok: false, error: "no_page_id — set FACEBOOK_PAGE_ID in Cloudflare" };
   const A = acct(env);
-  const form = await metaPost(env, page + "/leadgen_forms", {
-    name: LEAD_FORM.name, locale: "EN_US",
-    questions: JSON.stringify(LEAD_FORM.questions.map((q) => ({ type: q }))),
-    privacy_policy: JSON.stringify({ url: LEAD_FORM.privacy_url, link_text: "Privacy Policy" }),
-    context_card: JSON.stringify({ title: LEAD_FORM.intro_headline, style: "PARAGRAPH_STYLE", content: [LEAD_FORM.intro_paragraph], button_text: "Get my demo" }),
-    thank_you_page: JSON.stringify({ title: LEAD_FORM.ty_title, body: LEAD_FORM.ty_body, button_type: "VIEW_WEBSITE", button_text: LEAD_FORM.ty_button, website_url: LEAD_FORM.ty_url }),
-    follow_up_action_url: LEAD_FORM.ty_url,
-  });
-  if (!form.ok || !(form.body && form.body.id)) return { ok: false, step: "leadgen_form", error: emsg(form) };
-  const formId = form.body.id;
+  if (!formId) {
+    const form = await metaPost(env, page + "/leadgen_forms", {
+      name: LEAD_FORM.name, locale: "EN_US",
+      questions: JSON.stringify(LEAD_FORM.questions.map((q) => ({ type: q }))),
+      privacy_policy: JSON.stringify({ url: LEAD_FORM.privacy_url, link_text: "Privacy Policy" }),
+      context_card: JSON.stringify({ title: LEAD_FORM.intro_headline, style: "PARAGRAPH_STYLE", content: [LEAD_FORM.intro_paragraph], button_text: "Get my demo" }),
+      thank_you_page: JSON.stringify({ title: LEAD_FORM.ty_title, body: LEAD_FORM.ty_body, button_type: "VIEW_WEBSITE", button_text: LEAD_FORM.ty_button, website_url: LEAD_FORM.ty_url }),
+      follow_up_action_url: LEAD_FORM.ty_url,
+    });
+    if (!form.ok || !(form.body && form.body.id)) return { ok: false, step: "leadgen_form", error: emsg(form) };
+    formId = form.body.id;
+  }
   const camp = await metaPost(env, A + "/campaigns", { name: "Lead Ads · " + name, objective: "OUTCOME_LEADS", status: "PAUSED", special_ad_categories: JSON.stringify([]) });
-  if (!camp.ok || !(camp.body && camp.body.id)) return { ok: false, step: "campaign", error: emsg(camp) };
+  if (!camp.ok || !(camp.body && camp.body.id)) return { ok: false, step: "campaign", error: emsg(camp), formId };
   const campaignId = camp.body.id;
   const targeting = { geo_locations: { countries: ["US"] }, targeting_automation: { advantage_audience: 0 } };
   const aset = await metaPost(env, A + "/adsets", {
@@ -173,7 +180,7 @@ export async function launchLeadFormCampaign(env, { budgetCents = 10000, name = 
     billing_event: "IMPRESSIONS", optimization_goal: "LEAD_GENERATION", bid_strategy: "LOWEST_COST_WITHOUT_CAP",
     destination_type: "ON_AD", promoted_object: JSON.stringify({ page_id: page }), targeting: JSON.stringify(targeting), status: "PAUSED",
   });
-  if (!aset.ok || !(aset.body && aset.body.id)) return { ok: false, step: "adset", error: emsg(aset), campaignId };
+  if (!aset.ok || !(aset.body && aset.body.id)) return { ok: false, step: "adset", error: emsg(aset), campaignId, formId };
   const adsetId = aset.body.id;
   const ads = [];
   for (const img of AD_IMAGES) {

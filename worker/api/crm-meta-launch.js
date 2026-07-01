@@ -28,6 +28,6 @@ export async function onRequestPost({ request, env }) {
     return json(await activateMetaCampaign(env, b.campaignId), {}, cors);
   }
   const budget = Number(b.budget || 100);
-  const r = await launchLeadFormCampaign(env, { budgetCents: Math.round(budget * 100), name: b.name || "HVAC US 2026" });
+  const r = await launchLeadFormCampaign(env, { budgetCents: Math.round(budget * 100), name: b.name || "HVAC US 2026", formId: b.formId || null });
   return json(r, { status: r.ok ? 200 : 502 }, cors);
 }
