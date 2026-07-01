@@ -31,7 +31,11 @@ export async function onRequestGet({ request, env }) {
   }
 
   const cors = corsHeaders(request, env);
-  if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
+  // CRM session, OR ?key=<FEEDBACK_KEY> for the status/disconnect maintenance endpoints so
+  // sending-domain mailboxes can be retired without a browser session.
+  const keyed = env.FEEDBACK_KEY && url.searchParams.get("key") === env.FEEDBACK_KEY;
+  const maint = path === "/api/crm/gmail/status" || path === "/api/crm/gmail/disconnect";
+  if (!(await crmAuthed(request, env)) && !(keyed && maint)) return json({ error: "unauthorized" }, { status: 401 }, cors);
 
   if (path === "/api/crm/gmail/auth") {
     if (!gClientId(env)) return json({ error: "no_client", message: "Set GMAIL_CLIENT_ID + GMAIL_CLIENT_SECRET (or reuse GOOGLE_*) in Cloudflare." }, { status: 400 }, cors);
