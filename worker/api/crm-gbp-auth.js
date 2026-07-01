@@ -50,7 +50,10 @@ export async function onRequestGet({ request, env }) {
     return Response.redirect(gBase(env) + "/crm/status?key=" + encodeURIComponent(state) + "&gbp=connected", 302);
   }
 
-  if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
+  // CRM session, OR ?key=<FEEDBACK_KEY> for the read-only status/locations probes.
+  const keyed = env.FEEDBACK_KEY && url.searchParams.get("key") === env.FEEDBACK_KEY;
+  const readPath = path === "/api/crm/gbp/status" || path === "/api/crm/gbp/locations";
+  if (!(await crmAuthed(request, env)) && !(keyed && readPath)) return json({ error: "unauthorized" }, { status: 401 }, cors);
 
   if (path === "/api/crm/gbp/auth") {
     if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
