@@ -46,9 +46,31 @@ export async function fetchMetaSpend(env, { datePreset = "this_month" } = {}) {
 // ~1,000 matched for a Custom Audience). Read-only.
 export async function fetchMetaStatus(env) {
   if (!metaConfigured(env)) return { configured: false };
-  const c = await metaGet(env, acct(env) + "/campaigns", { fields: "name,effective_status", limit: "50" });
+  const c = await metaGet(env, acct(env) + "/campaigns", { fields: "id,name,effective_status,daily_budget,lifetime_budget", limit: "50" });
   const a = await metaGet(env, acct(env) + "/customaudiences", { fields: "name,approximate_count,delivery_status", limit: "50" });
-  const campaigns = (((c.body && c.body.data) || [])).map((x) => ({ name: x.name, status: x.effective_status }));
+  // Ad-set budgets — for campaigns without campaign-level (CBO) budget, the daily budget
+  // lives on the ad sets. Sum each campaign's ACTIVE ad-set daily budgets. Amounts are in
+  // account-currency minor units (cents) → /100.
+  const s = await metaGet(env, acct(env) + "/adsets", { fields: "campaign_id,daily_budget,effective_status", limit: "500" });
+  const adsetDaily = {};
+  for (const x of (((s.body && s.body.data) || []))) {
+    const cid = x.campaign_id; const cents = Number(x.daily_budget || 0);
+    if (!cid || !(cents > 0)) continue;
+    if (x.effective_status && x.effective_status !== "ACTIVE") continue; // count only live ad sets
+    adsetDaily[cid] = (adsetDaily[cid] || 0) + cents;
+  }
+  const campaigns = (((c.body && c.body.data) || [])).map((x) => {
+    const cboDaily = Number(x.daily_budget || 0);
+    const fromAdsets = adsetDaily[x.id] || 0;
+    const dailyCents = cboDaily > 0 ? cboDaily : fromAdsets;
+    return {
+      name: x.name,
+      status: x.effective_status,
+      dailyBudget: dailyCents > 0 ? Math.round(dailyCents) / 100 : null,
+      lifetimeBudget: Number(x.lifetime_budget || 0) > 0 ? Math.round(Number(x.lifetime_budget)) / 100 : null,
+      budgetLevel: cboDaily > 0 ? "campaign" : (fromAdsets > 0 ? "adset" : null),
+    };
+  });
   const audiences = (((a.body && a.body.data) || [])).map((x) => ({
     name: x.name,
     count: x.approximate_count != null ? Number(x.approximate_count) : null,
