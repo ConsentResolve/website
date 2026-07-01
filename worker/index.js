@@ -62,6 +62,7 @@ import { autoEnrichSweep } from "./_lib/apollo.js";
 import { metaConfigured, syncMetaSpend } from "./_lib/meta.js";
 import { instantlyConfigured, syncInstantlyLeads } from "./_lib/instantly.js";
 import * as crmMetaAds from "./api/crm-meta-ads.js";
+import * as crmMetaAudience from "./api/crm-meta-audience.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -120,6 +121,7 @@ const ROUTES = {
   "/api/crm/analytics2": crmAnalytics2,
   "/api/crm/meta": crmMeta,
   "/api/crm/meta/spend": crmMetaAds,
+  "/api/crm/meta/audience": crmMetaAudience,
   "/api/crm/presence": crmPresence,
   "/api/crm/contact": crmContact,
   "/api/crm/merge": crmMerge,

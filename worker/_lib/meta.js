@@ -79,6 +79,48 @@ export async function fetchMetaStatus(env) {
   return { configured: true, campaigns, audiences, error: c.error ? (c.error.message || "") : (a.error ? (a.error.message || "") : null) };
 }
 
+// ── Custom Audiences (list-based retargeting) ─────────────────────────────────
+// Upload cold-email recipients as a Meta Custom Audience so the retargeting campaign
+// shows ads to the same people we're emailing (email + ad = warmer touch). Emails are
+// SHA-256 hashed in-worker before they ever leave — Meta never sees the plaintext.
+async function sha256hex(s) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function metaPost(env, path, params) {
+  const body = new URLSearchParams(Object.assign({ access_token: env.META_ACCESS_TOKEN }, params || {}));
+  const res = await fetch(GRAPH + "/" + path, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() });
+  let j = {}; try { j = await res.json(); } catch (_) {}
+  return { ok: res.ok, status: res.status, body: j, error: j && j.error ? j.error : null };
+}
+export async function listCustomAudiences(env) {
+  if (!metaConfigured(env)) return { ok: false, configured: false };
+  const r = await metaGet(env, acct(env) + "/customaudiences", { fields: "id,name,approximate_count,subtype,delivery_status", limit: "100" });
+  if (!r.ok) return { ok: false, error: r.error ? (r.error.message || ("graph " + r.status)) : ("graph " + r.status) };
+  return { ok: true, audiences: (((r.body && r.body.data) || [])).map((x) => ({ id: x.id, name: x.name, count: x.approximate_count != null ? Number(x.approximate_count) : null, subtype: x.subtype })) };
+}
+export async function ensureCustomAudience(env, name) {
+  const list = await listCustomAudiences(env);
+  if (list.ok) { const hit = list.audiences.find((a) => a.name === name); if (hit) return { ok: true, id: hit.id, created: false, count: hit.count }; }
+  const r = await metaPost(env, acct(env) + "/customaudiences", { name, subtype: "CUSTOM", customer_file_source: "USER_PROVIDED_ONLY", description: "Cold-email recipients — consent-first retargeting" });
+  if (!r.ok || !(r.body && r.body.id)) return { ok: false, error: r.error ? (r.error.message || ("graph " + r.status)) : ("graph " + r.status) };
+  return { ok: true, id: r.body.id, created: true };
+}
+export async function addEmailsToAudience(env, audienceId, emails) {
+  const norm = Array.from(new Set((emails || []).map((e) => String(e || "").trim().toLowerCase()).filter((e) => e.indexOf("@") > 0)));
+  let added = 0; const errors = [];
+  for (let i = 0; i < norm.length; i += 1000) {
+    const chunk = norm.slice(i, i + 1000);
+    const data = [];
+    for (const e of chunk) data.push([await sha256hex(e)]);
+    const r = await metaPost(env, audienceId + "/users", { payload: JSON.stringify({ schema: ["EMAIL"], data }) });
+    if (r.ok && r.body && r.body.num_received != null) added += Number(r.body.num_received);
+    else if (r.ok) added += chunk.length;
+    else errors.push((r.error && r.error.message) || ("graph " + r.status));
+  }
+  return { ok: errors.length === 0, added, total: norm.length, errors };
+}
+
 // Idempotent: replace this calendar month's Meta-sourced rows in crm_spend with the live
 // figures (channel="facebook", note="meta:<campaign_id>:<name>"). Safe to run on a cron.
 export async function syncMetaSpend(env) {
