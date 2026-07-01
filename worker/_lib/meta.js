@@ -121,6 +121,91 @@ export async function addEmailsToAudience(env, audienceId, emails) {
   return { ok: errors.length === 0, added, total: norm.length, errors };
 }
 
+// ── Cold lead-gen campaign launcher (Instant Forms) ───────────────────────────
+// Creates a full OUTCOME_LEADS campaign (lead form + campaign + ad set + creatives + ads),
+// all PAUSED, from the Cloudflare Meta secret — so it can be launched without exposing the
+// token locally. On-submit leads ingest via api/crm-meta.js. Activate separately (spends money).
+const emsg = (r) => (r.error && r.error.message) || ("graph " + r.status);
+const LEAD_FORM = {
+  name: "Consent Resolve — Exclusive HVAC Leads",
+  intro_headline: "Exclusive HVAC leads — $7 each, yours alone",
+  intro_paragraph:
+    "Recover the ~98% of homeowners who land on your site and leave without calling. " +
+    "Real name, email, and what they need — consent-first, never resold. " +
+    "Tell us where to send your 2-minute demo.",
+  questions: ["FULL_NAME", "EMAIL", "PHONE", "COMPANY_NAME"],
+  privacy_url: "https://consentresolve.com/privacy-policy/",
+  ty_title: "You're in — check your email",
+  ty_body: "We'll send your 2-minute demo shortly. Want it now?",
+  ty_button: "See the demo",
+  ty_url: "https://consentresolve.com/hvac-leads/?utm_source=meta_lead&utm_medium=paid_social&utm_campaign=hvac_2026",
+};
+const AD_PRIMARY =
+  "The homeowners who leave your site without calling? We hand them back — real name, email, and what they need. " +
+  "$7 each, exclusively yours, never resold.";
+const AD_HEADLINE = "Exclusive HVAC leads — $7 each";
+const AD_IMAGES = [
+  "https://consentresolve.com/ads/hvac_hook_4x5.png",
+  "https://consentresolve.com/ads/hvac_math_4x5.png",
+];
+
+export async function launchLeadFormCampaign(env, { budgetCents = 10000, name = "HVAC US 2026" } = {}) {
+  if (!metaConfigured(env)) return { ok: false, error: "not_configured" };
+  const page = env.FACEBOOK_PAGE_ID;
+  if (!page) return { ok: false, error: "no_page_id — set FACEBOOK_PAGE_ID in Cloudflare" };
+  const A = acct(env);
+  const form = await metaPost(env, page + "/leadgen_forms", {
+    name: LEAD_FORM.name, locale: "EN_US",
+    questions: JSON.stringify(LEAD_FORM.questions.map((q) => ({ type: q }))),
+    privacy_policy: JSON.stringify({ url: LEAD_FORM.privacy_url, link_text: "Privacy Policy" }),
+    context_card: JSON.stringify({ title: LEAD_FORM.intro_headline, style: "PARAGRAPH_STYLE", content: [LEAD_FORM.intro_paragraph], button_text: "Get my demo" }),
+    thank_you_page: JSON.stringify({ title: LEAD_FORM.ty_title, body: LEAD_FORM.ty_body, button_type: "VIEW_WEBSITE", button_text: LEAD_FORM.ty_button, website_url: LEAD_FORM.ty_url }),
+    follow_up_action_url: LEAD_FORM.ty_url,
+  });
+  if (!form.ok || !(form.body && form.body.id)) return { ok: false, step: "leadgen_form", error: emsg(form) };
+  const formId = form.body.id;
+  const camp = await metaPost(env, A + "/campaigns", { name: "Lead Ads · " + name, objective: "OUTCOME_LEADS", status: "PAUSED", special_ad_categories: JSON.stringify([]) });
+  if (!camp.ok || !(camp.body && camp.body.id)) return { ok: false, step: "campaign", error: emsg(camp) };
+  const campaignId = camp.body.id;
+  const targeting = { geo_locations: { countries: ["US"] }, targeting_automation: { advantage_audience: 0 } };
+  const aset = await metaPost(env, A + "/adsets", {
+    name: name + " · leads", campaign_id: campaignId, daily_budget: String(budgetCents),
+    billing_event: "IMPRESSIONS", optimization_goal: "LEAD_GENERATION", bid_strategy: "LOWEST_COST_WITHOUT_CAP",
+    destination_type: "ON_AD", promoted_object: JSON.stringify({ page_id: page }), targeting: JSON.stringify(targeting), status: "PAUSED",
+  });
+  if (!aset.ok || !(aset.body && aset.body.id)) return { ok: false, step: "adset", error: emsg(aset), campaignId };
+  const adsetId = aset.body.id;
+  const ads = [];
+  for (const img of AD_IMAGES) {
+    const spec = { page_id: page, link_data: { picture: img, link: LEAD_FORM.ty_url, message: AD_PRIMARY, name: AD_HEADLINE, call_to_action: { type: "SIGN_UP", value: { lead_gen_form_id: formId } } } };
+    const cr = await metaPost(env, A + "/adcreatives", { name: "lead-" + img.split("/").pop(), object_story_spec: JSON.stringify(spec) });
+    if (!cr.ok || !(cr.body && cr.body.id)) { ads.push({ img, error: emsg(cr) }); continue; }
+    const ad = await metaPost(env, A + "/ads", { name: "lead-" + img.split("/").pop(), adset_id: adsetId, creative: JSON.stringify({ creative_id: cr.body.id }), status: "PAUSED" });
+    ads.push(ad.ok && ad.body && ad.body.id ? { img, adId: ad.body.id } : { img, error: emsg(ad) });
+  }
+  return { ok: true, formId, campaignId, adsetId, ads, budgetPerDay: budgetCents / 100 };
+}
+
+// Flip a campaign + its ad sets + ads to ACTIVE (starts spending). Deliberate second step.
+export async function activateMetaCampaign(env, campaignId) {
+  if (!metaConfigured(env)) return { ok: false, error: "not_configured" };
+  if (!campaignId) return { ok: false, error: "no_campaign_id" };
+  const c = await metaPost(env, campaignId, { status: "ACTIVE" });
+  if (!c.ok) return { ok: false, step: "campaign", error: emsg(c) };
+  const out = { ok: true, campaignId, adsets: [], ads: [] };
+  const asets = await metaGet(env, campaignId + "/adsets", { fields: "id", limit: "50" });
+  for (const a of (((asets.body && asets.body.data) || []))) {
+    const r = await metaPost(env, a.id, { status: "ACTIVE" });
+    out.adsets.push({ id: a.id, ok: r.ok, error: r.ok ? undefined : emsg(r) });
+  }
+  const adsList = await metaGet(env, campaignId + "/ads", { fields: "id", limit: "100" });
+  for (const a of (((adsList.body && adsList.body.data) || []))) {
+    const r = await metaPost(env, a.id, { status: "ACTIVE" });
+    out.ads.push({ id: a.id, ok: r.ok, error: r.ok ? undefined : emsg(r) });
+  }
+  return out;
+}
+
 // Idempotent: replace this calendar month's Meta-sourced rows in crm_spend with the live
 // figures (channel="facebook", note="meta:<campaign_id>:<name>"). Safe to run on a cron.
 export async function syncMetaSpend(env) {
