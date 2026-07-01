@@ -166,8 +166,10 @@ export async function launchLeadFormCampaign(env, { budgetCents = 10000, name = 
     if (hit) formId = hit.id;
   }
   if (!formId) {
+    // Unique name — Meta rejects duplicate form names on a Page, and listing existing forms
+    // needs a Page token we don't hold. The returned form id is reused for retries.
     const form = await metaPost(env, page + "/leadgen_forms", {
-      name: LEAD_FORM.name, locale: "EN_US",
+      name: LEAD_FORM.name + " · " + new Date().toISOString().slice(0, 16).replace("T", " "), locale: "EN_US",
       questions: JSON.stringify(LEAD_FORM.questions.map((q) => ({ type: q }))),
       privacy_policy: JSON.stringify({ url: LEAD_FORM.privacy_url, link_text: "Privacy Policy" }),
       context_card: JSON.stringify({ title: LEAD_FORM.intro_headline, style: "PARAGRAPH_STYLE", content: [LEAD_FORM.intro_paragraph], button_text: "Get my demo" }),
