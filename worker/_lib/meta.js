@@ -95,9 +95,9 @@ async function metaPost(env, path, params) {
 }
 export async function listCustomAudiences(env) {
   if (!metaConfigured(env)) return { ok: false, configured: false };
-  const r = await metaGet(env, acct(env) + "/customaudiences", { fields: "id,name,approximate_count,subtype,delivery_status", limit: "100" });
+  const r = await metaGet(env, acct(env) + "/customaudiences", { fields: "id,name,approximate_count_lower_bound,approximate_count_upper_bound,subtype,delivery_status", limit: "100" });
   if (!r.ok) return { ok: false, error: r.error ? (r.error.message || ("graph " + r.status)) : ("graph " + r.status) };
-  return { ok: true, audiences: (((r.body && r.body.data) || [])).map((x) => ({ id: x.id, name: x.name, count: x.approximate_count != null ? Number(x.approximate_count) : null, subtype: x.subtype })) };
+  return { ok: true, audiences: (((r.body && r.body.data) || [])).map((x) => ({ id: x.id, name: x.name, count: x.approximate_count_upper_bound != null ? Number(x.approximate_count_upper_bound) : null, subtype: x.subtype })) };
 }
 export async function ensureCustomAudience(env, name) {
   const list = await listCustomAudiences(env);
