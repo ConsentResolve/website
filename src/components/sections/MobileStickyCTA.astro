@@ -26,18 +26,19 @@ const isLeadsLP = /-leads\/?$/.test(pathname);
   >
     <div class="flex items-center gap-2 rounded-2xl bg-[color:var(--color-navy-900)] p-2 ring-1 ring-inset ring-white/10 shadow-[0_18px_36px_-12px_rgba(10,22,40,0.55)]">
       {/* Secondary action — hidden on the narrowest phones. On /[trade]-leads/
-          landing pages it promotes the live demo; elsewhere, how-it-works. */}
+          landing pages the PRIMARY (brand) button is the live demo and this
+          secondary carries "Get Started"; elsewhere it's how-it-works. */}
       <a
-        href={isLeadsLP ? "/demo/?utm_source=industry_lp&utm_medium=landing_page&utm_content=sticky" : "/how-it-works/"}
+        href={isLeadsLP ? "https://dashboard.consentresolve.com/register" : "/how-it-works/"}
         class="hidden flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/15 hover:bg-white/5 sm:inline-flex"
       >
-        {isLeadsLP ? "Live demo" : "How it works"}
+        {isLeadsLP ? "Get Started — $7" : "How it works"}
       </a>
       <a
-        href="https://dashboard.consentresolve.com/register"
+        href={isLeadsLP ? "/demo/?utm_source=industry_lp&utm_medium=landing_page&utm_content=sticky" : "https://dashboard.consentresolve.com/register"}
         class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[color:var(--color-brand)] px-3 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
       >
-        Get Started — $7
+        {isLeadsLP ? "See a live demo" : "Get Started — $7"}
       </a>
       {/* Email us — mobile contact action */}
       <a
