@@ -160,6 +160,12 @@ export async function launchLeadFormCampaign(env, { budgetCents = 10000, name = 
   if (!page) return { ok: false, error: "no_page_id — set FACEBOOK_PAGE_ID in Cloudflare" };
   const A = acct(env);
   if (!formId) {
+    // Reuse an existing form of the same name (Meta rejects duplicate names) — makes retries idempotent.
+    const existing = await metaGet(env, page + "/leadgen_forms", { fields: "id,name,status", limit: "100" });
+    const hit = (((existing.body && existing.body.data) || [])).find((f) => f.name === LEAD_FORM.name);
+    if (hit) formId = hit.id;
+  }
+  if (!formId) {
     const form = await metaPost(env, page + "/leadgen_forms", {
       name: LEAD_FORM.name, locale: "EN_US",
       questions: JSON.stringify(LEAD_FORM.questions.map((q) => ({ type: q }))),
