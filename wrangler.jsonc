@@ -30,10 +30,11 @@
   // adapter self-skips without its creds). Apply worker/social-queue.sql +
   // worker/social-tokens.sql to D1 and seed the queue before enabling.
   "triggers": {
-    // "0 15 * * *" → daily social drip. "*/5 * * * *" → Apollo visitor sync
-    // (no-op until APOLLO_API_KEY + APOLLO_CONTACTS_LABEL are set). scheduled()
-    // in worker/index.js branches on event.cron.
-    "crons": ["0 15 * * *", "*/5 * * * *"]
+    // "0 15 * * *" + "0 23 * * *" → social drip runs twice daily (~10am & 6pm ET).
+    // Non-GBP platforms self-skip on the 2nd run via their cadence gate; GBP posts up
+    // to GBP_POSTS_PER_DAY (default 2) so the two runs give it spaced 2×/day posting.
+    // "*/5 * * * *" → Apollo visitor sync. scheduled() in worker/index.js branches on event.cron.
+    "crons": ["0 15 * * *", "0 23 * * *", "*/5 * * * *"]
   },
   //
   // Non-secret config. Secrets (set via `wrangler secret put` or the dashboard —

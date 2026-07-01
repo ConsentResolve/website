@@ -238,6 +238,16 @@ export async function googleAccessToken(env) {
   });
   return data.access_token;
 }
+// GBP EVENT/OFFER posts need a validity window (year/month/day + optional time). Default a
+// rolling 14-day window from "now" when the row doesn't specify one.
+function gbpSchedule(p) {
+  const start = p.gbp_start ? new Date(p.gbp_start) : new Date();
+  const end = p.gbp_end ? new Date(p.gbp_end) : new Date(start.getTime() + 14 * 86400000);
+  const ymd = (dt) => ({ year: dt.getUTCFullYear(), month: dt.getUTCMonth() + 1, day: dt.getUTCDate() });
+  return { startDate: ymd(start), startTime: { hours: 9 }, endDate: ymd(end), endTime: { hours: 17 } };
+}
+// GBP call-to-action button types the API accepts.
+const GBP_CTA_TYPES = new Set(["BOOK", "ORDER", "SHOP", "LEARN_MORE", "SIGN_UP", "CALL"]);
 async function postGBP(env, p) {
   const acct = env.GBP_ACCOUNT_ID, loc = env.GBP_LOCATION_ID;
   if (!env.GOOGLE_REFRESH_TOKEN || !acct || !loc) return { skipped: true, error: "missing_credentials" };
@@ -246,12 +256,26 @@ async function postGBP(env, p) {
   const summary = composeText(p, "google_business_profile").slice(0, 1500);
   const img = abs(p.image_url);
   const endpoint = `https://mybusiness.googleapis.com/v4/accounts/${acct}/locations/${loc}/localPosts`;
+  // topicType: STANDARD ("What's new") | EVENT | OFFER — driven by the queue row, default STANDARD.
+  const topicType = String(p.gbp_topic_type || "STANDARD").toUpperCase();
+  const ctaType = GBP_CTA_TYPES.has(String(p.gbp_cta_type || "").toUpperCase()) ? String(p.gbp_cta_type).toUpperCase() : "LEARN_MORE";
   const base = {
-    topicType: "STANDARD", // required by the localPosts API for a "What's new" post
+    topicType,
     languageCode: "en-US",
     summary,
-    ...(p.utm_url ? { callToAction: { actionType: "LEARN_MORE", url: p.utm_url } } : {}),
   };
+  // STANDARD + EVENT show a CTA button; an OFFER carries its own redeem link instead.
+  if (p.utm_url && topicType !== "OFFER") base.callToAction = { actionType: ctaType, url: p.utm_url };
+  // EVENT + OFFER require an event object (title + schedule window).
+  if (topicType === "EVENT" || topicType === "OFFER") {
+    base.event = { title: String(p.gbp_title || p.title || "Consent Resolve").slice(0, 58), schedule: gbpSchedule(p) };
+  }
+  if (topicType === "OFFER") {
+    base.offer = {};
+    if (p.gbp_coupon) base.offer.couponCode = String(p.gbp_coupon).slice(0, 58);
+    if (p.utm_url) base.offer.redeemOnlineUrl = p.utm_url;
+    if (p.gbp_terms) base.offer.termsConditions = String(p.gbp_terms).slice(0, 5000);
+  }
   const send = async (body) => {
     const r = await fetch(endpoint, { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const d = await r.json().catch(() => ({}));

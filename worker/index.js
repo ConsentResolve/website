@@ -288,12 +288,28 @@ export default {
         // The 0.5-day slack keeps a fixed-time daily cron from drifting to the
         // next interval (e.g. a 2-day cadence reliably fires on day 2, not 3).
         const cadenceDays = PLATFORM_CADENCE_DAYS[platform] || 1;
-        const last = await lastPublishedAt(env, platform);
-        if (last) {
-          const elapsedDays = (now - new Date(last).getTime()) / 86400000;
-          if (elapsedDays < cadenceDays - 0.5) {
-            console.log(`[social] ${platform}: not due (${elapsedDays.toFixed(1)}/${cadenceDays}d)`);
+        if (platform === "google_business_profile") {
+          // GBP posts multiple times/day (spaced by the two daily crons). Governed by a
+          // per-UTC-day cap, not the whole-day cadence gate. Default 2/day — the safe max
+          // (Google can flag profiles that post too aggressively). Tune via GBP_POSTS_PER_DAY.
+          const maxPerDay = parseInt(env.GBP_POSTS_PER_DAY || "2", 10) || 2;
+          const today = new Date(now).toISOString().slice(0, 10);
+          const cnt = await env.DB.prepare(
+            "SELECT COUNT(*) c FROM social_queue WHERE platform='google_business_profile' AND status='published' AND substr(published_at,1,10)=?"
+          ).bind(today).first();
+          const posted = (cnt && cnt.c) || 0;
+          if (posted >= maxPerDay) {
+            console.log(`[social] gbp: daily cap reached (${posted}/${maxPerDay})`);
             continue;
+          }
+        } else {
+          const last = await lastPublishedAt(env, platform);
+          if (last) {
+            const elapsedDays = (now - new Date(last).getTime()) / 86400000;
+            if (elapsedDays < cadenceDays - 0.5) {
+              console.log(`[social] ${platform}: not due (${elapsedDays.toFixed(1)}/${cadenceDays}d)`);
+              continue;
+            }
           }
         }
         const out = await publishNextLive(env, platform);
