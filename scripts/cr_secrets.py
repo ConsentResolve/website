@@ -31,6 +31,7 @@ SPEC = {
     "meta_token":   ("META_ACCESS_TOKEN",   "cr-meta-token",   ["/tmp/meta_token.txt"]),
     "meta_account": ("META_AD_ACCOUNT_ID",  "cr-meta-account", ["/tmp/meta_ad_account.txt"]),
     "meta_page":    ("META_PAGE_ID",        "cr-meta-page",    ["/tmp/meta_page_id.txt"]),
+    "deploy_hook":  ("CF_DEPLOY_HOOK",     "cr-deploy-hook",  ["/tmp/cf_deploy_hook.txt"]),
     "elevenlabs":   ("ELEVENLABS_API_KEY",  "cr-elevenlabs",   ["/tmp/elevenlabs_key.txt"]),
 }
 
