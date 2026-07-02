@@ -132,29 +132,88 @@ const emsg = (r) => {
   return base + (e.error_subcode ? " [subcode " + e.error_subcode + "]" : "") + (e.code ? " (code " + e.code + ")" : "");
 };
 const LEAD_FORM = {
-  name: "Consent Resolve — Exclusive HVAC Leads",
-  intro_headline: "Exclusive HVAC leads — $7 each, yours alone",
+  name: "Consent Resolve — Exclusive Home-Service Leads",
+  intro_headline: "Exclusive leads for home-service pros — $7 each, yours alone",
   intro_paragraph:
-    "Recover the ~98% of homeowners who land on your site and leave without calling. " +
+    "Recover the ~98% of homeowners who land on your site and leave without a trace. " +
     "Real name, email, and what they need — consent-first, never resold. " +
     "Tell us where to send your 2-minute demo.",
-  questions: ["FULL_NAME", "EMAIL", "PHONE", "COMPANY_NAME"],
+  // TRADE-AGNOSTIC: standard fields + a custom trade selector so we can route by trade.
+  questions: [
+    { type: "FULL_NAME" },
+    { type: "EMAIL" },
+    { type: "PHONE" },
+    { type: "COMPANY_NAME" },
+    {
+      type: "CUSTOM",
+      key: "trade",
+      label: "What trade do you run?",
+      options: [
+        { value: "HVAC" },
+        { value: "Roofing" },
+        { value: "Plumbing" },
+        { value: "Electrical" },
+        { value: "General/Remodeling" },
+        { value: "Other" },
+      ],
+    },
+  ],
   privacy_url: "https://consentresolve.com/privacy-policy/",
   ty_title: "You're in — check your email",
   ty_body: "We'll send your 2-minute demo shortly. Want it now?",
   ty_button: "See the demo",
-  ty_url: "https://consentresolve.com/hvac-leads/?utm_source=meta_lead&utm_medium=paid_social&utm_campaign=hvac_2026",
+  ty_url: "https://consentresolve.com/industries/?utm_source=meta_lead&utm_medium=paid_social&utm_campaign=allpros_2026",
 };
 const AD_PRIMARY =
-  "The homeowners who leave your site without calling? We hand them back — real name, email, and what they need. " +
-  "$7 each, exclusively yours, never resold.";
-const AD_HEADLINE = "Exclusive HVAC leads — $7 each";
-const AD_IMAGES = [
-  "https://consentresolve.com/ads/hvac_hook_4x5.png",
-  "https://consentresolve.com/ads/hvac_math_4x5.png",
+  "You're already paying for the clicks. About 98% of the homeowners who land on your site leave without a trace. " +
+  "We hand the ones who opt in back to you as exclusive, consent-first leads — a real name and email, $7 each, never resold.";
+const AD_HEADLINE = "Get back the 98% who leave";
+export const STATIC_ADS = [
+  "https://consentresolve.com/ads/cr_wastedspend_4x5.png",
+  "https://consentresolve.com/ads/cr_competitor_4x5.png",
+  "https://consentresolve.com/ads/cr_roimath_4x5.png",
+  "https://consentresolve.com/ads/cr_consent_4x5.png",
+  "https://consentresolve.com/ads/cr_speed_4x5.png",
 ];
+export const TYLER_VIDEOS = [
+  "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat.mp4",
+  "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/math-new.mp4",
+  "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/creepy-new.mp4",
+];
+export const CONV_LINK =
+  "https://consentresolve.com/industries/?utm_source=meta&utm_medium=paid&utm_campaign=CR_conv_allpros";
 
-export async function launchLeadFormCampaign(env, { budgetCents = 10000, name = "HVAC US 2026", formId = null } = {}) {
+// Upload a video by URL — Meta fetches it asynchronously (may take minutes), so we do NOT
+// poll here (Cloudflare Workers can't wait that long). Returns the video id immediately;
+// the creative step handles the "still processing" case.
+export async function uploadAdVideo(env, url) {
+  const r = await metaPost(env, acct(env) + "/advideos", { file_url: url });
+  if (!r.ok || !(r.body && r.body.id)) return { ok: false, error: emsg(r) };
+  return { ok: true, id: r.body.id };
+}
+
+// Build a video ad creative. If Meta says the video is still processing (it downloads
+// async), we surface notReady:true so a later call can retry once it's ready.
+export async function createVideoCreative(env, { videoId, message, title, link, leadFormId, thumbnailUrl }) {
+  const page = env.FACEBOOK_PAGE_ID;
+  const videoData = {
+    video_id: videoId,
+    message,
+    title,
+    call_to_action: leadFormId
+      ? { type: "SIGN_UP", value: { lead_gen_form_id: leadFormId } }
+      : { type: "LEARN_MORE", value: { link } },
+  };
+  if (thumbnailUrl) videoData.image_url = thumbnailUrl;
+  const spec = { page_id: page, video_data: videoData };
+  const cr = await metaPost(env, acct(env) + "/adcreatives", { name: "video-" + videoId, object_story_spec: JSON.stringify(spec) });
+  if (cr.ok && cr.body && cr.body.id) return { ok: true, id: cr.body.id };
+  const msg = emsg(cr);
+  if (/still (being )?process|not ready|media.*process/i.test(msg)) return { ok: false, notReady: true, error: msg };
+  return { ok: false, error: msg };
+}
+
+export async function launchLeadFormCampaign(env, { budgetCents = 10000, name = "Home Services US 2026", formId = null, videoUrls = [] } = {}) {
   if (!metaConfigured(env)) return { ok: false, error: "not_configured" };
   const page = env.FACEBOOK_PAGE_ID;
   if (!page) return { ok: false, error: "no_page_id — set FACEBOOK_PAGE_ID in Cloudflare" };
@@ -170,7 +229,7 @@ export async function launchLeadFormCampaign(env, { budgetCents = 10000, name = 
     // needs a Page token we don't hold. The returned form id is reused for retries.
     const form = await metaPost(env, page + "/leadgen_forms", {
       name: LEAD_FORM.name + " · " + new Date().toISOString().slice(0, 16).replace("T", " "), locale: "EN_US",
-      questions: JSON.stringify(LEAD_FORM.questions.map((q) => ({ type: q }))),
+      questions: JSON.stringify(LEAD_FORM.questions),
       privacy_policy: JSON.stringify({ url: LEAD_FORM.privacy_url, link_text: "Privacy Policy" }),
       context_card: JSON.stringify({ title: LEAD_FORM.intro_headline, style: "PARAGRAPH_STYLE", content: [LEAD_FORM.intro_paragraph], button_text: "Get my demo" }),
       thank_you_page: JSON.stringify({ title: LEAD_FORM.ty_title, body: LEAD_FORM.ty_body, button_type: "VIEW_WEBSITE", button_text: LEAD_FORM.ty_button, website_url: LEAD_FORM.ty_url }),
@@ -193,14 +252,66 @@ export async function launchLeadFormCampaign(env, { budgetCents = 10000, name = 
   if (!aset.ok || !(aset.body && aset.body.id)) return { ok: false, step: "adset", error: emsg(aset), campaignId, formId };
   const adsetId = aset.body.id;
   const ads = [];
-  for (const img of AD_IMAGES) {
+  const pendingVideos = [];
+  for (const img of STATIC_ADS) {
     const spec = { page_id: page, link_data: { picture: img, link: LEAD_FORM.ty_url, message: AD_PRIMARY, name: AD_HEADLINE, call_to_action: { type: "SIGN_UP", value: { lead_gen_form_id: formId } } } };
     const cr = await metaPost(env, A + "/adcreatives", { name: "lead-" + img.split("/").pop(), object_story_spec: JSON.stringify(spec) });
     if (!cr.ok || !(cr.body && cr.body.id)) { ads.push({ img, error: emsg(cr) }); continue; }
     const ad = await metaPost(env, A + "/ads", { name: "lead-" + img.split("/").pop(), adset_id: adsetId, creative: JSON.stringify({ creative_id: cr.body.id }), status: "PAUSED" });
     ads.push(ad.ok && ad.body && ad.body.id ? { img, adId: ad.body.id } : { img, error: emsg(ad) });
   }
-  return { ok: true, formId, campaignId, adsetId, ads, budgetPerDay: budgetCents / 100 };
+  for (const vurl of (videoUrls || [])) {
+    const up = await uploadAdVideo(env, vurl);
+    if (!up.ok) { ads.push({ video: vurl, error: up.error }); continue; }
+    const cr = await createVideoCreative(env, { videoId: up.id, message: AD_PRIMARY, title: AD_HEADLINE, leadFormId: formId });
+    if (cr.notReady) { pendingVideos.push({ video: vurl, videoId: up.id }); ads.push({ video: vurl, videoId: up.id, pending: true }); continue; }
+    if (!cr.ok) { ads.push({ video: vurl, videoId: up.id, error: cr.error }); continue; }
+    const ad = await metaPost(env, A + "/ads", { name: "lead-video-" + up.id, adset_id: adsetId, creative: JSON.stringify({ creative_id: cr.id }), status: "PAUSED" });
+    ads.push(ad.ok && ad.body && ad.body.id ? { video: vurl, videoId: up.id, adId: ad.body.id } : { video: vurl, videoId: up.id, error: emsg(ad) });
+  }
+  return { ok: true, formId, campaignId, adsetId, ads, pendingVideos, budgetPerDay: budgetCents / 100 };
+}
+
+// ── Conversion (web) campaign launcher ────────────────────────────────────────
+// OUTCOME_SALES optimizing for the LEAD Pixel event on the website. Static + video
+// creatives, all PAUSED. Videos that are still processing are returned in pendingVideos.
+export async function launchConversionCampaign(env, { budgetCents = 5000, name = "Home Services US 2026", link } = {}) {
+  if (!metaConfigured(env)) return { ok: false, error: "not_configured" };
+  const page = env.FACEBOOK_PAGE_ID;
+  if (!page) return { ok: false, error: "no_page_id — set FACEBOOK_PAGE_ID in Cloudflare" };
+  const A = acct(env);
+  const dest = link || CONV_LINK;
+  const camp = await metaPost(env, A + "/campaigns", { name: "Conversions · " + name, objective: "OUTCOME_SALES", status: "PAUSED", special_ad_categories: JSON.stringify([]), is_adset_budget_sharing_enabled: "false" });
+  if (!camp.ok || !(camp.body && camp.body.id)) return { ok: false, step: "campaign", error: emsg(camp) };
+  const campaignId = camp.body.id;
+  const targeting = { geo_locations: { countries: ["US"] }, targeting_automation: { advantage_audience: 0 } };
+  const aset = await metaPost(env, A + "/adsets", {
+    name: name + " · web", campaign_id: campaignId, daily_budget: String(budgetCents),
+    billing_event: "IMPRESSIONS", optimization_goal: "OFFSITE_CONVERSIONS", bid_strategy: "LOWEST_COST_WITHOUT_CAP",
+    destination_type: "WEBSITE", promoted_object: JSON.stringify({ pixel_id: "1611275646787663", custom_event_type: "LEAD" }),
+    targeting: JSON.stringify(targeting), status: "PAUSED",
+  });
+  if (!aset.ok || !(aset.body && aset.body.id)) return { ok: false, step: "adset", error: emsg(aset), campaignId };
+  const adsetId = aset.body.id;
+  const ads = [];
+  const pendingVideos = [];
+  for (const img of STATIC_ADS) {
+    const spec = { page_id: page, link_data: { picture: img, link: dest, message: AD_PRIMARY, name: AD_HEADLINE, call_to_action: { type: "LEARN_MORE", value: { link: dest } } } };
+    const cr = await metaPost(env, A + "/adcreatives", { name: "conv-" + img.split("/").pop(), object_story_spec: JSON.stringify(spec) });
+    if (!cr.ok || !(cr.body && cr.body.id)) { ads.push({ img, error: emsg(cr) }); continue; }
+    const ad = await metaPost(env, A + "/ads", { name: "conv-" + img.split("/").pop(), adset_id: adsetId, creative: JSON.stringify({ creative_id: cr.body.id }), status: "PAUSED" });
+    ads.push(ad.ok && ad.body && ad.body.id ? { img, adId: ad.body.id } : { img, error: emsg(ad) });
+  }
+  for (const vurl of TYLER_VIDEOS) {
+    const up = await uploadAdVideo(env, vurl);
+    if (!up.ok) { ads.push({ video: vurl, error: up.error }); continue; }
+    const cr = await createVideoCreative(env, { videoId: up.id, message: AD_PRIMARY, title: AD_HEADLINE, link: dest });
+    if (cr.notReady) { pendingVideos.push({ video: vurl, videoId: up.id }); ads.push({ video: vurl, videoId: up.id, pending: true }); continue; }
+    if (!cr.ok) { ads.push({ video: vurl, videoId: up.id, error: cr.error }); continue; }
+    const ad = await metaPost(env, A + "/ads", { name: "conv-video-" + up.id, adset_id: adsetId, creative: JSON.stringify({ creative_id: cr.id }), status: "PAUSED" });
+    ads.push(ad.ok && ad.body && ad.body.id ? { video: vurl, videoId: up.id, adId: ad.body.id } : { video: vurl, videoId: up.id, error: emsg(ad) });
+  }
+  return { ok: true, campaignId, adsetId, ads, pendingVideos, budgetPerDay: budgetCents / 100 };
 }
 
 // Flip a campaign + its ad sets + ads to ACTIVE (starts spending). Deliberate second step.
