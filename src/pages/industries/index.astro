@@ -99,9 +99,9 @@ const demoSlug = "water-heater-replacement";
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
     <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-24 size-[420px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
     <div class="container-content relative">
-      <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,340px)_1fr]">
-        <!-- LEFT: Tyler video — autoplays muted + looping; "Tap for sound" restarts it from the start with audio (mirrors the trade pages). -->
-        <div class="mx-auto w-full max-w-[340px]" data-hero-video>
+      <div class="grid items-center gap-12 lg:grid-cols-2">
+        <!-- LEFT: Tyler video (landscape 16:9, like the trade pages) — autoplays muted + looping; "Tap for sound" restarts it from the start with audio. -->
+        <div class="w-full" data-hero-video>
           <div class="relative overflow-hidden rounded-2xl bg-black/40 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/15">
             <video
               data-tyler
@@ -111,8 +111,8 @@ const demoSlug = "water-heater-replacement";
               playsinline
               preload="auto"
               poster="/team/tyler-spurlock.jpg"
-              src="https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/hub-next.mp4"
-              class="block aspect-[9/16] h-full w-full object-cover"
+              src="https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/hub-next-wide.mp4"
+              class="block aspect-video h-full w-full object-cover"
             ></video>
             <button
               type="button"
