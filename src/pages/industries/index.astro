@@ -5,7 +5,6 @@ import IllustrationCard from "~/components/ui/IllustrationCard.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
 import { INDUSTRIES } from "~/data/industries";
 import { breadcrumbSchema } from "~/lib/seo";
-import { IconArrowRight } from "@tabler/icons-react";
 
 const schemas = [
   breadcrumbSchema([
@@ -31,56 +30,113 @@ const schemas = [
     })),
   },
 ];
+
+// Popular quick-pick chips (the trades we advertise most).
+const POPULAR = ["hvac", "roofing", "plumber", "electrician"];
+const popularChips = POPULAR.map((s) => INDUSTRIES.find((i) => i.slug === s)).filter(Boolean);
 ---
 
 <BaseLayout
   ogImage="/og/industries.png"
-  title="Turn Anonymous Shoppers Into Jobs, by Trade"
-  ogTitle="Exclusive leads for 17 home-service trades — yours alone."
-  description="Consent-first lead recovery built for your trade — plumbers, roofers, HVAC, electricians, and 13 more. Recover the 98% who bounce into your funnel."
+  title="Find Your Trade — Exclusive Leads Built for the Work You Do"
+  ogTitle="Pick your trade — exclusive, consent-first leads for 17 home-service trades."
+  description="You run the trade. This is built for it. Pick your trade and see the homeowners already shopping your site — recovered as exclusive, consent-first leads, $7 each, never resold."
   schema={schemas}
 >
-  <!-- Hero -->
-  <section class="relative overflow-hidden">
+  <!-- Hero (dark — matches the trade landing pages) -->
+  <section class="section section-dark relative overflow-hidden">
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
-    <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-32 size-[420px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
-    <div class="container-content section relative">
+    <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-24 size-[420px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
+    <div class="container-content relative">
       <div class="mx-auto max-w-3xl text-center">
-        <Badge tone="brand" variant="soft" size="md" uppercase>Built for your trade</Badge>
-        <h1 class="display-1 mb-7 mt-7 text-[color:var(--color-ink)]">
-          Turn Your Trade's Anonymous Shoppers <span class="text-[color:var(--color-brand-pressed)]">Into Booked Jobs.</span>
+        <Badge tone="brand" variant="soft" size="md" surface="dark" uppercase>Built for your trade</Badge>
+        <h1 class="display-1 mb-6 mt-7 text-[color:var(--color-on-inverse)]">
+          What trade do you run? <span class="text-[color:var(--color-brand)]">Pick it, and see who's already shopping your site.</span>
         </h1>
-        <p class="mx-auto max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-          Same ad budget — recovery built for the way your trade actually wins work. The homeowner pricing a re-pipe doesn't shop like the one pricing a new roof. Pick your trade and see how Consent Resolve drops into the funnel you already run.
+        <p class="mx-auto max-w-2xl text-lg leading-relaxed text-[color:var(--color-on-inverse)]/80">
+          The homeowner pricing a re-pipe doesn't shop like the one pricing a new roof. Choose your trade below and see how Consent Resolve turns the visitors who leave your site into exclusive, consent-first leads — $7 each, yours alone, never resold.
         </p>
-        <div class="mt-10">
-          <a
-            href="https://dashboard.consentresolve.com/register"
-            class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] shadow-[0_18px_36px_-18px_rgba(0,229,160,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
-          >
-            Get Started
-            <IconArrowRight size={16} stroke={2.5} />
-          </a>
+
+        <!-- Trade search -->
+        <div class="mx-auto mt-9 max-w-xl">
+          <label for="tradeSearch" class="sr-only">Search your trade</label>
+          <div class="relative">
+            <input
+              id="tradeSearch"
+              type="text"
+              autocomplete="off"
+              placeholder="Type your trade — plumbing, roofing, HVAC…"
+              class="w-full rounded-full border border-white/15 bg-white/5 px-6 py-4 text-[15px] text-[color:var(--color-on-inverse)] placeholder:text-[color:var(--color-on-inverse)]/45 outline-none transition-colors focus:border-[color:var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-brand)]/30"
+            />
+          </div>
+          {popularChips.length > 0 && (
+            <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <span class="text-[12px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-on-inverse)]/50">Popular</span>
+              {popularChips.map((i) => (
+                <button
+                  type="button"
+                  data-chip={i!.shortName.toLowerCase()}
+                  class="rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-[13px] font-semibold text-[color:var(--color-on-inverse)]/85 transition-colors hover:border-[color:var(--color-brand)] hover:text-[color:var(--color-brand)]"
+                >
+                  {i!.shortName}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+        <p class="mt-6 text-[13px] font-semibold uppercase tracking-[0.16em] text-[color:var(--color-on-inverse)]/45">
+          Or pick yours below ↓
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- Trade grid -->
-  <section class="section pt-0">
+  <!-- Trade selector grid -->
+  <section class="section">
     <div class="container-content">
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div id="tradeGrid" class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {INDUSTRIES.map((i) => (
-          <IllustrationCard
-            illustration={i.illustration}
-            title={i.name}
-            body={i.cardCopy}
-            href={`/${i.slug}-leads/`}
-          />
+          <div class="trade-card" data-trade-name={`${i.name} ${i.shortName} ${i.slug}`.toLowerCase()}>
+            <IllustrationCard
+              illustration={i.illustration}
+              title={i.name}
+              body={i.cardCopy}
+              href={`/${i.slug}-leads/`}
+              ctaLabel={`See ${i.shortName} leads`}
+            />
+          </div>
         ))}
       </div>
+      <p id="tradeEmpty" hidden class="mt-10 text-center text-[color:var(--color-ink-2)]">
+        No trade matches that — <a href="/demo/" class="font-semibold text-[color:var(--color-brand-pressed)] underline">see a live demo instead →</a>
+      </p>
     </div>
   </section>
 
   <FinalCTA />
 </BaseLayout>
+
+<script>
+  // Client-side trade filter: type to narrow the grid, quick-chips prefill.
+  const input = document.getElementById("tradeSearch") as HTMLInputElement | null;
+  const cards = Array.from(document.querySelectorAll<HTMLElement>(".trade-card"));
+  const empty = document.getElementById("tradeEmpty");
+  function apply(q: string) {
+    const needle = q.trim().toLowerCase();
+    let shown = 0;
+    for (const c of cards) {
+      const hit = !needle || (c.dataset.tradeName || "").includes(needle);
+      c.hidden = !hit;
+      if (hit) shown++;
+    }
+    if (empty) empty.hidden = shown > 0;
+  }
+  input?.addEventListener("input", (e) => apply((e.target as HTMLInputElement).value));
+  document.querySelectorAll<HTMLElement>("[data-chip]").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const v = chip.dataset.chip || "";
+      if (input) { input.value = v; input.focus(); }
+      apply(v);
+    });
+  });
+</script>
