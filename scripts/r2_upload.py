@@ -5,8 +5,10 @@ Usage: python3 scripts/r2_upload.py <local_file> [object_key]
 """
 import sys, json, hashlib, hmac, datetime, urllib.request, urllib.error
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from cr_secrets import secret_json  # Keychain -> env -> /tmp/r2.json fallback
 
-C = json.load(open("/tmp/r2.json"))
+C = secret_json("r2")
 HOST = f"{C['account_id']}.r2.cloudflarestorage.com"
 REGION, SERVICE = "auto", "s3"
 

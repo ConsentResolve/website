@@ -13,8 +13,9 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT/"scripts"))
 from video_scripts import job_for, VOICE, LOOK
+from cr_secrets import secret  # Keychain -> env -> /tmp/heygen_key.txt fallback
 
-KEY = open("/tmp/heygen_key.txt").read().strip()
+KEY = secret("heygen")
 FF, FP = "/opt/homebrew/bin/ffmpeg", "/opt/homebrew/bin/ffprobe"
 DISP = str(ROOT/"scripts/.fonts/Bricolage.ttf"); SANS = str(ROOT/"scripts/.fonts/Hanken.ttf")
 MUSIC = str(ROOT/"assets/audio/CR1.mp3"); LOGO = ROOT/"public/logo-on-dark.png"
