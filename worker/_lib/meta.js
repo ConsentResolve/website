@@ -138,25 +138,13 @@ const LEAD_FORM = {
     "Recover the ~98% of homeowners who land on your site and leave without a trace. " +
     "Real name, email, and what they need — consent-first, never resold. " +
     "Tell us where to send your 2-minute demo.",
-  // TRADE-AGNOSTIC: standard fields + a custom trade selector so we can route by trade.
+  // TRADE-AGNOSTIC standard fields. (A custom "What trade do you run?" question can be added
+  // once the exact Meta leadgen custom-question format is confirmed — it 400s'd as unknown-error.)
   questions: [
     { type: "FULL_NAME" },
     { type: "EMAIL" },
     { type: "PHONE" },
     { type: "COMPANY_NAME" },
-    {
-      type: "CUSTOM",
-      key: "trade",
-      label: "What trade do you run?",
-      options: [
-        { value: "HVAC" },
-        { value: "Roofing" },
-        { value: "Plumbing" },
-        { value: "Electrical" },
-        { value: "General/Remodeling" },
-        { value: "Other" },
-      ],
-    },
   ],
   privacy_url: "https://consentresolve.com/privacy-policy/",
   ty_title: "You're in — check your email",
