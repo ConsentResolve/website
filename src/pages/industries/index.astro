@@ -100,20 +100,31 @@ const demoSlug = "water-heater-replacement";
     <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-24 size-[420px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
     <div class="container-content relative">
       <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,340px)_1fr]">
-        <!-- LEFT: Tyler video in a rounded, ringed 9:16 frame -->
-        <div class="mx-auto w-full max-w-[340px]">
-          <div class="overflow-hidden rounded-2xl bg-black/40 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/15">
+        <!-- LEFT: Tyler video — autoplays muted + looping; "Tap for sound" restarts it from the start with audio (mirrors the trade pages). -->
+        <div class="mx-auto w-full max-w-[340px]" data-hero-video>
+          <div class="relative overflow-hidden rounded-2xl bg-black/40 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/15">
             <video
-              controls
+              data-tyler
+              autoplay
               muted
+              loop
               playsinline
-              preload="metadata"
+              preload="auto"
               poster="/team/tyler-spurlock.jpg"
               src="https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-confession.mp4"
               class="block aspect-[9/16] h-full w-full object-cover"
             ></video>
+            <button
+              type="button"
+              data-unmute
+              aria-label="Tap for sound"
+              class="absolute bottom-3 right-3 z-30 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-navy-900)]/85 px-4 py-2.5 text-sm font-bold text-white ring-1 ring-inset ring-white/30 backdrop-blur transition-all hover:bg-[color:var(--color-navy-900)] hover:ring-[color:var(--color-mint-400)]"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+              Tap for sound
+            </button>
           </div>
-          <p class="mt-3 text-center text-xs text-slate-400">Tyler, co-founder — 40 seconds on how it works.</p>
+          <p class="mt-3 text-center text-xs text-slate-400">Tyler, co-founder — what to do next.</p>
         </div>
 
         <!-- RIGHT: section intro + trade selector -->
@@ -249,3 +260,34 @@ const demoSlug = "water-heater-replacement";
 
   <FinalCTA />
 </BaseLayout>
+
+<script>
+  // Hero video: autoplays muted + looping (set in markup). "Tap for sound" is a user
+  // gesture, so we can restart from the beginning with audio + native controls and stop
+  // looping. When that sound pass ends, re-arm the muted loop preview + the sound button.
+  (function () {
+    const wrap = document.querySelector<HTMLElement>("[data-hero-video]");
+    if (!wrap) return;
+    const vid = wrap.querySelector<HTMLVideoElement>("[data-tyler]");
+    const btn = wrap.querySelector<HTMLButtonElement>("[data-unmute]");
+    if (!vid || !btn) return;
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      vid.muted = false;
+      vid.loop = false;
+      vid.controls = true;
+      try { vid.currentTime = 0; } catch {}
+      const p = vid.play(); if (p && p.catch) p.catch(() => {});
+      btn.style.display = "none";
+    });
+    vid.addEventListener("ended", () => {
+      if (vid.loop) return; // still in muted-loop mode
+      vid.muted = true;
+      vid.loop = true;
+      vid.controls = false;
+      try { vid.currentTime = 0; } catch {}
+      const p = vid.play(); if (p && p.catch) p.catch(() => {});
+      btn.style.display = "";
+    });
+  })();
+</script>
