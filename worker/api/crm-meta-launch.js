@@ -6,7 +6,7 @@
 // Auth: CRM session OR ?key=<FEEDBACK_KEY>.
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
-import { metaConfigured, launchLeadFormCampaign, launchConversionCampaign, activateMetaCampaign, STATIC_ADS, TYLER_VIDEOS, CONV_LINK } from "../_lib/meta.js";
+import { metaConfigured, launchLeadFormCampaign, launchConversionCampaign, activateMetaCampaign, deleteMetaCampaign, STATIC_ADS, TYLER_VIDEOS, CONV_LINK } from "../_lib/meta.js";
 
 async function readAuthed(request, env) {
   if (await crmAuthed(request, env)) return true;
@@ -27,6 +27,11 @@ export async function onRequestPost({ request, env }) {
   if (b.action === "activate") {
     if (!b.campaignId) return json({ error: "campaignId_required" }, { status: 400 }, cors);
     return json(await activateMetaCampaign(env, b.campaignId), {}, cors);
+  }
+
+  if (b.action === "delete") {
+    if (!b.campaignId) return json({ error: "campaignId_required" }, { status: 400 }, cors);
+    return json(await deleteMetaCampaign(env, b.campaignId), {}, cors);
   }
 
   if (b.action === "conversion") {

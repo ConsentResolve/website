@@ -290,7 +290,7 @@ export async function launchConversionCampaign(env, { budgetCents = 5000, name =
   const targeting = { geo_locations: { countries: ["US"] }, targeting_automation: { advantage_audience: 0 } };
   const aset = await metaPost(env, A + "/adsets", {
     name: name + " · web", campaign_id: campaignId, daily_budget: String(budgetCents),
-    billing_event: "IMPRESSIONS", optimization_goal: "LANDING_PAGE_VIEW", bid_strategy: "LOWEST_COST_WITHOUT_CAP",
+    billing_event: "IMPRESSIONS", optimization_goal: "LANDING_PAGE_VIEWS", bid_strategy: "LOWEST_COST_WITHOUT_CAP",
     destination_type: "WEBSITE", targeting: JSON.stringify(targeting), status: "PAUSED",
   });
   if (!aset.ok || !(aset.body && aset.body.id)) return { ok: false, step: "adset", error: emsg(aset), campaignId };
@@ -334,6 +334,15 @@ export async function activateMetaCampaign(env, campaignId) {
     out.ads.push({ id: a.id, ok: r.ok, error: r.ok ? undefined : emsg(r) });
   }
   return out;
+}
+
+// Delete a campaign (and its child ad sets/ads) — for cleaning up empty/orphan campaigns
+// left by failed launch attempts. Meta soft-deletes via status=DELETED.
+export async function deleteMetaCampaign(env, campaignId) {
+  if (!metaConfigured(env)) return { ok: false, error: "not_configured" };
+  if (!campaignId) return { ok: false, error: "no_campaign_id" };
+  const r = await metaPost(env, campaignId, { status: "DELETED" });
+  return r.ok ? { ok: true, deleted: campaignId } : { ok: false, error: emsg(r) };
 }
 
 // Idempotent: replace this calendar month's Meta-sourced rows in crm_spend with the live
