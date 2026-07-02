@@ -179,7 +179,9 @@ export async function launchLeadFormCampaign(env, { budgetCents = 10000, name = 
     if (!form.ok || !(form.body && form.body.id)) return { ok: false, step: "leadgen_form", error: emsg(form) };
     formId = form.body.id;
   }
-  const camp = await metaPost(env, A + "/campaigns", { name: "Lead Ads · " + name, objective: "OUTCOME_LEADS", status: "PAUSED", special_ad_categories: JSON.stringify([]) });
+  // is_adset_budget_sharing_enabled is required when the budget lives on the ad set (not the
+  // campaign). false = each ad set keeps its full daily budget.
+  const camp = await metaPost(env, A + "/campaigns", { name: "Lead Ads · " + name, objective: "OUTCOME_LEADS", status: "PAUSED", special_ad_categories: JSON.stringify([]), is_adset_budget_sharing_enabled: "false" });
   if (!camp.ok || !(camp.body && camp.body.id)) return { ok: false, step: "campaign", error: emsg(camp), formId };
   const campaignId = camp.body.id;
   const targeting = { geo_locations: { countries: ["US"] }, targeting_automation: { advantage_audience: 0 } };
