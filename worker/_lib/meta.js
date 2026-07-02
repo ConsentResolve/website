@@ -281,15 +281,17 @@ export async function launchConversionCampaign(env, { budgetCents = 5000, name =
   if (!page) return { ok: false, error: "no_page_id — set FACEBOOK_PAGE_ID in Cloudflare" };
   const A = acct(env);
   const dest = link || CONV_LINK;
-  const camp = await metaPost(env, A + "/campaigns", { name: "Conversions · " + name, objective: "OUTCOME_SALES", status: "PAUSED", special_ad_categories: JSON.stringify([]), is_adset_budget_sharing_enabled: "false" });
+  // Cold start: the Pixel has no LEAD-event volume yet, so Meta blocks conversion optimization.
+  // Run as TRAFFIC optimizing for landing-page views to /industries/; flip the ad set to
+  // OUTCOME_SALES/OFFSITE_CONVERSIONS once the demo form has logged enough Lead events.
+  const camp = await metaPost(env, A + "/campaigns", { name: "Traffic · " + name, objective: "OUTCOME_TRAFFIC", status: "PAUSED", special_ad_categories: JSON.stringify([]), is_adset_budget_sharing_enabled: "false" });
   if (!camp.ok || !(camp.body && camp.body.id)) return { ok: false, step: "campaign", error: emsg(camp) };
   const campaignId = camp.body.id;
   const targeting = { geo_locations: { countries: ["US"] }, targeting_automation: { advantage_audience: 0 } };
   const aset = await metaPost(env, A + "/adsets", {
     name: name + " · web", campaign_id: campaignId, daily_budget: String(budgetCents),
-    billing_event: "IMPRESSIONS", optimization_goal: "OFFSITE_CONVERSIONS", bid_strategy: "LOWEST_COST_WITHOUT_CAP",
-    destination_type: "WEBSITE", promoted_object: JSON.stringify({ pixel_id: "1611275646787663", custom_event_type: "LEAD" }),
-    targeting: JSON.stringify(targeting), status: "PAUSED",
+    billing_event: "IMPRESSIONS", optimization_goal: "LANDING_PAGE_VIEW", bid_strategy: "LOWEST_COST_WITHOUT_CAP",
+    destination_type: "WEBSITE", targeting: JSON.stringify(targeting), status: "PAUSED",
   });
   if (!aset.ok || !(aset.body && aset.body.id)) return { ok: false, step: "adset", error: emsg(aset), campaignId };
   const adsetId = aset.body.id;
