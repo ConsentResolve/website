@@ -117,7 +117,21 @@ LEAH = {
 for slug,(look,card,script,cta) in LEAH.items():
     add(slug, look, LEAH_VOICE, card, script, cta, slug)
 
+# /industries/ hub hero — "what to do next": tells a visitor to pick their trade.
+add("hub-next", LOOK["tyler_drive"], VOICE["tyler"],
+    ["PICK YOUR", "TRADE"],
+    "You made it to the page. Good. Here's what to do next. Pick your trade, right here, "
+    "heating and air, roofing, plumbing, whatever you run. The homeowner pricing a re-pipe "
+    "doesn't shop like the one pricing a new roof, so the page you land on is built for your "
+    "exact work. The visitors already on your site, the ones who read a page and left, don't "
+    "have to vanish. When they opt in, we hand them back as exclusive leads. A real name, a "
+    "real email, seven dollars each, never resold. So pick your trade, and see it on a site "
+    "like yours.",
+    "Pick your trade  →",
+    "hub-next")
+
 want = sys.argv[1:] or list(A)
+(ROOT/"public/reels").mkdir(parents=True, exist_ok=True)  # output dir (gitignored; may be absent on a fresh checkout)
 
 def api(u,b=None):
     data=json.dumps(b).encode() if b else None
