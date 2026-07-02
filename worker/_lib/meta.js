@@ -204,7 +204,9 @@ export async function createVideoCreative(env, { videoId, message, title, link, 
       ? { type: "SIGN_UP", value: { lead_gen_form_id: leadFormId } }
       : { type: "LEARN_MORE", value: { link } },
   };
-  if (thumbnailUrl) videoData.image_url = thumbnailUrl;
+  // Meta requires a video thumbnail (image_url or image_hash). Default to Tyler's headshot;
+  // reviewable/swappable in Ads Manager before activation.
+  videoData.image_url = thumbnailUrl || "https://consentresolve.com/team/tyler-spurlock.jpg";
   const spec = { page_id: page, video_data: videoData };
   const cr = await metaPost(env, acct(env) + "/adcreatives", { name: "video-" + videoId, object_story_spec: JSON.stringify(spec) });
   if (cr.ok && cr.body && cr.body.id) return { ok: true, id: cr.body.id };
