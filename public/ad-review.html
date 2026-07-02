@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Ad Review — Home Services US 2026</title>
+<style>
+  :root{--navy:#0a1628;--navy2:#0f1f38;--mint:#00e5a0;--mintp:#00a86e;--paper:#f8fafc;--ink2:#94a3b8;--rule:#1e3556}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Hanken Grotesk",Segoe UI,Roboto,sans-serif;background:var(--navy);color:var(--paper)}
+  header{padding:36px 24px 20px;max-width:1100px;margin:0 auto}
+  h1{font-family:"Bricolage Grotesque",sans-serif;font-size:26px;margin:0 0 6px}
+  .sub{color:var(--ink2);font-size:14px;line-height:1.6;margin:0}
+  .bar{position:sticky;top:0;z-index:20;background:rgba(10,22,40,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);padding:12px 24px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+  .bar .n{color:var(--ink2);font-size:13px}
+  .btn{background:var(--mint);color:var(--navy);font-weight:800;border:none;border-radius:999px;padding:10px 18px;font-size:14px;cursor:pointer}
+  .btn.ghost{background:transparent;color:var(--paper);border:1px solid var(--rule)}
+  .note{max-width:1100px;margin:0 auto 8px;padding:12px 24px}
+  .warn{background:rgba(255,196,0,.1);border:1px solid rgba(255,196,0,.35);color:#ffe08a;border-radius:12px;padding:12px 16px;font-size:13px;line-height:1.6}
+  .grid{max-width:1100px;margin:0 auto;padding:16px 24px 80px;display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--navy2);border:1px solid var(--rule);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+  .card.ok{border-color:var(--mint)}
+  .media{background:#000;display:flex;align-items:center;justify-content:center;max-height:520px}
+  .media img,.media video{max-width:100%;max-height:520px;display:block}
+  .body{padding:18px}
+  .tag{display:inline-block;background:rgba(0,229,160,.14);color:var(--mint);font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px}
+  .fmt{color:var(--ink2);font-size:12px;margin-left:8px}
+  .lbl{color:var(--ink2);font-size:11px;text-transform:uppercase;letter-spacing:.12em;margin:14px 0 3px}
+  .prim{font-size:14px;line-height:1.5}
+  .hl{font-weight:700;font-size:15px;margin-top:2px}
+  textarea{width:100%;margin-top:12px;background:#0a1628;color:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:10px;font:inherit;font-size:14px;min-height:64px;resize:vertical}
+  .row{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .row label{font-size:14px;display:flex;align-items:center;gap:7px;cursor:pointer}
+  .saved{color:var(--mint);font-size:12px;opacity:0;transition:opacity .3s}
+  .saved.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="n" id="count">—</span>
+  <div>
+    <button class="btn ghost" onclick="clearAll()">Clear my notes</button>
+    <button class="btn" onclick="exportFeedback()">Export feedback ⤓</button>
+  </div>
+</div>
+<header>
+  <h1>Ad Review — Home Services US 2026</h1>
+  <p class="sub">
+    8 creatives running across <b>2 campaigns, $100/day total ($50 lead-form + $50 traffic→/industries/)</b> — everything is <b>PAUSED</b>, nothing spends until approved.
+    Leave notes on any ad and check "looks good." Click <b>Export feedback</b> when done and send me the file (or just tell me your changes).
+  </p>
+</header>
+<div class="note"><div class="warn">
+  ⚠️ Heads-up: all 8 ads currently share <b>one</b> primary text + headline (the wasted-spend copy below), even though the 5 static images are different angles.
+  If you want each ad's copy to match its visual (recommended), note it and I'll wire per-angle copy.
+</div></div>
+<div class="grid" id="grid"></div>
+
+<script>
+const PRIMARY = "You're already paying for the clicks. About 98% of the homeowners who land on your site leave without a trace. We hand the ones who opt in back to you as exclusive, consent-first leads — a real name and email, $7 each, never resold.";
+const HEADLINE = "Get back the 98% who leave";
+const ADS = [
+  {id:"static-wastedspend", angle:"Wasted-spend", type:"img", src:"/ads/cr_wastedspend_4x5.png", fmt:"Static · 4:5"},
+  {id:"static-competitor",  angle:"Competitor-envy", type:"img", src:"/ads/cr_competitor_4x5.png", fmt:"Static · 4:5"},
+  {id:"static-roimath",     angle:"ROI-math", type:"img", src:"/ads/cr_roimath_4x5.png", fmt:"Static · 4:5"},
+  {id:"static-consent",     angle:"Consent / trust", type:"img", src:"/ads/cr_consent_4x5.png", fmt:"Static · 4:5"},
+  {id:"static-speed",       angle:"Speed-to-lead", type:"img", src:"/ads/cr_speed_4x5.png", fmt:"Static · 4:5"},
+  {id:"video-leakstat",     angle:"Tyler · Leak / 98%", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat.mp4", fmt:"Video · 9:16"},
+  {id:"video-math",         angle:"Tyler · ROI ($100 vs $7)", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/math-new.mp4", fmt:"Video · 9:16"},
+  {id:"video-creepy",       angle:"Tyler · Consent vs creepy", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/creepy-new.mp4", fmt:"Video · 9:16"},
+];
+const KEY = "cr_ad_review_v1";
+const store = JSON.parse(localStorage.getItem(KEY) || "{}");
+const grid = document.getElementById("grid");
+
+ADS.forEach((a) => {
+  const s = store[a.id] || {note:"", ok:false};
+  const media = a.type === "img"
+    ? `<img src="${a.src}" alt="">`
+    : `<video src="${a.src}" controls playsinline preload="metadata" style="aspect-ratio:9/16;max-height:520px"></video>`;
+  const el = document.createElement("div");
+  el.className = "card" + (s.ok ? " ok" : "");
+  el.id = "card-" + a.id;
+  el.innerHTML =
+    `<div class="media">${media}</div>
+     <div class="body">
+       <span class="tag">${a.angle}</span><span class="fmt">${a.fmt}</span>
+       <div class="lbl">Primary text</div><div class="prim">${PRIMARY}</div>
+       <div class="lbl">Headline</div><div class="hl">${HEADLINE}</div>
+       <textarea placeholder="Your notes on this ad…" data-id="${a.id}">${s.note || ""}</textarea>
+       <div class="row">
+         <label><input type="checkbox" data-ok="${a.id}" ${s.ok ? "checked" : ""}> Looks good</label>
+         <span class="saved" id="saved-${a.id}">saved ✓</span>
+       </div>
+     </div>`;
+  grid.appendChild(el);
+});
+
+function save(id){
+  const ta = document.querySelector(`textarea[data-id="${id}"]`);
+  const ok = document.querySelector(`input[data-ok="${id}"]`);
+  store[id] = {note: ta.value, ok: ok.checked};
+  localStorage.setItem(KEY, JSON.stringify(store));
+  document.getElementById("card-"+id).classList.toggle("ok", ok.checked);
+  const s = document.getElementById("saved-"+id); s.classList.add("show"); setTimeout(()=>s.classList.remove("show"), 900);
+  updateCount();
+}
+grid.addEventListener("input", (e)=>{ if(e.target.dataset.id) save(e.target.dataset.id); });
+grid.addEventListener("change", (e)=>{ if(e.target.dataset.ok) save(e.target.dataset.ok); });
+
+function updateCount(){
+  const ok = ADS.filter(a => (store[a.id]||{}).ok).length;
+  const notes = ADS.filter(a => (store[a.id]||{}).note).length;
+  document.getElementById("count").textContent = `${ok}/8 looks good · ${notes} with notes`;
+}
+updateCount();
+
+function exportFeedback(){
+  const out = {reviewed_at: new Date().toISOString(), campaigns:"Home Services US 2026 (lead-form + traffic)",
+    ads: ADS.map(a => ({id:a.id, angle:a.angle, ...(store[a.id]||{note:"",ok:false})}))};
+  const blob = new Blob([JSON.stringify(out,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a"); link.href = url; link.download = "ad-feedback.json"; link.click();
+  URL.revokeObjectURL(url);
+}
+function clearAll(){ if(confirm("Clear all your notes?")){ localStorage.removeItem(KEY); location.reload(); } }
+</script>
+</body>
+</html>
