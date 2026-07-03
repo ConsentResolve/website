@@ -18,15 +18,15 @@
   .btn{background:var(--mint);color:var(--navy);font-weight:800;border:none;border-radius:999px;padding:10px 18px;font-size:14px;cursor:pointer}
   .btn.ghost{background:transparent;color:var(--paper);border:1px solid var(--rule)}
 
-  /* two-test toggle */
-  .toggle-wrap{max-width:1100px;margin:14px auto 0;padding:0 24px}
+  .controls{max-width:1100px;margin:14px auto 0;padding:0 24px;display:flex;flex-wrap:wrap;gap:20px}
+  .ctl-label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink2);margin-bottom:6px}
   .seg{display:inline-flex;background:var(--navy2);border:1px solid var(--rule);border-radius:999px;padding:4px;gap:4px}
-  .seg button{border:none;background:transparent;color:var(--ink2);font-weight:700;font-size:14px;padding:9px 18px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .15s}
+  .seg button{border:none;background:transparent;color:var(--ink2);font-weight:700;font-size:13.5px;padding:9px 16px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .15s}
   .seg button .dot{width:8px;height:8px;border-radius:99px;background:currentColor;opacity:.6}
   .seg button[aria-pressed="true"]{background:var(--mint);color:var(--navy)}
   .seg button[aria-pressed="true"] .dot{opacity:1}
 
-  .dest{max-width:1100px;margin:12px auto 0;padding:0 24px}
+  .dest{max-width:1100px;margin:14px auto 0;padding:0 24px}
   .dest-card{display:flex;gap:12px;align-items:flex-start;background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.3);border-radius:12px;padding:12px 16px;font-size:13.5px;line-height:1.6}
   .dest-card b{color:#c9fff0}
   .dest-card .lead-only,.dest-card .page-only{display:none}
@@ -34,14 +34,14 @@
   body[data-mode="lead"] .dest-card .lead-only{display:block}
   .dest a{color:var(--mint);font-weight:700;text-decoration:none;word-break:break-all}
   .dest a:hover{text-decoration:underline}
-  .pill{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:rgba(0,229,160,.16);color:var(--mint)}
+  .pill{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:rgba(0,229,160,.16);color:var(--mint);white-space:nowrap}
 
-  .grid{max-width:1100px;margin:0 auto;padding:16px 24px 80px;display:grid;grid-template-columns:1fr 1fr;gap:26px}
+  .grid{max-width:1100px;margin:0 auto;padding:18px 24px 80px;display:grid;grid-template-columns:1fr 1fr;gap:26px}
   @media(max-width:860px){.grid{grid-template-columns:1fr}}
   .card{display:flex;flex-direction:column;gap:12px}
-  .card.ok .fb-ad{outline:3px solid var(--mint);outline-offset:2px}
+  .card.ok .fb-ad,.card.ok .story{outline:3px solid var(--mint);outline-offset:2px}
 
-  /* Facebook ad mockup (white, realistic) */
+  /* ---------- Facebook FEED ad mockup (1:1) ---------- */
   .fb-ad{background:#fff;color:var(--fb-ink);border-radius:10px;overflow:hidden;box-shadow:0 10px 30px -12px rgba(0,0,0,.6)}
   .fb-top{display:flex;align-items:center;gap:10px;padding:12px 12px 8px}
   .fb-av{width:40px;height:40px;border-radius:50%;background:var(--navy);display:grid;place-items:center;flex:0 0 auto;overflow:hidden}
@@ -58,19 +58,30 @@
   .fb-domain{font-size:12px;color:var(--fb-sub);text-transform:uppercase;letter-spacing:.02em}
   .fb-hl{font-weight:700;font-size:15px;line-height:1.25;margin-top:1px;color:var(--fb-ink)}
   .fb-desc{font-size:12.5px;color:var(--fb-sub);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .fb-cta{margin-left:auto;flex:0 0 auto;background:var(--fb-btn);color:var(--fb-ink);border:none;border-radius:6px;font-weight:700;font-size:14px;padding:9px 14px;cursor:pointer;white-space:nowrap}
+  .fb-cta{margin-left:auto;flex:0 0 auto;background:var(--fb-btn);color:var(--fb-ink);border:none;border-radius:6px;font-weight:700;font-size:14px;padding:9px 14px;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center}
   .fb-cta:hover{filter:brightness(.96)}
   .fb-actions{display:flex;justify-content:space-around;border-top:1px solid #ced0d4;padding:6px 0;color:var(--fb-sub);font-size:13.5px;font-weight:600}
   .fb-actions span{display:inline-flex;align-items:center;gap:6px;padding:6px 10px}
 
-  /* only show the linkbar matching the active test */
-  .lb-page,.lb-lead{display:none}
-  body[data-mode="page"] .lb-page{display:flex}
-  body[data-mode="lead"] .lb-lead{display:flex}
-  .lead-tag{display:none}
-  body[data-mode="lead"] .lead-tag{display:inline-block}
-  body[data-mode="page"] .page-tag{display:inline-block}
-  .page-tag{display:none}
+  /* ---------- Stories / Reels mockup (9:16) ---------- */
+  .story{position:relative;width:100%;max-width:300px;margin:0 auto;aspect-ratio:9/16;border-radius:18px;overflow:hidden;background:#000;box-shadow:0 14px 40px -14px rgba(0,0,0,.7)}
+  .story-media{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .story-media video,.story-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .story-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(26px) brightness(.55);transform:scale(1.2)}
+  .story-fg{position:relative;width:100%;height:auto;display:block}
+  .story-bars{position:absolute;top:8px;left:10px;right:10px;display:flex;gap:4px;z-index:3}
+  .story-bars i{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.4)}
+  .story-bars i:first-child{background:#fff}
+  .story-top{position:absolute;top:20px;left:12px;right:12px;display:flex;align-items:center;gap:8px;z-index:3;color:#fff;font-size:12.5px;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+  .story-top .fb-av{width:28px;height:28px;background:rgba(255,255,255,.15)}
+  .story-top .fb-av img{width:20px;height:20px}
+  .story-top b{font-weight:400;opacity:.9}
+  .story-foot{position:absolute;left:0;right:0;bottom:0;z-index:3;display:none;flex-direction:column;align-items:center;gap:8px;padding:26px 16px 20px;background:linear-gradient(to top,rgba(0,0,0,.55),transparent)}
+  body[data-mode="page"] .story-foot.lb-page{display:flex}
+  body[data-mode="lead"] .story-foot.lb-lead{display:flex}
+  .story-chev{color:#fff;font-size:18px;line-height:.6;animation:bob 1.2s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  .story-btn{background:#fff;color:#050505;border:none;border-radius:8px;font-weight:800;font-size:15px;padding:11px 22px;cursor:pointer;width:80%}
 
   /* review controls under each mockup */
   .review{background:var(--navy2);border:1px solid var(--rule);border-radius:12px;padding:14px}
@@ -103,7 +114,7 @@
   .fs-close{position:absolute;top:16px;right:18px;background:#fff;border:none;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 </style>
 </head>
-<body data-mode="page">
+<body data-mode="page" data-place="feed">
 <div class="bar">
   <span class="n" id="count">—</span>
   <div>
@@ -114,15 +125,25 @@
 <header>
   <h1>Ad Review — Home Services US 2026</h1>
   <p class="sub">
-    We're running <b>two tests</b> with the same 8 creatives, everything <b>PAUSED</b> — nothing spends until you approve.
-    Use the toggle to see how each ad renders for each test. Leave notes on any ad and check "looks good."
+    Two tests, same 8 creatives, everything <b>PAUSED</b> — nothing spends until you approve.
+    Use the toggles to see each ad by <b>test</b> and by <b>placement</b>. Leave notes on any ad and check "looks good."
   </p>
 </header>
 
-<div class="toggle-wrap">
-  <div class="seg" role="group" aria-label="Which test to preview">
-    <button id="tgPage" aria-pressed="true" onclick="setMode('page')"><span class="dot"></span>Test A · Direct to page</button>
-    <button id="tgLead" aria-pressed="false" onclick="setMode('lead')"><span class="dot"></span>Test B · Facebook Lead Gen</button>
+<div class="controls">
+  <div>
+    <div class="ctl-label">Which test</div>
+    <div class="seg" role="group" aria-label="Which test">
+      <button id="tgPage" aria-pressed="true" onclick="setMode('page')"><span class="dot"></span>A · Direct to page</button>
+      <button id="tgLead" aria-pressed="false" onclick="setMode('lead')"><span class="dot"></span>B · Facebook Lead Gen</button>
+    </div>
+  </div>
+  <div>
+    <div class="ctl-label">Placement</div>
+    <div class="seg" role="group" aria-label="Placement">
+      <button id="tgFeed" aria-pressed="true" onclick="setPlace('feed')"><span class="dot"></span>Feed · 1:1</button>
+      <button id="tgStory" aria-pressed="false" onclick="setPlace('story')"><span class="dot"></span>Stories / Reels · 9:16</button>
+    </div>
   </div>
 </div>
 
@@ -133,12 +154,11 @@
       <div class="page-only">
         <b>Test A — Traffic → your landing page.</b> Tapping the ad opens
         <a href="https://consentresolve.com/industries/?utm_source=meta&utm_medium=paid&utm_campaign=CR_conv_allpros" target="_blank" rel="noopener">consentresolve.com/industries/</a>
-        (the trade-picker page) in the browser. Button reads <b>“Learn More.”</b> $50/day.
+        (the trade-picker). Button reads <b>“Learn More.”</b> $50/day.
       </div>
       <div class="lead-only">
         <b>Test B — Facebook Lead Gen (Instant Form).</b> Tapping <b>“Sign Up”</b> opens a form <b>inside Facebook</b> — no website visit —
-        pre-filled with the homeowner's name &amp; email. They submit in two taps and the lead lands in the CRM.
-        <a href="#" onclick="openForm();return false;">Preview the form ↗</a>. $50/day.
+        pre-filled with the homeowner's name &amp; email. <a href="#" onclick="openForm();return false;">Preview the form ↗</a>. $50/day.
       </div>
     </div>
   </div>
@@ -172,73 +192,36 @@ const HEADLINE = "Get back the 98% who leave";
 const PAGE_DOMAIN = "consentresolve.com";
 const PAGE_DESC = "Pick your trade — see a 2-min demo";
 const LEAD_DESC = "Exclusive, consent-first leads · $7 each";
+const R2 = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/";
+// videos carry BOTH a 1:1 (sq) source for Feed and a 9:16 (v) source for Stories/Reels.
 const ADS = [
-  {id:"static-plumber",     angle:"Competitor-envy · service pro", type:"img", src:"/ads/cr_plumber.png", fmt:"Static · 1:1", onimg:"One lead. One pro. Never resold."},
-  {id:"static-electrician", angle:"Value · service pro", type:"img", src:"/ads/cr_electrician.png", fmt:"Static · 1:1", onimg:"$7 a lead. Yours alone."},
-  {id:"static-roofer",      angle:"Wasted-spend · service pro", type:"img", src:"/ads/cr_roofer.png", fmt:"Static · 1:1", onimg:"Get back the 98% who leave."},
-  {id:"static-team",        angle:"Consent · service crew", type:"img", src:"/ads/cr_team.png", fmt:"Static · 1:1", onimg:"Leads that opted in. Not scraped."},
-  {id:"static-roimath",     angle:"ROI-math · line-art", type:"img", src:"/ads/cr_roimath_4x5.png", fmt:"Static · 4:5", onimg:""},
-  {id:"video-leakstat",     angle:"Tyler · Leak / 98%", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat-sq.mp4", fmt:"Video · 1:1", onimg:""},
-  {id:"video-math",         angle:"Tyler · ROI ($100 vs $7)", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/math-new-sq.mp4", fmt:"Video · 1:1", onimg:""},
-  {id:"video-creepy",       angle:"Tyler · Consent vs creepy", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/creepy-new-sq.mp4", fmt:"Video · 1:1", onimg:""},
+  {id:"static-plumber",     angle:"Competitor-envy · service pro", type:"img", src:"/ads/cr_plumber.png",     onimg:"One lead. One pro. Never resold."},
+  {id:"static-electrician", angle:"Value · service pro",           type:"img", src:"/ads/cr_electrician.png", onimg:"$7 a lead. Yours alone."},
+  {id:"static-roofer",      angle:"Wasted-spend · service pro",    type:"img", src:"/ads/cr_roofer.png",      onimg:"Get back the 98% who leave."},
+  {id:"static-team",        angle:"Consent · service crew",        type:"img", src:"/ads/cr_team.png",        onimg:"Leads that opted in. Not scraped."},
+  {id:"static-roimath",     angle:"ROI-math · line-art",           type:"img", src:"/ads/cr_roimath_4x5.png", onimg:""},
+  {id:"video-leakstat",     angle:"Tyler · Leak / 98%",            type:"vid", sq:R2+"leak-stat-sq.mp4",  v:R2+"leak-stat.mp4",  onimg:""},
+  {id:"video-math",         angle:"Tyler · ROI ($100 vs $7)",      type:"vid", sq:R2+"math-new-sq.mp4",   v:R2+"math-new.mp4",   onimg:""},
+  {id:"video-creepy",       angle:"Tyler · Consent vs creepy",     type:"vid", sq:R2+"creepy-new-sq.mp4", v:R2+"creepy-new.mp4", onimg:""},
 ];
 const KEY = "cr_ad_review_v1";
 const store = JSON.parse(localStorage.getItem(KEY) || "{}");
 const grid = document.getElementById("grid");
 const esc = (s) => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const VERIFIED = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 1.8 3-.3 1 2.8 2.6 1.5-.9 2.9.9 2.9-2.6 1.5-1 2.8-3-.3L12 22l-2.4-1.8-3 .3-1-2.8L3 16.5l.9-2.9L3 10.7l2.6-1.5 1-2.8 3 .3z"></path><path d="M10.5 14.5l-2-2 1-1 1 1 3-3 1 1z" fill="#fff"></path></svg>`;
+const GLOBE = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 2c1.5 0 2.9.4 4.1 1.1H7.9A7.9 7.9 0 0112 4zM4 12a8 8 0 011-3.9h14a8 8 0 010 7.8H5A8 8 0 014 12zm8 8a7.9 7.9 0 01-4.1-1.1h8.2A7.9 7.9 0 0112 20z"></path></svg>`;
 
-function media(a){
-  return a.type === "img"
-    ? `<img src="${a.src}" alt="">`
-    : `<video src="${a.src}" controls playsinline preload="metadata"></video>`;
+function fmtLabel(a, place){
+  if (a.type === "img") return place === "story" ? "1:1 image · shown in a 9:16 frame" : "Static · 1:1";
+  return place === "story" ? "Video · 9:16 (Stories/Reels)" : "Video · 1:1 (Feed)";
 }
-
-function card(a){
+function reviewBlock(a, place){
   const s = store[a.id] || {note:"", ok:false};
-  const el = document.createElement("div");
-  el.className = "card" + (s.ok ? " ok" : "");
-  el.id = "card-" + a.id;
-  el.innerHTML = `
-    <div class="fb-ad">
-      <div class="fb-top">
-        <div class="fb-av"><img src="/logo-on-dark.png" alt="" onerror="this.style.display='none'"></div>
-        <div>
-          <div class="fb-name">Consent Resolve ${VERIFIED}</div>
-          <div class="fb-meta">Sponsored · <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 2c1.5 0 2.9.4 4.1 1.1H7.9A7.9 7.9 0 0112 4zM4 12a8 8 0 011-3.9h14a8 8 0 010 7.8H5A8 8 0 014 12zm8 8a7.9 7.9 0 01-4.1-1.1h8.2A7.9 7.9 0 0112 20z"></path></svg></div>
-        </div>
-        <div class="fb-dots">···</div>
-      </div>
-      <div class="fb-primary">${esc(PRIMARY)}</div>
-      <div class="fb-media">${media(a)}</div>
-
-      <div class="fb-linkbar lb-page">
-        <div class="txt">
-          <div class="fb-domain">${PAGE_DOMAIN}</div>
-          <div class="fb-hl">${esc(HEADLINE)}</div>
-          <div class="fb-desc">${esc(PAGE_DESC)}</div>
-        </div>
-        <a class="fb-cta" href="https://consentresolve.com/industries/?utm_source=meta&utm_medium=paid&utm_campaign=CR_conv_allpros" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center">Learn More</a>
-      </div>
-
-      <div class="fb-linkbar lb-lead">
-        <div class="txt">
-          <div class="fb-domain">Instant form · Facebook</div>
-          <div class="fb-hl">${esc(HEADLINE)}</div>
-          <div class="fb-desc">${esc(LEAD_DESC)}</div>
-        </div>
-        <button class="fb-cta" onclick="openForm()">Sign Up</button>
-      </div>
-
-      <div class="fb-actions">
-        <span>👍 Like</span><span>💬 Comment</span><span>↪ Share</span>
-      </div>
-    </div>
-
+  return `
     <div class="review">
-      <span class="tag">${a.angle}</span><span class="fmt">${a.fmt}</span>
-      <span class="fmt page-tag">→ Learn More · opens landing page</span>
-      <span class="fmt lead-tag">→ Sign Up · opens Instant Form</span>
+      <span class="tag">${a.angle}</span><span class="fmt">${fmtLabel(a, place)}</span>
+      <span class="fmt page-tag">→ Learn More · landing page</span>
+      <span class="fmt lead-tag">→ Sign Up · Instant Form</span>
       ${a.onimg ? `<div class="lbl">Baked on the image</div><div class="hl">“${esc(a.onimg)}”</div>` : ""}
       <textarea placeholder="Your notes on this ad…" data-id="${a.id}">${esc(s.note || "")}</textarea>
       <div class="row">
@@ -246,14 +229,65 @@ function card(a){
         <span class="saved" id="saved-${a.id}">saved ✓</span>
       </div>
     </div>`;
-  return el;
+}
+
+function feedMockup(a){
+  const media = a.type === "img"
+    ? `<img src="${a.src}" alt="">`
+    : `<video src="${a.sq}" controls playsinline preload="metadata"></video>`;
+  return `
+    <div class="fb-ad">
+      <div class="fb-top">
+        <div class="fb-av"><img src="/logo-on-dark.png" alt="" onerror="this.style.display='none'"></div>
+        <div>
+          <div class="fb-name">Consent Resolve ${VERIFIED}</div>
+          <div class="fb-meta">Sponsored · ${GLOBE}</div>
+        </div>
+        <div class="fb-dots">···</div>
+      </div>
+      <div class="fb-primary">${esc(PRIMARY)}</div>
+      <div class="fb-media">${media}</div>
+      <div class="fb-linkbar lb-page">
+        <div class="txt"><div class="fb-domain">${PAGE_DOMAIN}</div><div class="fb-hl">${esc(HEADLINE)}</div><div class="fb-desc">${esc(PAGE_DESC)}</div></div>
+        <a class="fb-cta" href="https://consentresolve.com/industries/?utm_source=meta&utm_medium=paid&utm_campaign=CR_conv_allpros" target="_blank" rel="noopener">Learn More</a>
+      </div>
+      <div class="fb-linkbar lb-lead">
+        <div class="txt"><div class="fb-domain">Instant form · Facebook</div><div class="fb-hl">${esc(HEADLINE)}</div><div class="fb-desc">${esc(LEAD_DESC)}</div></div>
+        <button class="fb-cta" onclick="openForm()">Sign Up</button>
+      </div>
+      <div class="fb-actions"><span>👍 Like</span><span>💬 Comment</span><span>↪ Share</span></div>
+    </div>`;
+}
+
+function storyMockup(a){
+  const media = a.type === "img"
+    ? `<div class="story-bg" style="background-image:url('${a.src}')"></div><img class="story-fg" src="${a.src}" alt="">`
+    : `<video class="story-vid" src="${a.v}" controls playsinline preload="metadata"></video>`;
+  return `
+    <div class="story">
+      <div class="story-media">${media}</div>
+      <div class="story-bars"><i></i><i></i><i></i></div>
+      <div class="story-top">
+        <div class="fb-av"><img src="/logo-on-dark.png" alt="" onerror="this.style.display='none'"></div>
+        <span>Consent Resolve · <b>Sponsored</b></span>
+      </div>
+      <div class="story-foot lb-page"><div class="story-chev">⌃</div><button class="story-btn" onclick="window.open('https://consentresolve.com/industries/','_blank')">Learn More</button></div>
+      <div class="story-foot lb-lead"><div class="story-chev">⌃</div><button class="story-btn" onclick="openForm()">Sign Up</button></div>
+    </div>`;
 }
 
 function build(){
+  const place = document.body.getAttribute("data-place");
   grid.innerHTML = "";
-  ADS.forEach((a) => grid.appendChild(card(a)));
+  ADS.forEach((a) => {
+    const s = store[a.id] || {ok:false};
+    const el = document.createElement("div");
+    el.className = "card" + (s.ok ? " ok" : "");
+    el.id = "card-" + a.id;
+    el.innerHTML = (place === "story" ? storyMockup(a) : feedMockup(a)) + reviewBlock(a, place);
+    grid.appendChild(el);
+  });
 }
-build();
 
 function setMode(m){
   document.body.setAttribute("data-mode", m);
@@ -262,7 +296,15 @@ function setMode(m){
   document.getElementById("destPill").textContent = m === "lead" ? "Captures" : "Sends to";
   try { localStorage.setItem("cr_ad_review_mode", m); } catch {}
 }
+function setPlace(p){
+  document.body.setAttribute("data-place", p);
+  document.getElementById("tgFeed").setAttribute("aria-pressed", p === "feed");
+  document.getElementById("tgStory").setAttribute("aria-pressed", p === "story");
+  try { localStorage.setItem("cr_ad_review_place", p); } catch {}
+  build();
+}
 setMode(localStorage.getItem("cr_ad_review_mode") || "page");
+setPlace(localStorage.getItem("cr_ad_review_place") || "feed");
 
 function openForm(){ document.getElementById("formModal").classList.add("open"); }
 function closeForm(){ document.getElementById("formModal").classList.remove("open"); }
@@ -274,7 +316,7 @@ function save(id){
   store[id] = {note: ta.value, ok: ok.checked};
   localStorage.setItem(KEY, JSON.stringify(store));
   document.getElementById("card-"+id).classList.toggle("ok", ok.checked);
-  const s = document.getElementById("saved-"+id); s.classList.add("show"); setTimeout(()=>s.classList.remove("show"), 900);
+  const s = document.getElementById("saved-"+id); if(s){ s.classList.add("show"); setTimeout(()=>s.classList.remove("show"), 900); }
   updateCount();
 }
 grid.addEventListener("input", (e)=>{ if(e.target.dataset.id) save(e.target.dataset.id); });
@@ -288,7 +330,7 @@ function updateCount(){
 updateCount();
 
 function exportFeedback(){
-  const out = {reviewed_at: new Date().toISOString(), tests:"A=Traffic→/industries/  B=Facebook Lead Gen (Instant Form)",
+  const out = {reviewed_at: new Date().toISOString(), tests:"A=Traffic→/industries/  B=Facebook Lead Gen (Instant Form)", placements:"Feed 1:1 + Stories/Reels 9:16",
     ads: ADS.map(a => ({id:a.id, angle:a.angle, ...(store[a.id]||{note:"",ok:false})}))};
   const blob = new Blob([JSON.stringify(out,null,2)], {type:"application/json"});
   const url = URL.createObjectURL(blob);
