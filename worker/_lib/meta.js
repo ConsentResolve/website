@@ -164,10 +164,11 @@ export const STATIC_ADS = [
   "https://consentresolve.com/ads/cr_team.png",         // consent: "Leads that opted in. Not scraped."
   "https://consentresolve.com/ads/cr_roimath_4x5.png",  // ROI-math (line-art diagram, for variety)
 ];
+// 1:1 square versions (blurred-fill) — fit the feed placement without the zoomed-Reel crop.
 export const TYLER_VIDEOS = [
-  "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat.mp4",
-  "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/math-new.mp4",
-  "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/creepy-new.mp4",
+  "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat-sq.mp4",
+  "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/math-new-sq.mp4",
+  "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/creepy-new-sq.mp4",
 ];
 export const CONV_LINK =
   "https://consentresolve.com/industries/?utm_source=meta&utm_medium=paid&utm_campaign=CR_conv_allpros";

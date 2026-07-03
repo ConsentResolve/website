@@ -52,7 +52,7 @@
   .fb-dots{margin-left:auto;color:var(--fb-sub);font-size:20px;line-height:0;letter-spacing:1px}
   .fb-primary{padding:2px 12px 10px;font-size:14.5px;line-height:1.45}
   .fb-media{background:#000;display:flex;align-items:center;justify-content:center}
-  .fb-media img,.fb-media video{width:100%;display:block;max-height:420px;object-fit:cover}
+  .fb-media img,.fb-media video{width:100%;height:auto;display:block}
   .fb-linkbar{display:flex;align-items:center;gap:10px;background:var(--fb-bg);padding:10px 12px}
   .fb-linkbar .txt{min-width:0}
   .fb-domain{font-size:12px;color:var(--fb-sub);text-transform:uppercase;letter-spacing:.02em}
@@ -178,9 +178,9 @@ const ADS = [
   {id:"static-roofer",      angle:"Wasted-spend · service pro", type:"img", src:"/ads/cr_roofer.png", fmt:"Static · 1:1", onimg:"Get back the 98% who leave."},
   {id:"static-team",        angle:"Consent · service crew", type:"img", src:"/ads/cr_team.png", fmt:"Static · 1:1", onimg:"Leads that opted in. Not scraped."},
   {id:"static-roimath",     angle:"ROI-math · line-art", type:"img", src:"/ads/cr_roimath_4x5.png", fmt:"Static · 4:5", onimg:""},
-  {id:"video-leakstat",     angle:"Tyler · Leak / 98%", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat.mp4", fmt:"Video · 9:16", onimg:""},
-  {id:"video-math",         angle:"Tyler · ROI ($100 vs $7)", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/math-new.mp4", fmt:"Video · 9:16", onimg:""},
-  {id:"video-creepy",       angle:"Tyler · Consent vs creepy", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/creepy-new.mp4", fmt:"Video · 9:16", onimg:""},
+  {id:"video-leakstat",     angle:"Tyler · Leak / 98%", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat-sq.mp4", fmt:"Video · 1:1", onimg:""},
+  {id:"video-math",         angle:"Tyler · ROI ($100 vs $7)", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/math-new-sq.mp4", fmt:"Video · 1:1", onimg:""},
+  {id:"video-creepy",       angle:"Tyler · Consent vs creepy", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/creepy-new-sq.mp4", fmt:"Video · 1:1", onimg:""},
 ];
 const KEY = "cr_ad_review_v1";
 const store = JSON.parse(localStorage.getItem(KEY) || "{}");
