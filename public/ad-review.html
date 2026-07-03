@@ -53,8 +53,8 @@
   </p>
 </header>
 <div class="note"><div class="warn">
-  ⚠️ Heads-up: all 8 ads currently share <b>one</b> primary text + headline (the wasted-spend copy below), even though the 5 static images are different angles.
-  If you want each ad's copy to match its visual (recommended), note it and I'll wire per-angle copy.
+  ⚠️ Heads-up: the 4 service-pro photos now have their <b>own headline baked into the image</b> (shown per card), but every ad still shares <b>one Meta primary text</b> (below the fold in the feed).
+  Want the Meta primary text to vary per angle too? Note it and I'll wire per-angle copy.
 </div></div>
 <div class="grid" id="grid"></div>
 
@@ -62,14 +62,14 @@
 const PRIMARY = "You're already paying for the clicks. About 98% of the homeowners who land on your site leave without a trace. We hand the ones who opt in back to you as exclusive, consent-first leads — a real name and email, $7 each, never resold.";
 const HEADLINE = "Get back the 98% who leave";
 const ADS = [
-  {id:"static-wastedspend", angle:"Wasted-spend", type:"img", src:"/ads/cr_wastedspend_4x5.png", fmt:"Static · 4:5"},
-  {id:"static-competitor",  angle:"Competitor-envy", type:"img", src:"/ads/cr_competitor_4x5.png", fmt:"Static · 4:5"},
-  {id:"static-roimath",     angle:"ROI-math", type:"img", src:"/ads/cr_roimath_4x5.png", fmt:"Static · 4:5"},
-  {id:"static-consent",     angle:"Consent / trust", type:"img", src:"/ads/cr_consent_4x5.png", fmt:"Static · 4:5"},
-  {id:"static-speed",       angle:"Speed-to-lead", type:"img", src:"/ads/cr_speed_4x5.png", fmt:"Static · 4:5"},
-  {id:"video-leakstat",     angle:"Tyler · Leak / 98%", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat.mp4", fmt:"Video · 9:16"},
-  {id:"video-math",         angle:"Tyler · ROI ($100 vs $7)", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/math-new.mp4", fmt:"Video · 9:16"},
-  {id:"video-creepy",       angle:"Tyler · Consent vs creepy", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/creepy-new.mp4", fmt:"Video · 9:16"},
+  {id:"static-plumber",     angle:"Competitor-envy · service pro", type:"img", src:"/ads/cr_plumber.png", fmt:"Static · 1:1", onimg:"One lead. One pro. Never resold."},
+  {id:"static-electrician", angle:"Value · service pro", type:"img", src:"/ads/cr_electrician.png", fmt:"Static · 1:1", onimg:"$7 a lead. Yours alone."},
+  {id:"static-roofer",      angle:"Wasted-spend · service pro", type:"img", src:"/ads/cr_roofer.png", fmt:"Static · 1:1", onimg:"Get back the 98% who leave."},
+  {id:"static-team",        angle:"Consent · service crew", type:"img", src:"/ads/cr_team.png", fmt:"Static · 1:1", onimg:"Leads that opted in. Not scraped."},
+  {id:"static-roimath",     angle:"ROI-math · line-art", type:"img", src:"/ads/cr_roimath_4x5.png", fmt:"Static · 4:5", onimg:""},
+  {id:"video-leakstat",     angle:"Tyler · Leak / 98%", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat.mp4", fmt:"Video · 9:16", onimg:""},
+  {id:"video-math",         angle:"Tyler · ROI ($100 vs $7)", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/math-new.mp4", fmt:"Video · 9:16", onimg:""},
+  {id:"video-creepy",       angle:"Tyler · Consent vs creepy", type:"vid", src:"https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/creepy-new.mp4", fmt:"Video · 9:16", onimg:""},
 ];
 const KEY = "cr_ad_review_v1";
 const store = JSON.parse(localStorage.getItem(KEY) || "{}");
@@ -87,8 +87,9 @@ ADS.forEach((a) => {
     `<div class="media">${media}</div>
      <div class="body">
        <span class="tag">${a.angle}</span><span class="fmt">${a.fmt}</span>
-       <div class="lbl">Primary text</div><div class="prim">${PRIMARY}</div>
-       <div class="lbl">Headline</div><div class="hl">${HEADLINE}</div>
+       ${a.onimg ? `<div class="lbl">On the image</div><div class="hl">“${a.onimg}”</div>` : ""}
+       <div class="lbl">Meta primary text</div><div class="prim">${PRIMARY}</div>
+       <div class="lbl">Meta headline</div><div class="hl">${HEADLINE}</div>
        <textarea placeholder="Your notes on this ad…" data-id="${a.id}">${s.note || ""}</textarea>
        <div class="row">
          <label><input type="checkbox" data-ok="${a.id}" ${s.ok ? "checked" : ""}> Looks good</label>

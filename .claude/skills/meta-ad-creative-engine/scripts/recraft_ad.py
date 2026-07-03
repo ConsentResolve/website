@@ -53,7 +53,8 @@ def build_body(a):
     else:  # raster / photoreal
         body["model"] = RASTER_MODEL
         body["style"] = "realistic_image"
-        body["colors"] = BRAND_COLORS
+        # NOTE: the `colors` param sometimes renders a literal palette swatch strip into the
+        # image — drive brand tone through the prompt instead (BRAND_STYLE_BASE names the palette).
         body["prompt"] = f"{a.prompt}\n\n{BRAND_STYLE_BASE}"
         if getattr(a, "raster_style_id", None):  # if a raster brand style was created + passed
             body["style_id"] = a.raster_style_id

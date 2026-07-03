@@ -156,12 +156,13 @@ const AD_PRIMARY =
   "You're already paying for the clicks. About 98% of the homeowners who land on your site leave without a trace. " +
   "We hand the ones who opt in back to you as exclusive, consent-first leads — a real name and email, $7 each, never resold.";
 const AD_HEADLINE = "Get back the 98% who leave";
+// Mix: 4 real-service-pro photos (Jobber-style headline + CTA baked in) + 1 line-art ROI diagram.
 export const STATIC_ADS = [
-  "https://consentresolve.com/ads/cr_wastedspend_4x5.png",
-  "https://consentresolve.com/ads/cr_competitor_4x5.png",
-  "https://consentresolve.com/ads/cr_roimath_4x5.png",
-  "https://consentresolve.com/ads/cr_consent_4x5.png",
-  "https://consentresolve.com/ads/cr_speed_4x5.png",
+  "https://consentresolve.com/ads/cr_plumber.png",      // competitor: "One lead. One pro. Never resold."
+  "https://consentresolve.com/ads/cr_electrician.png",  // value: "$7 a lead. Yours alone."
+  "https://consentresolve.com/ads/cr_roofer.png",       // wasted-spend: "Get back the 98% who leave."
+  "https://consentresolve.com/ads/cr_team.png",         // consent: "Leads that opted in. Not scraped."
+  "https://consentresolve.com/ads/cr_roimath_4x5.png",  // ROI-math (line-art diagram, for variety)
 ];
 export const TYLER_VIDEOS = [
   "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/leak-stat.mp4",
