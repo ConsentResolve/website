@@ -163,19 +163,18 @@ const demoSlug = "water-heater-replacement";
             <svg class="cr-nudge-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></svg>
             Tap your trade
           </div>
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {INDUSTRIES.map((i) => {
               const TI = iconMap[i.iconKey] ?? IconTool;
               return (
                 <a
                   href={`/${i.slug}-leads/`}
-                  class="trade-card group relative flex items-center gap-3 overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--color-brand)] hover:bg-white/[0.06] hover:shadow-[0_16px_36px_-18px_rgba(0,229,160,0.55)]"
+                  class="trade-card group flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--color-brand)] hover:bg-white/[0.06] hover:shadow-[0_14px_30px_-16px_rgba(0,229,160,0.55)]"
                 >
-                  <span class="grid size-10 shrink-0 place-items-center rounded-lg bg-[color:var(--color-mint-400)]/15 text-[color:var(--color-mint-400)] transition-colors group-hover:bg-[color:var(--color-mint-400)] group-hover:text-[color:var(--color-navy-900)]">
-                    <TI size={22} stroke={1.9} />
+                  <span class="grid size-8 shrink-0 place-items-center rounded-md bg-[color:var(--color-mint-400)]/15 text-[color:var(--color-mint-400)] transition-colors group-hover:bg-[color:var(--color-mint-400)] group-hover:text-[color:var(--color-navy-900)]">
+                    <TI size={18} stroke={1.9} />
                   </span>
-                  <span class="text-sm font-bold leading-tight text-white/90 group-hover:text-white">{i.shortName}</span>
-                  <svg class="ml-auto shrink-0 -translate-x-1 text-[color:var(--color-brand)] opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                  <span class="text-[12px] font-bold leading-tight text-white/85 group-hover:text-white">{i.shortName}</span>
                 </a>
               );
             })}
