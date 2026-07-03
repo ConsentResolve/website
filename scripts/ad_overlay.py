@@ -56,20 +56,28 @@ def main():
         d.text((60, y), ln, font=hf, fill=WHITE)
         y += 90
 
-    # CTA pill (bottom-left) with logo above it
+    # CTA pill (bottom-left)
     cf = ImageFont.truetype(BRICOLAGE, 40)
     ctatext = "→  " + a.cta
     tw = d.textlength(ctatext, font=cf)
     pill_w, pill_h, px = int(tw + 76), 88, 60
     py = H - 66 - pill_h
-    try:
-        logo = Image.open(LOGO).convert("RGBA")
-        lw = 260; lh = int(logo.height * lw / logo.width)
-        im.paste(logo.resize((lw, lh)), (60, py - lh - 26), logo.resize((lw, lh)))
-    except Exception:
-        pass
     d.rounded_rectangle([px, py, px + pill_w, py + pill_h], radius=pill_h // 2, fill=MINT)
     d.text((px + 38, py + pill_h // 2), ctatext, font=cf, fill=NAVY, anchor="lm")
+
+    # Logo lock-up: bigger, on a solid black rounded card, lower-right corner
+    try:
+        logo = Image.open(LOGO).convert("RGBA")
+        lw = 360; lh = int(logo.height * lw / logo.width)
+        pad_x, pad_y = 30, 26
+        box_w, box_h = lw + pad_x * 2, lh + pad_y * 2
+        margin = 48
+        bx2, by2 = W - margin, H - margin
+        bx1, by1 = bx2 - box_w, by2 - box_h
+        d.rounded_rectangle([bx1, by1, bx2, by2], radius=26, fill=(0, 0, 0))
+        im.paste(logo.resize((lw, lh)), (bx1 + pad_x, by1 + pad_y), logo.resize((lw, lh)))
+    except Exception:
+        pass
 
     im.save(a.out, quality=92)
     print("OK ->", a.out)
