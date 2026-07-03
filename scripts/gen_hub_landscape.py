@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Render ONE short LANDSCAPE (16:9, 1280x720) Tyler hub clip for /industries/:
-"pick your trade" + he points toward the on-screen trades. Matches the trade-page
-videos' orientation. Short + clean (raw HeyGen, no karaoke), uploaded to R2 as
+"""Render ONE short LANDSCAPE (16:9, 1280x720) Tyler hub clip for /industries/.
+New "what to do next" script: Tyler introduces, then looks/points toward the on-screen
+trade selector, holds a beat, and invites the viewer to tap their trade. Full-bleed
+avatar (no white bars). Raw HeyGen (no karaoke). Uploaded to R2 as
 social/sprint/hub-next-wide.mp4.  Run: python3 scripts/gen_hub_landscape.py
 """
 import json, subprocess, sys, time, urllib.request
@@ -12,17 +13,23 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from cr_secrets import secret
 
 KEY = secret("heygen")
-LOOK = "62fc3b77a45442148e3aac4eb799153a"    # Tyler — LANDSCAPE look (as used on the trade landing pages)
+LOOK = "ef74e672158e4b87a445ffaeb3ad92fc"    # Tyler — LANDSCAPE look (user-selected)
 VOICE = "92071a8742744d17bc92a02baab2941f"   # Real Tyler (no emotion)
 
-# Short + sweet (~42 words ≈ ~14s). "customers" avoids the lead->leed pronunciation quirk.
-SCRIPT = ("You made it here, nice. Now do this. Pick your trade, right over here. "
-          "Roofing, plumbing, heating and air, whatever you run. Tap it, and I'll show you "
-          "the customers already hiding on your own website. Takes about two minutes.")
+# "leeds" spelling keeps the sales-lead pronunciation correct (HeyGen quirk). Caption is off,
+# so the odd spelling is never seen. The ellipsis after "right over there" holds a short beat
+# where the on-page flashing arrow slams in over the trade selector.
+SCRIPT = ("I'm Tyler. You're busy, so let's skip the fluff. You're a few clicks away from seeing "
+          "how Consent Resolve turns your website visitors into actual booked jobs. And because a "
+          "roofer's leeds don't look anything like a plumber's, we built this demo around your trade. "
+          "Right over there... Yeah, that thing. Hard to miss. Tap your trade and I'll get you squared "
+          "away. Take your time, I'll be here. Literally can't go anywhere.")
 
-MOTION = ("Warm, direct, and energetic. Talks straight to camera, then near the end he turns "
-          "his head and points with his hand to his right, toward on-screen menu options, "
-          "inviting the viewer to pick their trade. Natural, confident hand gestures.")
+MOTION = ("Warm, direct, a little playful — like a founder who respects your time. Talks straight to "
+          "camera. On 'right over there' he turns his head and gestures with an open hand toward his "
+          "left (the viewer's right side), as if pointing out an on-screen menu sitting beside him, and "
+          "holds a brief knowing look in that direction. Returns to camera with a slight grin for the "
+          "final lines. Natural, confident hand gestures, never stiff.")
 
 
 def api(url, body=None):
