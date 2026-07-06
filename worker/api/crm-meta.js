@@ -8,9 +8,15 @@
 import { json } from "../_lib/http.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIdentifier, upsertConversationByThread, insertMessageOnce } from "../_lib/crm-v2.js";
 
+// Verify token for the Meta webhook handshake. Not a real secret (the actual security is the
+// X-Hub-Signature check below) — defaulted so no Cloudflare secret is required to connect the
+// webhook. Override with env.META_VERIFY_TOKEN if you ever want a custom value.
+export const LEADGEN_VERIFY_TOKEN = "cr-leadgen-verify-2026";
+
 export async function onRequestGet({ request, env }) {
   const u = new URL(request.url).searchParams;
-  if (u.get("hub.mode") === "subscribe" && u.get("hub.verify_token") && u.get("hub.verify_token") === (env.META_VERIFY_TOKEN || "")) {
+  const expected = env.META_VERIFY_TOKEN || LEADGEN_VERIFY_TOKEN;
+  if (u.get("hub.mode") === "subscribe" && u.get("hub.verify_token") === expected) {
     return new Response(u.get("hub.challenge") || "", { status: 200, headers: { "Content-Type": "text/plain" } });
   }
   return new Response("forbidden", { status: 403 });
@@ -36,7 +42,9 @@ export async function onRequestPost({ request, env }) {
   try { body = JSON.parse(raw); } catch { return json({ ok: true, skipped: "bad_json" }); }
   try {
     await ensureCrmV2Schema(env);
-    const token = env.FB_PAGE_TOKEN || env.META_PAGE_TOKEN || "";
+    // Fetch the lead with whatever token is available. The launcher's system-user token
+    // (META_ACCESS_TOKEN) already carries `leads_retrieval`, so no separate page token is needed.
+    const token = env.FB_PAGE_TOKEN || env.META_PAGE_TOKEN || env.META_ACCESS_TOKEN || "";
     let ingested = 0;
     for (const entry of (body.entry || [])) {
       for (const ch of (entry.changes || [])) {
