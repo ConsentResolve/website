@@ -367,24 +367,6 @@ const demoSlug = "water-heater-replacement";
   })();
 </script>
 
-<!-- Chat with Tyler: open Crisp if consent is given; otherwise re-present the consent
-     banner, then open the chat once the user accepts and Crisp loads. (Same as trade pages.) -->
-<script is:inline>
-  function crOpenChat() {
-    if (window.$crisp) { try { window.$crisp.push(["do", "chat:open"]); return; } catch (e) {} }
-    try {
-      if (window.ConsentResolve && ConsentResolve.showBanner) ConsentResolve.showBanner();
-      else if (window.UC_UI && UC_UI.showFirstLayer) UC_UI.showFirstLayer();
-    } catch (e) {}
-    var tries = 0;
-    var iv = setInterval(function () {
-      tries++;
-      if (window.$crisp) { try { window.$crisp.push(["do", "chat:open"]); } catch (e) {} clearInterval(iv); }
-      else if (tries > 30) clearInterval(iv);
-    }, 500);
-  }
-</script>
-
 <style>
   /* Big flashing arrow that "slams in" over the trade selector, then keeps flashing. */
   .cr-slam { opacity: 0; transform: translateY(-44px) scale(0.7); }
