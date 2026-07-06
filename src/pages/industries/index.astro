@@ -111,12 +111,15 @@ const demoSlug = "water-heater-replacement";
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
     <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-24 size-[420px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
     <div class="container-content relative">
-      <!-- Heading — moved ABOVE the video -->
+      <!-- Heading — TL;DR headline + short description, above the video -->
       <div class="mb-10 max-w-3xl">
         <div class="mb-4"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Built for your trade</Badge></div>
         <h1 class="display-1 text-white">
-          You run the trade. <span class="text-[color:var(--color-brand)]">This is built for it.</span>
+          Your website visitors are <span class="text-[color:var(--color-brand)]">your next booked jobs.</span>
         </h1>
+        <p class="mt-5 max-w-2xl text-lg leading-relaxed text-slate-300">
+          The short version: most homeowners who visit your site leave without a trace. We hand the ones who opt in back to you as exclusive, consent-first leads — a real name and email, $7 each, never resold. Pick your trade to see it on your own work.
+        </p>
       </div>
 
       <div class="grid items-start gap-12 lg:grid-cols-2">
@@ -133,7 +136,9 @@ const demoSlug = "water-heater-replacement";
               poster="/team/tyler-spurlock.jpg"
               src="https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/sprint/hub-next-wide.mp4"
               class="block aspect-video h-full w-full object-cover"
-            ></video>
+            >
+              <track kind="captions" src="/captions/hub-next-wide.vtt" srclang="en" label="English" default />
+            </video>
             <button
               type="button"
               data-unmute
@@ -144,26 +149,20 @@ const demoSlug = "water-heater-replacement";
               Tap for sound
             </button>
           </div>
-          <!-- CTAs directly below the video (same pattern as the trade landing pages) -->
-          <div class="mt-6 flex flex-col gap-3 sm:flex-row">
-            <a href="https://dashboard.consentresolve.com/register" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[color:var(--color-mint-400)] px-4 py-2.5 text-sm font-semibold text-[color:var(--color-navy-900)] transition-all hover:bg-[color:var(--color-mint-300)] hover:shadow-[0_8px_24px_-8px_rgba(0,229,160,0.6)]">
-              Get Started
-              <IconArrowRight size={16} stroke={2.25} />
-            </a>
-            <button type="button" onclick="crOpenChat()" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold text-white ring-1 ring-inset ring-white/25 transition-all hover:bg-white/5">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"></path><path d="M8 9h8M8 13h5"></path></svg>
-              Chat with Tyler
-            </button>
-          </div>
+          <!-- Primary CTA under the video: a flashing rectangular button that slams in and points right, toward the trade selector. -->
+          <a
+            id="tradeNudge"
+            href="#tradeGrid"
+            class="cr-slam mt-6 inline-flex items-center gap-2.5 rounded-lg bg-[color:var(--color-brand)] px-6 py-3.5 text-[15px] font-extrabold uppercase tracking-wide text-[color:var(--color-navy-900)] no-underline shadow-[0_16px_40px_-10px_rgba(0,229,160,0.7)]"
+          >
+            Tap your trade
+            <svg class="cr-nudge-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          </a>
         </div>
 
-        <!-- RIGHT: the trade selector — the only thing on the right, redesigned as eye-catching cards with a per-trade icon. A big flashing arrow slams in over it. -->
+        <!-- RIGHT: the trade selector — the only thing on the right; its top aligns with the top of the video (items-start on the grid). -->
         <div class="relative">
-          <div id="tradeNudge" class="cr-slam mb-5 inline-flex items-center gap-2.5 rounded-full bg-[color:var(--color-brand)] px-5 py-2.5 text-[15px] font-extrabold uppercase tracking-wide text-[color:var(--color-navy-900)] shadow-[0_16px_40px_-10px_rgba(0,229,160,0.7)]">
-            <svg class="cr-nudge-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></svg>
-            Tap your trade
-          </div>
-          <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <div id="tradeGrid" class="grid scroll-mt-24 grid-cols-2 gap-2 sm:grid-cols-3">
             {INDUSTRIES.map((i) => {
               const TI = iconMap[i.iconKey] ?? IconTool;
               return (
@@ -301,6 +300,12 @@ const demoSlug = "water-heater-replacement";
     const vid = wrap.querySelector<HTMLVideoElement>("[data-tyler]");
     const btn = wrap.querySelector<HTMLButtonElement>("[data-unmute]");
     if (!vid || !btn) return;
+    // Closed captions: force the track visible so they show during the muted autoplay
+    // (browsers otherwise hide captions unless the OS caption preference is on).
+    const showCaptions = () => { const tt = vid.textTracks && vid.textTracks[0]; if (tt) tt.mode = "showing"; };
+    showCaptions();
+    vid.addEventListener("loadedmetadata", showCaptions);
+    try { vid.textTracks.addEventListener("addtrack", showCaptions); } catch {}
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       vid.muted = false;
@@ -398,7 +403,7 @@ const demoSlug = "water-heater-replacement";
     50% { box-shadow: 0 18px 54px -6px rgba(0, 229, 160, 1); filter: brightness(1.14); }
   }
   .cr-nudge-arrow { animation: crBob 0.9s ease-in-out infinite; }
-  @keyframes crBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+  @keyframes crBob { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
   @media (prefers-reduced-motion: reduce) {
     .cr-slam, .cr-slam.show { opacity: 1; transform: none; animation: none; }
     .cr-nudge-arrow { animation: none; }
