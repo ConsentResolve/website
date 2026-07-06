@@ -289,7 +289,14 @@ export async function onRequestPost({ request, env }) {
     } else if (conv.channel === "meta_lead" || conv.channel === "demo_form") {
       const to = conv.primary_email;
       if (!to) return json({ error: "no_email", message: "No email on file for this lead — call only." }, { status: 400 }, cors);
-      const res = await sendMessage(env, inboxAccounts(env)[0], to, subj, body, null); // new email thread, not Messenger
+      // CAN-SPAM footer (name + physical address + opt-out) + List-Unsubscribe header — both are
+      // legit-sender trust signals that help these first-touch emails clear spam filters.
+      const signed = body + "\r\n\r\n-- \r\n" + (me && me.name ? me.name + "\r\n" : "") +
+        "Consent Resolve\r\n1907 Gulf Way #1, St Pete Beach, FL 33706\r\n" +
+        "You're getting this because you asked to hear from us at consentresolve.com. Reply UNSUBSCRIBE and we'll stop.";
+      const res = await sendMessage(env, inboxAccounts(env)[0], to, subj, signed, null, {
+        headers: { "List-Unsubscribe": "<mailto:hello@consentresolve.com?subject=unsubscribe>" },
+      }); // new email thread, not Messenger
       if (res.error) return json({ error: res.error }, { status: 400 }, cors);
       externalId = res.id; sentVia = "email";
     } else if (conv.channel === "instantly") {

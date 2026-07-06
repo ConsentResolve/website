@@ -100,11 +100,14 @@ export async function searchThread(env, account, leadEmail, max) {
   return { messages: msgs, threadId: msgs.length ? msgs[msgs.length - 1].threadId : null, lastSubject: msgs.length ? msgs[msgs.length - 1].subject : "" };
 }
 
-// Send (or reply, if threadId) as the connected account.
-export async function sendMessage(env, account, to, subject, body, threadId) {
+// Send (or reply, if threadId) as the connected account. `opts.headers` adds extra RFC-822
+// headers (e.g. List-Unsubscribe) — values must be ASCII.
+export async function sendMessage(env, account, to, subject, body, threadId, opts) {
   const tok = await gAccessToken(env, account);
   if (!tok) return { error: "no_token" };
-  const raw = b64url("To: " + to + "\r\nSubject: " + encodeHeader(subject) + "\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + body);
+  const extra = opts && opts.headers
+    ? Object.keys(opts.headers).map((k) => k + ": " + opts.headers[k] + "\r\n").join("") : "";
+  const raw = b64url("To: " + to + "\r\nSubject: " + encodeHeader(subject) + "\r\n" + extra + "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + body);
   const payload = { raw }; if (threadId) payload.threadId = threadId;
   const r = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
     method: "POST", headers: { Authorization: "Bearer " + tok, "Content-Type": "application/json" }, body: JSON.stringify(payload),
