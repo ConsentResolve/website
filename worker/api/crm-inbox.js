@@ -273,7 +273,11 @@ export async function onRequestPost({ request, env }) {
     if (!conv) return json({ error: "not_found" }, { status: 404 }, cors);
     const me = await currentUser(request, env);
     const authorId = me ? me.id : null;
-    const subj = conv.subject ? "Re: " + conv.subject.replace(/^re:\s*/i, "") : "Re: your inquiry";
+    // Form leads (Meta/demo) reply with a clean, customer-facing subject — never the internal
+    // "Meta Lead — Name" label (jargon + garbled chars read as spam).
+    const subj = (conv.channel === "meta_lead" || conv.channel === "demo_form")
+      ? "Re: your inquiry with Consent Resolve"
+      : (conv.subject ? "Re: " + conv.subject.replace(/^re:\s*/i, "") : "Re: your inquiry");
     let externalId = null, sentVia = conv.channel;
 
     if (conv.channel === "email") {

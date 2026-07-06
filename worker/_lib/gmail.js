@@ -69,6 +69,16 @@ function b64url(str) {
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
+// RFC 2047 encoded-word for header values with non-ASCII (em-dashes, accents, emoji).
+// Raw UTF-8 bytes in a header make Gmail double-encode them into mojibake (a spam signal).
+function encodeHeader(s) {
+  const str = String(s || "");
+  if (/^[\x20-\x7E]*$/.test(str)) return str;              // pure ASCII → leave as-is
+  const bytes = new TextEncoder().encode(str);
+  let bin = ""; for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return "=?UTF-8?B?" + btoa(bin) + "?=";
+}
+
 // Search a connected inbox for the thread with a lead (messages from/to them).
 export async function searchThread(env, account, leadEmail, max) {
   const tok = await gAccessToken(env, account);
@@ -94,7 +104,7 @@ export async function searchThread(env, account, leadEmail, max) {
 export async function sendMessage(env, account, to, subject, body, threadId) {
   const tok = await gAccessToken(env, account);
   if (!tok) return { error: "no_token" };
-  const raw = b64url("To: " + to + "\r\nSubject: " + subject + "\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + body);
+  const raw = b64url("To: " + to + "\r\nSubject: " + encodeHeader(subject) + "\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + body);
   const payload = { raw }; if (threadId) payload.threadId = threadId;
   const r = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
     method: "POST", headers: { Authorization: "Bearer " + tok, "Content-Type": "application/json" }, body: JSON.stringify(payload),
