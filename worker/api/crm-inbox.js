@@ -290,8 +290,11 @@ export async function onRequestPost({ request, env }) {
       const to = conv.primary_email;
       if (!to) return json({ error: "no_email", message: "No email on file for this lead — call only." }, { status: 400 }, cors);
       // CAN-SPAM footer (name + physical address + opt-out) + List-Unsubscribe header — both are
-      // legit-sender trust signals that help these first-touch emails clear spam filters.
-      const signed = body + "\r\n\r\n-- \r\n" + (me && me.name ? me.name + "\r\n" : "") +
+      // legit-sender trust signals that help these first-touch emails clear spam filters. The rep
+      // name falls back to the admin user (matches the compose-preview name) when there's no session user.
+      let repName = (me && me.name) || "";
+      if (!repName) { const _a = await env.DB.prepare("SELECT name FROM users WHERE role='admin' AND active=1 ORDER BY created_at LIMIT 1").first(); repName = (_a && _a.name) || "Consent Resolve Team"; }
+      const signed = body + "\r\n\r\n-- \r\n" + repName + "\r\n" +
         "Consent Resolve\r\n1907 Gulf Way #1, St Pete Beach, FL 33706\r\n" +
         "You're getting this because you asked to hear from us at consentresolve.com. Reply UNSUBSCRIBE and we'll stop.";
       const res = await sendMessage(env, inboxAccounts(env)[0], to, subj, signed, null, {

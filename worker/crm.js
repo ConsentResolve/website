@@ -5,6 +5,7 @@
 
 import { isAuthed, crmSessionEmail } from "./_lib/auth.js";
 import { crmKey } from "./api/crm-leads.js";
+import { currentUser } from "./_lib/crm-v2.js";
 
 const LOGIN_HTML = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Consent Resolve CRM</title>
@@ -187,6 +188,7 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
 </section>
 </div>
 <script>
+var CR_ME=__CR_ME__;
 var KEY=new URLSearchParams(location.search).get("key")||"";
 var ALL=[],SEL=null;
 function api(p){var sep=p.indexOf("?")>-1?"&":"?";return fetch(p+(KEY?sep+"key="+encodeURIComponent(KEY):""),{credentials:"same-origin"});}
@@ -375,7 +377,7 @@ composer='<div class="gcompose">'
 +'</div>'
 +'<select id="ibTmpl"><option value="">Insert a reply template…</option><option value="0">Warm &amp; personal</option><option value="1">Direct &amp; concise</option><option value="2">Value-led</option><option value="3">Question-first</option></select>'
 +'<textarea id="ibReply" class="gc-bd" placeholder="Write your reply…"></textarea>'
-+'<div class="gc-sig">--<br>[Your name]<br>Consent Resolve<br>1907 Gulf Way #1, St Pete Beach, FL 33706<br><span class="gc-uns">You&#39;re getting this because you asked to hear from us at consentresolve.com. Reply UNSUBSCRIBE and we&#39;ll stop.</span></div>'
++'<div class="gc-sig">--<br>'+esc(CR_ME||"Consent Resolve Team")+'<br>Consent Resolve<br>1907 Gulf Way #1, St Pete Beach, FL 33706<br><span class="gc-uns">You&#39;re getting this because you asked to hear from us at consentresolve.com. Reply UNSUBSCRIBE and we&#39;ll stop.</span></div>'
 +'<div class="gc-ft"><button class="gc-send" id="ibSend">Send</button> <span class="muted tiny" id="ibSendMsg">Signature added automatically on send.</span></div>'
 +'</div>';
 }else{
@@ -466,5 +468,15 @@ export async function handle({ request, env }) {
   const ok = (await isAuthed(request, env)) || (await crmSessionEmail(request, env));
   const headers = { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" };
   if (!ok) return new Response(LOGIN_HTML, { status: 401, headers });
-  return new Response(PAGE_HTML, { headers });
+  // Resolve the signed-in rep's name so the compose signature preview matches the sent email.
+  let meName = "";
+  try {
+    const u = await currentUser(request, env);
+    meName = (u && u.name) || "";
+    if (!meName) {
+      const a = await env.DB.prepare("SELECT name FROM users WHERE role='admin' AND active=1 ORDER BY created_at LIMIT 1").first();
+      meName = (a && a.name) || "";
+    }
+  } catch (_) {}
+  return new Response(PAGE_HTML.replace("__CR_ME__", JSON.stringify(meName)), { headers });
 }
