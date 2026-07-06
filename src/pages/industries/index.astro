@@ -107,23 +107,36 @@ const demoSlug = "water-heater-replacement";
   schema={schemas}
 >
   <!-- HERO (dark, mirrors the trade landing pages) -->
-  <section class="section section-dark relative overflow-hidden">
+  <section class="section section-dark relative overflow-hidden" style="padding-top:20px">
     <div aria-hidden="true" class="pointer-events-none absolute -left-32 -top-32 size-[480px] rounded-full bg-[color:var(--color-mint-400)]/20 blur-[120px]"></div>
     <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-24 size-[420px] rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
     <div class="container-content relative">
-      <!-- Heading — TL;DR headline + short description, above the video -->
-      <div class="mb-10 max-w-3xl">
-        <div class="mb-4"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Built for your trade</Badge></div>
-        <h1 class="display-1 text-white">
-          Your website visitors are <span class="text-[color:var(--color-brand)]">your next booked jobs.</span>
-        </h1>
-        <p class="mt-5 max-w-2xl text-lg leading-relaxed text-slate-300">
-          The short version: most homeowners who visit your site leave without a trace. We hand the ones who opt in back to you as exclusive, consent-first leads — a real name and email, $7 each, never resold. Pick your trade to see it on your own work.
-        </p>
+      <!-- TOP ROW: TL;DR heading (contained to the left column) + "Tap your trade" button
+           (right column, bottom-aligned so it sits directly above the trade list). -->
+      <div class="grid items-end gap-12 lg:grid-cols-2">
+        <div>
+          <div class="mb-4"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Built for your trade</Badge></div>
+          <h1 class="display-1 text-white">
+            Your website visitors are <span class="text-[color:var(--color-brand)]">your next booked jobs.</span>
+          </h1>
+          <p class="mt-5 text-lg leading-relaxed text-slate-300">
+            The short version: most homeowners who visit your site leave without a trace. We hand the ones who opt in back to you as exclusive, consent-first leads — a real name and email, $7 each, never resold. Pick your trade to see it on your own work.
+          </p>
+        </div>
+        <div class="flex">
+          <a
+            id="tradeNudge"
+            href="#tradeGrid"
+            class="cr-slam inline-flex items-center gap-2.5 rounded-lg bg-[color:var(--color-brand)] px-6 py-3.5 text-[15px] font-extrabold uppercase tracking-wide text-[color:var(--color-navy-900)] no-underline shadow-[0_16px_40px_-10px_rgba(0,229,160,0.7)]"
+          >
+            Tap your trade
+            <svg class="cr-nudge-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          </a>
+        </div>
       </div>
 
-      <div class="grid items-start gap-12 lg:grid-cols-2">
-        <!-- LEFT: Tyler video (landscape 16:9) — autoplays muted + looping; "Tap for sound" restarts from the start with audio. CTAs sit directly beneath, same as the trade pages. -->
+      <!-- MAIN ROW: video (left) + trade list (right), tops aligned. -->
+      <div class="mt-8 grid items-start gap-12 lg:grid-cols-2">
         <div class="w-full" data-hero-video>
           <div class="relative overflow-hidden rounded-2xl bg-black shadow-[0_30px_70px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/15">
             <video
@@ -149,18 +162,9 @@ const demoSlug = "water-heater-replacement";
               Tap for sound
             </button>
           </div>
-          <!-- Primary CTA under the video: a flashing rectangular button that slams in and points right, toward the trade selector. -->
-          <a
-            id="tradeNudge"
-            href="#tradeGrid"
-            class="cr-slam mt-6 inline-flex items-center gap-2.5 rounded-lg bg-[color:var(--color-brand)] px-6 py-3.5 text-[15px] font-extrabold uppercase tracking-wide text-[color:var(--color-navy-900)] no-underline shadow-[0_16px_40px_-10px_rgba(0,229,160,0.7)]"
-          >
-            Tap your trade
-            <svg class="cr-nudge-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-          </a>
         </div>
 
-        <!-- RIGHT: the trade selector — the only thing on the right; its top aligns with the top of the video (items-start on the grid). -->
+        <!-- RIGHT: the trade selector — top aligns with the video (items-start). -->
         <div class="relative">
           <div id="tradeGrid" class="grid scroll-mt-24 grid-cols-2 gap-2 sm:grid-cols-3">
             {INDUSTRIES.map((i) => {
