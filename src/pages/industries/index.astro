@@ -120,16 +120,14 @@ const demoSlug = "water-heater-replacement";
             Your website visitors are <span class="text-[color:var(--color-brand)]">your next booked jobs.</span>
           </h1>
         </div>
-        <div class="flex">
-          <a
-            id="tradeNudge"
-            href="#tradeGrid"
-            class="cr-slam inline-flex items-center gap-2.5 rounded-lg bg-[color:var(--color-brand)] px-6 py-3.5 text-[15px] font-extrabold uppercase tracking-wide text-[color:var(--color-navy-900)] no-underline shadow-[0_16px_40px_-10px_rgba(0,229,160,0.7)]"
-          >
-            Tap your trade
-            <svg class="cr-nudge-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-          </a>
-        </div>
+        <a
+          id="tradeNudge"
+          href="#tradeGrid"
+          class="cr-slam flex w-full items-center justify-center gap-2.5 rounded-lg bg-[color:var(--color-brand)] px-6 py-3.5 text-[15px] font-extrabold uppercase tracking-wide text-[color:var(--color-navy-900)] no-underline shadow-[0_16px_40px_-10px_rgba(0,229,160,0.7)]"
+        >
+          Tap your trade
+          <svg class="cr-nudge-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></svg>
+        </a>
       </div>
 
       <!-- MAIN ROW: video (left) + trade list (right), tops aligned. -->
@@ -159,6 +157,12 @@ const demoSlug = "water-heater-replacement";
               Tap for sound
             </button>
           </div>
+          <!-- Chat with Tyler (below the video). Re-prompts the cookie/consent banner if the
+               visitor previously declined, then opens Crisp once they accept. -->
+          <button type="button" onclick="crOpenChat()" class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white ring-1 ring-inset ring-white/25 transition-all hover:bg-white/5">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"></path><path d="M8 9h8M8 13h5"></path></svg>
+            Chat with Tyler
+          </button>
         </div>
 
         <!-- RIGHT: the trade selector — top aligns with the video (items-start). -->
@@ -368,6 +372,25 @@ const demoSlug = "water-heater-replacement";
   })();
 </script>
 
+<!-- Chat with Tyler: opens Crisp if consent is given; if the visitor previously declined the
+     cookie/consent banner (so Crisp never loaded), it re-prompts the banner and opens the chat
+     once they accept. -->
+<script is:inline>
+  function crOpenChat() {
+    if (window.$crisp) { try { window.$crisp.push(["do", "chat:open"]); return; } catch (e) {} }
+    try {
+      if (window.ConsentResolve && ConsentResolve.showBanner) ConsentResolve.showBanner();
+      else if (window.UC_UI && UC_UI.showFirstLayer) UC_UI.showFirstLayer();
+    } catch (e) {}
+    var tries = 0;
+    var iv = setInterval(function () {
+      tries++;
+      if (window.$crisp) { try { window.$crisp.push(["do", "chat:open"]); } catch (e) {} clearInterval(iv); }
+      else if (tries > 30) clearInterval(iv);
+    }, 500);
+  }
+</script>
+
 <style>
   /* Big flashing arrow that "slams in" over the trade selector, then keeps flashing. */
   .cr-slam { opacity: 0; transform: translateY(-44px) scale(0.7); }
@@ -386,7 +409,7 @@ const demoSlug = "water-heater-replacement";
     50% { box-shadow: 0 18px 54px -6px rgba(0, 229, 160, 1); filter: brightness(1.14); }
   }
   .cr-nudge-arrow { animation: crBob 0.9s ease-in-out infinite; }
-  @keyframes crBob { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
+  @keyframes crBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
   @media (prefers-reduced-motion: reduce) {
     .cr-slam, .cr-slam.show { opacity: 1; transform: none; animation: none; }
     .cr-nudge-arrow { animation: none; }
