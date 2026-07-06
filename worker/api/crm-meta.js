@@ -7,6 +7,7 @@
 // point the webhook at this URL with META_VERIFY_TOKEN. Graph fetch uses FB_PAGE_TOKEN.
 import { json } from "../_lib/http.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIdentifier, upsertConversationByThread, insertMessageOnce } from "../_lib/crm-v2.js";
+import { tradeSlug } from "../_lib/meta.js";
 
 // Verify token for the Meta webhook handshake. Not a real secret (the actual security is the
 // X-Hub-Signature check below) — defaulted so no Cloudflare secret is required to connect the
@@ -63,15 +64,17 @@ export async function onRequestPost({ request, env }) {
         const email = (fields.email || fields.work_email || "").toLowerCase();
         const name = fields.full_name || [fields.first_name, fields.last_name].filter(Boolean).join(" ") || "";
         const phone = fields.phone_number || fields.phone || "";
+        const trade = tradeSlug(fields.trade);   // form's qualifying question → industry slug
         const contactId = email
           ? await findOrCreateContactByEmail(env, email, { name, phone, source: "meta_lead" })
           : await findOrCreateContactByIdentifier(env, "meta_lead", String(leadgenId), { name, source: "meta_lead" });
         if (!contactId) continue;
         const convId = await upsertConversationByThread(env, {
           channel: "meta_lead", externalThreadId: String(leadgenId), contactId,
-          subject: "Meta Lead" + (name ? " — " + name : ""), sourceDetail: formId ? "form:" + formId : null,
+          subject: "Meta Lead" + (name ? " — " + name : ""),
+          sourceDetail: [formId ? "form:" + formId : null, trade ? "trade:" + trade : null].filter(Boolean).join("|") || null,
           incoming: true, lastAt: new Date().toISOString(),
-          preview: [name, email, phone].filter(Boolean).join(" · ").slice(0, 160) || "Meta lead form",
+          preview: [trade, name, email, phone].filter(Boolean).join(" · ").slice(0, 160) || "Meta lead form",
         });
         await insertMessageOnce(env, {
           conversationId: convId, direction: "in", channel: "meta_lead", externalMessageId: "meta:" + leadgenId,

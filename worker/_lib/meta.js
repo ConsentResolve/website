@@ -131,6 +131,24 @@ const emsg = (r) => {
   const base = parts.length ? parts.join(" · ") : ("graph " + (r && r.status));
   return base + (e.error_subcode ? " [subcode " + e.error_subcode + "]" : "") + (e.code ? " (code " + e.code + ")" : "");
 };
+// The 17 trades (slug + form label). No "Other" — a lead who doesn't fit an industry can't submit.
+export const TRADE_OPTIONS = [
+  ["hvac", "HVAC / Heating & Air"], ["plumber", "Plumbing"], ["electrician", "Electrical"],
+  ["roofing", "Roofing"], ["general-contractor", "General Contractor / Remodeling"], ["handyman", "Handyman"],
+  ["painter", "Painting"], ["house-cleaning", "House Cleaning"], ["power-washing", "Power Washing"],
+  ["pest-control", "Pest Control"], ["lawn-care", "Lawn Care & Landscaping"], ["tree-removal", "Tree Service"],
+  ["locksmith", "Locksmith"], ["garage-door", "Garage Doors"], ["deck-fence", "Deck & Fence"],
+  ["appliance-repair", "Appliance Repair"], ["mobile-car-service", "Mobile Auto / Car Service"],
+];
+// Map a lead's trade answer (Meta may return the option key OR its display value) back to a slug.
+export function tradeSlug(answer) {
+  if (!answer) return null;
+  const a = String(answer).trim().toLowerCase();
+  for (const [slug, name] of TRADE_OPTIONS) if (a === slug || a === name.toLowerCase()) return slug;
+  for (const [slug, name] of TRADE_OPTIONS) if (name.toLowerCase().startsWith(a) || a.startsWith(slug)) return slug;
+  return null;
+}
+
 const LEAD_FORM = {
   name: "Consent Resolve — Exclusive Home-Service Leads",
   intro_headline: "Exclusive leads for home-service pros — $7 each, yours alone",
@@ -138,9 +156,9 @@ const LEAD_FORM = {
     "Recover the ~98% of homeowners who land on your site and leave without a trace. " +
     "Real name, email, and what they need — consent-first, never resold. " +
     "Tell us where to send your 2-minute demo.",
-  // TRADE-AGNOSTIC standard fields. (A custom "What trade do you run?" question can be added
-  // once the exact Meta leadgen custom-question format is confirmed — it 400s'd as unknown-error.)
+  // Trade first (qualifying — no "Other", so only our 17 industries can submit), then contact fields.
   questions: [
+    { type: "CUSTOM", key: "trade", label: "What's your trade?", options: TRADE_OPTIONS.map(([k, v]) => ({ key: k, value: v })) },
     { type: "FULL_NAME" },
     { type: "EMAIL" },
     { type: "PHONE" },
