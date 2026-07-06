@@ -29,6 +29,20 @@ nav a.active{color:#fff;border-bottom-color:var(--mint)}
 .wrap{padding:16px 18px;max-width:1100px;margin:0 auto}
 .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 select,input,textarea{background:var(--surf2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 9px;font-size:13px}
+.gcompose{margin-top:14px;background:#fff;color:#202124;border-radius:12px;overflow:hidden;box-shadow:0 8px 30px -10px rgba(0,0,0,.55);border:1px solid #dadce0}
+.gc-hd{padding:10px 16px;border-bottom:1px solid #eceff1;font-size:13px}
+.gc-rw{display:flex;gap:10px;padding:3px 0}
+.gc-l{width:58px;color:#80868b}
+.gc-hd .gc-rw span:last-child{color:#202124}
+.gcompose>select{display:block;margin:10px 16px 0;width:calc(100% - 32px);background:#f1f3f4;border:1px solid #dadce0;color:#202124;font-size:13px}
+.gc-bd{display:block;width:100%;box-sizing:border-box;border:none;outline:none;background:#fff;color:#202124;padding:14px 16px;font:14px/1.55 -apple-system,'Segoe UI',Roboto,Arial,sans-serif;resize:vertical;min-height:150px;border-radius:0}
+.gc-sig{padding:0 16px 12px;color:#80868b;font-size:13px;line-height:1.55}
+.gc-uns{font-size:11px;color:#9aa0a6}
+.gc-ft{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #eceff1}
+.gc-send{background:#00a86e;color:#fff;border:none;border-radius:20px;padding:9px 26px;font-weight:600;font-size:14px;cursor:pointer}
+.gc-send:hover{background:#009160}
+.gc-send:disabled{opacity:.6;cursor:default}
+.gc-ft .muted{color:#5f6368}
 button.btn{background:var(--mint);color:#04342c;border:none;border-radius:999px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:13px}
 button.ghost{background:none;border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:8px 14px;cursor:pointer;font-size:13px}
 .grid{display:grid;grid-template-columns:1fr;gap:16px}
@@ -351,8 +365,22 @@ var actions='<div class="bar" style="margin-bottom:12px">'+(c.status!=="converte
 var notesBlock='<div style="margin-top:16px"><div class="muted tiny" style="margin-bottom:6px">Internal notes</div>'+((d.notes&&d.notes.length)?d.notes.map(function(n){return '<div style="background:rgba(239,159,39,.08);border-radius:8px;padding:8px 10px;margin-bottom:6px"><div class="tiny" style="white-space:pre-wrap">'+esc(n.body)+'</div><div class="tiny muted" style="margin-top:3px">'+esc(n.author||"")+' · '+ibWhen(n.created_at)+'</div></div>';}).join(""):'<div class="muted tiny">No notes yet.</div>')+'<div style="margin-top:6px;display:flex;gap:8px"><input id="ibNote" placeholder="Add a private note…" style="flex:1"><button class="ghost" id="ibNoteBtn">Add</button></div></div>';
 var chHint={email:"",instantly:" (via Instantly)",crisp:" (via Crisp chat)",meta_lead:" (via email)",demo_form:" (via email)"};
 var isLead=(c.channel==="meta_lead"||c.channel==="demo_form");
-var tmplSel=isLead?'<select id="ibTmpl" style="margin-bottom:8px;width:100%"><option value="">Insert a reply template…</option><option value="0">Warm &amp; personal</option><option value="1">Direct &amp; concise</option><option value="2">Value-led</option><option value="3">Question-first</option></select>':'';
-var composer='<div style="margin-top:14px">'+tmplSel+'<textarea id="ibReply" rows="'+(isLead?"5":"3")+'" placeholder="Reply to '+esc(who)+(chHint[c.channel]||"")+'…" style="width:100%"></textarea><div style="margin-top:8px"><button class="btn" id="ibSend">Send</button> <span class="muted tiny" id="ibSendMsg"></span></div></div>';
+var composer;
+if(isLead){
+composer='<div class="gcompose">'
++'<div class="gc-hd">'
++'<div class="gc-rw"><span class="gc-l">From</span><span>Consent Resolve &lt;hello@consentresolve.com&gt;</span></div>'
++'<div class="gc-rw"><span class="gc-l">To</span><span>'+esc(c.primary_email||who)+'</span></div>'
++'<div class="gc-rw"><span class="gc-l">Subject</span><span>Re: your inquiry with Consent Resolve</span></div>'
++'</div>'
++'<select id="ibTmpl"><option value="">Insert a reply template…</option><option value="0">Warm &amp; personal</option><option value="1">Direct &amp; concise</option><option value="2">Value-led</option><option value="3">Question-first</option></select>'
++'<textarea id="ibReply" class="gc-bd" placeholder="Write your reply…"></textarea>'
++'<div class="gc-sig">--<br>[Your name]<br>Consent Resolve<br>1907 Gulf Way #1, St Pete Beach, FL 33706<br><span class="gc-uns">You&#39;re getting this because you asked to hear from us at consentresolve.com. Reply UNSUBSCRIBE and we&#39;ll stop.</span></div>'
++'<div class="gc-ft"><button class="gc-send" id="ibSend">Send</button> <span class="muted tiny" id="ibSendMsg">Signature added automatically on send.</span></div>'
++'</div>';
+}else{
+composer='<div style="margin-top:14px"><textarea id="ibReply" rows="3" placeholder="Reply to '+esc(who)+(chHint[c.channel]||"")+'…" style="width:100%"></textarea><div style="margin-top:8px"><button class="btn" id="ibSend">Send</button> <span class="muted tiny" id="ibSendMsg"></span></div></div>';
+}
 box.innerHTML=head+actions+'<div class="tl">'+msgs+'</div>'+composer+notesBlock;
 var asg=document.getElementById("ibAssign");if(asg)asg.onchange=function(){var mm=document.getElementById("ibMsg");if(mm)mm.textContent="Assigning…";fetch("/api/crm/inbox",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({id:c.id,assignee_id:asg.value||null})}).then(function(r){return r.json();}).then(function(res){if(mm)mm.textContent=res.error?res.error:"Assigned ✓";}).catch(function(){if(mm)mm.textContent="Failed";});};
 var nb=document.getElementById("ibNoteBtn");if(nb)nb.onclick=function(){var ni=document.getElementById("ibNote");var t=(ni&&ni.value||"").trim();if(!t)return;nb.disabled=true;fetch("/api/crm/inbox",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({id:c.id,note:t})}).then(function(r){return r.json();}).then(function(res){nb.disabled=false;if(res.error){alert(res.error);return;}openConv(c.id);}).catch(function(){nb.disabled=false;});};
