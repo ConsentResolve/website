@@ -161,7 +161,7 @@ const LEAD_TARGETING_EXTRA = {
   // isn't a business owner in a trade won't match. Names are labels only; Meta keys on id.
   flexible_spec: [
     { behaviors: [
-      { id: "6002714895372", name: "Small business owners" },
+      { id: "6002714898572", name: "Small business owners" },
       { id: "6020530281783", name: "Business page admins" },
       { id: "6273196847983", name: "New Active Business (< 12 months)" },
     ] },
