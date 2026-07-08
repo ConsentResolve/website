@@ -149,6 +149,31 @@ export function tradeSlug(answer) {
   return null;
 }
 
+// Optional interest/behavior layer for the lead ad set, merged into the base targeting.
+// Left empty until we resolve current (non-deprecated) interest IDs — an empty object keeps
+// the launch valid. To turn on a strict contractor/small-business filter, set e.g.:
+//   flexible_spec: [{ interests: [{ id: "<id>", name: "General contractor" }, ...] }]
+// (with Advantage+ Audience OFF above, this is a hard filter, not an expansion hint.)
+const LEAD_TARGETING_EXTRA = {
+  // Two AND'd groups (Advantage+ OFF above makes this a hard filter, not an expansion hint):
+  //   (1) they RUN a business  AND  (2) they're in the home-services / construction world.
+  // This is the direct fix for "furniture-store employee picks HVAC" — a casual consumer who
+  // isn't a business owner in a trade won't match. Names are labels only; Meta keys on id.
+  flexible_spec: [
+    { behaviors: [
+      { id: "6002714895372", name: "Small business owners" },
+      { id: "6020530281783", name: "Business page admins" },
+      { id: "6273196847983", name: "New Active Business (< 12 months)" },
+    ] },
+    { interests: [
+      { id: "6003234413249", name: "Home improvement" },
+      { id: "6003574304918", name: "Home construction" },
+      { id: "6003009740281", name: "Roofing Contractor" },
+      { id: "6003395414271", name: "Construction" },
+    ] },
+  ],
+};
+
 const LEAD_FORM = {
   name: "Consent Resolve — Exclusive Home-Service Leads",
   intro_headline: "Exclusive leads for home-service pros — $7 each, yours alone",
@@ -244,6 +269,10 @@ export async function launchLeadFormCampaign(env, { budgetCents = 10000, name = 
       context_card: JSON.stringify({ title: LEAD_FORM.intro_headline, style: "PARAGRAPH_STYLE", content: [LEAD_FORM.intro_paragraph], button_text: "Get my demo" }),
       thank_you_page: JSON.stringify({ title: LEAD_FORM.ty_title, body: LEAD_FORM.ty_body, button_type: "VIEW_WEBSITE", button_text: LEAD_FORM.ty_button, website_url: LEAD_FORM.ty_url }),
       follow_up_action_url: LEAD_FORM.ty_url,
+      // "Higher Intent" — adds a review-and-confirm step before submit. Filters the reflexive
+      // one-tap form-fillers that a "More Volume" form attracts (the junk-lead default). Fewer
+      // leads, but they've re-read their own name/company/trade and chosen to submit.
+      is_optimized_for_quality: "true",
     });
     if (!form.ok || !(form.body && form.body.id)) return { ok: false, step: "leadgen_form", error: emsg(form) };
     formId = form.body.id;
@@ -253,7 +282,19 @@ export async function launchLeadFormCampaign(env, { budgetCents = 10000, name = 
   const camp = await metaPost(env, A + "/campaigns", { name: "Lead Ads · " + name, objective: "OUTCOME_LEADS", status: "PAUSED", special_ad_categories: JSON.stringify([]), is_adset_budget_sharing_enabled: "false" });
   if (!camp.ok || !(camp.body && camp.body.id)) return { ok: false, step: "campaign", error: emsg(camp), formId };
   const campaignId = camp.body.id;
-  const targeting = { geo_locations: { countries: ["US"] }, targeting_automation: { advantage_audience: 0 } };
+  // Quality-tightened targeting for the lead form. The first live ad set was bare US / 18+ / all
+  // placements / "more volume" form — which pulled reflexive form-fillers (furniture store → "HVAC").
+  // Fixes: real business-owner age band, English only, Advantage+ OFF so any interest layer is a hard
+  // filter (not an expansion hint), and Facebook+Instagram feeds only — Audience Network is the single
+  // biggest source of accidental/junk taps. LEAD_TARGETING lets us bolt on a flexible_spec interest
+  // layer (contractor / small-business) once we've resolved current interest IDs.
+  const targeting = Object.assign({
+    geo_locations: { countries: ["US"] },
+    age_min: 30, age_max: 65,
+    locales: [6],                                   // English (US)
+    targeting_automation: { advantage_audience: 0 },
+    publisher_platforms: ["facebook", "instagram"], // excludes Audience Network + Messenger
+  }, LEAD_TARGETING_EXTRA);
   const aset = await metaPost(env, A + "/adsets", {
     name: name + " · leads", campaign_id: campaignId, daily_budget: String(budgetCents),
     billing_event: "IMPRESSIONS", optimization_goal: "LEAD_GENERATION", bid_strategy: "LOWEST_COST_WITHOUT_CAP",
