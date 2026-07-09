@@ -82,6 +82,24 @@ export async function onRequestGet({ request, env }) {
       return json({ ok: true, purged: { conversations: convs.length, contacts } });
     } catch (e) { return json({ ok: false, error: String(e).slice(0, 160) }); }
   }
+  // Key-gated sample-lead injector (demos/tests) — runs the REAL ingest pipeline including
+  // the website fetch + intel note: ?inject_sample=<FEEDBACK_KEY>&website=…&name=…&company=…&trade=…
+  if (u.get("inject_sample") && env.FEEDBACK_KEY && u.get("inject_sample") === env.FEEDBACK_KEY) {
+    try {
+      await ensureCrmV2Schema(env);
+      const fields = {
+        trade: u.get("trade") || "remodeling",
+        full_name: u.get("name") || "Sample Lead (demo)",
+        email: (u.get("email") || "sample@consentresolve.com").toLowerCase(),
+        phone_number: u.get("phone") || "+1 (555) 010-0000",
+        company_name: u.get("company") || "",
+        website: u.get("website") || "",
+      };
+      const fieldData = Object.entries(fields).map(([name, v]) => ({ name, values: [v] }));
+      const r = await ingestLead(env, { fields, leadgenId: "sample-" + Date.now(), formId: "sample", fieldData });
+      return json({ ok: !!r, ...(r || {}) });
+    } catch (e) { return json({ ok: false, error: String(e).slice(0, 160) }); }
+  }
   const expected = env.META_VERIFY_TOKEN || LEADGEN_VERIFY_TOKEN;
   if (u.get("hub.mode") === "subscribe" && u.get("hub.verify_token") === expected) {
     return new Response(u.get("hub.challenge") || "", { status: 200, headers: { "Content-Type": "text/plain" } });
@@ -127,6 +145,16 @@ export async function onRequestPost({ request, env }) {
         } catch (_) {}
         const fields = {};
         for (const f of (lead.field_data || [])) fields[(f.name || "").toLowerCase()] = (f.values && f.values[0]) || "";
+        if (await ingestLead(env, { fields, leadgenId, formId, fieldData: lead.field_data })) ingested++;
+      }
+    }
+    return json({ ok: true, ingested });
+  } catch (e) { return json({ ok: true, error: String(e).slice(0, 120) }); }
+}
+
+// Shared ingest: fields -> contact -> conversation (+site check, intel note). Used by the
+// webhook above and the key-gated sample injector in onRequestGet (demo/test leads).
+async function ingestLead(env, { fields, leadgenId, formId, fieldData }) {
         const email = (fields.email || fields.work_email || "").toLowerCase();
         const name = fields.full_name || [fields.first_name, fields.last_name].filter(Boolean).join(" ") || "";
         const phone = fields.phone_number || fields.phone || "";
@@ -153,7 +181,7 @@ export async function onRequestPost({ request, env }) {
         const contactId = email
           ? await findOrCreateContactByEmail(env, email, { name, phone, source: "meta_lead" })
           : await findOrCreateContactByIdentifier(env, "meta_lead", String(leadgenId), { name, source: "meta_lead" });
-        if (!contactId) continue;
+        if (!contactId) return null;
         const convId = await upsertConversationByThread(env, {
           channel: "meta_lead", externalThreadId: String(leadgenId), contactId,
           subject: "Meta Lead" + (name ? " — " + name : ""),
@@ -163,22 +191,20 @@ export async function onRequestPost({ request, env }) {
         });
         await insertMessageOnce(env, {
           conversationId: convId, direction: "in", channel: "meta_lead", externalMessageId: "meta:" + leadgenId,
-          bodyText: (lead.field_data || []).map((f) => (f.name || "") + ": " + ((f.values && f.values[0]) || "")).join("\n") || "Lead form submitted.",
+          bodyText: (fieldData || []).map((f) => (f.name || "") + ": " + ((f.values && f.values[0]) || "")).join("\n") || "Lead form submitted.",
           sentAt: new Date().toISOString(),
         });
         // Attach the website-intel dossier as a system note (author null) — once per lead.
+        let note = null;
         if (website || siteFlag !== "none") {
+          note = intelNote(website, siteFlag, intel || {}, fields.company_name || name);
           try {
             const dup = await env.DB.prepare("SELECT id FROM notes WHERE conversation_id=? AND body LIKE '🔍 Website intel%'").bind(convId).first();
             if (!dup) {
               await env.DB.prepare("INSERT INTO notes (id, author_id, conversation_id, contact_id, body) VALUES (?, NULL, ?, ?, ?)")
-                .bind(ulid(), convId, contactId, intelNote(website, siteFlag, intel || {}, fields.company_name || name)).run();
+                .bind(ulid(), convId, contactId, note).run();
             }
           } catch (_) {}
         }
-        ingested++;
-      }
-    }
-    return json({ ok: true, ingested });
-  } catch (e) { return json({ ok: true, error: String(e).slice(0, 120) }); }
+        return { convId, fit, siteFlag, note };
 }
