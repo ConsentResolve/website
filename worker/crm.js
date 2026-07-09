@@ -106,6 +106,7 @@ label.fld{display:block;font-size:11px;color:var(--mut);margin:0 0 3px}
       <select id="ibFilter"><option value="open">Open</option><option value="snoozed">Snoozed</option><option value="archived">Archived</option></select>
       <button class="ghost" id="ibPoll" title="Sync now">↻</button>
     </div>
+    <div class="muted tiny" style="padding:2px 12px 6px;letter-spacing:.04em" title="All timestamps in this CRM are shown in US Eastern time">🕐 Times shown in ET (US Eastern)</div>
     <div id="ibList"></div>
   </div>
   <div class="ibcol ibthreadcol" id="ibThread"><div class="soon">Select a conversation</div></div>
@@ -313,7 +314,9 @@ var gc=document.getElementById("gConnect");if(gc)gc.onclick=function(){location.
 
 var CONVS=[],CONV=null,_ibInit=false,IBQ="";
 function chBadge(ch){var m={email:["rgba(0,229,160,.16)","#7ff0cd","hello@"],instantly:["rgba(55,138,221,.18)","#9cc6f3","Instantly"],crisp:["rgba(127,119,221,.2)","#bcb6f2","Crisp"],meta_lead:["rgba(239,159,39,.18)","#f0c27a","Meta"]};var x=m[ch]||["rgba(148,163,184,.18)","#cbd5e1",ch||"?"];return '<span class="pill" style="background:'+x[0]+';color:'+x[1]+'">'+esc(x[2])+'</span>';}
-function ibWhen(s){return s?esc(String(s).replace("T"," ").slice(0,16)):"";}
+// All CRM timestamps display in US Eastern (ET) — change IB_TZ/IB_TZL together to move it.
+var IB_TZ="America/New_York",IB_TZL="ET";
+function ibWhen(s){if(!s)return "";try{var t=String(s).replace(" ","T");if(!/Z$|[+-]\d\d:?\d\d$/.test(t))t+="Z";var d=new Date(t);if(isNaN(d.getTime()))throw 0;return esc(new Intl.DateTimeFormat("en-US",{timeZone:IB_TZ,month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(d)+" "+IB_TZL);}catch(e){return esc(String(s).replace("T"," ").slice(0,16));}}
 function ensureInbox(){if(!_ibInit){_ibInit=true;var f=document.getElementById("ibFilter");if(f)f.onchange=loadInbox;var sb=document.getElementById("ibSearch");if(sb)sb.oninput=function(){IBQ=(this.value||"").toLowerCase();renderConvList();};var p=document.getElementById("ibPoll");if(p)p.onclick=function(){var b=this;b.textContent="…";api("/api/crm/inbox?poll=1").then(function(r){return r.json();}).then(function(){b.textContent="↻";loadInbox();}).catch(function(){b.textContent="↻";});};}loadInbox();}
 function loadInbox(){var st=document.getElementById("ibFilter");var status=st?st.value:"open";api("/api/crm/inbox?status="+encodeURIComponent(status)).then(function(r){return r.json();}).then(function(d){CONVS=d.conversations||[];renderConvList();});}
 function renderConvList(){var el=document.getElementById("ibList");var rows=CONVS.filter(function(c){if(!IBQ)return true;var s=((c.full_name||"")+" "+(c.primary_email||"")+" "+(c.company_name||"")+" "+(c.subject||"")).toLowerCase();return s.indexOf(IBQ)>=0;});if(!rows.length){el.innerHTML='<div class="soon">'+(IBQ?"No matches.":"No conversations.")+'</div>';return;}
