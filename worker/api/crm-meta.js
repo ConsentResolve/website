@@ -6,8 +6,58 @@
 // Setup (Aaron): in the existing CR Meta app, subscribe the page to the `leadgen` field,
 // point the webhook at this URL with META_VERIFY_TOKEN. Graph fetch uses FB_PAGE_TOKEN.
 import { json } from "../_lib/http.js";
-import { ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIdentifier, upsertConversationByThread, insertMessageOnce } from "../_lib/crm-v2.js";
+import { ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIdentifier, upsertConversationByThread, insertMessageOnce, ulid } from "../_lib/crm-v2.js";
 import { tradeSlug } from "../_lib/meta.js";
+
+// ---- Website intel: mine the lead's homepage for signals that shape the pitch. ----
+// One regex pass over HTML we already fetched for the alive-check; no external APIs.
+const SIGNALS = {
+  platform: [["WordPress", /wp-content|wp-includes|wp-json/i], ["Wix", /wix\.com|wixstatic\.com/i], ["Squarespace", /squarespace/i], ["Duda", /dudaone|dudamobile|cdn\.website\.com/i], ["GoDaddy", /godaddysites|apis\.godaddy/i], ["Webflow", /webflow/i], ["Shopify", /cdn\.shopify/i]],
+  pixel: [["Meta pixel", /fbq\s*\(|connect\.facebook\.net/i], ["Google Analytics", /googletagmanager|google-analytics|gtag\s*\(/i], ["CallRail", /callrail|calltrk/i]],
+  chat: [["Podium", /podium/i], ["Intercom", /intercom/i], ["Crisp", /crisp\.chat/i], ["Tawk", /tawk\.to/i], ["Drift", /drift\.com|driftt/i], ["Birdeye", /birdeye/i], ["LiveChat", /livechat/i]],
+  competitors: [["Thumbtack", /thumbtack/i], ["Angi", /angi\.com|angieslist/i], ["HomeAdvisor", /homeadvisor/i], ["Google LSA", /google guaranteed|localservices/i]],
+  fsm: [["ServiceTitan", /servicetitan/i], ["Housecall Pro", /housecallpro/i], ["Jobber", /getjobber|jobber/i], ["Calendly", /calendly/i]],
+};
+
+function scanWebsite(html) {
+  const hits = {};
+  for (const [group, list] of Object.entries(SIGNALS)) {
+    hits[group] = list.filter(([, re]) => re.test(html)).map(([name]) => name);
+  }
+  hits.hasForm = /<form[\s>]/i.test(html);
+  const tel = html.match(/href=["']tel:([+\d\-().\s]{7,20})/i);
+  hits.phone = tel ? tel[1].trim() : "";
+  const title = html.match(/<title[^>]*>([^<]{2,120})</i);
+  hits.title = title ? title[1].trim() : "";
+  return hits;
+}
+
+function intelNote(website, siteFlag, s, company) {
+  if (siteFlag !== "ok") {
+    return "🔍 Website intel — " + (website || "no site given") + "\nSite check: " + (siteFlag === "dead" ? "UNREACHABLE ⚠ (typo, or not a real business?)" : "no website provided") + "\nAngle: verify the business exists (Google the company + phone) before investing time.";
+  }
+  const capture = [];
+  if (s.hasForm) capture.push("contact form");
+  if (s.chat.length) capture.push("chat (" + s.chat.join(", ") + ")");
+  // Pixels measure, they don't capture — list separately so the rep reads it right.
+  const leak = !s.hasForm && !s.chat.length;
+  const lines = [
+    "🔍 Website intel — " + website,
+    s.title ? "Title: " + s.title : null,
+    "Platform: " + (s.platform.join(", ") || "unknown"),
+    "Visitor capture: " + (capture.length ? capture.join(" · ") : "NONE ❌"),
+    "Tracking: " + (s.pixel.length ? s.pixel.join(", ") : "none (they can't even measure the leak)"),
+    s.competitors.length ? "Competitor spend: " + s.competitors.join(", ") + " ⚠ (already pays for leads)" : "Competitor badges: none found",
+    s.fsm.length ? "Tools: " + s.fsm.join(", ") + " (integration talking point)" : null,
+    s.phone ? "Phone on site: " + s.phone : null,
+    "",
+    leak
+      ? "Angle: real site with weak/no visitor capture → prime for the 98%-leak pitch" + (s.competitors.length ? " + they already buy shared leads, sell exclusivity." : ".")
+      : "Angle: they already invest in capture — lead with exclusivity + $7 flat vs what they pay now.",
+    "Ad Library: https://www.facebook.com/ads/library/?active_status=all&ad_type=all&country=US&q=" + encodeURIComponent(company || website),
+  ];
+  return lines.filter((l) => l !== null).join("\n");
+}
 
 // Verify token for the Meta webhook handshake. Not a real secret (the actual security is the
 // X-Hub-Signature check below) — defaulted so no Cloudflare secret is required to connect the
@@ -86,13 +136,20 @@ export async function onRequestPost({ request, env }) {
         let website = (fields.website || "").trim();
         if (website && !/^https?:\/\//i.test(website)) website = "https://" + website;
         let siteFlag = "none";
+        let intel = null;
         if (website) {
           siteFlag = "dead";
           try {
             const ping = await fetch(website, { method: "GET", redirect: "follow", signal: AbortSignal.timeout(5000) });
-            if (ping.status < 500) siteFlag = "ok";
+            if (ping.status < 500) {
+              siteFlag = "ok";
+              const html = (await ping.text()).slice(0, 400000); // cap: one homepage is plenty
+              intel = scanWebsite(html);
+            }
           } catch (_) {}
         }
+        // fit: hot = real site with NO capture path (no form, no chat) — exactly who we sell to.
+        const fit = siteFlag !== "ok" ? "cold" : (intel && !intel.hasForm && !intel.chat.length) ? "hot" : "warm";
         const contactId = email
           ? await findOrCreateContactByEmail(env, email, { name, phone, source: "meta_lead" })
           : await findOrCreateContactByIdentifier(env, "meta_lead", String(leadgenId), { name, source: "meta_lead" });
@@ -100,15 +157,25 @@ export async function onRequestPost({ request, env }) {
         const convId = await upsertConversationByThread(env, {
           channel: "meta_lead", externalThreadId: String(leadgenId), contactId,
           subject: "Meta Lead" + (name ? " — " + name : ""),
-          sourceDetail: [formId ? "form:" + formId : null, trade ? "trade:" + trade : null, "site:" + siteFlag].filter(Boolean).join("|") || null,
+          sourceDetail: [formId ? "form:" + formId : null, trade ? "trade:" + trade : null, "site:" + siteFlag, "fit:" + fit].filter(Boolean).join("|") || null,
           incoming: true, lastAt: new Date().toISOString(),
-          preview: [trade, name, email, phone, website ? website + (siteFlag === "dead" ? " (unreachable)" : "") : "no website"].filter(Boolean).join(" · ").slice(0, 160) || "Meta lead form",
+          preview: [fit === "hot" ? "🔥" : null, trade, name, email, phone, website ? website + (siteFlag === "dead" ? " (unreachable)" : "") : "no website"].filter(Boolean).join(" · ").slice(0, 160) || "Meta lead form",
         });
         await insertMessageOnce(env, {
           conversationId: convId, direction: "in", channel: "meta_lead", externalMessageId: "meta:" + leadgenId,
           bodyText: (lead.field_data || []).map((f) => (f.name || "") + ": " + ((f.values && f.values[0]) || "")).join("\n") || "Lead form submitted.",
           sentAt: new Date().toISOString(),
         });
+        // Attach the website-intel dossier as a system note (author null) — once per lead.
+        if (website || siteFlag !== "none") {
+          try {
+            const dup = await env.DB.prepare("SELECT id FROM notes WHERE conversation_id=? AND body LIKE '🔍 Website intel%'").bind(convId).first();
+            if (!dup) {
+              await env.DB.prepare("INSERT INTO notes (id, author_id, conversation_id, contact_id, body) VALUES (?, NULL, ?, ?, ?)")
+                .bind(ulid(), convId, contactId, intelNote(website, siteFlag, intel || {}, fields.company_name || name)).run();
+            }
+          } catch (_) {}
+        }
         ingested++;
       }
     }
