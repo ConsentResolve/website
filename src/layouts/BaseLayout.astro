@@ -20,6 +20,9 @@ const props = Astro.props as Props;
 // Ad-platform pixels — only emitted when the ID env var is set (no-op otherwise).
 // Set in Cloudflare Pages env: PUBLIC_META_PIXEL_ID, PUBLIC_TIKTOK_PIXEL_ID.
 const META_PIXEL_ID = import.meta.env.PUBLIC_META_PIXEL_ID || "1611275646787663";
+// Second Meta pixel owned by the CR ads Business Manager (the one the launcher token can
+// read) — audiences for ad retargeting build here. Fires alongside the original pixel.
+const META_ADS_PIXEL_ID = "1045574481147406";
 const TIKTOK_PIXEL_ID = import.meta.env.PUBLIC_TIKTOK_PIXEL_ID;
 const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; // remarketing tag
 ---
@@ -52,7 +55,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
          value MUST match the service name configured in the ConsentResolve/Usercentrics
          dashboard. Emitted only when PUBLIC_META_PIXEL_ID is set. -->
     {META_PIXEL_ID && (
-      <script is:inline type="text/plain" data-usercentrics="Facebook Pixel" set:html={`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${META_PIXEL_ID}');fbq('track','PageView');`} />
+      <script is:inline type="text/plain" data-usercentrics="Facebook Pixel" set:html={`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${META_PIXEL_ID}');fbq('init','${META_ADS_PIXEL_ID}');fbq('track','PageView');`} />
     )}
 
     <!-- TikTok Pixel (ad measurement) — CONSENT-GATED (autoblocker; data-usercentrics

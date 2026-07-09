@@ -81,6 +81,18 @@ export async function onRequestPost({ request, env }) {
         const name = fields.full_name || [fields.first_name, fields.last_name].filter(Boolean).join(" ") || "";
         const phone = fields.phone_number || fields.phone || "";
         const trade = tradeSlug(fields.trade);   // form's qualifying question → industry slug
+        // Second qualifier: business website / FB page URL. Verify it resolves so the inbox
+        // can tell a real contractor from a junk form-fill at a glance (site:ok|dead|none).
+        let website = (fields.website || "").trim();
+        if (website && !/^https?:\/\//i.test(website)) website = "https://" + website;
+        let siteFlag = "none";
+        if (website) {
+          siteFlag = "dead";
+          try {
+            const ping = await fetch(website, { method: "GET", redirect: "follow", signal: AbortSignal.timeout(5000) });
+            if (ping.status < 500) siteFlag = "ok";
+          } catch (_) {}
+        }
         const contactId = email
           ? await findOrCreateContactByEmail(env, email, { name, phone, source: "meta_lead" })
           : await findOrCreateContactByIdentifier(env, "meta_lead", String(leadgenId), { name, source: "meta_lead" });
@@ -88,9 +100,9 @@ export async function onRequestPost({ request, env }) {
         const convId = await upsertConversationByThread(env, {
           channel: "meta_lead", externalThreadId: String(leadgenId), contactId,
           subject: "Meta Lead" + (name ? " — " + name : ""),
-          sourceDetail: [formId ? "form:" + formId : null, trade ? "trade:" + trade : null].filter(Boolean).join("|") || null,
+          sourceDetail: [formId ? "form:" + formId : null, trade ? "trade:" + trade : null, "site:" + siteFlag].filter(Boolean).join("|") || null,
           incoming: true, lastAt: new Date().toISOString(),
-          preview: [trade, name, email, phone].filter(Boolean).join(" · ").slice(0, 160) || "Meta lead form",
+          preview: [trade, name, email, phone, website ? website + (siteFlag === "dead" ? " (unreachable)" : "") : "no website"].filter(Boolean).join(" · ").slice(0, 160) || "Meta lead form",
         });
         await insertMessageOnce(env, {
           conversationId: convId, direction: "in", channel: "meta_lead", externalMessageId: "meta:" + leadgenId,

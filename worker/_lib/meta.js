@@ -181,13 +181,16 @@ const LEAD_FORM = {
     "Recover the ~98% of homeowners who land on your site and leave without a trace. " +
     "Real name, email, and what they need — consent-first, never resold. " +
     "Tell us where to send your 2-minute demo.",
-  // Trade first (qualifying — no "Other", so only our 17 industries can submit), then contact fields.
+  // Trade first (qualifying — no "Other", so only our 17 industries can submit), then contact
+  // fields, then a free-text website/FB-page URL (second qualifier: real businesses have one;
+  // the webhook validates it resolves and flags mismatches — see crm-meta.js).
   questions: [
     { type: "CUSTOM", key: "trade", label: "What's your trade?", options: TRADE_OPTIONS.map(([k, v]) => ({ key: k, value: v })) },
     { type: "FULL_NAME" },
     { type: "EMAIL" },
     { type: "PHONE" },
     { type: "COMPANY_NAME" },
+    { type: "CUSTOM", key: "website", label: "Business website or Facebook Page URL" },
   ],
   privacy_url: "https://consentresolve.com/privacy-policy/",
   ty_title: "You're in — check your email",
