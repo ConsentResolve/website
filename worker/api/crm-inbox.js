@@ -181,6 +181,7 @@ export async function onRequestGet({ request, env }) {
           tools: list("Tools").map((s) => s.replace(/\s*\(.*\)?$/, "")),
           phone: grab("Phone on site"),
           siteCheck: grab("Site check"),
+          tradeCheck: grab("Trade check"),
           angle: (lines.find((x) => x.startsWith("Angle: ")) || "").slice(7),
           adLibrary: grab("Ad Library"),
           fit: tag("fit") || "warm",

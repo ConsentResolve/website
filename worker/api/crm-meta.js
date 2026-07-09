@@ -19,6 +19,42 @@ const SIGNALS = {
   fsm: [["ServiceTitan", /servicetitan/i], ["Housecall Pro", /housecallpro/i], ["Jobber", /getjobber|jobber/i], ["Calendly", /calendly/i]],
 };
 
+// Trade fingerprints: does the site's copy actually match the trade they claimed on the form?
+// Phrase-level patterns (not bare words) to dodge false hits like `window.` in inline JS.
+const TRADE_KEYWORDS = {
+  "plumbing": /plumb(ing|er)|water heater|drain clean|sewer line/gi,
+  "hvac": /hvac|air conditioning|heating (and|&) (cooling|air)|furnace|heat pump|\bac repair/gi,
+  "roofing": /roof(ing|er| repair| replacement)|shingle|storm damage/gi,
+  "electrical": /electric(ian|al service|al contractor)|rewir|breaker panel|panel upgrade/gi,
+  "landscaping": /landscap(e|ing)|lawn (care|service|maintenance)|irrigation|mowing/gi,
+  "pest-control": /pest control|exterminat|termite|rodent|bed bug/gi,
+  "garage-doors": /garage door|door opener/gi,
+  "fencing": /fenc(e|ing) (install|company|contractor|repair)|privacy fence|chain link/gi,
+  "painting": /paint(ing|er)s? (service|company|contractor|interior|exterior)|house paint/gi,
+  "flooring": /floor(ing)? (install|company|contractor)|hardwood floor|luxury vinyl|tile install|carpet install/gi,
+  "remodeling": /remodel|renovat|kitchen (and|&) bath|general contractor|home addition/gi,
+  "concrete": /concrete (driveway|patio|slab|contractor|work|pour|repair)|stamped concrete|driveway (install|replacement|repair)|foundation repair|paver/gi,
+  "tree-removal": /tree (service|removal|trimming|care)|arborist|stump grind/gi,
+  "pool-service": /pool (service|cleaning|maintenance|care|repair)|pool cleaner/gi,
+  "house-cleaning": /house clean|cleaning service|maid|housekeeping|deep clean|move.out clean/gi,
+  "window-doors": /window (replacement|installation|repair)|replacement window|entry door|door installation/gi,
+  "septic": /septic/gi,
+};
+
+// Compare the claimed trade against what the site's copy actually says.
+//   verified  — the claimed trade's language is on the page (ICP match)
+//   mismatch  — nothing for their trade, but the site clearly reads as a different one
+//   unclear   — no trade signals either way (thin site, or not a service business)
+function checkTrade(html, claimed) {
+  const counts = {};
+  for (const [slug, re] of Object.entries(TRADE_KEYWORDS)) counts[slug] = (html.match(re) || []).length;
+  const claimedHits = claimed ? (counts[claimed] || 0) : 0;
+  const best = Object.entries(counts).filter(([s]) => s !== claimed).sort((a, b) => b[1] - a[1])[0];
+  if (claimedHits >= 1) return { status: "verified", hits: claimedHits };
+  if (best && best[1] >= 2) return { status: "mismatch", looksLike: best[0], hits: best[1] };
+  return { status: "unclear" };
+}
+
 function scanWebsite(html) {
   const hits = {};
   for (const [group, list] of Object.entries(SIGNALS)) {
@@ -32,7 +68,14 @@ function scanWebsite(html) {
   return hits;
 }
 
-function intelNote(website, siteFlag, s, company) {
+function tradeCheckLine(tc, claimed) {
+  if (!tc || !claimed) return null;
+  if (tc.status === "verified") return "Trade check: claimed " + claimed + " — ✓ verified on site (" + tc.hits + " mention" + (tc.hits === 1 ? "" : "s") + ")";
+  if (tc.status === "mismatch") return "Trade check: claimed " + claimed + " — ✗ MISMATCH, site reads like " + tc.looksLike;
+  return "Trade check: claimed " + claimed + " — ? no " + claimed + " language found on the site";
+}
+
+function intelNote(website, siteFlag, s, company, trade) {
   if (siteFlag !== "ok") {
     return "🔍 Website intel — " + (website || "no site given") + "\nSite check: " + (siteFlag === "dead" ? "UNREACHABLE ⚠ (typo, or not a real business?)" : "no website provided") + "\nAngle: verify the business exists (Google the company + phone) before investing time.";
   }
@@ -45,15 +88,18 @@ function intelNote(website, siteFlag, s, company) {
     "🔍 Website intel — " + website,
     s.title ? "Title: " + s.title : null,
     "Platform: " + (s.platform.join(", ") || "unknown"),
+    tradeCheckLine(s.tradeCheck, trade),
     "Visitor capture: " + (capture.length ? capture.join(" · ") : "NONE ❌"),
     "Tracking: " + (s.pixel.length ? s.pixel.join(", ") : "none (they can't even measure the leak)"),
     s.competitors.length ? "Competitor spend: " + s.competitors.join(", ") + " ⚠ (already pays for leads)" : "Competitor badges: none found",
     s.fsm.length ? "Tools: " + s.fsm.join(", ") + " (integration talking point)" : null,
     s.phone ? "Phone on site: " + s.phone : null,
     "",
-    leak
-      ? "Angle: real site with weak/no visitor capture → prime for the 98%-leak pitch" + (s.competitors.length ? " + they already buy shared leads, sell exclusivity." : ".")
-      : "Angle: they already invest in capture — lead with exclusivity + $7 flat vs what they pay now.",
+    (s.tradeCheck && s.tradeCheck.status === "mismatch")
+      ? "Angle: site does NOT match the claimed trade — likely a junk fill. Verify before spending any time."
+      : leak
+        ? "Angle: real site with weak/no visitor capture → prime for the 98%-leak pitch" + (s.competitors.length ? " + they already buy shared leads, sell exclusivity." : ".")
+        : "Angle: they already invest in capture — lead with exclusivity + $7 flat vs what they pay now.",
     "Ad Library: https://www.facebook.com/ads/library/?active_status=all&ad_type=all&country=US&q=" + encodeURIComponent(company || website),
   ];
   return lines.filter((l) => l !== null).join("\n");
@@ -178,11 +224,14 @@ async function ingestLead(env, { fields, leadgenId, formId, fieldData }) {
               siteFlag = "ok";
               const html = (await ping.text()).slice(0, 400000); // cap: one homepage is plenty
               intel = scanWebsite(html);
+              intel.tradeCheck = checkTrade(html, trade);
             }
           } catch (_) {}
         }
         // fit: hot = real site with NO capture path (no form, no chat) — exactly who we sell to.
-        const fit = siteFlag !== "ok" ? "cold" : (intel && !intel.hasForm && !intel.chat.length) ? "hot" : "warm";
+        // A trade mismatch overrides to cold: real site, wrong business = the junk-lead pattern.
+        let fit = siteFlag !== "ok" ? "cold" : (intel && !intel.hasForm && !intel.chat.length) ? "hot" : "warm";
+        if (intel && intel.tradeCheck && intel.tradeCheck.status === "mismatch") fit = "cold";
         const contactId = email
           ? await findOrCreateContactByEmail(env, email, { name, phone, source: "meta_lead" })
           : await findOrCreateContactByIdentifier(env, "meta_lead", String(leadgenId), { name, source: "meta_lead" });
@@ -202,7 +251,7 @@ async function ingestLead(env, { fields, leadgenId, formId, fieldData }) {
         // Attach the website-intel dossier as a system note (author null) — once per lead.
         let note = null;
         if (website || siteFlag !== "none") {
-          note = intelNote(website, siteFlag, intel || {}, fields.company_name || name);
+          note = intelNote(website, siteFlag, intel || {}, fields.company_name || name, trade);
           try {
             const dup = await env.DB.prepare("SELECT id FROM notes WHERE conversation_id=? AND body LIKE '🔍 Website intel%'").bind(convId).first();
             if (!dup) {
