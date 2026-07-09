@@ -150,9 +150,44 @@ export async function onRequestGet({ request, env }) {
       if (contact && contact.company_id) company = await env.DB.prepare("SELECT * FROM companies WHERE id=?").bind(contact.company_id).first();
     }
     const users = (await env.DB.prepare("SELECT id, name FROM users WHERE active=1 ORDER BY name").all()).results || [];
-    const notes = (await env.DB.prepare(
+    let notes = (await env.DB.prepare(
       "SELECT n.id, n.body, n.created_at, u.name AS author FROM notes n LEFT JOIN users u ON u.id=n.author_id WHERE n.conversation_id=? ORDER BY n.created_at DESC"
     ).bind(id).all()).results || [];
+    // Website intel (from the Meta-lead webhook's system note): parse into structured data
+    // for the intel pane's card, and drop the raw note from the list so it isn't shown twice.
+    let webIntel = null;
+    {
+      const wi = notes.find((n) => (n.body || "").startsWith("🔍 Website intel"));
+      if (wi) {
+        notes = notes.filter((n) => n !== wi);
+        const lines = wi.body.split("\n");
+        const grab = (label) => {
+          const l = lines.find((x) => x.startsWith(label + ": "));
+          return l ? l.slice(label.length + 2).trim() : "";
+        };
+        const list = (label) => {
+          const v = grab(label);
+          return (!v || /^none/i.test(v) || v.startsWith("NONE")) ? [] : v.replace(/\s*[⚠✓].*$/u, "").split(/,|·/).map((s) => s.trim()).filter(Boolean);
+        };
+        const sd = String(conv.source_detail || "");
+        const tag = (k) => { const m = sd.split("|").find((p) => p.startsWith(k + ":")); return m ? m.slice(k.length + 1) : ""; };
+        webIntel = {
+          url: (lines[0].split("—")[1] || "").trim(),
+          title: grab("Title"),
+          platform: grab("Platform") === "unknown" ? "" : grab("Platform"),
+          capture: list("Visitor capture"),
+          tracking: list("Tracking"),
+          competitors: list("Competitor spend"),
+          tools: list("Tools").map((s) => s.replace(/\s*\(.*\)?$/, "")),
+          phone: grab("Phone on site"),
+          siteCheck: grab("Site check"),
+          angle: (lines.find((x) => x.startsWith("Angle: ")) || "").slice(7),
+          adLibrary: grab("Ad Library"),
+          fit: tag("fit") || "warm",
+          site: tag("site") || "ok",
+        };
+      }
+    }
     // Live demo progress: if this contact has a demo-form participant record, surface how
     // far they got (registered -> visited -> consented -> emailed/enrolled), read fresh.
     let demo = null;
@@ -236,13 +271,13 @@ export async function onRequestGet({ request, env }) {
       }
     } catch (_) {}
     await env.DB.prepare("UPDATE conversations SET unread=0 WHERE id=?").bind(id).run();
-    return json({ conversation: conv, messages: msgs, contact, company, users, notes, demo, intel, paid, coldEmail, suppressed }, {}, cors);
+    return json({ conversation: conv, messages: msgs, contact, company, users, notes, demo, intel, webIntel, paid, coldEmail, suppressed }, {}, cors);
   }
 
   const status = url.searchParams.get("status") || "open";
   const rows = (await env.DB.prepare(
     `SELECT cv.id, cv.channel, cv.subject, cv.status, cv.unread, cv.last_message_at, cv.last_message_preview,
-            cv.assignee_id, c.full_name, c.primary_email, co.name AS company_name
+            cv.assignee_id, cv.source_detail, c.full_name, c.primary_email, co.name AS company_name
        FROM conversations cv LEFT JOIN contacts c ON c.id=cv.contact_id
        LEFT JOIN companies co ON co.id=cv.company_id
       WHERE cv.status=? ORDER BY COALESCE(cv.last_message_at, cv.updated_at) DESC LIMIT 200`
