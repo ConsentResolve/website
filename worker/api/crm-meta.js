@@ -21,24 +21,26 @@ const SIGNALS = {
 
 // Trade fingerprints: does the site's copy actually match the trade they claimed on the form?
 // Phrase-level patterns (not bare words) to dodge false hits like `window.` in inline JS.
+// Keys MUST be the TRADE_OPTIONS slugs from _lib/meta.js — checkTrade() is fed tradeSlug()
+// output, so a key that isn't a real form slug can never match a real lead.
 const TRADE_KEYWORDS = {
-  "plumbing": /plumb(ing|er)|water heater|drain clean|sewer line/gi,
   "hvac": /hvac|air conditioning|heating (and|&) (cooling|air)|furnace|heat pump|\bac repair/gi,
+  "plumber": /plumb(ing|er)|water heater|drain clean|sewer line/gi,
+  "electrician": /electric(ian|al service|al contractor)|rewir|breaker panel|panel upgrade/gi,
   "roofing": /roof(ing|er| repair| replacement)|shingle|storm damage/gi,
-  "electrical": /electric(ian|al service|al contractor)|rewir|breaker panel|panel upgrade/gi,
-  "landscaping": /landscap(e|ing)|lawn (care|service|maintenance)|irrigation|mowing/gi,
-  "pest-control": /pest control|exterminat|termite|rodent|bed bug/gi,
-  "garage-doors": /garage door|door opener/gi,
-  "fencing": /fenc(e|ing) (install|company|contractor|repair)|privacy fence|chain link/gi,
-  "painting": /paint(ing|er)s? (service|company|contractor|interior|exterior)|house paint/gi,
-  "flooring": /floor(ing)? (install|company|contractor)|hardwood floor|luxury vinyl|tile install|carpet install/gi,
-  "remodeling": /remodel|renovat|kitchen (and|&) bath|general contractor|home addition/gi,
-  "concrete": /concrete (driveway|patio|slab|contractor|work|pour|repair)|stamped concrete|driveway (install|replacement|repair)|foundation repair|paver/gi,
-  "tree-removal": /tree (service|removal|trimming|care)|arborist|stump grind/gi,
-  "pool-service": /pool (service|cleaning|maintenance|care|repair)|pool cleaner/gi,
+  "general-contractor": /remodel|renovat|general contractor|kitchen (and|&) bath|home addition|design.build/gi,
+  "handyman": /handyman|odd jobs|honey.do|home repair service/gi,
+  "painter": /paint(ing|er)s? (service|company|contractor|interior|exterior)|house paint|interior paint|exterior paint/gi,
   "house-cleaning": /house clean|cleaning service|maid|housekeeping|deep clean|move.out clean/gi,
-  "window-doors": /window (replacement|installation|repair)|replacement window|entry door|door installation/gi,
-  "septic": /septic/gi,
+  "power-washing": /(power|pressure) wash|soft wash/gi,
+  "pest-control": /pest control|exterminat|termite|rodent|bed bug/gi,
+  "lawn-care": /lawn (care|service|maintenance)|landscap(e|ing)|irrigation|mowing/gi,
+  "tree-removal": /tree (service|removal|trimming|care)|arborist|stump grind/gi,
+  "locksmith": /locksmith|lockout|rekey|lock (install|repair|change)/gi,
+  "garage-door": /garage door|door opener/gi,
+  "deck-fence": /deck (build|install|repair|construction)|fenc(e|ing) (install|company|contractor|repair)|privacy fence|pergola/gi,
+  "appliance-repair": /appliance repair|washer repair|dryer repair|refrigerator repair|dishwasher repair/gi,
+  "mobile-car-service": /mobile (mechanic|detail)|auto repair|oil change|car detail|brake (repair|service)/gi,
 };
 
 // Compare the claimed trade against what the site's copy actually says.
