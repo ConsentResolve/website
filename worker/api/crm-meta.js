@@ -66,19 +66,24 @@ export const LEADGEN_VERIFY_TOKEN = "cr-leadgen-verify-2026";
 
 export async function onRequestGet({ request, env }) {
   const u = new URL(request.url).searchParams;
-  // One-off, key-gated cleanup: remove all meta_lead test conversations + the known test contacts.
+  // Key-gated cleanup. By default deletes ONLY injected sample leads (external_thread_id
+  // 'sample-…') — safe alongside real leads. ?purge_test=<KEY>&all=1 restores the old
+  // wipe-everything behavior (dangerous once real leads exist; it once ate 4 real leads).
   if (u.get("purge_test") && env.FEEDBACK_KEY && u.get("purge_test") === env.FEEDBACK_KEY) {
     try {
       await ensureCrmV2Schema(env);
-      const convs = ((await env.DB.prepare("SELECT id FROM conversations WHERE channel='meta_lead'").all()).results) || [];
+      const where = u.get("all") === "1"
+        ? "channel='meta_lead'"
+        : "channel='meta_lead' AND external_thread_id LIKE 'sample-%'";
+      const convs = ((await env.DB.prepare("SELECT id FROM conversations WHERE " + where).all()).results) || [];
       for (const cv of convs) {
         await env.DB.prepare("DELETE FROM messages WHERE conversation_id=?").bind(cv.id).run();
         try { await env.DB.prepare("DELETE FROM notes WHERE conversation_id=?").bind(cv.id).run(); } catch (_) {}
+        await env.DB.prepare("DELETE FROM conversations WHERE id=?").bind(cv.id).run();
       }
-      await env.DB.prepare("DELETE FROM conversations WHERE channel='meta_lead'").run();
-      const emails = ["aaron@kickass.net", "test@meta.com", "aaron+handydan@kickass.net"];
+      const emails = ["aaron@kickass.net", "test@meta.com", "aaron+handydan@kickass.net", "sample+demo@consentresolve.com", "sample@consentresolve.com"];
       let contacts = 0;
-      for (const e of emails) { const r = await env.DB.prepare("DELETE FROM contacts WHERE lower(primary_email)=?").bind(e.toLowerCase()).run(); contacts += (r.meta && r.meta.changes) || 0; }
+      for (const e of emails) { const r = await env.DB.prepare("DELETE FROM contacts WHERE lower(primary_email)=? AND NOT EXISTS (SELECT 1 FROM conversations WHERE contact_id=contacts.id)").bind(e.toLowerCase()).run(); contacts += (r.meta && r.meta.changes) || 0; }
       return json({ ok: true, purged: { conversations: convs.length, contacts } });
     } catch (e) { return json({ ok: false, error: String(e).slice(0, 160) }); }
   }
