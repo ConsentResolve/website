@@ -77,7 +77,10 @@ function tradeCheckLine(tc, claimed) {
   return "Trade check: claimed " + claimed + " — ? no " + claimed + " language found on the site";
 }
 
-function intelNote(website, siteFlag, s, company, trade) {
+function intelNote(website, siteFlag, s, company, trade, siteAnswer) {
+  if (siteFlag === "nosite") {
+    return "🔍 Website intel — no website yet\nSite check: they answered \"" + siteAnswer + "\" on the form — honest no-site answer, not a fake business.\nAngle: Consent Resolve installs on their website, so they can't use us until they have one. Nurture: check back when the site is live (or point them to a site builder first).";
+  }
   if (siteFlag !== "ok") {
     return "🔍 Website intel — " + (website || "no site given") + "\nSite check: " + (siteFlag === "dead" ? "UNREACHABLE ⚠ (typo, or not a real business?)" : "no website provided") + "\nAngle: verify the business exists (Google the company + phone) before investing time.";
   }
@@ -214,9 +217,14 @@ async function ingestLead(env, { fields, leadgenId, formId, fieldData }) {
         const trade = tradeSlug(fields.trade);   // form's qualifying question → industry slug
         // Second qualifier: business website / FB page URL. Verify it resolves so the inbox
         // can tell a real contractor from a junk form-fill at a glance (site:ok|dead|none).
-        let website = (fields.website || "").trim();
+        let siteAnswer = (fields.website || "").trim();
+        try { siteAnswer = decodeURIComponent(siteAnswer); } catch (_) {}   // Meta sends e.g. "not%20yet"
+        // A text field invites text: "not yet", "none", "n/a" are honest no-website answers,
+        // not typo'd domains — don't fetch them, and don't call the lead fake over it.
+        const saysNoSite = /^(no+|none|n\/?a|not?\s*yet|no\s*website|coming\s*soon|don'?t\s*have\s*(one|a?\s*website)?|-+|\.+)$/i.test(siteAnswer);
+        let website = (!siteAnswer || saysNoSite || !siteAnswer.includes(".")) ? "" : siteAnswer;
         if (website && !/^https?:\/\//i.test(website)) website = "https://" + website;
-        let siteFlag = "none";
+        let siteFlag = siteAnswer && !website ? "nosite" : "none";
         let intel = null;
         if (website) {
           siteFlag = "dead";
@@ -243,7 +251,7 @@ async function ingestLead(env, { fields, leadgenId, formId, fieldData }) {
           subject: "Meta Lead" + (name ? " — " + name : ""),
           sourceDetail: [formId ? "form:" + formId : null, trade ? "trade:" + trade : null, "site:" + siteFlag, "fit:" + fit].filter(Boolean).join("|") || null,
           incoming: true, lastAt: new Date().toISOString(),
-          preview: [fit === "hot" ? "🔥" : null, trade, name, email, phone, website ? website + (siteFlag === "dead" ? " (unreachable)" : "") : "no website"].filter(Boolean).join(" · ").slice(0, 160) || "Meta lead form",
+          preview: [fit === "hot" ? "🔥" : null, trade, name, email, phone, website ? website + (siteFlag === "dead" ? " (unreachable)" : "") : (siteFlag === "nosite" ? "no website yet (“" + siteAnswer + "”)" : "no website")].filter(Boolean).join(" · ").slice(0, 160) || "Meta lead form",
         });
         await insertMessageOnce(env, {
           conversationId: convId, direction: "in", channel: "meta_lead", externalMessageId: "meta:" + leadgenId,
@@ -253,7 +261,7 @@ async function ingestLead(env, { fields, leadgenId, formId, fieldData }) {
         // Attach the website-intel dossier as a system note (author null) — once per lead.
         let note = null;
         if (website || siteFlag !== "none") {
-          note = intelNote(website, siteFlag, intel || {}, fields.company_name || name, trade);
+          note = intelNote(website, siteFlag, intel || {}, fields.company_name || name, trade, siteAnswer);
           try {
             const dup = await env.DB.prepare("SELECT id FROM notes WHERE conversation_id=? AND body LIKE '🔍 Website intel%'").bind(convId).first();
             if (!dup) {
