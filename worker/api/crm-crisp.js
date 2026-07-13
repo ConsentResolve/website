@@ -162,10 +162,12 @@ export async function onRequestPost({ request, env }) {
   let body = {};
   try { body = await request.json(); } catch { return json({ ok: true, skipped: "bad_json" }); }
   try {
-    // Only ingest a real inbound visitor message. Skip other event types (compose/typing,
-    // profile updates) and operator/system messages — otherwise one chat doubles up.
+    // Only ingest a real inbound visitor message. Accept both message events Crisp uses
+    // (some sites fire message:send for visitor messages, others message:received); skip
+    // everything else (compose/typing, profile updates). The from-filter below drops
+    // operator/system echoes so an inbound chat can't double up.
     const event = String(body.event || "");
-    if (event && event !== "message:received") return json({ ok: true, skipped: "event:" + event });
+    if (event && event !== "message:received" && event !== "message:send") return json({ ok: true, skipped: "event:" + event });
     const from = String(deepFind(body, ["from"], 0) || "").toLowerCase();
     if (from && from !== "user" && from !== "visitor") return json({ ok: true, skipped: "from:" + from });
 
