@@ -114,6 +114,21 @@ export async function onRequestGet({ request, env }) {
   const u = new URL(request.url).searchParams;
   if (!u.get("sync")) return json({ ok: true, hint: "POST = Crisp webhook. GET ?sync=<key> backfills missed chats." });
   if (u.get("sync") !== crmWebhookToken(env)) return json({ error: "unauthorized" }, { status: 401 });
+  // Debug: surface Crisp's raw response so we can tell 403-scope vs 200-empty vs wrong-website.
+  if (u.get("debug")) {
+    const wid = env.CRISP_WEBSITE_ID, id = env.CRISP_IDENTIFIER, key = env.CRISP_KEY;
+    const cfg = { has_website_id: !!wid, website_id_len: (wid || "").length, has_identifier: !!id, has_key: !!key };
+    if (!wid || !id || !key) return json({ ok: false, cfg, note: "one or more secrets still missing/empty" });
+    const r = await fetch("https://api.crisp.chat/v1/website/" + wid + "/conversations/1", {
+      headers: { Authorization: "Basic " + btoa(id + ":" + key), "X-Crisp-Tier": "plugin" },
+    });
+    let bodyText = ""; try { bodyText = await r.text(); } catch (_) {}
+    let parsed = null; try { parsed = JSON.parse(bodyText); } catch (_) {}
+    const sample = parsed && Array.isArray(parsed.data)
+      ? parsed.data.slice(0, 3).map((c) => ({ session: c.session_id, state: c.state, email: (c.meta || {}).email || null, nick: (c.meta || {}).nickname || null }))
+      : null;
+    return json({ ok: r.ok, cfg, crisp_status: r.status, crisp_reason: parsed && parsed.reason, count: parsed && Array.isArray(parsed.data) ? parsed.data.length : null, sample, raw: parsed ? undefined : bodyText.slice(0, 300) });
+  }
   try {
     await ensureCrmV2Schema(env);
     if (u.get("cleanup_diag")) {
