@@ -223,6 +223,14 @@ export default {
       } catch (err) {
         console.log(`[inbox] poll error: ${String(err).slice(0, 160)}`);
       }
+      // Crisp backfill: poll recent chats via REST and ingest any the webhook missed. Self-heals
+      // against a rotated CRM key silently disabling the Crisp webhook. No-op until creds are set.
+      try {
+        const cb = await crmCrisp.pollCrispBackfill(env);
+        if (cb && cb.ingested) console.log(`[crisp] backfilled ${cb.ingested} conv (${cb.messages} msgs)`);
+      } catch (err) {
+        console.log(`[crisp] backfill error: ${String(err).slice(0, 160)}`);
+      }
       // Instantly Unibox: ingest campaign replies as channel='instantly'. No-op without key.
       try {
         if (env.INSTANTLY_API_KEY) {

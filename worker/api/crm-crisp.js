@@ -108,6 +108,17 @@ async function ingestCrispConversation(env, sess) {
   return n;
 }
 
+// Poll Crisp + backfill any missed chats (webhook-independent). Safe to call on a cron —
+// dedup-safe, and a no-op (crisp_unconfigured) until the plugin creds/scopes are set.
+export async function pollCrispBackfill(env, pages) {
+  await ensureCrmV2Schema(env);
+  const convs = await listCrispConversations(env, pages || 3);
+  if (convs === null) return { ok: false, error: "crisp_unconfigured" };
+  let ingested = 0, messages = 0;
+  for (const s of convs) { const n = await ingestCrispConversation(env, s); if (n) { ingested++; messages += n; } }
+  return { ok: true, conversations: convs.length, ingested, messages };
+}
+
 // GET ?sync=<CRM_WEBHOOK_TOKEN>  -> poll Crisp + backfill any missed chats (webhook-independent).
 // GET ?sync=<key>&cleanup_diag=1 -> also remove the synthetic diagnostic sessions.
 export async function onRequestGet({ request, env }) {
@@ -140,11 +151,9 @@ export async function onRequestGet({ request, env }) {
         }
       }
     }
-    const convs = await listCrispConversations(env, Number(u.get("pages")) || 3);
-    if (convs === null) return json({ ok: false, error: "crisp_unconfigured", message: "Set CRISP_WEBSITE_ID / CRISP_IDENTIFIER / CRISP_KEY (Cloudflare secrets) to enable Crisp polling + replies." });
-    let ingested = 0, messages = 0;
-    for (const s of convs) { const n = await ingestCrispConversation(env, s); if (n) { ingested++; messages += n; } }
-    return json({ ok: true, conversations: convs.length, ingested, messages });
+    const res = await pollCrispBackfill(env, Number(u.get("pages")) || 3);
+    if (!res.ok && res.error === "crisp_unconfigured") return json({ ok: false, error: "crisp_unconfigured", message: "Set CRISP_WEBSITE_ID / CRISP_IDENTIFIER / CRISP_KEY (Cloudflare secrets) to enable Crisp polling + replies." });
+    return json(res);
   } catch (e) { return json({ ok: false, error: String(e).slice(0, 160) }); }
 }
 
