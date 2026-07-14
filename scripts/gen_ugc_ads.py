@@ -34,8 +34,8 @@ HG_KEY = _kc("cr-heygen") or (open("/tmp/heygen_key.txt").read().strip() if os.p
 EL_KEY = _kc("cr-elevenlabs")
 
 PERSONAS = {
-    "male":   {"avatar": "6730bfaabcff4ae7b1f3a084d02d7220", "voice": "D0xsoUB4EcwwTOZBXZcr"},
-    "female": {"avatar": "4539ede585ef4bc9acaf5507cc0caca5", "voice": "m6aupUpGjuUWqecgDcBm"},
+    "male":   {"avatar": "6730bfaabcff4ae7b1f3a084d02d7220", "voice": "urkfEElESZnoxkPYMPiq"},
+    "female": {"avatar": "4539ede585ef4bc9acaf5507cc0caca5", "voice": "cnba46Sxk9eo8IxAVZPB"},
 }
 # Compliance-cleared: illustrative / spokesperson, no fabricated first-person results, consent-first accurate.
 SCRIPTS = {
