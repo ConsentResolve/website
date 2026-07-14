@@ -1,0 +1,97 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Consent Resolve — UGC ad review</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0a1628;color:#f5f8fa;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+header{padding:26px 24px 8px;text-align:center}
+h1{margin:0;font-size:24px}
+header p{color:#94a3b8;margin:6px auto 0;font-size:14px;max-width:640px;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;max-width:1300px;margin:26px auto;padding:0 22px}
+.card{background:#0e1d33;border:1px solid #1e293b;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.vidwrap{position:relative;background:#000;aspect-ratio:9/16}
+.vidwrap video{width:100%;height:100%;object-fit:cover;display:block}
+.meta{padding:12px 14px 6px}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#00e5a0;background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.25);border-radius:999px;padding:3px 9px;margin-right:6px}
+.tag.p{color:#7cc4ff;background:rgba(124,196,255,.1);border-color:rgba(124,196,255,.25)}
+.script{font-size:12.5px;color:#b9c6d3;line-height:1.5;padding:8px 14px 12px;border-bottom:1px solid #1e293b}
+.cmts{padding:10px 14px 4px}
+.cmt{font-size:12.5px;line-height:1.45;color:#dbe4ea;background:#0a1628;border:1px solid #1e293b;border-radius:8px;padding:7px 9px;margin-bottom:6px}
+.cmt b{color:#00e5a0;font-weight:700}
+.cmt .t{color:#64748b;font-size:11px;margin-left:6px}
+.box{padding:8px 14px 14px;display:flex;flex-direction:column;gap:7px}
+.box input,.box textarea{width:100%;background:#0a1628;border:1px solid #24344a;border-radius:8px;color:#f5f8fa;padding:8px 10px;font:inherit;font-size:13px}
+.box textarea{resize:vertical;min-height:52px}
+.box button{align-self:flex-end;background:#00e5a0;color:#07281c;border:none;border-radius:8px;font-weight:700;font-size:13px;padding:8px 16px;cursor:pointer}
+.box button:disabled{opacity:.5;cursor:default}
+.ok{color:#00e5a0;font-size:12px}
+.err{color:#fda4af;font-size:12px}
+footer{text-align:center;color:#64748b;font-size:12px;padding:12px 0 40px}
+</style></head><body>
+<header>
+<h1>UGC Ad Review — Consent Resolve</h1>
+<p>6 non-employee avatar ads (3 scripts &times; male / female). Watch, then drop a comment under any one &mdash; your notes save to the team review log. Compliance-cleared: illustrative spokesperson framing, no fabricated testimonials.</p>
+</header>
+<div class="grid" id="grid"></div>
+<footer>Consent Resolve &middot; internal review &middot; noindex</footer>
+<script>
+// The 6 rendered ads. src = /ugc-ads/<slug>.mp4 (served from public/). Labels for review.
+var ADS = [
+  {slug:"math-male",    script:"The Math",          persona:"Male"},
+  {slug:"math-female",  script:"The Math",          persona:"Female"},
+  {slug:"banner-male",  script:"Cookie Banner",     persona:"Male"},
+  {slug:"banner-female",script:"Cookie Banner",     persona:"Female"},
+  {slug:"shared-male",  script:"The Shared Lead",   persona:"Male"},
+  {slug:"shared-female",script:"The Shared Lead",   persona:"Female"}
+];
+var SCRIPTS = {
+  "The Math":"Say 400 people visit your website in a month. Maybe 11 call. So who were the other 389? The ones who tapped accept on your cookie banner gave you permission to reach out. Consent Resolve turns those into contacts you can actually follow up with. One line of code, about three minutes to set up. Tap the link — see who you’re missing.",
+  "Cookie Banner":"You know that cookie banner on your website? Every time a homeowner clicks accept, they’re giving you permission to reach out. That’s not a visitor anymore. That’s a lead. Consent-based, compliant, and already sitting on your site. Tap the link and try it on yours.",
+  "The Shared Lead":"Paying eighty-plus bucks for a lead they sold to four other plumbers too? With Consent Resolve, the leads come off your own website. Exclusive. Consent-based. Up in about three minutes. Tap the link — see it on your own site."
+};
+// Media is hosted on R2 (never committed to the repo, per .gitignore).
+var R2="https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/ugc-ads/";
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+function lkey(slug){return "cr_ugc_cmt_"+slug;}
+function localComments(slug){try{return JSON.parse(localStorage.getItem(lkey(slug))||"[]");}catch(e){return [];}}
+function saveLocal(slug,c){var a=localComments(slug);a.unshift(c);localStorage.setItem(lkey(slug),JSON.stringify(a.slice(0,20)));}
+function renderComments(slug,box){var a=localComments(slug);box.innerHTML=a.map(function(c){return '<div class="cmt"><b>'+esc(c.author||"You")+'</b><span class="t">'+esc(c.at)+'</span><br>'+esc(c.note)+'</div>';}).join("");}
+
+var grid=document.getElementById("grid");
+ADS.forEach(function(ad){
+  var card=document.createElement("div");card.className="card";
+  card.innerHTML=
+    '<div class="vidwrap"><video src="'+R2+ad.slug+'.mp4" controls playsinline preload="metadata"></video></div>'+
+    '<div class="meta"><span class="tag">'+esc(ad.script)+'</span><span class="tag p">'+esc(ad.persona)+'</span></div>'+
+    '<div class="script">'+esc(SCRIPTS[ad.script])+'</div>'+
+    '<div class="cmts" id="c-'+ad.slug+'"></div>'+
+    '<div class="box">'+
+      '<input placeholder="Your name" id="n-'+ad.slug+'" maxlength="80">'+
+      '<textarea placeholder="Comment on this ad…" id="t-'+ad.slug+'" maxlength="4000"></textarea>'+
+      '<button id="b-'+ad.slug+'">Post comment</button>'+
+      '<span id="s-'+ad.slug+'"></span>'+
+    '</div>';
+  grid.appendChild(card);
+  var cbox=card.querySelector("#c-"+ad.slug);renderComments(ad.slug,cbox);
+  var btn=card.querySelector("#b-"+ad.slug);
+  btn.onclick=function(){
+    var note=(document.getElementById("t-"+ad.slug).value||"").trim();
+    var author=(document.getElementById("n-"+ad.slug).value||"").trim();
+    var status=document.getElementById("s-"+ad.slug);
+    if(!note){status.className="err";status.textContent="Add a comment first.";return;}
+    btn.disabled=true;status.textContent="Saving…";status.className="";
+    fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({video:"ugc-ad-"+ad.slug,note:note,author:author})})
+      .then(function(r){return r.json();}).then(function(res){
+        btn.disabled=false;
+        if(res&&res.ok){
+          saveLocal(ad.slug,{author:author||"You",note:note,at:new Date().toLocaleString()});
+          renderComments(ad.slug,cbox);
+          document.getElementById("t-"+ad.slug).value="";
+          status.className="ok";status.textContent="Saved ✓";
+        }else{status.className="err";status.textContent=(res&&res.error)||"Save failed.";}
+      }).catch(function(){btn.disabled=false;status.className="err";status.textContent="Network error.";});
+  };
+});
+</script>
+</body></html>
