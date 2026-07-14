@@ -27,12 +27,18 @@ header p{color:#94a3b8;margin:6px auto 0;font-size:14px;max-width:640px;line-hei
 .ok{color:#00e5a0;font-size:12px}
 .err{color:#fda4af;font-size:12px}
 footer{text-align:center;color:#64748b;font-size:12px;padding:12px 0 40px}
+h2.mh{max-width:1300px;margin:30px auto 2px;padding:0 22px;font-size:16px;color:#00e5a0}
+p.ms{max-width:1300px;margin:0 auto 8px;padding:0 22px;color:#94a3b8;font-size:13px;line-height:1.5}
+.tag.m{color:#fbbf24;background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3)}
 </style></head><body>
 <header>
 <h1>UGC Ad Review — Consent Resolve</h1>
 <p>6 non-employee avatar ads (3 scripts &times; male / female). Watch, then drop a comment under any one &mdash; your notes save to the team review log. Compliance-cleared: illustrative spokesperson framing, no fabricated testimonials.</p>
 </header>
 <div class="grid" id="grid"></div>
+<h2 class="mh">Model A/B test &mdash; &ldquo;Cookie Banner&rdquo; (male)</h2>
+<p class="ms">Same script &amp; ElevenLabs voice across AI video models vs. the current HeyGen production control. OmniHuman uses our real VO (clean audio, real lip-sync); Kling &amp; Veo generate their own synthetic voice. Seedance was blocked by its no-real-likeness safety filter.</p>
+<div class="grid" id="modelgrid"></div>
 <footer>Consent Resolve &middot; internal review &middot; noindex</footer>
 <script>
 // The 6 rendered ads. src = /ugc-ads/<slug>.mp4 (served from public/). Labels for review.
@@ -90,6 +96,44 @@ ADS.forEach(function(ad){
           document.getElementById("t-"+ad.slug).value="";
           status.className="ok";status.textContent="Saved ✓";
         }else{status.className="err";status.textContent=(res&&res.error)||"Save failed.";}
+      }).catch(function(){btn.disabled=false;status.className="err";status.textContent="Network error.";});
+  };
+});
+
+// Model A/B section — same script (banner-male) across models. HeyGen control = R2 root; fal arms under fal/.
+var MODELS = [
+  {model:"HeyGen + ElevenLabs", cls:"", note:"Current production control.", src:R2+"banner-male.mp4", slug:"modeltest-banner-male-heygen"},
+  {model:"OmniHuman 1.5 (fal)", cls:"m", note:"Uses our real ElevenLabs VO — clean audio, real lip-sync.", src:R2+"fal/banner-male-omnihuman.mp4", slug:"modeltest-banner-male-omnihuman"},
+  {model:"Kling v3 (fal)", cls:"m", note:"Model’s own synthetic voice (tinny) + native lip-sync.", src:R2+"fal/banner-male-kling.mp4", slug:"modeltest-banner-male-kling"},
+  {model:"Veo 3.1 Fast (fal)", cls:"m", note:"8s teaser only (model cap); model’s own voice.", src:R2+"fal/banner-male-veo.mp4", slug:"modeltest-banner-male-veo"}
+];
+var mgrid=document.getElementById("modelgrid");
+MODELS.forEach(function(m){
+  var card=document.createElement("div");card.className="card";
+  card.innerHTML=
+    '<div class="vidwrap"><video src="'+m.src+'?v=2" controls playsinline preload="metadata"></video></div>'+
+    '<div class="meta"><span class="tag '+(m.cls||"")+'">'+esc(m.model)+'</span></div>'+
+    '<div class="script">'+esc(m.note)+'</div>'+
+    '<div class="cmts" id="c-'+m.slug+'"></div>'+
+    '<div class="box">'+
+      '<input placeholder="Your name" id="n-'+m.slug+'" maxlength="80">'+
+      '<textarea placeholder="Comment on this model’s output…" id="t-'+m.slug+'" maxlength="4000"></textarea>'+
+      '<button id="b-'+m.slug+'">Post comment</button>'+
+      '<span id="s-'+m.slug+'"></span>'+
+    '</div>';
+  mgrid.appendChild(card);
+  var cbox=card.querySelector("#c-"+m.slug);renderComments(m.slug,cbox);
+  var btn=card.querySelector("#b-"+m.slug);
+  btn.onclick=function(){
+    var note=(document.getElementById("t-"+m.slug).value||"").trim();
+    var author=(document.getElementById("n-"+m.slug).value||"").trim();
+    var status=document.getElementById("s-"+m.slug);
+    if(!note){status.className="err";status.textContent="Add a comment first.";return;}
+    btn.disabled=true;status.textContent="Saving…";status.className="";
+    fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({video:m.slug,note:note,author:author})})
+      .then(function(r){return r.json();}).then(function(res){btn.disabled=false;
+        if(res&&res.ok){saveLocal(m.slug,{author:author||"You",note:note,at:new Date().toLocaleString()});renderComments(m.slug,cbox);document.getElementById("t-"+m.slug).value="";status.className="ok";status.textContent="Saved ✓";}
+        else{status.className="err";status.textContent=(res&&res.error)||"Save failed.";}
       }).catch(function(){btn.disabled=false;status.className="err";status.textContent="Network error.";});
   };
 });
