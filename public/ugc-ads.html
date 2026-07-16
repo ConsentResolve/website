@@ -48,7 +48,6 @@ var ADS = [
   {slug:"hype-visited-male",    script:"Hype · Who Visited (Male)", persona:"Male · dynamic"},
   {slug:"hype-goldmine-female", script:"Hype · Goldmine (Female)",  persona:"Female · dynamic"},
   {slug:"banner-male",  script:"Cookie Banner",     persona:"Male"},
-  {slug:"banner-female",script:"Cookie Banner",     persona:"Female"},
   {slug:"shared-male",  script:"The Shared Lead",   persona:"Male"},
   {slug:"shared-female",script:"The Shared Lead",   persona:"Female"}
 ];
@@ -106,10 +105,7 @@ ADS.forEach(function(ad){
 
 // Model A/B section — same script (banner-male) across models. HeyGen control = R2 root; fal arms under fal/.
 var MODELS = [
-  {model:"HeyGen + ElevenLabs", cls:"", note:"Current production control.", src:R2+"banner-male.mp4", slug:"modeltest-banner-male-heygen"},
-  {model:"OmniHuman 1.5 (fal)", cls:"m", note:"Uses our real ElevenLabs VO — clean audio, real lip-sync.", src:R2+"fal/banner-male-omnihuman.mp4", slug:"modeltest-banner-male-omnihuman"},
-  {model:"Kling v3 (fal)", cls:"m", note:"Model’s own synthetic voice (tinny) + native lip-sync.", src:R2+"fal/banner-male-kling.mp4", slug:"modeltest-banner-male-kling"},
-  {model:"Veo 3.1 Fast (fal)", cls:"m", note:"8s teaser only (model cap); model’s own voice.", src:R2+"fal/banner-male-veo.mp4", slug:"modeltest-banner-male-veo"}
+  {model:"HeyGen + ElevenLabs", cls:"", note:"Current production control.", src:R2+"banner-male.mp4", slug:"modeltest-banner-male-heygen"}
 ];
 var mgrid=document.getElementById("modelgrid");
 MODELS.forEach(function(m){
