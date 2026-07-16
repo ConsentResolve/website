@@ -39,6 +39,9 @@ p.ms{max-width:1300px;margin:0 auto 8px;padding:0 22px;color:#94a3b8;font-size:1
 <h2 class="mh">Model A/B test &mdash; &ldquo;Cookie Banner&rdquo; (male)</h2>
 <p class="ms">Same script &amp; ElevenLabs voice across AI video models vs. the current HeyGen production control. OmniHuman uses our real VO (clean audio, real lip-sync); Kling &amp; Veo generate their own synthetic voice. Seedance was blocked by its no-real-likeness safety filter.</p>
 <div class="grid" id="modelgrid"></div>
+<h2 class="mh">Capability demos &mdash; Remotion + ffmpeg (silent motion-graphics)</h2>
+<p class="ms">Pure programmatic video &mdash; no avatars, no voiceover, reads with sound off. CR-branded so they double as ad templates. Each renders at 3 ad ratios &mdash; toggle 9:16 / 4:5 / 1:1.</p>
+<div class="grid" id="demogrid"></div>
 <footer>Consent Resolve &middot; internal review &middot; noindex</footer>
 <script>
 // The 6 rendered ads. src = /ugc-ads/<slug>.mp4 (served from public/). Labels for review.
@@ -133,6 +136,58 @@ MODELS.forEach(function(m){
     fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({video:m.slug,note:note,author:author})})
       .then(function(r){return r.json();}).then(function(res){btn.disabled=false;
         if(res&&res.ok){saveLocal(m.slug,{author:author||"You",note:note,at:new Date().toLocaleString()});renderComments(m.slug,cbox);document.getElementById("t-"+m.slug).value="";status.className="ok";status.textContent="Saved ✓";}
+        else{status.className="err";status.textContent=(res&&res.error)||"Save failed.";}
+      }).catch(function(){btn.disabled=false;status.className="err";status.textContent="Network error.";});
+  };
+});
+
+// Capability demo reels — Remotion+ffmpeg. Media on R2 under demos/, one file per ratio.
+var R2D = R2 + "demos/";
+var DVER = "1";
+var DEMOS = [
+  {slug:"reel1-kinetic", name:"Kinetic Type",        note:"Word-by-word type slams, motion-blur trails, a path-drawn underline and a shape box-wipe — proof you can stop a scroll with zero footage."},
+  {slug:"reel2-data",    name:"Data That Moves",     note:"Odometer counters, a bar-chart race, a self-drawing line chart with a glowing tip dot, a 98% ring, and a music-reactive waveform strip."},
+  {slug:"reel3-lottie",  name:"Lottie Explainer",    note:"3-step how-it-works: Lottie icon animations, auto-sized badges (measureText), shape-morph transitions and a clock-wipe into the CTA."},
+  {slug:"reel4-depth",   name:"Depth & Dimension",   note:"A real 3D phone-mockup (three.js) with the brand UI on its screen, parallax layers at different rates, and a camera-motion-blur whip-pan."},
+  {slug:"reel5-ugc",     name:"De-AI’d UGC Look",    note:"TikTok word-highlight captions + a GIF meme moment, then run through an ffmpeg grain / shake / chroma / grade / vignette pass to look organically shot."}
+];
+var RATIOS = [["9x16","9:16"],["4x5","4:5"],["1x1","1:1"]];
+var dgrid = document.getElementById("demogrid");
+DEMOS.forEach(function(d){
+  var card=document.createElement("div");card.className="card";
+  var btns=RATIOS.map(function(r,i){return '<button class="rbtn'+(i===0?' on':'')+'" data-r="'+r[0]+'" style="flex:1;background:'+(i===0?'#00e5a0':'rgba(148,163,184,.14)')+';color:'+(i===0?'#07281c':'#cfe')+';border:none;border-radius:7px;padding:6px 0;font-weight:700;font-size:12px;cursor:pointer">'+r[1]+'</button>';}).join("");
+  card.innerHTML=
+    '<div class="vidwrap"><video id="v-'+d.slug+'" src="'+R2D+d.slug+'-9x16.mp4?v='+DVER+'" controls playsinline preload="metadata" style="object-fit:contain;background:#000"></video></div>'+
+    '<div style="display:flex;gap:6px;padding:8px 14px 0">'+btns+'</div>'+
+    '<div class="meta"><span class="tag">'+esc(d.name)+'</span><span class="tag p">silent · templated</span></div>'+
+    '<div class="script">'+esc(d.note)+'</div>'+
+    '<div class="cmts" id="c-demo-'+d.slug+'"></div>'+
+    '<div class="box">'+
+      '<input placeholder="Your name" id="n-demo-'+d.slug+'" maxlength="80">'+
+      '<textarea placeholder="Comment on this demo…" id="t-demo-'+d.slug+'" maxlength="4000"></textarea>'+
+      '<button id="b-demo-'+d.slug+'">Post comment</button>'+
+      '<span id="s-demo-'+d.slug+'"></span>'+
+    '</div>';
+  dgrid.appendChild(card);
+  var vid=card.querySelector("#v-"+d.slug);
+  card.querySelectorAll(".rbtn").forEach(function(b){
+    b.onclick=function(){
+      card.querySelectorAll(".rbtn").forEach(function(x){x.classList.remove("on");x.style.background="rgba(148,163,184,.14)";x.style.color="#cfe";});
+      b.classList.add("on");b.style.background="#00e5a0";b.style.color="#07281c";
+      var t=vid.currentTime;vid.src=R2D+d.slug+"-"+b.getAttribute("data-r")+".mp4?v="+DVER;vid.load();try{vid.currentTime=t;}catch(e){}
+    };
+  });
+  var slug="demo-"+d.slug, cbox=card.querySelector("#c-"+slug);renderComments(slug,cbox);
+  var btn=card.querySelector("#b-"+slug);
+  btn.onclick=function(){
+    var note=(document.getElementById("t-"+slug).value||"").trim();
+    var author=(document.getElementById("n-"+slug).value||"").trim();
+    var status=document.getElementById("s-"+slug);
+    if(!note){status.className="err";status.textContent="Add a comment first.";return;}
+    btn.disabled=true;status.textContent="Saving…";status.className="";
+    fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({video:"ugc-"+slug,note:note,author:author})})
+      .then(function(r){return r.json();}).then(function(res){btn.disabled=false;
+        if(res&&res.ok){saveLocal(slug,{author:author||"You",note:note,at:new Date().toLocaleString()});renderComments(slug,cbox);document.getElementById("t-"+slug).value="";status.className="ok";status.textContent="Saved ✓";}
         else{status.className="err";status.textContent=(res&&res.error)||"Save failed.";}
       }).catch(function(){btn.disabled=false;status.className="err";status.textContent="Network error.";});
   };
