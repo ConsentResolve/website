@@ -7,8 +7,13 @@ const b64url = (bytes) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-"
 const b64urlStr = (str) => b64url(new TextEncoder().encode(str));
 
 function pemToBuf(pem) {
-  const b64 = (pem || "").replace(/\\n/g, "\n").replace(/-----BEGIN [^-]+-----/, "").replace(/-----END [^-]+-----/, "").replace(/\s+/g, "");
-  const bin = atob(b64);
+  // Accept the key however it was pasted: real newlines, literal "\n", CRLF,
+  // surrounding quotes, whatever. Grab the body between the PEM header/footer,
+  // then keep ONLY valid base64 characters so atob() never chokes.
+  const s = (pem || "").replace(/\\r/g, "").replace(/\\n/g, "\n");
+  const m = s.match(/-----BEGIN [A-Z0-9 ]+-----([\s\S]*?)-----END/);
+  const body = (m ? m[1] : s).replace(/[^A-Za-z0-9+/=]/g, "");
+  const bin = atob(body);
   const buf = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
   return buf.buffer;
