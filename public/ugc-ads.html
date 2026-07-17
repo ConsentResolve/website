@@ -206,7 +206,9 @@ var TESTBATCH = [
   {id:"Motion-09-funnel-a",r:"9x16"},{id:"Motion-10-funnel-b",r:"9x16"},{id:"Motion-11-local-a",r:"9x16"},{id:"Motion-12-local-b",r:"1x1"},
   {id:"Motion-13-data-a",r:"9x16"},{id:"Motion-14-data-b",r:"9x16"},{id:"Motion-15-compare-a",r:"9x16"},{id:"Motion-16-compare-b",r:"1x1"},
   {id:"Motion-17-urgency-a",r:"9x16"},{id:"Motion-18-urgency-b",r:"9x16"},{id:"Motion-19-consent-a",r:"9x16"},{id:"Motion-20-consent-b",r:"1x1"}
-].map(function(t){var p=t.id.split("-");return {id:t.id,r:t.r,type:"Non-UGC",angle:ANGLE[p[2]]||p[2]};});
+].map(function(t){var p=t.id.split("-");return {id:t.id,r:t.r,type:"Non-UGC",angle:ANGLE[p[2]]||p[2]};})
+.concat(["ugc-01-problem","ugc-02-reveal","ugc-03-goldmine","ugc-04-value","ugc-05-funnel","ugc-06-local","ugc-07-data","ugc-08-compare","ugc-09-urgency","ugc-10-consent"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"UGC",angle:ANGLE[p[2]]||p[2]};}))
+.concat(["hybrid-01-goldmine","hybrid-02-funnel","hybrid-03-data","hybrid-04-consent"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"Hybrid",angle:ANGLE[p[2]]||p[2]};}));
 
 function keepState(){try{return JSON.parse(localStorage.getItem("cr_testkeep")||"{}");}catch(e){return {};}}
 function setKeep(id,v){var s=keepState();if(v)s[id]=v;else delete s[id];localStorage.setItem("cr_testkeep",JSON.stringify(s));updateKeepCount();}
