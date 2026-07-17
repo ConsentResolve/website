@@ -139,6 +139,7 @@ const ROUTES = {
   "/api/seo/queries": seoApi,
   "/api/seo/pages": seoApi,
   "/api/seo/indexnow": seoApi,
+  "/api/seo/digest": seoApi,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
@@ -290,6 +291,21 @@ export default {
         console.log(`[instantly-leads] error: ${String(err).slice(0, 160)}`);
       }
       return;
+    }
+
+    // SEO: daily IndexNow submit + Monday GSC email digest (on the 0 15 cron).
+    // Runs independently of the social-drip gate below.
+    if (event.cron === "0 15 * * *") {
+      try {
+        const r = await seoApi.runIndexNow(env);
+        if (r && (r.ok || r.submitted)) console.log(`[indexnow] submitted ${r.submitted || 0}`);
+      } catch (err) { console.log(`[indexnow] cron error: ${String(err).slice(0, 160)}`); }
+      if (new Date().getUTCDay() === 1) { // Monday
+        try {
+          const d = await seoApi.sendWeeklyDigest(env);
+          console.log(`[seo-digest] ${d && d.ok ? "sent to " + d.to : "skip: " + (d && d.error)}`);
+        } catch (err) { console.log(`[seo-digest] error: ${String(err).slice(0, 160)}`); }
+      }
     }
 
     // Daily social drip.

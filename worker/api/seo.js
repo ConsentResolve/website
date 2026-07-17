@@ -96,6 +96,60 @@ async function indexnowSubmit(env, origin, only) {
   return { ok: r.status === 200 || r.status === 202, status: r.status, submitted: Math.min(urls.length, 10000) };
 }
 
+// ---- cron-callable: daily IndexNow submit ----
+export async function runIndexNow(env) {
+  const origin = (env.SITE_URL || "https://consentresolve.com").replace(/\/$/, "");
+  return indexnowSubmit(env, origin, null);
+}
+
+// ---- Monday email digest (GSC 28d + top queries + movers + GA4) ----
+const fmt = (n) => (n || 0).toLocaleString();
+function arrow(cur, prev, inv) {
+  const d = (cur || 0) - (prev || 0), up = inv ? d < 0 : d > 0;
+  const c = up ? "#16a34a" : (d ? "#dc2626" : "#64748b");
+  return `<span style="color:${c};font-weight:600">${d > 0 ? "+" : ""}${Math.round(d * 100) / 100}</span>`;
+}
+const strip = (u) => ((u || "").replace("https://consentresolve.com", "") || "/");
+
+export async function sendWeeklyDigest(env) {
+  if (!gscConfigured(env)) return { ok: false, error: "gsc_not_configured" };
+  if (!env.RESEND_API_KEY) return { ok: false, error: "no_resend_key" };
+  const ov = await overview(env), qs = await queries(env), pg = await pages(env);
+  const g = ov.gsc || {}, p = g.prev || {};
+  const q = (qs.rows || []).slice(0, 10);
+  const gain = (pg.gainers || []).filter((x) => x.delta > 0).slice(0, 5);
+  const lose = (pg.losers || []).filter((x) => x.delta < 0).slice(0, 5);
+  const ga = (ov.ga4 && ov.ga4.cur) || null, gap = (ov.ga4 && ov.ga4.prev) || {};
+  const tile = (k, v, d) => `<td style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px"><div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.05em">${k}</div><div style="font-size:22px;font-weight:800;margin-top:3px">${v}</div><div style="font-size:12px;margin-top:2px">${d || ""}</div></td>`;
+  const qrows = q.map((r) => `<tr><td style="padding:6px 8px;border-bottom:1px solid #eef2f7">${r.q}</td><td style="padding:6px 8px;border-bottom:1px solid #eef2f7;text-align:right">${fmt(r.clicks)}</td><td style="padding:6px 8px;border-bottom:1px solid #eef2f7;text-align:right;color:#64748b">${(r.position || 0).toFixed(1)}</td></tr>`).join("");
+  const mv = (list, col) => list.map((r) => `<tr><td style="padding:5px 8px;border-bottom:1px solid #eef2f7">${strip(r.page)}</td><td style="padding:5px 8px;border-bottom:1px solid #eef2f7;text-align:right;color:${col};font-weight:600">${r.delta > 0 ? "+" : ""}${fmt(r.delta)}</td></tr>`).join("") || `<tr><td style="padding:5px 8px;color:#94a3b8">—</td></tr>`;
+  const html = `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:640px;margin:0 auto;color:#0f172a">
+    <h2 style="margin:0 0 4px">Consent Resolve — SEO weekly</h2>
+    <p style="color:#64748b;margin:0 0 16px;font-size:13px">Search Console, last 28 days (ending ~3 days ago) vs the prior 28.</p>
+    <table style="border-collapse:separate;border-spacing:8px;width:100%"><tr>
+      ${tile("Clicks", fmt(g.clicks), arrow(g.clicks, p.clicks))}
+      ${tile("Impressions", fmt(g.impressions), arrow(g.impressions, p.impressions))}
+      ${tile("CTR", ((g.ctr || 0) * 100).toFixed(1) + "%", arrow((g.ctr || 0) * 100, (p.ctr || 0) * 100) + "pt")}
+      ${tile("Avg pos", (g.position || 0).toFixed(1), arrow(g.position, p.position, true))}
+    </tr></table>
+    ${ga ? `<table style="border-collapse:separate;border-spacing:8px;width:100%;margin-top:2px"><tr>${tile("Sessions (GA4)", fmt(ga.sessions), arrow(ga.sessions, gap.sessions))}${tile("Users", fmt(ga.users), arrow(ga.users, gap.users))}${tile("Key events", fmt(ga.keyEvents), arrow(ga.keyEvents, gap.keyEvents))}</tr></table>` : ""}
+    <h3 style="margin:20px 0 6px;font-size:15px">Top queries</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="text-align:left;padding:6px 8px;color:#64748b;border-bottom:2px solid #e2e8f0">Query</th><th style="text-align:right;padding:6px 8px;color:#64748b;border-bottom:2px solid #e2e8f0">Clicks</th><th style="text-align:right;padding:6px 8px;color:#64748b;border-bottom:2px solid #e2e8f0">Pos</th></tr></thead><tbody>${qrows || '<tr><td colspan=3 style="padding:8px;color:#94a3b8">No data yet.</td></tr>'}</tbody></table>
+    <table style="width:100%;margin-top:18px"><tr valign="top">
+      <td width="50%" style="padding-right:8px"><h3 style="font-size:14px;margin:0 0 6px">📈 Gainers</h3><table style="width:100%;border-collapse:collapse;font-size:12px">${mv(gain, "#16a34a")}</table></td>
+      <td width="50%" style="padding-left:8px"><h3 style="font-size:14px;margin:0 0 6px">📉 Drops</h3><table style="width:100%;border-collapse:collapse;font-size:12px">${mv(lose, "#dc2626")}</table></td>
+    </tr></table>
+    <p style="margin:22px 0 0"><a href="https://consentresolve.com/seo" style="background:#00e5a0;color:#04342c;text-decoration:none;font-weight:700;padding:10px 18px;border-radius:8px">Open the dashboard →</a></p>
+  </div>`;
+  const to = env.SEO_DIGEST_TO || env.QUOTE_TO || "hello@consentresolve.com";
+  const from = env.FROM_EMAIL || "Consent Resolve <sales@tryconsentresolve.com>";
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST", headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from, to: [to], subject: `SEO weekly — ${fmt(g.clicks)} clicks (${arrow(g.clicks, p.clicks).replace(/<[^>]+>/g, "")}) · ${fmt(g.impressions)} impressions`, html }),
+  });
+  return { ok: res.ok, status: res.status, to };
+}
+
 export async function onRequestGet({ request, env }) {
   if (!(await gate(request, env))) return json({ error: "unauthorized" }, { status: 401 });
   const path = new URL(request.url).pathname;
@@ -103,6 +157,7 @@ export async function onRequestGet({ request, env }) {
     if (path.endsWith("/overview")) return json(await overview(env));
     if (path.endsWith("/queries")) return json(await queries(env));
     if (path.endsWith("/pages")) return json(await pages(env));
+    if (path.endsWith("/digest")) return json(await sendWeeklyDigest(env)); // manual test-fire
     return json({ error: "not_found" }, { status: 404 });
   } catch (e) {
     return json({ error: String(e.message || e) }, { status: 500 });

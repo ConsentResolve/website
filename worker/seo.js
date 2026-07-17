@@ -93,11 +93,16 @@ function pages(){V.innerHTML="Loading…";api("pages").then(function(d){
 });}
 
 function indexing(){V.innerHTML=
-  '<div class="card"><h3>IndexNow</h3><p class="muted" style="line-height:1.5">Instantly notify Bing, Yandex &amp; other IndexNow engines of your live URLs (pulled from the sitemap). Google ignores IndexNow but crawls the sitemap on its own.</p>'+
-  '<button class="btn" id="inbtn">Submit all URLs now</button> <span id="inres" class="muted"></span></div>';
+  '<div class="card"><h3>IndexNow</h3><p class="muted" style="line-height:1.5">Instantly notify Bing, Yandex &amp; other IndexNow engines of your live URLs (pulled from the sitemap). Runs automatically every day at 15:00 UTC; Google ignores IndexNow but crawls the sitemap on its own.</p>'+
+  '<button class="btn" id="inbtn">Submit all URLs now</button> <span id="inres" class="muted"></span></div>'+
+  '<div class="card"><h3>Weekly digest</h3><p class="muted" style="line-height:1.5">A GSC clicks / impressions / top-queries / movers email goes out automatically every <b>Monday 15:00 UTC</b> (to <code>SEO_DIGEST_TO</code>, else <code>QUOTE_TO</code>, else hello@). Send one now to test.</p>'+
+  '<button class="btn" id="dgbtn">Email me the digest now</button> <span id="dgres" class="muted"></span></div>';
   document.getElementById("inbtn").onclick=function(){var b=this,r=document.getElementById("inres");b.disabled=true;r.textContent="Submitting…";
     api("indexnow",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"}).then(function(d){b.disabled=false;
       r.innerHTML=d.ok?('<span class="up">✓ Submitted '+d.submitted+' URLs (HTTP '+d.status+')</span>'):('<span class="dn">'+(d.error||("HTTP "+d.status))+'</span>');});};
+  document.getElementById("dgbtn").onclick=function(){var b=this,r=document.getElementById("dgres");b.disabled=true;r.textContent="Sending…";
+    api("digest").then(function(d){b.disabled=false;
+      r.innerHTML=d.ok?('<span class="up">✓ Sent to '+d.to+'</span>'):('<span class="dn">'+(d.error||("HTTP "+d.status))+'</span>');});};
 }
 
 var tabs={overview:overview,queries:queries,pages:pages,indexing:indexing};
