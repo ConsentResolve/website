@@ -64,6 +64,8 @@ import { instantlyConfigured, syncInstantlyLeads } from "./_lib/instantly.js";
 import * as crmMetaAds from "./api/crm-meta-ads.js";
 import * as crmMetaAudience from "./api/crm-meta-audience.js";
 import * as crmMetaLaunch from "./api/crm-meta-launch.js";
+import * as seoApi from "./api/seo.js";
+import * as seoDash from "./seo.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -132,6 +134,11 @@ const ROUTES = {
   "/api/crm/auth/callback": crmAuth,
   "/api/crm/auth/logout": crmAuth,
   "/api/crm/auth/me": crmAuth,
+  "/seo": seoDash,
+  "/api/seo/overview": seoApi,
+  "/api/seo/queries": seoApi,
+  "/api/seo/pages": seoApi,
+  "/api/seo/indexnow": seoApi,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).

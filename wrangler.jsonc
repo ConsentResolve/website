@@ -56,6 +56,7 @@
     "SAMPLE_PATH": "/demo/sample/",
     "CONSENT_TEXT_VERSION": "v1-2026-06",
     "ALLOWED_ORIGINS": "https://consentresolve.com,https://www.consentresolve.com",
-    "SOCIAL_AUTOPOST_ENABLED": "true"
+    "SOCIAL_AUTOPOST_ENABLED": "true",
+    "INDEXNOW_KEY": "0452ce57fb0d3bbfdcb0d12e1ee8b142"
   }
 }
