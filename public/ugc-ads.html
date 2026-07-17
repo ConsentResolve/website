@@ -35,8 +35,8 @@ p.ms{max-width:1300px;margin:0 auto 8px;padding:0 22px;color:#94a3b8;font-size:1
 <h1>UGC Ad Review — Consent Resolve</h1>
 <p>6 non-employee avatar ads (3 scripts &times; male / female). Watch, then drop a comment under any one &mdash; your notes save to the team review log. Compliance-cleared: illustrative spokesperson framing, no fabricated testimonials.</p>
 </header>
-<h2 class="mh" style="font-size:20px">🎯 Test batch &mdash; pick your top 20 <span id="keepcount" class="n"></span></h2>
-<p class="ms">New variable ad set combining <b>fal.ai + Remotion + ffmpeg</b> &mdash; non-UGC motion ads, UGC talking-heads, and hybrids across 10 message angles. Hit <b>Keep</b> or <b>Cut</b> on each; your picks save to the review log so we can narrow to your top 20.</p>
+<h2 class="mh" style="font-size:20px">🎯 Test batch &mdash; rate &amp; comment <span id="keepcount" class="n"></span></h2>
+<p class="ms">New variable ad set combining <b>fal.ai + Remotion + ffmpeg</b> &mdash; non-UGC motion ads, UGC talking-heads, and hybrids across 10 message angles. <b>Vote 1&ndash;5 stars</b> and leave a comment on each; both save to the review log so we can rank them and narrow to your top 20.</p>
 <div class="grid" id="testgrid"></div>
 <h2 class="mh">Earlier reels</h2>
 <div class="grid" id="grid"></div>
@@ -210,30 +210,49 @@ var TESTBATCH = [
 .concat(["ugc-01-problem","ugc-02-reveal","ugc-03-goldmine","ugc-04-value","ugc-05-funnel","ugc-06-local","ugc-07-data","ugc-08-compare","ugc-09-urgency","ugc-10-consent"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"UGC",angle:ANGLE[p[2]]||p[2]};}))
 .concat(["hybrid-01-goldmine","hybrid-02-funnel","hybrid-03-data","hybrid-04-consent"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"Hybrid",angle:ANGLE[p[2]]||p[2]};}));
 
-function keepState(){try{return JSON.parse(localStorage.getItem("cr_testkeep")||"{}");}catch(e){return {};}}
-function setKeep(id,v){var s=keepState();if(v)s[id]=v;else delete s[id];localStorage.setItem("cr_testkeep",JSON.stringify(s));updateKeepCount();}
-function updateKeepCount(){var s=keepState();var k=Object.keys(s).filter(function(id){return s[id]==="keep";}).length;var el=document.getElementById("keepcount");if(el)el.textContent="— "+k+" kept";}
+function voteState(){try{return JSON.parse(localStorage.getItem("cr_testvote")||"{}");}catch(e){return {};}}
+function setVote(id,v){var s=voteState();s[id]=v;localStorage.setItem("cr_testvote",JSON.stringify(s));updateVoteCount();}
+function updateVoteCount(){var s=voteState();var el=document.getElementById("keepcount");if(el)el.textContent="— "+Object.keys(s).length+" of "+TESTBATCH.length+" rated";}
 var tgrid=document.getElementById("testgrid");
 TESTBATCH.forEach(function(t){
-  var st=keepState()[t.id]||"";
+  var slug="tb-"+t.id, myVote=voteState()[t.id]||0;
   var card=document.createElement("div");card.className="card";
+  var stars="";for(var i=1;i<=5;i++){stars+='<span class="star" data-v="'+i+'" style="cursor:pointer;font-size:27px;line-height:1;color:'+(i<=myVote?"#f5c518":"#3a4a5c")+'">★</span>';}
   card.innerHTML=
     '<div class="vidwrap"><video src="'+R2T+t.id+'.mp4?v='+TVER+'" controls playsinline preload="metadata" style="object-fit:contain;background:#000"></video></div>'+
     '<div class="meta"><span class="tag">'+esc(t.angle)+'</span><span class="tag p">'+esc(t.type)+' · '+t.r.replace("x",":")+'</span></div>'+
-    '<div style="display:flex;gap:8px;padding:10px 14px 14px">'+
-      '<button class="kbtn keep'+(st==="keep"?" on":"")+'" data-id="'+t.id+'" style="flex:1;background:'+(st==="keep"?"#00e5a0":"rgba(0,229,160,.12)")+';color:'+(st==="keep"?"#07281c":"#00e5a0")+';border:1px solid rgba(0,229,160,.3);border-radius:8px;padding:9px 0;font-weight:800;font-size:13px;cursor:pointer">✓ Keep</button>'+
-      '<button class="cbtn cut'+(st==="cut"?" on":"")+'" data-id="'+t.id+'" style="flex:1;background:'+(st==="cut"?"#fb7185":"rgba(251,113,133,.12)")+';color:'+(st==="cut"?"#2a0910":"#fb7185")+';border:1px solid rgba(251,113,133,.3);border-radius:8px;padding:9px 0;font-weight:800;font-size:13px;cursor:pointer">✕ Cut</button>'+
+    '<div class="stars" style="display:flex;gap:3px;align-items:center;padding:8px 14px 2px">'+stars+'<span class="vlabel" style="margin-left:8px;color:#8aa0b2;font-size:12px">'+(myVote?myVote+"/5":"rate it")+'</span></div>'+
+    '<div class="cmts" id="c-'+slug+'"></div>'+
+    '<div class="box">'+
+      '<input placeholder="Your name" id="n-'+slug+'" maxlength="80">'+
+      '<textarea placeholder="Comment on this ad…" id="t-'+slug+'" maxlength="4000"></textarea>'+
+      '<button id="b-'+slug+'">Post comment</button>'+
+      '<span id="s-'+slug+'"></span>'+
     '</div>';
   tgrid.appendChild(card);
-  var keepB=card.querySelector(".keep"), cutB=card.querySelector(".cut");
-  function paint(){var s=keepState()[t.id]||"";
-    keepB.style.background=s==="keep"?"#00e5a0":"rgba(0,229,160,.12)";keepB.style.color=s==="keep"?"#07281c":"#00e5a0";
-    cutB.style.background=s==="cut"?"#fb7185":"rgba(251,113,133,.12)";cutB.style.color=s==="cut"?"#2a0910":"#fb7185";}
-  keepB.onclick=function(){var s=keepState()[t.id]==="keep"?"":"keep";setKeep(t.id,s);paint();
-    fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({video:"testbatch-"+t.id,note:s==="keep"?"KEEP":"(unset)",author:"picker"})}).catch(function(){});};
-  cutB.onclick=function(){var s=keepState()[t.id]==="cut"?"":"cut";setKeep(t.id,s);paint();
-    fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({video:"testbatch-"+t.id,note:s==="cut"?"CUT":"(unset)",author:"picker"})}).catch(function(){});};
+  var starEls=card.querySelectorAll(".star"), vlabel=card.querySelector(".vlabel");
+  function paintStars(n){for(var i=0;i<starEls.length;i++){starEls[i].style.color=(i<n)?"#f5c518":"#3a4a5c";}}
+  starEls.forEach(function(el){
+    el.onmouseenter=function(){paintStars(parseInt(el.getAttribute("data-v")));};
+    el.onmouseleave=function(){paintStars(voteState()[t.id]||0);};
+    el.onclick=function(){var v=parseInt(el.getAttribute("data-v"));setVote(t.id,v);paintStars(v);vlabel.textContent=v+"/5";
+      fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({video:"testbatch-"+t.id,note:"VOTE:"+v,author:"voter"})}).catch(function(){});};
+  });
+  var cbox=card.querySelector("#c-"+slug);renderComments(slug,cbox);
+  var btn=card.querySelector("#b-"+slug);
+  btn.onclick=function(){
+    var note=(document.getElementById("t-"+slug).value||"").trim();
+    var author=(document.getElementById("n-"+slug).value||"").trim();
+    var status=document.getElementById("s-"+slug);
+    if(!note){status.className="err";status.textContent="Add a comment first.";return;}
+    btn.disabled=true;status.textContent="Saving…";status.className="";
+    fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({video:"testbatch-"+t.id,note:note,author:author})})
+      .then(function(r){return r.json();}).then(function(res){btn.disabled=false;
+        if(res&&res.ok){saveLocal(slug,{author:author||"You",note:note,at:new Date().toLocaleString()});renderComments(slug,cbox);document.getElementById("t-"+slug).value="";status.className="ok";status.textContent="Saved ✓";}
+        else{status.className="err";status.textContent=(res&&res.error)||"Save failed.";}
+      }).catch(function(){btn.disabled=false;status.className="err";status.textContent="Network error.";});
+  };
 });
-updateKeepCount();
+updateVoteCount();
 </script>
 </body></html>
