@@ -36,13 +36,14 @@ async function overview(env) {
   }
   if (ga4Configured(env)) {
     try {
+      // With 2 dateRanges and no dimensions, GA4 auto-appends a `dateRange`
+      // dimension column ("date_range_0" = current, "date_range_1" = prior).
       const rep = await ga4Report(env, {
         dateRanges: [{ startDate: "28daysAgo", endDate: "yesterday" }, { startDate: "56daysAgo", endDate: "29daysAgo" }],
         metrics: [{ name: "sessions" }, { name: "totalUsers" }, { name: "keyEvents" }],
-        dimensions: [{ name: "dateRange" }],
       });
       const g = {}; (rep.rows || []).forEach((r) => {
-        const which = r.dimensionValues[0].value; // date_range_0 (current) / date_range_1 (prev)
+        const which = (r.dimensionValues && r.dimensionValues[0] && r.dimensionValues[0].value) || "date_range_0";
         const o = { sessions: +r.metricValues[0].value, users: +r.metricValues[1].value, keyEvents: +r.metricValues[2].value };
         if (which.endsWith("_0")) g.cur = o; else g.prev = o;
       });
