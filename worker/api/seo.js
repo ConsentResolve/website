@@ -74,19 +74,28 @@ async function indexnowSubmit(env, origin, only) {
   const key = env.INDEXNOW_KEY;
   if (!key) return { ok: false, error: "INDEXNOW_KEY not set" };
   const host = new URL(origin).host;
+  // Read static files via the ASSETS binding — a plain fetch() of our own zone
+  // loops back through the Worker and comes back empty (Cloudflare same-zone).
+  const getText = async (u) => {
+    const path = u.startsWith("http") ? new URL(u).pathname : u;
+    try {
+      const req = new Request(origin + path);
+      const r = env.ASSETS ? await env.ASSETS.fetch(req) : await fetch(req);
+      return r.ok ? await r.text() : "";
+    } catch { return ""; }
+  };
   let urls = only && only.length ? only : [];
   if (!urls.length) {
-    try {
-      const idx = await (await fetch(`${origin}/sitemap-index.xml`)).text();
-      const children = [...idx.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map((m) => m[1]);
-      const sitemaps = children.filter((u) => u.endsWith(".xml"));
-      if (!sitemaps.length) urls = children.filter((u) => u.startsWith("http"));
-      for (const sm of sitemaps) {
-        const body = await (await fetch(sm)).text();
-        urls.push(...[...body.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map((m) => m[1]).filter((u) => u.startsWith("http") && !u.endsWith(".xml")));
-      }
-      urls = [...new Set(urls)];
-    } catch (e) { return { ok: false, error: "sitemap fetch: " + String(e.message || e) }; }
+    const idx = await getText("/sitemap-index.xml");
+    const children = [...idx.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map((m) => m[1]);
+    const sitemaps = children.filter((u) => u.endsWith(".xml"));
+    if (!sitemaps.length) urls = children.filter((u) => u.startsWith("http"));
+    for (const sm of sitemaps) {
+      const body = await getText(sm);
+      urls.push(...[...body.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map((m) => m[1]).filter((u) => u.startsWith("http") && !u.endsWith(".xml")));
+    }
+    urls = [...new Set(urls)];
+    if (!urls.length) return { ok: false, error: "no URLs (sitemap-index empty via ASSETS)" };
   }
   if (!urls.length) return { ok: false, error: "no URLs" };
   const r = await fetch("https://api.indexnow.org/indexnow", {
