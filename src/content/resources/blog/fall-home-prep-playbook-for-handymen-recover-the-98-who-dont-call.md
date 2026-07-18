@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "Fall punch-lists fill your site with handyman shoppers. 98% never call."
 seo_title: "Handyman Lead Recovery: Catch the Fall Home-Prep Rush"
 seo_description: "Fall home prep sends homeowners to your handyman site for gutters, weatherproofing, and punch-lists — and most leave anonymous. Recover the 98% who don't call."
-focus_keyword: "handyman lead recovery"
+focus_keyword: "fall handyman leads"
 canonical_url: "https://consentresolve.com/resources/blog/fall-home-prep-playbook-for-handymen-recover-the-98-who-dont-call/"
 category: "Trade Spotlight"
 tags: ["handyman", "visitor identification", "lead recovery", "fall maintenance"]

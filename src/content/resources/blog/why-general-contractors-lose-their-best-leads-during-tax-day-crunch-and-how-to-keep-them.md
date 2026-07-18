@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "Refund checks fund remodels. 98% of those shoppers price you and vanish."
 seo_title: "GC Leads: Catch the Tax-Refund Remodel Shoppers"
 seo_description: "Tax-refund season sends homeowners price-shopping remodels on your GC site, then leaving anonymous. Recover the 98% who never call — consent-first."
-focus_keyword: "general contractor lead recovery"
+focus_keyword: "tax season general contractor leads"
 canonical_url: "https://consentresolve.com/resources/blog/why-general-contractors-lose-their-best-leads-during-tax-day-crunch-and-how-to-keep-them/"
 category: "Trade Spotlight"
 tags: ["general contractor", "visitor identification", "lead recovery", "tax season", "home services"]

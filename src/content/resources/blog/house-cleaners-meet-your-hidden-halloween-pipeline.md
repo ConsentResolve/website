@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "Halloween hosts price a cleaning on your site, then vanish. 98% never call."
 seo_title: "House Cleaning Leads: Your Hidden Halloween Pipeline"
 seo_description: "Halloween party hosts price pre- and post-party cleanings on your site, then vanish — 98% never call. Here's the hidden pipeline house cleaners are missing."
-focus_keyword: "house cleaning lead recovery"
+focus_keyword: "fall house cleaning leads"
 canonical_url: "https://consentresolve.com/resources/blog/house-cleaners-meet-your-hidden-halloween-pipeline/"
 category: "Trade Spotlight"
 tags: ["house cleaning", "visitor identification", "lead recovery", "seasonal"]

@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "Before the guests arrive, 98% of your December lookers leave without a word."
 seo_title: "Handyman Lead Recovery: The Pre-Christmas Fix"
 seo_description: "December homeowners want it fixed before guests arrive, then leave your site anonymous. How handymen recover the 98% who never call, consent-first."
-focus_keyword: "handyman lead recovery"
+focus_keyword: "year-end handyman leads"
 canonical_url: "https://consentresolve.com/resources/blog/pre-christmas-year-end-playbook-for-handymen-recover-the-98-who-dont-call/"
 category: "Trade Spotlight"
 tags: ["handyman", "visitor identification", "lead recovery", "home services"]

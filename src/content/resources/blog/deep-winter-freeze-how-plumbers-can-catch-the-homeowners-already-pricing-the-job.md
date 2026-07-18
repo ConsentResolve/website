@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "Pipes burst, heat's out, and 98% of those panicked homeowners leave anonymous."
 seo_title: "Plumber Lead Recovery: Catch the Deep-Freeze Buyer"
 seo_description: "A deep freeze bursts pipes and kills hot water; panicked homeowners price the job on your site, then vanish. How plumbers recover the 98% who never call."
-focus_keyword: "plumber lead recovery"
+focus_keyword: "winter plumber leads"
 canonical_url: "https://consentresolve.com/resources/blog/deep-winter-freeze-how-plumbers-can-catch-the-homeowners-already-pricing-the-job/"
 category: "Trade Spotlight"
 tags: ["plumber", "visitor identification", "lead recovery", "home services"]

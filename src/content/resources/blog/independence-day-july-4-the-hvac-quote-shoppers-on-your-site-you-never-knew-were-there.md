@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "While the AC strains on July 4th, quote-shoppers fill your site and vanish."
 seo_title: "HVAC Lead Recovery: Catch July 4th Quote-Shoppers"
 seo_description: "Holiday heat sends homeowners pricing a new AC on your site, then leaving anonymous. Here's how HVAC pros recover them, consent-first, on the same budget."
-focus_keyword: "hvac lead recovery"
+focus_keyword: "summer hvac leads"
 canonical_url: "https://consentresolve.com/resources/blog/independence-day-july-4-the-hvac-quote-shoppers-on-your-site-you-never-knew-were-there/"
 category: "Trade Spotlight"
 tags: ["hvac", "visitor identification", "lead recovery", "home services"]

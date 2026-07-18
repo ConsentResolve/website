@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "Quiet phone this week? Your site is full of people planning big jobs."
 seo_title: "GC Lead Recovery: Why Your Phone Is Quiet in January"
 seo_description: "New Year's week feels slow, but homeowners quietly plan big remodels on your site, then leave anonymous. How GCs recover the 98% who never call."
-focus_keyword: "general contractor lead recovery"
+focus_keyword: "new year general contractor leads"
 canonical_url: "https://consentresolve.com/resources/blog/new-years-week-the-quiet-reason-your-general-contractors-phone-isnt-ringing-enough/"
 category: "Trade Spotlight"
 tags: ["general contractor", "visitor identification", "lead recovery", "home services"]

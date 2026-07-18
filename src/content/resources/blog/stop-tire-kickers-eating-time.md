@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "You can't chase every lead. Score them, and work the ones that actually book."
 seo_title: "Stop Tire-Kickers From Eating Your Afternoon"
 seo_description: "Tire-kickers burn the hours you should spend on real buyers. Lead scoring sorts the serious from the curious so you work the right leads first. Here's how."
-focus_keyword: "lead scoring for contractors"
+focus_keyword: "how to stop tire kickers"
 canonical_url: "https://consentresolve.com/resources/blog/stop-tire-kickers-eating-time/"
 category: "Operations"
 tags: ["lead scoring", "operations", "time management", "qualifying leads"]

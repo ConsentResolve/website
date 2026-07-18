@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "The first warm Saturday fills your site with shoppers. 98% leave silent."
 seo_title: "Lawn Care Leads: Catch the First-of-Spring Rush"
 seo_description: "The first warm weekend sends homeowners price-shopping your lawn care site, then leaving silent. Recover the 98% who never call — consent-first."
-focus_keyword: "lawn care lead recovery"
+focus_keyword: "spring lawn care leads"
 canonical_url: "https://consentresolve.com/resources/blog/lawn-care-pros-meet-your-hidden-st-patricks-first-day-of-spring-pipeline/"
 category: "Trade Spotlight"
 tags: ["lawn care", "visitor identification", "lead recovery", "spring", "home services"]

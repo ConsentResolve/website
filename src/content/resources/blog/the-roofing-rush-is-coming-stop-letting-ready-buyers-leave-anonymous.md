@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "The storm-season rush fills your site with ready buyers who never call."
 seo_title: "Roofing Lead Recovery: Catch the Rush's Ready Buyers"
 seo_description: "Storm season sends ready buyers to your roofing site — then they leave anonymous. Here's how to recover the consented ones, on the same ad budget."
-focus_keyword: "roofing lead recovery"
+focus_keyword: "peak season roofing leads"
 canonical_url: "https://consentresolve.com/resources/blog/the-roofing-rush-is-coming-stop-letting-ready-buyers-leave-anonymous/"
 category: "Trade Spotlight"
 tags: ["roofing", "visitor identification", "lead recovery", "home services"]

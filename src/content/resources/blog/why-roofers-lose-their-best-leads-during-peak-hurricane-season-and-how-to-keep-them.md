@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "Storm season floods your site with roof shoppers. 98% leave anonymous."
 seo_title: "Roofing Leads: Stop Losing Them in Hurricane Season"
 seo_description: "Peak hurricane season floods your roofing site with storm-damage shoppers who never call. Here's how to recover the 98%, consent-first, on the same budget."
-focus_keyword: "roofing lead recovery"
+focus_keyword: "storm season roofing leads"
 canonical_url: "https://consentresolve.com/resources/blog/why-roofers-lose-their-best-leads-during-peak-hurricane-season-and-how-to-keep-them/"
 category: "Trade Spotlight"
 tags: ["roofing", "visitor identification", "lead recovery", "hurricane season"]

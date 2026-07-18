@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "98% of your Memorial-Day season-contract shoppers leave without a word."
 seo_title: "Lawn Care: Your Hidden Memorial-Day Contract Pipeline"
 seo_description: "At the Memorial Day summer kickoff, homeowners price a full-season lawn plan and leave your site silent. Here's how to recover the 98% who never call."
-focus_keyword: "lawn care lead recovery"
+focus_keyword: "summer lawn care leads"
 canonical_url: "https://consentresolve.com/resources/blog/lawn-care-pros-meet-your-hidden-memorial-day-summer-kickoff-pipeline/"
 category: "Trade Spotlight"
 tags: ["lawn care", "lead recovery", "visitor identification", "memorial day"]

@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "Summer lookers fill your site, price a wash, and leave without a word."
 seo_title: "Power Washing Lead Recovery on the Same Ad Budget"
 seo_description: "Dog-days traffic fills your site with homeowners pricing a wash who never call. Here's how power washing pros book them, consent-first, on the same budget."
-focus_keyword: "power washing lead recovery"
+focus_keyword: "summer power washing leads"
 canonical_url: "https://consentresolve.com/resources/blog/dog-days-of-summer-turn-power-washing-website-lookers-into-booked-jobs-on-the-same-ad-budget/"
 category: "Trade Spotlight"
 tags: ["power washing", "visitor identification", "lead recovery", "home services"]

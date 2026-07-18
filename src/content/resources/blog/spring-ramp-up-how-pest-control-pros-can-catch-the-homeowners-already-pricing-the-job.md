@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "First warm week, the ants and swarmers wake up. 98% of shoppers don't call."
 seo_title: "Pest Control Leads: Catch the Spring Ramp-Up"
 seo_description: "The first warm week wakes the ants and termite swarmers, flooding your pest control site with shoppers who leave silent. Recover the 98% who never call."
-focus_keyword: "pest control lead recovery"
+focus_keyword: "spring pest control leads"
 canonical_url: "https://consentresolve.com/resources/blog/spring-ramp-up-how-pest-control-pros-can-catch-the-homeowners-already-pricing-the-job/"
 category: "Trade Spotlight"
 tags: ["pest control", "visitor identification", "lead recovery", "spring", "home services"]

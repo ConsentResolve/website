@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "Mid-summer bugs send homeowners to your site — most leave without a word."
 seo_title: "Pest Control Lead Recovery: Keep Mid-Summer Leads"
 seo_description: "Mid-summer pest pressure fills your site with homeowners who never call. Here's how pest control pros recover the consented visitors who leave anonymous."
-focus_keyword: "pest control lead recovery"
+focus_keyword: "summer pest control leads"
 canonical_url: "https://consentresolve.com/resources/blog/why-pest-control-pros-lose-their-best-leads-during-mid-summer-heat-and-how-to-keep-them/"
 category: "Trade Spotlight"
 tags: ["pest control", "visitor identification", "lead recovery", "home services"]

@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "Refund-funded repairs get priced on your site right now — then walk out."
 seo_title: "Plumber Lead Recovery: The Tax-Refund Playbook"
 seo_description: "Tax-refund season is when homeowners price the repipe, water heater, or bath upgrade — then leave anonymous. Here's how plumbers recover them."
-focus_keyword: "plumber lead recovery"
+focus_keyword: "tax season plumber leads"
 canonical_url: "https://consentresolve.com/resources/blog/late-winter-tax-season-playbook-for-plumbers-recover-the-98-who-dont-call/"
 category: "Trade Spotlight"
 tags: ["plumber", "visitor identification", "lead recovery", "home services"]

@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "Pre-Valentine's, they price a panel upgrade and dimmers — then leave."
 seo_title: "Electrician Lead Recovery: Book Pre-Valentine's Jobs"
 seo_description: "Before Valentine's, homeowners price panel upgrades and lighting on your site and leave anonymous. Here's how electricians book them on the same ad budget."
-focus_keyword: "electrician lead recovery"
+focus_keyword: "winter electrician leads"
 canonical_url: "https://consentresolve.com/resources/blog/pre-valentines-turn-electrical-website-lookers-into-booked-jobs-on-the-same-ad-budget/"
 category: "Trade Spotlight"
 tags: ["electrician", "visitor identification", "lead recovery", "home services"]

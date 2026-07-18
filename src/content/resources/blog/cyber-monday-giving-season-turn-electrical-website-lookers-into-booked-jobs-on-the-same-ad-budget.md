@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "Cyber Monday deal-shoppers price your work — 98% leave without a word."
 seo_title: "Electrician Leads: Turn Cyber Monday Lookers Into Jobs"
 seo_description: "Cyber Monday sends deal-shoppers pricing holiday lighting and generator installs to your site — and most leave anonymous."
-focus_keyword: "electrician lead recovery"
+focus_keyword: "holiday electrician leads"
 canonical_url: "https://consentresolve.com/resources/blog/cyber-monday-giving-season-turn-electrical-website-lookers-into-booked-jobs-on-the-same-ad-budget/"
 category: "Trade Spotlight"
 tags: ["electrician", "visitor identification", "lead recovery", "home services"]

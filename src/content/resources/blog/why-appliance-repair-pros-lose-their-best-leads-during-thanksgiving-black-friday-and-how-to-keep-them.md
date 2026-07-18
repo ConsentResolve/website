@@ -11,7 +11,7 @@ read_time: "6 min"
 og_hook: "Oven dies on Thanksgiving — and 98% of those buyers leave silent."
 seo_title: "Appliance Repair Leads: Keep Them Over the Holiday"
 seo_description: "Thanksgiving and Black Friday flood your site with homeowners pricing a fix vs. a replacement — and most leave anonymous."
-focus_keyword: "appliance repair lead recovery"
+focus_keyword: "holiday appliance repair leads"
 canonical_url: "https://consentresolve.com/resources/blog/why-appliance-repair-pros-lose-their-best-leads-during-thanksgiving-black-friday-and-how-to-keep-them/"
 category: "Trade Spotlight"
 tags: ["appliance repair", "visitor identification", "lead recovery", "home services"]
