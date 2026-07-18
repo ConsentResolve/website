@@ -8,6 +8,7 @@ import { json } from "../_lib/http.js";
 import { isAuthed, crmSessionEmail } from "../_lib/auth.js";
 import { crmKey } from "./crm-leads.js";
 import { gscConfigured, ga4Configured, gscQuery, ga4Report, ymd } from "../_lib/google-sa.js";
+import { aeoSummary } from "../_lib/aeo.js";
 
 async function gate(request, env) {
   const url = new URL(request.url);
@@ -190,6 +191,10 @@ export async function onRequestGet({ request, env }) {
     if (path.endsWith("/queries")) return json(await queries(env));
     if (path.endsWith("/pages")) return json(await pages(env));
     if (path.endsWith("/digest")) return json(await sendWeeklyDigest(env)); // manual test-fire
+    if (path.endsWith("/aeo")) {
+      const days = Math.max(1, Math.min(parseInt(new URL(request.url).searchParams.get("days") || "28", 10) || 28, 90));
+      return json(await aeoSummary(env, days));
+    }
     return json({ error: "not_found" }, { status: 404 });
   } catch (e) {
     return json({ error: String(e.message || e) }, { status: 500 });

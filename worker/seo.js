@@ -41,7 +41,7 @@ h3{margin:0 0 6px;font-size:15px}
 .spark{margin-top:14px}
 </style></head><body>
 <header><div class="logo">CR</div><b>SEO Performance</b><span class="muted" style="font-size:12px">Search Console · GA4 · IndexNow</span><span class="sp"></span><span class="muted" id="me" style="font-size:12px"></span> <a href="/crm" style="font-size:12px">CRM →</a></header>
-<nav><button data-t="overview" class="active">Overview</button><button data-t="queries">Queries</button><button data-t="pages">Pages</button><button data-t="indexing">Indexing</button></nav>
+<nav><button data-t="overview" class="active">Overview</button><button data-t="queries">Queries</button><button data-t="pages">Pages</button><button data-t="aeo">AEO</button><button data-t="indexing">Indexing</button></nav>
 <div class="wrap" id="view">Loading…</div>
 <script>
 var KEY=new URLSearchParams(location.search).get("key");
@@ -106,7 +106,19 @@ function indexing(){V.innerHTML=
       r.innerHTML=d.ok?('<span class="up">✓ Sent to '+d.to+'</span>'):('<span class="dn">'+(d.error||("HTTP "+d.status))+'</span>');});};
 }
 
-var tabs={overview:overview,queries:queries,pages:pages,indexing:indexing};
+function ago(ts){if(!ts)return "";var s=Math.floor((Date.now()-ts)/1000);if(s<60)return s+"s ago";var m=Math.floor(s/60);if(m<60)return m+"m ago";var h=Math.floor(m/60);if(h<48)return h+"h ago";return Math.floor(h/24)+"d ago";}
+function aeo(){V.innerHTML="Loading…";api("aeo").then(function(d){
+  if(!d.configured){V.innerHTML='<div class="banner"><b>AEO telemetry table not ready.</b> It self-creates on the first AI-bot or AI-referral hit — check back once traffic flows.</div>';return;}
+  var h='<p class="muted" style="line-height:1.5;margin-bottom:12px">Search consoles don\'t report AI answer engines yet, so we measure AEO from our own edge over the last <b>'+d.days+' days</b>, zero-PII: which AI crawlers indexed us, and which AI engines sent us real visitors.</p>';
+  h+='<div class="tiles">'+tile("AI bot crawls ("+d.days+"d)",n(d.botTotal))+tile("AI-referred visits",n(d.refTotal))+tile("Distinct engines",n((d.bots.length)+(d.refs.length)))+'</div>';
+  function rows(list,label){return (list||[]).length?list.map(function(r){return '<tr><td>'+r.name+'</td><td class="n">'+n(r.hits)+'</td><td class="muted">'+ago(r.lastTs)+'</td><td class="muted" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(r.lastPath||"")+'</td></tr>';}).join(""):'<tr><td colspan=4 class="muted">No '+label+' yet.</td></tr>';}
+  h+='<div class="card"><h3>AI crawler visits</h3><p class="muted" style="margin:-2px 0 4px">Are the answer engines indexing us for their answers?</p><table><thead><tr><th>Crawler</th><th class="n">Hits</th><th>Last seen</th><th>Last path</th></tr></thead><tbody>'+rows(d.bots,"crawls")+'</tbody></table></div>';
+  h+='<div class="card"><h3>AI answer-engine referrals</h3><p class="muted" style="margin:-2px 0 4px">Visitors who clicked through from an AI answer — we were cited <em>and</em> chosen.</p><table><thead><tr><th>Source</th><th class="n">Visits</th><th>Last seen</th><th>Last landing page</th></tr></thead><tbody>'+rows(d.refs,"referrals")+'</tbody></table></div>';
+  h+='<div class="card"><h3>Target questions</h3><p class="muted" style="margin:-2px 0 6px">Buyer-intent queries we want AI engines to cite consentresolve.com for. Spot-check them in ChatGPT / Perplexity and see if we\'re named.</p><ul style="margin:0;padding-left:18px;line-height:1.7;font-size:13px">'+(d.targets||[]).map(function(t){return '<li>'+t+'</li>';}).join("")+'</ul></div>';
+  V.innerHTML=h;
+});}
+
+var tabs={overview:overview,queries:queries,pages:pages,aeo:aeo,indexing:indexing};
 document.querySelectorAll("nav button").forEach(function(b){b.onclick=function(){document.querySelectorAll("nav button").forEach(function(x){x.classList.remove("active");});b.classList.add("active");tabs[b.getAttribute("data-t")]();};});
 fetch("/api/crm/auth/me").then(function(r){return r.json();}).then(function(m){if(m&&m.email)document.getElementById("me").textContent=m.email;}).catch(function(){});
 overview();

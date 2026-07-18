@@ -66,6 +66,7 @@ import * as crmMetaAudience from "./api/crm-meta-audience.js";
 import * as crmMetaLaunch from "./api/crm-meta-launch.js";
 import * as seoApi from "./api/seo.js";
 import * as seoDash from "./seo.js";
+import { logAeoTelemetry } from "./_lib/aeo.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -140,6 +141,7 @@ const ROUTES = {
   "/api/seo/pages": seoApi,
   "/api/seo/indexnow": seoApi,
   "/api/seo/digest": seoApi,
+  "/api/seo/aeo": seoApi,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
@@ -148,6 +150,10 @@ const NO_DB = new Set(["/api/preview", "/api/meta-capi"]);
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    // AEO telemetry — fire-and-forget. No-ops unless the request is an AI bot
+    // crawl or an AI-answer-engine referral, so normal traffic pays nothing.
+    ctx.waitUntil(logAeoTelemetry(env, request).catch(() => {}));
 
     // CRM app (gated: admin session OR ?key=<CRM_KEY>). Worker-rendered like /admin.
     if (url.pathname === "/crm" || url.pathname.startsWith("/crm/")) {
