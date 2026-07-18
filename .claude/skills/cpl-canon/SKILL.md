@@ -15,9 +15,9 @@ Current canonical numbers (as of June 2026 — verify against `/stats/` before c
 
 | Platform     | Loaded CPL  | Range          | Source                              |
 |--------------|-------------|----------------|-------------------------------------|
-| Thumbtack    | ~$46        | $25–$75        | Pipeline On                         |
-| Angi         | ~$50        | $15–$100+      | Pipeline On                         |
-| HomeAdvisor  | ~$50        | $15–$100+      | Pipeline On (Angi-owned)            |
+| Thumbtack    | ~$46        | $25–$75        | HomeServiceDirect                   |
+| Angi         | ~$50        | $15–$100+      | HouseCall Pro                       |
+| HomeAdvisor  | ~$50        | $15–$100+      | HouseCall Pro (Angi-owned)          |
 | Google LSA   | $53 blended | $39–$162       | SearchLight Digital (888 contractors) |
 | Consent Resolve | $7        | flat           | self                                |
 
@@ -61,7 +61,7 @@ If the user wants to change a CPL:
 competitorCpl = round(avg(Thumbtack low–high range for that trade) × 1.2)
 ```
 
-Source for per-trade ranges: HomeServiceDirect, Pipeline On.
+Source for per-trade ranges: HomeServiceDirect, HouseCall Pro. (Pipeline On removed — do not reintroduce; the "78% first responder" speed-to-lead stat is now sourced to Vendasta.)
 
 ## Verify
 
