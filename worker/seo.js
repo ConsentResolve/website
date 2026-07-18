@@ -99,7 +99,8 @@ function indexing(){V.innerHTML=
   '<button class="btn" id="dgbtn">Email me the digest now</button> <span id="dgres" class="muted"></span></div>';
   document.getElementById("inbtn").onclick=function(){var b=this,r=document.getElementById("inres");b.disabled=true;r.textContent="Submitting…";
     api("indexnow",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"}).then(function(d){b.disabled=false;
-      r.innerHTML=d.ok?('<span class="up">✓ Submitted '+d.submitted+' URLs (HTTP '+d.status+')</span>'):('<span class="dn">'+(d.error||("HTTP "+d.status))+'</span>');});};
+      var msg=d.note?d.note:(d.throttled?("submitted "+d.submitted+" — Bing throttled (already indexed)"):("submitted "+d.submitted+" new URL"+(d.submitted===1?"":"s")));
+      r.innerHTML=d.ok?('<span class="up">✓ '+msg+'</span>'):('<span class="dn">'+(d.error||("HTTP "+d.status))+'</span>');});};
   document.getElementById("dgbtn").onclick=function(){var b=this,r=document.getElementById("dgres");b.disabled=true;r.textContent="Sending…";
     api("digest").then(function(d){b.disabled=false;
       r.innerHTML=d.ok?('<span class="up">✓ Sent to '+d.to+'</span>'):('<span class="dn">'+(d.error||("HTTP "+d.status))+'</span>');});};

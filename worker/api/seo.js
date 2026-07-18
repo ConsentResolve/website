@@ -98,11 +98,34 @@ async function indexnowSubmit(env, origin, only) {
     if (!urls.length) return { ok: false, error: "no URLs (sitemap-index empty via ASSETS)" };
   }
   if (!urls.length) return { ok: false, error: "no URLs" };
+
+  // Only submit URLs we haven't sent before (IndexNow wants new/changed URLs, not
+  // the whole sitemap every time — resubmitting the same list gets throttled 429).
+  // `force` (or an explicit `only` list) bypasses the dedupe.
+  let toSubmit = urls;
+  if (env.DB && !force && !(only && only.length)) {
+    try {
+      await env.DB.prepare("CREATE TABLE IF NOT EXISTS indexnow_log (url TEXT PRIMARY KEY, submitted_at TEXT)").run();
+      const seen = new Set(((await env.DB.prepare("SELECT url FROM indexnow_log").all()).results || []).map((r) => r.url));
+      toSubmit = urls.filter((u) => !seen.has(u));
+    } catch {}
+  }
+  if (!toSubmit.length) return { ok: true, submitted: 0, note: "all URLs already submitted — nothing new" };
+
+  const batch = toSubmit.slice(0, 10000);
   const r = await fetch("https://api.indexnow.org/indexnow", {
     method: "POST", headers: { "Content-Type": "application/json; charset=utf-8" },
-    body: JSON.stringify({ host, key, keyLocation: `${origin}/${key}.txt`, urlList: urls.slice(0, 10000) }),
+    body: JSON.stringify({ host, key, keyLocation: `${origin}/${key}.txt`, urlList: batch }),
   });
-  return { ok: r.status === 200 || r.status === 202, status: r.status, submitted: Math.min(urls.length, 10000) };
+  const accepted = r.status === 200 || r.status === 202;
+  // Record on accept OR 429 (429 means Bing already has them) so we don't retry.
+  if ((accepted || r.status === 429) && env.DB) {
+    try {
+      const now = new Date().toISOString();
+      await env.DB.batch(batch.map((u) => env.DB.prepare("INSERT OR REPLACE INTO indexnow_log (url, submitted_at) VALUES (?, ?)").bind(u, now)));
+    } catch {}
+  }
+  return { ok: accepted || r.status === 429, status: r.status, submitted: batch.length, throttled: r.status === 429 };
 }
 
 // ---- cron-callable: daily IndexNow submit ----
@@ -178,6 +201,6 @@ export async function onRequestPost({ request, env }) {
   const origin = env.SITE_URL || new URL(request.url).origin;
   let body = {};
   try { body = await request.json(); } catch {}
-  const res = await indexnowSubmit(env, origin.replace(/\/$/, ""), body.urls);
+  const res = await indexnowSubmit(env, origin.replace(/\/$/, ""), body.urls, body.force || body.all);
   return json(res);
 }
