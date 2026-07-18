@@ -4,7 +4,7 @@ slug: "get-more-leads-from-website-traffic"
 resource_type: "how-to-guide"
 status: "published"
 author: "Aaron Phillips"
-featured_image: "/images/resources/how-to-guides/get-more-leads-from-website-traffic-featured.png"
+featured_image: "/images/resources/how-to-guides/get-more-leads-from-website-traffic-featured.jpg"
 excerpt: "Most contractor websites convert under four percent of visitors, so you are paying for clicks and discarding the rest. Fix the leaks before you buy more traffic."
 published_at: 2026-06-09
 updated_at: 2026-06-09

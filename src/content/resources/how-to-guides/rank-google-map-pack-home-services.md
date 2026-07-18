@@ -4,7 +4,7 @@ slug: "rank-google-map-pack-home-services"
 resource_type: "how-to-guide"
 status: "published"
 author: "Aaron Phillips"
-featured_image: "/images/resources/how-to-guides/rank-google-map-pack-home-services-featured.png"
+featured_image: "/images/resources/how-to-guides/rank-google-map-pack-home-services-featured.jpg"
 excerpt: "The three local results in the Google Map Pack capture most of the clicks in your service area. Here is the Google Business Profile–first system that gets a home-service company into them."
 published_at: 2026-06-09
 updated_at: 2026-06-09
@@ -66,7 +66,7 @@ social_pack:
     caption: "We wrote a no-fluff, step-by-step guide on ranking in the Google Map Pack — built specifically for home-service pros. Categories, service area, photos, reviews, the whole system."
     cta: "Read it here 👇"
     hashtags: ["LocalSEO", "Contractors"]
-    image_url: "/images/resources/how-to-guides/rank-google-map-pack-home-services-featured.png"
+    image_url: "/images/resources/how-to-guides/rank-google-map-pack-home-services-featured.jpg"
     alt_text: "Google Map Pack three-result layout with a contractor business ranked first"
     utm_url: "https://consentresolve.com/resources/how-to-guides/rank-google-map-pack-home-services/?utm_source=facebook&utm_medium=social&utm_campaign=resource_center&utm_content=rank-google-map-pack-home-services"
   x:
@@ -98,7 +98,7 @@ social_pack:
     caption: "We published a step-by-step guide for home-service businesses on ranking in the local Map Pack — the right categories, service-area setup, photos, and review strategy that actually move you up."
     cta: "Read the guide"
     hashtags: []
-    image_url: "/images/resources/how-to-guides/rank-google-map-pack-home-services-featured.png"
+    image_url: "/images/resources/how-to-guides/rank-google-map-pack-home-services-featured.jpg"
     alt_text: "Guide cover: how to rank in the Google Map Pack for home services"
     utm_url: "https://consentresolve.com/resources/how-to-guides/rank-google-map-pack-home-services/?utm_source=google_business_profile&utm_medium=social&utm_campaign=resource_center&utm_content=rank-google-map-pack-home-services"
   email:
@@ -106,7 +106,7 @@ social_pack:
     hook: "And the GBP system to win one of them."
     caption: "When a homeowner searches your trade nearby, three map results capture most of the clicks. This week's guide is the step-by-step system for getting your business into those three slots — categories, service area, photos, and review velocity, in the right order."
     cta: "Read the full guide"
-    image_url: "/images/resources/how-to-guides/rank-google-map-pack-home-services-featured.png"
+    image_url: "/images/resources/how-to-guides/rank-google-map-pack-home-services-featured.jpg"
     alt_text: "Guide cover: how to rank in the Google Map Pack for home services"
     utm_url: "https://consentresolve.com/resources/how-to-guides/rank-google-map-pack-home-services/?utm_source=email&utm_medium=email&utm_campaign=resource_center&utm_content=rank-google-map-pack-home-services"
 sources:

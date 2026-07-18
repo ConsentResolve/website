@@ -70,7 +70,10 @@ export function resourceImage(
   data: { resource_type: ResourceType; slug: string },
   variant: "featured" | "og" | "square" | "vertical" | "thumbnail" = "featured"
 ): string {
-  return `/images/resources/${RESOURCE_TYPES[data.resource_type].segment}/${data.slug}-${variant}.png`;
+  // og/featured/thumbnail ship as compressed JPG (web-facing); the larger
+  // square/vertical social variants stay PNG (served for social schedulers).
+  const ext = variant === "square" || variant === "vertical" ? "png" : "jpg";
+  return `/images/resources/${RESOURCE_TYPES[data.resource_type].segment}/${data.slug}-${variant}.${ext}`;
 }
 
 /** Trades we've generated themed social-image variants for. Add a slug here
@@ -88,7 +91,8 @@ export function tradeImage(
   trade: string,
   variant: (typeof IMAGE_VARIANTS)[number] = "featured"
 ): string {
-  return `/images/resources/${RESOURCE_TYPES[data.resource_type].segment}/${data.slug}-${trade}-${variant}.png`;
+  const ext = variant === "square" || variant === "vertical" ? "png" : "jpg";
+  return `/images/resources/${RESOURCE_TYPES[data.resource_type].segment}/${data.slug}-${trade}-${variant}.${ext}`;
 }
 
 /** Resources that should appear publicly (published + ready_to_publish). */

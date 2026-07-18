@@ -4,7 +4,7 @@ slug: "win-google-local-service-ads"
 resource_type: "how-to-guide"
 status: "published"
 author: "Aaron Phillips"
-featured_image: "/images/resources/how-to-guides/win-google-local-service-ads-featured.png"
+featured_image: "/images/resources/how-to-guides/win-google-local-service-ads-featured.jpg"
 excerpt: "Local Service Ads put you above the Map Pack with a Google Guaranteed badge, and you only pay for real leads. Here is how to run them lean instead of bleeding budget on bad leads you never dispute."
 published_at: 2026-06-09
 updated_at: 2026-06-09

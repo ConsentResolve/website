@@ -4,7 +4,7 @@ slug: "identify-anonymous-website-visitors"
 resource_type: "how-to-guide"
 status: "published"
 author: "Aaron Phillips"
-featured_image: "/images/resources/how-to-guides/identify-anonymous-website-visitors-featured.png"
+featured_image: "/images/resources/how-to-guides/identify-anonymous-website-visitors-featured.jpg"
 excerpt: "Even a great website loses the visitors who never fill out the form. Here is how to recover those leads without the TCPA and privacy exposure that comes with gray-market data tools."
 published_at: 2026-06-09
 updated_at: 2026-06-09

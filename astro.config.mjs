@@ -26,7 +26,7 @@ export default defineConfig({
         );
         if (m) {
           item.img = [
-            { url: `https://consentresolve.com/images/resources/${m[1]}/${m[2]}-og.png` },
+            { url: `https://consentresolve.com/images/resources/${m[1]}/${m[2]}-og.jpg` },
           ];
         }
         return item;

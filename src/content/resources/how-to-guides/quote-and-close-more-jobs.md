@@ -4,7 +4,7 @@ slug: "quote-and-close-more-jobs"
 resource_type: "how-to-guide"
 status: "published"
 author: "Tyler Spurlock"
-featured_image: "/images/resources/how-to-guides/quote-and-close-more-jobs-featured.png"
+featured_image: "/images/resources/how-to-guides/quote-and-close-more-jobs-featured.jpg"
 excerpt: "Racing to the bottom on price wins cheap customers who leave for the next low bidder. Here is how to present a quote that closes at your rate."
 published_at: 2026-06-09
 updated_at: 2026-06-09

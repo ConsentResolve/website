@@ -4,7 +4,7 @@ slug: "market-to-neighbors-after-every-job"
 resource_type: "how-to-guide"
 status: "published"
 author: "Aaron Phillips"
-featured_image: "/images/resources/how-to-guides/market-to-neighbors-after-every-job-featured.png"
+featured_image: "/images/resources/how-to-guides/market-to-neighbors-after-every-job-featured.jpg"
 excerpt: "Every job site sits in front of 20 homes with the same roof, pipes, or HVAC age. Here is how to systematically harvest the street you are already working on."
 published_at: 2026-06-09
 updated_at: 2026-06-09

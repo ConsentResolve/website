@@ -4,7 +4,7 @@ slug: "track-where-leads-come-from"
 resource_type: "how-to-guide"
 status: "published"
 author: "Aaron Phillips"
-featured_image: "/images/resources/how-to-guides/track-where-leads-come-from-featured.png"
+featured_image: "/images/resources/how-to-guides/track-where-leads-come-from-featured.jpg"
 excerpt: "If you can't say which source produced which booked job, you're flying blind on ad spend. Here is lead tracking a contractor can actually run."
 published_at: 2026-06-09
 updated_at: 2026-06-09

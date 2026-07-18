@@ -4,7 +4,7 @@ slug: "stop-losing-jobs-missed-calls"
 resource_type: "how-to-guide"
 status: "published"
 author: "Tyler Spurlock"
-featured_image: "/images/resources/how-to-guides/stop-losing-jobs-missed-calls-featured.png"
+featured_image: "/images/resources/how-to-guides/stop-losing-jobs-missed-calls-featured.jpg"
 excerpt: "A homeowner with a broken AC calls three companies and books the first one that answers. Every missed call is a booked job for a competitor. Here is the catch-net."
 published_at: 2026-06-09
 updated_at: 2026-06-09
