@@ -41,6 +41,13 @@ faq_items:
     answer: "You look it up. Each lead is tied to its own record, kept for a seven-year audit window, so producing proof is a query — not a frantic search through old logs. The receipt was written before the lead ever reached you."
   - question: "Does every $7 lead come with this record?"
     answer: "Yes. Every lead is consent-first, exclusive to you, and never resold — and each one carries its own timestamped receipt at the flat $7 price. You follow up by email; you never receive a phone number to cold-call."
+sources:
+  - label: "47 U.S.C. §227 — TCPA (Cornell LII)"
+    url: "https://www.law.cornell.edu/uscode/text/47/227"
+  - label: "CA Penal Code §637.2 — CIPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2"
+  - label: "FTC — HomeAdvisor $7.2M consent order (2023)"
+    url: "https://www.ftc.gov/news-events/news/press-releases/2023/01/ftc-order-requires-homeadvisor-pay-72-million-stop-deceptively-marketing-its-leads-home-improvement"
 ---
 
 ## The question you hope nobody ever asks

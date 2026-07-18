@@ -44,6 +44,11 @@ faq_items:
     answer: "No, it's normal for every business. The goal isn't to unmask everyone. It's to recover the small share who showed real interest and agreed to be contacted, while leaving the rest alone."
   - question: "What's the difference between an anonymous visitor and a lead?"
     answer: "An anonymous visitor is just traffic — a session with no name attached. A lead is someone you can actually follow up with. Consent-based identification is what can turn a qualifying anonymous visitor into a contactable lead."
+sources:
+  - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
+  - label: "Spectrum Infinite — average time on a website (~87 seconds)"
+    url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
 ---
 
 ## What it is

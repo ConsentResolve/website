@@ -41,6 +41,11 @@ faq_items:
     answer: "Usually not for the basics. The short list — Google Business Profile, consistent business details, reviews, and clear service-area pages — is something a busy pro can keep up without an agency. Bring in help only when you've outgrown the fundamentals."
   - question: "What good is ranking if visitors don't call?"
     answer: "Not much on its own — most ready buyers look around and leave without a word. Pair your SEO with consent-first visitor identification so you can capture the consenting ones and follow up by email for a flat $7, never a cold call."
+sources:
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
 ---
 
 ## The checklist that's wasting your time

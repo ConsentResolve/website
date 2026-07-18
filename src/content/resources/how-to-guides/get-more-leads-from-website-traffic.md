@@ -49,6 +49,13 @@ faq_items:
     answer: "Both. Make the phone number tap-to-call and prominent for urgent jobs, and offer a short form for visitors who prefer not to call. Removing friction from each path lifts total conversions."
   - question: "Why do most website visitors leave without converting?"
     answer: "The most common reasons are a slow mobile load, no clear offer above the fold, a long or intimidating form, and missing trust signals like license number and reviews."
+sources:
+  - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
+  - label: "Spectrum Infinite — average time on a website (~87 seconds)"
+    url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
+  - label: "BigSur AI — conversion-rate optimization statistics"
+    url: "https://bigsur.ai/blog/cro-statistics"
 ---
 
 ## Introduction

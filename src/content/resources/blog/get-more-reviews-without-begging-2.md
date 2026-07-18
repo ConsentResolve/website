@@ -41,6 +41,11 @@ faq_items:
     answer: "Make it about them, not you, and make it effortless. A short, warm note that says you'd love their honest feedback, paired with a direct link that takes one tap, never reads as begging. Desperation comes from chasing; calm comes from a system."
   - question: "Can a follow-up tool help me collect reviews?"
     answer: "Yes. The same consent-first follow-up that turns website visitors into customers can also send a friendly review request after the job — by email, never a cold call. Leads stay exclusive to you at a flat $7 and the whole flow is consent-first."
+sources:
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
 ---
 
 ## Why asking for reviews feels so awful

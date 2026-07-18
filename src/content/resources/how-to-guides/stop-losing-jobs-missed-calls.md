@@ -47,6 +47,11 @@ faq_items:
     answer: "Texting back someone who just called you is generally well-grounded because they initiated contact, but you should still keep records, identify your business, and honor any request to stop."
   - question: "What is missed-call text-back?"
     answer: "An automated system that instantly sends a text to anyone whose call you miss, acknowledging them and offering to help, so the lead stays warm instead of dialing the next company."
+sources:
+  - label: "Vendasta — speed-to-lead: 78% buy from the first responder"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
+  - label: "MIT lead-response study — contact odds fall sharply after 5 minutes"
+    url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 ---
 
 ## Introduction

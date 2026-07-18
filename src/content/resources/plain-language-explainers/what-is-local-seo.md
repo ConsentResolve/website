@@ -44,6 +44,11 @@ faq_items:
     answer: "Yes. The core moves — claiming and filling out your Google Business Profile, asking customers for reviews, keeping your contact info consistent everywhere — don't require a specialist. They take attention and consistency more than technical skill."
   - question: "Do I still need local SEO if I run Google Ads?"
     answer: "They work together. Ads buy visibility while you pay; local SEO builds visibility you keep. Many contractors run ads for fast results and build local SEO underneath so they're not renting all their traffic forever."
+sources:
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
 ---
 
 ## What it is

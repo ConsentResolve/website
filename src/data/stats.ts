@@ -342,6 +342,13 @@ export const SOURCE_GROUPS: SourceGroup[] = [
     ],
   },
   {
+    title: "Local search, reviews & reputation",
+    sources: [
+      { name: "BrightLocal — Local Consumer Review Survey", url: "https://www.brightlocal.com/research/local-consumer-review-survey/", note: "91% more likely to use a business with positive reviews; 88% favor businesses that reply to reviews; 49% trust reviews as much as personal recommendations." },
+      { name: "BrightLocal — Local SEO Statistics", url: "https://www.brightlocal.com/resources/local-seo-statistics/", note: "4 in 5 people use search to find a local business; a complete Google Business Profile makes customers 2.7× more likely to consider a business reputable; Local Pack ranking factors (primary category, proximity, keywords)." },
+    ],
+  },
+  {
     title: "Privacy enforcement & compliance documentation",
     sources: [
       { name: "47 U.S.C. §227 — TCPA (Cornell LII)", url: "https://www.law.cornell.edu/uscode/text/47/227", note: "Telephone Consumer Protection Act — $500–$1,500 statutory damages per call/text, private right of action." },

@@ -42,6 +42,11 @@ faq_items:
     answer: "It can be, because the audience already knows you, so results per dollar are often better than advertising to strangers. It works best once you have steady website traffic. With very few visitors, there aren't enough people to retarget to make it worthwhile."
   - question: "Can retargeting feel creepy to customers?"
     answer: "It can if you overdo it. Showing the same ad too many times makes people feel followed. Frequency caps, sensible time limits, and stopping the ads once someone books keep it helpful instead of annoying."
+sources:
+  - label: "BigSur AI — conversion-rate optimization statistics"
+    url: "https://bigsur.ai/blog/cro-statistics"
+  - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
 ---
 
 ## What retargeting is

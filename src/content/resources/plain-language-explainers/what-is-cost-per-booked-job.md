@@ -42,6 +42,11 @@ faq_items:
     answer: "They're close cousins. Cost per booked job focuses on the cost to land one job from a given lead source. Customer acquisition cost looks at the cost to win a customer across all your sales and marketing, including your time. Booked-job cost is the simpler, per-channel version most contractors can track today."
   - question: "What's a good cost per booked job?"
     answer: "Compare it to what a job — or a customer — is worth to you. A $250 cost per booked job is excellent when the job is worth $2,000 and the customer may come back. There's no universal target; the right number is one comfortably below the value of the work it brings in."
+sources:
+  - label: "SearchLight Digital — Google LSA cost-per-lead benchmark ($53 blended)"
+    url: "https://searchlightdigital.io/google-local-service-ads-cost-per-lead/"
+  - label: "NZ Leads — Thumbtack cost-per-booked-job (2026)"
+    url: "https://nzleads.com/blog/thumbtack-cost-per-lead-2026/"
 ---
 
 ## What it is

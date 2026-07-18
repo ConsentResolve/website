@@ -44,6 +44,13 @@ faq_items:
     answer: "It's usually one line and a checkbox on your contact form, set up once. In exchange you get higher reply rates, fewer spam complaints, and follow-up you never have to second-guess. Most contractors find it speeds things up, because they're not chasing people who don't want to hear from them."
   - question: "What does consent-first look like in everyday work?"
     answer: "A homeowner finds you, fills out your form, and agrees to be contacted by email or text. That agreement is recorded. When you follow up, they already know who you are and expect to hear from you — so the conversation starts warm instead of cold."
+sources:
+  - label: "47 U.S.C. §227 — TCPA (Cornell LII)"
+    url: "https://www.law.cornell.edu/uscode/text/47/227"
+  - label: "CA Penal Code §637.2 — CIPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2"
+  - label: "CA Civil Code §1798.155 — CCPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.155"
 ---
 
 ## What it is

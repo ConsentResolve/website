@@ -41,6 +41,13 @@ faq_items:
     answer: "Because privacy questions come down to proof. If a homeowner, regulator, or lawyer ever asks where you got someone's information, a kept audit trail gives you a clean, dated answer instead of a guess. The record is the difference between a defensible lead and an exposed one."
   - question: "Do I get this on every lead, and what does it cost?"
     answer: "Yes — every lead from consent-first identification arrives with its timestamped record, retained as an audit trail. Each is email-grade and consent-first — you follow up by email, never a cold call — at a flat $7 per lead, exclusive to you and never resold."
+sources:
+  - label: "47 U.S.C. §227 — TCPA (Cornell LII)"
+    url: "https://www.law.cornell.edu/uscode/text/47/227"
+  - label: "CA Penal Code §637.2 — CIPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2"
+  - label: "FTC — HomeAdvisor $7.2M consent order (2023)"
+    url: "https://www.ftc.gov/news-events/news/press-releases/2023/01/ftc-order-requires-homeadvisor-pay-72-million-stop-deceptively-marketing-its-leads-home-improvement"
 ---
 
 ## The question every shop dreads

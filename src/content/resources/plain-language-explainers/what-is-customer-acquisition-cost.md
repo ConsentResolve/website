@@ -42,6 +42,11 @@ faq_items:
     answer: "There's no universal number. A $400 CAC is excellent if a customer is worth $5,000 to you and terrible if they're worth $300. Judge CAC against customer lifetime value, not against some industry figure."
   - question: "Does CAC include my own time selling?"
     answer: "Ideally, yes. If you or a salesperson spends hours chasing and closing leads, that time has a cost. Leaving it out makes your CAC look lower than it really is and can hide a channel that's quietly unprofitable."
+sources:
+  - label: "SearchLight Digital — Google LSA cost-per-lead benchmark ($53 blended)"
+    url: "https://searchlightdigital.io/google-local-service-ads-cost-per-lead/"
+  - label: "HomeServiceDirect — shared-lead economics (4–5 pros, $25–$100+ per lead)"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
 ---
 
 ## What it is

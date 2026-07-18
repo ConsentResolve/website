@@ -41,6 +41,13 @@ faq_items:
     answer: "The same receipt that answers a homeowner answers a regulator. A timestamped consent record kept on a multi-year audit trail shows the visitor agreed and when — which is exactly the kind of proof that turns a complaint into a closed file instead of a problem."
   - question: "Does every lead come with this record, and what does it cost?"
     answer: "Yes. Every lead is a flat $7, exclusive to you and never resold, and arrives with its own signed consent receipt. It's an email-grade, consent-first contact — so you follow up by email with a record behind you, never by cold-calling a number."
+sources:
+  - label: "47 U.S.C. §227 — TCPA (Cornell LII)"
+    url: "https://www.law.cornell.edu/uscode/text/47/227"
+  - label: "CA Penal Code §637.2 — CIPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2"
+  - label: "FTC — HomeAdvisor $7.2M consent order (2023)"
+    url: "https://www.ftc.gov/news-events/news/press-releases/2023/01/ftc-order-requires-homeadvisor-pay-72-million-stop-deceptively-marketing-its-leads-home-improvement"
 ---
 
 ## The question every shop eventually hears

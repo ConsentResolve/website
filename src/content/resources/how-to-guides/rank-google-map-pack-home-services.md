@@ -109,6 +109,11 @@ social_pack:
     image_url: "/images/resources/how-to-guides/rank-google-map-pack-home-services-featured.png"
     alt_text: "Guide cover: how to rank in the Google Map Pack for home services"
     utm_url: "https://consentresolve.com/resources/how-to-guides/rank-google-map-pack-home-services/?utm_source=email&utm_medium=email&utm_campaign=resource_center&utm_content=rank-google-map-pack-home-services"
+sources:
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
 ---
 
 ## Introduction

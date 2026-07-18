@@ -44,6 +44,9 @@ faq_items:
     answer: "Google lets you list up to about 20 areas, but you should only list places you genuinely serve. Stuffing in distant towns to look bigger tends to backfire — it can dilute your ranking in the areas that actually matter."
   - question: "Can a business be both a storefront and a service area business?"
     answer: "Yes. If customers can visit your location and you also travel to jobs, you can show your address and list a service area. This 'hybrid' setup fits some shops, but most pure contractors don't have a storefront customers visit."
+sources:
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
 ---
 
 ## What it is

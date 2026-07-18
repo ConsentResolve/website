@@ -44,6 +44,13 @@ faq_items:
     answer: "Most people are still deciding. They're comparing options, checking your reviews, or shopping price. Only a small share are ready to call or submit a form on the first visit, so most warm interest leaves quietly."
   - question: "What's the difference between this and buying a lead list?"
     answer: "A purchased list is a batch of strangers who never visited your site or agreed to hear from you. Consent-based visitor identification surfaces people who actually showed interest in your business and agreed to be identified — a much warmer and safer starting point."
+sources:
+  - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
+  - label: "Spectrum Infinite — average time on a website (~87 seconds)"
+    url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
+  - label: "CA Penal Code §637.2 — CIPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2"
 ---
 
 ## What it is

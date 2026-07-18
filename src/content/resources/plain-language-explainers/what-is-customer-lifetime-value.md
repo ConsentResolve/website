@@ -42,6 +42,11 @@ faq_items:
     answer: "Average job value is what one job is worth. Lifetime value is what the whole relationship is worth — every job, every year, plus the profit from referrals. LTV is almost always much larger, which is why it changes how much you can spend to win a customer."
   - question: "How do LTV and customer acquisition cost work together?"
     answer: "You compare them as a ratio. If a customer is worth $1,200 over their lifetime and costs you $300 to win, that's a 4-to-1 return. The wider that gap, the more room you have to invest in winning customers and still profit."
+sources:
+  - label: "Practical Ecommerce — ROI from first-party / smart data"
+    url: "https://www.practicalecommerce.com/how-brands-boost-roi-with-smart-data"
+  - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
 ---
 
 ## What it is

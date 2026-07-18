@@ -47,6 +47,11 @@ faq_items:
     answer: "Lead tracking tells you which source produced inquiries; revenue tracking tells you which source produced booked, paid jobs. A source can deliver many cheap leads that rarely close, so revenue is the truer measure."
   - question: "Do I need expensive software to track lead sources?"
     answer: "No. A call-tracking tool, consistent UTM links, and a simple way to record source and outcome per lead are enough for most contractors to see cost per booked job by channel."
+sources:
+  - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
+  - label: "Practical Ecommerce — ROI from first-party / smart data"
+    url: "https://www.practicalecommerce.com/how-brands-boost-roi-with-smart-data"
 ---
 
 ## Introduction

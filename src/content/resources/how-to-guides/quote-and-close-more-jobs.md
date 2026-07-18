@@ -47,6 +47,11 @@ faq_items:
     answer: "Same day whenever possible. Quote speed signals reliability and keeps you top of mind, and it often matters more to the homeowner than being a few dollars cheaper."
   - question: "Does offering financing actually help close jobs?"
     answer: "Often, yes. Financing reframes a large number into an affordable monthly payment and removes the budget objection that stalls bigger jobs."
+sources:
+  - label: "Vendasta — speed-to-lead: 78% buy from the first responder"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
+  - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
 ---
 
 ## Introduction

@@ -47,6 +47,11 @@ faq_items:
     answer: "Time it to the in-progress or just-completed job, while neighbors have seen your truck and crew. The visible work is the social proof that makes the mailer convert."
   - question: "Why does route density matter?"
     answer: "Clustering jobs on the same streets cuts drive time and fuel, raises crew productivity, and compounds your local visibility, so each job makes the next one cheaper to serve and easier to win."
+sources:
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
 ---
 
 ## Introduction

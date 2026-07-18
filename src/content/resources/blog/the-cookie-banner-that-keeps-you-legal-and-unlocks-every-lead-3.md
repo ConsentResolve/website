@@ -41,6 +41,15 @@ faq_items:
     answer: "With a managed approach, the platform does. The banner and the policy behind it are maintained as the rules evolve, so you're not tracking statutes or rewriting disclosures yourself. That's the point of built-in compliance: the legal upkeep is handled in the code, not added to your to-do list."
   - question: "What does keeping the banner current actually unlock, and what does a lead cost?"
     answer: "A current banner makes each accept a lawful unlock — a visitor you may identify and follow up with, with the agreement logged as a timestamped record. Follow-up is email-grade and consent-first, never a phone number to cold-call, at a flat $7 per lead, exclusive to you and never resold."
+sources:
+  - label: "CA Penal Code §637.2 — CIPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2"
+  - label: "CA Civil Code §1798.155 — CCPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.155"
+  - label: "California Privacy Protection Agency (CPPA)"
+    url: "https://cppa.ca.gov/"
+  - label: "GDPR Info — fines & penalties"
+    url: "https://gdpr-info.eu/issues/fines-penalties/"
 ---
 
 ## The banner you set up once and never looked at again

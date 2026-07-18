@@ -44,6 +44,11 @@ faq_items:
     answer: "Ask the provider directly how many other contractors receive the same lead, and whether leads are ever resold later. If the answer is anything other than 'one — you,' it's a shared lead."
   - question: "Does ConsentResolve sell exclusive leads?"
     answer: "Yes. Every lead is sold to one contractor only and never resold or shared, at a flat $7 per lead."
+sources:
+  - label: "HomeServiceDirect — shared-lead economics (4–5 pros, $25–$100+ per lead)"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
+  - label: "HouseCall Pro — Angi/HomeAdvisor shared-lead cost & model"
+    url: "https://www.housecallpro.com/resources/angi-formerly-angies-list-competitors-sites-like-angi/"
 ---
 
 ## What an exclusive lead means

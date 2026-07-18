@@ -44,6 +44,11 @@ faq_items:
     answer: "No. If you travel to customers — like most plumbers, roofers, and HVAC techs — you set up a service area business and hide your street address. Google still lists you for the towns you serve."
   - question: "How do I get into the Google Map Pack?"
     answer: "The Map Pack is the set of three business listings Google shows above the regular results. Getting in comes down to a complete, accurate profile, steady recent reviews, the right business category, and consistent contact info across the web."
+sources:
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
 ---
 
 ## What it is

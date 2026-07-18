@@ -41,6 +41,11 @@ faq_items:
     answer: "Usually because nobody asked clearly, or the ask came too late, or it asked them to dig up the right link. Happy customers will help you — they just need a simple, well-timed prompt and a one-tap path to do it."
   - question: "Does asking for reviews by email feel like begging?"
     answer: "Not when it's part of normal follow-up. A short, friendly email after a job well done reads as good service, not pestering — especially when it's the same kind of helpful, consent-first email you'd send any contact who's already engaged with you."
+sources:
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
 ---
 
 ## The text you keep meaning to send

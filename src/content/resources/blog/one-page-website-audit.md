@@ -41,6 +41,13 @@ faq_items:
     answer: "Not to find the problems. Most of what's leaking jobs is simple friction you can spot yourself in a few minutes. An agency can help with a rebuild, but you don't need one to run the audit or fix the quick wins."
   - question: "What's the biggest thing most website audits miss?"
     answer: "The visitors who never fill out a form. Audits obsess over design and speed but ignore that most ready buyers leave anonymous. Consent-first visitor identification lets you capture the consenting ones and follow up by email for a flat $7 — never a cold call."
+sources:
+  - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
+  - label: "Spectrum Infinite — average time on a website (~87 seconds)"
+    url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
+  - label: "BigSur AI — conversion-rate optimization statistics"
+    url: "https://bigsur.ai/blog/cro-statistics"
 ---
 
 ## You don't need a $5,000 audit

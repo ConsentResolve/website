@@ -41,6 +41,11 @@ faq_items:
     answer: "Converting what you have is almost always cheaper. You've already paid to bring those visitors in, so lifting your conversion and recovering anonymous visitors multiplies the return on spend you've already made."
   - question: "What does it cost to recover an anonymous visitor?"
     answer: "A flat $7 per recovered lead, and it's exclusive to you — never resold or shared. You follow up by email, into the funnel you already run, on the same ad budget."
+sources:
+  - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
+  - label: "Spectrum Infinite — average time on a website (~87 seconds)"
+    url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
 ---
 
 ## You paid for the click — then watched it leave

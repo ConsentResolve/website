@@ -47,6 +47,11 @@ faq_items:
     answer: "Plan for around seven touches across text, email, and phone over a couple of weeks. Most contractors quit after one or two, which is why so many winnable leads go cold."
   - question: "Can I automate lead follow-up without it feeling spammy?"
     answer: "Yes — automate the timing and reminders, keep the messages personal and helpful, contact people only on consented channels, and always make it easy to opt out."
+sources:
+  - label: "Vendasta — speed-to-lead: 78% buy from the first responder"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
+  - label: "MIT lead-response study — contact odds fall sharply after 5 minutes"
+    url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 ---
 
 ## Introduction

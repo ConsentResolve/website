@@ -44,6 +44,9 @@ faq_items:
     answer: "Everywhere it appears: your website, Google Business Profile, Yelp, Facebook, Bing, Apple Maps, industry directories, and any old listings floating around. Your Google profile and your website are the most important, but the goal is for all of them to agree."
   - question: "I changed my phone number — what do I do?"
     answer: "Update it everywhere, not just on Google. Old numbers in stale directories are one of the most common causes of NAP problems. Track down every listing with the old number and fix it so only the current one remains."
+sources:
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
 ---
 
 ## What it is

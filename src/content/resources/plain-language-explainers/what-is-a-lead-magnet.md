@@ -42,6 +42,11 @@ faq_items:
     answer: "It can, and it should. The opt-in form is where the homeowner gives their info and agrees to be contacted. Be clear about what they're signing up for so the consent is real and the follow-up is welcome."
   - question: "How is a lead magnet different from just buying leads?"
     answer: "A lead magnet attracts people who chose to raise their hand for your offer, so they already know your business. Buying leads brings in prospects from elsewhere. With consent-first leads like ConsentResolve's, that step is handled for you — the homeowner already agreed to be contacted."
+sources:
+  - label: "Retainful — email-list growth from on-site forms (~2%)"
+    url: "https://www.retainful.com/blog/grow-your-email-list"
+  - label: "BDOW — automated capture vs static forms (10–15× signups)"
+    url: "https://bdow.com/stories/email-signup-benchmarks/"
 ---
 
 ## What a lead magnet is

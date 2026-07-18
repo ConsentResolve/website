@@ -47,6 +47,11 @@ faq_items:
     answer: "Yes. Review gating — soliciting only satisfied customers while filtering out unhappy ones — violates Google's policies. Ask everyone, and handle dissatisfaction directly instead of hiding it."
   - question: "Should I respond to negative reviews?"
     answer: "Always, calmly and professionally. A measured response to a negative review reassures future customers far more than a perfect record does, and it can win the upset customer back."
+sources:
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
 ---
 
 ## Introduction

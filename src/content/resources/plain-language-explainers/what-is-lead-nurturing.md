@@ -42,6 +42,11 @@ faq_items:
     answer: "No — pushy is repeating the same sales pitch until someone caves. Nurturing is being helpful: a tip, a reminder, an answer to a question. The goal is to be useful and stay remembered, not to pressure."
   - question: "Why does consent matter for lead nurturing?"
     answer: "Because nurturing means contacting someone over time. If they agreed to hear from you on a channel like email, you can follow up confidently. If they never agreed, repeated outreach is both unwelcome and a compliance risk."
+sources:
+  - label: "Vendasta — speed-to-lead: 78% buy from the first responder"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
+  - label: "MIT lead-response study — contact odds fall sharply after 5 minutes"
+    url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 ---
 
 ## What lead nurturing means

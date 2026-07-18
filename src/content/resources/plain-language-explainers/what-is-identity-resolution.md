@@ -44,6 +44,11 @@ faq_items:
     answer: "Deterministic matching built on consent. It gives you confident, accurate matches of people who agreed to be identified, instead of guesses about strangers who never did."
   - question: "Can identity resolution be done without consent?"
     answer: "Technically yes — probabilistic methods can try to resolve anyone. But resolving identities of people who never agreed to be identified is the risky, scrape-everyone approach that raises privacy-law problems."
+sources:
+  - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
+  - label: "BigSur AI — conversion-rate optimization statistics"
+    url: "https://bigsur.ai/blog/cro-statistics"
 ---
 
 ## What it is

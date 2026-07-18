@@ -44,6 +44,11 @@ faq_items:
     answer: "Technically yes, but only by de-anonymizing visitors who never agreed to be identified. A rate that high is a signal the provider is using the risky scrape-everyone approach, not consent-based matching."
   - question: "What should I look at instead of match rate?"
     answer: "Look at lead quality and consent. Are the identified people real prospects in your service area? Did they genuinely agree to be contacted? Ten good consented leads beat a hundred questionable ones every time."
+sources:
+  - label: "SearchLight Digital — Google LSA cost-per-lead benchmark ($53 blended)"
+    url: "https://searchlightdigital.io/google-local-service-ads-cost-per-lead/"
+  - label: "99 Calls — LSA cost-per-lead estimator by trade"
+    url: "https://99calls.com/LSA-Cost-Estimator/general-contractor"
 ---
 
 ## What it is

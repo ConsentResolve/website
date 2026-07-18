@@ -47,6 +47,13 @@ faq_items:
     answer: "Email-grade means the visitor consented to email contact; phone-grade means they consented to phone or text contact. Matching your follow-up channel to the consent level you actually hold is what keeps you compliant."
   - question: "How is consent-first visitor identification different from data brokers?"
     answer: "Data brokers sell contact information often gathered without the person's knowledge. Consent-first identification only surfaces visitors who have agreed to be identified, giving you a lead you can legally and ethically follow up with."
+sources:
+  - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
+  - label: "CA Penal Code §637.2 — CIPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2"
+  - label: "CA Civil Code §1798.155 — CCPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.155"
 ---
 
 ## Introduction

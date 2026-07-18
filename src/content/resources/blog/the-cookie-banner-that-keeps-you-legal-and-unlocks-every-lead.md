@@ -41,6 +41,15 @@ faq_items:
     answer: "No — it's the load-bearing piece. From an engineering standpoint the banner isn't decoration at the end of the build; it's the gate the whole pipeline depends on. No accepted consent, no lawful identification. Treating it as optional is how shops end up with data they can't safely use."
   - question: "What actually gets recorded when someone accepts?"
     answer: "The agreement is captured as a timestamped record — who consented, to what, and when — so the lead arrives with proof of permission attached. That record is why follow-up is email-grade and consent-first: you contact people who agreed to hear from you, at a flat $7 per lead, exclusive to you and never resold."
+sources:
+  - label: "CA Penal Code §637.2 — CIPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2"
+  - label: "CA Civil Code §1798.155 — CCPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.155"
+  - label: "California Privacy Protection Agency (CPPA)"
+    url: "https://cppa.ca.gov/"
+  - label: "GDPR Info — fines & penalties"
+    url: "https://gdpr-info.eu/issues/fines-penalties/"
 ---
 
 ## The box everyone wants to dismiss

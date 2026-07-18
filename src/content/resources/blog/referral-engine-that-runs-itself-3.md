@@ -41,6 +41,11 @@ faq_items:
     answer: "Make the ask a fixed step in closing every job, capture permission to stay in touch, and let your CRM or follow-up tools handle the timing and reminders. When the ask is built into the process instead of left to memory, it happens every time."
   - question: "How does consent-first follow-up fit a referral system?"
     answer: "Every contact you follow up with should be someone who agreed to hear from you, with a timestamped consent record — so your referral and review outreach stays email-grade and on the right side of the line, never a cold call. That protects your shop while the engine runs."
+sources:
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
 ---
 
 ## The pipeline you keep forgetting to build

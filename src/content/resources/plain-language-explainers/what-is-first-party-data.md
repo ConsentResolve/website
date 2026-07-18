@@ -44,6 +44,11 @@ faq_items:
     answer: "Not automatically. Collecting it directly is a good start, but you still need consent for how you use it — especially for marketing calls and texts. First-party data with clear consent attached is the safest kind."
   - question: "Why is first-party data getting more important?"
     answer: "Third-party tracking cookies and broker data are being restricted by browsers, regulators, and privacy laws. Data you collect yourself, with permission, doesn't depend on those shrinking sources, so it holds its value."
+sources:
+  - label: "Practical Ecommerce — ROI from first-party / smart data"
+    url: "https://www.practicalecommerce.com/how-brands-boost-roi-with-smart-data"
+  - label: "CA Civil Code §1798.155 — CCPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.155"
 ---
 
 ## What it is

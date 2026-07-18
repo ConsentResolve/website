@@ -41,6 +41,15 @@ faq_items:
     answer: "The moment a visitor opts in, a timestamped consent record is written — capturing that they agreed, and when. That record is what makes the lead legitimate to follow up on and gives your shop an audit trail if the consent is ever questioned."
   - question: "How does this connect to the lead and its price?"
     answer: "Only opted-in visitors become leads, and each is a flat $7, exclusive to you and never resold. The banner produces an email-grade, consent-first contact with a logged consent record — so you follow up by email, never by cold-calling a number."
+sources:
+  - label: "CA Penal Code §637.2 — CIPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2"
+  - label: "CA Civil Code §1798.155 — CCPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.155"
+  - label: "California Privacy Protection Agency (CPPA)"
+    url: "https://cppa.ca.gov/"
+  - label: "GDPR Info — fines & penalties"
+    url: "https://gdpr-info.eu/issues/fines-penalties/"
 ---
 
 ## The little box everyone treats as a nuisance

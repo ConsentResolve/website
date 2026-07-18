@@ -47,6 +47,13 @@ faq_items:
     answer: "It is a green checkmark badge Google shows on your LSA listing after you pass a background and license check, signaling trust to homeowners and offering them a limited Google-backed guarantee."
   - question: "Can I get a refund for a bad LSA lead?"
     answer: "Yes. You can dispute leads that are out of your service area, for a service you don't offer, spam, or otherwise invalid, and Google credits qualifying disputes."
+sources:
+  - label: "SearchLight Digital — Google LSA cost-per-lead benchmark ($53 blended)"
+    url: "https://searchlightdigital.io/google-local-service-ads-cost-per-lead/"
+  - label: "99 Calls — LSA cost-per-lead estimator by trade"
+    url: "https://99calls.com/LSA-Cost-Estimator/general-contractor"
+  - label: "HomeServiceDirect — local service ads for contractors"
+    url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
 ---
 
 ## Introduction

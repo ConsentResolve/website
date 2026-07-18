@@ -42,6 +42,13 @@ faq_items:
     answer: "CPL only counts the front of the funnel. A source can hand you cheap leads that never answer, never qualify, or already hired someone else. Until you know how many of those leads turn into booked work, the cost-per-lead number tells you almost nothing about value."
   - question: "Is cost per lead the same as cost per booked job?"
     answer: "No. Cost per lead is what you pay for a lead. Cost per booked job is what you pay for a lead that actually becomes a job. Booked-job cost is always higher and is the number that tells you whether a channel is profitable."
+sources:
+  - label: "SearchLight Digital — Google LSA cost-per-lead benchmark ($53 blended)"
+    url: "https://searchlightdigital.io/google-local-service-ads-cost-per-lead/"
+  - label: "HomeServiceDirect — shared-lead economics (4–5 pros, $25–$100+ per lead)"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
+  - label: "HouseCall Pro — Angi/HomeAdvisor shared-lead cost & model"
+    url: "https://www.housecallpro.com/resources/angi-formerly-angies-list-competitors-sites-like-angi/"
 ---
 
 ## What it is

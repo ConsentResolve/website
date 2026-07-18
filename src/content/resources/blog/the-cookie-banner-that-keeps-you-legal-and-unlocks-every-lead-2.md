@@ -41,6 +41,15 @@ faq_items:
     answer: "A timestamped record: when consent was given, what banner text was shown, and which choice the visitor made. That record is written at the same instant the lead becomes recoverable, so the proof and the permission are never out of sync."
   - question: "Is identifying a visitor who accepts the banner legal — and what does the lead cost?"
     answer: "Yes, when it's consent-first. We only identify visitors who accept a clear banner, log the timestamped consent, and hand you an email-grade lead — never a phone number to cold-call — at a flat $7, exclusive to you and never resold."
+sources:
+  - label: "CA Penal Code §637.2 — CIPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2"
+  - label: "CA Civil Code §1798.155 — CCPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.155"
+  - label: "California Privacy Protection Agency (CPPA)"
+    url: "https://cppa.ca.gov/"
+  - label: "GDPR Info — fines & penalties"
+    url: "https://gdpr-info.eu/issues/fines-penalties/"
 ---
 
 ## The banner most people scroll past without reading

@@ -42,6 +42,11 @@ faq_items:
     answer: "ROAS compares revenue to ad spend only. ROI compares profit to total cost. ROAS tells you if a campaign is pulling in revenue; ROI tells you if you actually made money after paying for the work, the leads, and everything else."
   - question: "Does ROAS account for my labor and material costs?"
     answer: "No. ROAS only looks at revenue versus ad spend, so it ignores what it costs you to actually do the jobs. That's why a high ROAS can still hide a money-losing campaign, and why ROI is the better measure of profit."
+sources:
+  - label: "Practical Ecommerce — ROI from first-party / smart data"
+    url: "https://www.practicalecommerce.com/how-brands-boost-roi-with-smart-data"
+  - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
 ---
 
 ## What it is

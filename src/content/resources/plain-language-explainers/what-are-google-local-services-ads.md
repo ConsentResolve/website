@@ -42,6 +42,11 @@ faq_items:
     answer: "No. Google typically sends the same searcher to several qualified contractors at once. Whoever responds fastest and most professionally usually wins the job, so quick follow-up matters more here than almost anywhere else."
   - question: "How are LSAs different from regular Google Ads?"
     answer: "Regular Google Ads charge per click and appear below the LSA block. LSAs charge per lead, require background screening, and show the Google Guaranteed badge. They're built specifically for local service businesses."
+sources:
+  - label: "SearchLight Digital — Google LSA cost-per-lead benchmark ($53 blended)"
+    url: "https://searchlightdigital.io/google-local-service-ads-cost-per-lead/"
+  - label: "HomeServiceDirect — local service ads for contractors"
+    url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
 ---
 
 ## What Local Services Ads are

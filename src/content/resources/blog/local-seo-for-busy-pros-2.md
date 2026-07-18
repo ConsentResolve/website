@@ -41,6 +41,11 @@ faq_items:
     answer: "Finish your Google Business Profile. For most local searches it does more for you than your website — accurate categories, your real service area, current hours, real photos, and a steady stream of reviews. It's free and it's the biggest single lever you have."
   - question: "What good is ranking if visitors don't reach out?"
     answer: "Not much on its own — most ready buyers look around and leave without a word. Pair your local SEO with consent-first visitor identification so you can capture the consenting ones and follow up by email for a flat $7, never a cold call."
+sources:
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
 ---
 
 ## What "local SEO" even means

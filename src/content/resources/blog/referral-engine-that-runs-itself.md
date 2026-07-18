@@ -41,6 +41,11 @@ faq_items:
     answer: "Right after a job is finished and the customer is happiest with the result. That's when goodwill is highest and your name is fresh. An automatic follow-up catches that moment every time, instead of weeks later when you finally think of it."
   - question: "How does an automated follow-up stay compliant and on-brand?"
     answer: "It's consent-first and email-based — you're following up with your own customers in the funnel you already run, never cold-calling. Each message is yours, branded as your shop, and runs quietly in the background so the human relationship stays human."
+sources:
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
 ---
 
 ## The leads you can't buy

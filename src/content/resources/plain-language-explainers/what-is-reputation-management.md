@@ -44,6 +44,11 @@ faq_items:
     answer: "No legitimate service can simply delete an honest review, and you shouldn't try. You can flag reviews that break platform rules — fake ones, ones from non-customers — but the real answer to a bad review is a good response and a steady flow of genuine positive ones."
   - question: "Is it okay to offer a discount for a review?"
     answer: "Asking for a review is fine; paying for a positive one is not. Offering money or discounts in exchange for a good review violates platform policies and FTC guidelines. Ask everyone for an honest review, and let the good work speak for itself."
+sources:
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
 ---
 
 ## What it is

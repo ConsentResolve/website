@@ -42,6 +42,11 @@ faq_items:
     answer: "It can be, if you track which clicks turn into booked jobs and your landing page actually converts. The risk for small budgets is spending on clicks that go nowhere. Start narrow, measure results, and grow what works."
   - question: "What's the difference between PPC and SEO?"
     answer: "PPC is paid traffic — you pay for placement and it stops when the budget runs out. SEO earns placement over time through your website and content, and keeps working without per-click fees. Many contractors use both."
+sources:
+  - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
+  - label: "SearchLight Digital — Google LSA cost-per-lead benchmark ($53 blended)"
+    url: "https://searchlightdigital.io/google-local-service-ads-cost-per-lead/"
 ---
 
 ## What PPC means

@@ -44,6 +44,11 @@ faq_items:
     answer: "You don't have to answer every lead in person on the spot. A quick text acknowledging their message, an automatic reply, or a simple routine for checking leads between jobs keeps your speed to lead low without stopping work."
   - question: "Does speed to lead matter more for shared or exclusive leads?"
     answer: "It matters for both, but with shared leads it's a race against the other contractors who bought the same lead. With exclusive leads you're the only one calling, so fast follow-up is about catching the homeowner while they're still engaged, not beating competitors."
+sources:
+  - label: "Vendasta — speed-to-lead: 78% buy from the first responder"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
+  - label: "MIT lead-response study — contact odds fall sharply after 5 minutes"
+    url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 ---
 
 ## What speed to lead means

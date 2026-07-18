@@ -41,6 +41,11 @@ faq_items:
     answer: "Make it a normal part of finishing the job, not a special favor. Tie it to a sentence you say every time — 'If you were happy with how this turned out, a quick review really helps a small shop like ours' — then hand over a one-tap link. When it's standard, it doesn't read as begging."
   - question: "How does this connect to consent-first lead recovery?"
     answer: "The same instinct that earns reviews — asking at the right moment, with permission, never being pushy — is how consent-first lead recovery works. Visitors opt in through a clear consent banner, you follow up by email, never a cold call, and each lead is exclusive to you at a flat $7 with a timestamped consent record."
+sources:
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
 ---
 
 ## Five-star work, three-star review count

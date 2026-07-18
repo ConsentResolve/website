@@ -43,6 +43,11 @@ faq_items:
     answer: "It depends on volume, but pay-per-lead is more predictable. A retainer is a flat monthly cost no matter how many leads you get; pay-per-lead scales with the leads you actually receive."
   - question: "What should I watch for with pay-per-lead providers?"
     answer: "Exclusivity. Some pay-per-lead providers sell the same lead to several contractors at once. A low price per lead means little if four other businesses got the same lead, so always ask whether leads are exclusive."
+sources:
+  - label: "HomeServiceDirect — shared-lead economics (4–5 pros, $25–$100+ per lead)"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
+  - label: "HouseCall Pro — Angi/HomeAdvisor shared-lead cost & model"
+    url: "https://www.housecallpro.com/resources/angi-formerly-angies-list-competitors-sites-like-angi/"
 ---
 
 ## What pay-per-lead means

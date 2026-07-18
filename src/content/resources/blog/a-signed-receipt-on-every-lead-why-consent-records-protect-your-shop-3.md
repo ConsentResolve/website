@@ -41,6 +41,13 @@ faq_items:
     answer: "Long enough to outlast the question. Consent Resolve keeps a multi-year audit trail on every lead, so the receipt is still readable and complete well after a lead is worked, closed, or forgotten — not just on the day you collected it."
   - question: "Does this still apply if the lead only cost $7?"
     answer: "Yes. Every lead is a flat $7, exclusive to you, and email-grade — you never get a phone number to cold-call. The signed receipt and audit trail come with each one, so the inexpensive lead is also the defensible one."
+sources:
+  - label: "47 U.S.C. §227 — TCPA (Cornell LII)"
+    url: "https://www.law.cornell.edu/uscode/text/47/227"
+  - label: "CA Penal Code §637.2 — CIPA"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2"
+  - label: "FTC — HomeAdvisor $7.2M consent order (2023)"
+    url: "https://www.ftc.gov/news-events/news/press-releases/2023/01/ftc-order-requires-homeadvisor-pay-72-million-stop-deceptively-marketing-its-leads-home-improvement"
 ---
 
 ## The lead you forget is the one that comes back

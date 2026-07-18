@@ -41,6 +41,11 @@ faq_items:
     answer: "Right after a visible win — the moment the customer can see the finished work and feel the relief of it being handled. Build a small, consistent ask into your job close-out so it happens every time, not just when you remember."
   - question: "How does consent-first follow-up fit a referral program?"
     answer: "When someone a customer refers lands on your site, consent-first identification can turn that consenting visitor into a real contact so you follow up by email — never a cold call. Each lead is a flat $7, exclusive to you, with a timestamped consent record, so the warm intro stays warm and compliant."
+sources:
+  - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
+    url: "https://www.brightlocal.com/research/local-consumer-review-survey/"
+  - label: "BrightLocal — Local SEO Statistics (4 in 5 use search to find local businesses)"
+    url: "https://www.brightlocal.com/resources/local-seo-statistics/"
 ---
 
 ## The leads you already earned
