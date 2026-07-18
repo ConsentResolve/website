@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Your hidden first-day-of-spring lawn care pipeline"
     url: "/resources/blog/lawn-care-pros-meet-your-hidden-st-patricks-first-day-of-spring-pipeline/"
@@ -70,7 +70,7 @@ So the homeowner who priced an organic program on Earth Day and never reached ou
 
 ## Why being first beats being cheapest
 
-Once you can reach them, speed wins. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the lowest price, not the most stars, the fastest reply. For a buyer who picked you partly on values, a prompt, genuine email lands especially well.
+Once you can reach them, speed wins. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the lowest price, not the most stars, the fastest reply. For a buyer who picked you partly on values, a prompt, genuine email lands especially well.
 
 And it's affordable leverage. You can plug this recovery into the [follow-up routine](/features/multi-channel-follow-up/) you already run. Recovering a homeowner who was *already on your site* costs a flat **$7**, exclusive to you — never resold to two competitors. The evidence behind these recovery numbers is on our [stats page](/stats/).
 

@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Why pest control pros lose their best mid-summer leads"
     url: "/resources/blog/why-pest-control-pros-lose-their-best-leads-during-mid-summer-heat-and-how-to-keep-them/"
@@ -70,7 +70,7 @@ So the homeowner who priced an ant treatment Tuesday morning and never reached o
 
 ## Why answering first beats being the cheapest
 
-Once you can reach them, getting there first wins. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the lowest quote, not the most stars, the fastest. When you're the only pest control shop that followed up with an alarmed, ready buyer, you're not haggling on price. You're the one who showed up while it still mattered.
+Once you can reach them, getting there first wins. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the lowest quote, not the most stars, the fastest. When you're the only pest control shop that followed up with an alarmed, ready buyer, you're not haggling on price. You're the one who showed up while it still mattered.
 
 And it's inexpensive leverage. You can wire this recovery into the [follow-up routine](/features/multi-channel-follow-up/) you already lean on. Recovering a homeowner who was *already on your site* costs a flat **$7**, exclusive to you — never resold to the three competitors across town. The full evidence behind these recovery numbers lives on our [stats page](/stats/).
 

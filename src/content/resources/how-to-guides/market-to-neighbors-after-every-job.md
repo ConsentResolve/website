@@ -3,7 +3,7 @@ title: "How to Market to the Neighbors After Every Job"
 slug: "market-to-neighbors-after-every-job"
 resource_type: "how-to-guide"
 status: "ready_to_publish"
-author: "Consent Resolve Team"
+author: "Aaron Phillips"
 featured_image: "/images/resources/how-to-guides/market-to-neighbors-after-every-job-featured.png"
 excerpt: "Every job site sits in front of 20 homes with the same roof, pipes, or HVAC age. Here is how to systematically harvest the street you are already working on."
 published_at: 2026-06-09

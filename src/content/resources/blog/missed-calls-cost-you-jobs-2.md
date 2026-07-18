@@ -22,8 +22,8 @@ tldr: "A missed call costs you a job because the homeowner doesn't wait — abou
 key_takeaways: "Missed calls don't sit in voicemail waiting for you — the homeowner calls the next contractor, and 78% hire whoever responds first. You can't always answer with your hands full, but you can make sure no interested person goes unanswered. Fast multi-channel follow-up (within five minutes is worth about 21× the odds of qualifying) recovers the jobs a busy signal would otherwise give away, for far less than a new hire."
 recap: "A missed call is a job in motion, not a message on hold. The homeowner moves to whoever answers first, so the cheapest fix is fast, automatic follow-up across channels — catching the lead before a competitor does, without hiring anyone."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT — lead response study (21× within 5 minutes)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -56,7 +56,7 @@ Except they didn't leave a voicemail. They hung up and called the next contracto
 
 ## Why a missed call is worse than it sounds
 
-Here's the hard number: about [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the best-reviewed, not the cheapest, the *first*. You can see that on our [stats page](/stats/). When you don't pick up, you're not "next in line." You've handed the front of the line to whoever did pick up.
+Here's the hard number: about [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the best-reviewed, not the cheapest, the *first*. You can see that on our [stats page](/stats/). When you don't pick up, you're not "next in line." You've handed the front of the line to whoever did pick up.
 
 And the window is brutal. The classic [MIT lead-response study](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) found that contacting a lead within five minutes makes you about **21× more likely** to qualify it than waiting until after thirty. A homeowner's intent has a half-life measured in minutes, not days. The "I'll call back at lunch" plan loses to a competitor who answered in the moment.
 

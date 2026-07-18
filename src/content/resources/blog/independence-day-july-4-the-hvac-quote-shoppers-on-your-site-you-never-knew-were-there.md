@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "HomeServiceDirect — LSA cost per lead by trade"
     url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
 related:
@@ -76,7 +76,7 @@ So the homeowner who priced a system between the fireworks and the leftovers? Yo
 
 ## Why speed wins more than price
 
-Once you can reach them, getting there first is the whole game. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. When you're the only HVAC shop that followed up with a ready buyer, you've taken price off the table. You're just the one who showed up.
+Once you can reach them, getting there first is the whole game. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. When you're the only HVAC shop that followed up with a ready buyer, you've taken price off the table. You're just the one who showed up.
 
 And the cost gap is hard to ignore. Local Services Ads for HVAC run about **$45–$85 per lead** ([by trade](https://www.homeservicedirect.net/local-service-ads-for-contractors/): Plumbing $35–$65, Electrical $35–$70, Roofing $50–$95). Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is exclusive to you — never resold to three competitors. Put those side by side: you can pay up to $85 for a fresh LSA lead, or $7 to reconnect with a homeowner who already walked into your storefront and looked around. The math behind all of it lives on our [stats page](/stats/), every figure sourced.
 

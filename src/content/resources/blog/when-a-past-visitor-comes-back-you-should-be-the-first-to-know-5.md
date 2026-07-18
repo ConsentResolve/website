@@ -22,8 +22,8 @@ tldr: "A returning website visitor is one of the strongest buying signals you ge
 key_takeaways: "A second visit is a decision in progress — the homeowner already shortlisted you and came back to confirm. Multi-channel follow-up tells you the instant a known, consented visitor returns, so you respond while their intent is hot. Speed is the whole edge: most homeowners hire whoever answers first, and the five-minute window is worth up to 21× the odds. Catch the pre-Memorial-Day return and you book the cookout-season job before a competitor even knows it's live."
 recap: "When a past visitor comes back days before the long weekend, they're not browsing — they're picking who gets the job. Be the first to know they returned, follow up the same hour across email, and you turn a quiet second visit into a booked cookout-season install."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT — 5-minute lead response advantage (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
   - label: "ConvertCart — email follow-up recovery rate (20%)"
@@ -72,7 +72,7 @@ Because every contact is [consent-first](/features/multi-channel-follow-up/), yo
 
 ## Why being first is the whole game
 
-Once you know they're back, speed decides it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the most reviewed, the fastest. And the window is tight: reaching a lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting until after thirty.
+Once you know they're back, speed decides it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the most reviewed, the fastest. And the window is tight: reaching a lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting until after thirty.
 
 The follow-up itself earns attention, too. Recovery emails have been documented recovering around [20% of abandoned visits](https://www.convertcart.com/blog/cart-abandonment-rate-statistics) and pulling open rates near [45%](https://www.klaviyo.com/blog/abandoned-cart-benchmarks) in ecommerce. Those are cross-industry figures, so read them as proof that timely email follow-up works — not a guaranteed result for your shop. Results vary by trade, traffic, and follow-up. Every number is sourced on our [stats page](/stats/).
 

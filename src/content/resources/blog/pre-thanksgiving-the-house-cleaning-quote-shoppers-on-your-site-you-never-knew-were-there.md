@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "House cleaners, meet your hidden Halloween pipeline"
     url: "/resources/blog/house-cleaners-meet-your-hidden-halloween-pipeline/"
@@ -70,7 +70,7 @@ So the homeowner who priced a deep clean Sunday night, looked at your "before Th
 
 ## Why following up first wins the holiday job
 
-Once you can reach them, getting there first decides it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. A host with guests arriving Thursday doesn't have time to compare five quotes; they book the first cleaner who reaches out and can fit them in. When that's you, you're not competing on price. You're the one who showed up before the calendar closed.
+Once you can reach them, getting there first decides it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. A host with guests arriving Thursday doesn't have time to compare five quotes; they book the first cleaner who reaches out and can fit them in. When that's you, you're not competing on price. You're the one who showed up before the calendar closed.
 
 And it's cheap leverage. Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is exclusive to you — never resold to three other cleaning companies all chasing the same pre-holiday slot. Compare that to what you spend bringing a stranger to the site in the first place, and the math on keeping the visitors you already have is hard to argue with.
 

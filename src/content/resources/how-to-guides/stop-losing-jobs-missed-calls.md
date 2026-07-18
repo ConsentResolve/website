@@ -3,7 +3,7 @@ title: "How to Stop Losing Jobs to Missed Calls"
 slug: "stop-losing-jobs-missed-calls"
 resource_type: "how-to-guide"
 status: "ready_to_publish"
-author: "Consent Resolve Team"
+author: "Tyler Spurlock"
 featured_image: "/images/resources/how-to-guides/stop-losing-jobs-missed-calls-featured.png"
 excerpt: "A homeowner with a broken AC calls three companies and books the first one that answers. Every missed call is a booked job for a competitor. Here is the catch-net."
 published_at: 2026-06-09

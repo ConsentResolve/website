@@ -3,7 +3,7 @@ title: "How to Quote and Close More Jobs Without Dropping Your Price"
 slug: "quote-and-close-more-jobs"
 resource_type: "how-to-guide"
 status: "ready_to_publish"
-author: "Consent Resolve Team"
+author: "Tyler Spurlock"
 featured_image: "/images/resources/how-to-guides/quote-and-close-more-jobs-featured.png"
 excerpt: "Racing to the bottom on price wins cheap customers who leave for the next low bidder. Here is how to present a quote that closes at your rate."
 published_at: 2026-06-09

@@ -22,10 +22,10 @@ tldr: "Shared leads from Angi and Thumbtack feel cheap because you look at the p
 key_takeaways: "Judge a lead by cost per booked job, not cost per lead. A shared lead's sticker price looks low until you account for the 4–5 pros chasing it and the jobs you lose to whoever responds first. Exclusive leads cost more per lead but far less per job, because you're the only one calling. Consent Resolve sells exclusive, consent-first leads at a flat $7 — never resold, never shared."
 recap: "Shared leads are cheap on the invoice and expensive per job because you're one of several pros racing for the same homeowner. Exclusive leads flip that math: one buyer, one follow-up, a lower cost per booked job — and a clean consent trail behind every one."
 sources:
-  - label: "Pipeline On — shared lead price range ($25–$100+) and 4–5 pros"
-    url: "https://pipelineon.com/blog/is-thumbtack-worth-it/"
-  - label: "Pipeline On — first responder wins (78%) and pros per shared lead"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "HomeServiceDirect — shared lead price range ($25–$100+) and 4–5 pros"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
+  - label: "Vendasta — first responder wins (78%) and pros per shared lead"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "FTC — $7.2 million HomeAdvisor settlement"
     url: "https://www.ftc.gov/news-events/news/press-releases/2023/01/ftc-order-requires-homeadvisor-pay-72-million-stop-deceptively-marketing-its-leads-home-improvement"
 related:
@@ -58,9 +58,9 @@ The invoice is telling you the truth about one thing — the price per lead — 
 
 ## What the homeowner is actually doing
 
-Put yourself on the other side. A homeowner fills out one request on Angi or Thumbtack. They don't get your number — they get a stack of them. That single request gets sold to [4–5 pros](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) at [$25–$100+ apiece](https://pipelineon.com/blog/is-thumbtack-worth-it/). Within minutes, four or five phones light up with the same project.
+Put yourself on the other side. A homeowner fills out one request on Angi or Thumbtack. They don't get your number — they get a stack of them. That single request gets sold to [4–5 pros](https://www.homeservicedirect.net/how-to-get-leads-flooring-business/) at [$25–$100+ apiece](https://www.homeservicedirect.net/how-to-get-leads-flooring-business/). Within minutes, four or five phones light up with the same project.
 
-Now the homeowner's inbox and voicemail are a pile of near-identical pitches. They didn't ask to be courted by five contractors; they just wanted a quote. From their side it feels like spam — five strangers competing for attention they never offered to that many people. Some of them stop answering entirely, which means you can pay for a lead and never even reach a human. So they do what anyone would: they go with whoever got to them first and seemed easiest. The job isn't awarded on merit. It's awarded on speed and luck — and [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/), not the cheapest or the best.
+Now the homeowner's inbox and voicemail are a pile of near-identical pitches. They didn't ask to be courted by five contractors; they just wanted a quote. From their side it feels like spam — five strangers competing for attention they never offered to that many people. Some of them stop answering entirely, which means you can pay for a lead and never even reach a human. So they do what anyone would: they go with whoever got to them first and seemed easiest. The job isn't awarded on merit. It's awarded on speed and luck — and [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/), not the cheapest or the best.
 
 ## What does a shared lead really cost per job?
 

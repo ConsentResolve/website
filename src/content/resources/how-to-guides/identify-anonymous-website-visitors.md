@@ -3,7 +3,7 @@ title: "How to Identify Anonymous Website Visitors the Consent-First Way"
 slug: "identify-anonymous-website-visitors"
 resource_type: "how-to-guide"
 status: "ready_to_publish"
-author: "Consent Resolve Team"
+author: "Aaron Phillips"
 featured_image: "/images/resources/how-to-guides/identify-anonymous-website-visitors-featured.png"
 excerpt: "Even a great website loses the visitors who never fill out the form. Here is how to recover those leads without the TCPA and privacy exposure that comes with gray-market data tools."
 published_at: 2026-06-09

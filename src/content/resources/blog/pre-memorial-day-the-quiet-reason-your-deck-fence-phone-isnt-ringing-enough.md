@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "The spring-peak deck & fence quote-shoppers you never knew were there"
     url: "/resources/blog/spring-peak-the-deck-fence-quote-shoppers-on-your-site-you-never-knew-were-there/"
@@ -70,7 +70,7 @@ So the homeowner who priced a new fence on Wednesday and didn't call? You can se
 
 ## Why being first beats being cheapest
 
-Once you can reach them, getting there first decides it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the lowest bid, the fastest reply. With a holiday deadline bearing down, the [deck and fence pro](/deck-fence-leads/) whose email lands first is usually the one who gets to build the project, because the homeowner just wants it done in time.
+Once you can reach them, getting there first decides it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the lowest bid, the fastest reply. With a holiday deadline bearing down, the [deck and fence pro](/deck-fence-leads/) whose email lands first is usually the one who gets to build the project, because the homeowner just wants it done in time.
 
 And it's cheap leverage. Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is exclusive to you — never resold to two other builders chasing the same cookout deadline.
 

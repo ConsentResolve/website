@@ -22,10 +22,10 @@ tldr: "An exclusive lead is one sold to a single contractor and never shared, wh
 key_takeaways: "A shared lead's price tag hides its real cost: you pay full freight to compete against 4–5 other pros for the same homeowner. An exclusive lead is yours alone, so close rate and margin both climb. At a flat $7, exclusive and never resold, the math favors exclusivity even before you factor in the time saved. Value a lead by what you keep, not just what you pay."
 recap: "Shared leads cost $25–$100+ and pit you against 4–5 contractors for one homeowner. An exclusive lead at a flat $7 is yours alone — count what you keep, not just what you spend, and the value is obvious."
 sources:
-  - label: "Pipeline On — paid per shared lead ($25–$100+)"
-    url: "https://pipelineon.com/blog/is-thumbtack-worth-it/"
-  - label: "Pipeline On — pros who receive the same lead (4–5)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "HomeServiceDirect — paid per shared lead ($25–$100+)"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
+  - label: "HomeServiceDirect — pros who receive the same lead (4–5)"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
   - label: "SearchLight Digital — blended LSA cost per lead ($53)"
     url: "https://searchlightdigital.io/google-local-service-ads-cost-per-lead/"
 related:
@@ -58,7 +58,7 @@ That distinction is the whole ballgame. And once you see it, the way you value a
 
 ## The hidden cost of a shared lead
 
-Shared leads on seller platforms run [$25–$100+ each](https://pipelineon.com/blog/is-thumbtack-worth-it/). That alone stings. But the price tag isn't the real cost — the sharing is. The same lead typically goes to [4–5 pros](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/), all of whom call the same homeowner within minutes of each other.
+Shared leads on seller platforms run [$25–$100+ each](https://www.homeservicedirect.net/how-to-get-leads-flooring-business/). That alone stings. But the price tag isn't the real cost — the sharing is. The same lead typically goes to [4–5 pros](https://www.homeservicedirect.net/how-to-get-leads-flooring-business/), all of whom call the same homeowner within minutes of each other.
 
 So picture it from the homeowner's side: their phone rings five times, five quotes land, and they pick one. Your odds of being that one are, on average, about one in five — and you paid full price for the privilege. Even the channel that doesn't share leads, Local Services Ads, blends out to [$53 per lead](https://searchlightdigital.io/google-local-service-ads-cost-per-lead/). A shared lead's true cost is the price *divided by your real close rate*, and that close rate is dragged down by every other pro holding the same lead.
 

@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "HomeServiceDirect — LSA cost per lead by trade"
     url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
 related:
@@ -72,7 +72,7 @@ So the homeowner who priced a generator Monday afternoon between deals, looked a
 
 ## Why the first follow-up books the job
 
-Once you can reach them, getting there first decides it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. A deal-hunting homeowner is comparing tabs; the electrician who reaches out first, while the urge to buy is hot, gets the booking. When that's you, you're not competing on price. You're the one who showed up at the right moment.
+Once you can reach them, getting there first decides it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. A deal-hunting homeowner is comparing tabs; the electrician who reaches out first, while the urge to buy is hot, gets the booking. When that's you, you're not competing on price. You're the one who showed up at the right moment.
 
 And it's cheap leverage. Local Services Ads for electrical run about **$35–$70 per lead** ([by trade](https://www.homeservicedirect.net/local-service-ads-for-contractors/): HVAC $45–$85, Plumbing $35–$65, Roofing $50–$95). Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is exclusive to you — never resold to three competitors all emailing the same deal-shopper.
 

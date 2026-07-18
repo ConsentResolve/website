@@ -22,8 +22,8 @@ tldr: "Manual lead entry is where home-service leads quietly die: a name gets pa
 key_takeaways: "A spreadsheet is not a follow-up system — it's a holding pen leads rarely escape. Re-typing each one is slow, error-prone, and the step that gets skipped on busy days. Automatic delivery drops recovered visitors into your CRM mapped to the right fields, so follow-up can start right away. Faster first contact is where jobs are won, and a clean hand-off is what makes fast possible."
 recap: "The hand-off is where leads leak — parked in a spreadsheet, re-typed late, or lost entirely. Send recovered visitors straight into your CRM with no manual entry, and every lead lands ready to work instead of waiting in a graveyard."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT — 21× better odds when contacted within 5 minutes"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -68,7 +68,7 @@ It drops into the CRM your team already lives in — Jobber, Housecall Pro, Serv
 
 ## Why a clean hand-off books more jobs
 
-Getting the lead in fast and clean isn't just tidy — it's how jobs get won. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/), and reaching a lead within five minutes gives you [21× better odds of qualifying it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty.
+Getting the lead in fast and clean isn't just tidy — it's how jobs get won. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/), and reaching a lead within five minutes gives you [21× better odds of qualifying it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty.
 
 You can't respond first to a lead that's still sitting in a spreadsheet waiting to be typed in. When the hand-off is instant and the lead lands in your CRM ready for its sequence, fast follow-up is actually possible. These numbers shift by trade, traffic, and how you follow up — but the direction never does: leads worked sooner, from a clean record, book more work. The figures are on our [stats page](/stats/).
 

@@ -22,8 +22,8 @@ tldr: "CRM delivery places each recovered website lead at the right stage of you
 key_takeaways: "A lead that lands in your CRM but sits in an unsorted 'new' bucket still waits on a human to do something. The real win is delivery into the right pipeline stage, where your existing automation triggers pick it up and the first follow-up sends itself. Because the fastest responder usually wins, letting arrival fire the first touch is how recovered visitors get worked in minutes instead of whenever someone next opens the CRM."
 recap: "Don't just get the lead into your CRM — land it at the stage where your automations take over. Map arrival to the right trigger and the first follow-up fires itself, so a recovered visitor gets worked fast instead of waiting on a free pair of hands."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT Lead Response study — contact within 5 minutes (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -79,7 +79,7 @@ Set up once, this runs on every lead after, with no daily babysitting.
 
 ## Why firing on arrival actually books jobs
 
-The reason to automate the first touch is the same reason speed matters everywhere in follow-up. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. And classic lead-response research found that reaching a fresh lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty. That 21× is about contact speed, not a promise of jobs booked — but it explains why a lead that triggers its own first email beats one that waits for someone to notice it. Both figures are sourced on our [stats page](/stats/).
+The reason to automate the first touch is the same reason speed matters everywhere in follow-up. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. And classic lead-response research found that reaching a fresh lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty. That 21× is about contact speed, not a promise of jobs booked — but it explains why a lead that triggers its own first email beats one that waits for someone to notice it. Both figures are sourced on our [stats page](/stats/).
 
 When arrival fires the first touch, you hit that window without anyone having to be at a desk.
 

@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "ConvertCart — email follow-up recovery rate (20%)"
     url: "https://www.convertcart.com/blog/cart-abandonment-rate-statistics"
   - label: "BigSur AI / Wiser — conversion lift from personalized outreach (26%)"
@@ -74,7 +74,7 @@ So the homeowner who priced a 200-foot privacy fence Sunday night and didn't cal
 
 ## Why being first beats being cheapest
 
-A deck or fence is a considered purchase, so it's easy to assume it comes down to price. It mostly comes down to who shows up. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. When you're the only builder who followed up with a ready buyer, you're not fighting over dollars per linear foot. You're the one who took initiative.
+A deck or fence is a considered purchase, so it's easy to assume it comes down to price. It mostly comes down to who shows up. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. When you're the only builder who followed up with a ready buyer, you're not fighting over dollars per linear foot. You're the one who took initiative.
 
 And it's cheap leverage. That homeowner was *already on your site*, so you don't pay again to bring them back — a recovered, consented lead is a flat **$7**, exclusive to you and never resold to three competitors bidding the same yard.
 

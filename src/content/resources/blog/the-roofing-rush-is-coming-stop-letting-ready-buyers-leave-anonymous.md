@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "HomeServiceDirect — LSA cost per lead by trade"
     url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
 related:
@@ -76,7 +76,7 @@ So the homeowner who compared three roofers Sunday night and didn't pull the tri
 
 ## Why being first beats being cheapest
 
-Once you can reach them, getting there first decides the job. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the lowest bid, not the most reviews, the fastest. When you're the only roofer who followed up with a ready buyer, you've taken price off the table. You're just the one who showed up.
+Once you can reach them, getting there first decides the job. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the lowest bid, not the most reviews, the fastest. When you're the only roofer who followed up with a ready buyer, you've taken price off the table. You're just the one who showed up.
 
 And the cost gap is striking. Local Services Ads for roofing run about **$50–$95 per lead** ([by trade](https://www.homeservicedirect.net/local-service-ads-for-contractors/): HVAC $45–$85, Plumbing $35–$65, Electrical $35–$70). Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is exclusive to you — never resold to three competitors chasing the same rush. On a job that can run into five figures, $7 to reconnect with a ready buyer is about as lopsided as the math gets. The evidence behind these numbers lives on our [stats page](/stats/), every figure sourced.
 

@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "The general contractor's rush is coming — stop letting ready buyers leave anonymous"
     url: "/resources/blog/the-general-contractors-rush-is-coming-stop-letting-ready-buyers-leave-anonymous/"
@@ -70,7 +70,7 @@ So the homeowner who priced a kitchen remodel the night the refund hit and never
 
 ## Why being first beats being cheapest
 
-Once you can reach them, getting there first wins the bid. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the lowest number, not the most reviews, the fastest reply. On a big, considered job, one timely email while the homeowner is still deciding can put you at the front of the line.
+Once you can reach them, getting there first wins the bid. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the lowest number, not the most reviews, the fastest reply. On a big, considered job, one timely email while the homeowner is still deciding can put you at the front of the line.
 
 And it's cheap leverage. You can wire this recovery into the [follow-up sequence](/features/multi-channel-follow-up/) you already run. Recovering a homeowner who was *already on your site* costs a flat **$7**, exclusive to you — never resold to two competitors. The full evidence behind these recovery numbers is on our [stats page](/stats/).
 

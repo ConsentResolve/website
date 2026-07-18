@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Feature: Visitor Identification"
     url: "/features/visitor-identification/"
@@ -74,7 +74,7 @@ So the homeowner who priced an exterior repaint over coffee and got pulled into 
 
 ## Why getting there first beats dropping your bid
 
-Once you can reach them, speed is the whole game. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the one with the most reviews, the fastest. When you're the only painter who followed up with a ready buyer, you don't have to shave your price to win. You're just the one who showed up.
+Once you can reach them, speed is the whole game. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the one with the most reviews, the fastest. When you're the only painter who followed up with a ready buyer, you don't have to shave your price to win. You're just the one who showed up.
 
 And it's an affordable trade. Recovering a homeowner who was *already on your site* runs a flat **$7**, and that lead is exclusive to you — never resold to the two other crews chasing the same end-of-summer work. Set that against the [shared-lead model](/resources/compare/), where one homeowner gets sold to four or five painters at once and you're underbidding strangers from the first call. A recovered visitor came to your site, looked at your work, and stays yours alone. You can see the evidence behind these figures on our [stats page](/stats/), every number sourced.
 

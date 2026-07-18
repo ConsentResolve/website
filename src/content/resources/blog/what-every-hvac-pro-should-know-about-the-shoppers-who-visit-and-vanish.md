@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "HomeServiceDirect — LSA cost per lead by trade"
     url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
 related:
@@ -72,7 +72,7 @@ So the homeowner who browsed your tune-up plan on a whim? You can send one frien
 
 ## Why the first follow-up wins
 
-When that day comes, the pro they call is usually the one already in front of them. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, the fastest. If you followed up two weeks ago, you're not a cold name in a search result; you're the shop they already heard from.
+When that day comes, the pro they call is usually the one already in front of them. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, the fastest. If you followed up two weeks ago, you're not a cold name in a search result; you're the shop they already heard from.
 
 And it's cheap leverage compared to buying that attention fresh. Local Services Ads for HVAC run about **$45–$85 per lead** ([by trade](https://www.homeservicedirect.net/local-service-ads-for-contractors/): Plumbing $35–$65, Electrical $35–$70, Roofing $50–$95). Recovering a homeowner who *already visited your site* costs a flat **$7**, and that lead is exclusive — never resold to the three competitors they were also comparing.
 

@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Fall maintenance kickoff: tree-removal quote shoppers you never knew were there"
     url: "/resources/blog/fall-maintenance-kickoff-the-tree-removal-quote-shoppers-on-your-site-you-never-knew-were-there/"
@@ -70,7 +70,7 @@ So the homeowner who priced removing that oak Saturday and went quiet gets one c
 
 ## Why the first pro to follow up usually wins the bid
 
-When a buyer is comparing several pros, the one who reaches out first has a real edge. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, the fastest. On a deliberated job, a same-day follow-up doesn't feel pushy; it feels like the pro who's actually paying attention, and that's often what settles the comparison.
+When a buyer is comparing several pros, the one who reaches out first has a real edge. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, the fastest. On a deliberated job, a same-day follow-up doesn't feel pushy; it feels like the pro who's actually paying attention, and that's often what settles the comparison.
 
 It's also cheap leverage on traffic you already paid for. Recovering a homeowner who was *already comparing you on your site* costs a flat **$7**, exclusive to you and never resold to competing tree services. The sourced numbers behind all of this are on our [stats page](/stats/), and you can see the bigger picture on the [tree removal leads](/tree-removal-leads/) page.
 

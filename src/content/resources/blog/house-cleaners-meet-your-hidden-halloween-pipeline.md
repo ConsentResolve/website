@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "What every house-cleaning pro should know about visit-and-vanish shoppers"
     url: "/resources/blog/what-every-house-cleaning-pro-should-know-about-the-shoppers-who-visit-and-vanish/"
@@ -70,7 +70,7 @@ That fits the Halloween double perfectly. The host who priced a pre-party clean 
 
 ## Why the first cleaner to reply gets both jobs
 
-Once you can reach them, getting there first decides it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, the fastest. With a deadline like a party date looming, the host books whoever follows up while there's still time to schedule. Being the cleaner who reached out the same day wins the pre-party clean and usually the post-party one too.
+Once you can reach them, getting there first decides it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, the fastest. With a deadline like a party date looming, the host books whoever follows up while there's still time to schedule. Being the cleaner who reached out the same day wins the pre-party clean and usually the post-party one too.
 
 It's also cheap leverage on traffic you already pay for. Recovering a host who was *already pricing a cleaning on your site* costs a flat **$7**, exclusive to you and never resold to other cleaners. The sourced numbers are on our [stats page](/stats/), and you can see the wider picture on the [house cleaning leads](/house-cleaning-leads/) page.
 

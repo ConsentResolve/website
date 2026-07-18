@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "HomeServiceDirect — LSA cost per lead by trade"
     url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
   - label: "ConvertCart — email follow-up recovery rate (20%)"
@@ -76,7 +76,7 @@ So the homeowner who checked storm-damage costs at 6 a.m. and didn't call? You c
 
 ## Why being first beats being cheapest
 
-In a storm window, speed isn't just nice — it's the whole game. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/), not the cheapest or the highest-rated. When you're the only roofer who actually followed up with an anxious, ready buyer, you're not competing on price. You're the one who answered when it mattered.
+In a storm window, speed isn't just nice — it's the whole game. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/), not the cheapest or the highest-rated. When you're the only roofer who actually followed up with an anxious, ready buyer, you're not competing on price. You're the one who answered when it mattered.
 
 And it's cheap leverage. Local Services Ads for roofing run about **$50–$95 per lead** ([by trade](https://www.homeservicedirect.net/local-service-ads-for-contractors/): HVAC $45–$85, Plumbing $35–$65, Electrical $35–$70) — and during a storm surge those costs spike with demand. Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is exclusive to you, never resold to three competitors chasing the same neighborhood.
 

@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "HomeServiceDirect — LSA cost per lead by trade"
     url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
 related:
@@ -72,7 +72,7 @@ So the homeowner who priced a storm repair at 6 a.m. and never got through to yo
 
 ## Why being first beats being cheapest — and why $7 beats $95
 
-Once you can reach them, speed decides it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the lowest bid, not the most stars, the fastest reply. In a storm rush, most shops are buried; the one that follows up first stands alone.
+Once you can reach them, speed decides it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the lowest bid, not the most stars, the fastest reply. In a storm rush, most shops are buried; the one that follows up first stands alone.
 
 Now look at the cost. Roofing leads on Local Services Ads run about **$50–$95** each — and that's just roofing. The published [per-trade ranges](https://www.homeservicedirect.net/local-service-ads-for-contractors/) go HVAC $45–$85, Plumbing $35–$65, Electrical $35–$70, Roofing $50–$95 — often shared across several pros. Recovering a homeowner who was *already on your site* costs a flat **$7**, exclusive to you, never resold. You can compare the channels side by side on our [lead-cost comparison pages](/resources/compare/), and the full evidence sits on our [stats page](/stats/).
 

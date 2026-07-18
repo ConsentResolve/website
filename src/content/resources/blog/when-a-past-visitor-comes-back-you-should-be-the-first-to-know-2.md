@@ -22,8 +22,8 @@ tldr: "A return-visit alert tells you the moment a past website visitor comes ba
 key_takeaways: "The first visit says 'maybe.' The second visit says 'soon.' A return-visit alert turns that signal into a reason to reach out at exactly the right moment, instead of guessing. Because most homeowners hire whoever responds first, the timing of your second touch matters as much as the message — and a fast, contacted-within-minutes response dramatically improves your odds."
 recap: "When a past visitor returns, that's your cue, not a coincidence. Get the alert, time the second touch to the return, and respond before anyone else — that's how a repeat browser becomes a booked job."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT Lead Response study — contact within 5 minutes (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
   - label: "ConvertCart — email follow-up recovery rate (20%)"
@@ -76,7 +76,7 @@ And the second touch can be smarter, not just faster. If the alert tells you the
 
 ## Why timing beats everything else
 
-Once you know they're back, speed is the whole game. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the most reviewed, the fastest. And the response window is brutally short: contacting a lead within five minutes makes you about [21× more likely to qualify them](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting until after thirty.
+Once you know they're back, speed is the whole game. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the most reviewed, the fastest. And the response window is brutally short: contacting a lead within five minutes makes you about [21× more likely to qualify them](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting until after thirty.
 
 The second touch also tends to land better as email. Cross-industry data shows recovery emails earn around a [45% open rate](https://www.klaviyo.com/blog/abandoned-cart-benchmarks) and that email follow-up recovers roughly [20% of abandoned visits](https://www.convertcart.com/blog/cart-abandonment-rate-statistics). Those figures come from ecommerce, so read them as evidence that timely follow-up works — not a guarantee of your numbers. Results vary by trade, traffic, and how fast you move. Every figure is sourced on our [stats page](/stats/).
 

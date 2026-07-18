@@ -22,8 +22,8 @@ tldr: "Lead scoring ranks recovered website leads by readiness using three signa
 key_takeaways: "You don't need a complicated model to sort leads — three signals carry most of the weight: page intent, recency, and return visits. Stack them into a simple hot/warm/browsing rule and your day routes itself, with the readiest homeowners at the top. Because the first responder usually wins, spending your fastest minutes on a genuinely hot lead is the highest-leverage habit you can build."
 recap: "Pages, recency, and return visits are the three signals that score a lead. Run the simple triage rule, work the hot ones first, and respond before anyone else — that's how scoring turns a flat list into booked jobs."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT Lead Response study — contact within 5 minutes (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -82,7 +82,7 @@ Run that rule top to bottom and your day reorders itself around the homeowners c
 
 ## Why working the hot ones first actually wins
 
-The whole point of sorting is to be fast where speed pays. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. And classic lead-response research found that reaching a fresh lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty. That 21× is about contact speed, not a promise of jobs booked — but it tells you exactly why the hot lead belongs at the top: the advantage of being first lives in the first few minutes. Both figures are sourced on our [stats page](/stats/).
+The whole point of sorting is to be fast where speed pays. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. And classic lead-response research found that reaching a fresh lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty. That 21× is about contact speed, not a promise of jobs booked — but it tells you exactly why the hot lead belongs at the top: the advantage of being first lives in the first few minutes. Both figures are sourced on our [stats page](/stats/).
 
 You can't be first to everyone at once. Scoring decides who you're first to.
 

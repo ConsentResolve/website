@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "HomeServiceDirect — LSA cost per lead by trade"
     url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
   - label: "BigSur AI / Wiser — personalized outreach lift (26%)"
@@ -78,7 +78,7 @@ So the homeowner who priced a tankless install Sunday night and didn't call? You
 
 ## Why the first reply usually books it
 
-Once you can reach them, speed decides it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. On a refund-funded upgrade, the plumber who follows up first while the homeowner is comparing usually shapes the whole decision. When you're the only one who reached out, you're not in a price fight.
+Once you can reach them, speed decides it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. On a refund-funded upgrade, the plumber who follows up first while the homeowner is comparing usually shapes the whole decision. When you're the only one who reached out, you're not in a price fight.
 
 And it's cheap leverage. Local Services Ads for plumbing run about **$35–$65 per lead** ([by trade](https://www.homeservicedirect.net/local-service-ads-for-contractors/): HVAC $45–$85, Electrical $35–$70, Roofing $50–$95). Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is [exclusive](/resources/glossary/#exclusive-lead) to you — never resold to three competitors.
 

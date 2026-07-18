@@ -22,8 +22,8 @@ tldr: "Lead scoring ranks your recovered website leads by how likely each homeow
 key_takeaways: "Not every visitor is equally ready, and treating them as if they are wastes your best hours. Lead scoring sorts hot, warm, and just-browsing so your first calls and emails go to the homeowners closest to booking. Since the fastest responder usually wins the job, putting the hottest lead at the top of the list is the single highest-leverage move in your day. Same traffic, smarter order."
 recap: "Score your leads, work the hot ones first, and you stop spreading your follow-up thin across people who weren't ready. Speed to the right homeowner is how you win the job without dropping your price."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT Lead Response study — 21x odds within 5 minutes"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -68,7 +68,7 @@ Now your forty leads aren't a flat list anymore. They're a priority order. The h
 
 ## Why order beats effort
 
-Speed is the whole reason order matters. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. And the advantage of being early is steep: contacting a lead within five minutes makes you [21 times](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) more likely to qualify it than waiting until after thirty. That figure comes from lead-response research across industries — frame it as the shape of the advantage, not a promise — but the lesson holds for any trade: early wins.
+Speed is the whole reason order matters. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. And the advantage of being early is steep: contacting a lead within five minutes makes you [21 times](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) more likely to qualify it than waiting until after thirty. That figure comes from lead-response research across industries — frame it as the shape of the advantage, not a promise — but the lesson holds for any trade: early wins.
 
 You can't be first to all forty at once. So being first to the *right* one is the next best thing, and that's what scoring buys you. Every figure here is sourced on our [stats page](/stats/) if you want to dig in.
 

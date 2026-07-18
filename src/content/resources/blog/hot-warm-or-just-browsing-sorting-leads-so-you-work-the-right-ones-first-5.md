@@ -22,8 +22,8 @@ tldr: "Lead scoring ranks your incoming leads by how ready they are to buy — h
 key_takeaways: "At full summer capacity you can't reach everyone, so the question stops being 'how do I get more leads' and becomes 'who do I work first.' Lead scoring sorts hot, warm, and just-browsing so your limited follow-up time lands on the buyers most likely to book. Speed is decisive — most homeowners hire whoever responds first, and the five-minute window is worth up to 21×. Score the list, work the top, and overflow becomes a queue you actually control."
 recap: "When the leads outnumber the hours, treating them all the same wastes your best season. Score them hot to cold, pour your fastest follow-up into the hot ones, and you book the strongest jobs first instead of burning daylight on browsers."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT — 5-minute lead response advantage (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -68,7 +68,7 @@ Because it's [consent-first](/features/lead-scoring/), you're only scoring homeo
 
 ## Why working the hot ones first wins the season
 
-Sorting only matters because speed is decisive, and speed is finite. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, the fastest. And the window is brutal: reaching a lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty.
+Sorting only matters because speed is decisive, and speed is finite. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, the fastest. And the window is brutal: reaching a lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty.
 
 You only get so many five-minute windows in a day. Lead scoring makes sure you spend them on the leads where being first actually books a job — not on the browser who was never going to call. Every figure here is sourced on our [stats page](/stats/).
 

@@ -24,8 +24,8 @@ recap: "Your best customers visit several times before they call, and most of th
 sources:
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT — lead response study (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -76,7 +76,7 @@ And it doesn't feel pushy, because the timing is right. You're not interrupting 
 
 ## Why getting there first decides it
 
-Once you can see the returning shopper, speed wins the job. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/), and reaching a lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting half an hour. Both numbers, with sources, live on our [stats page](/stats/).
+Once you can see the returning shopper, speed wins the job. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/), and reaching a lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting half an hour. Both numbers, with sources, live on our [stats page](/stats/).
 
 The shop that recognizes the repeat visitor and follows up first isn't competing on price by the time the phone rings. It's the one that showed up while the customer was still making up their mind. By the time a slower competitor gets around to a generic "thanks for your interest," the decision is already made — and it was made in favor of the shop that treated the second visit as the buying signal it was.
 

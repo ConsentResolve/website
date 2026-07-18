@@ -22,8 +22,8 @@ tldr: "Lead scoring is ranking your incoming leads by how likely they are to act
 key_takeaways: "Spring fills your pipeline with everyone — serious buyers and curious browsers alike — and treating them all the same eats the afternoon you need for booked work. The fix isn't working harder; it's working the right leads first. Sorting leads by how they actually behaved on your site tells you who's ready, so you respond fastest to the people most likely to book and let the tire-kickers wait their turn. Same effort, more jobs closed."
 recap: "Tire-kickers don't have to eat your spring. Score leads by their on-site behavior, reach the ready buyers first, and let the browsers wait — and you protect the calendar for the jobs that actually pay."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT — lead response study (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -72,7 +72,7 @@ With consent-first capture, that behavior comes attached to a real, consented co
 
 ## Why working the hot ones first protects the whole calendar
 
-Sorting isn't about brushing people off — it's about sequence. The ready buyers get your fastest response, and that's where the jobs are: [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/), and reaching a lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting. Both figures, sourced, are on our [stats page](/stats/).
+Sorting isn't about brushing people off — it's about sequence. The ready buyers get your fastest response, and that's where the jobs are: [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/), and reaching a lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting. Both figures, sourced, are on our [stats page](/stats/).
 
 Put your speed where it pays. The browsers still get a follow-up — just not at the expense of the homeowner ready to sign today.
 

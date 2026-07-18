@@ -22,8 +22,8 @@ tldr: "A clean CRM hand-off delivers each recovered lead straight into your syst
 key_takeaways: "A recovered lead that lands as a duplicate, in the wrong field, or as a sticky note is a lead you'll respond to late or not at all. A clean hand-off — dedupe, field mapping, no double-entry — keeps your pipeline trustworthy so your team acts fast. Because the first responder usually wins and the five-minute window is decisive, the quality of the hand-off directly affects how many jobs you book."
 recap: "The lead is only as good as how it lands. Map the fields, merge the duplicates, skip the re-typing, and every recovered visitor shows up in your CRM ready to work — so your fastest response isn't slowed by a messy record."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT Lead Response study — contact within 5 minutes (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -72,7 +72,7 @@ That last point compounds quietly over time. A CRM full of clean, deduped record
 
 ## Why clean data decides the job
 
-Here's why the hygiene isn't just neatness for its own sake. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/), and reaching a lead within five minutes makes you about [21× more likely to qualify them](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty. Both of those depend on your team acting *immediately*.
+Here's why the hygiene isn't just neatness for its own sake. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/), and reaching a lead within five minutes makes you about [21× more likely to qualify them](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty. Both of those depend on your team acting *immediately*.
 
 A duplicate they have to merge, a blank field they have to chase, a lead sitting in an inbox nobody checked — each one eats the minutes that decide the job. Clean delivery protects the speed advantage you're paying for. The lead and the fast response are useless if the record gets in their own way. Every figure here is sourced on our [stats page](/stats/).
 

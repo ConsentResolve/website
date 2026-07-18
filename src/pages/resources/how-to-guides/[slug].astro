@@ -36,6 +36,13 @@ if (data.how_to_steps.length > 0) {
 if (data.faq_items.length > 0) {
   schemas.push(faqSchema(data.faq_items));
 }
+// Speakable: expose the TL;DR / key-takeaways block to answer engines.
+schemas.push({
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": `${data.canonical_url}#webpage`,
+  speakable: { "@type": "SpeakableSpecification", cssSelector: [".tldr"] },
+});
 ---
 
 <ResourceLayout

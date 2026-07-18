@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "HomeServiceDirect — LSA cost per lead by trade"
     url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
 related:
@@ -72,7 +72,7 @@ So the homeowner who compared a furnace replacement Wednesday and didn't call ge
 
 ## Why the first email beats the lowest price
 
-Once you can reach them, speed closes the deal. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, the fastest. When you're the only HVAC shop that followed up before winter, you're not in a price fight. You're the one who showed up.
+Once you can reach them, speed closes the deal. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, the fastest. When you're the only HVAC shop that followed up before winter, you're not in a price fight. You're the one who showed up.
 
 And the math favors you. Local Services Ads for HVAC run about **$45–$85 per lead** ([by trade](https://www.homeservicedirect.net/local-service-ads-for-contractors/): Plumbing $35–$65, Electrical $35–$70, Roofing $50–$95). Recovering a homeowner who was *already pricing furnace work on your site* costs a flat **$7**, exclusive to you and never resold. The sourced numbers are on our [stats page](/stats/).
 

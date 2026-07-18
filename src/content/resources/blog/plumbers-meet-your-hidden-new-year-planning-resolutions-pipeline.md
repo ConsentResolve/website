@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "HomeServiceDirect — LSA cost per lead by trade"
     url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
 related:
@@ -76,7 +76,7 @@ Since it lands as a clean email contact, the lead flows into the CRM you already
 
 ## Why the first plumber to reach out wins the remodel
 
-In the planning stage, the plumber who shows up first sets the terms. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — and on a planned remodel, "first" usually means the pro who reached out before the homeowner started calling around. You frame the budget, you build trust early, and you're not the one squeezed on price at the end.
+In the planning stage, the plumber who shows up first sets the terms. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — and on a planned remodel, "first" usually means the pro who reached out before the homeowner started calling around. You frame the budget, you build trust early, and you're not the one squeezed on price at the end.
 
 The cost makes it a no-brainer. Buying a fresh plumbing lead through Local Services Ads runs about **$35–$65** ([by trade](https://www.homeservicedirect.net/local-service-ads-for-contractors/): HVAC $45–$85, Electrical $35–$70, Roofing $50–$95). Recovering a homeowner who was *already on your site* costs a flat **$7**, exclusive to you, never resold to two competitors. You're not paying to invent demand — you're keeping the planners your January traffic already delivered.
 

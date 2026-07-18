@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "ConvertCart — email follow-up recovery rate (20%)"
     url: "https://www.convertcart.com/blog/cart-abandonment-rate-statistics"
   - label: "BigSur AI / Wiser — conversion lift from personalized outreach (26%)"
@@ -74,7 +74,7 @@ So the homeowner who priced taking down that leaning oak on a Sunday afternoon a
 
 ## Why being first beats being cheapest
 
-Tree work is a safety-and-trust purchase, so people want someone they're confident in — and that usually means whoever shows up first. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/), not the cheapest or the highest-rated. When you're the only crew that followed up with a worried homeowner, you're not bidding against three other quotes on price. You're the one who took it seriously.
+Tree work is a safety-and-trust purchase, so people want someone they're confident in — and that usually means whoever shows up first. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/), not the cheapest or the highest-rated. When you're the only crew that followed up with a worried homeowner, you're not bidding against three other quotes on price. You're the one who took it seriously.
 
 And it's cheap leverage. That homeowner was *already on your site*, so you don't pay again to bring them back — a recovered, consented lead is a flat **$7**, exclusive to you and never resold to three competitors eyeing the same tree.
 

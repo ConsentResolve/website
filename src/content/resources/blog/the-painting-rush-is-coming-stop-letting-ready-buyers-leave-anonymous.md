@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "End-of-summer push playbook for painters"
     url: "/resources/blog/end-of-summer-push-playbook-for-painters-recover-the-98-who-dont-call/"
@@ -70,7 +70,7 @@ So the homeowner who priced an exterior repaint on a Saturday and never reached 
 
 ## Why being first beats being cheapest
 
-Once you can reach them, speed wins the job. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the lowest bid, not the most reviews, the fastest reply. In a packed paint season, most shops are slammed; the one that follows up first stands out.
+Once you can reach them, speed wins the job. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the lowest bid, not the most reviews, the fastest reply. In a packed paint season, most shops are slammed; the one that follows up first stands out.
 
 And it's cheap leverage. You can fold this recovery into the [retargeting and follow-up](/features/instant-retarget/) you already run. Recovering a homeowner who was *already on your site* costs a flat **$7**, exclusive to you — never resold to two competitors. The evidence behind these recovery numbers is on our [stats page](/stats/).
 

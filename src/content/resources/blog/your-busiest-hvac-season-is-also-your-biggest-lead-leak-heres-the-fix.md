@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "HomeServiceDirect — LSA cost per lead by trade"
     url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
 related:
@@ -72,7 +72,7 @@ So the homeowner who priced a new furnace Tuesday night while wearing a coat ind
 
 ## Why being first beats being busy
 
-Here's the trap in a busy season: when you're slammed, you respond slowest, right when speed matters most. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. A cold house doesn't wait for a callback. If a recovered email lets you reach a ready buyer ahead of the three other shops they're considering, you book the install on price-doesn't-matter terms.
+Here's the trap in a busy season: when you're slammed, you respond slowest, right when speed matters most. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. A cold house doesn't wait for a callback. If a recovered email lets you reach a ready buyer ahead of the three other shops they're considering, you book the install on price-doesn't-matter terms.
 
 And the leverage is cheap. Local Services Ads for HVAC run about **$45–$85 per lead** ([by trade](https://www.homeservicedirect.net/local-service-ads-for-contractors/): Plumbing $35–$65, Electrical $35–$70, Roofing $50–$95). Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is exclusive to you — never resold to competitors who are just as buried as you are.
 

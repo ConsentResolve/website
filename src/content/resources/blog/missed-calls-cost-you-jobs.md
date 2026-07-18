@@ -22,8 +22,8 @@ tldr: "Missed calls cost jobs because most homeowners hire whoever responds firs
 key_takeaways: "For a busy crew, the phone rings at the worst possible times — and a missed call usually means the homeowner moves on. Speed is the deciding factor: most buyers hire whoever gets back to them first, and contacting a lead within five minutes dramatically raises your odds of qualifying it. The fix isn't answering every call yourself; it's an automatic, consent-first follow-up that reaches the lead by email while the intent is still hot."
 recap: "A missed call is a job handed to whoever picks up next. Since most homeowners hire the first to respond, the answer is an automatic multi-channel follow-up that reaches consented leads fast — even when you can't get to the phone."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT Lead Response study — 21× within 5 minutes"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -56,7 +56,7 @@ Every busy contractor knows this feeling. The frustrating part is that you didn'
 
 ## Why a missed call is really a missed job
 
-Homeowners shopping for a contractor are usually calling more than one. And they're not waiting around. About [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the one with the most reviews, the fastest. So a missed call isn't a neutral event you can fix later. It's an open door for whoever picks up while you can't.
+Homeowners shopping for a contractor are usually calling more than one. And they're not waiting around. About [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the one with the most reviews, the fastest. So a missed call isn't a neutral event you can fix later. It's an open door for whoever picks up while you can't.
 
 It gets sharper the longer you wait. Reaching a lead within five minutes makes you [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting until after thirty minutes. That's not a small edge — it's the difference between a conversation and a voicemail nobody returns.
 

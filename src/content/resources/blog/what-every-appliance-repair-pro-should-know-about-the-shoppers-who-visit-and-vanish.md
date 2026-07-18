@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Why appliance repair pros lose their best leads over Thanksgiving"
     url: "/resources/blog/why-appliance-repair-pros-lose-their-best-leads-during-thanksgiving-black-friday-and-how-to-keep-them/"
@@ -74,7 +74,7 @@ And because it lands as a clean email contact, it flows straight into the system
 
 ## Why being first beats being cheapest
 
-Once you can reach the vanished shopper, speed is everything. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the lowest quote, not the most reviews, the fastest. In an appliance emergency that effect is amplified: the homeowner is choosing relief, and relief means *now*. Be the shop that follows up first and you rarely have to argue about price.
+Once you can reach the vanished shopper, speed is everything. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the lowest quote, not the most reviews, the fastest. In an appliance emergency that effect is amplified: the homeowner is choosing relief, and relief means *now*. Be the shop that follows up first and you rarely have to argue about price.
 
 The cost side is just as friendly. A recovered lead — someone who was *already on your site* — is a flat **$7**, exclusive to you, never resold to the two shops they opened in the other tabs. You're not paying to manufacture new demand. You're keeping the panicked, ready buyer the holiday already sent your way.
 

@@ -22,8 +22,8 @@ tldr: "Lead scoring ranks each recovered visitor by how ready they are to buy �
 key_takeaways: "Spring traffic climbs faster than your follow-up hours do, and a first-come list quietly buries your best leads. Scoring reads intent signals already in the visit and sorts the ready buyers to the top. Responding first matters most with the hottest leads — and getting there fast is where jobs are won. You work the same leads in a smarter order, on the same budget."
 recap: "When the spring rush doubles your leads overnight, the danger isn't too few — it's working them in the wrong order. Scoring floats the ready buyers up so your busiest mornings still start with the jobs most likely to book."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT — 21× better odds when contacted within 5 minutes"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -70,7 +70,7 @@ So when Monday's doubled list loads, it loads in order. The ready buyers are at 
 
 ## Why working the hot ones first wins more jobs
 
-Order matters because speed matters. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. And contacting a lead within five minutes gives you [21× better odds of qualifying it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty.
+Order matters because speed matters. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. And contacting a lead within five minutes gives you [21× better odds of qualifying it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty.
 
 Those advantages do the most good when they land on a ready buyer. Reaching a cold browser in five minutes doesn't help much — they weren't going to book today anyway. Reaching a hot lead first is where the season's jobs get won. Scoring makes sure your fastest follow-up goes there. These benchmarks behave differently by trade, traffic, and how you follow up, but the pattern is steady: first contact, on the right lead, books work. The figures behind it are on our [stats page](/stats/).
 

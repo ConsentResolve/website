@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "HomeServiceDirect — LSA cost per lead by trade"
     url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
 related:
@@ -76,7 +76,7 @@ Because it arrives as a clean email contact, it slots straight into the dispatch
 
 ## Why being first beats being cheapest in a freeze
 
-Once you can reach the panicked shopper, speed decides everything. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the lowest quote, not the most stars, the fastest. In a freeze that's the whole ballgame: the homeowner wants the water to stop, and they'll take the plumber who can come now over the one who's five dollars cheaper next week.
+Once you can reach the panicked shopper, speed decides everything. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the lowest quote, not the most stars, the fastest. In a freeze that's the whole ballgame: the homeowner wants the water to stop, and they'll take the plumber who can come now over the one who's five dollars cheaper next week.
 
 The cost side seals it. A fresh plumbing lead through Local Services Ads runs about **$35–$65** ([by trade](https://www.homeservicedirect.net/local-service-ads-for-contractors/): HVAC $45–$85, Electrical $35–$70, Roofing $50–$95). Recovering a homeowner who was *already on your site* is a flat **$7**, exclusive to you, never resold to the other plumbers they had open in other tabs. You're not paying to find new demand — you're keeping the desperate, ready buyer the cold already sent your way.
 

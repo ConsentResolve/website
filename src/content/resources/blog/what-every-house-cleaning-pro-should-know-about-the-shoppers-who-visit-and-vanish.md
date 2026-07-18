@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "ConvertCart — email follow-up recovery rate (20%)"
     url: "https://www.convertcart.com/blog/cart-abandonment-rate-statistics"
   - label: "BigSur AI / Wiser — conversion lift from personalized outreach (26%)"
@@ -74,7 +74,7 @@ So the person who priced a move-out clean over their lunch break and got pulled 
 
 ## Why the first reply usually books the job
 
-Cleaning is a trust purchase. People are inviting someone into their home, so the service that feels responsive and easy usually wins — and being first matters a lot. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/), not the cheapest or the highest-rated. If you're the only cleaning pro who actually follows up with a ready buyer, you've skipped the price war entirely. You're just the one who showed up.
+Cleaning is a trust purchase. People are inviting someone into their home, so the service that feels responsive and easy usually wins — and being first matters a lot. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/), not the cheapest or the highest-rated. If you're the only cleaning pro who actually follows up with a ready buyer, you've skipped the price war entirely. You're just the one who showed up.
 
 And recovering that person is cheap leverage. They were *already on your site* — you don't pay again to bring them back. A recovered, consented lead is a flat **$7**, and it's exclusive to you, never resold to three competitors across town. One booked recurring client can be worth that many times over for years.
 

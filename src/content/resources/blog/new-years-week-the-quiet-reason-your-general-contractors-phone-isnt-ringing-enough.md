@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "The GC rush is coming"
     url: "/resources/blog/the-general-contractors-rush-is-coming-stop-letting-ready-buyers-leave-anonymous/"
@@ -74,7 +74,7 @@ Because it arrives as a clean email contact, the lead drops straight into the CR
 
 ## Why the first GC to follow up gets the short list
 
-When a project is still in the planning stage, the contractor who shows up first shapes how the homeowner thinks about it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — and for a big remodel, "first" often means the GC who reached out before the homeowner had even decided to start calling around. You set the frame, you build the relationship early, and you're rarely the one fighting on price later.
+When a project is still in the planning stage, the contractor who shows up first shapes how the homeowner thinks about it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — and for a big remodel, "first" often means the GC who reached out before the homeowner had even decided to start calling around. You set the frame, you build the relationship early, and you're rarely the one fighting on price later.
 
 The economics make it an easy call. A recovered lead — a planner who was *already on your site* — costs a flat **$7**, exclusive to you, never resold to the other GCs they were eyeing. You're not paying to drum up new demand in a slow week. You're keeping the high-ticket planners the holiday downtime already handed you.
 

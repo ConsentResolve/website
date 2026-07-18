@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Your busiest lawn care season is also your biggest lead leak"
     url: "/resources/blog/your-busiest-lawn-care-season-is-also-your-biggest-lead-leak-heres-the-fix/"
@@ -70,7 +70,7 @@ So the homeowner who priced a weekly plan over the long weekend and didn't call?
 
 ## Why the first follow-up signs the contract
 
-Once you can reach them, getting there first wins. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, the fastest. When the prize is a recurring [lawn care contract](/lawn-care-leads/), being first matters even more: lock in the season and that homeowner isn't shopping again until next year.
+Once you can reach them, getting there first wins. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, the fastest. When the prize is a recurring [lawn care contract](/lawn-care-leads/), being first matters even more: lock in the season and that homeowner isn't shopping again until next year.
 
 And it's cheap leverage for a high-value outcome. Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is exclusive to you — never resold to two other crews competing for the same season.
 

@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Capturing the 98% who will never fill out your form"
     url: "/resources/blog/capturing-the-98-who-will-never-fill-out-your-form/"
@@ -70,7 +70,7 @@ So the homeowner who priced a dishwasher repair Friday morning, saw your "most r
 
 ## Why a fast follow-up saves the repair
 
-Over a weekend like this, speed is the whole game. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. With a replacement one click away, every hour you wait nudges them toward the retailer. When you're the repair pro who reaches out the same day with a clear "we can fix that for less, and sooner," you keep the job that would otherwise become a Black Friday sale.
+Over a weekend like this, speed is the whole game. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. With a replacement one click away, every hour you wait nudges them toward the retailer. When you're the repair pro who reaches out the same day with a clear "we can fix that for less, and sooner," you keep the job that would otherwise become a Black Friday sale.
 
 And it's cheap leverage. Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is exclusive to you — never resold to two other repair shops chasing the same panicked host. Set against what you spend to bring a stranger to the site, keeping the visitors you already paid for is the easiest win of the weekend.
 

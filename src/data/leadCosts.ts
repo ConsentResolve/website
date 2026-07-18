@@ -7,7 +7,7 @@
  * (TaskRabbit) columns are excluded — this is what a *shared* lead (sold to ~4
  * contractors) typically costs in that trade. Sourced (matrix Sources tab):
  * SearchLight Digital (888 contractors, $6.72M, Feb 2026), The Media Captain,
- * Pipeline On, Adapt Digital, BaaDigi, Networx.
+ * Adapt Digital, BaaDigi, Networx.
  *
  * `avgJob` = a typical average job value for the trade — an ILLUSTRATIVE
  * starting point the reader can change, never a published claim. Only the flat

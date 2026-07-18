@@ -3,7 +3,7 @@ title: "How to Follow Up With Leads So You Actually Book the Job"
 slug: "follow-up-with-leads"
 resource_type: "how-to-guide"
 status: "ready_to_publish"
-author: "Consent Resolve Team"
+author: "Tyler Spurlock"
 featured_image: "/images/resources/how-to-guides/follow-up-with-leads-featured.png"
 excerpt: "Lead response time is the single biggest predictor of who wins the job, yet most contractors take hours. Here is a speed-to-lead system that runs without you babysitting it."
 published_at: 2026-06-09

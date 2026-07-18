@@ -22,12 +22,12 @@ tldr: "An exclusive lead is sold to one contractor; a shared lead is sold to sev
 key_takeaways: "Shared leads look cheap per lead but are expensive per job, because four or five of you are quoting the same homeowner. The fastest responder usually wins, so a shared lead is a race you paid to enter. Exclusive leads go only to you, so your real cost-per-job is far lower than the sticker suggests. Run the math on cost-per-booked-job, not cost-per-lead, and exclusive almost always wins."
 recap: "Shared leads sell the same homeowner to a crowd, so your true cost-per-job is far higher than the price tag. Run the math on booked jobs — not raw leads — and exclusive, consent-first leads usually come out ahead."
 sources:
-  - label: "Pipeline On — shared lead price ($25–$100+)"
-    url: "https://pipelineon.com/blog/is-thumbtack-worth-it/"
-  - label: "Pipeline On — pros per shared lead (4–5)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "HomeServiceDirect — shared lead price ($25–$100+)"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
+  - label: "HomeServiceDirect — pros per shared lead (4–5)"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "FTC — HomeAdvisor settlement ($7.2M)"
     url: "https://www.ftc.gov/news-events/news/press-releases/2023/01/ftc-order-requires-homeadvisor-pay-72-million-stop-deceptively-marketing-its-leads-home-improvement"
 related:
@@ -60,7 +60,7 @@ That's a shared lead. And the platforms selling them are very good at quoting yo
 
 ## Why "cheap per lead" is a trap
 
-Here's where the math goes sideways. A [shared lead commonly runs $25–$100+](https://pipelineon.com/blog/is-thumbtack-worth-it/), and that same lead [gets sent to 4–5 pros](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/). So before you've said a word, your realistic odds of winning that job are roughly one in five.
+Here's where the math goes sideways. A [shared lead commonly runs $25–$100+](https://www.homeservicedirect.net/how-to-get-leads-flooring-business/), and that same lead [gets sent to 4–5 pros](https://www.homeservicedirect.net/how-to-get-leads-flooring-business/). So before you've said a word, your realistic odds of winning that job are roughly one in five.
 
 Run it out. If you're paying $50 for a lead you have a one-in-five shot at, your real cost isn't $50 per lead — it's $250 per *booked job*, assuming everything else goes perfectly. The platform sells you cost-per-lead because cost-per-job is the number that would make you walk away.
 
@@ -70,7 +70,7 @@ That's the difference between [cost-per-lead and cost-per-job](/resources/glossa
 
 It depends on the math you run — but exclusive almost always wins once you count booked jobs instead of raw leads.
 
-The shared-lead race has another loser's-bracket twist: speed. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. So a shared lead isn't just a five-way split; it's a five-way *footrace*, and four of you are going to lose it after already paying to enter. You can do everything right and still come second.
+The shared-lead race has another loser's-bracket twist: speed. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. So a shared lead isn't just a five-way split; it's a five-way *footrace*, and four of you are going to lose it after already paying to enter. You can do everything right and still come second.
 
 An exclusive lead removes the race. It goes to one contractor — you. There's no crowd, no footrace, no "they already booked someone." Your odds of the job aren't one-in-five; they're yours to win or lose on your own merits. That's why it's worth [understanding what an exclusive lead is actually worth](/resources/blog/what-exclusive-lead-is-worth/) before you judge it on sticker price.
 

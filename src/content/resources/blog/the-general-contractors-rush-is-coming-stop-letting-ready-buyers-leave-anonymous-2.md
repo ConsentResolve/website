@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "The general contractors rush is coming — stop letting buyers leave anonymous"
     url: "/resources/blog/the-general-contractors-rush-is-coming-stop-letting-ready-buyers-leave-anonymous/"
@@ -70,7 +70,7 @@ So the homeowner who priced an addition the week between Christmas and New Year'
 
 ## Why keeping the pipeline warm beats chasing it cold
 
-Once you can reach them, staying first in line decides it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. A homeowner who planned a remodel over the holidays will be ready to talk in January; the GC who reaches out warmly first, while the idea is fresh, is the one they walk into the new year with. When that's you, you're not cold-calling a dead lead in February. You're picking up a conversation that's been warm since December.
+Once you can reach them, staying first in line decides it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. A homeowner who planned a remodel over the holidays will be ready to talk in January; the GC who reaches out warmly first, while the idea is fresh, is the one they walk into the new year with. When that's you, you're not cold-calling a dead lead in February. You're picking up a conversation that's been warm since December.
 
 And it's cheap insurance against a slow start. Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is exclusive to you — never resold to three other contractors who'll be fighting over the same January work. Set against the ad spend it takes to win a stranger in a competitive new year, keeping the planners you already attracted is the cheapest pipeline you'll build all season.
 

@@ -22,8 +22,8 @@ tldr: "Tire-kickers eat your afternoon because every lead looks the same until y
 key_takeaways: "You can't give every lead a five-minute response if half of them were never going to book. Lead scoring sorts the serious from the curious using behavior signals, so your fastest follow-up lands on the buyers most likely to close. That matters because 78% of homeowners hire the first responder and speed within five minutes is worth about 21× the odds of qualifying — wasted on a tire-kicker, that speed is wasted. Work the right leads first and protect your afternoon."
 recap: "Stop treating every lead as equal. Score them on real engagement signals, give your fast response to the serious buyers, and let the curious wait. You'll protect your afternoon and put your speed where it actually wins jobs."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT — lead response study (21× within 5 minutes)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -70,7 +70,7 @@ When a visitor accepts a clear consent banner, consent-first identification turn
 
 ## Why sorting protects your close rate, not just your calendar
 
-Here's why the order matters so much. About [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/), and contacting a lead within five minutes makes you roughly [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty. You can see both figures on our [stats page](/stats/).
+Here's why the order matters so much. About [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/), and contacting a lead within five minutes makes you roughly [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty. You can see both figures on our [stats page](/stats/).
 
 That speed is powerful — but it's a limited resource. You can't be the five-minute first responder to everyone. So if half your fast responses land on tire-kickers, you've burned your biggest advantage on people who'll never sign. Scoring points that speed at the serious buyers, where being first actually wins the job. Same effort, aimed right.
 

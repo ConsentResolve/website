@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "ConvertCart — email recovery rate (20%)"
     url: "https://www.convertcart.com/blog/cart-abandonment-rate-statistics"
   - label: "Klaviyo — recovery email open rate (45%)"
@@ -76,7 +76,7 @@ So the homeowner who priced a five-item punch list Saturday afternoon and didn't
 
 ## Why the first reply usually books it
 
-Once you can reach them, getting there first is the whole game. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. A handyman's punch list is rarely about price; it's about who can come do it. When you're the only one who followed up, you're the one who shows up.
+Once you can reach them, getting there first is the whole game. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. A handyman's punch list is rarely about price; it's about who can come do it. When you're the only one who followed up, you're the one who shows up.
 
 And it's cheap leverage. Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is [exclusive](/resources/glossary/#exclusive-lead) to you — never resold to three competitors. Brand-new clicks only get pricier as spring demand climbs and more shops bid the same keywords.
 

@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "BigSur AI / Wiser — personalized outreach lift (26%)"
     url: "https://bigsur.ai/blog/cro-statistics"
   - label: "ConvertCart — email recovery rate (20%)"
@@ -76,7 +76,7 @@ So the property manager who priced a six-unit rekey on Tuesday and didn't call? 
 
 ## Why the first reply usually wins
 
-Once you can reach them, speed decides it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. For a lockout or an urgent safe issue, that's doubly true; people want it handled today. When you're the only locksmith who followed up with a ready buyer, you're not competing on price. You're the one who showed up.
+Once you can reach them, speed decides it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. For a lockout or an urgent safe issue, that's doubly true; people want it handled today. When you're the only locksmith who followed up with a ready buyer, you're not competing on price. You're the one who showed up.
 
 And it's cheap leverage. Recovering someone who was *already on your site* costs a flat **$7**, and that lead is [exclusive](/resources/glossary/#exclusive-lead) to you — never resold to three competitors down the road. Compare that to chasing brand-new clicks, which only get more expensive when everyone bids up the same security keywords.
 

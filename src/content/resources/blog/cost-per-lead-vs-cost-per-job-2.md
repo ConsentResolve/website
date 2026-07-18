@@ -22,8 +22,8 @@ tldr: "Cost per job is your total lead spend divided by the jobs those leads act
 key_takeaways: "Cost per lead ignores the variable that actually sets your bill: how often a lead books. Two things drive cost per job — what you pay and how often you win — and the win rate usually matters more. Even a best-case 43.9% book rate on $53 leads is about $121 per job; a shared lead with a worse rate costs far more. The fastest way to lower the number is to stop splitting every lead with four competitors."
 recap: "Stop shopping by lead price. Your book rate is the hidden multiplier — a lower price with a worse win rate loses to a higher price with a better one. Track cost per booked job, favor exclusive leads that don't split your odds, and recover the traffic you already paid for."
 sources:
-  - label: "Pipeline On — shared lead price range ($25–$100+)"
-    url: "https://pipelineon.com/blog/is-thumbtack-worth-it/"
+  - label: "HomeServiceDirect — shared lead price range ($25–$100+)"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
   - label: "SearchLight Digital — blended LSA cost per lead ($53) and best-case book rate (43.9%)"
     url: "https://searchlightdigital.io/google-local-service-ads-cost-per-lead/"
 related:
@@ -56,7 +56,7 @@ That second number is your book rate, and it's a multiplier on everything. Ignor
 
 ## Why the price tag hides the real cost
 
-Here's the trap. A [shared lead](/resources/glossary/#shared-lead) on the big platforms runs [$25 to $100 or more](https://pipelineon.com/blog/is-thumbtack-worth-it/), and the reason it can look cheap is that you're not the only one buying it. The same homeowner goes to several contractors, everyone calls, and most of you lose. Your book rate on that lead is low by design — and a low book rate is what blows up cost per job.
+Here's the trap. A [shared lead](/resources/glossary/#shared-lead) on the big platforms runs [$25 to $100 or more](https://www.homeservicedirect.net/how-to-get-leads-flooring-business/), and the reason it can look cheap is that you're not the only one buying it. The same homeowner goes to several contractors, everyone calls, and most of you lose. Your book rate on that lead is low by design — and a low book rate is what blows up cost per job.
 
 Play it out. Buy ten shared leads at $25 each — $250 spent. They're shared, so realistically you book two. Cost per *lead*: $25. Cost per *job*: $125. Same dollars, two different stories, and only the second one hits your P&L.
 

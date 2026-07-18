@@ -24,8 +24,8 @@ recap: "There's a narrow window after a homeowner shows interest when the job is
 sources:
   - label: "MIT — lead response within 5 minutes (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Missed calls are costing you jobs — here's the cheapest fix"
     url: "/resources/blog/missed-calls-cost-you-jobs/"
@@ -58,7 +58,7 @@ That stretch right after a homeowner shows interest is the follow-up window. It'
 
 After years of talking to contractors, I'm convinced timing decides more jobs than price or reviews do. Here's the evidence. Contacting a lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting until after thirty. That's not a small edge — it's the difference between a conversation and a voicemail nobody returns.
 
-And it stacks with how homeowners actually choose: about [78% hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/). So the window isn't just about catching attention — it's about being the first voice in the room while they're still deciding. Get there inside the window and the job is often yours before the other shops have even seen the lead.
+And it stacks with how homeowners actually choose: about [78% hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/). So the window isn't just about catching attention — it's about being the first voice in the room while they're still deciding. Get there inside the window and the job is often yours before the other shops have even seen the lead.
 
 ## What does the follow-up window actually look like?
 

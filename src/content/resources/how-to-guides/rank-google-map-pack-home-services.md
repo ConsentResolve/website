@@ -3,7 +3,7 @@ title: "How to Rank in the Google Map Pack for Home Services"
 slug: "rank-google-map-pack-home-services"
 resource_type: "how-to-guide"
 status: "ready_to_publish"
-author: "Consent Resolve Team"
+author: "Aaron Phillips"
 featured_image: "/images/resources/how-to-guides/rank-google-map-pack-home-services-featured.png"
 excerpt: "The three local results in the Google Map Pack capture most of the clicks in your service area. Here is the Google Business Profile–first system that gets a home-service company into them."
 published_at: 2026-06-09

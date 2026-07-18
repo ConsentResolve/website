@@ -102,6 +102,12 @@ const schemas = [
     description: trade.metaDescription,
   }),
   faqSchema(faqItems),
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `https://consentresolve.com/${trade.slug}-leads/#webpage`,
+    speakable: { "@type": "SpeakableSpecification", cssSelector: [".aeo-answer"] },
+  },
 ];
 
 const relatedPosts = await getBlogPostsByCluster(trade.slug);

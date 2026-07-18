@@ -22,8 +22,8 @@ tldr: "A buying-intent spike is the sharp rise in interest a homeowner shows whe
 key_takeaways: "Not every visit deserves the same reaction — a return visit after a quiet stretch is a buying-intent spike, and it's the one to chase. The fastest responder usually wins, and the odds of qualifying a lead drop the longer you wait, so the value of the spike decays by the hour. Consent-first, multi-channel follow-up surfaces the spike and routes it into your funnel, so you send a fitting email in time instead of finding out the job is gone."
 recap: "A returning visitor is an intent spike, not noise. Catch it as it happens, send a short email matched to what they came back for, and respond before anyone else — that's how a re-emerged shopper becomes a job, on the budget you already run."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT Lead Response study — 5-minute contact (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
   - label: "ConvertCart — email follow-up recovery rate (20%)"
@@ -82,7 +82,7 @@ The body can be three sentences. The point isn't a clever email; it's a *fitting
 
 ## What the research says about moving first
 
-This is where the numbers stop being borrowed from other industries and start being about contact speed itself. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. And classic lead-response research found that reaching a fresh lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty. That 21× is about how fast you reach a lead, not a promise of jobs booked — but it tells you exactly where the spike's value lives: in the first few minutes.
+This is where the numbers stop being borrowed from other industries and start being about contact speed itself. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. And classic lead-response research found that reaching a fresh lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty. That 21× is about how fast you reach a lead, not a promise of jobs booked — but it tells you exactly where the spike's value lives: in the first few minutes.
 
 As for the email itself, cross-industry data shows recovery emails earn around a [45% open rate](https://www.klaviyo.com/blog/abandoned-cart-benchmarks) and that email follow-up recovers roughly [20% of abandoned visits](https://www.convertcart.com/blog/cart-abandonment-rate-statistics). Those figures come from ecommerce, so treat them as evidence that timely follow-up works — not a guarantee of your results, which vary by trade, traffic, and how fast you move. Every figure is sourced on our [stats page](/stats/).
 

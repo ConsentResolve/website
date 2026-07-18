@@ -22,8 +22,8 @@ tldr: "The follow-up window is the short stretch of time after a homeowner shows
 key_takeaways: "Year-end buyers are in a hurry — they want the job done before family arrives and the books close. The contractor who follows up first usually wins, and waiting even half an hour quietly hands the job to someone faster. You don't need more leads in December; you need to answer the ones you already have before the window closes. Consent-first email follow-up gets you there first without a single cold call."
 recap: "At year-end, the follow-up window shrinks because buyers want work finished before the holidays. Reach the consented visitors you already have, respond first, and you close jobs you'd otherwise lose to a faster competitor."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT — lead response study (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -66,7 +66,7 @@ It helps to picture the window for what it is. A homeowner decides to act, opens
 
 ## How fast do you have to follow up to win a year-end job?
 
-Faster than you think, and the data is blunt about it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the most reviewed, the fastest. And contacting a lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting until after thirty. Both figures sit on our [stats page](/stats/), each one sourced.
+Faster than you think, and the data is blunt about it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the most reviewed, the fastest. And contacting a lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting until after thirty. Both figures sit on our [stats page](/stats/), each one sourced.
 
 In December, those numbers bite harder. The homeowner racing the holidays isn't going to leave a voicemail and wait. They'll take the first real answer they get.
 

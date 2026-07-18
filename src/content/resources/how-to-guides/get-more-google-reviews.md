@@ -3,7 +3,7 @@ title: "How to Get More Google Reviews on Autopilot"
 slug: "get-more-google-reviews"
 resource_type: "how-to-guide"
 status: "ready_to_publish"
-author: "Consent Resolve Team"
+author: "Aaron Phillips"
 featured_image: "/images/resources/how-to-guides/get-more-google-reviews-featured.png"
 excerpt: "Reviews are both your top local ranking factor and the thing buyers trust most, but 'leave us a review' never works. Build a system that runs after every job."
 published_at: 2026-06-09

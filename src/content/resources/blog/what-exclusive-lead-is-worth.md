@@ -22,10 +22,10 @@ tldr: "An exclusive lead is a prospect sold to one contractor only; a shared lea
 key_takeaways: "Shared and exclusive leads are different products. A shared lead can cost $25–$100+ and lands in the inbox of 4–5 competitors, so your odds and your margin both shrink before you ever call. Blended cost-per-lead on the major paid channel sits around $53. An exclusive lead — sold to you and no one else — removes the bidding war entirely, which is the part that's actually worth paying for."
 recap: "What you pay for a lead matters less than how many other shops got the same one. A shared lead means a bidding war; an exclusive lead means it's yours. At a flat $7, never resold, the exclusivity is the value."
 sources:
-  - label: "Pipeline On — shared lead price ($25–$100+)"
-    url: "https://pipelineon.com/blog/is-thumbtack-worth-it/"
-  - label: "Pipeline On — pros per shared lead (4–5)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "HomeServiceDirect — shared lead price ($25–$100+)"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
+  - label: "HomeServiceDirect — pros per shared lead (4–5)"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
   - label: "SearchLight Digital — blended LSA cost per lead ($53)"
     url: "https://searchlightdigital.io/google-local-service-ads-cost-per-lead/"
 related:
@@ -58,7 +58,7 @@ That's the difference at the heart of this whole conversation. The price on a le
 
 ## The shared-lead trap
 
-On the big lead-seller platforms, the same project gets sold to multiple contractors. A shared lead commonly runs [$25 to $100 or more](https://pipelineon.com/blog/is-thumbtack-worth-it/), and that single prospect typically lands with [4–5 pros](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) at once. So before you've said a word, you're in a five-way race, paying premium money for the privilege.
+On the big lead-seller platforms, the same project gets sold to multiple contractors. A shared lead commonly runs [$25 to $100 or more](https://www.homeservicedirect.net/how-to-get-leads-flooring-business/), and that single prospect typically lands with [4–5 pros](https://www.homeservicedirect.net/how-to-get-leads-flooring-business/) at once. So before you've said a word, you're in a five-way race, paying premium money for the privilege.
 
 Do the math on a quiet week. Pay for ten shared leads, lose the bidding war on most of them, and you've spent real money to be the runner-up. Even the blended cost-per-lead on the major paid ad channel sits around [$53](https://searchlightdigital.io/google-local-service-ads-cost-per-lead/) — and that's a channel that at least doesn't resell the same lead five times over.
 

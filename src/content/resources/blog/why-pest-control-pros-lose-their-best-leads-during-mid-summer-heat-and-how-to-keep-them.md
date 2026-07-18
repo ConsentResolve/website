@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Feature: Visitor Identification"
     url: "/features/visitor-identification/"
@@ -74,7 +74,7 @@ So the homeowner who looked you up about a wasp nest at lunch and got pulled awa
 
 ## Why getting there first beats being the cheapest
 
-Once you can reach them, speed decides it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the one with the most stars, the fastest. When you're the only pest control company that followed up with a homeowner who's already uncomfortable in their own kitchen, you're not competing on price. You're just the relief that showed up.
+Once you can reach them, speed decides it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the one with the most stars, the fastest. When you're the only pest control company that followed up with a homeowner who's already uncomfortable in their own kitchen, you're not competing on price. You're just the relief that showed up.
 
 And it's an affordable trade. Recovering a homeowner who was *already on your site* runs a flat **$7**, and that lead is exclusive to you — never resold to the two other companies working your neighborhood. That last part matters in pest control, where so many leads come from [shared platforms](/resources/compare/) that sell the same panicked homeowner to a handful of companies at once. A recovered visitor came to *your* site, on *your* terms, and stays yours. You can see the evidence behind these numbers on our [stats page](/stats/), every figure sourced.
 

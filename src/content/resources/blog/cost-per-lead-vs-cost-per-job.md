@@ -22,8 +22,8 @@ tldr: "Cost per job is the total you spend on leads divided by the jobs those le
 key_takeaways: "Cost per lead is a vanity number — it ignores how many of those leads ever turn into work. Shared leads sold to four or five pros book at a fraction of the rate, so the real cost per job balloons. The honest metric is total spend divided by jobs won. An exclusive lead that's only yours, at a flat price, usually wins that math even when the sticker looks higher."
 recap: "Stop shopping by cost per lead. Add up what you spend, divide by the jobs that actually booked, and compare sources on that number. Exclusive, consent-first leads at a flat $7 tend to win the cost-per-job math because you're not splitting every opportunity with four competitors."
 sources:
-  - label: "Pipeline On — shared lead price range ($25–$100+)"
-    url: "https://pipelineon.com/blog/is-thumbtack-worth-it/"
+  - label: "HomeServiceDirect — shared lead price range ($25–$100+)"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
   - label: "SearchLight Digital — blended LSA cost per lead ($53) and best-case book rate (43.9%)"
     url: "https://searchlightdigital.io/google-local-service-ads-cost-per-lead/"
 related:
@@ -56,7 +56,7 @@ Then you look up six months later and you're busy buying leads but not noticeabl
 
 ## Why cost per lead hides the real bill
 
-Here's the trap. A [shared lead](/resources/glossary/#shared-lead) on the big platforms runs [$25 to $100 or more](https://pipelineon.com/blog/is-thumbtack-worth-it/), and the reason it can look cheap is that you're not the only one buying it. The same homeowner gets sent to several contractors, everybody calls, and most of you lose.
+Here's the trap. A [shared lead](/resources/glossary/#shared-lead) on the big platforms runs [$25 to $100 or more](https://www.homeservicedirect.net/how-to-get-leads-flooring-business/), and the reason it can look cheap is that you're not the only one buying it. The same homeowner gets sent to several contractors, everybody calls, and most of you lose.
 
 So play it out. Say you buy ten leads at $25 each — $250 spent. They're shared, so realistically you book two of them. Your cost per *lead* was $25. Your cost per *job* was $125. The sticker told you one story; the checkbook told you another.
 

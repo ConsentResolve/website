@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "End-of-summer push playbook for painters"
     url: "/resources/blog/end-of-summer-push-playbook-for-painters-recover-the-98-who-dont-call/"
@@ -70,7 +70,7 @@ That's a perfect fit for handyman work. The homeowner who priced gutter cleaning
 
 ## Why the first reply books the visit
 
-Once you can reach them, speed wins. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, the fastest. For small fall jobs, the homeowner usually books whoever answers while the to-do list is still on the counter. Being the handyman who followed up the same day is the whole edge.
+Once you can reach them, speed wins. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, the fastest. For small fall jobs, the homeowner usually books whoever answers while the to-do list is still on the counter. Being the handyman who followed up the same day is the whole edge.
 
 And it's cheap leverage on traffic you already pay for. Recovering a homeowner who was *already pricing work on your site* costs a flat **$7**, exclusive to you and never resold to other handymen. The sourced numbers are on our [stats page](/stats/), and you can see the broader picture on the [capturing the 98% who never fill out a form](/features/formless-contact-capture/) page.
 

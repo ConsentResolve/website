@@ -22,8 +22,8 @@ tldr: "A missed call usually means a lost job, because about 78% of homeowners h
 key_takeaways: "A missed call isn't neutral — it's a job offered to whoever picks up next. Most homeowners hire the first responder, and the odds of qualifying a lead drop fast after the first few minutes. You can't always answer the phone on a job site, but automated multi-channel follow-up can reach consenting visitors by email instantly. The cheapest fix is speed you don't have to staff for."
 recap: "Every missed call is a job a competitor can pick up, because most homeowners hire whoever responds first. Automated consent-first follow-up reaches the consenting ones by email within minutes — the cheapest way to stop losing jobs you already earned the shot at."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT — lead response within 5 minutes (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -58,7 +58,7 @@ They didn't. They called the next shop on the list, that one answered, and the j
 
 I talk to contractors every day, and this is the quiet leak almost nobody tracks. You measure your close rate on the calls you *answer*. You don't see the jobs that evaporated because the phone rang while your hands were full.
 
-Here's why it hurts so much: about [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the best-reviewed, the fastest. A homeowner with a leaking water heater isn't shopping for a relationship. They want the problem gone, and they'll give the job to whoever picks up. When you go to voicemail, you've effectively volunteered to lose.
+Here's why it hurts so much: about [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the best-reviewed, the fastest. A homeowner with a leaking water heater isn't shopping for a relationship. They want the problem gone, and they'll give the job to whoever picks up. When you go to voicemail, you've effectively volunteered to lose.
 
 ## What's the cheapest way to stop missing jobs?
 

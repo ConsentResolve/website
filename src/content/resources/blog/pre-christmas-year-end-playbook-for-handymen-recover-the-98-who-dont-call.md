@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Fall home-prep playbook for handymen"
     url: "/resources/blog/fall-home-prep-playbook-for-handymen-recover-the-98-who-dont-call/"
@@ -74,7 +74,7 @@ The hand-off matters here. Because the lead arrives as a clean email contact, it
 
 ## Why the first handyman to reply usually wins
 
-Once you can actually reach them, speed decides it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the one with the most reviews, the fastest. In a tight pre-holiday window, that's even truer: the homeowner just wants someone to confirm they can come before the relatives do. Be the handyman who answers first and you're rarely competing on price.
+Once you can actually reach them, speed decides it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the one with the most reviews, the fastest. In a tight pre-holiday window, that's even truer: the homeowner just wants someone to confirm they can come before the relatives do. Be the handyman who answers first and you're rarely competing on price.
 
 And the math is friendly. A recovered lead — a homeowner who was *already on your site* — costs a flat **$7**, exclusive to you, never resold to two other handymen down the road. Compare that to the time and ad money you spend chasing brand-new clicks. You're not buying more traffic; you're keeping the traffic the season handed you.
 

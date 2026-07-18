@@ -22,12 +22,12 @@ tldr: "Angi and Thumbtack run a shared-lead auction: the same homeowner is sold 
 key_takeaways: "On Angi and Thumbtack the same homeowner is sold to 4–5 contractors, so you're bidding on a job before you've said a word. The fastest responder usually wins, so a shared lead is a race you paid to enter. A recovered exclusive lead goes only to you — no auction, no footrace. Compare cost per booked job, not the sticker price, and the exclusive lead usually wins."
 recap: "Angi and Thumbtack sell the same homeowner to a crowd, so the cheap sticker hides a five-way bidding war. An exclusive lead recovered from your own site is yours alone at a flat $7 — and it comes with a consent record the platforms can't give you."
 sources:
-  - label: "Pipeline On — Angi cost per lead ($15–$100+) and shared-lead pricing"
-    url: "https://pipelineon.com/blog/is-thumbtack-worth-it/"
-  - label: "Pipeline On — Thumbtack cost per lead and pros per shared lead (4–5)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "HouseCall Pro — Angi cost per lead ($15–$100+) and shared-lead pricing"
+    url: "https://www.housecallpro.com/resources/angi-formerly-angies-list-competitors-sites-like-angi/"
+  - label: "HomeServiceDirect — Thumbtack cost per lead and pros per shared lead (4–5)"
+    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "FTC — HomeAdvisor settlement ($7.2M)"
     url: "https://www.ftc.gov/news-events/news/press-releases/2023/01/ftc-order-requires-homeadvisor-pay-72-million-stop-deceptively-marketing-its-leads-home-improvement"
 related:
@@ -60,7 +60,7 @@ That's the shared-lead model in a sentence. The platforms are very good at quoti
 
 ## How the shared-lead auction actually prices you
 
-Here's where the math goes sideways. On Angi, a lead [runs roughly $15 to $100+ plus a $300–$500 annual membership](https://pipelineon.com/blog/is-thumbtack-worth-it/), charged whether the customer answers or not. Thumbtack lands in a similar place per lead — and on these platforms the same project [typically gets sent to 4–5 pros](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) at once.
+Here's where the math goes sideways. On Angi, a lead [runs roughly $15 to $100+ plus a $300–$500 annual membership](https://www.homeservicedirect.net/how-to-get-leads-flooring-business/), charged whether the customer answers or not. Thumbtack lands in a similar place per lead — and on these platforms the same project [typically gets sent to 4–5 pros](https://www.homeservicedirect.net/how-to-get-leads-flooring-business/) at once.
 
 So before you've said a word, your realistic odds on any one lead are about one in five. Pay $50 for a lead you have a one-in-five shot at, and your real cost isn't $50 — it's $250 per *booked job*, assuming everything else goes perfectly. The auction sells you on cost-per-lead because [cost-per-job](/resources/glossary/#cost-per-lead) is the number that would make you close the tab.
 
@@ -68,7 +68,7 @@ So before you've said a word, your realistic odds on any one lead are about one 
 
 It depends on the math you run, but once you count booked jobs instead of raw leads, an exclusive lead almost always wins.
 
-The shared-lead auction has a second trap underneath the first: speed. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. So a shared lead isn't just a five-way split; it's a five-way *footrace*, and four of you lose after already paying to enter. You can do everything right and still come in second to whoever happened to be standing by their phone.
+The shared-lead auction has a second trap underneath the first: speed. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. So a shared lead isn't just a five-way split; it's a five-way *footrace*, and four of you lose after already paying to enter. You can do everything right and still come in second to whoever happened to be standing by their phone.
 
 An exclusive lead removes the auction entirely. It goes to one contractor — you. There's no crowd dialing the same number, no homeowner already half-annoyed by quote four. That's why it pays to understand [what an exclusive lead is actually worth to your shop](/resources/blog/what-exclusive-lead-is-worth-2/) before you judge any lead on its sticker price.
 

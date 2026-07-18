@@ -24,8 +24,8 @@ recap: "Your best customers shop in laps, not sprints — three visits before th
 sources:
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT — lead response study (21× within 5 minutes)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -72,7 +72,7 @@ It's email-grade and consent-first, so you're never cold-calling a phone number 
 
 ## Why being first matters more than being cheapest
 
-Here's the part that decides the whole thing: about [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the flashiest, the fastest. And speed compounds. The classic [MIT lead-response study](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) found that contacting a lead within five minutes makes you about **21× more likely** to qualify it than waiting past thirty.
+Here's the part that decides the whole thing: about [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the flashiest, the fastest. And speed compounds. The classic [MIT lead-response study](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) found that contacting a lead within five minutes makes you about **21× more likely** to qualify it than waiting past thirty.
 
 So when a captured visitor shows fresh interest, the shop that follows up *that day* — not next week — is usually the one that lands the job. The other contractors are still waiting for a call that's going to whoever moved first.
 

@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Spring ramp-up: catch the homeowners already pricing the job"
     url: "/resources/blog/spring-ramp-up-how-pest-control-pros-can-catch-the-homeowners-already-pricing-the-job/"
@@ -70,7 +70,7 @@ So the homeowner who priced a wasp treatment at lunch and got pulled back to wor
 
 ## Why the first follow-up wins the busy-season job
 
-Once you can reach them, getting there first decides it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, the fastest. In peak season that's doubly true, because a homeowner with a live pest problem wants it gone *now* and will go with whoever responds first. Many of those jobs also turn into recurring [pest control plans](/pest-control-leads/) — so a recovered summer lead can be worth far more than a single treatment.
+Once you can reach them, getting there first decides it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, the fastest. In peak season that's doubly true, because a homeowner with a live pest problem wants it gone *now* and will go with whoever responds first. Many of those jobs also turn into recurring [pest control plans](/pest-control-leads/) — so a recovered summer lead can be worth far more than a single treatment.
 
 And it's cheap leverage at high volume. Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is exclusive to you — never resold to the other crews working the same busy season.
 

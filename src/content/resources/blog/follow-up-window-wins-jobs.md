@@ -24,8 +24,8 @@ recap: "There's a short window after interest where a job is yours to win — an
 sources:
   - label: "MIT Lead Response study — 21× within 5 minutes"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Missed calls are costing you jobs"
     url: "/resources/blog/missed-calls-cost-you-jobs/"
@@ -58,7 +58,7 @@ Most owners treat follow-up as a "when I get to it" task. The ones who win treat
 
 The decay is steeper than it feels. Contacting a lead within five minutes makes you about [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting until after thirty minutes. Not 21% more — 21 times. The intent that was burning at minute one is mostly gone by the time you'd normally get around to calling back.
 
-And the prize goes to the quick. About [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/). So the window isn't just about qualifying — it's about who books the job. First in, more often than not, wins.
+And the prize goes to the quick. About [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/). So the window isn't just about qualifying — it's about who books the job. First in, more often than not, wins.
 
 ## How do you hit a five-minute window while you're on a job?
 

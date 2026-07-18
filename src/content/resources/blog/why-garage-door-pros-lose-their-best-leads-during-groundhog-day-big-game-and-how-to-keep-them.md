@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "ConvertCart — email recovery rate (20%)"
     url: "https://www.convertcart.com/blog/cart-abandonment-rate-statistics"
   - label: "Klaviyo — recovery email open rate (45%)"
@@ -76,7 +76,7 @@ So the homeowner who priced a spring replacement during halftime and didn't call
 
 ## Why the first reply beats the lowest price
 
-Once you can reach them, getting there first is the whole game. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. With a door that won't open, urgency is everything; people book whoever shows up ready to help. When you're the only garage door shop that followed up, you're not in a price fight. You're the one who answered.
+Once you can reach them, getting there first is the whole game. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. With a door that won't open, urgency is everything; people book whoever shows up ready to help. When you're the only garage door shop that followed up, you're not in a price fight. You're the one who answered.
 
 And it's cheap leverage. Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is [exclusive](/resources/glossary/#exclusive-lead) to you — never resold to two competitors across town. Brand-new clicks only get pricier as more shops bid up the same repair keywords.
 

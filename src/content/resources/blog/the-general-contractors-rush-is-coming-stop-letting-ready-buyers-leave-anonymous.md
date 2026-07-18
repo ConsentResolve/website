@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "The general contractors rush — holiday slowdown angle"
     url: "/resources/blog/the-general-contractors-rush-is-coming-stop-letting-ready-buyers-leave-anonymous-2/"
@@ -70,7 +70,7 @@ So the homeowner who spent ten minutes on your kitchen-remodel page Thursday and
 
 ## Why the first builder to reply usually wins
 
-Once you can reach them, getting there first matters as much as your portfolio. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest bid, the fastest reply. For a big remodel, the GC who follows up while the homeowner is still excited gets the first walkthrough, and the first walkthrough usually gets the contract.
+Once you can reach them, getting there first matters as much as your portfolio. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest bid, the fastest reply. For a big remodel, the GC who follows up while the homeowner is still excited gets the first walkthrough, and the first walkthrough usually gets the contract.
 
 That's cheap leverage on a season you're already paying to reach: recovering a homeowner who was *already pricing a project on your site* costs a flat **$7**, exclusive to you and never resold to competing builders. The sourced numbers behind all of this are on our [stats page](/stats/).
 

@@ -3,7 +3,7 @@ title: "How to Win Google Local Service Ads Without Overpaying"
 slug: "win-google-local-service-ads"
 resource_type: "how-to-guide"
 status: "ready_to_publish"
-author: "Consent Resolve Team"
+author: "Aaron Phillips"
 featured_image: "/images/resources/how-to-guides/win-google-local-service-ads-featured.png"
 excerpt: "Local Service Ads put you above the Map Pack with a Google Guaranteed badge, and you only pay for real leads. Here is how to run them lean instead of bleeding budget on bad leads you never dispute."
 published_at: 2026-06-09

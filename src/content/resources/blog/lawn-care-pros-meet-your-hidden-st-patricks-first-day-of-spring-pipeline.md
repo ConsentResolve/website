@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Earth Day: turn lawn care lookers into booked jobs"
     url: "/resources/blog/earth-day-turn-lawn-care-website-lookers-into-booked-jobs-on-the-same-ad-budget/"
@@ -70,7 +70,7 @@ So the homeowner who priced a weekly mow on Saturday morning and never reached o
 
 ## Why being first beats being cheapest
 
-Once you can actually reach them, speed decides the rest. [78% of homeowners hire whichever contractor responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the lowest bid, not the most reviews, the fastest reply. When you're the only lawn service that followed up with a ready buyer, you've stepped out of the price fight entirely. You're simply the one who showed up.
+Once you can actually reach them, speed decides the rest. [78% of homeowners hire whichever contractor responds first](https://www.vendasta.com/blog/lead-response-time/) — not the lowest bid, not the most reviews, the fastest reply. When you're the only lawn service that followed up with a ready buyer, you've stepped out of the price fight entirely. You're simply the one who showed up.
 
 And the math is friendly. You can connect this kind of [retargeting and follow-up](/features/instant-retarget/) to the route you already run. Recovering a homeowner who was *already on your site* costs a flat **$7**, and that contact is yours alone — never sold to the two competitors down the road. You can see the full evidence behind these recovery numbers on our [stats page](/stats/).
 

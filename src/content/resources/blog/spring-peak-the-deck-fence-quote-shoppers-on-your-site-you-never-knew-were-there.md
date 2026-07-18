@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "Pre-Memorial-Day: the quiet reason your deck & fence phone isn't ringing"
     url: "/resources/blog/pre-memorial-day-the-quiet-reason-your-deck-fence-phone-isnt-ringing-enough/"
@@ -70,7 +70,7 @@ So the homeowner who priced a composite deck on a Sunday night and never reached
 
 ## Why being first beats being cheapest
 
-Once you can reach them, speed wins the build. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the lowest bid, not the most reviews, the fastest reply. On a considered purchase like this, a single thoughtful email while they're still dreaming can put you at the front of the line.
+Once you can reach them, speed wins the build. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the lowest bid, not the most reviews, the fastest reply. On a considered purchase like this, a single thoughtful email while they're still dreaming can put you at the front of the line.
 
 And it's cheap leverage. You can fold this recovery into the [retargeting and follow-up](/features/instant-retarget/) you already run. Recovering a homeowner who was *already on your site* costs a flat **$7**, exclusive to you — never resold to the two builders across town. The evidence behind these recovery numbers is all on our [stats page](/stats/).
 

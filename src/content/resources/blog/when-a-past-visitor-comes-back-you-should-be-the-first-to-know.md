@@ -22,8 +22,8 @@ tldr: "A return website visit is one of the strongest buying signals a homeowner
 key_takeaways: "A homeowner who comes back to your site has usually narrowed their list and is close to choosing — which makes a return visit a signal worth acting on fast. Most homeowners hire whoever responds first, and lead-response research shows the odds of qualifying a lead fall sharply the longer you wait. Consent-first, multi-channel follow-up tells you when a consenting past visitor returns so you can email them in time, instead of finding out days later when the job's already gone."
 recap: "A return visit means a homeowner is close to deciding. Being the first to know — and the first to follow up by email — is how you win the job, because the fastest responder usually does. Consent-first alerts make that timing possible, with a record behind every contact."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT Lead Response study — 5-minute contact (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -74,7 +74,7 @@ You only ever hear about return visits from people who already accepted a visibl
 
 ## What the research says about being first
 
-This is where the numbers are unusually clear, and they're not borrowed from another industry — they're about contact speed directly. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the highest-rated, the fastest. And classic lead-response research found that contacting a fresh lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty minutes. That 21× is about how quickly you reach a *new* lead, not a promise of how many jobs you'll book — but it tells you exactly where the advantage lives. You can see both figures sourced on our [stats page](/stats/).
+This is where the numbers are unusually clear, and they're not borrowed from another industry — they're about contact speed directly. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the highest-rated, the fastest. And classic lead-response research found that contacting a fresh lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty minutes. That 21× is about how quickly you reach a *new* lead, not a promise of how many jobs you'll book — but it tells you exactly where the advantage lives. You can see both figures sourced on our [stats page](/stats/).
 
 Put those together and the lesson is plain: when a ready buyer signals interest, minutes matter, and the contractor who shows up first usually wins.
 

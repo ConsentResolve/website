@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "ConvertCart — email follow-up recovery rate (20%)"
     url: "https://www.convertcart.com/blog/cart-abandonment-rate-statistics"
   - label: "BigSur AI / Wiser — conversion lift from personalized outreach (26%)"
@@ -74,7 +74,7 @@ The beauty for a one-truck or small-crew operation is timing. You don't have to 
 
 ## Why following up first still wins
 
-Even when you reply at the end of the day, getting there ahead of the next shop matters. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/), not the cheapest or the highest-rated. If you're the only mobile car-service pro who circled back to a ready customer, you've skipped the price comparison. You're just the one who followed through.
+Even when you reply at the end of the day, getting there ahead of the next shop matters. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/), not the cheapest or the highest-rated. If you're the only mobile car-service pro who circled back to a ready customer, you've skipped the price comparison. You're just the one who followed through.
 
 And it's cheap leverage. That customer was *already on your site*, so you don't pay again to bring them back — a recovered, consented lead is a flat **$7**, exclusive to you and never resold to three competitors chasing the same driveway.
 

@@ -22,8 +22,8 @@ tldr: "CRM delivery sends each recovered website lead straight into the system y
 key_takeaways: "A recovered lead only pays off if it reaches the place where your follow-up actually happens. CRM delivery hands every consented visitor straight into the tool your team already uses, so the lead joins your existing sequence instead of waiting in a side inbox. That closes the gap between capture and contact — and since the fastest responder usually wins, closing that gap is how recovered visitors turn into booked jobs."
 recap: "A lead in a spreadsheet is a lead you'll forget. Deliver it straight into the CRM you already run and your follow-up starts itself — fast, consistent, and where your team can actually see it."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT Lead Response study — 21x odds within 5 minutes"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -68,7 +68,7 @@ That means the follow-up you've *already* built — the welcome email, the remin
 
 ## Why the hand-off decides the outcome
 
-Speed is why this matters so much. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — and being early pays steeply: reaching a lead within five minutes makes you [21 times](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) more likely to qualify it than waiting past thirty. That number comes from cross-industry lead-response research, so read it as the shape of the advantage rather than a guarantee — but the takeaway is plain: a lead that lands in your CRM and triggers an automatic email beats a lead waiting in a spreadsheet for someone to notice it. Clean delivery is how you stay first. The figures are all sourced on our [stats page](/stats/).
+Speed is why this matters so much. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — and being early pays steeply: reaching a lead within five minutes makes you [21 times](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) more likely to qualify it than waiting past thirty. That number comes from cross-industry lead-response research, so read it as the shape of the advantage rather than a guarantee — but the takeaway is plain: a lead that lands in your CRM and triggers an automatic email beats a lead waiting in a spreadsheet for someone to notice it. Clean delivery is how you stay first. The figures are all sourced on our [stats page](/stats/).
 
 ## Setting up a clean hand-off
 

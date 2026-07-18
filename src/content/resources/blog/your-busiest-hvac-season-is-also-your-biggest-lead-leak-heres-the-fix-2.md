@@ -26,8 +26,8 @@ sources:
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
   - label: "Spectrum Infinite — average time on site (87 seconds)"
     url: "https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/"
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "HomeServiceDirect — LSA cost per lead by trade"
     url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/"
 related:
@@ -76,7 +76,7 @@ Because it lands as a clean email contact, it drops straight into the system you
 
 ## Why being first beats being cheapest
 
-Once you can reach the panicked shopper, speed decides it. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest quote, not the most reviews, the fastest. In a no-heat emergency that's the entire game: the homeowner is choosing warmth, and warmth means today. The shop that follows up first rarely argues about price.
+Once you can reach the panicked shopper, speed decides it. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest quote, not the most reviews, the fastest. In a no-heat emergency that's the entire game: the homeowner is choosing warmth, and warmth means today. The shop that follows up first rarely argues about price.
 
 The economics make it easy. A fresh HVAC lead through Local Services Ads runs about **$45–$85** ([by trade](https://www.homeservicedirect.net/local-service-ads-for-contractors/): Plumbing $35–$65, Electrical $35–$70, Roofing $50–$95). Recovering a homeowner who was *already on your site* is a flat **$7**, exclusive to you, never resold to the competitors they had open in other tabs. You're not buying more demand during your busiest week — you're keeping the demand the cold snap already sent.
 

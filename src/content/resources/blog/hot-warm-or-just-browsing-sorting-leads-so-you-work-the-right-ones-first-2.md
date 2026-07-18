@@ -22,8 +22,8 @@ tldr: "Lead scoring ranks your incoming leads by how ready they are to buy — h
 key_takeaways: "A flat list of leads hides the difference between a ready buyer and an idle browser, so you waste your fastest hours on the wrong people. Scoring sorts that out — it routes your day to the hot leads first, while their intent is high. Since the first responder usually wins and the five-minute window matters most, working in score order isn't just tidy, it directly changes how many jobs you close."
 recap: "Don't work your leads in the order they arrived — work them in the order they're ready. Let scoring put the hot ones at the top of your day, hit the five-minute window, and respond before anyone else does."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT Lead Response study — contact within 5 minutes (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
 related:
@@ -72,7 +72,7 @@ The point isn't to ignore anyone. A just-browsing lead today can become a hot le
 
 ## Why working in score order books more jobs
 
-The reason this matters so much comes down to two stubborn facts about how homeowners buy. First, [78% of them hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/) — not the cheapest, not the most reviewed, the fastest. Second, the window is tight: reaching a lead within five minutes makes you about [21× more likely to qualify them](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting until after thirty.
+The reason this matters so much comes down to two stubborn facts about how homeowners buy. First, [78% of them hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/) — not the cheapest, not the most reviewed, the fastest. Second, the window is tight: reaching a lead within five minutes makes you about [21× more likely to qualify them](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting until after thirty.
 
 Put those together and the workflow writes itself. If speed wins and the window is short, you cannot afford to spend it on browsers. Scoring routes your fastest response to the leads most likely to convert, so the people who'd hire whoever calls first hear from *you* first. Every figure here is sourced on our [stats page](/stats/).
 

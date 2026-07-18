@@ -22,8 +22,8 @@ tldr: "When a past visitor returns to your site, it's often a sign the project t
 key_takeaways: "A returning visitor is a homeowner reconsidering a project they once put off — and the first contractor to respond usually books it. Spring cleaning pushes shelved jobs back to the top of the list, so old visitors quietly return to price them again. Knowing the moment a consented visitor comes back lets you follow up by email while it's warm, with the audit trail to back it up."
 recap: "Spring cleaning sends last fall's browsers back to your site to revisit the jobs they shelved. Be the first to know when a consented visitor returns, follow up fast by email, and you turn a quiet second visit into a booked job."
 sources:
-  - label: "Pipeline On — first responder wins (78%)"
-    url: "https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/"
+  - label: "Vendasta — first responder wins (78%)"
+    url: "https://www.vendasta.com/blog/lead-response-time/"
   - label: "MIT — odds of qualifying within 5 minutes (21×)"
     url: "https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf"
   - label: "ConvertCart — recovery rate with email follow-up (20%)"
@@ -68,7 +68,7 @@ So the warmest lead you'll get all spring — a homeowner who already considered
 
 This is the job of [multi-channel follow-up](/resources/glossary/#multi-channel-follow-up) built on consent-first identification. When a consented visitor returns to your site, [Consent Resolve](/features/multi-channel-follow-up/) flags it and feeds your follow-up automatically — you find out a known contact is back *while they're still browsing*, not in next week's report. No watching dashboards, no guessing.
 
-That head start is the whole advantage, because speed decides these. [78% of homeowners hire the contractor who responds first](https://pipelineon.com/blog/how-much-does-thumbtack-charge-per-lead/), and reaching out within five minutes gives you [21× better odds of qualifying the lead](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting half an hour. A returning visitor is already leaning your way; being first to greet them is how you close the gap.
+That head start is the whole advantage, because speed decides these. [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/), and reaching out within five minutes gives you [21× better odds of qualifying the lead](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting half an hour. A returning visitor is already leaning your way; being first to greet them is how you close the gap.
 
 ## Why following up the second visit pays off
 
