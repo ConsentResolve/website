@@ -2,7 +2,7 @@
 title: "The Referral Engine That Runs Itself"
 slug: "referral-engine-that-runs-itself"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Jason Beyke"
 author_slug: "jason-beyke"
 article_section: "Operations"

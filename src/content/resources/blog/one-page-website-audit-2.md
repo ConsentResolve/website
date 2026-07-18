@@ -2,7 +2,7 @@
 title: "The One-Page Website Audit Every Contractor Should Run This Quarter"
 slug: "one-page-website-audit-2"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Marketing"

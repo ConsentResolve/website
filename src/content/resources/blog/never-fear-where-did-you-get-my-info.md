@@ -2,7 +2,7 @@
 title: "'Where Did You Get My Info?' — Never Fear That Question Again"
 slug: "never-fear-where-did-you-get-my-info"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Andy Mentges"
 author_slug: "andy-mentges"
 reviewer_slug: "stefan-dimitrov"

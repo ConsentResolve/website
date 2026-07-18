@@ -2,7 +2,7 @@
 title: "Lawn Care Pros, Meet Your Hidden First-Day-of-Spring Pipeline"
 slug: "lawn-care-pros-meet-your-hidden-st-patricks-first-day-of-spring-pipeline"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Trade Spotlight"

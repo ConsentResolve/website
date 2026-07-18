@@ -2,7 +2,7 @@
 title: "What Is Pay-Per-Lead?"
 slug: "what-is-pay-per-lead"
 resource_type: "plain-language-explainer"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 hide_byline: true
 published_at: 2026-06-09

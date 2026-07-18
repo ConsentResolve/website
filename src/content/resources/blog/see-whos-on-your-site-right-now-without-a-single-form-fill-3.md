@@ -2,7 +2,7 @@
 title: "See Who's on Your Site Right Now — Without a Single Form Fill"
 slug: "see-whos-on-your-site-right-now-without-a-single-form-fill-3"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Stefan Dimitrov"
 author_slug: "stefan-dimitrov"
 article_section: "Feature Deep-Dive"

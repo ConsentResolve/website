@@ -2,7 +2,7 @@
 title: "What Is PPC (Pay-Per-Click)?"
 slug: "what-is-ppc"
 resource_type: "plain-language-explainer"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 hide_byline: true
 published_at: 2026-06-09

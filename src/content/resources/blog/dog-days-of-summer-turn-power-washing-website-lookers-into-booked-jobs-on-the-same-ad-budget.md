@@ -2,7 +2,7 @@
 title: "Dog Days of Summer: Turn Power Washing Website Lookers Into Booked Jobs on the Same Ad Budget"
 slug: "dog-days-of-summer-turn-power-washing-website-lookers-into-booked-jobs-on-the-same-ad-budget"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

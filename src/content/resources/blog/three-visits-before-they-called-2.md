@@ -2,7 +2,7 @@
 title: "Why Your Best Customers Visited Three Times Before They Called"
 slug: "three-visits-before-they-called-2"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Operations"

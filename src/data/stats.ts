@@ -350,6 +350,8 @@ export const SOURCE_GROUPS: SourceGroup[] = [
       { name: "Texas AG — Google $1.375B settlement", url: "https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-secures-historic-1375-billion-settlement-google-related-texans-data", note: "Location, search, and biometric tracking without consent." },
       { name: "Texas AG — Allstate/Arity TDPSA suit", url: "https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-sues-allstate-and-arity-unlawfully-collecting-using-and-selling-over-45", note: "First-ever enforcement suit under a comprehensive state data-privacy law (Jan 2025)." },
       { name: "CA Civil Code §1798.155 — CCPA", url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.155" },
+      { name: "California Privacy Protection Agency (CPPA)", url: "https://cppa.ca.gov/", note: "The state agency that enforces the CCPA/CPRA and issues privacy regulations." },
+      { name: "FCC — Stop Unwanted Robocalls & Texts", url: "https://www.fcc.gov/consumers/guides/stop-unwanted-robocalls-and-texts", note: "Federal Communications Commission consumer guidance on robocall/robotext consent rules." },
       { name: "GDPR Info — Fines", url: "https://gdpr-info.eu/issues/fines-penalties/" },
     ],
   },

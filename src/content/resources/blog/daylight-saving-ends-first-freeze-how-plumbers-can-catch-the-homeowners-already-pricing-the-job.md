@@ -2,7 +2,7 @@
 title: "Daylight Saving Ends & First Freeze: How Plumbers Can Catch the Homeowners Already Pricing the Job"
 slug: "daylight-saving-ends-first-freeze-how-plumbers-can-catch-the-homeowners-already-pricing-the-job"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

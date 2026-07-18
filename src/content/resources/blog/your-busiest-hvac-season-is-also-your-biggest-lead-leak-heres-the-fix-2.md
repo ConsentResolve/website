@@ -2,7 +2,7 @@
 title: "Your Busiest HVAC Season Is Also Your Biggest Lead Leak — Here's the Fix"
 slug: "your-busiest-hvac-season-is-also-your-biggest-lead-leak-heres-the-fix-2"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Trade Spotlight"

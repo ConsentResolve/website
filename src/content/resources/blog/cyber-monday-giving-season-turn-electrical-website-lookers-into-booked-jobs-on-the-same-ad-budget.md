@@ -2,7 +2,7 @@
 title: "Cyber Monday: Turn Electrical Website Lookers Into Booked Jobs on the Same Ad Budget"
 slug: "cyber-monday-giving-season-turn-electrical-website-lookers-into-booked-jobs-on-the-same-ad-budget"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

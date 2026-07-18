@@ -2,7 +2,7 @@
 title: "Local SEO for Service Pros, Explained Like You're Busy (Because You Are)"
 slug: "local-seo-for-busy-pros-2"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Marketing"

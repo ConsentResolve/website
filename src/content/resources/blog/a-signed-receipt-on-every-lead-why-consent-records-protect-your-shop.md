@@ -2,7 +2,7 @@
 title: "A Signed Receipt on Every Lead: Why Consent Records Protect Your Shop"
 slug: "a-signed-receipt-on-every-lead-why-consent-records-protect-your-shop"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Stefan Dimitrov"
 author_slug: "stefan-dimitrov"
 article_section: "Feature Deep-Dive"

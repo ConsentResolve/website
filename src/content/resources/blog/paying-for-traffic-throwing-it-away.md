@@ -2,7 +2,7 @@
 title: "You're Paying for Traffic and Throwing Most of It Away"
 slug: "paying-for-traffic-throwing-it-away"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Lead Generation"

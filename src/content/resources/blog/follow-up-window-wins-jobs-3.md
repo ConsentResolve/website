@@ -2,7 +2,7 @@
 title: "The Follow-Up Window That Decides Whether You Win the Job"
 slug: "follow-up-window-wins-jobs-3"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Operations"

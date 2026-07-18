@@ -2,7 +2,7 @@
 title: "How to Get More 5-Star Reviews Without Begging for Them"
 slug: "get-more-reviews-without-begging-3"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Marketing"

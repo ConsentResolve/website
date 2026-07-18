@@ -13,3 +13,8 @@ scripts/.cache/
 # Apollo lead exports — contain PII, never commit
 apollo-contacts-export*.csv
 *.scored.csv
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.astro/

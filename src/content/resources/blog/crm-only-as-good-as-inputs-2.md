@@ -2,7 +2,7 @@
 title: "Your CRM Is Only as Good as What You Put Into It"
 slug: "crm-only-as-good-as-inputs-2"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Marketing"

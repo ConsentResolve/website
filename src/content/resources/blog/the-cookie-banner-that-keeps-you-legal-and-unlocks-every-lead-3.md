@@ -2,7 +2,7 @@
 title: "The Cookie Banner That Keeps You Legal — and Unlocks Every Lead"
 slug: "the-cookie-banner-that-keeps-you-legal-and-unlocks-every-lead-3"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Stefan Dimitrov"
 author_slug: "stefan-dimitrov"
 article_section: "Feature Deep-Dive"

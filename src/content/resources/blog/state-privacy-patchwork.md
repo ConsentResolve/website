@@ -2,7 +2,7 @@
 title: "State Privacy Laws Are a Patchwork — Here's How to Stay Covered"
 slug: "state-privacy-patchwork"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Andy Mentges"
 author_slug: "andy-mentges"
 reviewer_slug: "stefan-dimitrov"

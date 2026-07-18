@@ -2,7 +2,7 @@
 title: "Your Website Is a Storefront With the Lights Off"
 slug: "website-storefront-lights-off"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Marketing"

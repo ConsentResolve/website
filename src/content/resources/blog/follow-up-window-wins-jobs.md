@@ -2,7 +2,7 @@
 title: "The Follow-Up Window That Wins Jobs"
 slug: "follow-up-window-wins-jobs"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Jason Beyke"
 author_slug: "jason-beyke"
 article_section: "Operations"

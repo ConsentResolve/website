@@ -2,7 +2,7 @@
 title: "Capturing the 98% Who Will Never Fill Out Your Form"
 slug: "capturing-the-98-who-will-never-fill-out-your-form-5"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Stefan Dimitrov"
 author_slug: "stefan-dimitrov"
 article_section: "Feature Deep-Dive"

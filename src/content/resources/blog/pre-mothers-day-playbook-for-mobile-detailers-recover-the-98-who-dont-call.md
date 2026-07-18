@@ -2,7 +2,7 @@
 title: "Pre-Mother's Day: A Mobile Detailer's Playbook to Recover the 98% Who Don't Call"
 slug: "pre-mothers-day-playbook-for-mobile-detailers-recover-the-98-who-dont-call"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

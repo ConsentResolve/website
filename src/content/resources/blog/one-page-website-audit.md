@@ -2,7 +2,7 @@
 title: "The One-Page Website Audit for Busy Contractors"
 slug: "one-page-website-audit"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Marketing"

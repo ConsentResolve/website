@@ -2,7 +2,7 @@
 title: "Hot, Warm, or Just Browsing — Sorting Leads So You Work the Right Ones First"
 slug: "hot-warm-or-just-browsing-sorting-leads-so-you-work-the-right-ones-first-5"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Jason Beyke"
 author_slug: "jason-beyke"
 article_section: "Feature Deep-Dive"

@@ -2,7 +2,7 @@
 title: "The Roofing Rush Is Coming — Stop Letting Ready Buyers Leave Anonymous"
 slug: "the-roofing-rush-is-coming-stop-letting-ready-buyers-leave-anonymous"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

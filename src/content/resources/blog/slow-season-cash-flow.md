@@ -2,7 +2,7 @@
 title: "Slow-Season Cash Flow: Reaching the Visitors You Already Paid For"
 slug: "slow-season-cash-flow"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Jason Beyke"
 author_slug: "jason-beyke"
 article_section: "Operations"

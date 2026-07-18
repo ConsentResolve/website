@@ -2,7 +2,7 @@
 title: "What Every House Cleaning Pro Should Know About the Shoppers Who Visit and Vanish"
 slug: "what-every-house-cleaning-pro-should-know-about-the-shoppers-who-visit-and-vanish"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

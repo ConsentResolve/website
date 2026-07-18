@@ -2,7 +2,7 @@
 title: "Angi, Thumbtack, and the Math of Shared Leads vs. Exclusive Ones"
 slug: "shared-vs-exclusive-leads-math-3"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Marketing"

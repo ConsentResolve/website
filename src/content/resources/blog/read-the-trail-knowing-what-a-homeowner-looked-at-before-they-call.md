@@ -2,7 +2,7 @@
 title: "Read the Trail: Knowing What a Homeowner Looked At Before They Call"
 slug: "read-the-trail-knowing-what-a-homeowner-looked-at-before-they-call"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Jason Beyke"
 author_slug: "jason-beyke"
 article_section: "Feature Deep-Dive"

@@ -2,7 +2,7 @@
 title: "Plumbers, Meet Your Hidden New-Year Planning & Resolutions Pipeline"
 slug: "plumbers-meet-your-hidden-new-year-planning-resolutions-pipeline"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Trade Spotlight"

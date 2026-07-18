@@ -2,7 +2,7 @@
 title: "What Is SMS Marketing for Contractors?"
 slug: "what-is-sms-marketing-for-contractors"
 resource_type: "plain-language-explainer"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 hide_byline: true
 published_at: 2026-06-09

@@ -2,7 +2,7 @@
 title: "What Every HVAC Pro Should Know About the Shoppers Who Visit and Vanish"
 slug: "what-every-hvac-pro-should-know-about-the-shoppers-who-visit-and-vanish"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Trade Spotlight"

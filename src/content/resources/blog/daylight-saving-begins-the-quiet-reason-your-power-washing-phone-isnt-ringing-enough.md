@@ -2,7 +2,7 @@
 title: "Daylight Saving Begins: The Quiet Reason Your Power Washing Phone Isn't Ringing Enough"
 slug: "daylight-saving-begins-the-quiet-reason-your-power-washing-phone-isnt-ringing-enough"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

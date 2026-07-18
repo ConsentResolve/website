@@ -2,7 +2,7 @@
 title: "The Painting Rush Is Coming — Stop Letting Ready Buyers Leave Anonymous"
 slug: "the-painting-rush-is-coming-stop-letting-ready-buyers-leave-anonymous"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Trade Spotlight"

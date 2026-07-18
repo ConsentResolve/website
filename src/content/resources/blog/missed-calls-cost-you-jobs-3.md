@@ -2,7 +2,7 @@
 title: "Missed Calls Are Costing You Jobs — Here's the Cheapest Fix"
 slug: "missed-calls-cost-you-jobs-3"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Operations"

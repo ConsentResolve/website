@@ -2,7 +2,7 @@
 title: "From Anonymous Visitor to Your CRM in One Clean Hand-Off"
 slug: "from-anonymous-visitor-to-your-crm-in-one-clean-hand-off"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Jason Beyke"
 author_slug: "jason-beyke"
 article_section: "Feature Deep-Dive"

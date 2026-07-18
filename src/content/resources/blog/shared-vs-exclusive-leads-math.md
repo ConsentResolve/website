@@ -2,7 +2,7 @@
 title: "Shared vs. Exclusive Leads: The Math Every Contractor Should Run"
 slug: "shared-vs-exclusive-leads-math"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Marketing"

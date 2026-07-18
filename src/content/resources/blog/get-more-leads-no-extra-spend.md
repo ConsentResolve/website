@@ -2,7 +2,7 @@
 title: "Get More Leads Without Spending Another Dollar on Ads"
 slug: "get-more-leads-no-extra-spend"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Lead Generation"

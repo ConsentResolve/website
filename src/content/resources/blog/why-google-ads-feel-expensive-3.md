@@ -2,7 +2,7 @@
 title: "The Real Reason Your Google Ads Feel Expensive (It's Not the Click)"
 slug: "why-google-ads-feel-expensive-3"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Marketing"

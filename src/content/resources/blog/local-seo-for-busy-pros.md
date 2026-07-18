@@ -2,7 +2,7 @@
 title: "Local SEO for Busy Pros: The 20% That Actually Moves the Needle"
 slug: "local-seo-for-busy-pros"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Marketing"

@@ -2,7 +2,7 @@
 title: "The 98% Problem: Most Visitors Leave and You Never Knew"
 slug: "the-98-percent-problem-2"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Lead Generation"

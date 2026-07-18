@@ -2,7 +2,7 @@
 title: "Pre-Thanksgiving: The House Cleaning Quote-Shoppers on Your Site You Never Knew Were There"
 slug: "pre-thanksgiving-the-house-cleaning-quote-shoppers-on-your-site-you-never-knew-were-there"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

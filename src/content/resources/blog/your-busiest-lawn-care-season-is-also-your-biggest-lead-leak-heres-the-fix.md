@@ -2,7 +2,7 @@
 title: "Your Busiest Lawn Care Season Is Also Your Biggest Lead Leak — Here's the Fix"
 slug: "your-busiest-lawn-care-season-is-also-your-biggest-lead-leak-heres-the-fix"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

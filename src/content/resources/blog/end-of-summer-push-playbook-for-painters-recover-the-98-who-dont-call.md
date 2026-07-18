@@ -2,7 +2,7 @@
 title: "End-of-Summer Push: A Painter's Playbook to Recover the 98% Who Don't Call"
 slug: "end-of-summer-push-playbook-for-painters-recover-the-98-who-dont-call"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

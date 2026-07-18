@@ -2,7 +2,7 @@
 title: "Why Appliance Repair Pros Lose Their Best Leads During Thanksgiving & Black Friday (And How to Keep Them)"
 slug: "why-appliance-repair-pros-lose-their-best-leads-during-thanksgiving-black-friday-and-how-to-keep-them"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Trade Spotlight"

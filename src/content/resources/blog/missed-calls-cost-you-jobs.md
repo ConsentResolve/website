@@ -2,7 +2,7 @@
 title: "Missed Calls Are Costing You Jobs — Here's How to Stop the Bleed"
 slug: "missed-calls-cost-you-jobs"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Jason Beyke"
 author_slug: "jason-beyke"
 article_section: "Operations"

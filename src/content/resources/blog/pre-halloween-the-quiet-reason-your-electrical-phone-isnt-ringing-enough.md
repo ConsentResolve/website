@@ -2,7 +2,7 @@
 title: "Pre-Halloween: The Quiet Reason Your Electrical Phone Isn't Ringing Enough"
 slug: "pre-halloween-the-quiet-reason-your-electrical-phone-isnt-ringing-enough"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

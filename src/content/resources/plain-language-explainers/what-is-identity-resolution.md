@@ -2,7 +2,7 @@
 title: "What Is Identity Resolution?"
 slug: "what-is-identity-resolution"
 resource_type: "plain-language-explainer"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 hide_byline: true
 published_at: 2026-06-09

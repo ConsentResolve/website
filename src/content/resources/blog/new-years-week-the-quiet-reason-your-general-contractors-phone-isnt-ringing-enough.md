@@ -2,7 +2,7 @@
 title: "New Year's Week: The Quiet Reason Your General Contractor Phone Isn't Ringing Enough"
 slug: "new-years-week-the-quiet-reason-your-general-contractors-phone-isnt-ringing-enough"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

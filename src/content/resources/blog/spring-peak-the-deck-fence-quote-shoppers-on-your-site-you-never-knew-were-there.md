@@ -2,7 +2,7 @@
 title: "Spring Peak: The Deck & Fence Quote-Shoppers on Your Site You Never Knew Were There"
 slug: "spring-peak-the-deck-fence-quote-shoppers-on-your-site-you-never-knew-were-there"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

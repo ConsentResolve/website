@@ -2,7 +2,7 @@
 title: "Roofers, Meet Your Hidden Atlantic Hurricane-Peak Pipeline"
 slug: "roofers-meet-your-hidden-atlantic-hurricane-peak-pipeline"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

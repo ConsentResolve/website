@@ -2,7 +2,7 @@
 title: "Late-Summer Home Projects: The Quiet Reason Your Deck & Fence Phone Isn't Ringing Enough"
 slug: "late-summer-home-projects-the-quiet-reason-your-deck-fence-phone-isnt-ringing-enough"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

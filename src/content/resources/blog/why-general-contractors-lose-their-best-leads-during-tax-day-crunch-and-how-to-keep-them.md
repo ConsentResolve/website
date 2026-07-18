@@ -2,7 +2,7 @@
 title: "Why General Contractors Lose Their Best Leads During the Tax-Day Crunch (And How to Keep Them)"
 slug: "why-general-contractors-lose-their-best-leads-during-tax-day-crunch-and-how-to-keep-them"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Trade Spotlight"

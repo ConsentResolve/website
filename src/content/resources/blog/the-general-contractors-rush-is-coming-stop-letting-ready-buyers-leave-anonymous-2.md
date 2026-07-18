@@ -2,7 +2,7 @@
 title: "The General Contractors Rush Is Coming — Stop Letting Ready Buyers Leave Anonymous"
 slug: "the-general-contractors-rush-is-coming-stop-letting-ready-buyers-leave-anonymous-2"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Trade Spotlight"

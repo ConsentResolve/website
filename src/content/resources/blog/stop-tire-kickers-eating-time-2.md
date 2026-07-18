@@ -2,7 +2,7 @@
 title: "How to Stop Tire-Kickers From Eating Your Afternoon"
 slug: "stop-tire-kickers-eating-time-2"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Operations"

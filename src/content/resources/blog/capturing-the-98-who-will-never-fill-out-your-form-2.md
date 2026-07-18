@@ -2,7 +2,7 @@
 title: "Capturing the 98% Who Will Never Fill Out Your Form (A Closer Look)"
 slug: "capturing-the-98-who-will-never-fill-out-your-form-2"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Jason Beyke"
 author_slug: "jason-beyke"
 article_section: "Feature Deep-Dive"

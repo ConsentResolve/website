@@ -2,7 +2,7 @@
 title: "Pre-Memorial Day: The Quiet Reason Your Deck & Fence Phone Isn't Ringing Enough"
 slug: "pre-memorial-day-the-quiet-reason-your-deck-fence-phone-isnt-ringing-enough"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

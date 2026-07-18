@@ -2,7 +2,7 @@
 title: "Turn One Website Visit Into an Ad Audience That Books Jobs"
 slug: "turn-one-website-visit-into-an-ad-audience-that-books-jobs-4"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Feature Deep-Dive"

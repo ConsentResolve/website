@@ -2,7 +2,7 @@
 title: "Why Google Ads Feel So Expensive (and What to Do Instead)"
 slug: "why-google-ads-feel-expensive"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Marketing"

@@ -2,7 +2,7 @@
 title: "When a Past Visitor Comes Back, You Should Be the First to Know"
 slug: "when-a-past-visitor-comes-back-you-should-be-the-first-to-know-3"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Jason Beyke"
 author_slug: "jason-beyke"
 article_section: "Feature Deep-Dive"

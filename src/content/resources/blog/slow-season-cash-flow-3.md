@@ -2,7 +2,7 @@
 title: "Slow Season Cash Flow: Filling the Calendar Before It Empties"
 slug: "slow-season-cash-flow-3"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Jason Beyke"
 author_slug: "jason-beyke"
 article_section: "Operations"

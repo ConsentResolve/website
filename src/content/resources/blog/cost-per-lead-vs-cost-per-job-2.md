@@ -2,7 +2,7 @@
 title: "Cost Per Lead vs. Cost Per Job: The Number That Actually Matters"
 slug: "cost-per-lead-vs-cost-per-job-2"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Lead Generation"

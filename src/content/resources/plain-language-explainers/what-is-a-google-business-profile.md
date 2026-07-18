@@ -2,7 +2,7 @@
 title: "What Is a Google Business Profile (GBP)?"
 slug: "what-is-a-google-business-profile"
 resource_type: "plain-language-explainer"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 hide_byline: true
 published_at: 2026-06-09

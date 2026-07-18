@@ -2,7 +2,7 @@
 title: "TCPA in Plain English for Home-Service Owners"
 slug: "tcpa-plain-english-2"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Andy Mentges"
 author_slug: "andy-mentges"
 reviewer_slug: "stefan-dimitrov"

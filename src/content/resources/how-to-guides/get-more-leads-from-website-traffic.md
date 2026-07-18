@@ -2,7 +2,7 @@
 title: "How to Get More Leads From the Website Traffic You Already Have"
 slug: "get-more-leads-from-website-traffic"
 resource_type: "how-to-guide"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 featured_image: "/images/resources/how-to-guides/get-more-leads-from-website-traffic-featured.png"
 excerpt: "Most contractor websites convert under four percent of visitors, so you are paying for clicks and discarding the rest. Fix the leaks before you buy more traffic."

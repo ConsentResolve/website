@@ -2,7 +2,7 @@
 title: "Why Roofers Lose Their Best Leads During Peak Hurricane Season (And How to Keep Them)"
 slug: "why-roofers-lose-their-best-leads-during-peak-hurricane-season-and-how-to-keep-them"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 author_slug: "aaron-phillips"
 article_section: "Trade Spotlight"

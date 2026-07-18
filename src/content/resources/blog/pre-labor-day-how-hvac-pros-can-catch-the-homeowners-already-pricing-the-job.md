@@ -2,7 +2,7 @@
 title: "Pre-Labor Day: How HVAC Pros Can Catch the Homeowners Already Pricing the Job"
 slug: "pre-labor-day-how-hvac-pros-can-catch-the-homeowners-already-pricing-the-job"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

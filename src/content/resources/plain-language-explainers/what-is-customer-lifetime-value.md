@@ -2,7 +2,7 @@
 title: "What Is Customer Lifetime Value (LTV)?"
 slug: "what-is-customer-lifetime-value"
 resource_type: "plain-language-explainer"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 hide_byline: true
 published_at: 2026-06-09

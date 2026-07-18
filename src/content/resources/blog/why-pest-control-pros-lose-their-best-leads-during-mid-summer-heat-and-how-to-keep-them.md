@@ -2,7 +2,7 @@
 title: "Why Pest Control Pros Lose Their Best Leads in the Mid-Summer Heat — and How to Keep Them"
 slug: "why-pest-control-pros-lose-their-best-leads-during-mid-summer-heat-and-how-to-keep-them"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

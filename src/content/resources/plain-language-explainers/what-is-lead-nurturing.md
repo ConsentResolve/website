@@ -2,7 +2,7 @@
 title: "What Is Lead Nurturing?"
 slug: "what-is-lead-nurturing"
 resource_type: "plain-language-explainer"
-status: "ready_to_publish"
+status: "published"
 author: "Aaron Phillips"
 hide_byline: true
 published_at: 2026-06-09

@@ -2,7 +2,7 @@
 title: "Fall Home Prep: A Handyman's Playbook to Recover the 98% Who Don't Call"
 slug: "fall-home-prep-playbook-for-handymen-recover-the-98-who-dont-call"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

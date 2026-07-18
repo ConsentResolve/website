@@ -2,7 +2,7 @@
 title: "Independence Day: The HVAC Quote-Shoppers on Your Site You Never Knew Were There"
 slug: "independence-day-july-4-the-hvac-quote-shoppers-on-your-site-you-never-knew-were-there"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Tyler Spurlock"
 author_slug: "tyler-spurlock"
 article_section: "Trade Spotlight"

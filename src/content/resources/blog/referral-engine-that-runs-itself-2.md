@@ -2,7 +2,7 @@
 title: "How to Build a Referral Engine That Runs Without You"
 slug: "referral-engine-that-runs-itself-2"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Jason Beyke"
 author_slug: "jason-beyke"
 article_section: "Operations"

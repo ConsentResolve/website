@@ -2,7 +2,7 @@
 title: "See Who's on Your Site Right Now — Without a Single Form Fill (Field Guide)"
 slug: "see-whos-on-your-site-right-now-without-a-single-form-fill-2"
 resource_type: "blog"
-status: "ready_to_publish"
+status: "published"
 author: "Jason Beyke"
 author_slug: "jason-beyke"
 article_section: "Feature Deep-Dive"
