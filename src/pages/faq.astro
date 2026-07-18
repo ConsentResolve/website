@@ -30,19 +30,32 @@ const general = [
   { question: "Is my data safe?", answer: "Yes. Identification happens only after a consented yes, matched through a trusted, deterministic data source — no fingerprinting, no shadow tracking. Data is encrypted in transit and at rest, every consent carries an audit trail, and lead data goes to you alone — never resold, never auctioned." },
 ];
 
-// 2. By trade — the 3 trade-specific Q&As from each /[trade]-leads/ page.
+// Global dedupe by normalized question, first-occurrence wins. A single FAQPage
+// must not repeat a question (Google drops duplicates), and the same Q&A
+// shouldn't render twice on the page. General wins over trade, trade over
+// guides; the generic per-trade questions ("what's the cost?") collapse to one
+// entry while each trade's unique question is kept.
+const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const seen = new Set<string>();
+for (const q of general) seen.add(norm(q.question));
+
+// 2. By trade — the trade-specific Q&As from each /[trade]-leads/ page, deduped
+// against general and earlier trades. Trades left with no unique question drop out.
 const byTrade = INDUSTRIES.map((t) => ({
   name: t.name,
   href: `/${t.slug}-leads/`,
-  items: t.faqs.map((f) => ({ question: f.q, answer: f.a })),
-}));
+  items: t.faqs
+    .map((f) => ({ question: f.q, answer: f.a }))
+    .filter((f) => {
+      const k = norm(f.question);
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    }),
+})).filter((t) => t.items.length > 0);
 
-// 3. From our guides — every resource's faq_items, grouped by type, deduped.
-const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-const seen = new Set<string>();
-// Pre-seed with product + trade questions so the guides section never repeats them.
-for (const q of general) seen.add(norm(q.question));
-for (const t of byTrade) for (const q of t.items) seen.add(norm(q.question));
+// 3. From our guides — every resource's faq_items, grouped by type, deduped
+// against everything already shown above (seen is now general + kept trade Qs).
 
 // Only the evergreen, definitional content belongs in the hub — the questions
 // AI engines cite. Blog posts are narrower and already carry their own FAQPage

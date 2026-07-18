@@ -1,28 +1,82 @@
+# Non-public / non-content areas — kept out of every crawler's index.
+#   /demo/           interactive tool + fictional sample business
+#   /screenshot-demo/ raw anonymized product mockups (no chrome, not real pages)
+#   /crm,/admin      auth-gated dashboards (login pages waste crawl budget)
+#   /api/            JSON endpoints
+# Note: robots.txt has no group inheritance — a crawler obeys only its own
+# most-specific User-agent block — so these Disallows are repeated per AI group.
+
 User-agent: *
 Allow: /
-# Live demo (interactive tool + fictional sample business) — never index.
 Disallow: /demo/
+Disallow: /screenshot-demo/
+Disallow: /crm
+Disallow: /admin
+Disallow: /api/
 
-# AI crawlers — explicitly welcomed for citation
+# AI crawlers — explicitly welcomed for citation, same off-limits areas.
 User-agent: GPTBot
 Allow: /
+Disallow: /demo/
+Disallow: /screenshot-demo/
+Disallow: /crm
+Disallow: /admin
+Disallow: /api/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /demo/
+Disallow: /screenshot-demo/
+Disallow: /crm
+Disallow: /admin
+Disallow: /api/
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /demo/
+Disallow: /screenshot-demo/
+Disallow: /crm
+Disallow: /admin
+Disallow: /api/
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /demo/
+Disallow: /screenshot-demo/
+Disallow: /crm
+Disallow: /admin
+Disallow: /api/
 
 User-agent: Google-Extended
 Allow: /
+Disallow: /demo/
+Disallow: /screenshot-demo/
+Disallow: /crm
+Disallow: /admin
+Disallow: /api/
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /demo/
+Disallow: /screenshot-demo/
+Disallow: /crm
+Disallow: /admin
+Disallow: /api/
 
 User-agent: anthropic-ai
 Allow: /
+Disallow: /demo/
+Disallow: /screenshot-demo/
+Disallow: /crm
+Disallow: /admin
+Disallow: /api/
 
 User-agent: CCBot
 Allow: /
+Disallow: /demo/
+Disallow: /screenshot-demo/
+Disallow: /crm
+Disallow: /admin
+Disallow: /api/
 
 Sitemap: https://consentresolve.com/sitemap-index.xml

@@ -105,9 +105,12 @@ export async function searchThread(env, account, leadEmail, max) {
 export async function sendMessage(env, account, to, subject, body, threadId, opts) {
   const tok = await gAccessToken(env, account);
   if (!tok) return { error: "no_token" };
+  // Strip CR/LF from any value interpolated into the header block — `to` can come
+  // from unvalidated lead data, so a crafted address must not inject headers.
+  const noCrlf = (v) => String(v == null ? "" : v).replace(/[\r\n]+/g, " ").trim();
   const extra = opts && opts.headers
-    ? Object.keys(opts.headers).map((k) => k + ": " + opts.headers[k] + "\r\n").join("") : "";
-  const raw = b64url("To: " + to + "\r\nSubject: " + encodeHeader(subject) + "\r\n" + extra + "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + body);
+    ? Object.keys(opts.headers).map((k) => noCrlf(k) + ": " + noCrlf(opts.headers[k]) + "\r\n").join("") : "";
+  const raw = b64url("To: " + noCrlf(to) + "\r\nSubject: " + encodeHeader(subject) + "\r\n" + extra + "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + body);
   const payload = { raw }; if (threadId) payload.threadId = threadId;
   const r = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
     method: "POST", headers: { Authorization: "Bearer " + tok, "Content-Type": "application/json" }, body: JSON.stringify(payload),

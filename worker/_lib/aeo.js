@@ -80,6 +80,16 @@ const DDL =
   "CREATE TABLE IF NOT EXISTS aeo_telemetry (day TEXT, kind TEXT, name TEXT, " +
   "hits INTEGER DEFAULT 0, last_ts INTEGER, last_path TEXT, PRIMARY KEY (day, kind, name))";
 
+// Ensure the table exists once per isolate rather than on every bot/referral
+// hit (which would double the D1 writes). Reset to false only when a create
+// actually fails, so a transient error retries next time.
+let tableReady = false;
+async function ensureTable(env) {
+  if (tableReady) return;
+  await env.DB.prepare(DDL).run();
+  tableReady = true;
+}
+
 /**
  * Fire-and-forget from the fetch handler via ctx.waitUntil. No-ops for the
  * overwhelming majority of requests (no AI bot UA, no AI referrer) — so it
@@ -100,7 +110,9 @@ export async function logAeoTelemetry(env, request) {
   if (bot) rows.push(["bot", bot]);
   if (aiRef) rows.push(["ref", aiRef]);
 
-  await env.DB.prepare(DDL).run();
+  try {
+    await ensureTable(env);
+  } catch (_) { tableReady = false; throw _; }
   await env.DB.batch(
     rows.map(([kind, name]) =>
       env.DB
@@ -126,7 +138,7 @@ export async function aeoSummary(env, days = 28) {
   };
   if (!env || !env.DB) return out;
   try {
-    await env.DB.prepare(DDL).run();
+    await ensureTable(env);
     const since = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
     const res =
       (await env.DB.prepare(

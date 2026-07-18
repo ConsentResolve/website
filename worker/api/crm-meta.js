@@ -57,6 +57,48 @@ function checkTrade(html, claimed) {
   return { status: "unclear" };
 }
 
+// SSRF guard — reject non-public fetch targets (loopback / private / link-local /
+// cloud-metadata) and non-http(s) schemes before touching a lead-supplied URL.
+function isPublicHttpUrl(u) {
+  let x;
+  try { x = new URL(u); } catch { return false; }
+  if (x.protocol !== "http:" && x.protocol !== "https:") return false;
+  const h = x.hostname.toLowerCase();
+  if (h === "localhost" || h.endsWith(".localhost") || h === "0.0.0.0" || h === "[::1]" || h === "::1") return false;
+  if (h.includes(":")) { // IPv6
+    if (h.startsWith("fe80") || h.startsWith("fc") || h.startsWith("fd")) return false;
+    return true;
+  }
+  const m = h.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+  if (m) {
+    const a = +m[1], b = +m[2];
+    if (a === 0 || a === 10 || a === 127 || a >= 224) return false;            // this-host / private / loopback / multicast+
+    if (a === 169 && b === 254) return false;                                   // link-local incl. 169.254.169.254 metadata
+    if (a === 172 && b >= 16 && b <= 31) return false;                          // private
+    if (a === 192 && b === 168) return false;                                   // private
+  }
+  return true;
+}
+
+// Read a response body with a hard byte cap so a lead can't stream a huge/slow
+// payload into the Worker's memory. Bounded by the caller's fetch timeout too.
+async function readCapped(resp, max) {
+  if (!resp.body) return "";
+  const reader = resp.body.getReader();
+  const dec = new TextDecoder();
+  let out = "", received = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      received += value.length;
+      out += dec.decode(value, { stream: true });
+      if (received >= max) { try { await reader.cancel(); } catch (_) {} break; }
+    }
+  } catch (_) {}
+  return out.slice(0, max);
+}
+
 function scanWebsite(html) {
   const hits = {};
   for (const [group, list] of Object.entries(SIGNALS)) {
@@ -225,14 +267,18 @@ async function ingestLead(env, { fields, leadgenId, formId, fieldData }) {
         let website = (!siteAnswer || saysNoSite || !siteAnswer.includes(".")) ? "" : siteAnswer;
         if (website && !/^https?:\/\//i.test(website)) website = "https://" + website;
         let siteFlag = siteAnswer && !website ? "nosite" : "none";
+        // SSRF guard: only fetch public http(s) hosts. A lead can type anything;
+        // never let the webhook fetch loopback/private/link-local/metadata targets
+        // from Cloudflare egress.
+        if (website && !isPublicHttpUrl(website)) { website = ""; siteFlag = "nosite"; }
         let intel = null;
         if (website) {
           siteFlag = "dead";
           try {
             const ping = await fetch(website, { method: "GET", redirect: "follow", signal: AbortSignal.timeout(5000) });
-            if (ping.status < 500) {
+            if (ping.ok) {  // 2xx only — a 4xx/parked page is not a live homepage
               siteFlag = "ok";
-              const html = (await ping.text()).slice(0, 400000); // cap: one homepage is plenty
+              const html = await readCapped(ping, 400000); // cap the read: one homepage is plenty, and bounds memory
               intel = scanWebsite(html);
               intel.tradeCheck = checkTrade(html, trade);
             }

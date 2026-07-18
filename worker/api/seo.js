@@ -56,22 +56,30 @@ async function overview(env) {
 
 async function queries(env) {
   if (!gscConfigured(env)) return { gscConfigured: false };
-  const r = await gscQuery(env, { startDate: ymd(31), endDate: ymd(3), dimensions: ["query"], rowLimit: 100 });
-  return { gscConfigured: true, rows: (r.rows || []).map((x) => ({ q: x.keys[0], clicks: x.clicks, impressions: x.impressions, ctr: x.ctr, position: x.position })) };
+  try {
+    const r = await gscQuery(env, { startDate: ymd(31), endDate: ymd(3), dimensions: ["query"], rowLimit: 100 });
+    return { gscConfigured: true, rows: (r.rows || []).map((x) => ({ q: x.keys[0], clicks: x.clicks, impressions: x.impressions, ctr: x.ctr, position: x.position })) };
+  } catch (e) {
+    return { gscConfigured: true, gscError: String(e.message || e), rows: [] };
+  }
 }
 
 async function pages(env) {
   if (!gscConfigured(env)) return { gscConfigured: false };
-  const cur = await gscQuery(env, { startDate: ymd(31), endDate: ymd(3), dimensions: ["page"], rowLimit: 200 });
-  const prev = await gscQuery(env, { startDate: ymd(59), endDate: ymd(32), dimensions: ["page"], rowLimit: 200 });
-  const pmap = {}; (prev.rows || []).forEach((r) => (pmap[r.keys[0]] = r.clicks));
-  const rows = (cur.rows || []).map((x) => ({ page: x.keys[0], clicks: x.clicks, impressions: x.impressions, ctr: x.ctr, position: x.position, delta: (x.clicks - (pmap[x.keys[0]] || 0)) }));
-  const movers = [...rows].sort((a, b) => b.delta - a.delta);
-  return { gscConfigured: true, rows: rows.sort((a, b) => b.clicks - a.clicks).slice(0, 100), gainers: movers.slice(0, 8), losers: movers.slice(-8).reverse() };
+  try {
+    const cur = await gscQuery(env, { startDate: ymd(31), endDate: ymd(3), dimensions: ["page"], rowLimit: 200 });
+    const prev = await gscQuery(env, { startDate: ymd(59), endDate: ymd(32), dimensions: ["page"], rowLimit: 200 });
+    const pmap = {}; (prev.rows || []).forEach((r) => (pmap[r.keys[0]] = r.clicks));
+    const rows = (cur.rows || []).map((x) => ({ page: x.keys[0], clicks: x.clicks, impressions: x.impressions, ctr: x.ctr, position: x.position, delta: (x.clicks - (pmap[x.keys[0]] || 0)) }));
+    const movers = [...rows].sort((a, b) => b.delta - a.delta);
+    return { gscConfigured: true, rows: rows.sort((a, b) => b.clicks - a.clicks).slice(0, 100), gainers: movers.slice(0, 8), losers: movers.slice(-8).reverse() };
+  } catch (e) {
+    return { gscConfigured: true, gscError: String(e.message || e), rows: [], gainers: [], losers: [] };
+  }
 }
 
 // IndexNow: fetch our sitemap-index -> all page URLs -> submit to IndexNow.
-async function indexnowSubmit(env, origin, only) {
+async function indexnowSubmit(env, origin, only, force) {
   const key = env.INDEXNOW_KEY;
   if (!key) return { ok: false, error: "INDEXNOW_KEY not set" };
   const host = new URL(origin).host;
