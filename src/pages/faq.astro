@@ -1,31 +1,92 @@
 ---
+/**
+ * /faq/ — the aggregated FAQ hub.
+ *
+ * AI answer engines (ChatGPT, Perplexity, Google AI Overviews) preferentially
+ * cite pages with dense, directly-worded Q&A. This concentrates every Q&A on
+ * the site — product questions, the 17 trade pages, and every resource's
+ * faq_items — into one deep URL with a single FAQPage schema graph, deduped so
+ * nothing repeats. Native <details> accordions keep 100% of the text in the DOM
+ * (no JS island) so crawlers read all of it; a small filter script helps humans.
+ */
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Badge from "~/components/ui/Badge.astro";
-import FAQ from "~/components/sections/FAQ.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
+import { getCollection } from "astro:content";
+import { INDUSTRIES } from "~/data/industries";
 import { breadcrumbSchema, faqSchema } from "~/lib/seo";
 
-const faqs = [
-  { q: "Is this legal?", a: "Here's what actually gets contractors sued: calling or texting people who never opted in (TCPA), and websites that track visitors without asking (CIPA and state privacy laws like the Texas TDPSA, which the Texas AG actively enforces). Consent Resolve is built the other way. A homeowner is identified only after an affirmative yes on your consent banner, every consent is timestamped with a signed audit ID, recovered contacts are re-engaged only through the channels that consent covers, and we never hand you a number to cold-call. The tools that track people in secret are the ones writing settlement checks. We built the opposite. See our full take at /why-consent-first/." },
-  { q: "Do I have to change my privacy policy?", a: "We handle it. Termageddon generates and updates the policies for you, so you stay covered without the legwork." },
-  { q: "What if a homeowner doesn't consent?", a: "Then you get nothing on them — and that's the point. No consent, no data. That's what keeps you safe." },
-  { q: "How fast does a lead reach me?", a: "Seconds. A Slack, text, or email fires the moment they consent, and it lands in your CRM at the same time." },
-  { q: "Which CRMs do you work with?", a: "On the trade side: Jobber, Housecall Pro, ServiceTitan, and GoHighLevel. Plus Salesforce, HubSpot, Pipedrive, Zoho CRM, Microsoft Dynamics, ActiveCampaign, Mailchimp, Klaviyo, Marketo, Pardot, Intercom, Segment, Google Sheets, Slack, Zapier, and any tool through a custom API or webhook. Don't see your CRM? We build custom integrations for enterprise customers." },
-  { q: "Can I cancel anytime?", a: "Yes. Flat $7 per lead — card required, no contract, cancel whenever you want from your dashboard." },
-  { q: "Do you offer refunds?", a: "No — all sales are final. But you're only ever billed for a consented, deliverable contact: ad-blocked, non-consenting, and hard-bounced or invalid records are never billed in the first place. You pay only for real homeowners who raised their hand and consented to be reached." },
-  { q: "Do I need a developer?", a: "No. Paste one line of code in your site's header — about 10 minutes, no developer needed. If you can paste a tracking tag, you can do this." },
-  { q: "What does a homeowner see?", a: "Your normal consent banner — the same kind you already have for cookies. They click Accept like always. Identification happens only after that consented yes, matched through a trusted, deterministic data source — no fingerprinting, no probabilistic guessing, no shadow tracking." },
-  { q: "Is my data safe?", a: "Yes. Identification happens only after a consented yes, matched through a trusted, deterministic data source — no fingerprinting, no shadow tracking. Data is encrypted in transit and at rest, every consent carries an audit trail, and lead data goes to you alone — never resold, never auctioned." },
+// 1. Product / general — the questions pros ask before they start.
+const general = [
+  { question: "Is this legal?", answer: "Here's what actually gets contractors sued: calling or texting people who never opted in (TCPA), and websites that track visitors without asking (CIPA and state privacy laws like the Texas TDPSA, which the Texas AG actively enforces). Consent Resolve is built the other way. A homeowner is identified only after an affirmative yes on your consent banner, every consent is timestamped with a signed audit ID, recovered contacts are re-engaged only through the channels that consent covers, and we never hand you a number to cold-call. The tools that track people in secret are the ones writing settlement checks. We built the opposite. See our full take at /why-consent-first/." },
+  { question: "Do I have to change my privacy policy?", answer: "We handle it. Termageddon generates and updates the policies for you, so you stay covered without the legwork." },
+  { question: "What if a homeowner doesn't consent?", answer: "Then you get nothing on them — and that's the point. No consent, no data. That's what keeps you safe." },
+  { question: "How fast does a lead reach me?", answer: "Seconds. A Slack, text, or email fires the moment they consent, and it lands in your CRM at the same time." },
+  { question: "Which CRMs do you work with?", answer: "On the trade side: Jobber, Housecall Pro, ServiceTitan, and GoHighLevel. Plus Salesforce, HubSpot, Pipedrive, Zoho CRM, Microsoft Dynamics, ActiveCampaign, Mailchimp, Klaviyo, Marketo, Pardot, Intercom, Segment, Google Sheets, Slack, Zapier, and any tool through a custom API or webhook. Don't see your CRM? We build custom integrations for enterprise customers." },
+  { question: "Can I cancel anytime?", answer: "Yes. Flat $7 per lead — card required, no contract, cancel whenever you want from your dashboard." },
+  { question: "Do you offer refunds?", answer: "No — all sales are final. But you're only ever billed for a consented, deliverable contact: ad-blocked, non-consenting, and hard-bounced or invalid records are never billed in the first place. You pay only for real homeowners who raised their hand and consented to be reached." },
+  { question: "Do I need a developer?", answer: "No. Paste one line of code in your site's header — about 10 minutes, no developer needed. If you can paste a tracking tag, you can do this." },
+  { question: "What does a homeowner see?", answer: "Your normal consent banner — the same kind you already have for cookies. They click Accept like always. Identification happens only after that consented yes, matched through a trusted, deterministic data source — no fingerprinting, no probabilistic guessing, no shadow tracking." },
+  { question: "Is my data safe?", answer: "Yes. Identification happens only after a consented yes, matched through a trusted, deterministic data source — no fingerprinting, no shadow tracking. Data is encrypted in transit and at rest, every consent carries an audit trail, and lead data goes to you alone — never resold, never auctioned." },
 ];
 
-const accordionItems = faqs.map((f) => ({ question: f.q, answer: f.a }));
+// 2. By trade — the 3 trade-specific Q&As from each /[trade]-leads/ page.
+const byTrade = INDUSTRIES.map((t) => ({
+  name: t.name,
+  href: `/${t.slug}-leads/`,
+  items: t.faqs.map((f) => ({ question: f.q, answer: f.a })),
+}));
+
+// 3. From our guides — every resource's faq_items, grouped by type, deduped.
+const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const seen = new Set<string>();
+// Pre-seed with product + trade questions so the guides section never repeats them.
+for (const q of general) seen.add(norm(q.question));
+for (const t of byTrade) for (const q of t.items) seen.add(norm(q.question));
+
+// Only the evergreen, definitional content belongs in the hub — the questions
+// AI engines cite. Blog posts are narrower and already carry their own FAQPage
+// schema on their own URLs, so aggregating them here would bloat the page and
+// duplicate schema for little gain.
+const TYPE_DIR: Record<string, string> = {
+  "how-to-guide": "how-to-guides",
+  "plain-language-explainer": "plain-language-explainers",
+};
+const TYPE_LABEL: Record<string, string> = {
+  "how-to-guide": "How-to guides",
+  "plain-language-explainer": "Plain-language explainers",
+};
+
+const resources = await getCollection("resources");
+const guideGroups: Record<string, { question: string; answer: string; srcTitle: string; srcUrl: string }[]> = {};
+for (const r of resources) {
+  const items = (r.data.faq_items || []) as { question: string; answer: string }[];
+  const dir = TYPE_DIR[r.data.resource_type];
+  if (!dir || !items.length) continue;
+  const srcUrl = `/resources/${dir}/${r.data.slug}/`;
+  for (const it of items) {
+    const k = norm(it.question);
+    if (!it.question || !it.answer || seen.has(k)) continue;
+    seen.add(k);
+    (guideGroups[r.data.resource_type] ||= []).push({ question: it.question, answer: it.answer, srcTitle: r.data.title, srcUrl });
+  }
+}
+const guideOrder = ["how-to-guide", "plain-language-explainer"].filter((t) => guideGroups[t]?.length);
+
+// One FAQPage schema over every unique Q&A on the page.
+const allQa = [
+  ...general,
+  ...byTrade.flatMap((t) => t.items),
+  ...guideOrder.flatMap((t) => guideGroups[t].map(({ question, answer }) => ({ question, answer }))),
+];
+const totalCount = allQa.length;
 
 const schemas = [
   breadcrumbSchema([
     { name: "Home", href: "/" },
     { name: "FAQ", href: "/faq/" },
   ]),
-  faqSchema(accordionItems),
+  faqSchema(allQa),
 ];
 ---
 
@@ -33,7 +94,7 @@ const schemas = [
   ogImage="/og/faq.png"
   title="Consent Resolve FAQ — Leads, Legality & How It Works"
   ogTitle="Straight answers on leads, legality, and how recovery works."
-  description="Straight answers about Consent Resolve — legality, privacy policy, CRM integrations, pricing, and setup. The questions pros ask before they start."
+  description="Every question about Consent Resolve in one place — legality, privacy, CRM integrations, pricing, setup, and trade-by-trade specifics. The questions pros ask before they start."
   schema={schemas}
 >
   <section class="relative overflow-hidden">
@@ -46,17 +107,157 @@ const schemas = [
           <span class="text-[color:var(--color-brand)]">no sales script.</span>
         </h1>
         <p class="mx-auto max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-          What pros ask before they start. If we missed one, the contact form is on the next page.
+          Every question we get — {totalCount} of them — in one place. Search it below, or jump to your trade. If we missed one, the contact form is a click away.
         </p>
+
+        <!-- Filter box -->
+        <div class="mx-auto mt-8 max-w-xl">
+          <label class="relative block">
+            <span class="sr-only">Search FAQs</span>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[color:var(--color-ink-muted)]"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+            <input id="faq-filter" type="search" autocomplete="off" placeholder="Search questions — “legal”, “refund”, “CRM”, your trade…"
+              class="w-full rounded-full border border-[color:var(--color-rule)] bg-[color:var(--color-bg)] py-3 pl-11 pr-4 text-[15px] text-[color:var(--color-ink)] shadow-sm outline-none transition focus:border-[color:var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-brand)]/25" />
+          </label>
+          <p id="faq-count" class="mt-2 h-4 text-xs text-[color:var(--color-ink-muted)]" aria-live="polite"></p>
+        </div>
       </div>
     </div>
   </section>
 
-  <FAQ
-    eyebrow="Every question, answered"
-    headline="What pros ask before they start."
-    items={accordionItems}
-  />
+  <section class="section pt-0">
+    <div class="container-content max-w-4xl" data-faq-root>
+      <!-- Jump nav -->
+      <nav class="mb-10 flex flex-wrap justify-center gap-2 text-sm" data-faq-nav>
+        <a href="#common" class="rounded-full bg-[color:var(--color-bg-alt)] px-4 py-1.5 font-semibold text-[color:var(--color-ink-2)] ring-1 ring-inset ring-[color:var(--color-rule)] transition hover:ring-[color:var(--color-brand)]/50 hover:text-[color:var(--color-brand-pressed)]">Common questions</a>
+        <a href="#by-trade" class="rounded-full bg-[color:var(--color-bg-alt)] px-4 py-1.5 font-semibold text-[color:var(--color-ink-2)] ring-1 ring-inset ring-[color:var(--color-rule)] transition hover:ring-[color:var(--color-brand)]/50 hover:text-[color:var(--color-brand-pressed)]">By trade</a>
+        {guideOrder.length > 0 && <a href="#guides" class="rounded-full bg-[color:var(--color-bg-alt)] px-4 py-1.5 font-semibold text-[color:var(--color-ink-2)] ring-1 ring-inset ring-[color:var(--color-rule)] transition hover:ring-[color:var(--color-brand)]/50 hover:text-[color:var(--color-brand-pressed)]">From our guides</a>}
+      </nav>
+
+      <!-- Common -->
+      <div class="faq-group" id="common" data-faq-group>
+        <h2 class="mb-5 font-display text-2xl font-bold text-[color:var(--color-ink)]">Common questions</h2>
+        <div class="space-y-3">
+          {general.map((q) => (
+            <details class="faq-item group rounded-xl bg-[color:var(--color-bg-alt)] ring-1 ring-inset ring-[color:var(--color-rule)]" data-faq-item data-q={`${q.question} ${q.answer}`}>
+              <summary class="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 font-semibold text-[color:var(--color-ink)]">
+                <span>{q.question}</span>
+                <svg class="shrink-0 text-[color:var(--color-ink-muted)] transition group-open:rotate-180" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+              </summary>
+              <div class="px-5 pb-5 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{q.answer}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+
+      <!-- By trade -->
+      <div class="faq-group mt-14" id="by-trade" data-faq-group>
+        <h2 class="mb-5 font-display text-2xl font-bold text-[color:var(--color-ink)]">Questions by trade</h2>
+        <div class="space-y-8">
+          {byTrade.map((t) => (
+            <div data-faq-sub>
+              <h3 class="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-muted)]">
+                <a href={t.href} class="hover:text-[color:var(--color-brand-pressed)]">{t.name}</a>
+              </h3>
+              <div class="space-y-3">
+                {t.items.map((q) => (
+                  <details class="faq-item group rounded-xl bg-[color:var(--color-bg-alt)] ring-1 ring-inset ring-[color:var(--color-rule)]" data-faq-item data-q={`${q.question} ${q.answer} ${t.name}`}>
+                    <summary class="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 font-semibold text-[color:var(--color-ink)]">
+                      <span>{q.question}</span>
+                      <svg class="shrink-0 text-[color:var(--color-ink-muted)] transition group-open:rotate-180" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+                    </summary>
+                    <div class="px-5 pb-5 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">{q.answer}</div>
+                  </details>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- From our guides -->
+      {guideOrder.length > 0 && (
+        <div class="faq-group mt-14" id="guides" data-faq-group>
+          <h2 class="mb-2 font-display text-2xl font-bold text-[color:var(--color-ink)]">Straight from our guides</h2>
+          <p class="mb-5 text-[15px] text-[color:var(--color-ink-2)]">Questions pulled from our how-to guides and plain-language explainers. Each links to the full piece.</p>
+          <div class="space-y-8">
+            {guideOrder.map((type) => (
+              <div data-faq-sub>
+                <h3 class="mb-3 text-sm font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-muted)]">{TYPE_LABEL[type]}</h3>
+                <div class="space-y-3">
+                  {guideGroups[type].map((q) => (
+                    <details class="faq-item group rounded-xl bg-[color:var(--color-bg-alt)] ring-1 ring-inset ring-[color:var(--color-rule)]" data-faq-item data-q={`${q.question} ${q.answer} ${q.srcTitle}`}>
+                      <summary class="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 font-semibold text-[color:var(--color-ink)]">
+                        <span>{q.question}</span>
+                        <svg class="shrink-0 text-[color:var(--color-ink-muted)] transition group-open:rotate-180" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+                      </summary>
+                      <div class="px-5 pb-5 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+                        <p>{q.answer}</p>
+                        <a href={q.srcUrl} class="mt-3 inline-flex items-center gap-1 text-[13px] font-semibold text-[color:var(--color-brand-pressed)] hover:underline">Read: {q.srcTitle} →</a>
+                      </div>
+                    </details>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- No-results -->
+      <p id="faq-empty" class="hidden py-12 text-center text-[15px] text-[color:var(--color-ink-muted)]">No questions match that search. Try a different word, or <a href="/contact/" class="font-semibold text-[color:var(--color-brand-pressed)] hover:underline">ask us directly</a>.</p>
+    </div>
+  </section>
 
   <FinalCTA />
+
+  <script is:inline>
+    (function () {
+      var input = document.getElementById("faq-filter");
+      var root = document.querySelector("[data-faq-root]");
+      if (!input || !root) return;
+      var items = Array.prototype.slice.call(root.querySelectorAll("[data-faq-item]"));
+      var subs = Array.prototype.slice.call(root.querySelectorAll("[data-faq-sub]"));
+      var groups = Array.prototype.slice.call(root.querySelectorAll("[data-faq-group]"));
+      var nav = root.querySelector("[data-faq-nav]");
+      var count = document.getElementById("faq-count");
+      var empty = document.getElementById("faq-empty");
+      var total = items.length;
+
+      function apply(q) {
+        q = q.trim().toLowerCase();
+        var shown = 0;
+        items.forEach(function (el) {
+          var hit = !q || (el.getAttribute("data-q") || "").toLowerCase().indexOf(q) !== -1;
+          el.style.display = hit ? "" : "none";
+          if (hit) { shown++; if (q) el.open = true; else el.open = false; }
+        });
+        // hide empty trade/type subgroups and section wrappers
+        subs.forEach(function (s) {
+          var any = s.querySelector('[data-faq-item]:not([style*="display: none"])');
+          s.style.display = any ? "" : "none";
+        });
+        groups.forEach(function (g) {
+          var any = g.querySelector('[data-faq-item]:not([style*="display: none"])');
+          g.style.display = any ? "" : "none";
+        });
+        if (nav) nav.style.display = q ? "none" : "";
+        if (empty) empty.classList.toggle("hidden", shown > 0);
+        if (count) count.textContent = q ? (shown + " of " + total + " question" + (total === 1 ? "" : "s")) : "";
+      }
+      var t;
+      input.addEventListener("input", function () { clearTimeout(t); t = setTimeout(function () { apply(input.value); }, 120); });
+      // deep-link: /faq/?q=refund
+      var pre = new URLSearchParams(location.search).get("q");
+      if (pre) { input.value = pre; apply(pre); }
+    })();
+  </script>
+
+  <style>
+    .faq-item > summary { list-style: none; }
+    .faq-item > summary::-webkit-details-marker { display: none; }
+    .faq-item[open] { box-shadow: 0 10px 30px -18px rgba(10, 22, 40, 0.28); }
+    .faq-item > summary:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 2px; border-radius: 0.75rem; }
+    html { scroll-behavior: smooth; }
+    [id] { scroll-margin-top: 90px; }
+  </style>
 </BaseLayout>
