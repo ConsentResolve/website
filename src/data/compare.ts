@@ -54,9 +54,6 @@ export interface ComparePage {
   /** Anchor CPL for the channel, displayed in small print and used by
    *  any math copy. Always range-or-blended; never compared 1:1 to $7. */
   channelCpl: string;
-  /** Per-trade anchor numbers from the CPL matrix, used by per-page
-   *  math callouts. */
-  trades: { trade: string; cpl: number }[];
   /** Cost-per-booked-job math — the with/without framing. */
   bookedJobMath: {
     setup: string;       // describes the without-CR baseline
@@ -98,12 +95,6 @@ export const COMPARE_PAGES: ComparePage[] = [
       "Loaded cost runs ~$46 per lead before factoring in tire-kickers and denied refunds.",
     ],
     channelCpl: "~$46 average loaded cost per lead (range $25–$75 most trades).",
-    trades: [
-      { trade: "Roofing",     cpl: 73 },
-      { trade: "HVAC",        cpl: 65 },
-      { trade: "Plumbing",    cpl: 50 },
-      { trade: "Electrician", cpl: 53 },
-    ],
     bookedJobMath: {
       setup: "You're already paying Thumbtack to send traffic. Whatever your blended cost per booked job is today on Thumbtack alone, that's the baseline.",
       withCR: "Add Consent Resolve as a recovery layer: the bounced visitors who consent become recovered records at $7 each, and a share of those book a job — set your own assumptions. Same Thumbtack budget — more booked jobs at a lower blended $ per booked job.",
@@ -148,12 +139,6 @@ export const COMPARE_PAGES: ComparePage[] = [
       "Loaded cost averages ~$50 per lead, with bad-lead dispute denials around 30–50% and 30–35% cancellation penalties on auto-renew contracts.",
     ],
     channelCpl: "~$50 average loaded cost per lead (range $15–$100+ by trade).",
-    trades: [
-      { trade: "Roofing",     cpl: 73 },
-      { trade: "HVAC",        cpl: 65 },
-      { trade: "Plumbing",    cpl: 50 },
-      { trade: "Electrician", cpl: 53 },
-    ],
     bookedJobMath: {
       setup: "Whatever your blended cost per booked job is today on Angi alone, that's the baseline. You're already paying for the visitors who came and left.",
       withCR: "Add Consent Resolve as a recovery layer: the bounced visitors who consent become recovered records at $7 each, and a share of those book a job — set your own assumptions. Same Angi budget — more booked jobs at a lower blended $ per booked job.",
@@ -198,12 +183,6 @@ export const COMPARE_PAGES: ComparePage[] = [
       "Loaded cost averages ~$50 per lead, dispute denials ~30–50%, auto-renew contracts with 30–35% cancellation penalties.",
     ],
     channelCpl: "~$50 average loaded cost per lead (range $15–$100+ by trade).",
-    trades: [
-      { trade: "Roofing",     cpl: 73 },
-      { trade: "HVAC",        cpl: 65 },
-      { trade: "Plumbing",    cpl: 50 },
-      { trade: "Electrician", cpl: 53 },
-    ],
     bookedJobMath: {
       setup: "Whatever your blended cost per booked job is today on HomeAdvisor alone, that's the baseline. The visitors who arrived and left are already paid for.",
       withCR: "Add Consent Resolve as a recovery layer: the bounced visitors who consent become recovered records at $7 each, and a share of those book a job — set your own assumptions. Same HomeAdvisor budget — more booked jobs at a lower blended $ per booked job.",
@@ -248,12 +227,6 @@ export const COMPARE_PAGES: ComparePage[] = [
       "Blended cost runs around $53 per lead, with trade ranges from $39 to $162.",
     ],
     channelCpl: "~$53 average blended cost per lead (range $39–$162 by trade).",
-    trades: [
-      { trade: "Roofing",     cpl: 73 },
-      { trade: "HVAC",        cpl: 65 },
-      { trade: "Plumbing",    cpl: 50 },
-      { trade: "Electrician", cpl: 53 },
-    ],
     bookedJobMath: {
       setup: "LSA already books some of the contacts it generates. The visitors who clicked, looked, and didn't call are already paid for.",
       withCR: "Add Consent Resolve as a recovery layer: the bounced visitors who consent become recovered records at $7 each, and a share of those book a job — set your own assumptions. LSA's book rate stays the same — you just get incremental inbound calls on top.",
@@ -279,4 +252,49 @@ export const COMPARE_PAGES: ComparePage[] = [
 
 export function getCompare(slug: string): ComparePage | undefined {
   return COMPARE_PAGES.find((c) => c.slug === slug);
+}
+
+export interface TradeCpl {
+  slug: string;   // matches an INDUSTRIES slug → links to /{slug}-leads/
+  trade: string;  // display label
+  low: number;    // typical low end of shared-lead CPL for this trade
+  high: number;   // typical high end (busy-metro / high-competition)
+}
+
+/**
+ * Typical shared-lead cost-per-lead by trade (2026). RANGES, not points —
+ * marketplaces price each lead by job value, metro, and how many pros are
+ * competing, so a single number would be false precision. Figures come from
+ * Thumbtack's published by-trade pricing (auto-respond, 2026) for the trades
+ * they break out, pest control from channel benchmarks (Ryn Digital), and the
+ * remaining niche trades sit inside the documented $8–$150 marketplace band
+ * anchored to job size. Summarized with sources on /stats/.
+ *
+ * Shared across every shared-lead compare page — the range belongs to the
+ * trade, not the platform (Thumbtack, Angi, and HomeAdvisor overlap on it).
+ * Each row links to that trade's landing page, so the compare pages and the
+ * /{trade}-leads/ pages reinforce each other for search + answer engines.
+ */
+export const TRADE_CPL_BENCHMARKS: TradeCpl[] = [
+  { slug: "general-contractor", trade: "General Contractors", low: 40, high: 150 },
+  { slug: "handyman",           trade: "Handymen",            low: 10, high: 40 },
+  { slug: "tree-removal",       trade: "Tree Removal",        low: 15, high: 65 },
+  { slug: "hvac",               trade: "HVAC & AC",           low: 20, high: 90 },
+  { slug: "plumber",            trade: "Plumbers",            low: 15, high: 70 },
+  { slug: "locksmith",          trade: "Locksmiths",          low: 10, high: 35 },
+  { slug: "electrician",        trade: "Electricians",        low: 15, high: 75 },
+  { slug: "roofing",            trade: "Roofers",             low: 30, high: 150 },
+  { slug: "painter",            trade: "Painters",            low: 15, high: 60 },
+  { slug: "deck-fence",         trade: "Deck & Fence",        low: 25, high: 80 },
+  { slug: "garage-door",        trade: "Garage Door",         low: 15, high: 45 },
+  { slug: "appliance-repair",   trade: "Appliance Repair",    low: 10, high: 35 },
+  { slug: "house-cleaning",     trade: "House Cleaning",      low: 8,  high: 25 },
+  { slug: "pest-control",       trade: "Pest Control",        low: 25, high: 60 },
+  { slug: "power-washing",      trade: "Power Washing",       low: 15, high: 50 },
+  { slug: "lawn-care",          trade: "Lawn Care",           low: 10, high: 50 },
+  { slug: "mobile-car-service", trade: "Mobile Car Service",  low: 12, high: 40 },
+];
+
+export function getTradeCpl(slug: string): TradeCpl | undefined {
+  return TRADE_CPL_BENCHMARKS.find((t) => t.slug === slug);
 }

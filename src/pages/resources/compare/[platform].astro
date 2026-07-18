@@ -4,7 +4,7 @@ import Button from "~/components/ui/Button.astro";
 import Badge from "~/components/ui/Badge.astro";
 import AEOAnswer from "~/components/sections/AEOAnswer.astro";
 import FinalCTA from "~/components/sections/FinalCTA.astro";
-import { COMPARE_PAGES, type ComparePage } from "~/data/compare";
+import { COMPARE_PAGES, TRADE_CPL_BENCHMARKS, type ComparePage } from "~/data/compare";
 import { breadcrumbSchema } from "~/lib/seo";
 import { IconArrowRight, IconCheck, IconUserOff, IconRefresh, IconPhone } from "@tabler/icons-react";
 
@@ -149,19 +149,33 @@ const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
         </div>
       </div>
 
-      {/* Per-trade CPL anchor strip */}
+      {/* Per-trade CPL anchor strip — every trade links to its landing page */}
       <div class="mt-6 rounded-2xl bg-[color:var(--color-bg-alt)] p-5 ring-1 ring-inset ring-[color:var(--color-rule)]">
-        <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)] mb-3">LSA cost-per-lead by trade (HomeServiceDirect)</p>
-        <ul class="flex flex-wrap gap-3">
-          {page.trades.map((t) => (
-            <li class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-bg)] px-3.5 py-1.5 text-xs font-semibold text-[color:var(--color-ink-2)] ring-1 ring-inset ring-[color:var(--color-rule)]">
-              <span class="text-[color:var(--color-ink-muted)]">{t.trade}</span>
-              <span class="font-bold text-[color:var(--color-ink)]">{fmtUsd(t.cpl)}</span>
+        <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Typical shared-lead cost per lead, by trade</p>
+          <a href="/stats/#lead-trap" class="text-[11px] underline decoration-dotted underline-offset-2 text-[color:var(--color-ink-muted)] hover:text-[color:var(--color-brand-pressed)]">Sources · /stats/</a>
+        </div>
+        <ul class="flex flex-wrap gap-2.5">
+          {TRADE_CPL_BENCHMARKS.map((t) => (
+            <li>
+              <a
+                href={`/${t.slug}-leads/`}
+                class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-bg)] px-3.5 py-1.5 text-xs font-semibold text-[color:var(--color-ink-2)] ring-1 ring-inset ring-[color:var(--color-rule)] transition hover:ring-[color:var(--color-brand)]/50 hover:text-[color:var(--color-brand-pressed)]"
+              >
+                <span class="text-[color:var(--color-ink-muted)]">{t.trade}</span>
+                <span class="font-bold text-[color:var(--color-ink)]">{fmtUsd(t.low)}–{fmtUsd(t.high)}</span>
+              </a>
             </li>
           ))}
+          <li>
+            <span class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand-soft)] px-3.5 py-1.5 text-xs font-semibold text-[color:var(--color-brand-pressed)] ring-1 ring-inset ring-[color:var(--color-brand)]/40">
+              <span>Consent Resolve</span>
+              <span class="font-bold">$7 flat</span>
+            </span>
+          </li>
         </ul>
         <p class="mt-4 text-[11px] leading-relaxed text-[color:var(--color-ink-muted)]">
-          Benchmarks are channel cost-per-lead anchors. Cost-per-booked-job depends on your close rate and ticket size — recovered visitors are <strong class="text-[color:var(--color-ink-2)]">incremental on top</strong>, never a replacement for these.
+          Ranges are what shared-lead marketplaces charge per lead — the figure belongs to the trade, not the platform, and rises with job value, metro, and how many pros the lead is split among. Cost-per-booked-job depends on your close rate and ticket size; recovered visitors are <strong class="text-[color:var(--color-ink-2)]">incremental on top</strong>, never a replacement for these. Sourced on <a href="/stats/#lead-trap" class="underline decoration-dotted underline-offset-2 hover:text-[color:var(--color-brand-pressed)]">/stats/</a>.
         </p>
       </div>
     </div>

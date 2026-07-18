@@ -337,6 +337,7 @@ export const SOURCE_GROUPS: SourceGroup[] = [
       { name: "Vendasta", url: "https://www.vendasta.com/blog/lead-response-time/", note: "Speed-to-lead: 78% of customers buy from the first responder (Lead Connect survey)." },
       { name: "ServiceMag", url: "https://www.servicemag.org/software/thumbtack", note: "Thumbtack for Contractors review, 2026." },
       { name: "NZ Leads", url: "https://nzleads.com/blog/thumbtack-cost-per-lead-2026/", note: "Thumbtack cost-per-booked-job breakdown, 2026." },
+      { name: "Auto-Respond — Thumbtack CPL by trade", url: "https://auto-respond.com/blog/thumbtack-cost-per-lead-2026/", note: "Per-trade Thumbtack cost-per-lead ranges, 2026 (cleaning $5–$25, handyman $10–$40, plumbing $15–$70, HVAC $20–$80, roofing $30–$150+, etc.)." },
       { name: "HomeServiceDirect", url: "https://www.homeservicedirect.net/local-service-ads-for-contractors/", note: "LSA cost-per-lead by trade, 2026." },
       { name: "FTC", url: "https://www.ftc.gov/news-events/news/press-releases/2023/01/ftc-order-requires-homeadvisor-pay-72-million-stop-deceptively-marketing-its-leads-home-improvement", note: "HomeAdvisor / Angi Leads consent order, 2023. Up to $7.2M; $3M+ refunded." },
     ],

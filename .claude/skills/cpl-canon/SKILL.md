@@ -37,11 +37,11 @@ grep -rn --include='*.astro' --include='*.tsx' --include='*.ts' \
 
 Then check each hit against the canon. Common drift sites:
 1. `src/data/stats.ts` — authoritative.
-2. `src/data/compare.ts` — `cpl`, `costsYou`, `comparisonRows` per platform.
+2. `src/data/compare.ts` — `channelCpl` per platform (blended) **and** `TRADE_CPL_BENCHMARKS` (the shared 17-trade per-trade CPL *ranges*, low/high). The old per-page `trades[]` single-point array was removed July 2026 in favor of this one shared range table.
 3. `src/pages/compare/index.astro` — `matrixRows` `Cost per lead`.
 4. `src/components/sections/CompareSection.astro` — homepage card prices.
 5. `src/pages/pricing.astro` — comparison-row tiles.
-6. `src/data/industries.ts` — `competitorCpl` per trade (Thumbtack benchmark).
+6. `src/pages/[slug].astro` — the "How Consent Resolve compares for {trade}" block reads `getTradeCpl()` from compare.ts (no hardcoded CPL — leave it alone unless the benchmark table changes).
 7. `src/pages/style-guide/comparison-tables.astro` — `price` props (style-guide, fix anyway).
 8. `src/components/sections/ProblemStats.astro` — Thumbtack callout.
 9. `src/pages/llms.txt.ts` — canonical-numbers block.
@@ -53,15 +53,13 @@ If the user wants to change a CPL:
 2. Sweep the 8 dependent surfaces above. Read each, propose the diff, await confirmation, then apply.
 3. Update `/llms.txt` canonical-numbers block last so AI crawlers see the new number with its source.
 
-## Industry CPL (Thumbtack benchmark per trade)
+## Per-trade CPL benchmark (`TRADE_CPL_BENCHMARKS` in `src/data/compare.ts`)
 
-`src/data/industries.ts` carries a `competitorCpl: number` per trade — used to preload the LeadROICalculator. This is a per-trade Thumbtack-style benchmark (NOT the blended ~$46). If Thumbtack pricing changes, recompute these:
+The single source of truth for per-trade competitor CPL is `TRADE_CPL_BENCHMARKS` — one shared array of `{ slug, trade, low, high }` for all 17 trades, rendered on every `/resources/compare/<platform>/` page (as a linked pill strip) and on every `/{trade}-leads/` page (via `getTradeCpl()`). The range belongs to the **trade, not the platform** — Thumbtack/Angi/HomeAdvisor overlap on it, so it is intentionally the same across those pages.
 
-```
-competitorCpl = round(avg(Thumbtack low–high range for that trade) × 1.2)
-```
+These are **ranges** (low–high), not single points — marketplaces price each lead by job value, metro, and competition, so a single number would be false precision. Sources: **Auto-Respond** (Thumbtack by-trade, 2026) for the trades it breaks out, **Ryn Digital** for pest control, and the general documented $8–$150 marketplace band for the niche trades, anchored to job size. All summarized on `/stats/` (§lead-trap). The former `industries.ts` `competitorCpl` field was removed June 2026; do not reintroduce it.
 
-Source for per-trade ranges: HomeServiceDirect, HouseCall Pro. (Pipeline On removed — do not reintroduce; the "78% first responder" speed-to-lead stat is now sourced to Vendasta.)
+Pipeline On removed — do not reintroduce; the "78% first responder" speed-to-lead stat is sourced to Vendasta.
 
 ## Verify
 

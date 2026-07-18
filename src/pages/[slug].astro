@@ -13,6 +13,7 @@ import VisitorDetailScreen from "~/components/ui/demo/VisitorDetailScreen.astro"
 import DemoForm from "~/components/DemoForm.astro"; // embedded in the browser window as the end-of-video CTA
 import RelatedReads from "~/components/sections/RelatedReads.astro";
 import { INDUSTRIES, type Industry } from "~/data/industries";
+import { COMPARE_PAGES, getTradeCpl } from "~/data/compare";
 import { getBlogPostsByCluster } from "~/lib/resources";
 import { breadcrumbSchema, faqSchema, industryServiceSchema } from "~/lib/seo";
 import { IconArrowRight, IconEye, IconCheck,
@@ -113,6 +114,10 @@ const schemas = [
 const relatedPosts = await getBlogPostsByCluster(trade.slug);
 
 const fmtUsd = (n: number) => `$${n.toLocaleString()}`;
+
+// Per-trade shared-lead CPL range → powers the "vs the marketplaces" compare
+// block. Cross-links to every /resources/compare/<platform>/ page for this trade.
+const tradeCpl = getTradeCpl(trade.slug);
 
 // Demo is the primary CTA on these paid-ad landing pages. Per-trade UTM so
 // landing-page demo clicks attribute to the trade; the original ad source is
@@ -336,6 +341,55 @@ const HERO_ANGLES: Record<string, string> = {
       <p class="mx-auto max-w-2xl text-center text-[15px] text-slate-300">
         One booked {trade.shortName.toLowerCase()} job runs about <strong class="text-white">{fmtUsd(trade.math.avgJobValue)}</strong> — that single job covers roughly <strong class="text-white">{Math.round(trade.math.avgJobValue / 7).toLocaleString()}</strong> exclusive leads at $7. Illustrative, not a promise.
       </p>
+    </div>
+  </section>
+
+  <!-- How CR compares for this trade — cross-links to every competitor page -->
+  <section class="section">
+    <div class="container-content">
+      <div class="mx-auto mb-10 max-w-2xl text-center">
+        <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Compare</Badge></div>
+        <h2 class="display-2 text-[color:var(--color-ink)]">
+          How Consent Resolve compares for {trade.name.toLowerCase()}.
+        </h2>
+        {tradeCpl && (
+          <p class="mt-4 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
+            Shared-lead marketplaces charge <strong class="text-[color:var(--color-ink)]">{fmtUsd(tradeCpl.low)}–{fmtUsd(tradeCpl.high)}</strong> for a {trade.shortName.toLowerCase()} lead — and sell that same homeowner to 4–5 other pros. Consent Resolve is <strong class="text-[color:var(--color-ink)]">$7 flat</strong>, exclusive, and never resold. See the full math against each one:
+          </p>
+        )}
+      </div>
+
+      <!-- Per-trade CPL vs $7, then a link to each competitor comparison -->
+      <div class="mx-auto max-w-4xl">
+        {tradeCpl && (
+          <div class="mb-6 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl bg-[color:var(--color-bg-alt)] p-6 ring-1 ring-inset ring-[color:var(--color-rule)]">
+              <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Shared-lead marketplaces</p>
+              <p class="mt-2 font-display text-3xl font-extrabold text-[color:var(--color-ink)]">{fmtUsd(tradeCpl.low)}–{fmtUsd(tradeCpl.high)}<span class="text-base font-bold text-[color:var(--color-ink-muted)]"> / lead</span></p>
+              <p class="mt-2 text-sm text-[color:var(--color-ink-2)]">Shared with 4–5 pros. You bid against everyone who bought the same name.</p>
+            </div>
+            <div class="rounded-2xl bg-[color:var(--color-brand-soft)] p-6 ring-1 ring-inset ring-[color:var(--color-brand)]/40">
+              <p class="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Consent Resolve</p>
+              <p class="mt-2 font-display text-3xl font-extrabold text-[color:var(--color-ink)]">$7<span class="text-base font-bold text-[color:var(--color-ink-muted)]"> / lead, flat</span></p>
+              <p class="mt-2 text-sm text-[color:var(--color-ink-2)]">Exclusive to you, consented, never resold — recovered from your own site traffic.</p>
+            </div>
+          </div>
+        )}
+        <div class="grid gap-3 sm:grid-cols-2">
+          {COMPARE_PAGES.map((p) => (
+            <a
+              href={`/resources/compare/${p.slug}/`}
+              class="group flex items-center justify-between gap-3 rounded-xl bg-[color:var(--color-bg-alt)] px-5 py-4 ring-1 ring-inset ring-[color:var(--color-rule)] transition hover:ring-[color:var(--color-brand)]/50"
+            >
+              <span class="text-sm font-semibold text-[color:var(--color-ink)]">Consent Resolve vs {p.brand} <span class="text-[color:var(--color-ink-muted)]">for {trade.shortName.toLowerCase()}</span></span>
+              <IconArrowRight size={16} stroke={2.25} class="shrink-0 text-[color:var(--color-ink-muted)] transition group-hover:translate-x-0.5 group-hover:text-[color:var(--color-brand-pressed)]" />
+            </a>
+          ))}
+        </div>
+        <p class="mt-5 text-center text-[11px] leading-relaxed text-[color:var(--color-ink-muted)]">
+          Per-trade ranges are typical shared-lead marketplace pricing; a lead's cost rises with job value, metro, and competition. Sourced on <a href="/stats/#lead-trap" class="underline decoration-dotted underline-offset-2 hover:text-[color:var(--color-brand-pressed)]">/stats/</a>.
+        </p>
+      </div>
     </div>
   </section>
 
