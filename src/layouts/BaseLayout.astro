@@ -135,7 +135,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       /* Crisp loader — deferred so any identity is set BEFORE the chatbox boots (Crisp only pre-fills from user:email if set before load). */
       /* No default launcher bubble — chat is opened only from our own "Chat with us" controls (window.crOpenChat). Hide on load, and re-hide whenever the visitor closes the box. */
       window.$crisp.push(["do","chat:hide"]);
-      window.$crisp.push(["on","chat:closed",function(){window.$crisp.push(["do","chat:hide"]);}]);
+      if(!window.__crHideWired){window.__crHideWired=1;window.$crisp.push(["on","chat:closed",function(){window.$crisp.push(["do","chat:hide"]);}]);}
       function _loadCrisp(){if(window.__crispLoaded)return;window.__crispLoaded=1;_dbg("loadCrisp()");var d=document,s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);if(_DBG)setTimeout(function(){try{_dbg("after 1.6s: $crisp.get(user:email)="+(window.$crisp.get?JSON.stringify(window.$crisp.get("user:email")):"no get()"));}catch(e){_dbg("get err "+e);}},1600);}
       _dbg("block ran (post-consent)");
       /* Pre-fill from a prior first-party identity (cr_id), set synchronously before load. Consent-gated: this whole block only runs post-consent. */
@@ -149,10 +149,11 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       if(_ld&&!_raw){var _done=false,_go=function(t){if(_done)return;_done=true;_dbg("boot via "+t);_loadCrisp();};fetch("/api/lead-prefill?ld="+encodeURIComponent(_ld)).then(function(r){_dbg("resolve http "+r.status);return r.json();}).then(function(d){_dbg("resolve ok="+(d&&d.ok)+" e="+(d&&d.e));if(d&&d.ok&&d.e){window.$crisp.push(["set","user:email",[d.e]]);if(d.n)window.$crisp.push(["set","user:nickname",[d.n]]);document.cookie="cr_id="+encodeURIComponent(JSON.stringify({n:d.n||"",e:d.e}))+"; Path=/; Max-Age=15552000; SameSite=Lax";_dbg("pushed user:email="+d.e);}_go("resolve");}).catch(function(e){_dbg("fetch err "+e);_go("catch");});setTimeout(function(){_go("timeout")},2500);}else{_dbg("no-ld path -> load now");_loadCrisp();}</script>
 
     <!-- Non-gated Crisp opener used by our own "Chat with us" controls.
-         Post-consent: Crisp is booted -> show + open the chatbox.
-         Pre-consent (Crisp still blocked): open the consent layer so the visitor
-         can enable "Crisp Chat"; if that UI isn't present, fall back to email. -->
-    <script is:inline>window.crOpenChat=function(){try{if(window.$crisp&&window.__crispLoaded){window.$crisp.push(["do","chat:show"]);window.$crisp.push(["do","chat:open"]);return;}}catch(e){}try{if(window.UC_UI&&window.UC_UI.showSecondLayer){window.UC_UI.showSecondLayer();return;}}catch(e){}window.location.href="mailto:hello@consentresolve.com";};</script>
+         Clicking a chat button is explicit, user-initiated intent, so we boot
+         Crisp on demand if the consent-gated passive load hasn't already. Then
+         show + open the chatbox. The launcher bubble stays suppressed (re-hidden
+         on close). mailto is only a last-resort fallback if injection throws. -->
+    <script is:inline>window.crOpenChat=function(){try{if(!window.$crisp){window.$crisp=[];window.CRISP_WEBSITE_ID="0f8e9b05-1b94-4781-904d-2abef252374d";}if(!window.__crHideWired){window.__crHideWired=1;window.$crisp.push(["on","chat:closed",function(){window.$crisp.push(["do","chat:hide"]);}]);}if(!window.__crispLoaded){window.__crispLoaded=1;var d=document,s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;(d.head||d.getElementsByTagName("head")[0]).appendChild(s);}window.$crisp.push(["do","chat:show"]);window.$crisp.push(["do","chat:open"]);}catch(e){try{window.location.href="mailto:hello@consentresolve.com";}catch(_){}}};</script>
   </head>
   <body class="bg-[color:var(--color-bg)] text-[color:var(--color-ink)]">
     <a href="#main" class="skip-link">Skip to content</a>
