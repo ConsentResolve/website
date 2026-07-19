@@ -1,295 +1,374 @@
 ---
 /**
- * MobileProductStory — a frictionless, full-screen, tap-through "product story"
- * (Instagram/Snapchat-Stories UX) for phones. Opened from the mobile sticky bar
- * via window.crOpenStory(). No form, no scroll — just tap right to advance, left
- * to go back, swipe down or tap ✕ to close. Ends on a CTA card that funnels to
- * signup + the live "see it on yourself" demo.
+ * MobileProductStory — "Meet Consent Resolve": a mobile-only, Tinder-style
+ * swipe deck that pitches a first-time visitor who's never heard of us.
  *
- * Mobile-only (lg:hidden). Pure CSS + one small inline script — no framework
- * island, consistent with the rest of the site. Rendered once in BaseLayout.
+ * Structure follows StoryBrand (SB7): the contractor is the HERO with a
+ * PROBLEM (anonymous visitors leaking away), Consent Resolve is the GUIDE with
+ * empathy + authority, offers a PLAN (3 steps), the signature "it's a match"
+ * reveal is the TRANSFORMATION, and the last card is the call to ACTION.
+ *
+ * Design language = a dating app: full-bleed profile cards you drag/swipe,
+ * blurred anonymous "faces" that resolve into a named, consented lead, round
+ * action buttons, progress pips. Opened from the mobile sticky "Demo" button
+ * via window.crOpenStory(). Pure CSS + vanilla JS, no framework island,
+ * fully self-contained (no external images). Rendered once in BaseLayout,
+ * mobile-only (lg:hidden).
  */
 const REGISTER = "https://dashboard.consentresolve.com/register";
-const DEMO = "/demo/?utm_source=mobile_story&utm_medium=story&utm_content=cta";
+const DEMO = "/demo/?utm_source=mobile_story&utm_medium=meet&utm_content=cta";
 
-// Four product steps + a final CTA card. Visuals are bespoke mini-scenes below,
-// keyed by `visual`. Copy is tight — one line reads in a thumb-tap.
-const cards = [
-  {
-    visual: "install",
-    eyebrow: "Step 1 · Install",
-    headline: "One line. Your banner does the asking.",
-    body: "Paste the snippet once. Nothing fires until a homeowner says yes.",
-  },
-  {
-    visual: "identify",
-    eyebrow: "Step 2 · Identify",
-    headline: "An anonymous visitor becomes a name.",
-    body: "The moment they consent, you see exactly who was on your site.",
-  },
-  {
-    visual: "connect",
-    eyebrow: "Step 3 · Connect",
-    headline: "Straight into the tools you already use.",
-    body: "Jobber, Housecall Pro, ServiceTitan, HubSpot — or any webhook.",
-  },
-  {
-    visual: "measure",
-    eyebrow: "Step 4 · Measure",
-    headline: "Watch recovered leads add up.",
-    body: "Same ad budget. More booked jobs — every one consented.",
-  },
-  { visual: "cta" },
+// Blurred "anonymous visitor" tiles — CSS gradient portraits, no real photos.
+const anon = [
+  "linear-gradient(150deg,#3b5bdb,#7048e8)",
+  "linear-gradient(150deg,#0ca678,#66a80f)",
+  "linear-gradient(150deg,#e8590c,#f08c00)",
+  "linear-gradient(150deg,#c2255c,#e64980)",
+  "linear-gradient(150deg,#1098ad,#0c8599)",
+  "linear-gradient(150deg,#5f3dc4,#9c36b5)",
 ];
+const CARDS = 7; // keep in sync with the <section data-card> count below
 ---
 
-<!-- Mobile-only overlay. Hidden until window.crOpenStory() adds .is-open. -->
-<div id="cr-story" class="cr-story lg:hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-label="How Consent Resolve works">
-  {/* Top chrome: progress bars + close */}
-  <div class="cr-story-top">
-    <div class="cr-story-bars" id="cr-story-bars">
-      {cards.map((_, i) => (
-        <span class="cr-story-bar" data-bar={i}><i></i></span>
+<div id="cr-story" class="mcr lg:hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Meet Consent Resolve">
+  {/* Top chrome: progress pips + close */}
+  <div class="mcr-top">
+    <div class="mcr-pips">
+      {Array.from({ length: CARDS }).map((_, i) => (
+        <span class="mcr-pip" data-pip={i}></span>
       ))}
     </div>
-    <div class="cr-story-chrome">
-      <span class="cr-story-brand">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Consent Resolve
+    <div class="mcr-chrome">
+      <span class="mcr-brand">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Meet Consent Resolve
       </span>
-      <button type="button" class="cr-story-close" aria-label="Close" onclick="window.crCloseStory&&window.crCloseStory()">
+      <button type="button" class="mcr-close" aria-label="Close" onclick="window.crCloseStory&&window.crCloseStory()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
   </div>
 
-  {/* Tap zones (behind content; CTA buttons re-enable pointer events) */}
-  <button type="button" class="cr-story-tap cr-story-prev" aria-label="Previous" tabindex="-1"></button>
-  <button type="button" class="cr-story-tap cr-story-next" aria-label="Next" tabindex="-1"></button>
+  {/* Card stack */}
+  <div class="mcr-stage" id="mcr-stage">
 
-  {/* Cards */}
-  <div class="cr-story-stage">
-    {cards.map((c, i) => (
-      <section class="cr-card" data-card={i} aria-hidden={i === 0 ? "false" : "true"}>
-        {c.visual === "install" && (
-          <div class="cr-viz">
-            <div class="cr-codecard">
-              <div class="cr-code-top"><span class="cr-dot"></span><span class="cr-dot"></span><span class="cr-dot"></span><em>index.html</em></div>
-              <pre class="cr-code"><span class="cr-tag">&lt;script</span> src=<span class="cr-str">"cr.js"</span><span class="cr-tag">&gt;&lt;/script&gt;</span></pre>
-            </div>
-            <div class="cr-arrow">↓</div>
-            <div class="cr-banner">
-              <div class="cr-banner-ic">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="2" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" stroke-linejoin="round"/></svg>
-              </div>
-              <p>We ask before identifying anyone. Accept to help this business serve you.</p>
-              <div class="cr-banner-btns"><span class="cr-b-ghost">Decline</span><span class="cr-b-fill">Accept</span></div>
-            </div>
+    {/* 0 — GUIDE intro: Consent Resolve as a dating profile */}
+    <section class="mcr-card" data-card="0">
+      <div class="mcr-profile mcr-p-brand">
+        <div class="mcr-photo mcr-photo-brand">
+          <div class="mcr-logo">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" stroke="#081019" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-        )}
+          <span class="mcr-verify">✓ Consent-first · Verified</span>
+        </div>
+        <div class="mcr-meta">
+          <h2>Consent Resolve <span class="mcr-age">est. permission</span></h2>
+          <p class="mcr-tag">Turns anonymous website visitors into consented leads</p>
+          <p class="mcr-bio">I help home-service pros actually meet the homeowners already on their site — only when they say yes. TCPA/CIPA-safe. $7 a lead, never resold.</p>
+          <div class="mcr-tags"><span>Consent-first</span><span>$7 a lead</span><span>Never resold</span></div>
+          <p class="mcr-swipe-hint">Swipe to meet the pros we're for →</p>
+        </div>
+      </div>
+    </section>
 
-        {c.visual === "identify" && (
-          <div class="cr-viz">
-            <div class="cr-vcard cr-vcard-ghost">
-              <span class="cr-avatar cr-avatar-ghost">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 10h.01M15 10h.01M6 20V9a6 6 0 0 1 12 0v11l-2-1.5L14 20l-2-1.5L10 20l-2-1.5z" stroke-linejoin="round"/></svg>
-              </span>
-              <div><b>Anonymous visitor</b><small>Left without a word</small></div>
-            </div>
-            <div class="cr-arrow">↓</div>
-            <div class="cr-vcard cr-vcard-named">
-              <span class="cr-avatar cr-avatar-named">J</span>
-              <div>
-                <b>Jordan M. <span class="cr-consent">✓ Consent signed</span></b>
-                <small>jordan.m@gmail.com</small>
-                <div class="cr-chips"><span>Viewed: AC replacement</span><span>Mobile</span></div>
-              </div>
-            </div>
+    {/* 1 — HERO: this is you */}
+    <section class="mcr-card" data-card="1">
+      <div class="mcr-profile">
+        <div class="mcr-photo" style="background:linear-gradient(160deg,#132a45,#0b1a2e)">
+          <div class="mcr-hero-ic">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="1.7" aria-hidden="true"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-5h6v5" stroke-linejoin="round"/></svg>
           </div>
-        )}
+          <span class="mcr-scrim-label">The Home-Service Pro</span>
+        </div>
+        <div class="mcr-meta">
+          <h2>This is you.</h2>
+          <p class="mcr-bio">Great on the tools. You run ads and you pay to bring homeowners to your website every single day.</p>
+          <p class="mcr-bio mcr-dim">There's just one problem…</p>
+        </div>
+      </div>
+    </section>
 
-        {c.visual === "connect" && (
-          <div class="cr-viz">
-            <div class="cr-leadpill"><span class="cr-avatar cr-avatar-named cr-sm">J</span> New lead · Jordan M.</div>
-            <div class="cr-arrow">↓</div>
-            <div class="cr-tiles">
-              {[["Jobber", true], ["Housecall Pro", true], ["ServiceTitan", false], ["HubSpot", true], ["GoHighLevel", false], ["Webhook", true]].map(([name, on]) => (
-                <div class={`cr-tile${on ? " is-on" : ""}`}>
-                  <span class="cr-tile-name">{name}</span>
-                  {on && <span class="cr-tile-check">✓</span>}
-                </div>
-              ))}
+    {/* 2 — PROBLEM / stakes: blurred anonymous faces */}
+    <section class="mcr-card" data-card="2">
+      <div class="mcr-problem">
+        <div class="mcr-facegrid">
+          {anon.map((bg) => (
+            <div class="mcr-face" style={`--bg:${bg}`}>
+              <svg viewBox="0 0 24 24" fill="rgba(255,255,255,0.55)" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+              <span class="mcr-q">?</span>
             </div>
-          </div>
-        )}
+          ))}
+        </div>
+        <div class="mcr-meta mcr-meta-center">
+          <p class="mcr-stat">98 of 100</p>
+          <h2>leave without a word.</h2>
+          <p class="mcr-bio">You paid for every one of these visits. Then they vanished — no name, no number. Ghosted.</p>
+        </div>
+      </div>
+    </section>
 
-        {c.visual === "measure" && (
-          <div class="cr-viz">
-            <div class="cr-kpi">
-              <small>Leads recovered · last 30 days</small>
-              <b>3,812 <span class="cr-up">▲ 106%</span></b>
-              <svg class="cr-spark" viewBox="0 0 300 90" preserveAspectRatio="none" aria-hidden="true">
-                <defs><linearGradient id="crg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--color-mint-400,#2ee6a6)" stop-opacity="0.35"/><stop offset="1" stop-color="var(--color-mint-400,#2ee6a6)" stop-opacity="0"/></linearGradient></defs>
-                <path d="M0 78 L40 72 L80 66 L120 54 L160 46 L200 30 L240 22 L300 8" fill="none" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M0 78 L40 72 L80 66 L120 54 L160 46 L200 30 L240 22 L300 8 L300 90 L0 90 Z" fill="url(#crg)"/>
-              </svg>
-              <span class="cr-note">Same ad budget — no new spend</span>
-            </div>
-          </div>
-        )}
+    {/* 3 — GUIDE empathy + authority */}
+    <section class="mcr-card" data-card="3">
+      <div class="mcr-say">
+        <div class="mcr-say-mark">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>We think that's a rip-off.</h2>
+        <p class="mcr-bio">So we built the fix — the only visitor-ID layer that asks the homeowner first. You meet the people already raising their hand, and you stay compliant doing it.</p>
+        <div class="mcr-badges">
+          <span>🛡️ TCPA / CIPA-safe</span>
+          <span>🤝 Consent on record</span>
+          <span>🔒 Exclusive to you</span>
+        </div>
+      </div>
+    </section>
 
-        {c.visual === "cta" ? (
-          <div class="cr-cta">
-            <div class="cr-cta-mark">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <h2>See it work on yourself.</h2>
-            <p>Play both roles in about 60 seconds — you'll get the exact new-lead email a contractor sees. The lead is you.</p>
-            <a class="cr-cta-primary" href={DEMO}>Try the live demo →</a>
-            <a class="cr-cta-secondary" href={REGISTER}>Start — $7 a lead, never resold</a>
-            <button type="button" class="cr-cta-restart" onclick="window.crStoryGo&&window.crStoryGo(0)">↺ Watch again</button>
+    {/* 4 — PLAN: 3 steps */}
+    <section class="mcr-card" data-card="4">
+      <div class="mcr-plan">
+        <p class="mcr-eyebrow">The plan</p>
+        <h2>How we get you introduced.</h2>
+        <ol>
+          <li><span class="mcr-step">1</span><div><b>Add one line</b><small>Drop our snippet on your site. Live in ~10 minutes.</small></div></li>
+          <li><span class="mcr-step">2</span><div><b>A homeowner says yes</b><small>Your consent banner asks. They accept.</small></div></li>
+          <li><span class="mcr-step">3</span><div><b>The intro hits your inbox</b><small>Name, email, what they were looking at.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    {/* 5 — TRANSFORMATION: the match (blur -> named lead) */}
+    <section class="mcr-card mcr-match-card" data-card="5">
+      <div class="mcr-match">
+        <p class="mcr-match-title">It's a match.</p>
+        <div class="mcr-match-avatars">
+          <span class="mcr-ava mcr-ava-pro">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#081019" stroke-width="1.8" aria-hidden="true"><path d="M3 21h18M5 21V10l7-5 7 5v11" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="mcr-heart">♥</span>
+          <span class="mcr-ava mcr-ava-lead">J</span>
+        </div>
+        <div class="mcr-reveal">
+          <div class="mcr-reveal-blur" aria-hidden="true" style="--bg:linear-gradient(150deg,#c2255c,#e64980)">
+            <svg viewBox="0 0 24 24" fill="rgba(255,255,255,0.55)"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
           </div>
-        ) : (
-          <div class="cr-copy">
-            <p class="cr-eyebrow">{c.eyebrow}</p>
-            <h2>{c.headline}</h2>
-            <p class="cr-body">{c.body}</p>
-            <span class="cr-hint">Tap to continue →</span>
+          <div class="mcr-reveal-card">
+            <b>Jordan M. <span class="mcr-consent">✓ consented</span></b>
+            <small>jordan.m@gmail.com</small>
+            <div class="mcr-chips"><span>Viewed: AC replacement</span><span>Ready to book</span></div>
           </div>
-        )}
-      </section>
-    ))}
+        </div>
+        <p class="mcr-bio mcr-meta-center">Jordan said yes. Now she's a lead only <b>you</b> get — not resold to five competitors.</p>
+      </div>
+    </section>
+
+    {/* 6 — SUCCESS + CTA */}
+    <section class="mcr-card mcr-cta-card" data-card="6">
+      <div class="mcr-cta">
+        <div class="mcr-cta-mark">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>Ready to meet them?</h2>
+        <p>Run the 60-second live demo — you'll play the homeowner and get the exact new-lead email a contractor sees. The lead is you.</p>
+        <a class="mcr-cta-primary" href={DEMO}>Try the live demo →</a>
+        <a class="mcr-cta-secondary" href={REGISTER}>Start — $7 a lead, never resold</a>
+        <button type="button" class="mcr-cta-restart" onclick="window.crStoryGo&&window.crStoryGo(0)">↺ Start over</button>
+      </div>
+    </section>
+  </div>
+
+  {/* Dating-app action buttons */}
+  <div class="mcr-actions" id="mcr-actions">
+    <button type="button" class="mcr-btn mcr-btn-back" aria-label="Back">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button type="button" class="mcr-btn mcr-btn-like" aria-label="Next">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-8-4.9-8-10.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8 4.5C20 16.1 12 21 12 21z"/></svg>
+    </button>
   </div>
 </div>
 
 <style is:global>
-  .cr-story {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    display: none;
-    flex-direction: column;
-    background: radial-gradient(120% 80% at 50% 0%, #0d1b2f 0%, var(--color-navy-900, #081019) 60%);
-    color: #fff;
-    -webkit-tap-highlight-color: transparent;
-    overscroll-behavior: contain;
+  .mcr {
+    position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column;
+    background: radial-gradient(130% 90% at 50% -10%, #14243c 0%, var(--color-navy-900,#081019) 62%);
+    color: #fff; -webkit-tap-highlight-color: transparent; overscroll-behavior: contain;
+    font-feature-settings: "ss01";
   }
-  .cr-story.is-open { display: flex; }
+  .mcr.is-open { display: flex; }
   body.cr-story-lock { overflow: hidden; }
 
   /* Top chrome */
-  .cr-story-top { position: relative; z-index: 20; padding: max(env(safe-area-inset-top), 0.75rem) 0.9rem 0; }
-  .cr-story-bars { display: flex; gap: 4px; }
-  .cr-story-bar { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.22); overflow: hidden; }
-  .cr-story-bar i { display: block; height: 100%; width: 0; background: var(--color-mint-400, #2ee6a6); }
-  .cr-story-bar.is-done i { width: 100%; }
-  .cr-story-bar.is-active i { width: 100%; }
-  .cr-story-chrome { display: flex; align-items: center; justify-content: space-between; margin-top: 0.7rem; }
-  .cr-story-brand { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.9rem; letter-spacing: -0.01em; }
-  .cr-story-close { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-right: -8px; color: rgba(255,255,255,0.85); background: none; border: 0; }
+  .mcr-top { position: relative; z-index: 20; padding: max(env(safe-area-inset-top),0.7rem) 0.9rem 0; }
+  .mcr-pips { display: flex; gap: 5px; }
+  .mcr-pip { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.2); transition: background .3s; }
+  .mcr-pip.is-done { background: rgba(255,255,255,0.45); }
+  .mcr-pip.is-active { background: var(--color-mint-400,#2ee6a6); }
+  .mcr-chrome { display: flex; align-items: center; justify-content: space-between; margin-top: 0.65rem; }
+  .mcr-brand { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.88rem; letter-spacing: -0.01em; }
+  .mcr-close { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-right: -8px; color: rgba(255,255,255,0.85); background: none; border: 0; }
 
-  /* Tap zones */
-  .cr-story-tap { position: absolute; top: 0; bottom: 0; z-index: 10; background: transparent; border: 0; padding: 0; }
-  .cr-story-prev { left: 0; width: 32%; }
-  .cr-story-next { right: 0; width: 68%; }
+  /* Stage + card stack */
+  .mcr-stage { position: relative; flex: 1; margin: 0.7rem 0.9rem 0; }
+  .mcr-card {
+    position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
+    padding: 0; border-radius: 22px; overflow: hidden;
+    background: #0c1a2e; border: 1px solid rgba(255,255,255,0.09);
+    box-shadow: 0 24px 60px -24px rgba(0,0,0,0.8);
+    opacity: 0; visibility: hidden; transform: scale(.92) translateY(16px); transform-origin: center bottom;
+    transition: transform .32s cubic-bezier(.2,.8,.2,1), opacity .3s;
+    will-change: transform;
+  }
+  .mcr-card.is-peek { opacity: 1; visibility: visible; transform: scale(.94) translateY(12px); }
+  .mcr-card.is-active { opacity: 1; visibility: visible; transform: none; z-index: 5; touch-action: pan-y; }
+  .mcr-card.is-dragging { transition: none; }
+  .mcr-card.fly-right { transform: translateX(130%) rotate(14deg) !important; opacity: 0; }
+  .mcr-card.fly-left { transform: translateX(-130%) rotate(-14deg) !important; opacity: 0; }
+  @media (prefers-reduced-motion: reduce) { .mcr-card { transition: opacity .2s; } }
 
-  /* Stage + cards */
-  .cr-story-stage { position: relative; flex: 1; display: flex; overflow: hidden; }
-  .cr-card { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 1.4rem; padding: 1.1rem 1.4rem calc(1.6rem + env(safe-area-inset-bottom)); opacity: 0; visibility: hidden; transform: translateX(3%); transition: opacity .28s ease, transform .28s ease; pointer-events: none; }
-  .cr-card.is-active { opacity: 1; visibility: visible; transform: none; }
+  /* Profile-style cards (photo + meta) */
+  .mcr-profile { display: flex; flex-direction: column; height: 100%; }
+  .mcr-photo { position: relative; flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+  .mcr-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(6,12,22,0.85) 100%); }
+  .mcr-photo-brand { background: radial-gradient(120% 90% at 50% 30%, #2ee6a6 0%, #12b886 55%, #0b7a5a 100%); }
+  .mcr-logo { width: 96px; height: 96px; border-radius: 28px; background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 50px -12px rgba(0,0,0,0.5); }
+  .mcr-verify { position: absolute; top: 14px; left: 14px; z-index: 2; font-size: 0.72rem; font-weight: 700; color: #081019; background: rgba(255,255,255,0.9); padding: 0.28rem 0.6rem; border-radius: 999px; }
+  .mcr-hero-ic { width: 92px; height: 92px; border-radius: 24px; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.35); display: flex; align-items: center; justify-content: center; }
+  .mcr-scrim-label { position: absolute; bottom: 14px; left: 16px; z-index: 2; font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.1em; }
 
-  /* Copy block */
-  .cr-copy { position: relative; z-index: 12; pointer-events: none; }
-  .cr-eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-mint-400, #2ee6a6); background: rgba(46,230,166,0.12); padding: 0.3rem 0.6rem; border-radius: 999px; }
-  .cr-copy h2 { margin: 0.7rem 0 0; font-size: clamp(1.5rem, 6.5vw, 2rem); font-weight: 800; line-height: 1.12; letter-spacing: -0.02em; text-wrap: balance; }
-  .cr-body { margin: 0.6rem 0 0; font-size: 1rem; line-height: 1.5; color: rgba(255,255,255,0.72); max-width: 34ch; }
-  .cr-hint { display: inline-block; margin-top: 1rem; font-size: 0.8rem; color: rgba(255,255,255,0.45); animation: crPulse 1.8s ease-in-out infinite; }
-  @keyframes crPulse { 0%,100% { opacity: .45; } 50% { opacity: .9; } }
-  @media (prefers-reduced-motion: reduce) { .cr-hint { animation: none; } .cr-card { transition: none; } }
+  .mcr-meta { flex: 0 0 auto; padding: 1rem 1.15rem 1.2rem; }
+  .mcr-meta-center { text-align: center; }
+  .mcr-meta h2, .mcr-say h2, .mcr-plan h2, .mcr-cta h2 { margin: 0; font-size: clamp(1.55rem,6.5vw,2rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; text-wrap: balance; }
+  .mcr-age { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.5); letter-spacing: 0; }
+  .mcr-tag { margin: 0.4rem 0 0; font-size: 0.95rem; font-weight: 600; color: var(--color-mint-400,#2ee6a6); }
+  .mcr-bio { margin: 0.55rem 0 0; font-size: 0.97rem; line-height: 1.5; color: rgba(255,255,255,0.74); }
+  .mcr-bio.mcr-dim { color: rgba(255,255,255,0.5); font-style: italic; }
+  .mcr-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
+  .mcr-tags span { font-size: 0.74rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 999px; background: rgba(46,230,166,0.12); color: var(--color-mint-400,#2ee6a6); border: 1px solid rgba(46,230,166,0.25); }
+  .mcr-swipe-hint { margin: 0.9rem 0 0; text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.5); animation: mcrPulse 1.8s ease-in-out infinite; }
+  @keyframes mcrPulse { 0%,100%{opacity:.5} 50%{opacity:.95} }
+  @media (prefers-reduced-motion: reduce) { .mcr-swipe-hint { animation: none; } }
 
-  /* Visual scaffolding */
-  .cr-viz { display: flex; flex-direction: column; align-items: stretch; gap: 0.55rem; }
-  .cr-arrow { text-align: center; color: rgba(255,255,255,0.35); font-size: 1.1rem; line-height: 1; }
+  /* Problem card */
+  .mcr-problem { display: flex; flex-direction: column; height: 100%; padding: 1.4rem 1.15rem; justify-content: center; gap: 1.2rem; }
+  .mcr-facegrid { display: grid; grid-template-columns: repeat(3,1fr); gap: 0.55rem; }
+  .mcr-face { position: relative; aspect-ratio: 3/4; border-radius: 14px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--bg); filter: blur(4px) saturate(1.1); animation: mcrFloat 3.4s ease-in-out infinite; }
+  .mcr-face:nth-child(2){animation-delay:.3s} .mcr-face:nth-child(3){animation-delay:.6s}
+  .mcr-face:nth-child(4){animation-delay:.9s} .mcr-face:nth-child(5){animation-delay:1.2s} .mcr-face:nth-child(6){animation-delay:1.5s}
+  .mcr-face svg { width: 46%; height: 46%; }
+  .mcr-face .mcr-q { position: absolute; font-size: 1.4rem; font-weight: 800; color: rgba(255,255,255,0.9); }
+  @keyframes mcrFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+  @media (prefers-reduced-motion: reduce) { .mcr-face { animation: none; } }
+  .mcr-stat { margin: 0; font-size: 2.6rem; font-weight: 800; letter-spacing: -0.03em; color: var(--color-mint-400,#2ee6a6); line-height: 1; }
 
-  /* install */
-  .cr-codecard { border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; background: #0a1524; overflow: hidden; }
-  .cr-code-top { display: flex; align-items: center; gap: 6px; padding: 0.5rem 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
-  .cr-code-top em { margin-left: auto; font-style: normal; font-size: 0.7rem; color: rgba(255,255,255,0.4); }
-  .cr-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.18); }
-  .cr-code { margin: 0; padding: 0.8rem 0.7rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; color: #cfe6ff; white-space: pre-wrap; word-break: break-word; }
-  .cr-code .cr-tag { color: #6ee7b7; }
-  .cr-code .cr-str { color: #fbbf77; }
-  .cr-banner { border: 1px solid rgba(46,230,166,0.35); border-radius: 14px; background: rgba(46,230,166,0.05); padding: 0.85rem 0.9rem; }
-  .cr-banner-ic { margin-bottom: 0.4rem; }
-  .cr-banner p { margin: 0; font-size: 0.9rem; line-height: 1.4; color: rgba(255,255,255,0.85); }
-  .cr-banner-btns { display: flex; gap: 0.5rem; margin-top: 0.7rem; }
-  .cr-b-ghost { flex: 0 0 auto; padding: 0.45rem 0.9rem; border-radius: 9px; font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.2); }
-  .cr-b-fill { flex: 0 0 auto; padding: 0.45rem 1.1rem; border-radius: 9px; font-size: 0.8rem; font-weight: 700; color: var(--color-navy-900, #081019); background: var(--color-mint-400, #2ee6a6); }
+  /* Guide (say) card */
+  .mcr-say { padding: 1.6rem 1.3rem; display: flex; flex-direction: column; justify-content: center; height: 100%; }
+  .mcr-say-mark { width: 62px; height: 62px; border-radius: 18px; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.35); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+  .mcr-badges, .mcr-tags { }
+  .mcr-badges { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.1rem; }
+  .mcr-badges span { font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); padding: 0.6rem 0.8rem; border-radius: 12px; }
 
-  /* identify */
-  .cr-vcard { display: flex; align-items: center; gap: 0.75rem; border-radius: 14px; padding: 0.85rem 0.9rem; border: 1px solid rgba(255,255,255,0.1); }
-  .cr-vcard small { display: block; color: rgba(255,255,255,0.5); font-size: 0.8rem; }
-  .cr-vcard b { font-size: 0.95rem; }
-  .cr-vcard-ghost { background: rgba(255,255,255,0.03); border-style: dashed; opacity: 0.85; }
-  .cr-vcard-ghost b, .cr-vcard-ghost small { color: rgba(255,255,255,0.45); }
-  .cr-vcard-named { background: linear-gradient(180deg, rgba(46,230,166,0.1), rgba(46,230,166,0.02)); border-color: rgba(46,230,166,0.4); }
-  .cr-avatar { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
-  .cr-avatar.cr-sm { width: 26px; height: 26px; font-size: 0.75rem; }
-  .cr-avatar-ghost { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); }
-  .cr-avatar-named { background: var(--color-mint-400, #2ee6a6); color: var(--color-navy-900, #081019); }
-  .cr-consent { font-size: 0.68rem; font-weight: 700; color: var(--color-mint-400, #2ee6a6); margin-left: 0.3rem; white-space: nowrap; }
-  .cr-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.45rem; }
-  .cr-chips span { font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 999px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
+  /* Plan card */
+  .mcr-plan { padding: 1.6rem 1.3rem; display: flex; flex-direction: column; justify-content: center; height: 100%; }
+  .mcr-eyebrow { display: inline-block; align-self: flex-start; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-mint-400,#2ee6a6); background: rgba(46,230,166,0.12); padding: 0.3rem 0.6rem; border-radius: 999px; margin-bottom: 0.6rem; }
+  .mcr-plan ol { list-style: none; margin: 1.2rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 1rem; }
+  .mcr-plan li { display: flex; gap: 0.85rem; align-items: flex-start; }
+  .mcr-step { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; background: var(--color-mint-400,#2ee6a6); color: #081019; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .mcr-plan li b { font-size: 1rem; }
+  .mcr-plan li small { display: block; margin-top: 0.15rem; font-size: 0.85rem; color: rgba(255,255,255,0.6); }
 
-  /* connect */
-  .cr-leadpill { display: inline-flex; align-items: center; gap: 0.5rem; align-self: center; padding: 0.45rem 0.85rem 0.45rem 0.45rem; border-radius: 999px; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.4); font-size: 0.85rem; font-weight: 700; }
-  .cr-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-  .cr-tile { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0.8rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.6); }
-  .cr-tile.is-on { border-color: rgba(46,230,166,0.45); background: rgba(46,230,166,0.08); color: #fff; }
-  .cr-tile-check { color: var(--color-mint-400, #2ee6a6); font-weight: 800; }
-
-  /* measure */
-  .cr-kpi { border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; background: rgba(255,255,255,0.03); padding: 1.1rem 1.1rem 0.9rem; }
-  .cr-kpi small { color: rgba(255,255,255,0.55); font-size: 0.8rem; }
-  .cr-kpi b { display: block; margin-top: 0.25rem; font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em; }
-  .cr-up { font-size: 0.9rem; font-weight: 700; color: var(--color-mint-400, #2ee6a6); vertical-align: middle; }
-  .cr-spark { width: 100%; height: 72px; margin-top: 0.6rem; }
-  .cr-note { display: inline-block; margin-top: 0.3rem; font-size: 0.78rem; color: rgba(255,255,255,0.55); }
+  /* Match card */
+  .mcr-match-card { background: radial-gradient(120% 80% at 50% 20%, #17324a 0%, #0b1a2e 60%); }
+  .mcr-match { padding: 1.4rem 1.3rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+  .mcr-match-title { margin: 0; font-size: 2.1rem; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(90deg,#2ee6a6,#63e6be); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .mcr-match-avatars { display: flex; align-items: center; gap: 0.4rem; margin: 1.1rem 0 0.4rem; }
+  .mcr-ava { width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.5rem; border: 3px solid rgba(255,255,255,0.15); }
+  .mcr-ava-pro { background: var(--color-mint-400,#2ee6a6); color: #081019; }
+  .mcr-ava-lead { background: linear-gradient(150deg,#c2255c,#e64980); color: #fff; }
+  .mcr-heart { color: #ff6b8a; font-size: 1.5rem; animation: mcrBeat 1s ease-in-out infinite; }
+  @keyframes mcrBeat { 0%,100%{transform:scale(1)} 30%{transform:scale(1.25)} }
+  @media (prefers-reduced-motion: reduce) { .mcr-heart { animation: none; } }
+  .mcr-reveal { position: relative; width: 100%; max-width: 320px; margin: 1rem 0; min-height: 96px; }
+  .mcr-reveal-blur { position: absolute; inset: 0; margin: auto; width: 84px; height: 84px; border-radius: 16px; background: var(--bg); filter: blur(7px); display: flex; align-items: center; justify-content: center; opacity: 1; transition: opacity .5s ease; }
+  .mcr-reveal-blur svg { width: 46px; height: 46px; fill: rgba(255,255,255,0.55); }
+  .mcr-reveal-card { position: relative; z-index: 2; text-align: left; background: linear-gradient(180deg, rgba(46,230,166,0.12), rgba(46,230,166,0.03)); border: 1px solid rgba(46,230,166,0.4); border-radius: 16px; padding: 0.85rem 0.95rem; opacity: 0; transform: translateY(10px) scale(.96); transition: opacity .55s ease .25s, transform .55s ease .25s; }
+  .mcr-reveal-card b { font-size: 1rem; }
+  .mcr-reveal-card small { display: block; color: rgba(255,255,255,0.6); font-size: 0.82rem; margin-top: 0.1rem; }
+  .mcr-consent { font-size: 0.68rem; font-weight: 700; color: var(--color-mint-400,#2ee6a6); margin-left: 0.3rem; }
+  .mcr-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
+  .mcr-chips span { font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 999px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); }
+  /* Reveal fires when the match card becomes active */
+  .mcr-card.is-active.mcr-match-card .mcr-reveal-blur { opacity: 0; }
+  .mcr-card.is-active.mcr-match-card .mcr-reveal-card { opacity: 1; transform: none; }
 
   /* CTA card */
-  .cr-cta { position: relative; z-index: 30; pointer-events: auto; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
-  .cr-cta-mark { width: 74px; height: 74px; border-radius: 22px; display: flex; align-items: center; justify-content: center; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.35); margin-bottom: 0.4rem; }
-  .cr-cta h2 { margin: 0.3rem 0 0; font-size: clamp(1.6rem, 7vw, 2.1rem); font-weight: 800; letter-spacing: -0.02em; }
-  .cr-cta p { margin: 0.6rem 0 1.1rem; font-size: 0.98rem; line-height: 1.5; color: rgba(255,255,255,0.72); max-width: 32ch; }
-  .cr-cta-primary { display: block; width: 100%; padding: 0.95rem; border-radius: 14px; background: var(--color-mint-400, #2ee6a6); color: var(--color-navy-900, #081019); font-weight: 800; font-size: 1rem; box-shadow: 0 12px 30px -10px rgba(46,230,166,0.6); }
-  .cr-cta-secondary { display: block; width: 100%; margin-top: 0.6rem; padding: 0.9rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 600; font-size: 0.92rem; }
-  .cr-cta-restart { margin-top: 1rem; background: none; border: 0; color: rgba(255,255,255,0.5); font-size: 0.85rem; font-weight: 600; }
+  .mcr-cta-card { background: radial-gradient(120% 80% at 50% 15%, #14243c 0%, #0b1a2e 60%); }
+  .mcr-cta { padding: 1.5rem 1.3rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+  .mcr-cta-mark { width: 72px; height: 72px; border-radius: 22px; display: flex; align-items: center; justify-content: center; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.35); margin-bottom: 0.5rem; }
+  .mcr-cta p { margin: 0.6rem 0 1.1rem; font-size: 0.96rem; line-height: 1.5; color: rgba(255,255,255,0.74); max-width: 32ch; }
+  .mcr-cta-primary { display: block; width: 100%; padding: 0.95rem; border-radius: 14px; background: var(--color-mint-400,#2ee6a6); color: #081019; font-weight: 800; font-size: 1rem; box-shadow: 0 14px 32px -10px rgba(46,230,166,0.6); }
+  .mcr-cta-secondary { display: block; width: 100%; margin-top: 0.6rem; padding: 0.9rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 600; font-size: 0.92rem; }
+  .mcr-cta-restart { margin-top: 1rem; background: none; border: 0; color: rgba(255,255,255,0.5); font-size: 0.85rem; font-weight: 600; }
+
+  /* Dating-app action buttons */
+  .mcr-actions { position: relative; z-index: 20; display: flex; align-items: center; justify-content: center; gap: 1.6rem; padding: 0.9rem 0 calc(1rem + env(safe-area-inset-bottom)); }
+  .mcr-btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #0e2036; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 10px 24px -10px rgba(0,0,0,0.7); }
+  .mcr-btn-back { width: 52px; height: 52px; color: #ffb454; }
+  .mcr-btn-like { width: 64px; height: 64px; color: #ff6b8a; }
+  .mcr-btn:active { transform: scale(0.92); }
+  .mcr-btn[disabled] { opacity: 0.35; }
+  .mcr-actions.is-hidden { display: none; }
 </style>
 
 <script is:inline>
   (function () {
     var el = document.getElementById("cr-story");
     if (!el) return;
-    var cards = [].slice.call(el.querySelectorAll(".cr-card"));
-    var bars = [].slice.call(el.querySelectorAll(".cr-story-bar"));
-    var i = 0;
+    var stage = document.getElementById("mcr-stage");
+    var cards = [].slice.call(el.querySelectorAll(".mcr-card"));
+    var pips = [].slice.call(el.querySelectorAll(".mcr-pip"));
+    var actions = document.getElementById("mcr-actions");
+    var backBtn = el.querySelector(".mcr-btn-back");
+    var likeBtn = el.querySelector(".mcr-btn-like");
+    var i = 0, n = cards.length, animating = false;
+
+    function isLast() { return i === n - 1; }
 
     function render() {
-      cards.forEach(function (c, n) {
-        var on = n === i;
-        c.classList.toggle("is-active", on);
-        c.setAttribute("aria-hidden", on ? "false" : "true");
+      cards.forEach(function (c, k) {
+        c.classList.remove("is-active", "is-peek", "fly-left", "fly-right", "is-dragging");
+        c.style.transform = "";
+        if (k === i) c.classList.add("is-active");
+        else if (k === i + 1) c.classList.add("is-peek");
       });
-      bars.forEach(function (b, n) {
-        b.classList.toggle("is-done", n < i);
-        b.classList.toggle("is-active", n === i);
+      pips.forEach(function (p, k) {
+        p.classList.toggle("is-done", k < i);
+        p.classList.toggle("is-active", k === i);
       });
+      backBtn.disabled = i === 0;
+      // On the final (CTA) card the buttons are the real links, so hide the deck controls.
+      actions.classList.toggle("is-hidden", isLast());
     }
-    function go(n) { i = Math.max(0, Math.min(cards.length - 1, n)); render(); }
-    function next() { if (i < cards.length - 1) go(i + 1); }
-    function prev() { if (i > 0) go(i - 1); }
 
+    function go(k) { i = Math.max(0, Math.min(n - 1, k)); render(); }
     window.crStoryGo = go;
+
+    function fly(dir) {
+      if (animating) return;
+      var card = cards[i];
+      if (dir === "right" && isLast()) return;      // nothing past the end
+      if (dir === "left" && i === 0) { snapBack(card); return; }
+      animating = true;
+      card.classList.add(dir === "right" ? "fly-right" : "fly-left");
+      setTimeout(function () {
+        animating = false;
+        go(dir === "right" ? i + 1 : i - 1);
+      }, 300);
+    }
+    function snapBack(card) { card.classList.remove("is-dragging"); card.style.transform = ""; }
+
+    likeBtn.addEventListener("click", function () { fly("right"); });
+    backBtn.addEventListener("click", function () { fly("left"); });
+
     window.crOpenStory = function () {
       go(0);
       el.classList.add("is-open");
@@ -302,23 +381,47 @@ const cards = [
       document.body.classList.remove("cr-story-lock");
     };
 
-    el.querySelector(".cr-story-next").addEventListener("click", next);
-    el.querySelector(".cr-story-prev").addEventListener("click", prev);
+    // Keyboard (desktop QA + a11y)
     document.addEventListener("keydown", function (e) {
       if (!el.classList.contains("is-open")) return;
       if (e.key === "Escape") window.crCloseStory();
-      else if (e.key === "ArrowRight") next();
-      else if (e.key === "ArrowLeft") prev();
+      else if (e.key === "ArrowRight") fly("right");
+      else if (e.key === "ArrowLeft") fly("left");
     });
 
-    // Swipe down to close.
-    var y0 = null;
-    el.addEventListener("touchstart", function (e) { y0 = e.touches[0].clientY; }, { passive: true });
-    el.addEventListener("touchend", function (e) {
-      if (y0 == null) return;
-      var dy = e.changedTouches[0].clientY - y0;
-      if (dy > 90) window.crCloseStory();
-      y0 = null;
+    // Drag / swipe physics on the active card
+    var startX = 0, startY = 0, dx = 0, dragging = false, decided = false, horizontal = false;
+    stage.addEventListener("touchstart", function (e) {
+      if (animating || isLast()) return;
+      var card = cards[i];
+      if (!card.classList.contains("is-active")) return;
+      startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+      dx = 0; dragging = true; decided = false; horizontal = false;
     }, { passive: true });
+    stage.addEventListener("touchmove", function (e) {
+      if (!dragging) return;
+      var t = e.touches[0];
+      dx = t.clientX - startX;
+      var dy = t.clientY - startY;
+      if (!decided) {
+        decided = true;
+        horizontal = Math.abs(dx) > Math.abs(dy);
+        if (horizontal) cards[i].classList.add("is-dragging");
+      }
+      if (!horizontal) return;
+      cards[i].style.transform = "translateX(" + dx + "px) rotate(" + (dx / 22) + "deg)";
+    }, { passive: true });
+    stage.addEventListener("touchend", function () {
+      if (!dragging) return;
+      dragging = false;
+      var card = cards[i];
+      if (!horizontal) { // treat a tap as advance
+        if (Math.abs(dx) < 8) fly("right");
+        return;
+      }
+      if (dx > 80) fly("right");
+      else if (dx < -80) fly("left");
+      else snapBack(card);
+    });
   })();
 </script>
