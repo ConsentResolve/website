@@ -1,0 +1,324 @@
+---
+/**
+ * MobileProductStory — a frictionless, full-screen, tap-through "product story"
+ * (Instagram/Snapchat-Stories UX) for phones. Opened from the mobile sticky bar
+ * via window.crOpenStory(). No form, no scroll — just tap right to advance, left
+ * to go back, swipe down or tap ✕ to close. Ends on a CTA card that funnels to
+ * signup + the live "see it on yourself" demo.
+ *
+ * Mobile-only (lg:hidden). Pure CSS + one small inline script — no framework
+ * island, consistent with the rest of the site. Rendered once in BaseLayout.
+ */
+const REGISTER = "https://dashboard.consentresolve.com/register";
+const DEMO = "/demo/?utm_source=mobile_story&utm_medium=story&utm_content=cta";
+
+// Four product steps + a final CTA card. Visuals are bespoke mini-scenes below,
+// keyed by `visual`. Copy is tight — one line reads in a thumb-tap.
+const cards = [
+  {
+    visual: "install",
+    eyebrow: "Step 1 · Install",
+    headline: "One line. Your banner does the asking.",
+    body: "Paste the snippet once. Nothing fires until a homeowner says yes.",
+  },
+  {
+    visual: "identify",
+    eyebrow: "Step 2 · Identify",
+    headline: "An anonymous visitor becomes a name.",
+    body: "The moment they consent, you see exactly who was on your site.",
+  },
+  {
+    visual: "connect",
+    eyebrow: "Step 3 · Connect",
+    headline: "Straight into the tools you already use.",
+    body: "Jobber, Housecall Pro, ServiceTitan, HubSpot — or any webhook.",
+  },
+  {
+    visual: "measure",
+    eyebrow: "Step 4 · Measure",
+    headline: "Watch recovered leads add up.",
+    body: "Same ad budget. More booked jobs — every one consented.",
+  },
+  { visual: "cta" },
+];
+---
+
+<!-- Mobile-only overlay. Hidden until window.crOpenStory() adds .is-open. -->
+<div id="cr-story" class="cr-story lg:hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-label="How Consent Resolve works">
+  {/* Top chrome: progress bars + close */}
+  <div class="cr-story-top">
+    <div class="cr-story-bars" id="cr-story-bars">
+      {cards.map((_, i) => (
+        <span class="cr-story-bar" data-bar={i}><i></i></span>
+      ))}
+    </div>
+    <div class="cr-story-chrome">
+      <span class="cr-story-brand">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Consent Resolve
+      </span>
+      <button type="button" class="cr-story-close" aria-label="Close" onclick="window.crCloseStory&&window.crCloseStory()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  {/* Tap zones (behind content; CTA buttons re-enable pointer events) */}
+  <button type="button" class="cr-story-tap cr-story-prev" aria-label="Previous" tabindex="-1"></button>
+  <button type="button" class="cr-story-tap cr-story-next" aria-label="Next" tabindex="-1"></button>
+
+  {/* Cards */}
+  <div class="cr-story-stage">
+    {cards.map((c, i) => (
+      <section class="cr-card" data-card={i} aria-hidden={i === 0 ? "false" : "true"}>
+        {c.visual === "install" && (
+          <div class="cr-viz">
+            <div class="cr-codecard">
+              <div class="cr-code-top"><span class="cr-dot"></span><span class="cr-dot"></span><span class="cr-dot"></span><em>index.html</em></div>
+              <pre class="cr-code"><span class="cr-tag">&lt;script</span> src=<span class="cr-str">"cr.js"</span><span class="cr-tag">&gt;&lt;/script&gt;</span></pre>
+            </div>
+            <div class="cr-arrow">↓</div>
+            <div class="cr-banner">
+              <div class="cr-banner-ic">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="2" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" stroke-linejoin="round"/></svg>
+              </div>
+              <p>We ask before identifying anyone. Accept to help this business serve you.</p>
+              <div class="cr-banner-btns"><span class="cr-b-ghost">Decline</span><span class="cr-b-fill">Accept</span></div>
+            </div>
+          </div>
+        )}
+
+        {c.visual === "identify" && (
+          <div class="cr-viz">
+            <div class="cr-vcard cr-vcard-ghost">
+              <span class="cr-avatar cr-avatar-ghost">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 10h.01M15 10h.01M6 20V9a6 6 0 0 1 12 0v11l-2-1.5L14 20l-2-1.5L10 20l-2-1.5z" stroke-linejoin="round"/></svg>
+              </span>
+              <div><b>Anonymous visitor</b><small>Left without a word</small></div>
+            </div>
+            <div class="cr-arrow">↓</div>
+            <div class="cr-vcard cr-vcard-named">
+              <span class="cr-avatar cr-avatar-named">J</span>
+              <div>
+                <b>Jordan M. <span class="cr-consent">✓ Consent signed</span></b>
+                <small>jordan.m@gmail.com</small>
+                <div class="cr-chips"><span>Viewed: AC replacement</span><span>Mobile</span></div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {c.visual === "connect" && (
+          <div class="cr-viz">
+            <div class="cr-leadpill"><span class="cr-avatar cr-avatar-named cr-sm">J</span> New lead · Jordan M.</div>
+            <div class="cr-arrow">↓</div>
+            <div class="cr-tiles">
+              {[["Jobber", true], ["Housecall Pro", true], ["ServiceTitan", false], ["HubSpot", true], ["GoHighLevel", false], ["Webhook", true]].map(([name, on]) => (
+                <div class={`cr-tile${on ? " is-on" : ""}`}>
+                  <span class="cr-tile-name">{name}</span>
+                  {on && <span class="cr-tile-check">✓</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {c.visual === "measure" && (
+          <div class="cr-viz">
+            <div class="cr-kpi">
+              <small>Leads recovered · last 30 days</small>
+              <b>3,812 <span class="cr-up">▲ 106%</span></b>
+              <svg class="cr-spark" viewBox="0 0 300 90" preserveAspectRatio="none" aria-hidden="true">
+                <defs><linearGradient id="crg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--color-mint-400,#2ee6a6)" stop-opacity="0.35"/><stop offset="1" stop-color="var(--color-mint-400,#2ee6a6)" stop-opacity="0"/></linearGradient></defs>
+                <path d="M0 78 L40 72 L80 66 L120 54 L160 46 L200 30 L240 22 L300 8" fill="none" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M0 78 L40 72 L80 66 L120 54 L160 46 L200 30 L240 22 L300 8 L300 90 L0 90 Z" fill="url(#crg)"/>
+              </svg>
+              <span class="cr-note">Same ad budget — no new spend</span>
+            </div>
+          </div>
+        )}
+
+        {c.visual === "cta" ? (
+          <div class="cr-cta">
+            <div class="cr-cta-mark">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h2>See it work on yourself.</h2>
+            <p>Play both roles in about 60 seconds — you'll get the exact new-lead email a contractor sees. The lead is you.</p>
+            <a class="cr-cta-primary" href={DEMO}>Try the live demo →</a>
+            <a class="cr-cta-secondary" href={REGISTER}>Start — $7 a lead, never resold</a>
+            <button type="button" class="cr-cta-restart" onclick="window.crStoryGo&&window.crStoryGo(0)">↺ Watch again</button>
+          </div>
+        ) : (
+          <div class="cr-copy">
+            <p class="cr-eyebrow">{c.eyebrow}</p>
+            <h2>{c.headline}</h2>
+            <p class="cr-body">{c.body}</p>
+            <span class="cr-hint">Tap to continue →</span>
+          </div>
+        )}
+      </section>
+    ))}
+  </div>
+</div>
+
+<style is:global>
+  .cr-story {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+    background: radial-gradient(120% 80% at 50% 0%, #0d1b2f 0%, var(--color-navy-900, #081019) 60%);
+    color: #fff;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: contain;
+  }
+  .cr-story.is-open { display: flex; }
+  body.cr-story-lock { overflow: hidden; }
+
+  /* Top chrome */
+  .cr-story-top { position: relative; z-index: 20; padding: max(env(safe-area-inset-top), 0.75rem) 0.9rem 0; }
+  .cr-story-bars { display: flex; gap: 4px; }
+  .cr-story-bar { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.22); overflow: hidden; }
+  .cr-story-bar i { display: block; height: 100%; width: 0; background: var(--color-mint-400, #2ee6a6); }
+  .cr-story-bar.is-done i { width: 100%; }
+  .cr-story-bar.is-active i { width: 100%; }
+  .cr-story-chrome { display: flex; align-items: center; justify-content: space-between; margin-top: 0.7rem; }
+  .cr-story-brand { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.9rem; letter-spacing: -0.01em; }
+  .cr-story-close { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-right: -8px; color: rgba(255,255,255,0.85); background: none; border: 0; }
+
+  /* Tap zones */
+  .cr-story-tap { position: absolute; top: 0; bottom: 0; z-index: 10; background: transparent; border: 0; padding: 0; }
+  .cr-story-prev { left: 0; width: 32%; }
+  .cr-story-next { right: 0; width: 68%; }
+
+  /* Stage + cards */
+  .cr-story-stage { position: relative; flex: 1; display: flex; overflow: hidden; }
+  .cr-card { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 1.4rem; padding: 1.1rem 1.4rem calc(1.6rem + env(safe-area-inset-bottom)); opacity: 0; visibility: hidden; transform: translateX(3%); transition: opacity .28s ease, transform .28s ease; pointer-events: none; }
+  .cr-card.is-active { opacity: 1; visibility: visible; transform: none; }
+
+  /* Copy block */
+  .cr-copy { position: relative; z-index: 12; pointer-events: none; }
+  .cr-eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-mint-400, #2ee6a6); background: rgba(46,230,166,0.12); padding: 0.3rem 0.6rem; border-radius: 999px; }
+  .cr-copy h2 { margin: 0.7rem 0 0; font-size: clamp(1.5rem, 6.5vw, 2rem); font-weight: 800; line-height: 1.12; letter-spacing: -0.02em; text-wrap: balance; }
+  .cr-body { margin: 0.6rem 0 0; font-size: 1rem; line-height: 1.5; color: rgba(255,255,255,0.72); max-width: 34ch; }
+  .cr-hint { display: inline-block; margin-top: 1rem; font-size: 0.8rem; color: rgba(255,255,255,0.45); animation: crPulse 1.8s ease-in-out infinite; }
+  @keyframes crPulse { 0%,100% { opacity: .45; } 50% { opacity: .9; } }
+  @media (prefers-reduced-motion: reduce) { .cr-hint { animation: none; } .cr-card { transition: none; } }
+
+  /* Visual scaffolding */
+  .cr-viz { display: flex; flex-direction: column; align-items: stretch; gap: 0.55rem; }
+  .cr-arrow { text-align: center; color: rgba(255,255,255,0.35); font-size: 1.1rem; line-height: 1; }
+
+  /* install */
+  .cr-codecard { border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; background: #0a1524; overflow: hidden; }
+  .cr-code-top { display: flex; align-items: center; gap: 6px; padding: 0.5rem 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .cr-code-top em { margin-left: auto; font-style: normal; font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+  .cr-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.18); }
+  .cr-code { margin: 0; padding: 0.8rem 0.7rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; color: #cfe6ff; white-space: pre-wrap; word-break: break-word; }
+  .cr-code .cr-tag { color: #6ee7b7; }
+  .cr-code .cr-str { color: #fbbf77; }
+  .cr-banner { border: 1px solid rgba(46,230,166,0.35); border-radius: 14px; background: rgba(46,230,166,0.05); padding: 0.85rem 0.9rem; }
+  .cr-banner-ic { margin-bottom: 0.4rem; }
+  .cr-banner p { margin: 0; font-size: 0.9rem; line-height: 1.4; color: rgba(255,255,255,0.85); }
+  .cr-banner-btns { display: flex; gap: 0.5rem; margin-top: 0.7rem; }
+  .cr-b-ghost { flex: 0 0 auto; padding: 0.45rem 0.9rem; border-radius: 9px; font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.2); }
+  .cr-b-fill { flex: 0 0 auto; padding: 0.45rem 1.1rem; border-radius: 9px; font-size: 0.8rem; font-weight: 700; color: var(--color-navy-900, #081019); background: var(--color-mint-400, #2ee6a6); }
+
+  /* identify */
+  .cr-vcard { display: flex; align-items: center; gap: 0.75rem; border-radius: 14px; padding: 0.85rem 0.9rem; border: 1px solid rgba(255,255,255,0.1); }
+  .cr-vcard small { display: block; color: rgba(255,255,255,0.5); font-size: 0.8rem; }
+  .cr-vcard b { font-size: 0.95rem; }
+  .cr-vcard-ghost { background: rgba(255,255,255,0.03); border-style: dashed; opacity: 0.85; }
+  .cr-vcard-ghost b, .cr-vcard-ghost small { color: rgba(255,255,255,0.45); }
+  .cr-vcard-named { background: linear-gradient(180deg, rgba(46,230,166,0.1), rgba(46,230,166,0.02)); border-color: rgba(46,230,166,0.4); }
+  .cr-avatar { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+  .cr-avatar.cr-sm { width: 26px; height: 26px; font-size: 0.75rem; }
+  .cr-avatar-ghost { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); }
+  .cr-avatar-named { background: var(--color-mint-400, #2ee6a6); color: var(--color-navy-900, #081019); }
+  .cr-consent { font-size: 0.68rem; font-weight: 700; color: var(--color-mint-400, #2ee6a6); margin-left: 0.3rem; white-space: nowrap; }
+  .cr-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.45rem; }
+  .cr-chips span { font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 999px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
+
+  /* connect */
+  .cr-leadpill { display: inline-flex; align-items: center; gap: 0.5rem; align-self: center; padding: 0.45rem 0.85rem 0.45rem 0.45rem; border-radius: 999px; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.4); font-size: 0.85rem; font-weight: 700; }
+  .cr-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .cr-tile { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0.8rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.6); }
+  .cr-tile.is-on { border-color: rgba(46,230,166,0.45); background: rgba(46,230,166,0.08); color: #fff; }
+  .cr-tile-check { color: var(--color-mint-400, #2ee6a6); font-weight: 800; }
+
+  /* measure */
+  .cr-kpi { border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; background: rgba(255,255,255,0.03); padding: 1.1rem 1.1rem 0.9rem; }
+  .cr-kpi small { color: rgba(255,255,255,0.55); font-size: 0.8rem; }
+  .cr-kpi b { display: block; margin-top: 0.25rem; font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em; }
+  .cr-up { font-size: 0.9rem; font-weight: 700; color: var(--color-mint-400, #2ee6a6); vertical-align: middle; }
+  .cr-spark { width: 100%; height: 72px; margin-top: 0.6rem; }
+  .cr-note { display: inline-block; margin-top: 0.3rem; font-size: 0.78rem; color: rgba(255,255,255,0.55); }
+
+  /* CTA card */
+  .cr-cta { position: relative; z-index: 30; pointer-events: auto; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+  .cr-cta-mark { width: 74px; height: 74px; border-radius: 22px; display: flex; align-items: center; justify-content: center; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.35); margin-bottom: 0.4rem; }
+  .cr-cta h2 { margin: 0.3rem 0 0; font-size: clamp(1.6rem, 7vw, 2.1rem); font-weight: 800; letter-spacing: -0.02em; }
+  .cr-cta p { margin: 0.6rem 0 1.1rem; font-size: 0.98rem; line-height: 1.5; color: rgba(255,255,255,0.72); max-width: 32ch; }
+  .cr-cta-primary { display: block; width: 100%; padding: 0.95rem; border-radius: 14px; background: var(--color-mint-400, #2ee6a6); color: var(--color-navy-900, #081019); font-weight: 800; font-size: 1rem; box-shadow: 0 12px 30px -10px rgba(46,230,166,0.6); }
+  .cr-cta-secondary { display: block; width: 100%; margin-top: 0.6rem; padding: 0.9rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 600; font-size: 0.92rem; }
+  .cr-cta-restart { margin-top: 1rem; background: none; border: 0; color: rgba(255,255,255,0.5); font-size: 0.85rem; font-weight: 600; }
+</style>
+
+<script is:inline>
+  (function () {
+    var el = document.getElementById("cr-story");
+    if (!el) return;
+    var cards = [].slice.call(el.querySelectorAll(".cr-card"));
+    var bars = [].slice.call(el.querySelectorAll(".cr-story-bar"));
+    var i = 0;
+
+    function render() {
+      cards.forEach(function (c, n) {
+        var on = n === i;
+        c.classList.toggle("is-active", on);
+        c.setAttribute("aria-hidden", on ? "false" : "true");
+      });
+      bars.forEach(function (b, n) {
+        b.classList.toggle("is-done", n < i);
+        b.classList.toggle("is-active", n === i);
+      });
+    }
+    function go(n) { i = Math.max(0, Math.min(cards.length - 1, n)); render(); }
+    function next() { if (i < cards.length - 1) go(i + 1); }
+    function prev() { if (i > 0) go(i - 1); }
+
+    window.crStoryGo = go;
+    window.crOpenStory = function () {
+      go(0);
+      el.classList.add("is-open");
+      el.setAttribute("aria-hidden", "false");
+      document.body.classList.add("cr-story-lock");
+    };
+    window.crCloseStory = function () {
+      el.classList.remove("is-open");
+      el.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("cr-story-lock");
+    };
+
+    el.querySelector(".cr-story-next").addEventListener("click", next);
+    el.querySelector(".cr-story-prev").addEventListener("click", prev);
+    document.addEventListener("keydown", function (e) {
+      if (!el.classList.contains("is-open")) return;
+      if (e.key === "Escape") window.crCloseStory();
+      else if (e.key === "ArrowRight") next();
+      else if (e.key === "ArrowLeft") prev();
+    });
+
+    // Swipe down to close.
+    var y0 = null;
+    el.addEventListener("touchstart", function (e) { y0 = e.touches[0].clientY; }, { passive: true });
+    el.addEventListener("touchend", function (e) {
+      if (y0 == null) return;
+      var dy = e.changedTouches[0].clientY - y0;
+      if (dy > 90) window.crCloseStory();
+      y0 = null;
+    }, { passive: true });
+  })();
+</script>

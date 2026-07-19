@@ -4,6 +4,7 @@ import SEO from "~/components/SEO.astro";
 import Nav from "~/components/sections/Nav.astro";
 import Footer from "~/components/sections/Footer.astro";
 import MobileStickyCTA from "~/components/sections/MobileStickyCTA.astro";
+import MobileProductStory from "~/components/sections/MobileProductStory.astro";
 
 interface Props {
   title: string;
@@ -163,5 +164,6 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     </main>
     <Footer />
     <MobileStickyCTA />
+    <MobileProductStory />
   </body>
 </html>

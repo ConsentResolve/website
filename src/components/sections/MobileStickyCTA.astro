@@ -25,21 +25,35 @@ const isLeadsLP = /-leads\/?$/.test(pathname);
     aria-label="Quick actions"
   >
     <div class="flex items-center gap-2 rounded-2xl bg-[color:var(--color-navy-900)] p-2 ring-1 ring-inset ring-white/10 shadow-[0_18px_36px_-12px_rgba(10,22,40,0.55)]">
-      {/* Secondary action — hidden on the narrowest phones. On /[trade]-leads/
-          landing pages the PRIMARY (brand) button is the live demo and this
-          secondary carries "Get Started"; elsewhere it's how-it-works. */}
+      {/* Secondary action — hidden on the narrowest phones. Always the signup
+          link so "Get Started" stays reachable now that the PRIMARY (brand)
+          button leads with a demo. */}
       <a
-        href={isLeadsLP ? "https://dashboard.consentresolve.com/register" : "/how-it-works/"}
+        href="https://dashboard.consentresolve.com/register"
         class="hidden flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/15 hover:bg-white/5 sm:inline-flex"
       >
-        {isLeadsLP ? "Get Started — $7" : "How it works"}
+        Get Started — $7
       </a>
-      <a
-        href={isLeadsLP ? "/demo/?utm_source=industry_lp&utm_medium=landing_page&utm_content=sticky" : "https://dashboard.consentresolve.com/register"}
-        class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[color:var(--color-brand)] px-3 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
-      >
-        {isLeadsLP ? "See a live demo" : "Get Started — $7"}
-      </a>
+      {/* PRIMARY (brand) — a frictionless demo. On /[trade]-leads/ landing pages
+          it's the live "see it on yourself" demo; everywhere else it opens the
+          full-screen tap-through product story (window.crOpenStory). */}
+      {isLeadsLP ? (
+        <a
+          href="/demo/?utm_source=industry_lp&utm_medium=landing_page&utm_content=sticky"
+          class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[color:var(--color-brand)] px-3 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
+        >
+          See a live demo
+        </a>
+      ) : (
+        <button
+          type="button"
+          onclick="window.crOpenStory&&window.crOpenStory()"
+          class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[color:var(--color-brand)] px-3 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] hover:bg-[color:var(--color-brand-pressed)] hover:text-white"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+          See how it works
+        </button>
+      )}
       {/* Chat with us — opens Crisp (window.crOpenChat, defined in BaseLayout) */}
       <button
         type="button"
