@@ -4,23 +4,13 @@
  *
  * Five full-width sections, each a 2-column grid on desktop:
  *   - Text column (left): eyebrow + headline + body + 3-bullet checklist
- *   - Screen column (right): browser chrome + scaled-to-fit demo screen
+ *   - Screen column (right): a real product screenshot (rendered from the
+ *     /screenshot-demo/ app mockups → public/images/product/*.jpg), shown in a
+ *     fixed 16:10 frame.
  *
- * No callout pins / hotspot labels — clean read of each screen.
- * Sticky chip nav at the top lets the reader jump directly to any
- * step. Alternating background tints (bg ↔ bg-alt) section to section
- * for vertical rhythm. The screen column collapses below the text on
- * mobile.
- *
- * Per-screen scale tuning lives in the `scale` field — the demo screen
- * renders at native width inside a fixed 16:10 frame with overflow:hidden,
- * so no internal scrollbars.
+ * The screen is a static <img>, so it never scrolls. Regenerate the shots with
+ * scripts/shoot-product-screens.sh if the demo UI changes.
  */
-import ConsentScreen from "~/components/ui/demo/ConsentScreen.astro";
-import VisitorsScreen from "~/components/ui/demo/VisitorsScreen.astro";
-import VisitorDetailScreen from "~/components/ui/demo/VisitorDetailScreen.astro";
-import IntegrationsScreen from "~/components/ui/demo/IntegrationsScreen.astro";
-import DashboardScreen from "~/components/ui/demo/DashboardScreen.astro";
 import Badge from "~/components/ui/Badge.astro";
 import { IconCheck } from "@tabler/icons-react";
 
@@ -30,15 +20,13 @@ interface Stage {
   headline: string;
   body: string;
   bullets: string[];
-  screen: "consent" | "visitors" | "visitor-detail" | "integrations" | "dashboard";
-  path: string;
-  /** Scale factor — tuned per screen so its key content fits the frame. */
-  scale: number;
+  /** Product screenshot shown in the frame (from public/images/product/). */
+  src: string;
 }
 
 const stages: Stage[] = [
   {
-    slug: "install", eyebrow: "Install", path: "consent",
+    slug: "install", eyebrow: "Install",
     headline: "Paste one line. Live in about 10 minutes.",
     body: "Drop the Consent Resolve snippet into your site's <head>. Your existing consent banner does the asking — we wire ourselves in alongside Termageddon-backed policies and start identifying the second a homeowner says yes.",
     bullets: [
@@ -46,10 +34,10 @@ const stages: Stage[] = [
       "No developer required, no app to install",
       "Most pros are live in about 10 minutes; same day at most",
     ],
-    screen: "consent", scale: 0.68,
+    src: "/images/product/consent.jpg",
   },
   {
-    slug: "identify", eyebrow: "Identify", path: "visitors",
+    slug: "identify", eyebrow: "Identify",
     headline: "Real people fill the list in real time.",
     body: "Every consented visitor lands in your Visitors view with a device, location, view count, and time since visit. Search, filter, sort — find exactly the homeowners who matter today.",
     bullets: [
@@ -57,10 +45,10 @@ const stages: Stage[] = [
       "Device + timezone shown at a glance",
       "Consent recorded and signed on every record",
     ],
-    screen: "visitors", scale: 0.62,
+    src: "/images/product/visitors.jpg",
   },
   {
-    slug: "review", eyebrow: "Review", path: "visitors/k7…l",
+    slug: "review", eyebrow: "Review",
     headline: "Open a recovered visitor — see what they were shopping.",
     body: "Click any recovered visitor for the full record: lead score, contact + enrichment data, a signed, timestamped consent record with audit ID, and a timeline of every page they looked at. The intel that shapes how your funnel re-engages them.",
     bullets: [
@@ -68,10 +56,10 @@ const stages: Stage[] = [
       "Signed, timestamped consent with audit ID",
       "Activity timeline of every page viewed",
     ],
-    screen: "visitor-detail", scale: 0.58,
+    src: "/images/product/visitors.jpg",
   },
   {
-    slug: "feed-funnel", eyebrow: "Feed the funnel", path: "integrations",
+    slug: "feed-funnel", eyebrow: "Feed the funnel",
     headline: "Drop into the funnel you already run.",
     body: "Recovered visitors flow into your retargeting audiences, your email/SMS sequences, and your CRM — Jobber, Housecall Pro, ServiceTitan, HubSpot, GoHighLevel, or anything custom via webhook. We're an input to your existing marketing machine, not a replacement for it.",
     bullets: [
@@ -79,10 +67,10 @@ const stages: Stage[] = [
       "One-click connect to common platforms",
       "Webhook for anything custom",
     ],
-    screen: "integrations", scale: 0.62,
+    src: "/images/product/integrations.jpg",
   },
   {
-    slug: "measure", eyebrow: "Measure", path: "dashboard",
+    slug: "measure", eyebrow: "Measure",
     headline: "Watch recovery add up.",
     body: "The dashboard tracks recovered visitors, what's detected and excluded from billing, and the trend over time — so you can tie recovery spend to the jobs your funnel books. The math that matters: same ad budget, more inbound calls, lower blended cost per booked job.",
     bullets: [
@@ -90,7 +78,7 @@ const stages: Stage[] = [
       "Ad-blocked traffic detected and excluded from billing",
       "Trend chart + live recovery feed",
     ],
-    screen: "dashboard", scale: 0.62,
+    src: "/images/product/dashboard.jpg",
   },
 ];
 ---
@@ -145,20 +133,20 @@ const stages: Stage[] = [
             </ul>
           </div>
 
-          {/* Screen — framed like the industry "live product preview": the real
-               dashboard UI at native size in a capped, scroll-to-explore ring frame
-               (no toy browser chrome; the screens carry their own app shell). */}
+          {/* Screen — a real product screenshot in a fixed 16:10 frame. It's a
+               static image, so it never scrolls. */}
           <div class="tour-step-screen">
             <div class="tour-shot">
-              <div class="tour-shot-native">
-                {stage.screen === "consent"        && <ConsentScreen />}
-                {stage.screen === "visitors"       && <VisitorsScreen />}
-                {stage.screen === "visitor-detail" && <VisitorDetailScreen />}
-                {stage.screen === "integrations"   && <IntegrationsScreen />}
-                {stage.screen === "dashboard"      && <DashboardScreen />}
-              </div>
+              <img
+                class="tour-frame"
+                src={stage.src}
+                alt={`${stage.eyebrow} — Consent Resolve product screen`}
+                width="1280"
+                height="800"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
-            <p class="tour-shot-cap">Scroll to explore the screen ↕</p>
           </div>
         </div>
       </div>
@@ -233,7 +221,6 @@ const stages: Stage[] = [
     color: var(--color-ink-2);
     background: rgba(0, 229, 160, 0.07);
   }
-  /* Anchor-target highlight: when the URL hash matches, color the chip */
   .tour-nav-chip:focus {
     outline: none;
     color: var(--color-brand-pressed);
@@ -306,25 +293,25 @@ const stages: Stage[] = [
     background: var(--color-brand-soft);
   }
 
-  /* Screen column — matches the industry "live product preview": the real
-     dashboard UI at native width inside a capped, scroll-to-explore ring frame. */
+  /* Screen column — a product screenshot in a fixed 16:10 frame. A static
+     image, so it never scrolls. */
   .tour-step-screen { position: relative; }
   .tour-shot {
-    max-height: 460px;
-    overflow: auto;
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
     border-radius: 1.25rem;
     background: var(--color-bg);
     box-shadow:
       0 0 0 1px var(--color-rule),
       0 40px 80px -28px rgba(10, 22, 40, 0.45),
       0 12px 24px -8px rgba(10, 22, 40, 0.22);
-    -webkit-overflow-scrolling: touch;
   }
-  .tour-shot-native { min-width: 760px; }
-  .tour-shot-cap {
-    margin-top: 0.7rem;
-    text-align: center;
-    font-size: 0.72rem;
-    color: var(--color-ink-muted);
+  .tour-frame {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
   }
 </style>
