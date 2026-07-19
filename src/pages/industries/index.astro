@@ -341,11 +341,18 @@ const demoSlug = "water-heater-replacement";
     });
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      vid.muted = false;
+      // iOS Safari only routes audio when play() is the DIRECT result of the tap,
+      // BEFORE any seek. Seeking currentTime=0 first (as we used to) leaves the
+      // video silent on iOS — "nothing happens". So: unmute + play() now, then
+      // rewind to the start once playback holds.
       vid.loop = false;
       vid.controls = true;
-      try { vid.currentTime = 0; } catch {}
-      const p = vid.play(); if (p && p.catch) p.catch(() => {});
+      vid.muted = false;
+      vid.volume = 1;
+      const rewind = () => { try { vid.currentTime = 0; } catch {} vid.muted = false; };
+      const p = vid.play();
+      if (p && p.then) p.then(rewind).catch(() => { rewind(); const r = vid.play(); if (r && r.catch) r.catch(() => {}); });
+      else rewind();
       btn.style.display = "none";
     });
     vid.addEventListener("ended", () => {
