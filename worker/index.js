@@ -67,6 +67,7 @@ import * as crmMetaLaunch from "./api/crm-meta-launch.js";
 import * as seoApi from "./api/seo.js";
 import * as seoDash from "./seo.js";
 import { logAeoTelemetry } from "./_lib/aeo.js";
+import { BLOG_REDIRECTS } from "./_lib/redirects.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -185,6 +186,14 @@ export default {
         return new Response(obj.body, { status: 206, headers });
       }
       return new Response(obj.body, { status: 200, headers });
+    }
+
+    // Blog slug redirects — old rewritten/duplicate slugs → canonical. Kept in the
+    // Worker (not public/_redirects) because Cloudflare caps _redirects at 100 rules.
+    {
+      const norm = url.pathname.replace(/\/+$/, "") || "/";
+      const to = BLOG_REDIRECTS[norm];
+      if (to) return Response.redirect(new URL(to, url.origin).toString(), 301);
     }
 
     // CRM app (gated: admin session OR ?key=<CRM_KEY>). Worker-rendered like /admin.
