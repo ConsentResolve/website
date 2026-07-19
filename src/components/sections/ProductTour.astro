@@ -1,434 +1,356 @@
 ---
 /**
- * Product walkthrough — sticky-scroll storytelling.
+ * Product walkthrough — alternating step story.
  *
- * Desktop: a two-column layout. The steps scroll on the left; a browser-framed
- * product screenshot pins (position: sticky) on the right and crossfades from
- * screen to screen as each step reaches the center of the viewport (driven by an
- * IntersectionObserver). The mock address bar and a progress rail update with it.
- * This is the "show, don't tell" centerpiece — a new visitor watches the real
- * product go from install → a named list → connected tools → the dashboard.
- *
- * Mobile: the sticky column is hidden; each step shows its own screenshot inline.
- *
- * Screens are static JPGs rendered from the /screenshot-demo/ app mockups
- * (public/images/product/*.jpg — regenerate with scripts/shoot-product-screens.sh).
+ * Four full-width steps. Each is a 2-column row (text + a purpose-built visual
+ * "vignette") whose sides ALTERNATE down the page. Each vignette is bespoke,
+ * legible HTML/SVG built to explain that one step — not a dense app screenshot —
+ * so a brand-new visitor can read the story at a glance. A "next step" button on
+ * every step scrolls to the following one (the last one is the CTA).
  */
 import Badge from "~/components/ui/Badge.astro";
-import { IconCheck } from "@tabler/icons-react";
+import {
+  IconCheck, IconArrowRight, IconArrowDown, IconShieldCheck, IconGhost,
+  IconMail, IconDeviceMobile, IconClock, IconPlugConnected, IconTrendingUp, IconBolt,
+} from "@tabler/icons-react";
+
+// Kept as a string so Astro doesn't parse the <script> tag.
+const snippet = '<script src="cdn.consentresolve.com/cr.js"></' + "script>";
 
 interface Stage {
+  id: string;
+  num: number;
   eyebrow: string;
-  url: string;
+  visual: "install" | "identify" | "connect" | "measure";
   headline: string;
   body: string;
   bullets: string[];
-  src: string;
+  next: { label: string; href: string; cta?: boolean };
 }
 
 const stages: Stage[] = [
   {
-    eyebrow: "Step 1 · Install",
-    url: "app.consentresolve.com/install",
-    headline: "One line of code. Your banner does the asking.",
-    body: "Paste the Consent Resolve snippet once. Your existing consent banner asks for permission — and the moment a homeowner says yes, we start identifying. No developer, no new banner, live in about 10 minutes.",
-    bullets: [
-      "Works on WordPress, Wix, Squarespace, GHL, ServiceTitan",
-      "Your Termageddon-backed policies stay current",
-      "Nothing happens until the homeowner consents",
-    ],
-    src: "/images/product/consent.jpg",
+    id: "wt-install", num: 1, eyebrow: "Install", visual: "install",
+    headline: "Paste one line. Your banner does the asking.",
+    body: "Drop the Consent Resolve snippet into your site once. Your existing consent banner asks for permission — and the moment a homeowner says yes, identification begins. No developer, no new banner, live in about 10 minutes.",
+    bullets: ["Works on WordPress, Wix, Squarespace, GHL, ServiceTitan", "Nothing happens until the homeowner consents"],
+    next: { label: "See who shows up", href: "#wt-identify" },
   },
   {
-    eyebrow: "Step 2 · Identify",
-    url: "app.consentresolve.com/visitors",
+    id: "wt-identify", num: 2, eyebrow: "Identify", visual: "identify",
     headline: "Anonymous visitors become a named list.",
-    body: "Every consented homeowner lands in your Visitors view — a real name, a deliverable email, the pages they viewed, device and location, and a signed consent record. Search, filter, and sort to the ones who matter today.",
-    bullets: [
-      "Real names + consented emails, not anonymous hits",
-      "The pages they viewed — so you already know the job",
-      "A signed, timestamped consent record on every one",
-    ],
-    src: "/images/product/visitors.jpg",
+    body: "Every consented homeowner turns from an anonymous hit into a real record — a name, a deliverable email, the pages they viewed, and a signed consent receipt. You know who they are and what job they came for.",
+    bullets: ["A real name + consented email, not an anonymous visit", "The pages they viewed — so you already know the job", "A signed, timestamped consent record on every one"],
+    next: { label: "Send them to your tools", href: "#wt-connect" },
   },
   {
-    eyebrow: "Step 3 · Connect",
-    url: "app.consentresolve.com/integrations",
+    id: "wt-connect", num: 3, eyebrow: "Connect", visual: "connect",
     headline: "Feed the funnel you already run.",
-    body: "Recovered visitors flow straight into your retargeting audiences, email/SMS sequences, and CRM — Jobber, Housecall Pro, ServiceTitan, HubSpot, GoHighLevel, or anything custom via webhook. Consent Resolve is an input to your marketing, not a replacement for it.",
-    bullets: [
-      "One-click connect to the tools you already use",
-      "Pushes to retargeting audiences + CRM automatically",
-      "Webhook for anything custom",
-    ],
-    src: "/images/product/integrations.jpg",
+    body: "Each recovered lead flows straight into your retargeting audiences, email/SMS, and CRM — Jobber, Housecall Pro, ServiceTitan, HubSpot, GoHighLevel, or anything custom via webhook. Consent Resolve is an input to your marketing, not a replacement.",
+    bullets: ["One-click connect to the tools you already use", "Webhook for anything custom"],
+    next: { label: "Watch it add up", href: "#wt-measure" },
   },
   {
-    eyebrow: "Step 4 · Measure",
-    url: "app.consentresolve.com/dashboard",
+    id: "wt-measure", num: 4, eyebrow: "Measure", visual: "measure",
     headline: "Watch recovery add up.",
-    body: "The dashboard ties recovered visitors to the trend over time — what's enriched, what's ad-blocked and excluded from billing, and a live feed of homeowners coming back. Same ad budget, more inbound calls, lower blended cost per booked job.",
-    bullets: [
-      "Recovered + enriched counts at a glance",
-      "Ad-blocked traffic detected and never billed",
-      "Live recovery feed + trend chart",
-    ],
-    src: "/images/product/dashboard.jpg",
+    body: "The dashboard ties recovered visitors to the trend over time — same ad budget, more inbound calls, a lower blended cost per booked job. The homeowners you were losing become the ones calling you back.",
+    bullets: ["Recovered + enriched counts at a glance", "Ad-blocked traffic detected and never billed"],
+    next: { label: "Get started — $7 a lead", href: "https://dashboard.consentresolve.com/register", cta: true },
   },
 ];
-
-const dot = "h-2.5 w-2.5 rounded-full";
 ---
 
 <section class="wt" id="product-tour" aria-label="Product walkthrough">
   <div aria-hidden="true" class="wt-glow wt-glow-a"></div>
-  <div aria-hidden="true" class="wt-glow wt-glow-b"></div>
 
   <div class="container-content relative">
     <header class="wt-header">
       <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>The walkthrough</Badge></div>
-      <h2 class="display-2 text-[color:var(--color-ink)]">Watch it happen — screen by screen.</h2>
-      <p class="mt-5 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-        The actual product, in the order you'll use it. Scroll to walk an anonymous visitor from install to the dashboard that proves it paid off.
-      </p>
+      <h2 class="wt-title">See it work, step by step.</h2>
+      <p class="wt-sub">The actual product, in the order you'll use it — from one line of code to the homeowners calling you back.</p>
     </header>
 
-    <div class="wt-grid">
-      {/* Steps — scroll past the pinned screen */}
-      <ol class="wt-steps">
-        {stages.map((s, i) => (
-          <li class:list={["wt-step", i === 0 && "is-active"]} data-step={i}>
-            <span class="wt-step-eyebrow">{s.eyebrow}</span>
-            <h3 class="wt-step-title">{s.headline}</h3>
-            <p class="wt-step-body">{s.body}</p>
-            <ul class="wt-step-bullets">
-              {s.bullets.map((b) => (
-                <li>
-                  <span class="wt-step-check" aria-hidden="true">
-                    <IconCheck size={12} stroke={3} color="var(--color-brand-pressed)" />
-                  </span>
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-
-            {/* Mobile-only inline screen (the sticky column is hidden on mobile) */}
-            <div class="wt-shot-mobile">
-              <div class="wt-frame">
-                <div class="wt-chrome">
-                  <span class={dot} style="background:#ff5f57"></span>
-                  <span class={dot} style="background:#febc2e"></span>
-                  <span class={dot} style="background:#28c840"></span>
-                  <span class="wt-url">{s.url}</span>
-                </div>
-                <div class="wt-screens">
-                  <img class="wt-screen is-active" src={s.src} alt={`${s.eyebrow} — Consent Resolve product screen`} width="1280" height="800" loading="lazy" decoding="async" />
-                </div>
+    <div class="wt-steps">
+      {stages.map((s, i) => (
+        <article id={s.id} class:list={["wt-step", i % 2 === 1 && "is-reversed"]}>
+          <div class="wt-grid">
+            {/* Text */}
+            <div class="wt-text">
+              <div class="wt-eyebrow">
+                <span class="wt-num">{s.num}</span>
+                <span>{s.eyebrow}</span>
               </div>
+              <h3 class="wt-step-title">{s.headline}</h3>
+              <p class="wt-step-body">{s.body}</p>
+              <ul class="wt-bullets">
+                {s.bullets.map((b) => (
+                  <li>
+                    <span class="wt-check" aria-hidden="true"><IconCheck size={12} stroke={3} color="var(--color-brand-pressed)" /></span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+              <a href={s.next.href} class:list={["wt-next", s.next.cta && "is-cta"]}>
+                {s.next.label}
+                {s.next.cta ? <IconArrowRight size={17} stroke={2.25} /> : <IconArrowDown size={17} stroke={2.25} />}
+              </a>
             </div>
-          </li>
-        ))}
-      </ol>
 
-      {/* Sticky visual — pins and crossfades as steps scroll (desktop) */}
-      <div class="wt-visual" aria-hidden="true">
-        <div class="wt-sticky">
-          <div class="wt-frame">
-            <div class="wt-chrome">
-              <span class={dot} style="background:#ff5f57"></span>
-              <span class={dot} style="background:#febc2e"></span>
-              <span class={dot} style="background:#28c840"></span>
-              <span class="wt-url" data-url>{stages[0].url}</span>
-            </div>
-            <div class="wt-screens">
-              {stages.map((s, i) => (
-                <img
-                  class:list={["wt-screen", i === 0 && "is-active"]}
-                  data-screen={i}
-                  src={s.src}
-                  alt=""
-                  width="1280"
-                  height="800"
-                  loading={i === 0 ? "eager" : "lazy"}
-                  decoding="async"
-                />
-              ))}
+            {/* Visual vignette (bespoke per step) */}
+            <div class="wt-visual" aria-hidden="true">
+              {s.visual === "install" && (
+                <div class="wv">
+                  <div class="wv-code">
+                    <span class="wv-code-lang">index.html</span>
+                    <code>{snippet}</code>
+                    <span class="wv-chip">1 line</span>
+                  </div>
+                  <div class="wv-conn"><IconArrowDown size={18} stroke={2} /> <span>your existing banner asks</span></div>
+                  <div class="wv-banner">
+                    <span class="wv-banner-ic"><IconShieldCheck size={20} stroke={1.9} /></span>
+                    <p>We ask before identifying anyone. Accept to help this business serve you better.</p>
+                    <div class="wv-banner-btns">
+                      <span class="wv-btn wv-btn-ghost">Decline</span>
+                      <span class="wv-btn wv-btn-accept">Accept</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {s.visual === "identify" && (
+                <div class="wv wv-stack">
+                  <div class="wv-card wv-ghost">
+                    <span class="wv-av wv-av-ghost"><IconGhost size={18} stroke={1.8} /></span>
+                    <div><p class="wv-name">Anonymous visitor</p><p class="wv-meta">Left without a word</p></div>
+                    <span class="wv-x">—</span>
+                  </div>
+                  <div class="wv-conn wv-conn-mint"><IconArrowDown size={16} stroke={2.25} /> <span>consents</span></div>
+                  <div class="wv-card wv-named">
+                    <span class="wv-av">J</span>
+                    <div class="wv-card-body">
+                      <p class="wv-name">Jordan M.</p>
+                      <p class="wv-row"><IconMail size={13} stroke={1.9} /> jordan.m@gmail.com</p>
+                      <div class="wv-tags">
+                        <span class="wv-tag wv-tag-mint">Viewed: AC replacement</span>
+                        <span class="wv-tag"><IconDeviceMobile size={12} stroke={1.9} /> Mobile</span>
+                        <span class="wv-tag"><IconClock size={12} stroke={1.9} /> 2 min ago</span>
+                      </div>
+                    </div>
+                    <span class="wv-consent"><IconShieldCheck size={13} stroke={2} /> Consent signed</span>
+                  </div>
+                  <div class="wv-card wv-named wv-dim">
+                    <span class="wv-av">R</span>
+                    <div class="wv-card-body"><p class="wv-name">Rosa D.</p><p class="wv-row"><IconMail size={13} stroke={1.9} /> rosa.d@outlook.com</p></div>
+                    <span class="wv-consent"><IconShieldCheck size={13} stroke={2} /> Signed</span>
+                  </div>
+                </div>
+              )}
+
+              {s.visual === "connect" && (
+                <div class="wv">
+                  <div class="wv-lead"><span class="wv-av">J</span> New lead · Jordan M. <span class="wv-lead-badge">$7</span></div>
+                  <div class="wv-conn wv-conn-mint"><IconArrowDown size={16} stroke={2.25} /> <span>flows into</span></div>
+                  <div class="wv-tiles">
+                    {[
+                      { n: "Jobber", on: true }, { n: "Housecall Pro", on: true }, { n: "ServiceTitan", on: false },
+                      { n: "HubSpot", on: true }, { n: "GoHighLevel", on: false }, { n: "Webhook", on: true },
+                    ].map((t) => (
+                      <div class:list={["wv-tile", t.on && "is-on"]}>
+                        <span class="wv-tile-ic"><IconPlugConnected size={16} stroke={1.8} /></span>
+                        <span class="wv-tile-name">{t.n}</span>
+                        {t.on ? <span class="wv-tile-on"><IconCheck size={13} stroke={2.5} /></span> : <span class="wv-tile-off">Connect</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {s.visual === "measure" && (
+                <div class="wv">
+                  <div class="wv-kpis">
+                    <div class="wv-kpi">
+                      <p class="wv-kpi-label">Recovered this month</p>
+                      <p class="wv-kpi-num">3,812 <span class="wv-up"><IconTrendingUp size={15} stroke={2.25} /> +106%</span></p>
+                    </div>
+                    <div class="wv-kpi wv-kpi-sm">
+                      <p class="wv-kpi-label">Ad-blocked · not billed</p>
+                      <p class="wv-kpi-num2">396</p>
+                    </div>
+                  </div>
+                  <svg class="wv-chart" viewBox="0 0 320 90" preserveAspectRatio="none" role="img" aria-label="Recovery trend, up and to the right">
+                    <defs><linearGradient id="wvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00e5a0" stop-opacity="0.35"/><stop offset="1" stop-color="#00e5a0" stop-opacity="0"/></linearGradient></defs>
+                    <path d="M0 78 L40 70 L80 66 L120 52 L160 55 L200 40 L240 34 L280 22 L320 12 L320 90 L0 90 Z" fill="url(#wvg)"/>
+                    <path d="M0 78 L40 70 L80 66 L120 52 L160 55 L200 40 L240 34 L280 22 L320 12" fill="none" stroke="#00e5a0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div class="wv-note"><IconBolt size={14} stroke={2} /> Same ad budget · lower cost per booked job</div>
+                </div>
+              )}
             </div>
           </div>
-          <div class="wt-progress" role="presentation">
-            {stages.map((_, i) => (
-              <span class:list={["wt-seg", i === 0 && "is-active"]} data-seg={i}></span>
-            ))}
-          </div>
-        </div>
-      </div>
+        </article>
+      ))}
     </div>
   </div>
 </section>
 
-<script is:inline>
-  (function () {
-    var steps = Array.prototype.slice.call(document.querySelectorAll(".wt-step"));
-    var screens = document.querySelectorAll(".wt-screen[data-screen]");
-    var segs = document.querySelectorAll(".wt-seg");
-    var urlEl = document.querySelector("[data-url]");
-    if (!steps.length || !("IntersectionObserver" in window)) return;
-    var urls = steps.map(function (s) {
-      var scr = s.querySelector(".wt-url");
-      return scr ? scr.textContent : "";
-    });
-    var current = -1;
-    function activate(i) {
-      if (i === current) return;
-      current = i;
-      steps.forEach(function (s, k) { s.classList.toggle("is-active", k === i); });
-      screens.forEach(function (s, k) { s.classList.toggle("is-active", k === i); });
-      segs.forEach(function (s, k) { s.classList.toggle("is-active", k <= i); });
-      if (urlEl && urls[i]) urlEl.textContent = urls[i];
-    }
-    // A thin band at viewport center: the step crossing it becomes active.
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) activate(parseInt(e.target.getAttribute("data-step"), 10));
-      });
-    }, { rootMargin: "-48% 0px -48% 0px", threshold: 0 });
-    steps.forEach(function (s) { io.observe(s); });
-  })();
-</script>
-
 <style>
   .wt {
     position: relative;
-    overflow: hidden;
+    overflow: clip;
     background: var(--color-bg);
-    padding-block: 6rem 5rem;
+    padding-block: 5.5rem 4.5rem;
   }
   .wt-glow {
     position: absolute;
-    width: 640px;
-    height: 640px;
+    top: -180px; left: 50%;
+    width: 720px; height: 620px;
+    transform: translateX(-50%);
     border-radius: 9999px;
     pointer-events: none;
-    filter: blur(130px);
-  }
-  .wt-glow-a { top: -180px; left: -140px; background: rgba(0, 229, 160, 0.16); }
-  .wt-glow-b { bottom: -220px; right: -140px; background: rgba(0, 229, 160, 0.1); }
-
-  .wt-header {
-    max-width: 760px;
-    margin: 0 auto 3.5rem;
-    text-align: center;
+    filter: blur(140px);
+    background: rgba(0, 229, 160, 0.12);
   }
 
-  /* ── Layout ─────────────────────────────────────────────────── */
-  .wt-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-    position: relative;
-  }
-  @media (min-width: 1024px) {
-    .wt-grid {
-      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-      gap: 4.5rem;
-      align-items: start;
-    }
-  }
-
-  /* ── Steps (scrolling column) ───────────────────────────────── */
-  .wt-steps {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    counter-reset: wt;
-  }
-  .wt-step {
-    position: relative;
-    counter-increment: wt;
-    padding-left: 0;
-  }
-  @media (min-width: 1024px) {
-    /* Tall steps create the scroll distance the pinned screen needs. */
-    .wt-step {
-      min-height: 82vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      opacity: 0.38;
-      transition: opacity 0.4s ease;
-      padding-left: 2.25rem;
-      border-left: 2px solid var(--color-rule);
-    }
-    .wt-step.is-active {
-      opacity: 1;
-      border-left-color: var(--color-brand);
-    }
-    /* Numbered marker on the rail */
-    .wt-step::before {
-      content: counter(wt);
-      position: absolute;
-      left: -1.05rem;
-      top: calc(50% - 1rem);
-      width: 2rem;
-      height: 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 9999px;
-      background: var(--color-bg);
-      box-shadow: 0 0 0 2px var(--color-rule);
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 0.85rem;
-      color: var(--color-ink-muted);
-      transition: color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
-    }
-    .wt-step.is-active::before {
-      color: var(--color-navy-900);
-      background: var(--color-brand);
-      box-shadow: 0 0 0 2px var(--color-brand), 0 8px 22px -6px rgba(0, 229, 160, 0.6);
-    }
-  }
-  .wt-step + .wt-step { margin-top: 2.5rem; }
-  @media (min-width: 1024px) { .wt-step + .wt-step { margin-top: 0; } }
-
-  .wt-step-eyebrow {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--color-brand-pressed);
-  }
-  .wt-step-title {
+  /* ── Header (responsive, never clipped) ─────────────────────── */
+  .wt-header { max-width: 720px; margin: 0 auto 3.5rem; text-align: center; }
+  .wt-title {
     font-family: var(--font-display);
     font-weight: 900;
-    font-size: clamp(1.5rem, 2.6vw, 2.1rem);
-    line-height: 1.1;
-    letter-spacing: -0.025em;
+    font-size: clamp(1.9rem, 5vw, 3rem);
+    line-height: 1.06;
+    letter-spacing: -0.03em;
     color: var(--color-ink);
-    margin: 0.6rem 0 0.85rem;
+    text-wrap: balance;
   }
-  .wt-step-body {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: var(--color-ink-2);
-    max-width: 34rem;
-  }
-  .wt-step-bullets {
-    margin: 1.4rem 0 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.65rem;
-  }
-  .wt-step-bullets li {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.6rem;
-    font-size: 0.93rem;
-    line-height: 1.5;
-    color: var(--color-ink-2);
-  }
-  .wt-step-check {
-    margin-top: 2px;
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 9999px;
-    background: var(--color-brand-soft);
-  }
-
-  /* ── Sticky visual column ───────────────────────────────────── */
-  .wt-visual { display: none; }
-  @media (min-width: 1024px) {
-    .wt-visual { display: block; }
-    .wt-sticky {
-      position: sticky;
-      top: 15vh;
-    }
-  }
-
-  .wt-frame {
-    border-radius: 1rem;
-    overflow: hidden;
-    background: #0c1626;
-    box-shadow:
-      0 0 0 1px var(--color-rule),
-      0 44px 90px -30px rgba(10, 22, 40, 0.5),
-      0 16px 30px -12px rgba(10, 22, 40, 0.25);
-  }
-  .wt-chrome {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.6rem 0.85rem;
-    background: #111f33;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  }
-  .wt-url {
-    margin-left: 0.6rem;
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding: 0.28rem 0.7rem;
-    border-radius: 7px;
-    background: rgba(255, 255, 255, 0.05);
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
-    font-family: var(--font-mono, ui-monospace, monospace);
-  }
-  .wt-screens {
-    position: relative;
-    aspect-ratio: 16 / 10;
-    background: #0c1626;
-  }
-  .wt-screen {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-  }
-  .wt-screen.is-active { opacity: 1; }
-
-  /* Progress rail under the frame */
-  .wt-progress {
-    display: flex;
-    gap: 0.5rem;
+  .wt-sub {
     margin-top: 1.1rem;
-    padding-inline: 0.25rem;
+    font-size: clamp(1rem, 2.2vw, 1.15rem);
+    line-height: 1.55;
+    color: var(--color-ink-2);
   }
-  .wt-seg {
-    height: 4px;
-    flex: 1;
-    border-radius: 9999px;
-    background: var(--color-rule);
-    transition: background 0.4s ease;
-  }
-  .wt-seg.is-active { background: var(--color-brand); }
 
-  /* ── Mobile inline screen ───────────────────────────────────── */
-  .wt-shot-mobile { margin-top: 1.6rem; }
-  .wt-shot-mobile .wt-screen {
-    position: static;
-    opacity: 1;
-    aspect-ratio: 16 / 10;
+  /* ── Steps (alternating rows) ───────────────────────────────── */
+  .wt-steps { display: flex; flex-direction: column; gap: 4.5rem; }
+  .wt-step { scroll-margin-top: 6rem; }
+  .wt-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; align-items: center; }
+  @media (min-width: 900px) {
+    .wt-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4.5rem; }
+    .wt-step.is-reversed .wt-text { order: 2; }
+    .wt-step.is-reversed .wt-visual { order: 1; }
   }
-  @media (min-width: 1024px) {
-    .wt-shot-mobile { display: none; }
+  @media (max-width: 899px) {
+    .wt-visual { order: -1; }   /* picture first on mobile */
   }
+
+  /* Text column */
+  .wt-eyebrow { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 12px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-brand-pressed); }
+  .wt-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.6rem; height: 1.6rem; border-radius: 9999px;
+    background: var(--color-brand); color: var(--color-navy-900);
+    font-family: var(--font-display); font-size: 0.85rem; font-weight: 800;
+    box-shadow: 0 6px 16px -6px rgba(0, 229, 160, 0.6);
+  }
+  .wt-step-title {
+    font-family: var(--font-display); font-weight: 900;
+    font-size: clamp(1.5rem, 2.6vw, 2.05rem); line-height: 1.12; letter-spacing: -0.025em;
+    color: var(--color-ink); margin: 0.9rem 0 0.85rem; text-wrap: balance;
+  }
+  .wt-step-body { font-size: 1rem; line-height: 1.6; color: var(--color-ink-2); max-width: 34rem; }
+  .wt-bullets { margin: 1.3rem 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+  .wt-bullets li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.93rem; line-height: 1.5; color: var(--color-ink-2); }
+  .wt-check { margin-top: 2px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 9999px; background: var(--color-brand-soft); }
+
+  .wt-next {
+    margin-top: 1.6rem;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.7rem 1.15rem; border-radius: 9999px;
+    font-size: 0.9rem; font-weight: 700; text-decoration: none;
+    color: var(--color-brand-pressed);
+    background: var(--color-brand-soft);
+    box-shadow: inset 0 0 0 1px rgba(0, 229, 160, 0.28);
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .wt-next:hover { background: rgba(0, 229, 160, 0.16); transform: translateY(-1px); }
+  .wt-next.is-cta {
+    color: var(--color-navy-900);
+    background: var(--color-brand);
+    box-shadow: 0 14px 30px -12px rgba(0, 229, 160, 0.6);
+  }
+  .wt-next.is-cta:hover { background: var(--color-brand-pressed); color: #fff; }
+
+  /* ── Visual vignettes (dark product-feel panels) ────────────── */
+  .wt-visual { position: relative; }
+  .wv {
+    position: relative;
+    border-radius: 1.25rem;
+    padding: 1.75rem;
+    background: linear-gradient(160deg, #0f2033 0%, #0a1626 100%);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 40px 80px -34px rgba(10, 22, 40, 0.55), 0 14px 28px -12px rgba(10, 22, 40, 0.3);
+    display: flex; flex-direction: column; gap: 1rem;
+    color: #e7edf5;
+    min-height: 340px;
+    justify-content: center;
+  }
+  .wv-conn { display: flex; align-items: center; justify-content: center; gap: 0.4rem; font-size: 12px; color: rgba(255, 255, 255, 0.45); }
+  .wv-conn-mint { color: var(--color-mint-400); }
+
+  /* install */
+  .wv-code { position: relative; border-radius: 0.8rem; background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); padding: 1rem 1.1rem; }
+  .wv-code-lang { display: block; font-size: 11px; color: rgba(255, 255, 255, 0.4); margin-bottom: 0.5rem; letter-spacing: 0.04em; }
+  .wv-code code { font-family: var(--font-mono, ui-monospace, monospace); font-size: 12.5px; color: #a9f0d4; word-break: break-all; line-height: 1.5; }
+  .wv-chip { position: absolute; top: 0.7rem; right: 0.7rem; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-navy-900); background: var(--color-mint-400); border-radius: 9999px; padding: 0.2rem 0.55rem; }
+  .wv-banner { border-radius: 0.85rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.09); padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .wv-banner-ic { color: var(--color-mint-400); }
+  .wv-banner p { font-size: 13px; line-height: 1.45; color: rgba(255, 255, 255, 0.82); margin: 0; }
+  .wv-banner-btns { display: flex; gap: 0.5rem; }
+  .wv-btn { font-size: 12px; font-weight: 700; border-radius: 8px; padding: 0.5rem 0.9rem; }
+  .wv-btn-ghost { color: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255, 255, 255, 0.16); }
+  .wv-btn-accept { color: var(--color-navy-900); background: var(--color-mint-400); }
+
+  /* identify */
+  .wv-stack { gap: 0.7rem; }
+  .wv-card { display: flex; align-items: center; gap: 0.8rem; border-radius: 0.85rem; padding: 0.85rem 0.95rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.09); }
+  .wv-ghost { border-style: dashed; border-color: rgba(255, 255, 255, 0.18); background: transparent; opacity: 0.7; }
+  .wv-named { background: rgba(0, 229, 160, 0.06); border-color: rgba(0, 229, 160, 0.28); }
+  .wv-dim { opacity: 0.55; }
+  .wv-av { flex: none; width: 2.1rem; height: 2.1rem; border-radius: 9999px; background: var(--color-mint-400); color: var(--color-navy-900); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; }
+  .wv-av-ghost { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.55); }
+  .wv-card-body { min-width: 0; flex: 1; }
+  .wv-name { font-size: 14px; font-weight: 700; color: #fff; margin: 0; }
+  .wv-meta { font-size: 12px; color: rgba(255, 255, 255, 0.45); margin: 0.1rem 0 0; }
+  .wv-row { display: flex; align-items: center; gap: 0.35rem; font-size: 12px; color: rgba(255, 255, 255, 0.6); margin: 0.2rem 0 0; }
+  .wv-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
+  .wv-tag { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 11px; color: rgba(255, 255, 255, 0.7); background: rgba(255, 255, 255, 0.06); border-radius: 9999px; padding: 0.18rem 0.5rem; }
+  .wv-tag-mint { color: var(--color-mint-400); background: rgba(0, 229, 160, 0.1); }
+  .wv-consent { flex: none; align-self: flex-start; display: inline-flex; align-items: center; gap: 0.25rem; font-size: 10.5px; font-weight: 700; color: var(--color-mint-400); }
+  .wv-x { color: rgba(255, 255, 255, 0.3); margin-left: auto; }
+
+  /* connect */
+  .wv-lead { display: flex; align-items: center; gap: 0.6rem; font-size: 13px; font-weight: 700; color: #fff; background: rgba(0, 229, 160, 0.08); border: 1px solid rgba(0, 229, 160, 0.28); border-radius: 0.75rem; padding: 0.7rem 0.9rem; }
+  .wv-lead-badge { margin-left: auto; font-size: 12px; font-weight: 800; color: var(--color-navy-900); background: var(--color-mint-400); border-radius: 9999px; padding: 0.1rem 0.55rem; }
+  .wv-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .wv-tile { display: flex; align-items: center; gap: 0.55rem; border-radius: 0.7rem; padding: 0.7rem 0.75rem; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); }
+  .wv-tile.is-on { background: rgba(0, 229, 160, 0.07); border-color: rgba(0, 229, 160, 0.3); }
+  .wv-tile-ic { color: rgba(255, 255, 255, 0.5); }
+  .wv-tile.is-on .wv-tile-ic { color: var(--color-mint-400); }
+  .wv-tile-name { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 600; color: rgba(255, 255, 255, 0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wv-tile-on { flex: none; color: var(--color-mint-400); }
+  .wv-tile-off { flex: none; font-size: 10.5px; font-weight: 700; color: rgba(255, 255, 255, 0.4); }
+
+  /* measure */
+  .wv-kpis { display: flex; gap: 1rem; align-items: flex-end; }
+  .wv-kpi { flex: 1; }
+  .wv-kpi-sm { flex: none; text-align: right; }
+  .wv-kpi-label { font-size: 11.5px; color: rgba(255, 255, 255, 0.5); margin: 0; }
+  .wv-kpi-num { font-family: var(--font-display); font-weight: 800; font-size: 2.2rem; line-height: 1.1; color: #fff; margin: 0.25rem 0 0; display: flex; align-items: baseline; gap: 0.5rem; }
+  .wv-kpi-num2 { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; color: rgba(255, 255, 255, 0.85); margin: 0.25rem 0 0; }
+  .wv-up { font-size: 0.85rem; font-weight: 800; color: var(--color-mint-400); display: inline-flex; align-items: center; gap: 0.15rem; }
+  .wv-chart { width: 100%; height: 90px; }
+  .wv-note { display: inline-flex; align-items: center; gap: 0.4rem; align-self: flex-start; font-size: 12px; color: rgba(255, 255, 255, 0.6); }
+  .wv-note svg { color: var(--color-mint-400); }
 
   @media (prefers-reduced-motion: reduce) {
-    .wt-step, .wt-step::before, .wt-screen, .wt-seg { transition: none; }
+    .wt-next { transition: none; }
   }
 </style>
