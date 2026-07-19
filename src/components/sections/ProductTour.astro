@@ -1,287 +1,337 @@
 ---
 /**
- * Guided product tour — section-per-step layout.
+ * Product walkthrough — sticky-scroll storytelling.
  *
- * Five full-width sections, each a 2-column grid on desktop:
- *   - Text column (left): eyebrow + headline + body + 3-bullet checklist
- *   - Screen column (right): a real product screenshot (rendered from the
- *     /screenshot-demo/ app mockups → public/images/product/*.jpg), shown in a
- *     fixed 16:10 frame.
+ * Desktop: a two-column layout. The steps scroll on the left; a browser-framed
+ * product screenshot pins (position: sticky) on the right and crossfades from
+ * screen to screen as each step reaches the center of the viewport (driven by an
+ * IntersectionObserver). The mock address bar and a progress rail update with it.
+ * This is the "show, don't tell" centerpiece — a new visitor watches the real
+ * product go from install → a named list → connected tools → the dashboard.
  *
- * The screen is a static <img>, so it never scrolls. Regenerate the shots with
- * scripts/shoot-product-screens.sh if the demo UI changes.
+ * Mobile: the sticky column is hidden; each step shows its own screenshot inline.
+ *
+ * Screens are static JPGs rendered from the /screenshot-demo/ app mockups
+ * (public/images/product/*.jpg — regenerate with scripts/shoot-product-screens.sh).
  */
 import Badge from "~/components/ui/Badge.astro";
 import { IconCheck } from "@tabler/icons-react";
 
 interface Stage {
-  slug: string;
   eyebrow: string;
+  url: string;
   headline: string;
   body: string;
   bullets: string[];
-  /** Product screenshot shown in the frame (from public/images/product/). */
   src: string;
 }
 
 const stages: Stage[] = [
   {
-    slug: "install", eyebrow: "Install",
-    headline: "Paste one line. Live in about 10 minutes.",
-    body: "Drop the Consent Resolve snippet into your site's <head>. Your existing consent banner does the asking — we wire ourselves in alongside Termageddon-backed policies and start identifying the second a homeowner says yes.",
+    eyebrow: "Step 1 · Install",
+    url: "app.consentresolve.com/install",
+    headline: "One line of code. Your banner does the asking.",
+    body: "Paste the Consent Resolve snippet once. Your existing consent banner asks for permission — and the moment a homeowner says yes, we start identifying. No developer, no new banner, live in about 10 minutes.",
     bullets: [
-      "One universal script — WordPress, Wix, Squarespace, GHL, ServiceTitan",
-      "No developer required, no app to install",
-      "Most pros are live in about 10 minutes; same day at most",
+      "Works on WordPress, Wix, Squarespace, GHL, ServiceTitan",
+      "Your Termageddon-backed policies stay current",
+      "Nothing happens until the homeowner consents",
     ],
     src: "/images/product/consent.jpg",
   },
   {
-    slug: "identify", eyebrow: "Identify",
-    headline: "Real people fill the list in real time.",
-    body: "Every consented visitor lands in your Visitors view with a device, location, view count, and time since visit. Search, filter, sort — find exactly the homeowners who matter today.",
+    eyebrow: "Step 2 · Identify",
+    url: "app.consentresolve.com/visitors",
+    headline: "Anonymous visitors become a named list.",
+    body: "Every consented homeowner lands in your Visitors view — a real name, a deliverable email, the pages they viewed, device and location, and a signed consent record. Search, filter, and sort to the ones who matter today.",
     bullets: [
-      "Searchable, filterable visitor intelligence",
-      "Device + timezone shown at a glance",
-      "Consent recorded and signed on every record",
+      "Real names + consented emails, not anonymous hits",
+      "The pages they viewed — so you already know the job",
+      "A signed, timestamped consent record on every one",
     ],
     src: "/images/product/visitors.jpg",
   },
   {
-    slug: "review", eyebrow: "Review",
-    headline: "Open a recovered visitor — see what they were shopping.",
-    body: "Click any recovered visitor for the full record: lead score, contact + enrichment data, a signed, timestamped consent record with audit ID, and a timeline of every page they looked at. The intel that shapes how your funnel re-engages them.",
+    eyebrow: "Step 3 · Connect",
+    url: "app.consentresolve.com/integrations",
+    headline: "Feed the funnel you already run.",
+    body: "Recovered visitors flow straight into your retargeting audiences, email/SMS sequences, and CRM — Jobber, Housecall Pro, ServiceTitan, HubSpot, GoHighLevel, or anything custom via webhook. Consent Resolve is an input to your marketing, not a replacement for it.",
     bullets: [
-      "Consented email + enrichment (name, location where available) on file",
-      "Signed, timestamped consent with audit ID",
-      "Activity timeline of every page viewed",
-    ],
-    src: "/images/product/visitors.jpg",
-  },
-  {
-    slug: "feed-funnel", eyebrow: "Feed the funnel",
-    headline: "Drop into the funnel you already run.",
-    body: "Recovered visitors flow into your retargeting audiences, your email/SMS sequences, and your CRM — Jobber, Housecall Pro, ServiceTitan, HubSpot, GoHighLevel, or anything custom via webhook. We're an input to your existing marketing machine, not a replacement for it.",
-    bullets: [
-      "Pushes to retargeting audiences + CRM",
-      "One-click connect to common platforms",
+      "One-click connect to the tools you already use",
+      "Pushes to retargeting audiences + CRM automatically",
       "Webhook for anything custom",
     ],
     src: "/images/product/integrations.jpg",
   },
   {
-    slug: "measure", eyebrow: "Measure",
+    eyebrow: "Step 4 · Measure",
+    url: "app.consentresolve.com/dashboard",
     headline: "Watch recovery add up.",
-    body: "The dashboard tracks recovered visitors, what's detected and excluded from billing, and the trend over time — so you can tie recovery spend to the jobs your funnel books. The math that matters: same ad budget, more inbound calls, lower blended cost per booked job.",
+    body: "The dashboard ties recovered visitors to the trend over time — what's enriched, what's ad-blocked and excluded from billing, and a live feed of homeowners coming back. Same ad budget, more inbound calls, lower blended cost per booked job.",
     bullets: [
-      "Recovered + enriched visitor counts",
-      "Ad-blocked traffic detected and excluded from billing",
-      "Trend chart + live recovery feed",
+      "Recovered + enriched counts at a glance",
+      "Ad-blocked traffic detected and never billed",
+      "Live recovery feed + trend chart",
     ],
     src: "/images/product/dashboard.jpg",
   },
 ];
+
+const dot = "h-2.5 w-2.5 rounded-full";
 ---
 
-<section class="tour" id="product-tour" aria-label="Guided product tour">
-  <div aria-hidden="true" class="tour-glow tour-glow-a"></div>
-  <div aria-hidden="true" class="tour-glow tour-glow-b"></div>
+<section class="wt" id="product-tour" aria-label="Product walkthrough">
+  <div aria-hidden="true" class="wt-glow wt-glow-a"></div>
+  <div aria-hidden="true" class="wt-glow wt-glow-b"></div>
 
   <div class="container-content relative">
-    <header class="tour-header">
-      <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>Guided product tour</Badge></div>
-      <h2 class="display-2 text-[color:var(--color-ink)]">See exactly what you'll be looking at.</h2>
+    <header class="wt-header">
+      <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>The walkthrough</Badge></div>
+      <h2 class="display-2 text-[color:var(--color-ink)]">Watch it happen — screen by screen.</h2>
       <p class="mt-5 text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-        Five screens, in the order you'll actually use them — from install to the dashboard that proves it paid off.
+        The actual product, in the order you'll use it. Scroll to walk an anonymous visitor from install to the dashboard that proves it paid off.
       </p>
     </header>
 
-    {/* Sticky chip nav — anchor-jump to any step */}
-    <nav class="tour-nav" aria-label="Tour stages">
-      <ul>
-        {stages.map((s) => (
-          <li>
-            <a href={`#tour-${s.slug}`} class="tour-nav-chip">{s.eyebrow}</a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  </div>
-
-  {/* Sections — alternating background tints */}
-  {stages.map((stage, i) => (
-    <article
-      id={`tour-${stage.slug}`}
-      class:list={["tour-step", i % 2 === 1 && "tour-step-alt"]}
-    >
-      <div class="container-content">
-        <div class="tour-step-grid">
-          {/* Text */}
-          <div class="tour-step-text">
-            <Badge tone="brand" variant="soft" size="md" uppercase>{stage.eyebrow}</Badge>
-            <h3 class="tour-step-title">{stage.headline}</h3>
-            <p class="tour-step-body">{stage.body}</p>
-            <ul class="tour-step-bullets">
-              {stage.bullets.map((b) => (
+    <div class="wt-grid">
+      {/* Steps — scroll past the pinned screen */}
+      <ol class="wt-steps">
+        {stages.map((s, i) => (
+          <li class:list={["wt-step", i === 0 && "is-active"]} data-step={i}>
+            <span class="wt-step-eyebrow">{s.eyebrow}</span>
+            <h3 class="wt-step-title">{s.headline}</h3>
+            <p class="wt-step-body">{s.body}</p>
+            <ul class="wt-step-bullets">
+              {s.bullets.map((b) => (
                 <li>
-                  <span class="tour-step-check" aria-hidden="true">
+                  <span class="wt-step-check" aria-hidden="true">
                     <IconCheck size={12} stroke={3} color="var(--color-brand-pressed)" />
                   </span>
                   <span>{b}</span>
                 </li>
               ))}
             </ul>
-          </div>
 
-          {/* Screen — a real product screenshot in a fixed 16:10 frame. It's a
-               static image, so it never scrolls. */}
-          <div class="tour-step-screen">
-            <div class="tour-shot">
-              <img
-                class="tour-frame"
-                src={stage.src}
-                alt={`${stage.eyebrow} — Consent Resolve product screen`}
-                width="1280"
-                height="800"
-                loading="lazy"
-                decoding="async"
-              />
+            {/* Mobile-only inline screen (the sticky column is hidden on mobile) */}
+            <div class="wt-shot-mobile">
+              <div class="wt-frame">
+                <div class="wt-chrome">
+                  <span class={dot} style="background:#ff5f57"></span>
+                  <span class={dot} style="background:#febc2e"></span>
+                  <span class={dot} style="background:#28c840"></span>
+                  <span class="wt-url">{s.url}</span>
+                </div>
+                <div class="wt-screens">
+                  <img class="wt-screen is-active" src={s.src} alt={`${s.eyebrow} — Consent Resolve product screen`} width="1280" height="800" loading="lazy" decoding="async" />
+                </div>
+              </div>
             </div>
+          </li>
+        ))}
+      </ol>
+
+      {/* Sticky visual — pins and crossfades as steps scroll (desktop) */}
+      <div class="wt-visual" aria-hidden="true">
+        <div class="wt-sticky">
+          <div class="wt-frame">
+            <div class="wt-chrome">
+              <span class={dot} style="background:#ff5f57"></span>
+              <span class={dot} style="background:#febc2e"></span>
+              <span class={dot} style="background:#28c840"></span>
+              <span class="wt-url" data-url>{stages[0].url}</span>
+            </div>
+            <div class="wt-screens">
+              {stages.map((s, i) => (
+                <img
+                  class:list={["wt-screen", i === 0 && "is-active"]}
+                  data-screen={i}
+                  src={s.src}
+                  alt=""
+                  width="1280"
+                  height="800"
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                />
+              ))}
+            </div>
+          </div>
+          <div class="wt-progress" role="presentation">
+            {stages.map((_, i) => (
+              <span class:list={["wt-seg", i === 0 && "is-active"]} data-seg={i}></span>
+            ))}
           </div>
         </div>
       </div>
-    </article>
-  ))}
+    </div>
+  </div>
 </section>
 
+<script is:inline>
+  (function () {
+    var steps = Array.prototype.slice.call(document.querySelectorAll(".wt-step"));
+    var screens = document.querySelectorAll(".wt-screen[data-screen]");
+    var segs = document.querySelectorAll(".wt-seg");
+    var urlEl = document.querySelector("[data-url]");
+    if (!steps.length || !("IntersectionObserver" in window)) return;
+    var urls = steps.map(function (s) {
+      var scr = s.querySelector(".wt-url");
+      return scr ? scr.textContent : "";
+    });
+    var current = -1;
+    function activate(i) {
+      if (i === current) return;
+      current = i;
+      steps.forEach(function (s, k) { s.classList.toggle("is-active", k === i); });
+      screens.forEach(function (s, k) { s.classList.toggle("is-active", k === i); });
+      segs.forEach(function (s, k) { s.classList.toggle("is-active", k <= i); });
+      if (urlEl && urls[i]) urlEl.textContent = urls[i];
+    }
+    // A thin band at viewport center: the step crossing it becomes active.
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) activate(parseInt(e.target.getAttribute("data-step"), 10));
+      });
+    }, { rootMargin: "-48% 0px -48% 0px", threshold: 0 });
+    steps.forEach(function (s) { io.observe(s); });
+  })();
+</script>
+
 <style>
-  .tour {
+  .wt {
     position: relative;
     overflow: hidden;
     background: var(--color-bg);
+    padding-block: 6rem 5rem;
   }
-  .tour-glow {
+  .wt-glow {
     position: absolute;
-    width: 620px;
-    height: 620px;
+    width: 640px;
+    height: 640px;
     border-radius: 9999px;
     pointer-events: none;
-    filter: blur(120px);
+    filter: blur(130px);
   }
-  .tour-glow-a { top: -160px; left: -120px;  background: rgba(0, 229, 160, 0.18); }
-  .tour-glow-b { bottom: -200px; right: -120px; background: rgba(0, 229, 160, 0.12); }
+  .wt-glow-a { top: -180px; left: -140px; background: rgba(0, 229, 160, 0.16); }
+  .wt-glow-b { bottom: -220px; right: -140px; background: rgba(0, 229, 160, 0.1); }
 
-  .tour-header {
+  .wt-header {
     max-width: 760px;
-    margin: 0 auto;
+    margin: 0 auto 3.5rem;
     text-align: center;
-    padding-block: 6rem 3rem;
   }
 
-  /* ── Sticky chip nav ────────────────────────────────────────── */
-  .tour-nav {
-    position: sticky;
-    top: 1rem;
-    z-index: 30;
-    margin: 0 auto;
-    width: fit-content;
-    max-width: calc(100% - 1rem);
-  }
-  .tour-nav > ul {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    margin: 0;
-    padding: 0.4rem;
-    list-style: none;
-    overflow-x: auto;
-    background: var(--color-bg);
-    border-radius: 9999px;
-    box-shadow:
-      0 0 0 1px var(--color-rule),
-      0 18px 40px -20px rgba(10, 22, 40, 0.28);
-    scrollbar-width: none;
-  }
-  .tour-nav > ul::-webkit-scrollbar { display: none; }
-  .tour-nav-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.55rem 1.1rem;
-    border-radius: 9999px;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-ink-muted);
-    white-space: nowrap;
-    text-decoration: none;
-    transition: background-color 0.25s ease, color 0.25s ease;
-  }
-  .tour-nav-chip:hover {
-    color: var(--color-ink-2);
-    background: rgba(0, 229, 160, 0.07);
-  }
-  .tour-nav-chip:focus {
-    outline: none;
-    color: var(--color-brand-pressed);
-    background: var(--color-brand-soft);
-  }
-
-  /* ── Step sections ──────────────────────────────────────────── */
-  .tour-step {
-    padding-block: 5rem;
-    scroll-margin-top: 5rem;
-  }
-  .tour-step + .tour-step { border-top: 1px solid var(--color-rule); }
-  .tour-step-alt { background: var(--color-bg-alt); }
-
-  .tour-step-grid {
+  /* ── Layout ─────────────────────────────────────────────────── */
+  .wt-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 3rem;
-    align-items: center;
+    gap: 2.5rem;
+    position: relative;
   }
   @media (min-width: 1024px) {
-    .tour-step-grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-      gap: 4rem;
+    .wt-grid {
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      gap: 4.5rem;
+      align-items: start;
     }
   }
 
-  /* Text column */
-  .tour-step-text { max-width: 36rem; }
-  .tour-step-title {
+  /* ── Steps (scrolling column) ───────────────────────────────── */
+  .wt-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: wt;
+  }
+  .wt-step {
+    position: relative;
+    counter-increment: wt;
+    padding-left: 0;
+  }
+  @media (min-width: 1024px) {
+    /* Tall steps create the scroll distance the pinned screen needs. */
+    .wt-step {
+      min-height: 82vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0.38;
+      transition: opacity 0.4s ease;
+      padding-left: 2.25rem;
+      border-left: 2px solid var(--color-rule);
+    }
+    .wt-step.is-active {
+      opacity: 1;
+      border-left-color: var(--color-brand);
+    }
+    /* Numbered marker on the rail */
+    .wt-step::before {
+      content: counter(wt);
+      position: absolute;
+      left: -1.05rem;
+      top: calc(50% - 1rem);
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      background: var(--color-bg);
+      box-shadow: 0 0 0 2px var(--color-rule);
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: var(--color-ink-muted);
+      transition: color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
+    }
+    .wt-step.is-active::before {
+      color: var(--color-navy-900);
+      background: var(--color-brand);
+      box-shadow: 0 0 0 2px var(--color-brand), 0 8px 22px -6px rgba(0, 229, 160, 0.6);
+    }
+  }
+  .wt-step + .wt-step { margin-top: 2.5rem; }
+  @media (min-width: 1024px) { .wt-step + .wt-step { margin-top: 0; } }
+
+  .wt-step-eyebrow {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-brand-pressed);
+  }
+  .wt-step-title {
     font-family: var(--font-display);
     font-weight: 900;
-    font-size: clamp(1.625rem, 2.8vw, 2.25rem);
-    line-height: 1.08;
+    font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+    line-height: 1.1;
     letter-spacing: -0.025em;
     color: var(--color-ink);
-    margin-top: 1.25rem;
-    margin-bottom: 1rem;
+    margin: 0.6rem 0 0.85rem;
   }
-  .tour-step-body {
+  .wt-step-body {
     font-size: 1rem;
     line-height: 1.6;
     color: var(--color-ink-2);
+    max-width: 34rem;
   }
-  .tour-step-bullets {
-    margin: 1.5rem 0 0;
+  .wt-step-bullets {
+    margin: 1.4rem 0 0;
     padding: 0;
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.7rem;
+    gap: 0.65rem;
   }
-  .tour-step-bullets li {
+  .wt-step-bullets li {
     display: flex;
     align-items: flex-start;
-    gap: 0.65rem;
-    font-size: 0.95rem;
+    gap: 0.6rem;
+    font-size: 0.93rem;
     line-height: 1.5;
     color: var(--color-ink-2);
   }
-  .tour-step-check {
+  .wt-step-check {
     margin-top: 2px;
     flex-shrink: 0;
     display: inline-flex;
@@ -293,25 +343,92 @@ const stages: Stage[] = [
     background: var(--color-brand-soft);
   }
 
-  /* Screen column — a product screenshot in a fixed 16:10 frame. A static
-     image, so it never scrolls. */
-  .tour-step-screen { position: relative; }
-  .tour-shot {
-    position: relative;
-    aspect-ratio: 16 / 10;
+  /* ── Sticky visual column ───────────────────────────────────── */
+  .wt-visual { display: none; }
+  @media (min-width: 1024px) {
+    .wt-visual { display: block; }
+    .wt-sticky {
+      position: sticky;
+      top: 15vh;
+    }
+  }
+
+  .wt-frame {
+    border-radius: 1rem;
     overflow: hidden;
-    border-radius: 1.25rem;
-    background: var(--color-bg);
+    background: #0c1626;
     box-shadow:
       0 0 0 1px var(--color-rule),
-      0 40px 80px -28px rgba(10, 22, 40, 0.45),
-      0 12px 24px -8px rgba(10, 22, 40, 0.22);
+      0 44px 90px -30px rgba(10, 22, 40, 0.5),
+      0 16px 30px -12px rgba(10, 22, 40, 0.25);
   }
-  .tour-frame {
-    display: block;
+  .wt-chrome {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 0.85rem;
+    background: #111f33;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .wt-url {
+    margin-left: 0.6rem;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0.28rem 0.7rem;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: var(--font-mono, ui-monospace, monospace);
+  }
+  .wt-screens {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: #0c1626;
+  }
+  .wt-screen {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: top center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .wt-screen.is-active { opacity: 1; }
+
+  /* Progress rail under the frame */
+  .wt-progress {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1.1rem;
+    padding-inline: 0.25rem;
+  }
+  .wt-seg {
+    height: 4px;
+    flex: 1;
+    border-radius: 9999px;
+    background: var(--color-rule);
+    transition: background 0.4s ease;
+  }
+  .wt-seg.is-active { background: var(--color-brand); }
+
+  /* ── Mobile inline screen ───────────────────────────────────── */
+  .wt-shot-mobile { margin-top: 1.6rem; }
+  .wt-shot-mobile .wt-screen {
+    position: static;
+    opacity: 1;
+    aspect-ratio: 16 / 10;
+  }
+  @media (min-width: 1024px) {
+    .wt-shot-mobile { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wt-step, .wt-step::before, .wt-screen, .wt-seg { transition: none; }
   }
 </style>
