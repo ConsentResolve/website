@@ -26,9 +26,11 @@ export const GET: APIRoute = ({ props }) => {
   const url = `${SITE.url}${resourceHref(data)}`;
   const social = generateSocialPack(data);
 
-  // og/featured/thumbnail are compressed JPG; square/vertical social variants stay PNG.
-  const derivedImg = (v: string) =>
-    `/images/resources/${seg}/${data.slug}-${v}.${v === "square" || v === "vertical" ? "png" : "jpg"}`;
+  // og/featured/thumbnail = compressed local JPG; square/vertical = PNG in R2 (/cdn/*).
+  const derivedImg = (v: string) => {
+    const social = v === "square" || v === "vertical";
+    return `${social ? "/cdn" : ""}/images/resources/${seg}/${data.slug}-${v}.${social ? "png" : "jpg"}`;
+  };
   const images = {
     featured_image: data.images?.featured_image ?? data.featured_image ?? derivedImg("featured"),
     og_image: data.images?.og_image ?? data.featured_image ?? derivedImg("featured"),

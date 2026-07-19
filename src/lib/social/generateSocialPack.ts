@@ -90,9 +90,11 @@ function truncate(s: string, max: number): string {
 
 function imagePath(data: ResourceData, v: ImgVariant): string {
   const seg = RESOURCE_TYPES[data.resource_type].segment;
-  // og/featured/thumbnail are compressed JPG; square/vertical social variants stay PNG.
-  const ext = v === "square" || v === "vertical" ? "png" : "jpg";
-  return `/images/resources/${seg}/${data.slug}-${v}.${ext}`;
+  // og/featured/thumbnail = compressed local JPG; square/vertical = PNG in R2 (/cdn/*).
+  const social = v === "square" || v === "vertical";
+  const base = social ? "/cdn/images/resources" : "/images/resources";
+  const ext = social ? "png" : "jpg";
+  return `${base}/${seg}/${data.slug}-${v}.${ext}`;
 }
 
 function defaultTitle(source: SocialSource, data: ResourceData): string | undefined {

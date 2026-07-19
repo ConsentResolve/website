@@ -136,28 +136,28 @@ const bookedJobMath = {
 // Problem-section UGC video — landscape Tyler (HeyGen, "Real Tyler" group look
 // "Green Hat, Matching Shirt" + voice 92071…). Shipped as a static asset under
 // public/ (no R2 write creds locally). Regenerate via scripts/gen_problem_ugc.py.
-const PROBLEM_VIDEO = "/video/tyler-problem.mp4";
+const PROBLEM_VIDEO = "/cdn/video/tyler-problem.mp4";
 
 // Per-trade two-part interactive clips (intro → pause/cue → After animates grid →
 // resume). HVAC is the pilot; trades without an entry fall back to PROBLEM_VIDEO.
 const TRADE_VIDEOS: Record<string, { intro: string; resume: string; poster?: string }> = {
-  hvac: { intro: "/video/hvac-intro.mp4", resume: "/video/hvac-resume.mp4", poster: "/video/hvac-poster.jpg" },
-  "general-contractor": { intro: "/video/general-contractor-intro.mp4", resume: "/video/general-contractor-resume.mp4", poster: "/video/general-contractor-poster.jpg" },
-  "appliance-repair": { intro: "/video/appliance-repair-intro.mp4", resume: "/video/appliance-repair-resume.mp4", poster: "/video/appliance-repair-poster.jpg" },
-  "deck-fence": { intro: "/video/deck-fence-intro.mp4", resume: "/video/deck-fence-resume.mp4", poster: "/video/deck-fence-poster.jpg" },
-  electrician: { intro: "/video/electrician-intro.mp4", resume: "/video/electrician-resume.mp4", poster: "/video/electrician-poster.jpg" },
-  "garage-door": { intro: "/video/garage-door-intro.mp4", resume: "/video/garage-door-resume.mp4", poster: "/video/garage-door-poster.jpg" },
-  roofing: { intro: "/video/roofing-intro.mp4", resume: "/video/roofing-resume.mp4", poster: "/video/roofing-poster.jpg" },
-  plumber: { intro: "/video/plumber-intro.mp4", resume: "/video/plumber-resume.mp4", poster: "/video/plumber-poster.jpg" },
-  "tree-removal": { intro: "/video/tree-removal-intro.mp4", resume: "/video/tree-removal-resume.mp4", poster: "/video/tree-removal-poster.jpg" },
-  locksmith: { intro: "/video/locksmith-intro.mp4", resume: "/video/locksmith-resume.mp4", poster: "/video/locksmith-poster.jpg" },
-  painter: { intro: "/video/painter-intro.mp4", resume: "/video/painter-resume.mp4", poster: "/video/painter-poster.jpg" },
-  "house-cleaning": { intro: "/video/house-cleaning-intro.mp4", resume: "/video/house-cleaning-resume.mp4", poster: "/video/house-cleaning-poster.jpg" },
-  "power-washing": { intro: "/video/power-washing-intro.mp4", resume: "/video/power-washing-resume.mp4", poster: "/video/power-washing-poster.jpg" },
-  "pest-control": { intro: "/video/pest-control-intro.mp4", resume: "/video/pest-control-resume.mp4", poster: "/video/pest-control-poster.jpg" },
-  "lawn-care": { intro: "/video/lawn-care-intro.mp4", resume: "/video/lawn-care-resume.mp4", poster: "/video/lawn-care-poster.jpg" },
-  "mobile-car-service": { intro: "/video/mobile-car-service-intro.mp4", resume: "/video/mobile-car-service-resume.mp4", poster: "/video/mobile-car-service-poster.jpg" },
-  handyman: { intro: "/video/handyman-intro.mp4", resume: "/video/handyman-resume.mp4", poster: "/video/handyman-poster.jpg" },
+  hvac: { intro: "/cdn/video/hvac-intro.mp4", resume: "/cdn/video/hvac-resume.mp4", poster: "/cdn/video/hvac-poster.jpg" },
+  "general-contractor": { intro: "/cdn/video/general-contractor-intro.mp4", resume: "/cdn/video/general-contractor-resume.mp4", poster: "/cdn/video/general-contractor-poster.jpg" },
+  "appliance-repair": { intro: "/cdn/video/appliance-repair-intro.mp4", resume: "/cdn/video/appliance-repair-resume.mp4", poster: "/cdn/video/appliance-repair-poster.jpg" },
+  "deck-fence": { intro: "/cdn/video/deck-fence-intro.mp4", resume: "/cdn/video/deck-fence-resume.mp4", poster: "/cdn/video/deck-fence-poster.jpg" },
+  electrician: { intro: "/cdn/video/electrician-intro.mp4", resume: "/cdn/video/electrician-resume.mp4", poster: "/cdn/video/electrician-poster.jpg" },
+  "garage-door": { intro: "/cdn/video/garage-door-intro.mp4", resume: "/cdn/video/garage-door-resume.mp4", poster: "/cdn/video/garage-door-poster.jpg" },
+  roofing: { intro: "/cdn/video/roofing-intro.mp4", resume: "/cdn/video/roofing-resume.mp4", poster: "/cdn/video/roofing-poster.jpg" },
+  plumber: { intro: "/cdn/video/plumber-intro.mp4", resume: "/cdn/video/plumber-resume.mp4", poster: "/cdn/video/plumber-poster.jpg" },
+  "tree-removal": { intro: "/cdn/video/tree-removal-intro.mp4", resume: "/cdn/video/tree-removal-resume.mp4", poster: "/cdn/video/tree-removal-poster.jpg" },
+  locksmith: { intro: "/cdn/video/locksmith-intro.mp4", resume: "/cdn/video/locksmith-resume.mp4", poster: "/cdn/video/locksmith-poster.jpg" },
+  painter: { intro: "/cdn/video/painter-intro.mp4", resume: "/cdn/video/painter-resume.mp4", poster: "/cdn/video/painter-poster.jpg" },
+  "house-cleaning": { intro: "/cdn/video/house-cleaning-intro.mp4", resume: "/cdn/video/house-cleaning-resume.mp4", poster: "/cdn/video/house-cleaning-poster.jpg" },
+  "power-washing": { intro: "/cdn/video/power-washing-intro.mp4", resume: "/cdn/video/power-washing-resume.mp4", poster: "/cdn/video/power-washing-poster.jpg" },
+  "pest-control": { intro: "/cdn/video/pest-control-intro.mp4", resume: "/cdn/video/pest-control-resume.mp4", poster: "/cdn/video/pest-control-poster.jpg" },
+  "lawn-care": { intro: "/cdn/video/lawn-care-intro.mp4", resume: "/cdn/video/lawn-care-resume.mp4", poster: "/cdn/video/lawn-care-poster.jpg" },
+  "mobile-car-service": { intro: "/cdn/video/mobile-car-service-intro.mp4", resume: "/cdn/video/mobile-car-service-resume.mp4", poster: "/cdn/video/mobile-car-service-poster.jpg" },
+  handyman: { intro: "/cdn/video/handyman-intro.mp4", resume: "/cdn/video/handyman-resume.mp4", poster: "/cdn/video/handyman-poster.jpg" },
 };
 const tradeVid = TRADE_VIDEOS[trade.slug];
 
@@ -727,7 +727,7 @@ const HERO_ANGLES: Record<string, string> = {
     var resume = wrap.querySelector("[data-vid-resume]");
     if (!cap || !intro) return;
     var data = {}, curKey = null, curIdx = -1;
-    function urlFor(v) { return v.getAttribute("src").replace("/video/", "/captions/").replace(".mp4", ".lines.json"); }
+    function urlFor(v) { return v.getAttribute("src").replace("/cdn/video/", "/captions/").replace(".mp4", ".lines.json"); }
     [intro, resume].forEach(function (v) {
       if (!v) return;
       fetch(urlFor(v)).then(function (r) { return r.ok ? r.json() : []; })

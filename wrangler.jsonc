@@ -21,6 +21,15 @@
       "database_id": "4693a387-6144-4404-ac0e-c24fcc89d26a"
     }
   ],
+  // Media/asset bucket — large resource social variants (square/vertical) and
+  // trade videos live here instead of in the deploy, served same-origin at /cdn/*
+  // by the Worker (see worker/index.js). Keeps the Pages/Worker asset bundle small.
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "cr-social"
+    }
+  ],
   // ── Social auto-posting cron ────────────────────────────────────────────────
   // Daily at 15:00 UTC (~10am ET / 9am CT). scheduled() in worker/index.js drips
   // one queued item per launch platform per run, gated by each platform's

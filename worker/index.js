@@ -155,6 +155,38 @@ export default {
     // crawl or an AI-answer-engine referral, so normal traffic pays nothing.
     ctx.waitUntil(logAeoTelemetry(env, request).catch(() => {}));
 
+    // /cdn/* — serve large media (resource social variants + trade video) from the
+    // R2 MEDIA bucket, same-origin. Supports HTTP Range (video seeking) and caches
+    // immutably at the edge. Keys mirror the old public/ paths (images/…, video/…).
+    if (url.pathname.startsWith("/cdn/")) {
+      if (!env.MEDIA) return new Response("media unavailable", { status: 503 });
+      const key = decodeURIComponent(url.pathname.slice(5));
+      if (!key || key.includes("..")) return new Response("bad request", { status: 400 });
+      const range = request.headers.get("range");
+      let getOpts;
+      if (range) {
+        const m = /^bytes=(\d+)-(\d*)$/.exec(range.trim());
+        if (m) {
+          const offset = parseInt(m[1], 10);
+          getOpts = { range: m[2] ? { offset, length: parseInt(m[2], 10) - offset + 1 } : { offset } };
+        }
+      }
+      const obj = getOpts ? await env.MEDIA.get(key, getOpts) : await env.MEDIA.get(key);
+      if (!obj) return new Response("not found", { status: 404 });
+      const headers = new Headers();
+      obj.writeHttpMetadata(headers);
+      headers.set("etag", obj.httpEtag);
+      headers.set("cache-control", "public, max-age=31536000, immutable");
+      headers.set("accept-ranges", "bytes");
+      if (getOpts && obj.range) {
+        const off = obj.range.offset || 0;
+        const len = obj.range.length ?? obj.size - off;
+        headers.set("content-range", `bytes ${off}-${off + len - 1}/${obj.size}`);
+        return new Response(obj.body, { status: 206, headers });
+      }
+      return new Response(obj.body, { status: 200, headers });
+    }
+
     // CRM app (gated: admin session OR ?key=<CRM_KEY>). Worker-rendered like /admin.
     if (url.pathname === "/crm" || url.pathname.startsWith("/crm/")) {
       try {

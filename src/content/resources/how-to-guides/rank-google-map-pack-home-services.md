@@ -58,7 +58,7 @@ social_pack:
     caption: "Ranking in the Google Map Pack isn't luck. It's a Google Business Profile system: right categories, service-area setup, weekly posts, geotagged photos, and steady review velocity. Our new step-by-step guide breaks down exactly what to do, in order, for HVAC, plumbing, roofing, and electrical companies."
     cta: "Read the full guide →"
     hashtags: ["LocalSEO", "HomeServices", "GoogleBusinessProfile", "Contractors"]
-    image_url: "/images/resources/how-to-guides/rank-google-map-pack-home-services-square.png"
+    image_url: "/cdn/images/resources/how-to-guides/rank-google-map-pack-home-services-square.png"
     alt_text: "Google Map Pack three-result layout with a contractor business ranked first"
     utm_url: "https://consentresolve.com/resources/how-to-guides/rank-google-map-pack-home-services/?utm_source=linkedin&utm_medium=social&utm_campaign=resource_center&utm_content=rank-google-map-pack-home-services"
   facebook:
@@ -74,7 +74,7 @@ social_pack:
     caption: "The Google Map Pack is 3 slots and they get most of the clicks. Here's the GBP system contractors use to win one: 👇"
     cta: "Full guide →"
     hashtags: ["LocalSEO", "HomeServices"]
-    image_url: "/images/resources/how-to-guides/rank-google-map-pack-home-services-square.png"
+    image_url: "/cdn/images/resources/how-to-guides/rank-google-map-pack-home-services-square.png"
     alt_text: "Google Map Pack three-result layout"
     utm_url: "https://consentresolve.com/resources/how-to-guides/rank-google-map-pack-home-services/?utm_source=x&utm_medium=social&utm_campaign=resource_center&utm_content=rank-google-map-pack-home-services"
   threads:
@@ -82,7 +82,7 @@ social_pack:
     caption: "Three local results. Most of the clicks. Most contractors never crack the Map Pack because they treat their Google Business Profile like a phone book listing instead of a ranking asset. Step-by-step fix in the guide."
     cta: "Link in the guide."
     hashtags: []
-    image_url: "/images/resources/how-to-guides/rank-google-map-pack-home-services-square.png"
+    image_url: "/cdn/images/resources/how-to-guides/rank-google-map-pack-home-services-square.png"
     alt_text: "Google Map Pack three-result layout"
     utm_url: "https://consentresolve.com/resources/how-to-guides/rank-google-map-pack-home-services/?utm_source=threads&utm_medium=social&utm_campaign=resource_center&utm_content=rank-google-map-pack-home-services"
   pinterest:
@@ -90,7 +90,7 @@ social_pack:
     caption: "Step-by-step Google Business Profile system to rank your HVAC, plumbing, roofing, or electrical company in the local Map Pack. Categories, service areas, photos, reviews, and tracking."
     cta: "Save this guide"
     hashtags: ["LocalSEO", "HomeServiceBusiness", "ContractorMarketing"]
-    image_url: "/images/resources/how-to-guides/rank-google-map-pack-home-services-vertical.png"
+    image_url: "/cdn/images/resources/how-to-guides/rank-google-map-pack-home-services-vertical.png"
     alt_text: "Vertical infographic: how to rank in the Google Map Pack for home services"
     utm_url: "https://consentresolve.com/resources/how-to-guides/rank-google-map-pack-home-services/?utm_source=pinterest&utm_medium=social&utm_campaign=resource_center&utm_content=rank-google-map-pack-home-services"
   google_business_profile:

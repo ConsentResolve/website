@@ -70,10 +70,12 @@ export function resourceImage(
   data: { resource_type: ResourceType; slug: string },
   variant: "featured" | "og" | "square" | "vertical" | "thumbnail" = "featured"
 ): string {
-  // og/featured/thumbnail ship as compressed JPG (web-facing); the larger
-  // square/vertical social variants stay PNG (served for social schedulers).
-  const ext = variant === "square" || variant === "vertical" ? "png" : "jpg";
-  return `/images/resources/${RESOURCE_TYPES[data.resource_type].segment}/${data.slug}-${variant}.${ext}`;
+  // og/featured/thumbnail ship as compressed local JPG (web-facing). The large
+  // square/vertical social variants live in R2, served same-origin via /cdn/*.
+  const social = variant === "square" || variant === "vertical";
+  const base = social ? "/cdn/images/resources" : "/images/resources";
+  const ext = social ? "png" : "jpg";
+  return `${base}/${RESOURCE_TYPES[data.resource_type].segment}/${data.slug}-${variant}.${ext}`;
 }
 
 /** Trades we've generated themed social-image variants for. Add a slug here
@@ -91,8 +93,10 @@ export function tradeImage(
   trade: string,
   variant: (typeof IMAGE_VARIANTS)[number] = "featured"
 ): string {
-  const ext = variant === "square" || variant === "vertical" ? "png" : "jpg";
-  return `/images/resources/${RESOURCE_TYPES[data.resource_type].segment}/${data.slug}-${trade}-${variant}.${ext}`;
+  const social = variant === "square" || variant === "vertical";
+  const base = social ? "/cdn/images/resources" : "/images/resources";
+  const ext = social ? "png" : "jpg";
+  return `${base}/${RESOURCE_TYPES[data.resource_type].segment}/${data.slug}-${trade}-${variant}.${ext}`;
 }
 
 /** Resources that should appear publicly (published + ready_to_publish). */
