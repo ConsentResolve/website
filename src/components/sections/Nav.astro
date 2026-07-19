@@ -7,8 +7,8 @@ import { IconArrowRight, IconChevronDown, IconMenu2 } from "@tabler/icons-react"
   {/* Mobile menu toggle (CSS-only via peer) — must be a sibling of the panel below. */}
   <input id="cr-navmenu" type="checkbox" class="peer sr-only" aria-hidden="true" tabindex="-1" />
 
-  <div class="container-content flex h-[72px] items-center justify-between gap-8">
-    <a href="/" class="group flex items-center" aria-label="Consent Resolve home">
+  <div class="container-content relative flex h-[72px] items-center justify-between gap-8">
+    <a href="/" class="group flex items-center absolute left-1/2 -translate-x-1/2 lg:static lg:left-auto lg:translate-x-0" aria-label="Consent Resolve home">
       <img src="/crnewlogo.svg" alt="Consent Resolve" width="212" height="32" class="h-8 w-auto" />
     </a>
 
@@ -41,7 +41,7 @@ import { IconArrowRight, IconChevronDown, IconMenu2 } from "@tabler/icons-react"
       )}
     </nav>
 
-    <div class="flex items-center gap-2">
+    <div class="ml-auto lg:ml-0 flex items-center gap-2">
       <a
         href="https://dashboard.consentresolve.com/login"
         class="hidden lg:inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium text-slate-200 transition-colors hover:bg-white/[0.06] hover:text-white"
@@ -50,7 +50,7 @@ import { IconArrowRight, IconChevronDown, IconMenu2 } from "@tabler/icons-react"
       </a>
       <a
         href="https://dashboard.consentresolve.com/register"
-        class="inline-flex items-center gap-1.5 rounded-lg bg-[color:var(--color-mint-400)] px-4 py-2 text-sm font-semibold text-[color:var(--color-navy-900)] transition-all hover:bg-[color:var(--color-mint-300)] hover:shadow-[0_8px_24px_-8px_rgba(0,229,160,0.6)]"
+        class="hidden lg:inline-flex items-center gap-1.5 rounded-lg bg-[color:var(--color-mint-400)] px-4 py-2 text-sm font-semibold text-[color:var(--color-navy-900)] transition-all hover:bg-[color:var(--color-mint-300)] hover:shadow-[0_8px_24px_-8px_rgba(0,229,160,0.6)]"
       >
         Get Started
         <IconArrowRight size={16} stroke={2.25} />
