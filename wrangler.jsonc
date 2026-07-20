@@ -61,7 +61,7 @@
   "vars": {
     "FROM_EMAIL": "Consent Resolve <hello@consentresolve.com>",
     "REPLY_TO": "hello@consentresolve.com",
-    "REPLY_TO_DEMO": "demo@consentresolve.com",
+    "REPLY_TO_DEMO": "hello@consentresolve.com",
     "REPLY_TO_OUTREACH": "hello@consentresolve.com",
     "EMAIL_MODE": "promo",
     "SAMPLE_PATH": "/demo/sample/",

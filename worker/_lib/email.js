@@ -210,8 +210,9 @@ export async function sendRevealEmail(env, p, baseUrl) {
     body: JSON.stringify({
       from: env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>",
       to: [p.email],
-      // Purpose-specific reply-to: product/demo mail goes to the demo inbox.
-      reply_to: env.REPLY_TO_DEMO || env.REPLY_TO || undefined,
+      // Purpose-specific reply-to, but every alias must be a mailbox that actually
+      // receives — demo@ does not exist, so this resolves to hello@ and replies land.
+      reply_to: env.REPLY_TO_DEMO || env.REPLY_TO || "hello@consentresolve.com",
       subject,
       html,
       headers: {
