@@ -106,7 +106,9 @@ subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", out,
                 # faststart so the tap-to-unmute seek can't stall (the hub clip has moov last)
                 "-movflags", "+faststart", cropped], check=True)
 
-poster = str(ROOT / "public/reels/meet-intro-poster.jpg")
+# public/reels/ is gitignored (it holds mp4s), so the poster lives beside the hub's
+# in public/team/ — it must be committed or the <video> poster 404s in production.
+poster = str(ROOT / "public/team/meet-intro-poster.jpg")
 subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "0.6", "-i", cropped,
                 "-frames:v", "1", "-q:v", "4", poster], check=True)
 print("poster", poster, flush=True)
