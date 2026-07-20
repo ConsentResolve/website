@@ -576,6 +576,17 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
       document.body.classList.remove("cr-story-lock");
     };
 
+    // Ad deep-link: /how-it-works/?story=1 opens the deck straight away, so a paid
+    // click lands in the 2-minute demo instead of a page they have to hunt through.
+    // Desktop is unaffected (the deck is lg:hidden) and falls back to the walkthrough.
+    try {
+      if (/[?&]story=1\b/.test(location.search)) {
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", function () { window.crOpenStory(); });
+        } else window.crOpenStory();
+      }
+    } catch (_) {}
+
     // Keyboard (desktop QA + a11y)
     document.addEventListener("keydown", function (e) {
       if (!el.classList.contains("is-open")) return;
