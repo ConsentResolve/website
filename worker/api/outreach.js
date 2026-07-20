@@ -73,22 +73,104 @@ Not for you? Unsubscribe here and we won't email again: ${unsub}
 — Tyler
 Consent Resolve · 1907 Gulf Way #1, St Pete Beach, FL 33706`;
 
-  const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#0a1628;max-width:560px;margin:0 auto">
-<p>Hi ${esc(firstName(p.name))},</p>
-<p>You visited consentresolve.com and clicked <strong>Accept</strong> on our consent banner. That's what surfaced your email to us — no form, no guessing. <strong>This email is the product demonstrating itself.</strong></p>
-<p>That's what Consent Resolve does: about 98% of the people who land on a site leave without filling anything in, and stay anonymous — unless they consent. When they do, you get a real name and email, exclusive to you, $7 a lead, never resold.</p>
-<p>Three ways to see it on your own traffic:</p>
-<p>
-<a href="${u("/get-started/", "lookups")}" style="display:block;padding:12px 18px;margin:0 0 8px;background:#00e5a0;color:#0a1628;font-weight:700;text-decoration:none;border-radius:8px;text-align:center">50 lookups at no charge</a>
-<a href="${u("/demo/", "demo")}" style="display:block;padding:12px 18px;margin:0 0 8px;border:1px solid #cbd5e1;color:#0a1628;text-decoration:none;border-radius:8px;text-align:center">Watch the 2-minute demo</a>
-<a href="${u("/contact/", "call")}" style="display:block;padding:12px 18px;border:1px solid #cbd5e1;color:#0a1628;text-decoration:none;border-radius:8px;text-align:center">Book 15 minutes with our team</a>
-</p>
-<p style="margin-top:22px">— Tyler<br/><span style="color:#64748b">Consent Resolve</span></p>
-<hr style="border:0;border-top:1px solid #e2e8f0;margin:22px 0"/>
-<p style="font-size:12px;color:#94a3b8">Consent Resolve · 1907 Gulf Way #1, St Pete Beach, FL 33706<br/>
-You're receiving this because you consented to identification on consentresolve.com.
-<a href="${unsub}" style="color:#94a3b8">Unsubscribe</a></p>
-</div>`;
+  // Email HTML rules that actually matter here: tables for layout (Outlook ignores
+  // flex/grid), inline styles only, <=600px, explicit width/height on images, no CSS
+  // background-image. The 98/2 visual is built from table cells rather than an image so
+  // it still renders when a client blocks images by default — which most do.
+  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f1f5f9">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0">You clicked Accept on our banner — that's how we got here. Here's what it means for your site.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:24px 12px">
+<tr><td align="center">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;border-radius:14px;overflow:hidden;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+
+  <tr><td style="background:#081019;padding:20px 28px" align="left">
+    <span style="color:#ffffff;font-size:17px;font-weight:800;letter-spacing:-.01em">
+      <span style="color:#2ee6a6">&#10003;</span> Consent Resolve</span>
+  </td></tr>
+
+  <tr><td style="padding:30px 28px 6px">
+    <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+      <td width="72" valign="top">
+        <img src="${SITE}/team/tyler-spurlock.jpg" width="64" height="64" alt="Tyler Spurlock"
+             style="display:block;width:64px;height:64px;border-radius:32px;border:2px solid #2ee6a6"/>
+      </td>
+      <td valign="middle" style="padding-left:6px">
+        <div style="font-size:16px;font-weight:800;color:#0a1628;line-height:1.2">Tyler Spurlock</div>
+        <div style="font-size:13px;color:#64748b">Consent Resolve</div>
+      </td>
+    </tr></table>
+  </td></tr>
+
+  <tr><td style="padding:18px 28px 0">
+    <div style="font-size:23px;line-height:1.25;font-weight:800;color:#0a1628">
+      You clicked <span style="color:#0a9d72">Accept</span> on our banner.<br/>That's how you got this email.</div>
+    <p style="font-size:15px;line-height:1.6;color:#334155;margin:14px 0 0">
+      No form. No guessing. You consented on consentresolve.com, and your address surfaced to us
+      — <strong>this email is the product demonstrating itself.</strong></p>
+  </td></tr>
+
+  <tr><td style="padding:22px 28px 0">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+           style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px">
+      <tr><td style="padding:18px 20px 12px">
+        <div style="font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b">Every 100 visitors to your site</div>
+      </td></tr>
+      <tr><td style="padding:0 20px">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-radius:6px;overflow:hidden">
+          <tr>
+            <td width="98%" height="30" style="background:#cbd5e1"></td>
+            <td width="2%"  height="30" style="background:#2ee6a6"></td>
+          </tr>
+        </table>
+      </td></tr>
+      <tr><td style="padding:10px 20px 18px">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+          <td style="font-size:13px;color:#64748b"><strong style="color:#0a1628">98</strong> leave anonymous</td>
+          <td align="right" style="font-size:13px;color:#0a9d72"><strong>2</strong> fill in a form</td>
+        </tr></table>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <tr><td style="padding:20px 28px 0">
+    <p style="font-size:15px;line-height:1.6;color:#334155;margin:0">
+      Consent Resolve hands the consenting ones back to you as real leads — a name and an email,
+      <strong>exclusive to you, $7 a lead, never resold</strong>. Applied to your own traffic, that's
+      more booked jobs from visitors you already paid for.</p>
+  </td></tr>
+
+  <tr><td style="padding:22px 28px 4px">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <tr><td style="border-radius:10px;background:#2ee6a6" align="center">
+        <a href="${u("/get-started/", "lookups")}" style="display:block;padding:15px 20px;font-size:16px;font-weight:800;color:#08131f;text-decoration:none">50 lookups on your site &mdash; no charge</a>
+      </td></tr>
+      <tr><td height="10"></td></tr>
+      <tr><td style="border-radius:10px;border:1px solid #cbd5e1" align="center">
+        <a href="${u("/demo/", "demo")}" style="display:block;padding:13px 20px;font-size:15px;font-weight:700;color:#0a1628;text-decoration:none">Watch the 2-minute demo</a>
+      </td></tr>
+      <tr><td height="10"></td></tr>
+      <tr><td style="border-radius:10px;border:1px solid #cbd5e1" align="center">
+        <a href="${u("/contact/", "call")}" style="display:block;padding:13px 20px;font-size:15px;font-weight:700;color:#0a1628;text-decoration:none">Book 15 minutes with our team</a>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <tr><td style="padding:22px 28px 4px">
+    <p style="font-size:15px;line-height:1.6;color:#334155;margin:0">Reply to this email and it comes straight to me.</p>
+    <p style="font-size:15px;color:#0a1628;margin:12px 0 0"><strong>&mdash; Tyler</strong></p>
+  </td></tr>
+
+  <tr><td style="padding:22px 28px 28px">
+    <div style="border-top:1px solid #e2e8f0;padding-top:14px;font-size:12px;line-height:1.6;color:#94a3b8">
+      Consent Resolve &middot; 1907 Gulf Way #1, St Pete Beach, FL 33706<br/>
+      You're receiving this because you consented to identification on consentresolve.com.
+      <a href="${unsub}" style="color:#94a3b8;text-decoration:underline">Unsubscribe</a>
+    </div>
+  </td></tr>
+
+</table>
+</td></tr></table></body></html>`;
+
   return { subject: "You clicked Accept on our site — here's exactly what that did", text, html, unsub };
 }
 
