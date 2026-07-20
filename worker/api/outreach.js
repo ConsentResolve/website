@@ -92,7 +92,9 @@ You're receiving this because you consented to identification on consentresolve.
 const SITE_ID_DEFAULT = "9a7ac777-3ca8-483a-b452-0c4deba31c3c";
 
 async function fetchIdentified(env, want) {
-  const key = env.CR_API_KEY;
+  // Trim: a trailing newline from a copy/paste into the dashboard is the most common
+  // cause of a key that is present but rejected.
+  const key = String(env.CR_API_KEY || "").trim();
   if (!key) return { error: "CR_API_KEY not set on the worker" };
   const siteId = env.CR_SITE_ID || SITE_ID_DEFAULT;
   const rows = [];
@@ -106,7 +108,7 @@ async function fetchIdentified(env, want) {
       headers: { "X-API-Key": key, Accept: "application/json" },
     });
     const body = await r.text();
-    if (!r.ok) return { error: `API ${r.status}: ${body.slice(0, 240)}` };
+    if (!r.ok) return { error: `API ${r.status}: ${body.slice(0, 240)}`, key_len: key.length, key_tail: key.slice(-4) };
     let d; try { d = JSON.parse(body); } catch { return { error: "non-JSON from API" }; }
     const batch = d.contacts || d.data || d.results || (Array.isArray(d) ? d : []);
     rows.push(...batch);
