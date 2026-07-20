@@ -18,6 +18,12 @@
 const REGISTER = "https://dashboard.consentresolve.com/register";
 const DEMO = "/demo/?utm_source=mobile_story&utm_medium=meet&utm_content=cta";
 
+// Vertical Tyler clip that plays as the "profile video" on the first card.
+// Rendered by scripts/gen_meet_intro.py. Empty string = fall back to the static
+// brand mark, so the deck never ships a broken <video> before the clip exists.
+const INTRO_VIDEO = "";
+const INTRO_POSTER = "/reels/meet-intro-poster.jpg";
+
 // Blurred "anonymous visitor" tiles — CSS gradient portraits, no real photos.
 const anon = [
   "linear-gradient(150deg,#3b5bdb,#7048e8)",
@@ -56,9 +62,26 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
     <section class="mcr-card" data-card="0">
       <div class="mcr-profile mcr-p-brand">
         <div class="mcr-photo mcr-photo-brand">
-          <div class="mcr-logo">
-            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" stroke="#081019" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
+          {INTRO_VIDEO ? (
+            <Fragment>
+              {/* Tyler's "profile video" — autoplays muted + looping like a dating-app clip. */}
+              <video
+                data-meet-video
+                class="mcr-video"
+                autoplay muted loop playsinline preload="auto"
+                poster={INTRO_POSTER}
+                src={INTRO_VIDEO}
+              ></video>
+              <button type="button" data-meet-sound class="mcr-sound" aria-label="Tap for sound">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                Tap for sound
+              </button>
+            </Fragment>
+          ) : (
+            <div class="mcr-logo">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" stroke="#081019" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          )}
           <span class="mcr-verify">✓ Consent-first · Verified</span>
         </div>
         <div class="mcr-meta">
@@ -230,6 +253,8 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   .mcr-photo { position: relative; flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
   .mcr-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(6,12,22,0.85) 100%); }
   .mcr-photo-brand { background: radial-gradient(120% 90% at 50% 30%, #2ee6a6 0%, #12b886 55%, #0b7a5a 100%); }
+  .mcr-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .mcr-sound { position: absolute; right: 10px; bottom: 10px; z-index: 4; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.75rem; border-radius: 999px; border: 0; background: var(--color-mint-400,#2ee6a6); color: #081019; font-size: 0.78rem; font-weight: 800; box-shadow: 0 8px 20px -8px rgba(0,0,0,0.6); }
   .mcr-logo { width: 96px; height: 96px; border-radius: 28px; background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 50px -12px rgba(0,0,0,0.5); }
   .mcr-verify { position: absolute; top: 14px; left: 14px; z-index: 2; font-size: 0.72rem; font-weight: 700; color: #081019; background: rgba(255,255,255,0.9); padding: 0.28rem 0.6rem; border-radius: 999px; }
   .mcr-hero-ic { width: 92px; height: 92px; border-radius: 24px; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.35); display: flex; align-items: center; justify-content: center; }
@@ -329,7 +354,31 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
     var actions = document.getElementById("mcr-actions");
     var backBtn = el.querySelector(".mcr-btn-back");
     var likeBtn = el.querySelector(".mcr-btn-like");
+    var mv = el.querySelector("[data-meet-video]");
+    var ms = el.querySelector("[data-meet-sound]");
     var i = 0, n = cards.length, animating = false;
+
+    // Tap for sound. iOS only routes audio when play() is the direct result of the
+    // tap and comes BEFORE any seek — so unmute + play first, then rewind.
+    if (mv && ms) {
+      ms.addEventListener("click", function (e) {
+        e.stopPropagation();
+        mv.loop = false; mv.muted = false; mv.volume = 1;
+        var rewind = function () { try { mv.currentTime = 0; } catch (_) {} mv.muted = false; };
+        var p = mv.play();
+        if (p && p.then) p.then(rewind).catch(function () { rewind(); var r = mv.play(); if (r && r.catch) r.catch(function () {}); });
+        else rewind();
+        ms.style.display = "none";
+      });
+      // When the sound pass ends, re-arm the muted loop + the button.
+      mv.addEventListener("ended", function () {
+        if (mv.loop) return;
+        mv.muted = true; mv.loop = true;
+        try { mv.currentTime = 0; } catch (_) {}
+        var p = mv.play(); if (p && p.catch) p.catch(function () {});
+        ms.style.display = "";
+      });
+    }
 
     function isLast() { return i === n - 1; }
 
@@ -347,6 +396,11 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
       backBtn.disabled = i === 0;
       // On the final (CTA) card the buttons are the real links, so hide the deck controls.
       actions.classList.toggle("is-hidden", isLast());
+      // Only the first card holds the clip — never let it keep talking off-screen.
+      if (mv) {
+        if (i === 0) { var p = mv.play(); if (p && p.catch) p.catch(function () {}); }
+        else mv.pause();
+      }
     }
 
     function go(k) { i = Math.max(0, Math.min(n - 1, k)); render(); }
@@ -393,6 +447,8 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
     var startX = 0, startY = 0, dx = 0, dragging = false, decided = false, horizontal = false;
     stage.addEventListener("touchstart", function (e) {
       if (animating || isLast()) return;
+      // Let the sound button take its own tap instead of advancing the card.
+      if (e.target && e.target.closest && e.target.closest("[data-meet-sound]")) return;
       var card = cards[i];
       if (!card.classList.contains("is-active")) return;
       startX = e.touches[0].clientX; startY = e.touches[0].clientY;
