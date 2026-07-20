@@ -76,18 +76,41 @@ Path(out).parent.mkdir(parents=True, exist_ok=True)
 subprocess.run(["curl", "-sSL", vurl, "-o", out], check=True)
 print("downloaded", out, flush=True)
 
-# Poster frame (first card shows this before autoplay kicks in / if data-saver blocks it).
+# HeyGen ignores the 9:16 canvas for this landscape-native look: it letterboxes the
+# 16:9 avatar into 720x1280 with big WHITE bars (cropdetect misses them — it only
+# looks for black). Measure the content box by row variance and crop the bars off.
+# We deliberately do NOT upscale to a true 9:16: the card's photo area is near-square,
+# so CSS object-fit:cover downscales this crop and stays sharp.
+from PIL import Image
+probe = str(ROOT / "build/meet-probe.jpg")
+Path(probe).parent.mkdir(parents=True, exist_ok=True)
+subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "1", "-i", out,
+                "-frames:v", "1", probe], check=True)
+im = Image.open(probe).convert("RGB"); W, H = im.size; px = im.load()
+top = bot = None
+for y in range(H):
+    vals = [sum(px[x, y]) / 3 for x in range(0, W, 8)]
+    if max(vals) - min(vals) > 25:          # flat white bars have ~no variance
+        if top is None: top = y
+        bot = y
+if top is None:
+    top, bot = 0, H - 1
+top += 2; bot -= 2                            # inset past any soft edge row
+ch = (bot - top + 1) // 2 * 2                 # even height for h264
+print(f"letterbox crop -> {W}x{ch} at y={top}", flush=True)
+
+cropped = str(ROOT / "public/reels/meet-intro.mp4")
+subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", out,
+                "-vf", f"crop={W}:{ch}:0:{top}", "-c:v", "libx264", "-crf", "20",
+                "-preset", "slow", "-pix_fmt", "yuv420p", "-c:a", "copy",
+                # faststart so the tap-to-unmute seek can't stall (the hub clip has moov last)
+                "-movflags", "+faststart", cropped], check=True)
+
 poster = str(ROOT / "public/reels/meet-intro-poster.jpg")
-subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "0.6", "-i", out,
+subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "0.6", "-i", cropped,
                 "-frames:v", "1", "-q:v", "4", poster], check=True)
 print("poster", poster, flush=True)
 
-# faststart so the tap-to-unmute seek doesn't stall (the hub clip has moov at the end).
-fast = out.replace(".mp4", "-fast.mp4")
-subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", out, "-c", "copy",
-                "-movflags", "+faststart", fast], check=True)
-Path(fast).replace(out)
-
-subprocess.run(["/usr/bin/python3", str(ROOT / "scripts/r2_upload.py"), out,
-                "social/sprint/meet-intro-vertical.mp4", "video/mp4"], check=True)
-print("done -> social/sprint/meet-intro-vertical.mp4", flush=True)
+subprocess.run(["/usr/bin/python3", str(ROOT / "scripts/r2_upload.py"), cropped,
+                "social/sprint/meet-intro.mp4", "video/mp4"], check=True)
+print("done -> social/sprint/meet-intro.mp4", flush=True)
