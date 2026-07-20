@@ -15,8 +15,9 @@
  * fully self-contained (no external images). Rendered once in BaseLayout,
  * mobile-only (lg:hidden).
  */
+import { SITE } from "~/lib/site";
+
 const REGISTER = "https://dashboard.consentresolve.com/register";
-const DEMO = "/demo/?utm_source=mobile_story&utm_medium=meet&utm_content=cta";
 
 // Vertical Tyler clip that plays as the "profile video" on the first card.
 // Rendered by scripts/gen_meet_intro.py. Empty string = fall back to the static
@@ -216,10 +217,35 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
         <div class="mcr-cta-mark">
           <svg width="38" height="38" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <h2>Ready to meet them?</h2>
-        <p>Run the 60-second live demo — you'll play the homeowner and get the exact new-lead email a contractor sees. The lead is you.</p>
-        <a class="mcr-cta-primary" href={DEMO}>Try the live demo →</a>
-        <a class="mcr-cta-secondary" href={REGISTER}>Start — $7 a lead, never resold</a>
+        <h2>Ready for New Leads?</h2>
+        <p>Pick whichever's easiest. Most pros are live in about 10 minutes.</p>
+
+        {/* Call or text — real tel:/sms: links with the number on show. */}
+        <div class="mcr-contact">
+          <a class="mcr-phone" href={`tel:${SITE.phoneE164}`}>{SITE.phone}</a>
+          <div class="mcr-contact-row">
+            <a class="mcr-cbtn" href={`tel:${SITE.phoneE164}`}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.4 2.1L8 9.8a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.7a2 2 0 0 1 1.7 2z"></path></svg>
+              Call
+            </a>
+            <a class="mcr-cbtn" href={`sms:${SITE.phoneE164}`}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"></path></svg>
+              Text
+            </a>
+          </div>
+        </div>
+
+        {/* Live chat — close the deck first so the Crisp box isn't stuck behind it. */}
+        <button
+          type="button"
+          class="mcr-cta-secondary"
+          onclick="window.crCloseStory&&window.crCloseStory();window.crOpenChat&&window.crOpenChat()"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"></path></svg>
+          Live Chat
+        </button>
+
+        <a class="mcr-cta-primary" href={REGISTER}>Get Started — $7 a lead →</a>
         <button type="button" class="mcr-cta-restart" onclick="window.crStoryGo&&window.crStoryGo(0)">↺ Start over</button>
       </div>
     </section>
@@ -402,7 +428,12 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   .mcr-cta-mark { width: 72px; height: 72px; border-radius: 22px; display: flex; align-items: center; justify-content: center; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.35); margin-bottom: 0.5rem; }
   .mcr-cta p { margin: 0.6rem 0 1.1rem; font-size: 0.96rem; line-height: 1.5; color: rgba(255,255,255,0.74); max-width: 32ch; }
   .mcr-cta-primary { display: block; width: 100%; padding: 0.95rem; border-radius: 14px; background: var(--color-mint-400,#2ee6a6); color: #081019; font-weight: 800; font-size: 1rem; box-shadow: 0 14px 32px -10px rgba(46,230,166,0.6); }
-  .mcr-cta-secondary { display: block; width: 100%; margin-top: 0.6rem; padding: 0.9rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 600; font-size: 0.92rem; }
+  .mcr-cta-secondary { display: flex; align-items: center; justify-content: center; gap: 0.45rem; width: 100%; margin-top: 0.6rem; padding: 0.9rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.2); background: none; color: #fff; font-weight: 600; font-size: 0.92rem; }
+  /* Call or text */
+  .mcr-contact { width: 100%; padding: 0.75rem 0.7rem 0.7rem; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); }
+  .mcr-phone { display: block; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; color: #fff; }
+  .mcr-contact-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.55rem; }
+  .mcr-cbtn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.7rem; border-radius: 11px; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.4); color: var(--color-mint-400,#2ee6a6); font-weight: 700; font-size: 0.9rem; }
   .mcr-cta-restart { margin-top: 1rem; background: none; border: 0; color: rgba(255,255,255,0.5); font-size: 0.85rem; font-weight: 600; }
 
   /* Dating-app action buttons */
