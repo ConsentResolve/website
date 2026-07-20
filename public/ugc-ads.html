@@ -33,10 +33,10 @@ p.ms{max-width:1300px;margin:0 auto 8px;padding:0 22px;color:#94a3b8;font-size:1
 </style></head><body>
 <header>
 <h1>UGC Ad Review — Consent Resolve</h1>
-<p>6 non-employee avatar ads (3 scripts &times; male / female). Watch, then drop a comment under any one &mdash; your notes save to the team review log. Compliance-cleared: illustrative spokesperson framing, no fabricated testimonials.</p>
+<p>Surviving ads after the 2026-07-20 review (23 cut). Watch, then drop a comment under any one &mdash; your notes save to the team review log. Compliance-cleared: illustrative spokesperson framing, no fabricated testimonials.</p>
 </header>
 <h2 class="mh" style="font-size:20px">🎯 Test batch &mdash; rate &amp; comment <span id="keepcount" class="n"></span></h2>
-<p class="ms">New variable ad set combining <b>fal.ai + Remotion + ffmpeg</b> &mdash; non-UGC motion ads, UGC talking-heads, and hybrids across 10 message angles. <b>Vote 1&ndash;5 stars</b> and leave a comment on each; both save to the review log so we can rank them and narrow to your top 20.</p>
+<p class="ms">New variable ad set combining <b>fal.ai + Remotion + ffmpeg</b> &mdash; non-UGC motion ads, UGC talking-heads, and hybrids across 10 message angles. <b>Reworked 2026-07-20</b> from your notes: bigger/legible end card, HeyGen white bars cropped, avatar re-centred, hybrids now show real product screenshots. Ratings reset &mdash; vote and comment again on this pass.</p>
 <div class="grid" id="testgrid"></div>
 <h2 class="mh">Earlier reels</h2>
 <div class="grid" id="grid"></div>
@@ -48,14 +48,13 @@ p.ms{max-width:1300px;margin:0 auto 8px;padding:0 22px;color:#94a3b8;font-size:1
 <div class="grid" id="demogrid"></div>
 <footer>Consent Resolve &middot; internal review &middot; noindex</footer>
 <script>
-// The 6 rendered ads. src = /ugc-ads/<slug>.mp4 (served from public/). Labels for review.
+// The 5 surviving original ads (banner-male cut in the 2026-07-20 review). src = /ugc-ads/<slug>.mp4 (served from public/). Labels for review.
 var ADS = [
   // Dynamic Remotion "hype" ads — animated screenshots, karaoke captions, SFX, ad-review outro.
   {slug:"hype-anon-male",       script:"Hype · Anonymous (Male)",   persona:"Male · dynamic"},
   {slug:"hype-visited-male",    script:"Hype · Who Visited (Male)", persona:"Male · dynamic"},
   {slug:"hype-goldmine-female", script:"Hype · Goldmine (Female)",  persona:"Female · dynamic"},
-  {slug:"banner-male",  script:"Cookie Banner",     persona:"Male"},
-  {slug:"shared-male",  script:"The Shared Lead",   persona:"Male"},
+    {slug:"shared-male",  script:"The Shared Lead",   persona:"Male"},
   {slug:"shared-female",script:"The Shared Lead",   persona:"Female"}
 ];
 var SCRIPTS = {
@@ -111,8 +110,7 @@ ADS.forEach(function(ad){
 
 // Model A/B section — same script (banner-male) across models. HeyGen control = R2 root; fal arms under fal/.
 var MODELS = [
-  {model:"HeyGen + ElevenLabs", cls:"", note:"Current production control.", src:R2+"banner-male.mp4", slug:"modeltest-banner-male-heygen"}
-];
+  ];
 var mgrid=document.getElementById("modelgrid");
 MODELS.forEach(function(m){
   var card=document.createElement("div");card.className="card";
@@ -198,17 +196,14 @@ DEMOS.forEach(function(d){
 
 // ===== Test batch — pick your top 20 (fal + Remotion + ffmpeg) =====
 var R2T = R2 + "testbatch/";
-var TVER = "2";
+var TVER = "3";
 var ANGLE = {problem:"Problem",reveal:"Reveal",goldmine:"Goldmine",value:"Value",funnel:"Funnel",local:"Local",data:"Data",compare:"vs Shared",urgency:"Urgency",consent:"Consent"};
 var TESTBATCH = [
-  {id:"Motion-01-problem-a",r:"9x16"},{id:"Motion-02-problem-b",r:"1x1"},{id:"Motion-03-reveal-a",r:"9x16"},{id:"Motion-04-reveal-b",r:"9x16"},
-  {id:"Motion-05-goldmine-a",r:"9x16"},{id:"Motion-06-goldmine-b",r:"1x1"},{id:"Motion-07-value-a",r:"9x16"},{id:"Motion-08-value-b",r:"1x1"},
-  {id:"Motion-09-funnel-a",r:"9x16"},{id:"Motion-10-funnel-b",r:"9x16"},{id:"Motion-11-local-a",r:"9x16"},{id:"Motion-12-local-b",r:"1x1"},
-  {id:"Motion-13-data-a",r:"9x16"},{id:"Motion-14-data-b",r:"9x16"},{id:"Motion-15-compare-a",r:"9x16"},{id:"Motion-16-compare-b",r:"1x1"},
-  {id:"Motion-17-urgency-a",r:"9x16"},{id:"Motion-18-urgency-b",r:"9x16"},{id:"Motion-19-consent-a",r:"9x16"},{id:"Motion-20-consent-b",r:"1x1"}
+  {id:"Motion-04-reveal-b",r:"9x16"},{id:"Motion-05-goldmine-a",r:"9x16"},
+  {id:"Motion-11-local-a",r:"9x16"},{id:"Motion-20-consent-b",r:"1x1"}
 ].map(function(t){var p=t.id.split("-");return {id:t.id,r:t.r,type:"Non-UGC",angle:ANGLE[p[2]]||p[2]};})
-.concat(["ugc-01-problem","ugc-02-reveal","ugc-03-goldmine","ugc-04-value","ugc-05-funnel","ugc-06-local","ugc-07-data","ugc-08-compare","ugc-09-urgency","ugc-10-consent"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"UGC",angle:ANGLE[p[2]]||p[2]};}))
-.concat(["hybrid-01-goldmine","hybrid-02-funnel","hybrid-03-data","hybrid-04-consent"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"Hybrid",angle:ANGLE[p[2]]||p[2]};}));
+.concat(["ugc-01-problem","ugc-03-goldmine","ugc-04-value","ugc-05-funnel","ugc-07-data","ugc-10-consent"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"UGC",angle:ANGLE[p[2]]||p[2]};}))
+.concat(["hybrid-01-goldmine","hybrid-02-funnel"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"Hybrid",angle:ANGLE[p[2]]||p[2]};}));
 
 function voteState(){try{return JSON.parse(localStorage.getItem("cr_testvote")||"{}");}catch(e){return {};}}
 function setVote(id,v){var s=voteState();s[id]=v;localStorage.setItem("cr_testvote",JSON.stringify(s));updateVoteCount();}

@@ -1,0 +1,479 @@
+{
+ "count": 79,
+ "feedback": [
+  {
+   "video": "testbatch-Motion-01-problem-a",
+   "note": "Kill It",
+   "author": "Aaron Phillips",
+   "created_at": "2026-07-20 15:20:11"
+  },
+  {
+   "video": "testbatch-Motion-01-problem-a",
+   "note": "Gittery and I thought neo was going to show up",
+   "author": "Andy",
+   "created_at": "2026-07-17 21:04:02"
+  },
+  {
+   "video": "testbatch-Motion-01-problem-a",
+   "note": "VOTE:2",
+   "author": "voter",
+   "created_at": "2026-07-17 21:03:38"
+  },
+  {
+   "video": "testbatch-Motion-02-problem-b",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:20:23"
+  },
+  {
+   "video": "testbatch-Motion-02-problem-b",
+   "note": "Looks cheap.",
+   "author": "Aaron Phillips",
+   "created_at": "2026-07-17 21:33:37"
+  },
+  {
+   "video": "testbatch-Motion-02-problem-b",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-17 21:33:01"
+  },
+  {
+   "video": "testbatch-Motion-02-problem-b",
+   "note": "Same as above",
+   "author": "Andy",
+   "created_at": "2026-07-17 21:04:31"
+  },
+  {
+   "video": "testbatch-Motion-02-problem-b",
+   "note": "VOTE:2",
+   "author": "voter",
+   "created_at": "2026-07-17 21:04:21"
+  },
+  {
+   "video": "testbatch-Motion-02-problem-b",
+   "note": "VOTE:2",
+   "author": "voter",
+   "created_at": "2026-07-17 21:04:20"
+  },
+  {
+   "video": "testbatch-Motion-03-reveal-a",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:20:30"
+  },
+  {
+   "video": "testbatch-Motion-03-reveal-a",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-17 21:34:33"
+  },
+  {
+   "video": "testbatch-Motion-03-reveal-a",
+   "note": "No smoke effect, it is glitchy and you cannot read the text under the Try It Button.",
+   "author": "Aaron Phillips",
+   "created_at": "2026-07-17 21:34:33"
+  },
+  {
+   "video": "testbatch-Motion-03-reveal-a",
+   "note": "Really gittery and feels more like americas most wanted look who is now #5 AP",
+   "author": "Andy",
+   "created_at": "2026-07-17 21:05:35"
+  },
+  {
+   "video": "testbatch-Motion-03-reveal-a",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-17 21:04:49"
+  },
+  {
+   "video": "testbatch-Motion-03-reveal-a",
+   "note": "VOTE:2",
+   "author": "voter",
+   "created_at": "2026-07-17 21:04:48"
+  },
+  {
+   "video": "testbatch-Motion-04-reveal-b",
+   "note": "Keep it - but sharpen the ending.",
+   "author": "Aaron Phillips",
+   "created_at": "2026-07-20 15:21:04"
+  },
+  {
+   "video": "testbatch-Motion-04-reveal-b",
+   "note": "VOTE:4",
+   "author": "voter",
+   "created_at": "2026-07-20 15:20:43"
+  },
+  {
+   "video": "testbatch-Motion-04-reveal-b",
+   "note": "The text I like better but still feels too much like identity theft",
+   "author": "Andy",
+   "created_at": "2026-07-17 21:06:23"
+  },
+  {
+   "video": "testbatch-Motion-04-reveal-b",
+   "note": "VOTE:3",
+   "author": "voter",
+   "created_at": "2026-07-17 21:05:54"
+  },
+  {
+   "video": "testbatch-Motion-05-goldmine-a",
+   "note": "Keep it but the end our domain and $7 exclusive lead is really hard to read.  And kill the smoke effect, replace with something else.",
+   "author": "Aaron Phillips",
+   "created_at": "2026-07-20 15:21:56"
+  },
+  {
+   "video": "testbatch-Motion-05-goldmine-a",
+   "note": "VOTE:3",
+   "author": "voter",
+   "created_at": "2026-07-20 15:21:21"
+  },
+  {
+   "video": "testbatch-Motion-05-goldmine-a",
+   "note": "Text good we need some non scary variances",
+   "author": "Andy",
+   "created_at": "2026-07-17 21:07:10"
+  },
+  {
+   "video": "testbatch-Motion-05-goldmine-a",
+   "note": "VOTE:4",
+   "author": "voter",
+   "created_at": "2026-07-17 21:06:49"
+  },
+  {
+   "video": "testbatch-Motion-05-goldmine-a",
+   "note": "VOTE:5",
+   "author": "voter",
+   "created_at": "2026-07-17 21:06:48"
+  },
+  {
+   "video": "testbatch-Motion-06-goldmine-b",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:22:30"
+  },
+  {
+   "video": "testbatch-Motion-06-goldmine-b",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:22:07"
+  },
+  {
+   "video": "testbatch-Motion-07-value-a",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:22:58"
+  },
+  {
+   "video": "testbatch-Motion-07-value-a",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:22:31"
+  },
+  {
+   "video": "testbatch-Motion-07-value-a",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:22:24"
+  },
+  {
+   "video": "testbatch-Motion-08-value-b",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:22:51"
+  },
+  {
+   "video": "testbatch-Motion-09-funnel-a",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:23:14"
+  },
+  {
+   "video": "testbatch-Motion-09-funnel-a",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:23:10"
+  },
+  {
+   "video": "testbatch-Motion-10-funnel-b",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:23:30"
+  },
+  {
+   "video": "testbatch-Motion-11-local-a",
+   "note": "Let's try and improve this one.  The end like the others is hard to read.   The 0:05 image is kinda blurry.  Replace with ghost in circle icon.",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:24:36"
+  },
+  {
+   "video": "testbatch-Motion-11-local-a",
+   "note": "VOTE:3",
+   "author": "voter",
+   "created_at": "2026-07-20 15:23:43"
+  },
+  {
+   "video": "testbatch-Motion-12-local-b",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:24:49"
+  },
+  {
+   "video": "testbatch-Motion-12-local-b",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:24:45"
+  },
+  {
+   "video": "testbatch-Motion-13-data-a",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:25:07"
+  },
+  {
+   "video": "testbatch-Motion-13-data-a",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:25:01"
+  },
+  {
+   "video": "testbatch-Motion-14-data-b",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:25:15"
+  },
+  {
+   "video": "testbatch-Motion-15-compare-a",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:25:20"
+  },
+  {
+   "video": "testbatch-Motion-16-compare-b",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:25:27"
+  },
+  {
+   "video": "testbatch-Motion-17-urgency-a",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:25:36"
+  },
+  {
+   "video": "testbatch-Motion-18-urgency-b",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:25:41"
+  },
+  {
+   "video": "testbatch-Motion-19-consent-a",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:25:49"
+  },
+  {
+   "video": "testbatch-Motion-20-consent-b",
+   "note": "This is a good base, end is hard to read, lets rework and make better",
+   "author": "Aaron Phillips",
+   "created_at": "2026-07-20 15:26:21"
+  },
+  {
+   "video": "testbatch-Motion-20-consent-b",
+   "note": "VOTE:4",
+   "author": "voter",
+   "created_at": "2026-07-20 15:25:59"
+  },
+  {
+   "video": "testbatch-hybrid-01-goldmine",
+   "note": "His head is too low, center it. Remove visual effects and replace with screenshots.",
+   "author": "Aaron Phillips",
+   "created_at": "2026-07-20 15:32:13"
+  },
+  {
+   "video": "testbatch-hybrid-01-goldmine",
+   "note": "VOTE:3",
+   "author": "voter",
+   "created_at": "2026-07-20 15:31:41"
+  },
+  {
+   "video": "testbatch-hybrid-02-funnel",
+   "note": "His head is too low, center it.Remove visual effects and replace with screenshots.",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:32:35"
+  },
+  {
+   "video": "testbatch-hybrid-02-funnel",
+   "note": "VOTE:3",
+   "author": "voter",
+   "created_at": "2026-07-20 15:32:28"
+  },
+  {
+   "video": "testbatch-hybrid-03-data",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:32:48"
+  },
+  {
+   "video": "testbatch-hybrid-03-data",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:32:43"
+  },
+  {
+   "video": "testbatch-hybrid-04-consent",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:33:06"
+  },
+  {
+   "video": "testbatch-ugc-01-problem",
+   "note": "Fix white space at top of video.  End is hrd to read website and $7 exclusive lead is too small.",
+   "author": "Aaron Phillips",
+   "created_at": "2026-07-20 15:27:19"
+  },
+  {
+   "video": "testbatch-ugc-01-problem",
+   "note": "VOTE:4",
+   "author": "voter",
+   "created_at": "2026-07-20 15:26:45"
+  },
+  {
+   "video": "testbatch-ugc-02-reveal",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:27:41"
+  },
+  {
+   "video": "testbatch-ugc-03-goldmine",
+   "note": "Fix white space and it glitches starting at 0:02.... End is hrd to read website and $7 exclusive lead is too small.  Closed captions are not synced.",
+   "author": "Aaron Phillips",
+   "created_at": "2026-07-20 15:28:43"
+  },
+  {
+   "video": "testbatch-ugc-03-goldmine",
+   "note": "VOTE:3",
+   "author": "voter",
+   "created_at": "2026-07-20 15:27:57"
+  },
+  {
+   "video": "testbatch-ugc-04-value",
+   "note": "Glitches, End is hrd to read website and $7 exclusive lead is too small. Closed captions are not synced.",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:29:18"
+  },
+  {
+   "video": "testbatch-ugc-04-value",
+   "note": "VOTE:3",
+   "author": "voter",
+   "created_at": "2026-07-20 15:28:51"
+  },
+  {
+   "video": "testbatch-ugc-05-funnel",
+   "note": "Fix white space at top of video. End is hrd to read website and $7 exclusive lead is too small.",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:29:39"
+  },
+  {
+   "video": "testbatch-ugc-05-funnel",
+   "note": "VOTE:3",
+   "author": "voter",
+   "created_at": "2026-07-20 15:29:34"
+  },
+  {
+   "video": "testbatch-ugc-06-local",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:29:56"
+  },
+  {
+   "video": "testbatch-ugc-06-local",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:29:56"
+  },
+  {
+   "video": "testbatch-ugc-07-data",
+   "note": "Fix white space at top of video. End is hrd to read website and $7 exclusive lead is too small.",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:30:14"
+  },
+  {
+   "video": "testbatch-ugc-07-data",
+   "note": "VOTE:3",
+   "author": "voter",
+   "created_at": "2026-07-20 15:30:03"
+  },
+  {
+   "video": "testbatch-ugc-08-compare",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:30:30"
+  },
+  {
+   "video": "testbatch-ugc-08-compare",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:30:23"
+  },
+  {
+   "video": "testbatch-ugc-09-urgency",
+   "note": "VOTE:1",
+   "author": "voter",
+   "created_at": "2026-07-20 15:30:39"
+  },
+  {
+   "video": "testbatch-ugc-10-consent",
+   "note": "Maybe, glitches...  End is hrd to read website and $7 exclusive lead is too small.",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:31:26"
+  },
+  {
+   "video": "testbatch-ugc-10-consent",
+   "note": "VOTE:3",
+   "author": "voter",
+   "created_at": "2026-07-20 15:31:00"
+  },
+  {
+   "video": "ugc-ad-banner-male",
+   "note": "Kill It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:34:26"
+  },
+  {
+   "video": "ugc-ad-hype-anon-male",
+   "note": "It is glitchy.",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:33:35"
+  },
+  {
+   "video": "ugc-ad-hype-anon-male",
+   "note": "It\u2019s really glitchy first 30 seconds - the voice is a bit too AI",
+   "author": "",
+   "created_at": "2026-07-16 22:24:27"
+  },
+  {
+   "video": "ugc-ad-hype-goldmine-female",
+   "note": "It is glitchy.",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:34:00"
+  },
+  {
+   "video": "ugc-ad-hype-visited-male",
+   "note": "It is glitchy.",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:33:52"
+  },
+  {
+   "video": "ugc-ad-shared-female",
+   "note": "Keep it",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:34:48"
+  },
+  {
+   "video": "ugc-ad-shared-male",
+   "note": "Keep It",
+   "author": "Aaron",
+   "created_at": "2026-07-20 15:34:39"
+  }
+ ]
+}
