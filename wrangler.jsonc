@@ -59,7 +59,11 @@
   //     X_CLIENT_ID, X_CLIENT_SECRET, X_REFRESH_TOKEN
   //     GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, GBP_ACCOUNT_ID, GBP_LOCATION_ID
   "vars": {
-    "FROM_EMAIL": "Consent Resolve <hello@consentresolve.com>",
+    // TEMPORARY: consentresolve.com is added to Resend but DNS verification is
+    // status=failed, so it cannot send yet. Sending from the verified
+    // tryconsentresolve.com meanwhile; replies still go to hello@consentresolve.com.
+    // Flip this back the moment resend.com/domains shows consentresolve.com verified.
+    "FROM_EMAIL": "Consent Resolve <hello@tryconsentresolve.com>",
     "REPLY_TO": "hello@consentresolve.com",
     "REPLY_TO_DEMO": "hello@consentresolve.com",
     "REPLY_TO_OUTREACH": "hello@consentresolve.com",
