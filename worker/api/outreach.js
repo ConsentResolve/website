@@ -77,8 +77,11 @@ Consent Resolve · 1907 Gulf Way #1, St Pete Beach, FL 33706`;
   // flex/grid), inline styles only, <=600px, explicit width/height on images, no CSS
   // background-image. The 98/2 visual is built from table cells rather than an image so
   // it still renders when a client blocks images by default — which most do.
-  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f1f5f9">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0">You clicked Accept on our banner — that's how we got here. Here's what it means for your site.</div>
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="light"/><meta name="supported-color-schemes" content="light"/>
+</head><body style="margin:0;padding:0;background:#f1f5f9">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0">You clicked Accept on our banner &mdash; that's how we got here. Here's what it means for your site.</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:24px 12px">
 <tr><td align="center">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;border-radius:14px;overflow:hidden;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
@@ -106,7 +109,7 @@ Consent Resolve · 1907 Gulf Way #1, St Pete Beach, FL 33706`;
       You clicked <span style="color:#0a9d72">Accept</span> on our banner.<br/>That's how you got this email.</div>
     <p style="font-size:15px;line-height:1.6;color:#334155;margin:14px 0 0">
       No form. No guessing. You consented on consentresolve.com, and your address surfaced to us
-      — <strong>this email is the product demonstrating itself.</strong></p>
+      &mdash; <strong>this email is the product demonstrating itself.</strong></p>
   </td></tr>
 
   <tr><td style="padding:22px 28px 0">
@@ -134,7 +137,7 @@ Consent Resolve · 1907 Gulf Way #1, St Pete Beach, FL 33706`;
 
   <tr><td style="padding:20px 28px 0">
     <p style="font-size:15px;line-height:1.6;color:#334155;margin:0">
-      Consent Resolve hands the consenting ones back to you as real leads — a name and an email,
+      Consent Resolve hands the consenting ones back to you as real leads &mdash; a name and an email,
       <strong>exclusive to you, $7 a lead, never resold</strong>. Applied to your own traffic, that's
       more booked jobs from visitors you already paid for.</p>
   </td></tr>
