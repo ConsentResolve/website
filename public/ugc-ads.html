@@ -33,10 +33,10 @@ p.ms{max-width:1300px;margin:0 auto 8px;padding:0 22px;color:#94a3b8;font-size:1
 </style></head><body>
 <header>
 <h1>UGC Ad Review — Consent Resolve</h1>
-<p>Surviving ads after the 2026-07-20 review (23 cut). Watch, then drop a comment under any one &mdash; your notes save to the team review log. Compliance-cleared: illustrative spokesperson framing, no fabricated testimonials.</p>
+<p>Surviving ads after two review rounds (25 cut). Watch, then drop a comment under any one &mdash; your notes save to the team review log. Compliance-cleared: illustrative spokesperson framing, no fabricated testimonials.</p>
 </header>
 <h2 class="mh" style="font-size:20px">🎯 Test batch &mdash; rate &amp; comment <span id="keepcount" class="n"></span></h2>
-<p class="ms">New variable ad set combining <b>fal.ai + Remotion + ffmpeg</b> &mdash; non-UGC motion ads, UGC talking-heads, and hybrids across 10 message angles. <b>Reworked 2026-07-20</b> from your notes: bigger/legible end card, HeyGen white bars cropped, avatar re-centred, hybrids now show real product screenshots. Ratings reset &mdash; vote and comment again on this pass.</p>
+<p class="ms">New variable ad set combining <b>fal.ai + Remotion + ffmpeg</b> &mdash; non-UGC motion ads, UGC talking-heads, and hybrids across 10 message angles. <b>Round 2 rework</b>: caption blink/flash bug fixed (captions no longer blank out between phrases), full-screen strobe removed from the hype reels, end card enlarged again (60/52px solid band), hybrids now zoom the Accept button and the identified-lead rows with a slow push-in. Ratings reset &mdash; vote and comment again.</p>
 <div class="grid" id="testgrid"></div>
 <h2 class="mh">Earlier reels</h2>
 <div class="grid" id="grid"></div>
@@ -196,11 +196,10 @@ DEMOS.forEach(function(d){
 
 // ===== Test batch — pick your top 20 (fal + Remotion + ffmpeg) =====
 var R2T = R2 + "testbatch/";
-var TVER = "3";
+var TVER = "4";
 var ANGLE = {problem:"Problem",reveal:"Reveal",goldmine:"Goldmine",value:"Value",funnel:"Funnel",local:"Local",data:"Data",compare:"vs Shared",urgency:"Urgency",consent:"Consent"};
 var TESTBATCH = [
-  {id:"Motion-04-reveal-b",r:"9x16"},{id:"Motion-05-goldmine-a",r:"9x16"},
-  {id:"Motion-11-local-a",r:"9x16"},{id:"Motion-20-consent-b",r:"1x1"}
+  {id:"Motion-04-reveal-b",r:"9x16"},{id:"Motion-20-consent-b",r:"1x1"}
 ].map(function(t){var p=t.id.split("-");return {id:t.id,r:t.r,type:"Non-UGC",angle:ANGLE[p[2]]||p[2]};})
 .concat(["ugc-01-problem","ugc-03-goldmine","ugc-04-value","ugc-05-funnel","ugc-07-data","ugc-10-consent"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"UGC",angle:ANGLE[p[2]]||p[2]};}))
 .concat(["hybrid-01-goldmine","hybrid-02-funnel"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"Hybrid",angle:ANGLE[p[2]]||p[2]};}));
