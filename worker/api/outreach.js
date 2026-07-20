@@ -88,8 +88,13 @@ You're receiving this because you consented to identification on consentresolve.
 }
 
 // Public API: X-API-Key header, per-site contacts, opaque cursor pagination,
-// limit max 200, 60 req/min. siteId is consentresolve.com's own CMP siteId.
-const SITE_ID_DEFAULT = "9a7ac777-3ca8-483a-b452-0c4deba31c3c";
+// limit max 200, 60 req/min.
+//
+// NOTE the two UUIDs in the dashboard — they are NOT interchangeable:
+//   9a7ac777-… = Tracking UUID, used by the banner script in ConsentResolve.init().
+//                The public API 404s on it ("Site not found").
+//   d037027c-… = site id the public API expects. Verified 200 with live contacts.
+const SITE_ID_DEFAULT = "d037027c-3647-43ed-b069-5126df08faec";
 
 async function fetchIdentified(env, want) {
   // Trim: a trailing newline from a copy/paste into the dashboard is the most common
@@ -145,7 +150,7 @@ export async function onRequestPost({ request, env }) {
     const key = String(env.CR_API_KEY || "").trim();
     // The dashboard shows two IDs: a Tracking UUID (used by the banner script) and a
     // separate site UUID. Test both against the documented contacts endpoint.
-    const cand = [env.CR_SITE_ID, "d037027c-3647-43ed-b069-5126df08faec", SITE_ID_DEFAULT].filter(Boolean);
+    const cand = [env.CR_SITE_ID || SITE_ID_DEFAULT];
     const tries = cand.map((id) => `/sites/${id}/contacts?limit=1`);
     const out = [];
     for (const t of tries) {
