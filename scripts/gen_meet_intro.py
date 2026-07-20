@@ -26,16 +26,21 @@ VOICE = "92071a8742744d17bc92a02baab2941f"   # Real Tyler (no emotion)
 # ~12s. Deliberately just hook -> problem -> fix -> swipe. The price ($7 a lead, never
 # resold) is NOT spoken because the profile bio sits directly under this video and already
 # says it. Ends on a dating-app joke because the deck this opens is skinned like one.
-SCRIPT = ("I'm Tyler. Ninety-eight of every hundred people who land on your site leave without a word. "
-          "You paid to get them there. Consent Resolve fixes that. "
-          "Keep swiping — I'm not a catfish.")
+# NOTE the "Hey..." lead-in: HeyGen's TTS warm-up compresses the FIRST phrase, which made
+# a cold open on "I'm Tyler" sound clipped/like a different voice (speech started at 0.125s
+# and crammed the name into ~0.5s). The throwaway opener absorbs the warm-up so the name
+# lands in his settled voice. Don't remove it.
+SCRIPT = ("Hey... I'm Tyler. Ninety-eight of every hundred people who land on your site leave "
+          "without a word. You paid to get them there. Consent Resolve fixes that. "
+          "Keep swiping — or just hit that little heart button.")
 
 # Vertical framing matters: gestures must stay inside a narrow 9:16 frame or they clip.
 MOTION = ("Warm, direct, a little playful — a founder who respects your time, talking straight to "
-          "camera on a phone screen. Head-and-shoulders, centered in a tall vertical frame. A small "
-          "dismissive shrug on 'leave without a word'. Ends with a grin on the catfish line. Punchy "
-          "and quick — this is a twelve-second read, no wasted beats. Natural hand gestures kept "
-          "close to the body so they stay inside the narrow vertical frame — never reaching outside it.")
+          "camera on a phone screen. Head-and-shoulders, centered in a tall vertical frame. Opens "
+          "relaxed and unhurried on the greeting — settled, not rushed — then picks up pace. A small "
+          "dismissive shrug on 'leave without a word'. Ends with a grin and a light nod toward the "
+          "bottom of frame on the heart-button line. Natural hand gestures kept close to the body so "
+          "they stay inside the narrow vertical frame — never reaching outside it.")
 
 
 def api(url, body=None):
