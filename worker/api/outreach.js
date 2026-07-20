@@ -87,17 +87,44 @@ You're receiving this because you consented to identification on consentresolve.
   return { subject: "You clicked Accept on our site — here's exactly what that did", text, html, unsub };
 }
 
-async function fetchIdentified(env, limit) {
+// Public API: X-API-Key header, per-site contacts, opaque cursor pagination,
+// limit max 200, 60 req/min. siteId is consentresolve.com's own CMP siteId.
+const SITE_ID_DEFAULT = "9a7ac777-3ca8-483a-b452-0c4deba31c3c";
+
+async function fetchIdentified(env, want) {
   const key = env.CR_API_KEY;
   if (!key) return { error: "CR_API_KEY not set on the worker" };
-  const r = await fetch(`${API_BASE}/visitors?limit=${Math.min(limit * 4, 500)}`, {
-    headers: { Authorization: `Bearer ${key}`, "X-Api-Key": key, Accept: "application/json" },
-  });
-  const body = await r.text();
-  if (!r.ok) return { error: `API ${r.status}: ${body.slice(0, 200)}` };
-  let d; try { d = JSON.parse(body); } catch { return { error: "non-JSON from API" }; }
-  const rows = d.data || d.visitors || d.results || (Array.isArray(d) ? d : []);
-  return { rows };
+  const siteId = env.CR_SITE_ID || SITE_ID_DEFAULT;
+  const rows = [];
+  let cursor = null;
+  // Page until we have enough candidates (dedupe/suppression happens after), capped so
+  // we stay well inside the 60 req/min limit.
+  for (let page = 0; page < 5; page++) {
+    const qs = new URLSearchParams({ limit: String(Math.min(200, Math.max(want * 2, 50))) });
+    if (cursor) qs.set("cursor", cursor);
+    const r = await fetch(`${API_BASE}/sites/${siteId}/contacts?${qs}`, {
+      headers: { "X-API-Key": key, Accept: "application/json" },
+    });
+    const body = await r.text();
+    if (!r.ok) return { error: `API ${r.status}: ${body.slice(0, 240)}` };
+    let d; try { d = JSON.parse(body); } catch { return { error: "non-JSON from API" }; }
+    const batch = d.contacts || d.data || d.results || (Array.isArray(d) ? d : []);
+    rows.push(...batch);
+    cursor = d.cursor || d.next_cursor || (d.meta && d.meta.cursor) || null;
+    if (!cursor || !batch.length || rows.length >= want * 2) break;
+  }
+  return { rows, shape: rows[0] ? Object.keys(rows[0]) : [] };
+}
+
+function normalize(v) {
+  const email = String(v.email || v.contact_email || v.primary_email || "").toLowerCase().trim();
+  return {
+    email,
+    name: v.name || v.full_name || [v.first_name, v.last_name].filter(Boolean).join(" ") || "",
+    company: v.company || v.company_name || (v.company && v.company.name) || "",
+    domain: v.domain || v.website || v.company_domain || "",
+    visitor_id: v.id || v.contact_id || v.visitor_id || "",
+  };
 }
 
 export async function onRequestPost({ request, env }) {
@@ -110,10 +137,37 @@ export async function onRequestPost({ request, env }) {
   await ensureCrmV2Schema(env); await ensureSchema(env);
 
   const send = u.searchParams.get("send") === "1";
+  const testTo = (u.searchParams.get("test") || "").trim();
   const limit = Math.min(parseInt(u.searchParams.get("limit") || "25", 10), 200);
 
-  const { rows, error } = await fetchIdentified(env, limit);
+  const { rows, error, shape } = await fetchIdentified(env, limit);
   if (error) return json({ error }, { status: 502 });
+
+  // Preview send: renders the REAL template with a REAL contact's details so the
+  // personalisation is visible, but delivers to one internal address only. No BCC,
+  // no outreach_sends row, no CRM lead, nothing marked as contacted — so the real
+  // recipient still gets their first-touch email later.
+  if (testTo) {
+    if (!env.RESEND_API_KEY) return json({ error: "RESEND_API_KEY not set" }, { status: 500 });
+    const src = rows.length ? normalize(rows[0]) : { email: "sample@example.com", name: "Sam", company: "", domain: "" };
+    const mail = buildEmail(src);
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: FROM, to: [testTo], reply_to: "hello@consentresolve.com",
+        subject: mail.subject, html: mail.html, text: mail.text,
+      }),
+    });
+    const out = await res.json().catch(() => ({}));
+    return json({
+      preview_send: true, to: testTo, ok: res.ok && !!out.id, resend_id: out.id || null,
+      rendered_for: { name: src.name, company: src.company, domain: src.domain },
+      api_contacts_available: rows.length, api_field_shape: shape,
+      note: "Nothing recorded. This recipient has NOT been marked as contacted.",
+      error: res.ok ? null : JSON.stringify(out).slice(0, 240),
+    });
+  }
 
   // Skip anyone already mailed or unsubscribed.
   const sentSet = new Set(((await env.DB.prepare("SELECT email FROM outreach_sends").all()).results || []).map((r) => r.email.toLowerCase()));
@@ -124,11 +178,11 @@ export async function onRequestPost({ request, env }) {
 
   const queue = [];
   for (const v of rows) {
-    const email = String(v.email || v.contact_email || "").toLowerCase().trim();
-    if (!email || !email.includes("@")) continue;
-    if (sentSet.has(email) || unsubSet.has(email)) continue;
-    if (queue.some((q) => q.email === email)) continue;
-    queue.push({ email, name: v.name || v.full_name || "", company: v.company || v.company_name || "", domain: v.domain || v.website || "", visitor_id: v.id || v.visitor_id || "" });
+    const c = normalize(v);
+    if (!c.email || !c.email.includes("@")) continue;
+    if (sentSet.has(c.email) || unsubSet.has(c.email)) continue;
+    if (queue.some((q) => q.email === c.email)) continue;
+    queue.push(c);
     if (queue.length >= limit) break;
   }
 
@@ -136,6 +190,7 @@ export async function onRequestPost({ request, env }) {
   if (!send) {
     return json({
       dry_run: true, api_returned: rows.length, already_mailed: alreadySent,
+      api_field_shape: shape,
       would_send: queue.length, bcc_on_first: Math.max(0, BCC_LIMIT - alreadySent),
       sample: queue.slice(0, 10), preview: buildEmail(queue[0] || { email: "sample@example.com", name: "Sam" }),
     });
