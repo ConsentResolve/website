@@ -138,6 +138,23 @@ export async function onRequestPost({ request, env }) {
   }
   await ensureCrmV2Schema(env); await ensureSchema(env);
 
+  // ?probe=1 — discover what this key can actually see. The CMP siteId used in
+  // ConsentResolve.init() is not necessarily the same identifier the public API
+  // expects in /sites/{siteId}, so list what the key is scoped to.
+  if (u.searchParams.get("probe") === "1") {
+    const key = String(env.CR_API_KEY || "").trim();
+    const tries = ["/sites", "/sites/" + (env.CR_SITE_ID || SITE_ID_DEFAULT), "/me", "/"];
+    const out = [];
+    for (const t of tries) {
+      try {
+        const r = await fetch(API_BASE + t, { headers: { "X-API-Key": key, Accept: "application/json" } });
+        const b = await r.text();
+        out.push({ path: t, status: r.status, body: b.slice(0, 400) });
+      } catch (e) { out.push({ path: t, error: String(e).slice(0, 120) }); }
+    }
+    return json({ probe: true, key_len: key.length, tried: out });
+  }
+
   const send = u.searchParams.get("send") === "1";
   const testTo = (u.searchParams.get("test") || "").trim();
   const limit = Math.min(parseInt(u.searchParams.get("limit") || "25", 10), 200);
