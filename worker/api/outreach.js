@@ -143,7 +143,10 @@ export async function onRequestPost({ request, env }) {
   // expects in /sites/{siteId}, so list what the key is scoped to.
   if (u.searchParams.get("probe") === "1") {
     const key = String(env.CR_API_KEY || "").trim();
-    const tries = ["/sites", "/sites/" + (env.CR_SITE_ID || SITE_ID_DEFAULT), "/me", "/"];
+    // The dashboard shows two IDs: a Tracking UUID (used by the banner script) and a
+    // separate site UUID. Test both against the documented contacts endpoint.
+    const cand = [env.CR_SITE_ID, "d037027c-3647-43ed-b069-5126df08faec", SITE_ID_DEFAULT].filter(Boolean);
+    const tries = cand.map((id) => `/sites/${id}/contacts?limit=1`);
     const out = [];
     for (const t of tries) {
       try {
