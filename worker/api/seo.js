@@ -183,7 +183,7 @@ export async function sendWeeklyDigest(env) {
     <p style="margin:22px 0 0"><a href="https://consentresolve.com/seo" style="background:#00e5a0;color:#04342c;text-decoration:none;font-weight:700;padding:10px 18px;border-radius:8px">Open the dashboard →</a></p>
   </div>`;
   const to = env.SEO_DIGEST_TO || env.QUOTE_TO || "hello@consentresolve.com";
-  const from = env.FROM_EMAIL || "Consent Resolve <sales@tryconsentresolve.com>";
+  const from = env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>";
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST", headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({ from, to: [to], subject: `SEO weekly — ${fmt(g.clicks)} clicks (${arrow(g.clicks, p.clicks).replace(/<[^>]+>/g, "")}) · ${fmt(g.impressions)} impressions`, html }),

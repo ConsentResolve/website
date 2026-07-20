@@ -21,6 +21,9 @@ import { ensureCrmV2Schema, findOrCreateContactByEmail, addActivityV2, adminUser
 
 const API_BASE = "https://api.consentresolve.com/api/v1/public";
 const FROM = "Tyler at Consent Resolve <hello@consentresolve.com>";
+// Reply-to is purpose-specific so replies to this campaign are distinguishable from
+// product/demo mail in the shared inbox.
+const REPLY_TO = (env) => env.REPLY_TO_OUTREACH || env.REPLY_TO || "hello@consentresolve.com";
 const BCC = ["tyler@consentresolve.com", "aaron@consentresolve.com", "jason@consentresolve.com", "andy@consentresolve.com"];
 const BCC_LIMIT = 25;
 const SITE = "https://consentresolve.com";
@@ -192,7 +195,7 @@ export async function onRequestPost({ request, env }) {
       method: "POST",
       headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: FROM, to: [testTo], reply_to: "hello@consentresolve.com",
+        from: FROM, to: [testTo], reply_to: REPLY_TO(env),
         subject: mail.subject, html: mail.html, text: mail.text,
       }),
     });
@@ -244,7 +247,7 @@ export async function onRequestPost({ request, env }) {
       headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         from: FROM, to: [p.email], ...(withBcc ? { bcc: BCC } : {}),
-        reply_to: "hello@consentresolve.com",
+        reply_to: REPLY_TO(env),
         subject: mail.subject, html: mail.html, text: mail.text,
         headers: { "List-Unsubscribe": `<${mail.unsub}>, <mailto:hello@consentresolve.com?subject=unsubscribe>`,
                    "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },

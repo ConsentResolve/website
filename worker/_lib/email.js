@@ -173,7 +173,7 @@ export async function sendLeadNotification(env, p, meta = {}) {
   // "From the prospect," done the deliverable way: the display NAME is the person who
   // submitted (the actual send address must be a domain we've verified), and reply-to is
   // their email — so it reads as them in the inbox and a reply goes straight to them.
-  const fromAddr = env.FROM_EMAIL || "demo@consentresolve.com";
+  const fromAddr = env.FROM_EMAIL || "hello@consentresolve.com";
   const fromName = String(p.name || "Demo signup").replace(/["<>\r\n,]/g, " ").trim().slice(0, 60) || "Demo signup";
 
   const res = await fetch("https://api.resend.com/emails", {
@@ -208,9 +208,10 @@ export async function sendRevealEmail(env, p, baseUrl) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: env.FROM_EMAIL || "demo@consentresolve.com",
+      from: env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>",
       to: [p.email],
-      reply_to: env.REPLY_TO || undefined,
+      // Purpose-specific reply-to: product/demo mail goes to the demo inbox.
+      reply_to: env.REPLY_TO_DEMO || env.REPLY_TO || undefined,
       subject,
       html,
       headers: {
