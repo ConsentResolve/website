@@ -146,6 +146,16 @@ export async function onRequestPost({ request, env }) {
   // ?probe=1 — discover what this key can actually see. The CMP siteId used in
   // ConsentResolve.init() is not necessarily the same identifier the public API
   // expects in /sites/{siteId}, so list what the key is scoped to.
+  // ?probe=resend — which sending domains are verified? A 403 "domain is not verified"
+  // on send is a DNS/Resend-account issue, not a code issue.
+  if (u.searchParams.get("probe") === "resend") {
+    const r = await fetch("https://api.resend.com/domains", {
+      headers: { Authorization: `Bearer ${String(env.RESEND_API_KEY || "").trim()}` },
+    });
+    const b = await r.text();
+    return json({ resend_domains_status: r.status, body: b.slice(0, 900) });
+  }
+
   if (u.searchParams.get("probe") === "1") {
     const key = String(env.CR_API_KEY || "").trim();
     // The dashboard shows two IDs: a Tracking UUID (used by the banner script) and a
