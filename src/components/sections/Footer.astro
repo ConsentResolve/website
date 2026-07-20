@@ -21,26 +21,6 @@ const year = new Date().getFullYear();
           <a href="tel:+17272025996" class="hover:text-[color:var(--color-mint-400)]">(727) 202-5996</a><br/>
           <a href="mailto:hello@consentresolve.com" class="hover:text-[color:var(--color-mint-400)]">hello@consentresolve.com</a>
         </address>
-        {/* Fazier launch badge. The SVG is SELF-HOSTED (1.1KB) rather than hot-linked
-            from fazier.com: a third-party image in the footer fires on every pageview,
-            handing them every visitor's IP, UA and referer with no consent — the exact
-            behaviour this product exists to stop. Same pixels, no third-party request.
-            If Fazier ever requires the live badge, swap src back to
-            https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=dark */}
-        <a
-          href="https://fazier.com/launches/consentresolve.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="mt-6 inline-block transition-opacity hover:opacity-80"
-        >
-          <img
-            src="/badges/fazier-featured-dark.svg"
-            width="250"
-            height="59"
-            alt="Consent Resolve — featured on Fazier"
-            loading="lazy"
-          />
-        </a>
       </div>
       {Object.entries(FOOTER_NAV).map(([heading, links]) => (
         <div>
