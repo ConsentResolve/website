@@ -16,6 +16,7 @@ import * as preview from "./api/preview.js";
 import * as unsubscribe from "./api/unsubscribe.js";
 import * as socialQueue from "./api/social-queue.js";
 import * as feedback from "./api/feedback.js";
+import * as outreach from "./api/outreach.js";
 import * as queue from "./api/queue.js";
 import * as hit from "./api/hit.js";
 import * as identify from "./api/identify.js";
@@ -80,6 +81,9 @@ const ROUTES = {
   "/api/unsubscribe": unsubscribe,
   "/api/social-queue": socialQueue,
   "/api/feedback": feedback,
+  "/api/outreach": outreach,
+  "/api/outreach/run": outreach,
+  "/api/outreach/webhook": outreach,
   "/api/queue": queue,
   "/api/hit": hit,
   "/api/identify": identify,
