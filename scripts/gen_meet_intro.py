@@ -32,7 +32,7 @@ VOICE = "92071a8742744d17bc92a02baab2941f"   # Real Tyler (no emotion)
 # lands in his settled voice. Don't remove it.
 SCRIPT = ("Hey... I'm Tyler. Ninety-eight of every hundred people who land on your site leave "
           "without a word. You paid to get them there. Consent Resolve fixes that. "
-          "Keep swiping — or just hit that little heart button.")
+          "Keep swiping — or just hit that right arrow.")
 
 # Vertical framing matters: gestures must stay inside a narrow 9:16 frame or they clip.
 MOTION = ("Warm, direct, a little playful — a founder who respects your time, talking straight to "
