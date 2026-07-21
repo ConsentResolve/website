@@ -4,156 +4,44 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0a1628;color:#f5f8fa;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-header{padding:26px 24px 8px;text-align:center}
+header{padding:30px 24px 10px;text-align:center}
 h1{margin:0;font-size:24px}
-header p{color:#94a3b8;margin:6px auto 0;font-size:14px;max-width:640px;line-height:1.5}
+header p{color:#94a3b8;margin:8px auto 0;font-size:14px;max-width:640px;line-height:1.5}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,280px));justify-content:center;gap:22px;max-width:1300px;margin:26px auto;padding:0 22px}
 .card{background:#0e1d33;border:1px solid #1e293b;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
 .vidwrap{position:relative;background:#000;aspect-ratio:9/16}
-.vidwrap video{width:100%;height:100%;object-fit:cover;display:block}
-.meta{padding:12px 14px 6px}
+.vidwrap video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+.meta{padding:12px 14px 14px}
 .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#00e5a0;background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.25);border-radius:999px;padding:3px 9px;margin-right:6px}
 .tag.p{color:#7cc4ff;background:rgba(124,196,255,.1);border-color:rgba(124,196,255,.25)}
-.script{font-size:12.5px;color:#b9c6d3;line-height:1.5;padding:8px 14px 12px;border-bottom:1px solid #1e293b}
-.cmts{padding:10px 14px 4px}
-.cmt{font-size:12.5px;line-height:1.45;color:#dbe4ea;background:#0a1628;border:1px solid #1e293b;border-radius:8px;padding:7px 9px;margin-bottom:6px}
-.cmt b{color:#00e5a0;font-weight:700}
-.cmt .t{color:#64748b;font-size:11px;margin-left:6px}
-.box{padding:8px 14px 14px;display:flex;flex-direction:column;gap:7px}
-.box input,.box textarea{width:100%;background:#0a1628;border:1px solid #24344a;border-radius:8px;color:#f5f8fa;padding:8px 10px;font:inherit;font-size:13px}
-.box textarea{resize:vertical;min-height:52px}
-.box button{align-self:flex-end;background:#00e5a0;color:#07281c;border:none;border-radius:8px;font-weight:700;font-size:13px;padding:8px 16px;cursor:pointer}
-.box button:disabled{opacity:.5;cursor:default}
-.ok{color:#00e5a0;font-size:12px}
-.err{color:#fda4af;font-size:12px}
+.tag.s{color:#fbbf24;background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.3)}
 footer{text-align:center;color:#64748b;font-size:12px;padding:12px 0 40px}
-h2.mh{max-width:1300px;margin:30px auto 2px;padding:0 22px;font-size:16px;color:#00e5a0}
-p.ms{max-width:1300px;margin:0 auto 8px;padding:0 22px;color:#94a3b8;font-size:13px;line-height:1.5}
-.tag.m{color:#fbbf24;background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3)}
 </style></head><body>
 <header>
 <h1>UGC Ad Review — Consent Resolve</h1>
-<p>Surviving ads after two review rounds (25 cut). Watch, then drop a comment under any one &mdash; your notes save to the team review log. Compliance-cleared: illustrative spokesperson framing, no fabricated testimonials.</p>
+<p>The hype ad set — short FB cuts first, then the full versions. Compliance-cleared: illustrative spokesperson framing, no fabricated testimonials.</p>
 </header>
-<h2 class="mh" style="font-size:20px">✅ Final versions for ads <span id="keepcount" class="n"></span></h2>
-<p class="ms">The cut we&rsquo;re running as ads. Rate and comment to lock the final set.</p>
-<div class="grid" id="testgrid"></div>
-<h2 class="mh">Earlier reels</h2>
 <div class="grid" id="grid"></div>
 <footer>Consent Resolve &middot; internal review &middot; noindex</footer>
 <script>
-// The 4 surviving original ads (banner-male cut in the 2026-07-20 review). src = /ugc-ads/<slug>.mp4 (served from public/). Labels for review.
-var ADS = [
-  // Dynamic Remotion "hype" ads — animated screenshots, karaoke captions, SFX, ad-review outro.
-  {slug:"hype-anon-male",       script:"Hype · Anonymous (Male)",   persona:"Male · dynamic"},
-  {slug:"hype-visited-male",    script:"Hype · Who Visited (Male)", persona:"Male · dynamic"},
-  {slug:"hype-goldmine-female", script:"Hype · Goldmine (Female)",  persona:"Female · dynamic"},
-    {slug:"shared-male",  script:"The Shared Lead",   persona:"Male"}
-];
-var SCRIPTS = {
-  "Hype · Anonymous (Male)":"HOOK: “Anonymous visitors? We fix that.” — 400 people came to your site last month, and 98% of them you have no idea who they were. But watch this: everyone who taps accept on your cookie banner is handing you permission to reach out. Consent Resolve turns that one click into a real lead — a name, a real email, a homeowner you can actually reach. One line of code, about three minutes. Every day you wait, those leads walk and your competitors scoop them up — the easiest money you’re leaving on the table. Stop letting them slip away. Tap the link.",
-  "Hype · Who Visited (Male)":"HOOK: “Who visited your site today? Now you’ll know.” — Same body as the Anonymous cut (98% problem → cookie-banner consent → real lead → one line of code → competitors scoop them up → tap the link). Different thumb-stop opener for A/B testing.",
-  "Hype · Goldmine (Female)":"HOOK: “That cookie banner? It’s a goldmine.” — Female presenter (contractor persona). Same body/outro as the other hype cuts; tests presenter + hook together.",
-  "Cookie Banner":"You know that cookie banner on your website? Every time a homeowner clicks accept, they’re giving you permission to reach out. That’s not a visitor anymore. That’s a lead. Consent-based, compliant, and already sitting on your site. Tap the link and try it on yours.",
-  "The Shared Lead":"Paying eighty-plus bucks for a lead they sold to four other plumbers too? With Consent Resolve, the leads come off your own website. Exclusive. Consent-based. Up in about three minutes. Tap the link — see it on your own site."
-};
-// Media is hosted on R2 (never committed to the repo, per .gitignore).
+// All videos in one group; short FB cuts first. Media on R2 (never committed, per .gitignore).
 var R2="https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/ugc-ads/";
+var VER="7";
+var VIDEOS=[
+  {slug:"hype-visited-short",   label:"Who Visited (Male)", kind:"FB short · 9:16", short:true},
+  {slug:"hype-goldmine-short",  label:"Goldmine (Female)",  kind:"FB short · 9:16", short:true},
+  {slug:"hype-anon-male",       label:"Anonymous (Male)",   kind:"Full · 9:16"},
+  {slug:"hype-visited-male",    label:"Who Visited (Male)", kind:"Full · 9:16"},
+  {slug:"hype-goldmine-female", label:"Goldmine (Female)",  kind:"Full · 9:16"}
+];
 function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
-function lkey(slug){return "cr_ugc_cmt_"+slug;}
-function localComments(slug){try{return JSON.parse(localStorage.getItem(lkey(slug))||"[]");}catch(e){return [];}}
-function saveLocal(slug,c){var a=localComments(slug);a.unshift(c);localStorage.setItem(lkey(slug),JSON.stringify(a.slice(0,20)));}
-function renderComments(slug,box){var a=localComments(slug);box.innerHTML=a.map(function(c){return '<div class="cmt"><b>'+esc(c.author||"You")+'</b><span class="t">'+esc(c.at)+'</span><br>'+esc(c.note)+'</div>';}).join("");}
-
 var grid=document.getElementById("grid");
-ADS.forEach(function(ad){
+VIDEOS.forEach(function(v){
   var card=document.createElement("div");card.className="card";
   card.innerHTML=
-    '<div class="vidwrap"><video src="'+R2+ad.slug+'.mp4?v=6" controls playsinline preload="metadata"></video></div>'+
-    '<div class="meta"><span class="tag">'+esc(ad.script)+'</span><span class="tag p">'+esc(ad.persona)+'</span></div>'+
-    '<div class="cmts" id="c-'+ad.slug+'"></div>'+
-    '<div class="box">'+
-      '<input placeholder="Your name" id="n-'+ad.slug+'" maxlength="80">'+
-      '<textarea placeholder="Comment on this ad…" id="t-'+ad.slug+'" maxlength="4000"></textarea>'+
-      '<button id="b-'+ad.slug+'">Post comment</button>'+
-      '<span id="s-'+ad.slug+'"></span>'+
-    '</div>';
+    '<div class="vidwrap"><video src="'+R2+v.slug+'.mp4?v='+VER+'" controls playsinline preload="metadata"></video></div>'+
+    '<div class="meta"><span class="tag'+(v.short?" s":"")+'">'+esc(v.label)+'</span><span class="tag p">'+esc(v.kind)+'</span></div>';
   grid.appendChild(card);
-  var cbox=card.querySelector("#c-"+ad.slug);renderComments(ad.slug,cbox);
-  var btn=card.querySelector("#b-"+ad.slug);
-  btn.onclick=function(){
-    var note=(document.getElementById("t-"+ad.slug).value||"").trim();
-    var author=(document.getElementById("n-"+ad.slug).value||"").trim();
-    var status=document.getElementById("s-"+ad.slug);
-    if(!note){status.className="err";status.textContent="Add a comment first.";return;}
-    btn.disabled=true;status.textContent="Saving…";status.className="";
-    fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({video:"ugc-ad-"+ad.slug,note:note,author:author})})
-      .then(function(r){return r.json();}).then(function(res){
-        btn.disabled=false;
-        if(res&&res.ok){
-          saveLocal(ad.slug,{author:author||"You",note:note,at:new Date().toLocaleString()});
-          renderComments(ad.slug,cbox);
-          document.getElementById("t-"+ad.slug).value="";
-          status.className="ok";status.textContent="Saved ✓";
-        }else{status.className="err";status.textContent=(res&&res.error)||"Save failed.";}
-      }).catch(function(){btn.disabled=false;status.className="err";status.textContent="Network error.";});
-  };
 });
-
-// ===== Test batch — pick your top 20 (fal + Remotion + ffmpeg) =====
-var R2T = R2 + "testbatch/";
-var TVER = "7";
-var ANGLE = {problem:"Problem",reveal:"Reveal",goldmine:"Goldmine",value:"Value",funnel:"Funnel",local:"Local",data:"Data",compare:"vs Shared",urgency:"Urgency",consent:"Consent"};
-var TESTBATCH = [
-  // FB-ad short cut of "Who Visited" (male) — first, as the current lead ad candidate.
-  {id:"hype-visited-short",r:"9x16",type:"Hype \u00b7 FB short",angle:"Who Visited"}
-].concat(["ugc-01-problem","ugc-03-goldmine","ugc-05-funnel","ugc-10-consent"]
-  .map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"UGC",angle:ANGLE[p[2]]||p[2]};}));
-
-function voteState(){try{return JSON.parse(localStorage.getItem("cr_testvote")||"{}");}catch(e){return {};}}
-function setVote(id,v){var s=voteState();s[id]=v;localStorage.setItem("cr_testvote",JSON.stringify(s));updateVoteCount();}
-function updateVoteCount(){var s=voteState();var el=document.getElementById("keepcount");if(el)el.textContent="— "+Object.keys(s).length+" of "+TESTBATCH.length+" rated";}
-var tgrid=document.getElementById("testgrid");
-TESTBATCH.forEach(function(t){
-  var slug="tb-"+t.id, myVote=voteState()[t.id]||0;
-  var card=document.createElement("div");card.className="card";
-  var stars="";for(var i=1;i<=5;i++){stars+='<span class="star" data-v="'+i+'" style="cursor:pointer;font-size:27px;line-height:1;color:'+(i<=myVote?"#f5c518":"#3a4a5c")+'">★</span>';}
-  card.innerHTML=
-    '<div class="vidwrap"><video src="'+R2T+t.id+'.mp4?v='+TVER+'" controls playsinline preload="metadata" style="object-fit:contain;background:#000"></video></div>'+
-    '<div class="meta"><span class="tag">'+esc(t.angle)+'</span><span class="tag p">'+esc(t.type)+' · '+t.r.replace("x",":")+'</span></div>'+
-    '<div class="stars" style="display:flex;gap:3px;align-items:center;padding:8px 14px 2px">'+stars+'<span class="vlabel" style="margin-left:8px;color:#8aa0b2;font-size:12px">'+(myVote?myVote+"/5":"rate it")+'</span></div>'+
-    '<div class="cmts" id="c-'+slug+'"></div>'+
-    '<div class="box">'+
-      '<input placeholder="Your name" id="n-'+slug+'" maxlength="80">'+
-      '<textarea placeholder="Comment on this ad…" id="t-'+slug+'" maxlength="4000"></textarea>'+
-      '<button id="b-'+slug+'">Post comment</button>'+
-      '<span id="s-'+slug+'"></span>'+
-    '</div>';
-  tgrid.appendChild(card);
-  var starEls=card.querySelectorAll(".star"), vlabel=card.querySelector(".vlabel");
-  function paintStars(n){for(var i=0;i<starEls.length;i++){starEls[i].style.color=(i<n)?"#f5c518":"#3a4a5c";}}
-  starEls.forEach(function(el){
-    el.onmouseenter=function(){paintStars(parseInt(el.getAttribute("data-v")));};
-    el.onmouseleave=function(){paintStars(voteState()[t.id]||0);};
-    el.onclick=function(){var v=parseInt(el.getAttribute("data-v"));setVote(t.id,v);paintStars(v);vlabel.textContent=v+"/5";
-      fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({video:"testbatch-"+t.id,note:"VOTE:"+v,author:"voter"})}).catch(function(){});};
-  });
-  var cbox=card.querySelector("#c-"+slug);renderComments(slug,cbox);
-  var btn=card.querySelector("#b-"+slug);
-  btn.onclick=function(){
-    var note=(document.getElementById("t-"+slug).value||"").trim();
-    var author=(document.getElementById("n-"+slug).value||"").trim();
-    var status=document.getElementById("s-"+slug);
-    if(!note){status.className="err";status.textContent="Add a comment first.";return;}
-    btn.disabled=true;status.textContent="Saving…";status.className="";
-    fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({video:"testbatch-"+t.id,note:note,author:author})})
-      .then(function(r){return r.json();}).then(function(res){btn.disabled=false;
-        if(res&&res.ok){saveLocal(slug,{author:author||"You",note:note,at:new Date().toLocaleString()});renderComments(slug,cbox);document.getElementById("t-"+slug).value="";status.className="ok";status.textContent="Saved ✓";}
-        else{status.className="err";status.textContent=(res&&res.error)||"Save failed.";}
-      }).catch(function(){btn.disabled=false;status.className="err";status.textContent="Network error.";});
-  };
-});
-updateVoteCount();
 </script>
 </body></html>
