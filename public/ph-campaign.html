@@ -79,6 +79,7 @@ h2.section{margin:8px 0 6px;font-size:clamp(1.5rem,3.2vw,2.05rem);font-weight:80
 .day:first-of-type{border-top:0}
 .daynum .d{font-family:var(--font-mono);font-weight:700;font-size:2.15rem;line-height:1;letter-spacing:-.02em;color:var(--accent);font-variant-numeric:tabular-nums}
 .daynum .k{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);font-weight:700;margin-top:5px;line-height:1.35}
+.daycard{display:block;width:100%;max-width:300px;aspect-ratio:1;border-radius:var(--radius-xl);border:1px solid var(--line);margin:0 0 16px;box-shadow:var(--shadow)}
 .devent h3{margin:0;font-size:1.22rem;font-weight:700;letter-spacing:-.01em}
 .devent .goal{margin:4px 0 12px;color:var(--muted);font-size:.95rem;max-width:70ch}
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
@@ -143,7 +144,7 @@ footer a{color:var(--accent)}
 
     <div class="day">
       <div class="daynum"><div class="d mono">01</div><div class="k">Opening<br>ceremony</div></div>
-      <div class="devent">
+      <div class="devent"><img class="daycard" src="/images/ph/day01.png" alt="Day 01 card" loading="lazy">
         <h3>Launch day — the all-channel blitz</h3>
         <p class="goal">Everything fires today; this is where the upvotes are won. Queue the company posts and post the owned channels through the day.</p>
         <div class="chips"><span class="chip auto">Company X</span><span class="chip auto">Company LinkedIn</span><span class="chip">Facebook</span><span class="chip">Instagram Story</span><span class="chip">Threads</span><span class="chip auto">Google Business</span><span class="chip">Email</span><span class="chip">PH first comment</span></div>
@@ -166,7 +167,7 @@ footer a{color:var(--accent)}
 
     <div class="day">
       <div class="daynum"><div class="d mono">02</div><div class="k">On the<br>podium</div></div>
-      <div class="devent">
+      <div class="devent"><img class="daycard" src="/images/ph/day02.png" alt="Day 02 card" loading="lazy">
         <h3>Momentum + the first thank-you</h3>
         <p class="goal">Screenshot the ranking and post plainly. Visible momentum pulls late upvotes better than another hard ask.</p>
         <div class="chips"><span class="chip auto">Company X</span><span class="chip auto">Google Business</span></div>
@@ -176,7 +177,7 @@ footer a{color:var(--accent)}
 
     <div class="day">
       <div class="daynum"><div class="d mono">03</div><div class="k">The<br>backstory</div></div>
-      <div class="devent">
+      <div class="devent"><img class="daycard" src="/images/ph/day03.png" alt="Day 03 card" loading="lazy">
         <h3>Why we built it — the origin story</h3>
         <p class="goal">The human "why," told plainly. No hard ask; just the story, with the link at the end.</p>
         <div class="chips"><span class="chip auto">Company LinkedIn</span><span class="chip">Threads</span></div>
@@ -186,7 +187,7 @@ footer a{color:var(--accent)}
 
     <div class="day">
       <div class="daynum"><div class="d mono">04</div><div class="k">Judges'<br>scores</div></div>
-      <div class="devent">
+      <div class="devent"><img class="daycard" src="/images/ph/day04.png" alt="Day 04 card" loading="lazy">
         <h3>The reviews ask</h3>
         <p class="goal">Upvotes fade; reviews stay on the page. Ask early customers to leave a Product Hunt review — the score that lives on.</p>
         <div class="chips"><span class="chip auto">Company LinkedIn</span><span class="chip">Email · customers</span></div>
@@ -196,7 +197,7 @@ footer a{color:var(--accent)}
 
     <div class="day">
       <div class="daynum"><div class="d mono">05</div><div class="k">Highlight<br>reel</div></div>
-      <div class="devent">
+      <div class="devent"><img class="daycard" src="/images/ph/day05.png" alt="Day 05 card" loading="lazy">
         <h3>Show it working — drop a demo reel</h3>
         <p class="goal">Attach the hype reel (the "98 of 100 → it's a match → the plan" cut). Video keeps the page fresh and gives scrollers a reason to click through.</p>
         <div class="chips"><span class="chip auto">Company X</span><span class="chip">Facebook</span><span class="chip">Instagram Reel</span></div>
@@ -206,7 +207,7 @@ footer a{color:var(--accent)}
 
     <div class="day">
       <div class="daynum"><div class="d mono">06</div><div class="k">The<br>rivalry</div></div>
-      <div class="devent">
+      <div class="devent"><img class="daycard" src="/images/ph/day06.png" alt="Day 06 card" loading="lazy">
         <h3>Shared leads vs. consent-first</h3>
         <p class="goal">Every event needs a rival. Contrast the shared-lead resellers with the consent-first model — confident, factual, fear dialed down.</p>
         <div class="chips"><span class="chip auto">Company LinkedIn</span><span class="chip auto">Company X</span></div>
@@ -216,7 +217,7 @@ footer a{color:var(--accent)}
 
     <div class="day">
       <div class="daynum"><div class="d mono">07</div><div class="k">Still<br>climbing</div></div>
-      <div class="devent">
+      <div class="devent"><img class="daycard" src="/images/ph/day07.png" alt="Day 07 card" loading="lazy">
         <h3>Midweek milestone nudge</h3>
         <p class="goal">Post a real number if you have one ("we crossed X upvotes / followers"). Momentum makes the bandwagon. Light, one more ask.</p>
         <div class="chips"><span class="chip auto">Company X</span></div>
@@ -226,7 +227,7 @@ footer a{color:var(--accent)}
 
     <div class="day">
       <div class="daynum"><div class="d mono">08</div><div class="k">Meet the<br>team</div></div>
-      <div class="devent">
+      <div class="devent"><img class="daycard" src="/images/ph/day08.png" alt="Day 08 card" loading="lazy">
         <h3>Behind it — the makers</h3>
         <p class="goal">People back people. A short "the team behind it" post humanizes the launch and earns follows.</p>
         <div class="chips"><span class="chip auto">Company LinkedIn</span><span class="chip">Instagram</span></div>
@@ -236,7 +237,7 @@ footer a{color:var(--accent)}
 
     <div class="day">
       <div class="daynum"><div class="d mono">09</div><div class="k">Last<br>call</div></div>
-      <div class="devent">
+      <div class="devent"><img class="daycard" src="/images/ph/day09.png" alt="Day 09 card" loading="lazy">
         <h3>Final nudge across the board</h3>
         <p class="goal">The closing-window ask. Run it on the primary channels — company X and company LinkedIn.</p>
         <div class="chips"><span class="chip auto">Company X</span><span class="chip auto">Company LinkedIn</span></div>
@@ -246,7 +247,7 @@ footer a{color:var(--accent)}
 
     <div class="day">
       <div class="daynum"><div class="d mono">10</div><div class="k">Closing<br>ceremony</div></div>
-      <div class="devent">
+      <div class="devent"><img class="daycard" src="/images/ph/day10.png" alt="Day 10 card" loading="lazy">
         <h3>Thank you + what's next</h3>
         <p class="goal">Gratitude, a short recap, a forward look. Turn the launch goodwill into follows and demos — no hard ask, just class.</p>
         <div class="chips"><span class="chip auto">Company LinkedIn</span><span class="chip">Email</span></div>
