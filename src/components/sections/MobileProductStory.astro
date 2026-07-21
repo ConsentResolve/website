@@ -91,27 +91,37 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
     <section class="mcr-card" data-card="1">
       <div class="mcr-profile">
         <div class="mcr-photo mcr-photo-ad">
-          {/* Mock Facebook ad + the Ads-Manager stat strip underneath it. */}
+          {/* Mock Facebook feed ad + the Ads-Manager stat strip. */}
           <div class="mcr-fbad">
             <div class="mcr-fb-top">
               <span class="mcr-fb-ava">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#081019" stroke-width="2" aria-hidden="true"><path d="M3 21h18M5 21V10l7-5 7 5v11" stroke-linejoin="round"/></svg>
               </span>
               <div class="mcr-fb-who"><b>Your Company</b><small>Sponsored · <span aria-hidden="true">🌐</span></small></div>
+              <span class="mcr-fb-dots" aria-hidden="true">•••</span>
             </div>
-            <p class="mcr-fb-copy">Same-day service. Book online in 60 seconds.</p>
+            <p class="mcr-fb-copy">Same-day service, done right. Book online in 60 seconds. 👇</p>
             <div class="mcr-fb-img">
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.6" aria-hidden="true"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-5h6v5" stroke-linejoin="round"/></svg>
+              <span class="mcr-fb-badge">LIMITED SPOTS</span>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" aria-hidden="true"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-5h6v5" stroke-linejoin="round"/></svg>
+              <span class="mcr-fb-imgcap">Trusted by 500+ local homeowners</span>
             </div>
             <div class="mcr-fb-bar">
-              <span class="mcr-fb-url">yoursite.com</span>
+              <div><span class="mcr-fb-url">yoursite.com</span><span class="mcr-fb-head">Book Your Service Today</span></div>
               <span class="mcr-fb-btn">Learn more</span>
             </div>
+            <div class="mcr-fb-eng">
+              <span class="mcr-fb-react"><span class="mcr-fb-emo">👍❤️</span> 47</span>
+              <span>6 comments · 2 shares</span>
+            </div>
+            <div class="mcr-fb-acts">
+              <span>👍 Like</span><span>💬 Comment</span><span>↪ Share</span>
+            </div>
           </div>
-          <div class="mcr-roas">
-            <span><small>Spend</small><b>$1,000</b></span>
-            <span><small>Revenue</small><b>$1,200</b></span>
-            <span class="mcr-roas-hi"><small>ROAS</small><b>1.2×</b></span>
+          <div class="mcr-roas" data-roas>
+            <span><small>Spend</small><b data-count="1000" data-prefix="$">$1,000</b></span>
+            <span><small>Revenue</small><b data-count="1200" data-prefix="$">$1,200</b></span>
+            <span class="mcr-roas-hi"><small>ROAS</small><b data-count="1.2" data-dec="1" data-suffix="×">1.2×</b></span>
           </div>
           <span class="mcr-scrim-label">The Home-Service Pro</span>
         </div>
@@ -153,6 +163,8 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
           <p class="mcr-stat">98 of 100</p>
           <h2>leave without a word.</h2>
           <p class="mcr-bio">You paid for every one of these visits. Then they vanished — no name, no number. Ghosted.</p>
+          {/* Revealed by JS once the vanish animation finishes (data-solve-hint). */}
+          <p class="mcr-solve-hint" data-solve-hint>Tap the right arrow to see how we solve this →</p>
         </div>
       </div>
     </section>
@@ -323,10 +335,12 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   @media (prefers-reduced-motion: reduce) { .mcr-swipe-hint { animation: none; } }
 
   /* Problem card */
-  .mcr-problem { display: flex; flex-direction: column; height: 100%; padding: 1.4rem 1.15rem; justify-content: center; gap: 1.2rem; }
+  /* Top-anchored so the first grid row never clips at the top; sized so the full
+     10x10 grid + copy + the solve hint all fit inside the card. */
+  .mcr-problem { display: flex; flex-direction: column; height: 100%; padding: 1.5rem 1.15rem 1.1rem; justify-content: flex-start; gap: 0.85rem; }
   /* Visitor grid — same story as the trade landing pages: ghost (anonymous) ->
      check (consented) -> person (identified lead); the 98 get X'd out and vanish. */
-  .mcr-leak { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.28rem; width: 100%; margin-inline: auto; }
+  .mcr-leak { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.28rem; width: 100%; max-width: 288px; margin-inline: auto; }
   /* Resting state is VISIBLE — never depend on an animation's fill-mode to hold a
      cell on screen, or the 2 surviving leads blank out once cellIn is done. */
   .mcr-leak .lc { position: relative; aspect-ratio: 1; opacity: 1; }
@@ -364,20 +378,40 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   .mcr-fbad { width: 100%; border-radius: 12px; overflow: hidden; background: #fff; color: #050505; box-shadow: 0 14px 32px -14px rgba(0,0,0,0.7); }
   .mcr-fb-top { display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 0.65rem 0.4rem; }
   .mcr-fb-ava { width: 28px; height: 28px; border-radius: 50%; background: var(--color-mint-400,#2ee6a6); display: flex; align-items: center; justify-content: center; }
+  .mcr-fb-who { flex: 1; }
   .mcr-fb-who b { display: block; font-size: 0.8rem; line-height: 1.1; }
   .mcr-fb-who small { font-size: 0.66rem; color: #65676b; }
+  .mcr-fb-dots { color: #65676b; font-size: 0.7rem; letter-spacing: 1px; padding-right: 0.3rem; }
   .mcr-fb-copy { margin: 0; padding: 0 0.65rem 0.45rem; font-size: 0.76rem; color: #050505; }
-  .mcr-fb-img { height: 74px; background: linear-gradient(135deg,#1b3a5c,#0f2337); display: flex; align-items: center; justify-content: center; }
-  .mcr-fb-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.45rem 0.65rem; background: #f0f2f5; }
-  .mcr-fb-url { font-size: 0.66rem; color: #65676b; text-transform: uppercase; letter-spacing: 0.04em; }
-  .mcr-fb-btn { font-size: 0.7rem; font-weight: 700; background: #e4e6eb; color: #050505; padding: 0.3rem 0.6rem; border-radius: 6px; }
+  .mcr-fb-img { position: relative; height: 96px; background: linear-gradient(135deg,#1b3a5c,#0f2337); display: flex; align-items: center; justify-content: center; }
+  .mcr-fb-badge { position: absolute; top: 8px; left: 8px; font-size: 0.56rem; font-weight: 800; letter-spacing: 0.06em; color: #08131f; background: #ffce3d; padding: 0.15rem 0.4rem; border-radius: 4px; }
+  .mcr-fb-imgcap { position: absolute; bottom: 8px; left: 8px; right: 8px; font-size: 0.62rem; color: rgba(255,255,255,0.9); text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+  .mcr-fb-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.5rem 0.65rem; background: #f0f2f5; }
+  .mcr-fb-url { display: block; font-size: 0.6rem; color: #65676b; text-transform: uppercase; letter-spacing: 0.04em; }
+  .mcr-fb-head { display: block; font-size: 0.74rem; font-weight: 800; color: #050505; }
+  .mcr-fb-btn { flex: 0 0 auto; font-size: 0.7rem; font-weight: 800; background: #e4e6eb; color: #050505; padding: 0.4rem 0.7rem; border-radius: 6px; }
+  .mcr-fb-eng { display: flex; align-items: center; justify-content: space-between; padding: 0.45rem 0.65rem 0.3rem; font-size: 0.64rem; color: #65676b; border-bottom: 1px solid #e6e8eb; }
+  .mcr-fb-react { display: inline-flex; align-items: center; gap: 0.25rem; }
+  .mcr-fb-emo { font-size: 0.72rem; }
+  .mcr-fb-acts { display: flex; align-items: center; justify-content: space-around; padding: 0.35rem 0.4rem; font-size: 0.68rem; font-weight: 700; color: #65676b; }
   .mcr-roas { display: grid; grid-template-columns: repeat(3,1fr); gap: 0.35rem; width: 100%; }
   .mcr-roas span { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; padding: 0.45rem 0.2rem; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); }
   .mcr-roas small { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.5); }
   .mcr-roas b { font-size: 0.95rem; font-weight: 800; color: #fff; }
   .mcr-roas-hi { background: rgba(255,180,84,0.12) !important; border-color: rgba(255,180,84,0.45) !important; }
   .mcr-roas-hi b { color: #ffb454; }
-  .mcr-stat { margin: 0; font-size: 2.6rem; font-weight: 800; letter-spacing: -0.03em; color: var(--color-mint-400,#2ee6a6); line-height: 1; }
+  /* Tiles pop + the ROAS tile pulses when the card's numbers finish counting up. */
+  .mcr-roas.is-counted span { animation: roasPop .4s ease both; }
+  .mcr-roas.is-counted span:nth-child(2) { animation-delay: .1s; }
+  .mcr-roas.is-counted span:nth-child(3) { animation-delay: .2s; }
+  .mcr-roas.is-counted .mcr-roas-hi { animation: roasPop .4s ease .2s both, roasPulse 1.4s ease-in-out .7s infinite; }
+  @keyframes roasPop { from { opacity: .3; transform: scale(.9); } to { opacity: 1; transform: scale(1); } }
+  @keyframes roasPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,180,84,0); } 50% { box-shadow: 0 0 0 4px rgba(255,180,84,0.28); } }
+  @media (prefers-reduced-motion: reduce) { .mcr-roas.is-counted span, .mcr-roas.is-counted .mcr-roas-hi { animation: none; } }
+  .mcr-stat { margin: 0; font-size: 2.3rem; font-weight: 800; letter-spacing: -0.03em; color: var(--color-mint-400,#2ee6a6); line-height: 1; }
+  /* Appears after the vanish animation to point the viewer to the next card. */
+  .mcr-solve-hint { margin: 0.6rem 0 0; font-size: 0.95rem; font-weight: 700; color: var(--color-mint-400,#2ee6a6); opacity: 0; transform: translateY(6px); transition: opacity .4s ease, transform .4s ease; }
+  .mcr-solve-hint.show { opacity: 1; transform: none; }
 
   /* Guide (say) card */
   .mcr-say { padding: 1.6rem 1.3rem; display: flex; flex-direction: column; justify-content: center; height: 100%; }
@@ -439,6 +473,10 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   .mcr-btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #0e2036; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 10px 24px -10px rgba(0,0,0,0.7); }
   .mcr-btn-back { width: 52px; height: 52px; color: #ffb454; }
   .mcr-btn-like { width: 64px; height: 64px; color: var(--color-navy-900,#081019); background: var(--color-mint-400,#2ee6a6); border-color: transparent; }
+  /* Flashes ~4s after landing on a card to nudge the viewer forward. */
+  .mcr-btn-like.is-hint { animation: likeHint 1s ease-in-out infinite; }
+  @keyframes likeHint { 0%,100% { transform: scale(1); box-shadow: 0 10px 24px -10px rgba(0,0,0,.7); } 50% { transform: scale(1.12); box-shadow: 0 0 0 8px rgba(46,230,166,.28); } }
+  @media (prefers-reduced-motion: reduce) { .mcr-btn-like.is-hint { animation: none; } }
   .mcr-btn:active { transform: scale(0.92); }
   .mcr-btn[disabled] { opacity: 0.35; }
   .mcr-actions.is-hidden { display: none; }
@@ -456,7 +494,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
     var likeBtn = el.querySelector(".mcr-btn-like");
     var mv = el.querySelector("[data-meet-video]");
     var ms = el.querySelector("[data-meet-sound]");
-    var i = 0, n = cards.length, animating = false;
+    var i = 0, n = cards.length, animating = false, hintTimer = null;
 
     // Tap for sound. iOS only routes audio when play() is the direct result of the
     // tap and comes BEFORE any seek — so unmute + play first, then rewind.
@@ -517,6 +555,30 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
           })(leakCells[k], k - 2);
         }
       }, 1650);
+      // once the vanish is done, reveal the "tap the arrow to see how we solve this" hint
+      var solveHint = el.querySelector("[data-solve-hint]");
+      leakLater(function () { if (solveHint) solveHint.classList.add("show"); }, 1650 + 98 * 14 + 760 + 300);
+    }
+
+    // Count-up for the "This is you" ad stat strip; pops + pulses the ROAS tile at the end.
+    function countUpRoas() {
+      var wrap = el.querySelector("[data-roas]"); if (!wrap) return;
+      wrap.classList.remove("is-counted");
+      var els = [].slice.call(wrap.querySelectorAll("[data-count]"));
+      var dur = 900, t0 = null;
+      els.forEach(function (b) { b.dataset.final = b.textContent; });
+      function frame(t) {
+        if (t0 == null) t0 = t;
+        var p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+        els.forEach(function (b) {
+          var to = parseFloat(b.getAttribute("data-count")), dec = parseInt(b.getAttribute("data-dec") || "0", 10);
+          var v = to * e, out = dec ? v.toFixed(dec) : Math.round(v).toLocaleString("en-US");
+          b.textContent = (b.getAttribute("data-prefix") || "") + out + (b.getAttribute("data-suffix") || "");
+        });
+        if (p < 1) requestAnimationFrame(frame);
+        else { els.forEach(function (b) { b.textContent = b.dataset.final; }); wrap.classList.add("is-counted"); }
+      }
+      requestAnimationFrame(frame);
     }
 
     function render() {
@@ -538,8 +600,17 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
         if (i === 0) { var p = mv.play(); if (p && p.catch) p.catch(function () {}); }
         else mv.pause();
       }
-      // Replay the visitor grid every time we land on it.
-      if (leak) { if (i === 2) leakPlay(); else leakReset(); }
+      // Card 1: count the ad numbers up each time it's shown.
+      if (i === 1) setTimeout(countUpRoas, 250);
+      // Replay the visitor grid every time we land on it; reset its solve-hint on leave.
+      if (leak) {
+        if (i === 2) leakPlay();
+        else { leakReset(); var sh = el.querySelector("[data-solve-hint]"); if (sh) sh.classList.remove("show"); }
+      }
+      // Flash the forward arrow ~4s after landing on any non-final card, to nudge on.
+      likeBtn.classList.remove("is-hint");
+      if (hintTimer) clearTimeout(hintTimer);
+      if (!isLast()) hintTimer = setTimeout(function () { likeBtn.classList.add("is-hint"); }, 4000);
       // Reaching the CTA card = they watched the whole pitch. This is the mid-funnel
       // signal a conversion campaign can actually optimize on.
       if (isLast() && !window.__crStoryDone) {
