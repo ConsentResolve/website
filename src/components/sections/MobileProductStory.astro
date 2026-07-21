@@ -496,25 +496,18 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
     var ms = el.querySelector("[data-meet-sound]");
     var i = 0, n = cards.length, animating = false, hintTimer = null;
 
-    // Tap for sound. iOS only routes audio when play() is the direct result of the
-    // tap and comes BEFORE any seek — so unmute + play first, then rewind.
+    // Video: the markup is a plain muted+autoplay+loop+playsinline clip — the one
+    // combination every mobile browser reliably autoplays inline. Tap-for-sound just
+    // UNMUTES and keeps looping; it does NOT seek, re-mute, or toggle loop. Previously
+    // it set loop=false, rewound, then re-muted on 'ended' — which is why sound played
+    // once and then muted itself on the next loop, and the extra choreography is what
+    // stuttered on some phones. Simpler = smooth.
     if (mv && ms) {
       ms.addEventListener("click", function (e) {
         e.stopPropagation();
-        mv.loop = false; mv.muted = false; mv.volume = 1;
-        var rewind = function () { try { mv.currentTime = 0; } catch (_) {} mv.muted = false; };
-        var p = mv.play();
-        if (p && p.then) p.then(rewind).catch(function () { rewind(); var r = mv.play(); if (r && r.catch) r.catch(function () {}); });
-        else rewind();
+        mv.muted = false; mv.volume = 1;
+        var p = mv.play(); if (p && p.catch) p.catch(function () {}); // start it if autoplay was blocked
         ms.style.display = "none";
-      });
-      // When the sound pass ends, re-arm the muted loop + the button.
-      mv.addEventListener("ended", function () {
-        if (mv.loop) return;
-        mv.muted = true; mv.loop = true;
-        try { mv.currentTime = 0; } catch (_) {}
-        var p = mv.play(); if (p && p.catch) p.catch(function () {});
-        ms.style.display = "";
       });
     }
 
@@ -622,22 +615,19 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
     function go(k) { i = Math.max(0, Math.min(n - 1, k)); render(); }
     window.crStoryGo = go;
 
-    function fly(dir) {
-      if (animating) return;
-      var card = cards[i];
-      if (dir === "right" && isLast()) return;      // nothing past the end
-      if (dir === "left" && i === 0) { snapBack(card); return; }
-      animating = true;
-      card.classList.add(dir === "right" ? "fly-right" : "fly-left");
-      setTimeout(function () {
-        animating = false;
-        go(dir === "right" ? i + 1 : i - 1);
-      }, 300);
-    }
     function snapBack(card) { card.classList.remove("is-dragging"); card.style.transform = ""; }
 
+    // Back: go DIRECTLY to the previous card and let the CSS crossfade it in. The old
+    // path flung the current card away with fly("left"), which briefly revealed the peek
+    // card behind it — the NEXT card, not the previous — so the deck flashed the wrong
+    // page before landing. A direct go() never shows a card that isn't the destination.
+    function goBack() {
+      if (animating || i === 0) return;
+      go(i - 1);
+    }
+
     // Swipes ALWAYS advance, regardless of direction — the card just flings off the way
-    // the finger went. Navigation back is only via the back button (fly("left")).
+    // the finger went. Navigation back is only via the back button (goBack).
     function flyForward(flingDir) {
       if (animating) return;
       var card = cards[i];
@@ -647,8 +637,8 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
       setTimeout(function () { animating = false; go(i + 1); }, 300);
     }
 
-    likeBtn.addEventListener("click", function () { fly("right"); });
-    backBtn.addEventListener("click", function () { fly("left"); });
+    likeBtn.addEventListener("click", function () { flyForward("right"); });
+    backBtn.addEventListener("click", goBack);
 
     window.crOpenStory = function () {
       go(0);
@@ -678,8 +668,8 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
     document.addEventListener("keydown", function (e) {
       if (!el.classList.contains("is-open")) return;
       if (e.key === "Escape") window.crCloseStory();
-      else if (e.key === "ArrowRight") fly("right");
-      else if (e.key === "ArrowLeft") fly("left");
+      else if (e.key === "ArrowRight") flyForward("right");
+      else if (e.key === "ArrowLeft") goBack();
     });
 
     // Drag / swipe physics on the active card
