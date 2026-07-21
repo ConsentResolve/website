@@ -1,0 +1,8 @@
+{
+  "skill_name": "meta-ad-creative-engine",
+  "evals": [
+    {"id": 0, "name": "hvac-batch", "prompt": "I need a batch of Meta lead ads for HVAC contractors. Objective is Leads, the offer is our $7 exclusive consent-first leads (name + email, never resold), pointing at consentresolve.com/hvac-leads/. Give me the creative batch — concepts, the ad copy, and the image-generation calls.", "files": [], "assertions": []},
+    {"id": 1, "name": "campaign-protocol", "prompt": "I'm setting up the Meta lead-gen campaign for a few trades. How should I structure the campaign and ad sets, what naming convention should I use, and what are the rules for when to kill a creative vs scale it? My target CPL is about $25.", "files": [], "assertions": []},
+    {"id": 2, "name": "iterate-roofing", "prompt": "Here are last week's numbers for my roofing ad set. Which is winning and what should I make next?\n\nCreative A (wasted-spend, 4x5): 8,200 impr, 210 clicks, 9 leads, $31 CPL, freq 2.1\nCreative B (competitor-envy, 4x5): 7,900 impr, 180 clicks, 4 leads, $58 CPL, freq 2.0\nCreative C (ROI-math, square): 9,500 impr, 95 clicks, 5 leads, $27 CPL, freq 3.4\nTarget CPL is $30.", "files": [], "assertions": []}
+  ]
+}

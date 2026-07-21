@@ -1,0 +1,20 @@
+{
+  "reviews": [
+    {
+      "run_id": "eval-0-hvac-batch-with_skill",
+      "feedback": "I need you to conform to brand and voice style using https://consentresolve.com/style-guide/ ",
+      "timestamp": "2026-07-02T11:32:54.123Z"
+    },
+    {
+      "run_id": "eval-0-hvac-batch-without_skill",
+      "feedback": "I need you to conform to brand and voice style using https://consentresolve.com/style-guide/ ",
+      "timestamp": "2026-07-02T11:32:54.123Z"
+    },
+    {
+      "run_id": "eval-1-campaign-protocol-with_skill",
+      "feedback": "I need you to conform to brand and voice style using https://consentresolve.com/style-guide/ ",
+      "timestamp": "2026-07-02T11:32:54.123Z"
+    }
+  ],
+  "status": "in_progress"
+}

@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "Recommends Leads objective + ad sets split by trade vertical",
+      "passed": true,
+      "evidence": "leads+by-trade"
+    },
+    {
+      "text": "Gives the CR_[objective]_[vertical]_[angle]_[format]_[date] naming convention",
+      "passed": true,
+      "evidence": "CR_[objective]_"
+    },
+    {
+      "text": "Kill rule tied to a multiple of target CPL (~2.5x = $62.50) AND a min-spend threshold (~2x = $50)",
+      "passed": true,
+      "evidence": "kill 2.5x + min 2x"
+    },
+    {
+      "text": "Mentions learning phase (~50 conversions/week per ad set)",
+      "passed": true,
+      "evidence": "~50 conversion"
+    },
+    {
+      "text": "Scale winners by duplication / never edit a live winner",
+      "passed": true,
+      "evidence": "duplicat"
+    },
+    {
+      "text": "Mentions statistical significance (min ~100 clicks or CI overlap)",
+      "passed": true,
+      "evidence": "100 clicks"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  }
+}

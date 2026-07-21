@@ -1,0 +1,13 @@
+{
+  "eval_id": 1,
+  "eval_name": "campaign-protocol",
+  "prompt": "Setting up the Meta lead-gen campaign for a few trades. How to structure campaign+ad sets, what naming convention, and when to kill vs scale a creative? Target CPL ~$25.",
+  "assertions": [
+    {"text": "Recommends Leads objective + ad sets split by trade vertical"},
+    {"text": "Gives the CR_[objective]_[vertical]_[angle]_[format]_[date] naming convention"},
+    {"text": "Kill rule tied to a multiple of target CPL (~2.5x = $62.50) AND a min-spend threshold (~2x = $50)"},
+    {"text": "Mentions learning phase (~50 conversions/week per ad set)"},
+    {"text": "Scale winners by duplication / never edit a live winner"},
+    {"text": "Mentions statistical significance (min ~100 clicks or CI overlap)"}
+  ]
+}

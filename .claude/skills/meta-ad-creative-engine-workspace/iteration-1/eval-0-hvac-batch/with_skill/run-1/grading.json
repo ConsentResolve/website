@@ -1,0 +1,50 @@
+{
+  "expectations": [
+    {
+      "text": "Produces at least 5 distinct creative concepts (not 1-2)",
+      "passed": true,
+      "evidence": "14 concepts/primary-texts"
+    },
+    {
+      "text": "Each variant has primary text, headline, and description (Meta lead-ad copy fields)",
+      "passed": true,
+      "evidence": "variants=14, has headline+desc"
+    },
+    {
+      "text": "Includes Recraft image-generation calls (recraft endpoint, recraft_ad.py, or brand style_id 214dccd1)",
+      "passed": true,
+      "evidence": "recraft"
+    },
+    {
+      "text": "COMPLIANCE: no phone-number-delivery claim (no 'phone number', 'call the lead', 'their number')",
+      "passed": true,
+      "evidence": "clean"
+    },
+    {
+      "text": "COMPLIANCE: no covert-tracking/spy language (spy, track everyone, unmask, stealth, de-anonymize)",
+      "passed": true,
+      "evidence": "clean"
+    },
+    {
+      "text": "COMPLIANCE: no income/results guarantee (guaranteed, double your jobs)",
+      "passed": true,
+      "evidence": "clean"
+    },
+    {
+      "text": "Uses the 4:5 / 1080x1350 format",
+      "passed": true,
+      "evidence": "1080x1350"
+    },
+    {
+      "text": "No banned voice words (free, instant, seamless, supercharge, game-changer)",
+      "passed": true,
+      "evidence": "clean"
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  }
+}

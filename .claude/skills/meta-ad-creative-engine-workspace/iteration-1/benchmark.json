@@ -1,0 +1,373 @@
+{
+  "metadata": {
+    "skill_name": "meta-ad-creative-engine",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-07-02T11:30:18Z",
+    "evals_run": [
+      0,
+      1,
+      2
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 115.8,
+        "tokens": 50183,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Produces at least 5 distinct creative concepts (not 1-2)",
+          "passed": true,
+          "evidence": "14 concepts/primary-texts"
+        },
+        {
+          "text": "Each variant has primary text, headline, and description (Meta lead-ad copy fields)",
+          "passed": true,
+          "evidence": "variants=14, has headline+desc"
+        },
+        {
+          "text": "Includes Recraft image-generation calls (recraft endpoint, recraft_ad.py, or brand style_id 214dccd1)",
+          "passed": true,
+          "evidence": "recraft"
+        },
+        {
+          "text": "COMPLIANCE: no phone-number-delivery claim (no 'phone number', 'call the lead', 'their number')",
+          "passed": true,
+          "evidence": "clean"
+        },
+        {
+          "text": "COMPLIANCE: no covert-tracking/spy language (spy, track everyone, unmask, stealth, de-anonymize)",
+          "passed": true,
+          "evidence": "clean"
+        },
+        {
+          "text": "COMPLIANCE: no income/results guarantee (guaranteed, double your jobs)",
+          "passed": true,
+          "evidence": "clean"
+        },
+        {
+          "text": "Uses the 4:5 / 1080x1350 format",
+          "passed": true,
+          "evidence": "1080x1350"
+        },
+        {
+          "text": "No banned voice words (free, instant, seamless, supercharge, game-changer)",
+          "passed": true,
+          "evidence": "clean"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 69.7,
+        "tokens": 39591,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Recommends Leads objective + ad sets split by trade vertical",
+          "passed": true,
+          "evidence": "leads+by-trade"
+        },
+        {
+          "text": "Gives the CR_[objective]_[vertical]_[angle]_[format]_[date] naming convention",
+          "passed": true,
+          "evidence": "CR_[objective]_"
+        },
+        {
+          "text": "Kill rule tied to a multiple of target CPL (~2.5x = $62.50) AND a min-spend threshold (~2x = $50)",
+          "passed": true,
+          "evidence": "kill 2.5x + min 2x"
+        },
+        {
+          "text": "Mentions learning phase (~50 conversions/week per ad set)",
+          "passed": true,
+          "evidence": "~50 conversion"
+        },
+        {
+          "text": "Scale winners by duplication / never edit a live winner",
+          "passed": true,
+          "evidence": "duplicat"
+        },
+        {
+          "text": "Mentions statistical significance (min ~100 clicks or CI overlap)",
+          "passed": true,
+          "evidence": "100 clicks"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8333,
+        "passed": 5,
+        "failed": 1,
+        "total": 6,
+        "time_seconds": 113.9,
+        "tokens": 45220,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Flags Creative C as fatigued (frequency > 3)",
+          "passed": true,
+          "evidence": "fatigue/3.4 + C"
+        },
+        {
+          "text": "Notes Creative C's 95 clicks is below the ~100-click significance threshold (does not blindly crown it on CPL alone)",
+          "passed": true,
+          "evidence": "95 clicks"
+        },
+        {
+          "text": "Picks a defensible winner (A: reliable at 210 clicks, $31 near target) and flags killing B ($58 ~2x target)",
+          "passed": true,
+          "evidence": "winner A + kill B"
+        },
+        {
+          "text": "Next batch varies ONE dimension while holding the winner constant",
+          "passed": true,
+          "evidence": "one dimension"
+        },
+        {
+          "text": "Produces or updates a winners-log entry",
+          "passed": false,
+          "evidence": ""
+        },
+        {
+          "text": "COMPLIANCE clean (no phone/covert/guarantee language)",
+          "passed": true,
+          "evidence": "clean"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 83.1,
+        "tokens": 32939,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Produces at least 5 distinct creative concepts (not 1-2)",
+          "passed": true,
+          "evidence": "18 concepts/primary-texts"
+        },
+        {
+          "text": "Each variant has primary text, headline, and description (Meta lead-ad copy fields)",
+          "passed": true,
+          "evidence": "variants=18, has headline+desc"
+        },
+        {
+          "text": "Includes Recraft image-generation calls (recraft endpoint, recraft_ad.py, or brand style_id 214dccd1)",
+          "passed": true,
+          "evidence": "Recraft"
+        },
+        {
+          "text": "COMPLIANCE: no phone-number-delivery claim (no 'phone number', 'call the lead', 'their number')",
+          "passed": true,
+          "evidence": "clean"
+        },
+        {
+          "text": "COMPLIANCE: no covert-tracking/spy language (spy, track everyone, unmask, stealth, de-anonymize)",
+          "passed": true,
+          "evidence": "clean"
+        },
+        {
+          "text": "COMPLIANCE: no income/results guarantee (guaranteed, double your jobs)",
+          "passed": true,
+          "evidence": "clean"
+        },
+        {
+          "text": "Uses the 4:5 / 1080x1350 format",
+          "passed": true,
+          "evidence": "4:5"
+        },
+        {
+          "text": "No banned voice words (free, instant, seamless, supercharge, game-changer)",
+          "passed": true,
+          "evidence": "clean"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.3333,
+        "passed": 2,
+        "failed": 4,
+        "total": 6,
+        "time_seconds": 70.2,
+        "tokens": 31424,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Recommends Leads objective + ad sets split by trade vertical",
+          "passed": false,
+          "evidence": "leads+by-trade"
+        },
+        {
+          "text": "Gives the CR_[objective]_[vertical]_[angle]_[format]_[date] naming convention",
+          "passed": false,
+          "evidence": ""
+        },
+        {
+          "text": "Kill rule tied to a multiple of target CPL (~2.5x = $62.50) AND a min-spend threshold (~2x = $50)",
+          "passed": false,
+          "evidence": "kill 2.5x + min 2x"
+        },
+        {
+          "text": "Mentions learning phase (~50 conversions/week per ad set)",
+          "passed": true,
+          "evidence": "learning phase"
+        },
+        {
+          "text": "Scale winners by duplication / never edit a live winner",
+          "passed": true,
+          "evidence": "Never edit"
+        },
+        {
+          "text": "Mentions statistical significance (min ~100 clicks or CI overlap)",
+          "passed": false,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6667,
+        "passed": 4,
+        "failed": 2,
+        "total": 6,
+        "time_seconds": 50.6,
+        "tokens": 29682,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Flags Creative C as fatigued (frequency > 3)",
+          "passed": true,
+          "evidence": "fatigue/3.4 + C"
+        },
+        {
+          "text": "Notes Creative C's 95 clicks is below the ~100-click significance threshold (does not blindly crown it on CPL alone)",
+          "passed": true,
+          "evidence": "sample size"
+        },
+        {
+          "text": "Picks a defensible winner (A: reliable at 210 clicks, $31 near target) and flags killing B ($58 ~2x target)",
+          "passed": true,
+          "evidence": "winner A + kill B"
+        },
+        {
+          "text": "Next batch varies ONE dimension while holding the winner constant",
+          "passed": false,
+          "evidence": ""
+        },
+        {
+          "text": "Produces or updates a winners-log entry",
+          "passed": false,
+          "evidence": ""
+        },
+        {
+          "text": "COMPLIANCE clean (no phone/covert/guarantee language)",
+          "passed": true,
+          "evidence": "clean"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.9444,
+        "stddev": 0.0962,
+        "min": 0.8333,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 99.8,
+        "stddev": 26.0847,
+        "min": 69.7,
+        "max": 115.8
+      },
+      "tokens": {
+        "mean": 44998.0,
+        "stddev": 5299.4886,
+        "min": 39591,
+        "max": 50183
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.6667,
+        "stddev": 0.3334,
+        "min": 0.3333,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 67.9667,
+        "stddev": 16.3647,
+        "min": 50.6,
+        "max": 83.1
+      },
+      "tokens": {
+        "mean": 31348.3333,
+        "stddev": 1629.8179,
+        "min": 29682,
+        "max": 32939
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.28",
+      "time_seconds": "+31.8",
+      "tokens": "+13650"
+    }
+  },
+  "notes": []
+}

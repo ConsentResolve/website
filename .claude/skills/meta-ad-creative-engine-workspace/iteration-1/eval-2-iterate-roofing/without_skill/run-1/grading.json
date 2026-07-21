@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "Flags Creative C as fatigued (frequency > 3)",
+      "passed": true,
+      "evidence": "fatigue/3.4 + C"
+    },
+    {
+      "text": "Notes Creative C's 95 clicks is below the ~100-click significance threshold (does not blindly crown it on CPL alone)",
+      "passed": true,
+      "evidence": "sample size"
+    },
+    {
+      "text": "Picks a defensible winner (A: reliable at 210 clicks, $31 near target) and flags killing B ($58 ~2x target)",
+      "passed": true,
+      "evidence": "winner A + kill B"
+    },
+    {
+      "text": "Next batch varies ONE dimension while holding the winner constant",
+      "passed": false,
+      "evidence": ""
+    },
+    {
+      "text": "Produces or updates a winners-log entry",
+      "passed": false,
+      "evidence": ""
+    },
+    {
+      "text": "COMPLIANCE clean (no phone/covert/guarantee language)",
+      "passed": true,
+      "evidence": "clean"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 2,
+    "total": 6,
+    "pass_rate": 0.6667
+  }
+}

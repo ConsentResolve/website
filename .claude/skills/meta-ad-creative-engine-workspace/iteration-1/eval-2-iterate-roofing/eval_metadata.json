@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "iterate-roofing",
+  "prompt": "Last week's roofing numbers (A wasted-spend 210 clicks/9 leads/$31 CPL/freq2.1; B competitor-envy 180/4/$58/2.0; C ROI-math 95 clicks/5 leads/$27 CPL/freq3.4; target $30). Which is winning and what to make next?",
+  "assertions": [
+    {"text": "Flags Creative C as fatigued (frequency > 3)"},
+    {"text": "Notes Creative C's 95 clicks is below the ~100-click significance threshold (does not blindly crown it on CPL alone)"},
+    {"text": "Picks a defensible winner (A: reliable at 210 clicks, $31 near target) and flags killing B ($58 ~2x target)"},
+    {"text": "Next batch varies ONE dimension while holding the winner constant"},
+    {"text": "Produces or updates a winners-log entry"},
+    {"text": "COMPLIANCE clean (no phone/covert/guarantee language)"}
+  ]
+}

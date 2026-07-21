@@ -1,0 +1,15 @@
+{
+  "eval_id": 0,
+  "eval_name": "hvac-batch",
+  "prompt": "I need a batch of Meta lead ads for HVAC contractors. Objective is Leads, offer is $7 exclusive consent-first leads (name+email, never resold), pointing at consentresolve.com/hvac-leads/. Give me the creative batch — concepts, ad copy, and image-generation calls.",
+  "assertions": [
+    {"text": "Produces at least 5 distinct creative concepts (not 1-2)"},
+    {"text": "Each variant has primary text, headline, and description (Meta lead-ad copy fields)"},
+    {"text": "Includes Recraft image-generation calls (recraft endpoint, recraft_ad.py, or brand style_id 214dccd1)"},
+    {"text": "COMPLIANCE: no phone-number-delivery claim (no 'phone number', 'call the lead', 'their number')"},
+    {"text": "COMPLIANCE: no covert-tracking/spy language (spy, track everyone, unmask, stealth, de-anonymize)"},
+    {"text": "COMPLIANCE: no income/results guarantee (guaranteed, double your jobs)"},
+    {"text": "Uses the 4:5 / 1080x1350 format"},
+    {"text": "No banned voice words (free, instant, seamless, supercharge, game-changer)"}
+  ]
+}
