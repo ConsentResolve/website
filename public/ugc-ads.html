@@ -48,14 +48,13 @@ p.ms{max-width:1300px;margin:0 auto 8px;padding:0 22px;color:#94a3b8;font-size:1
 <div class="grid" id="demogrid"></div>
 <footer>Consent Resolve &middot; internal review &middot; noindex</footer>
 <script>
-// The 5 surviving original ads (banner-male cut in the 2026-07-20 review). src = /ugc-ads/<slug>.mp4 (served from public/). Labels for review.
+// The 4 surviving original ads (banner-male cut in the 2026-07-20 review). src = /ugc-ads/<slug>.mp4 (served from public/). Labels for review.
 var ADS = [
   // Dynamic Remotion "hype" ads — animated screenshots, karaoke captions, SFX, ad-review outro.
   {slug:"hype-anon-male",       script:"Hype · Anonymous (Male)",   persona:"Male · dynamic"},
   {slug:"hype-visited-male",    script:"Hype · Who Visited (Male)", persona:"Male · dynamic"},
   {slug:"hype-goldmine-female", script:"Hype · Goldmine (Female)",  persona:"Female · dynamic"},
-    {slug:"shared-male",  script:"The Shared Lead",   persona:"Male"},
-  {slug:"shared-female",script:"The Shared Lead",   persona:"Female"}
+    {slug:"shared-male",  script:"The Shared Lead",   persona:"Male"}
 ];
 var SCRIPTS = {
   "Hype · Anonymous (Male)":"HOOK: “Anonymous visitors? We fix that.” — 400 people came to your site last month, and 98% of them you have no idea who they were. But watch this: everyone who taps accept on your cookie banner is handing you permission to reach out. Consent Resolve turns that one click into a real lead — a name, a real email, a homeowner you can actually reach. One line of code, about three minutes. Every day you wait, those leads walk and your competitors scoop them up — the easiest money you’re leaving on the table. Stop letting them slip away. Tap the link.",
@@ -198,10 +197,8 @@ DEMOS.forEach(function(d){
 var R2T = R2 + "testbatch/";
 var TVER = "5";
 var ANGLE = {problem:"Problem",reveal:"Reveal",goldmine:"Goldmine",value:"Value",funnel:"Funnel",local:"Local",data:"Data",compare:"vs Shared",urgency:"Urgency",consent:"Consent"};
-var TESTBATCH = [
-  {id:"Motion-04-reveal-b",r:"9x16"}
-].map(function(t){var p=t.id.split("-");return {id:t.id,r:t.r,type:"Non-UGC",angle:ANGLE[p[2]]||p[2]};})
-.concat(["ugc-01-problem","ugc-03-goldmine","ugc-05-funnel","ugc-10-consent"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"UGC",angle:ANGLE[p[2]]||p[2]};}));
+var TESTBATCH = ["ugc-01-problem","ugc-03-goldmine","ugc-05-funnel","ugc-10-consent"]
+  .map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"UGC",angle:ANGLE[p[2]]||p[2]};});
 
 function voteState(){try{return JSON.parse(localStorage.getItem("cr_testvote")||"{}");}catch(e){return {};}}
 function setVote(id,v){var s=voteState();s[id]=v;localStorage.setItem("cr_testvote",JSON.stringify(s));updateVoteCount();}
