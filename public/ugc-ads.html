@@ -196,13 +196,12 @@ DEMOS.forEach(function(d){
 
 // ===== Test batch — pick your top 20 (fal + Remotion + ffmpeg) =====
 var R2T = R2 + "testbatch/";
-var TVER = "4";
+var TVER = "5";
 var ANGLE = {problem:"Problem",reveal:"Reveal",goldmine:"Goldmine",value:"Value",funnel:"Funnel",local:"Local",data:"Data",compare:"vs Shared",urgency:"Urgency",consent:"Consent"};
 var TESTBATCH = [
-  {id:"Motion-04-reveal-b",r:"9x16"},{id:"Motion-20-consent-b",r:"1x1"}
+  {id:"Motion-04-reveal-b",r:"9x16"}
 ].map(function(t){var p=t.id.split("-");return {id:t.id,r:t.r,type:"Non-UGC",angle:ANGLE[p[2]]||p[2]};})
-.concat(["ugc-01-problem","ugc-03-goldmine","ugc-04-value","ugc-05-funnel","ugc-07-data","ugc-10-consent"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"UGC",angle:ANGLE[p[2]]||p[2]};}))
-.concat(["hybrid-01-goldmine","hybrid-02-funnel"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"Hybrid",angle:ANGLE[p[2]]||p[2]};}));
+.concat(["ugc-01-problem","ugc-03-goldmine","ugc-05-funnel","ugc-10-consent"].map(function(id){var p=id.split("-");return {id:id,r:"9x16",type:"UGC",angle:ANGLE[p[2]]||p[2]};}));
 
 function voteState(){try{return JSON.parse(localStorage.getItem("cr_testvote")||"{}");}catch(e){return {};}}
 function setVote(id,v){var s=voteState();s[id]=v;localStorage.setItem("cr_testvote",JSON.stringify(s));updateVoteCount();}
