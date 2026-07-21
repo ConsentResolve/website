@@ -35,14 +35,11 @@ p.ms{max-width:1300px;margin:0 auto 8px;padding:0 22px;color:#94a3b8;font-size:1
 <h1>UGC Ad Review — Consent Resolve</h1>
 <p>Surviving ads after two review rounds (25 cut). Watch, then drop a comment under any one &mdash; your notes save to the team review log. Compliance-cleared: illustrative spokesperson framing, no fabricated testimonials.</p>
 </header>
-<h2 class="mh" style="font-size:20px">🎯 Test batch &mdash; rate &amp; comment <span id="keepcount" class="n"></span></h2>
-<p class="ms">New variable ad set combining <b>fal.ai + Remotion + ffmpeg</b> &mdash; non-UGC motion ads, UGC talking-heads, and hybrids across 10 message angles. <b>Round 2 rework</b>: caption blink/flash bug fixed (captions no longer blank out between phrases), full-screen strobe removed from the hype reels, end card enlarged again (60/52px solid band), hybrids now zoom the Accept button and the identified-lead rows with a slow push-in. Ratings reset &mdash; vote and comment again.</p>
+<h2 class="mh" style="font-size:20px">✅ Final versions for ads <span id="keepcount" class="n"></span></h2>
+<p class="ms">The cut we&rsquo;re running as ads. Rate and comment to lock the final set.</p>
 <div class="grid" id="testgrid"></div>
 <h2 class="mh">Earlier reels</h2>
 <div class="grid" id="grid"></div>
-<h2 class="mh">Model A/B test &mdash; &ldquo;Cookie Banner&rdquo; (male)</h2>
-<p class="ms">Same script &amp; ElevenLabs voice across AI video models vs. the current HeyGen production control. OmniHuman uses our real VO (clean audio, real lip-sync); Kling &amp; Veo generate their own synthetic voice. Seedance was blocked by its no-real-likeness safety filter.</p>
-<div class="grid" id="modelgrid"></div>
 <footer>Consent Resolve &middot; internal review &middot; noindex</footer>
 <script>
 // The 4 surviving original ads (banner-male cut in the 2026-07-20 review). src = /ugc-ads/<slug>.mp4 (served from public/). Labels for review.
@@ -100,40 +97,6 @@ ADS.forEach(function(ad){
           document.getElementById("t-"+ad.slug).value="";
           status.className="ok";status.textContent="Saved ✓";
         }else{status.className="err";status.textContent=(res&&res.error)||"Save failed.";}
-      }).catch(function(){btn.disabled=false;status.className="err";status.textContent="Network error.";});
-  };
-});
-
-// Model A/B section — same script (banner-male) across models. HeyGen control = R2 root; fal arms under fal/.
-var MODELS = [
-  ];
-var mgrid=document.getElementById("modelgrid");
-MODELS.forEach(function(m){
-  var card=document.createElement("div");card.className="card";
-  card.innerHTML=
-    '<div class="vidwrap"><video src="'+m.src+'?v=5" controls playsinline preload="metadata"></video></div>'+
-    '<div class="meta"><span class="tag '+(m.cls||"")+'">'+esc(m.model)+'</span></div>'+
-    '<div class="script">'+esc(m.note)+'</div>'+
-    '<div class="cmts" id="c-'+m.slug+'"></div>'+
-    '<div class="box">'+
-      '<input placeholder="Your name" id="n-'+m.slug+'" maxlength="80">'+
-      '<textarea placeholder="Comment on this model’s output…" id="t-'+m.slug+'" maxlength="4000"></textarea>'+
-      '<button id="b-'+m.slug+'">Post comment</button>'+
-      '<span id="s-'+m.slug+'"></span>'+
-    '</div>';
-  mgrid.appendChild(card);
-  var cbox=card.querySelector("#c-"+m.slug);renderComments(m.slug,cbox);
-  var btn=card.querySelector("#b-"+m.slug);
-  btn.onclick=function(){
-    var note=(document.getElementById("t-"+m.slug).value||"").trim();
-    var author=(document.getElementById("n-"+m.slug).value||"").trim();
-    var status=document.getElementById("s-"+m.slug);
-    if(!note){status.className="err";status.textContent="Add a comment first.";return;}
-    btn.disabled=true;status.textContent="Saving…";status.className="";
-    fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({video:m.slug,note:note,author:author})})
-      .then(function(r){return r.json();}).then(function(res){btn.disabled=false;
-        if(res&&res.ok){saveLocal(m.slug,{author:author||"You",note:note,at:new Date().toLocaleString()});renderComments(m.slug,cbox);document.getElementById("t-"+m.slug).value="";status.className="ok";status.textContent="Saved ✓";}
-        else{status.className="err";status.textContent=(res&&res.error)||"Save failed.";}
       }).catch(function(){btn.disabled=false;status.className="err";status.textContent="Network error.";});
   };
 });
