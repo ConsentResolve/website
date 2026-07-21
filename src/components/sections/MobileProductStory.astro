@@ -57,17 +57,17 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
         <div class="mcr-photo mcr-photo-brand">
           {INTRO_VIDEO ? (
             <Fragment>
-              {/* Tyler's "profile video" — autoplays muted + looping like a dating-app clip. */}
+              {/* Tyler's "profile video" — poster + a play button. No autoplay, no loop,
+                  no mute toggle: tap Play once, it plays through with sound and stops. */}
               <video
                 data-meet-video
                 class="mcr-video"
-                autoplay muted loop playsinline preload="auto"
+                playsinline preload="auto"
                 poster={INTRO_POSTER}
                 src={INTRO_VIDEO}
               ></video>
-              <button type="button" data-meet-sound class="mcr-sound" aria-label="Tap for sound">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-                Tap for sound
+              <button type="button" data-meet-play class="mcr-play" aria-label="Play the intro">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
               </button>
             </Fragment>
           ) : (
@@ -285,11 +285,13 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   .mcr-pip { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.2); transition: background .3s; }
   .mcr-pip.is-done { background: rgba(255,255,255,0.45); }
   .mcr-pip.is-active { background: var(--color-mint-400,#2ee6a6); }
-  .mcr-chrome { display: flex; align-items: center; justify-content: space-between; margin-top: 0.65rem; }
+  .mcr-chrome { position: relative; display: flex; align-items: center; justify-content: center; margin-top: 0.65rem; min-height: 40px; }
   .mcr-brand { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.88rem; letter-spacing: -0.01em; }
-  .mcr-call { color: var(--color-mint-400,#2ee6a6); text-decoration: none; padding: 0.3rem 0.6rem; margin: -0.3rem -0.6rem; border-radius: 999px; }
+  /* Centered call button (pill). */
+  .mcr-call { text-decoration: none; padding: 0.45rem 1rem; border-radius: 999px; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.45); color: var(--color-mint-400,#2ee6a6); font-weight: 800; }
+  .mcr-call:active { background: rgba(46,230,166,0.22); }
   .mcr-call:active { background: rgba(46,230,166,0.14); }
-  .mcr-close { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-right: -8px; color: rgba(255,255,255,0.85); background: none; border: 0; }
+  .mcr-close { position: absolute; right: -8px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; color: rgba(255,255,255,0.85); background: none; border: 0; }
 
   /* Stage + card stack */
   .mcr-stage { position: relative; flex: 1; margin: 0.7rem 0.9rem 0; }
@@ -315,7 +317,9 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   .mcr-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(6,12,22,0.85) 100%); }
   .mcr-photo-brand { background: radial-gradient(120% 90% at 50% 30%, #2ee6a6 0%, #12b886 55%, #0b7a5a 100%); }
   .mcr-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .mcr-sound { position: absolute; right: 10px; bottom: 10px; z-index: 4; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.75rem; border-radius: 999px; border: 0; background: var(--color-mint-400,#2ee6a6); color: #081019; font-size: 0.78rem; font-weight: 800; box-shadow: 0 8px 20px -8px rgba(0,0,0,0.6); }
+  /* Centered play button over the poster. */
+  .mcr-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 4; display: inline-flex; align-items: center; justify-content: center; width: 68px; height: 68px; padding-left: 4px; border-radius: 50%; border: 0; background: var(--color-mint-400,#2ee6a6); color: #081019; box-shadow: 0 12px 30px -8px rgba(0,0,0,0.6); }
+  .mcr-play:active { transform: translate(-50%,-50%) scale(0.94); }
   .mcr-logo { width: 96px; height: 96px; border-radius: 28px; background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 50px -12px rgba(0,0,0,0.5); }
   .mcr-verify { position: absolute; top: 14px; left: 14px; z-index: 2; font-size: 0.72rem; font-weight: 700; color: #081019; background: rgba(255,255,255,0.9); padding: 0.28rem 0.6rem; border-radius: 999px; }
   .mcr-hero-ic { width: 92px; height: 92px; border-radius: 24px; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.35); display: flex; align-items: center; justify-content: center; }
@@ -471,7 +475,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   /* Dating-app action buttons */
   .mcr-actions { position: relative; z-index: 20; display: flex; align-items: center; justify-content: center; gap: 1.6rem; padding: 0.9rem 0 calc(1rem + env(safe-area-inset-bottom)); }
   .mcr-btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #0e2036; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 10px 24px -10px rgba(0,0,0,0.7); }
-  .mcr-btn-back { width: 52px; height: 52px; color: #ffb454; }
+  .mcr-btn-back { width: 52px; height: 52px; color: #0e2036; background: #f1f5f9; border-color: rgba(255,255,255,0.25); }
   .mcr-btn-like { width: 64px; height: 64px; color: var(--color-navy-900,#081019); background: var(--color-mint-400,#2ee6a6); border-color: transparent; }
   /* Flashes ~4s after landing on a card to nudge the viewer forward. */
   .mcr-btn-like.is-hint { animation: likeHint 1s ease-in-out infinite; }
@@ -493,22 +497,22 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
     var backBtn = el.querySelector(".mcr-btn-back");
     var likeBtn = el.querySelector(".mcr-btn-like");
     var mv = el.querySelector("[data-meet-video]");
-    var ms = el.querySelector("[data-meet-sound]");
+    var mp = el.querySelector("[data-meet-play]");
     var i = 0, n = cards.length, animating = false, hintTimer = null;
 
-    // Video: the markup is a plain muted+autoplay+loop+playsinline clip — the one
-    // combination every mobile browser reliably autoplays inline. Tap-for-sound just
-    // UNMUTES and keeps looping; it does NOT seek, re-mute, or toggle loop. Previously
-    // it set loop=false, rewound, then re-muted on 'ended' — which is why sound played
-    // once and then muted itself on the next loop, and the extra choreography is what
-    // stuttered on some phones. Simpler = smooth.
-    if (mv && ms) {
-      ms.addEventListener("click", function (e) {
+    // Video: poster + a play button. No autoplay, no loop, no mute toggle. Tap Play
+    // -> plays through once with sound and stops; the button reappears to replay.
+    if (mv && mp) {
+      mp.addEventListener("click", function (e) {
         e.stopPropagation();
         mv.muted = false; mv.volume = 1;
-        var p = mv.play(); if (p && p.catch) p.catch(function () {}); // start it if autoplay was blocked
-        ms.style.display = "none";
+        var p = mv.play(); if (p && p.catch) p.catch(function () {});
+        mp.style.display = "none";
       });
+      // Show the button whenever the clip isn't playing (initial, on end, on pause).
+      mv.addEventListener("play", function () { mp.style.display = "none"; });
+      mv.addEventListener("ended", function () { mp.style.display = ""; });
+      mv.addEventListener("pause", function () { if (!mv.ended && mv.currentTime > 0) mp.style.display = ""; });
     }
 
     function isLast() { return i === n - 1; }
@@ -588,10 +592,14 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
       backBtn.disabled = i === 0;
       // On the final (CTA) card the buttons are the real links, so hide the deck controls.
       actions.classList.toggle("is-hidden", isLast());
-      // Only the first card holds the clip — never let it keep talking off-screen.
-      if (mv) {
-        if (i === 0) { var p = mv.play(); if (p && p.catch) p.catch(function () {}); }
-        else mv.pause();
+      // The clip never autoplays. Leaving card 0 pauses + rewinds it and restores the
+      // play button, so it never keeps talking off-screen and always offers a clean replay.
+      if (mv && mp) {
+        if (i !== 0) {
+          mv.pause();
+          try { mv.currentTime = 0; } catch (_) {}
+          mp.style.display = "";
+        }
       }
       // Card 1: count the ad numbers up each time it's shown.
       if (i === 1) setTimeout(countUpRoas, 250);
@@ -677,7 +685,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
     stage.addEventListener("touchstart", function (e) {
       if (animating || isLast()) return;
       // Let the sound button take its own tap instead of advancing the card.
-      if (e.target && e.target.closest && e.target.closest("[data-meet-sound]")) return;
+      if (e.target && e.target.closest && e.target.closest("[data-meet-play]")) return;
       var card = cards[i];
       if (!card.classList.contains("is-active")) return;
       startX = e.touches[0].clientX; startY = e.touches[0].clientY;
