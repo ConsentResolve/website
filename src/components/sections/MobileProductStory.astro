@@ -62,7 +62,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
               <video
                 data-meet-video
                 class="mcr-video"
-                playsinline preload="auto"
+                playsinline webkit-playsinline preload="auto"
                 poster={INTRO_POSTER}
                 src={INTRO_VIDEO}
               ></video>
@@ -205,22 +205,48 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
         <p class="mcr-match-title">It's a match.</p>
         <div class="mcr-match-avatars">
           <span class="mcr-ava mcr-ava-pro">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#081019" stroke-width="1.8" aria-hidden="true"><path d="M3 21h18M5 21V10l7-5 7 5v11" stroke-linejoin="round"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#081019" stroke-width="1.8" aria-hidden="true"><path d="M3 21h18M5 21V10l7-5 7 5v11" stroke-linejoin="round"/></svg>
           </span>
           <span class="mcr-heart">♥</span>
           <span class="mcr-ava mcr-ava-lead">J</span>
         </div>
-        <div class="mcr-reveal">
-          <div class="mcr-reveal-blur" aria-hidden="true" style="--bg:linear-gradient(150deg,#c2255c,#e64980)">
-            <svg viewBox="0 0 24 24" fill="rgba(255,255,255,0.55)"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+
+        {/* The matched, consented lead drops straight into the pro's CRM pipeline. The
+            whole flow (lead card -> travelling packet -> new CRM row) is re-run by
+            matchPlay() every time this card becomes active. */}
+        <div class="mcr-flow" data-crm>
+          <div class="mcr-flow-lead">
+            <span class="mcr-crm-ava">J</span>
+            <div class="mcr-crm-info">
+              <b>Jordan M. <span class="mcr-consent">✓ consented</span></b>
+              <small>jordan.m@gmail.com · AC replacement</small>
+            </div>
           </div>
-          <div class="mcr-reveal-card">
-            <b>Jordan M. <span class="mcr-consent">✓ consented</span></b>
-            <small>jordan.m@gmail.com</small>
-            <div class="mcr-chips"><span>Viewed: AC replacement</span><span>Ready to book</span></div>
+
+          <div class="mcr-flow-arrow" aria-hidden="true">
+            <span class="mcr-flow-packet"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+          </div>
+
+          <div class="mcr-crm">
+            <div class="mcr-crm-head">
+              <span class="mcr-crm-dot"></span> Your CRM
+              <span class="mcr-crm-badge" data-crm-badge>+1 new</span>
+            </div>
+            <div class="mcr-crm-row mcr-crm-new">
+              <span class="mcr-crm-ava sm">J</span>
+              <div class="mcr-crm-info"><b>Jordan M.</b><small>New lead · exclusive</small></div>
+              <span class="mcr-crm-stage">New</span>
+            </div>
+            <div class="mcr-crm-row is-old">
+              <span class="mcr-crm-ava sm alt">M</span>
+              <div class="mcr-crm-info"><b>Marcus T.</b><small>Booked $6,400 job</small></div>
+              <span class="mcr-crm-stage won">Won</span>
+            </div>
           </div>
         </div>
-        <p class="mcr-bio mcr-meta-center">Jordan said yes. Now she's a lead only <b>you</b> get — not resold to five competitors.</p>
+
+        <p class="mcr-bio mcr-meta-center mcr-match-cap">Yours alone — dropped right into your pipeline, never resold to five competitors.</p>
       </div>
     </section>
 
@@ -353,10 +379,10 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   /* Problem card */
   /* Top-anchored so the first grid row never clips at the top; sized so the full
      10x10 grid + copy + the solve hint all fit inside the card. */
-  .mcr-problem { display: flex; flex-direction: column; height: 100%; padding: 1.5rem 1.15rem 1.1rem; justify-content: flex-start; gap: 0.85rem; }
+  .mcr-problem { display: flex; flex-direction: column; height: 100%; padding: 1.05rem 1.15rem 1.6rem; justify-content: flex-start; gap: 0.65rem; }
   /* Visitor grid — same story as the trade landing pages: ghost (anonymous) ->
      check (consented) -> person (identified lead); the 98 get X'd out and vanish. */
-  .mcr-leak { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.28rem; width: 100%; max-width: 288px; margin-inline: auto; }
+  .mcr-leak { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.26rem; width: 100%; max-width: 252px; margin-inline: auto; }
   /* Resting state is VISIBLE — never depend on an animation's fill-mode to hold a
      cell on screen, or the 2 surviving leads blank out once cellIn is done. */
   .mcr-leak .lc { position: relative; aspect-ratio: 1; opacity: 1; }
@@ -426,9 +452,9 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   @keyframes roasPop { from { opacity: .3; transform: scale(.9); } to { opacity: 1; transform: scale(1); } }
   @keyframes roasPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,180,84,0); } 50% { box-shadow: 0 0 0 4px rgba(255,180,84,0.28); } }
   @media (prefers-reduced-motion: reduce) { .mcr-roas.is-counted span, .mcr-roas.is-counted .mcr-roas-hi { animation: none; } }
-  .mcr-stat { margin: 0; font-size: 2.3rem; font-weight: 800; letter-spacing: -0.03em; color: var(--color-mint-400,#2ee6a6); line-height: 1; }
+  .mcr-stat { margin: 0; font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; color: var(--color-mint-400,#2ee6a6); line-height: 1; }
   /* Appears above the "98 of 100" after the vanish — big, centered, the primary nudge. */
-  .mcr-solve-hint { margin: 0 0 0.9rem; font-size: 1.3rem; line-height: 1.25; font-weight: 800; letter-spacing: -0.01em; color: var(--color-mint-400,#2ee6a6); text-wrap: balance; opacity: 0; transform: translateY(8px); transition: opacity .45s ease, transform .45s ease; }
+  .mcr-solve-hint { margin: 0 0 0.55rem; font-size: 1.12rem; line-height: 1.25; font-weight: 800; letter-spacing: -0.01em; color: var(--color-mint-400,#2ee6a6); text-wrap: balance; opacity: 0; transform: translateY(8px); transition: opacity .45s ease, transform .45s ease; }
   .mcr-solve-hint.show { opacity: 1; transform: none; }
 
   /* Guide (say) card */
@@ -451,25 +477,58 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   .mcr-match-card { background: radial-gradient(120% 80% at 50% 20%, #17324a 0%, #0b1a2e 60%); }
   .mcr-match { padding: 1.4rem 1.3rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
   .mcr-match-title { margin: 0; font-size: 2.1rem; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(90deg,#2ee6a6,#63e6be); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .mcr-match-avatars { display: flex; align-items: center; gap: 0.4rem; margin: 1.1rem 0 0.4rem; }
-  .mcr-ava { width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.5rem; border: 3px solid rgba(255,255,255,0.15); }
+  .mcr-match-avatars { display: flex; align-items: center; gap: 0.35rem; margin: 0.7rem 0 0.2rem; }
+  .mcr-ava { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.25rem; border: 3px solid rgba(255,255,255,0.15); }
   .mcr-ava-pro { background: var(--color-mint-400,#2ee6a6); color: #081019; }
   .mcr-ava-lead { background: linear-gradient(150deg,#c2255c,#e64980); color: #fff; }
-  .mcr-heart { color: #ff6b8a; font-size: 1.5rem; animation: mcrBeat 1s ease-in-out infinite; }
+  .mcr-heart { color: #ff6b8a; font-size: 1.35rem; animation: mcrBeat 1s ease-in-out infinite; }
   @keyframes mcrBeat { 0%,100%{transform:scale(1)} 30%{transform:scale(1.25)} }
   @media (prefers-reduced-motion: reduce) { .mcr-heart { animation: none; } }
-  .mcr-reveal { position: relative; width: 100%; max-width: 320px; margin: 1rem 0; min-height: 96px; }
-  .mcr-reveal-blur { position: absolute; inset: 0; margin: auto; width: 84px; height: 84px; border-radius: 16px; background: var(--bg); filter: blur(7px); display: flex; align-items: center; justify-content: center; opacity: 1; transition: opacity .5s ease; }
-  .mcr-reveal-blur svg { width: 46px; height: 46px; fill: rgba(255,255,255,0.55); }
-  .mcr-reveal-card { position: relative; z-index: 2; text-align: left; background: linear-gradient(180deg, rgba(46,230,166,0.12), rgba(46,230,166,0.03)); border: 1px solid rgba(46,230,166,0.4); border-radius: 16px; padding: 0.85rem 0.95rem; opacity: 0; transform: translateY(10px) scale(.96); transition: opacity .55s ease .25s, transform .55s ease .25s; }
-  .mcr-reveal-card b { font-size: 1rem; }
-  .mcr-reveal-card small { display: block; color: rgba(255,255,255,0.6); font-size: 0.82rem; margin-top: 0.1rem; }
-  .mcr-consent { font-size: 0.68rem; font-weight: 700; color: var(--color-mint-400,#2ee6a6); margin-left: 0.3rem; }
-  .mcr-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
-  .mcr-chips span { font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 999px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); }
-  /* Reveal fires when the match card becomes active */
-  .mcr-card.is-active.mcr-match-card .mcr-reveal-blur { opacity: 0; }
-  .mcr-card.is-active.mcr-match-card .mcr-reveal-card { opacity: 1; transform: none; }
+  .mcr-consent { font-size: 0.64rem; font-weight: 700; color: var(--color-mint-400,#2ee6a6); margin-left: 0.25rem; }
+
+  /* --- Lead -> CRM feed ------------------------------------------------------
+     The consented lead card sits at the top, a packet travels down the arrow, and
+     a new highlighted row lands in the mini CRM. Everything is driven off a .play
+     class that matchPlay() re-adds each time the card becomes active, so the whole
+     hand-off replays on every visit. */
+  .mcr-flow { width: 100%; max-width: 320px; margin: 0.7rem auto 0; display: flex; flex-direction: column; align-items: stretch; text-align: left; }
+  .mcr-flow-lead { display: flex; align-items: center; gap: 0.6rem; background: linear-gradient(180deg, rgba(46,230,166,0.14), rgba(46,230,166,0.03)); border: 1px solid rgba(46,230,166,0.4); border-radius: 14px; padding: 0.6rem 0.7rem; opacity: 0; transform: translateY(-6px); }
+  .mcr-flow.play .mcr-flow-lead { animation: mcrLeadIn .5s ease .1s both; }
+  .mcr-crm-ava { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.95rem; background: linear-gradient(150deg,#c2255c,#e64980); color: #fff; }
+  .mcr-crm-ava.sm { width: 28px; height: 28px; font-size: 0.8rem; }
+  .mcr-crm-ava.alt { background: linear-gradient(150deg,#3b6ea5,#4dabf7); }
+  .mcr-crm-info { flex: 1; min-width: 0; }
+  .mcr-crm-info b { display: block; font-size: 0.9rem; line-height: 1.15; color: #fff; }
+  .mcr-crm-info small { display: block; font-size: 0.72rem; color: rgba(255,255,255,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .mcr-flow-arrow { position: relative; height: 26px; display: flex; align-items: center; justify-content: center; color: rgba(46,230,166,0.5); }
+  .mcr-flow-packet { position: absolute; left: 50%; top: 0; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: var(--color-mint-400,#2ee6a6); box-shadow: 0 0 12px 2px rgba(46,230,166,0.8); opacity: 0; }
+  .mcr-flow.play .mcr-flow-packet { animation: mcrPacket .6s ease .75s both; }
+
+  .mcr-crm { border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; background: rgba(255,255,255,0.04); overflow: hidden; }
+  .mcr-crm-head { display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.7rem; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: rgba(255,255,255,0.7); border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .mcr-crm-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-mint-400,#2ee6a6); box-shadow: 0 0 8px rgba(46,230,166,0.8); }
+  .mcr-crm-badge { margin-left: auto; font-size: 0.64rem; font-weight: 800; letter-spacing: 0; text-transform: none; color: #081019; background: var(--color-mint-400,#2ee6a6); padding: 0.12rem 0.45rem; border-radius: 999px; opacity: 0; transform: scale(.4); }
+  .mcr-flow.play .mcr-crm-badge { animation: mcrBadgePop .4s cubic-bezier(.2,.9,.3,1.5) 1.3s both; }
+  .mcr-crm-row { display: flex; align-items: center; gap: 0.55rem; padding: 0.5rem 0.7rem; }
+  .mcr-crm-row + .mcr-crm-row { border-top: 1px solid rgba(255,255,255,0.06); }
+  .mcr-crm-stage { flex: 0 0 auto; font-size: 0.66rem; font-weight: 800; padding: 0.2rem 0.5rem; border-radius: 999px; background: rgba(46,230,166,0.16); color: var(--color-mint-400,#2ee6a6); border: 1px solid rgba(46,230,166,0.35); }
+  .mcr-crm-stage.won { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.12); }
+  .mcr-crm-new { opacity: 0; }
+  .mcr-flow.play .mcr-crm-new { animation: mcrRowIn .5s ease 1.15s both, mcrRowGlow 1.6s ease 1.5s; }
+  .mcr-crm-row.is-old { opacity: 0.55; }
+
+  .mcr-match-cap { margin-top: 0.85rem !important; font-size: 0.9rem; }
+
+  @keyframes mcrLeadIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @keyframes mcrPacket { 0% { opacity: 0; transform: translateY(-4px) scale(.6); } 25% { opacity: 1; transform: translateY(2px) scale(1); } 85% { opacity: 1; transform: translateY(22px) scale(1); } 100% { opacity: 0; transform: translateY(26px) scale(.6); } }
+  @keyframes mcrRowIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes mcrRowGlow { 0% { background: rgba(46,230,166,0); } 30% { background: rgba(46,230,166,0.22); } 100% { background: rgba(46,230,166,0); } }
+  @keyframes mcrBadgePop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) {
+    .mcr-flow.play .mcr-flow-lead, .mcr-flow.play .mcr-flow-packet, .mcr-flow.play .mcr-crm-badge, .mcr-flow.play .mcr-crm-new { animation-duration: .01s; animation-delay: 0s; }
+    .mcr-flow-lead, .mcr-crm-new, .mcr-crm-badge { opacity: 1; }
+  }
 
   /* CTA card */
   .mcr-cta-card { background: radial-gradient(120% 80% at 50% 15%, #14243c 0%, #0b1a2e 60%); }
@@ -519,9 +578,20 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
     if (mv && mp) {
       mp.addEventListener("click", function (e) {
         e.stopPropagation();
+        // Some iOS setups won't buffer a preload="auto" clip until the first gesture,
+        // so kick a load() before play() to make sure there's something to start.
+        try { if (mv.readyState < 2) mv.load(); } catch (_) {}
         mv.muted = false; mv.volume = 1;
-        var p = mv.play(); if (p && p.catch) p.catch(function () {});
-        mp.style.display = "none";
+        var p = mv.play();
+        // Only hide the button once playback ACTUALLY starts (see the "play" listener).
+        // If iOS rejects sound-on playback, retry muted so the clip still runs rather
+        // than leaving a dead poster — better muted than nothing.
+        if (p && p.then) {
+          p.catch(function () {
+            mv.muted = true;
+            mv.play().catch(function () { mp.style.display = ""; });
+          });
+        }
       });
       // Show the button whenever the clip isn't playing. Once it has FINISHED, the button
       // becomes an outlined-triangle "replay" (is-replay) so it doesn't read as the nav arrow.
@@ -622,6 +692,12 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
       if (leak) {
         if (i === 2) leakPlay();
         else { leakReset(); var sh = el.querySelector("[data-solve-hint]"); if (sh) sh.classList.remove("show"); }
+      }
+      // Card 5: replay the lead -> CRM hand-off animation each time it's shown.
+      var crm = el.querySelector("[data-crm]");
+      if (crm) {
+        crm.classList.remove("play");
+        if (i === 5) { void crm.offsetWidth; crm.classList.add("play"); }
       }
       // Flash the forward arrow ~4s after landing on any non-final card, to nudge on.
       likeBtn.classList.remove("is-hint");
