@@ -67,7 +67,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
                 src={INTRO_VIDEO}
               ></video>
               <button type="button" data-meet-play class="mcr-play" aria-label="Play the intro">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                <svg class="mcr-play-ico" width="30" height="30" viewBox="0 0 24 24" stroke-linejoin="round" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
               </button>
             </Fragment>
           ) : (
@@ -317,9 +317,14 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   .mcr-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(6,12,22,0.85) 100%); }
   .mcr-photo-brand { background: radial-gradient(120% 90% at 50% 30%, #2ee6a6 0%, #12b886 55%, #0b7a5a 100%); }
   .mcr-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  /* Centered play button over the poster. */
+  /* Centered play button over the poster — filled mint circle for the first play. */
   .mcr-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 4; display: inline-flex; align-items: center; justify-content: center; width: 68px; height: 68px; padding-left: 4px; border-radius: 50%; border: 0; background: var(--color-mint-400,#2ee6a6); color: #081019; box-shadow: 0 12px 30px -8px rgba(0,0,0,0.6); }
   .mcr-play:active { transform: translate(-50%,-50%) scale(0.94); }
+  .mcr-play-ico { fill: currentColor; }
+  /* Replay state (video finished): a plain OUTLINED triangle — no filled circle, so it
+     reads as "replay this clip" and isn't confused with the mint nav arrow. */
+  .mcr-play.is-replay { width: 60px; height: 60px; padding-left: 0; background: none; box-shadow: none; color: var(--color-mint-400,#2ee6a6); filter: drop-shadow(0 3px 10px rgba(0,0,0,0.55)); }
+  .mcr-play.is-replay .mcr-play-ico { fill: none; stroke: currentColor; stroke-width: 2; }
   .mcr-logo { width: 96px; height: 96px; border-radius: 28px; background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 50px -12px rgba(0,0,0,0.5); }
   .mcr-verify { position: absolute; top: 14px; left: 14px; z-index: 2; font-size: 0.72rem; font-weight: 700; color: #081019; background: rgba(255,255,255,0.9); padding: 0.28rem 0.6rem; border-radius: 999px; }
   .mcr-hero-ic { width: 92px; height: 92px; border-radius: 24px; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.35); display: flex; align-items: center; justify-content: center; }
@@ -509,9 +514,10 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
         var p = mv.play(); if (p && p.catch) p.catch(function () {});
         mp.style.display = "none";
       });
-      // Show the button whenever the clip isn't playing (initial, on end, on pause).
-      mv.addEventListener("play", function () { mp.style.display = "none"; });
-      mv.addEventListener("ended", function () { mp.style.display = ""; });
+      // Show the button whenever the clip isn't playing. Once it has FINISHED, the button
+      // becomes an outlined-triangle "replay" (is-replay) so it doesn't read as the nav arrow.
+      mv.addEventListener("play", function () { mp.style.display = "none"; mp.classList.remove("is-replay"); });
+      mv.addEventListener("ended", function () { mp.style.display = ""; mp.classList.add("is-replay"); });
       mv.addEventListener("pause", function () { if (!mv.ended && mv.currentTime > 0) mp.style.display = ""; });
     }
 
@@ -598,7 +604,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
         if (i !== 0) {
           mv.pause();
           try { mv.currentTime = 0; } catch (_) {}
-          mp.style.display = "";
+          mp.style.display = ""; mp.classList.remove("is-replay"); // reset to the filled play
         }
       }
       // Card 1: count the ad numbers up each time it's shown.
