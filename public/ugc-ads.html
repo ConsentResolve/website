@@ -28,18 +28,25 @@ footer{text-align:center;color:#64748b;font-size:12px;padding:12px 0 40px}
 var R2="https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/ugc-ads/";
 var VER="7";
 var VIDEOS=[
+  // Hype ad set — short FB cuts first, then the full versions.
   {slug:"hype-visited-short",   label:"Who Visited (Male)", kind:"FB short · 9:16", short:true},
   {slug:"hype-goldmine-short",  label:"Goldmine (Female)",  kind:"FB short · 9:16", short:true},
   {slug:"hype-anon-male",       label:"Anonymous (Male)",   kind:"Full · 9:16"},
   {slug:"hype-visited-male",    label:"Who Visited (Male)", kind:"Full · 9:16"},
-  {slug:"hype-goldmine-female", label:"Goldmine (Female)",  kind:"Full · 9:16"}
+  {slug:"hype-goldmine-female", label:"Goldmine (Female)",  kind:"Full · 9:16"},
+  // Earlier UGC cuts.
+  {slug:"shared-male",              label:"The Shared Lead", kind:"UGC · 9:16"},
+  {slug:"ugc-01-problem", dir:"testbatch/", label:"Problem",  kind:"UGC · 9:16"},
+  {slug:"ugc-03-goldmine",dir:"testbatch/", label:"Goldmine", kind:"UGC · 9:16"},
+  {slug:"ugc-05-funnel",  dir:"testbatch/", label:"Funnel",   kind:"UGC · 9:16"},
+  {slug:"ugc-10-consent", dir:"testbatch/", label:"Consent",  kind:"UGC · 9:16"}
 ];
 function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
 var grid=document.getElementById("grid");
 VIDEOS.forEach(function(v){
   var card=document.createElement("div");card.className="card";
   card.innerHTML=
-    '<div class="vidwrap"><video src="'+R2+v.slug+'.mp4?v='+VER+'" controls playsinline preload="metadata"></video></div>'+
+    '<div class="vidwrap"><video src="'+R2+(v.dir||"")+v.slug+'.mp4?v='+VER+'" controls playsinline preload="metadata"></video></div>'+
     '<div class="meta"><span class="tag'+(v.short?" s":"")+'">'+esc(v.label)+'</span><span class="tag p">'+esc(v.kind)+'</span></div>';
   grid.appendChild(card);
 });
