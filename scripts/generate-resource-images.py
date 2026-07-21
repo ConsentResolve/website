@@ -62,6 +62,7 @@ TYPE_LABEL = {
 
 # Layer A visual metaphors (text-free, logo-free). Reused subjects from v1.
 SUBJECTS = {
+    "consent-resolve-is-live-on-product-hunt": "a single upward-launching rocket with a rounded consent checkmark badge on its fin, a few motion lines beneath it",
     "rank-google-map-pack-home-services": "a single map pin over a small neighborhood street grid with three stacked ranking bars",
     "win-google-local-service-ads": "a verification shield badge with a checkmark above a simple search bar pill",
     "get-more-leads-from-website-traffic": "a browser window funneling small dots downward through a wide funnel into a contact card",
@@ -565,6 +566,7 @@ CONTENT_SUBJECTS = {
     "website-visitor-identification": "a faceless visitor silhouette resolving along an arrow into a labelled contact card with a consent checkmark badge",
     "what-consent-first-means": "a large consent checkmark button inside a dialog card with a protective shield behind it",
     "paying-for-traffic-throwing-it-away": "a wide funnel leaking small dots out the sides while a few convert into contact cards, a dollar sign nearby",
+    "consent-resolve-is-live-on-product-hunt": "a single upward-launching rocket with a rounded consent checkmark badge on its fin, a few motion lines beneath it",
     # Straight Answers explainers
     "what-is-tcpa": "a smartphone with a protective shield and a small gavel beside it",
     "what-is-can-spam-act": "an envelope with a shield badge and a small unsubscribe toggle",
