@@ -69,7 +69,7 @@ var grid=document.getElementById("grid");
 ADS.forEach(function(ad){
   var card=document.createElement("div");card.className="card";
   card.innerHTML=
-    '<div class="vidwrap"><video src="'+R2+ad.slug+'.mp4?v=5" controls playsinline preload="metadata"></video></div>'+
+    '<div class="vidwrap"><video src="'+R2+ad.slug+'.mp4?v=6" controls playsinline preload="metadata"></video></div>'+
     '<div class="meta"><span class="tag">'+esc(ad.script)+'</span><span class="tag p">'+esc(ad.persona)+'</span></div>'+
     '<div class="cmts" id="c-'+ad.slug+'"></div>'+
     '<div class="box">'+
@@ -103,7 +103,7 @@ ADS.forEach(function(ad){
 
 // ===== Test batch — pick your top 20 (fal + Remotion + ffmpeg) =====
 var R2T = R2 + "testbatch/";
-var TVER = "6";
+var TVER = "7";
 var ANGLE = {problem:"Problem",reveal:"Reveal",goldmine:"Goldmine",value:"Value",funnel:"Funnel",local:"Local",data:"Data",compare:"vs Shared",urgency:"Urgency",consent:"Consent"};
 var TESTBATCH = [
   // FB-ad short cut of "Who Visited" (male) — first, as the current lead ad candidate.
