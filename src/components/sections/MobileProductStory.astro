@@ -270,10 +270,11 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
 </div>
 
 <style is:global>
+  /* Light shell; the cards in the middle stay dark for contrast. */
   .mcr {
     position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column;
-    background: radial-gradient(130% 90% at 50% -10%, #14243c 0%, var(--color-navy-900,#081019) 62%);
-    color: #fff; -webkit-tap-highlight-color: transparent; overscroll-behavior: contain;
+    background: radial-gradient(120% 80% at 50% 0%, #ffffff 0%, #e7edf3 70%);
+    color: #0a1628; -webkit-tap-highlight-color: transparent; overscroll-behavior: contain;
     font-feature-settings: "ss01";
   }
   .mcr.is-open { display: flex; }
@@ -282,19 +283,22 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   /* Top chrome */
   .mcr-top { position: relative; z-index: 20; padding: max(env(safe-area-inset-top),0.7rem) 0.9rem 0; }
   .mcr-pips { display: flex; gap: 5px; }
-  .mcr-pip { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.2); transition: background .3s; }
-  .mcr-pip.is-done { background: rgba(255,255,255,0.45); }
-  .mcr-pip.is-active { background: var(--color-mint-400,#2ee6a6); }
+  /* Chrome tuned for the light shell. */
+  .mcr-pip { flex: 1; height: 3px; border-radius: 2px; background: rgba(10,22,40,0.15); transition: background .3s; }
+  .mcr-pip.is-done { background: rgba(10,22,40,0.4); }
+  .mcr-pip.is-active { background: var(--color-brand,#00a86e); }
   .mcr-chrome { position: relative; display: flex; align-items: center; justify-content: center; margin-top: 0.65rem; min-height: 40px; }
   .mcr-brand { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.88rem; letter-spacing: -0.01em; }
-  /* Centered call button (pill). */
-  .mcr-call { text-decoration: none; padding: 0.45rem 1rem; border-radius: 999px; background: rgba(46,230,166,0.12); border: 1px solid rgba(46,230,166,0.45); color: var(--color-mint-400,#2ee6a6); font-weight: 800; }
-  .mcr-call:active { background: rgba(46,230,166,0.22); }
-  .mcr-call:active { background: rgba(46,230,166,0.14); }
-  .mcr-close { position: absolute; right: -8px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; color: rgba(255,255,255,0.85); background: none; border: 0; }
+  /* Centered call button — solid mint pill with dark text, a clear CTA on the light bg. */
+  .mcr-call { text-decoration: none; padding: 0.5rem 1.1rem; border-radius: 999px; background: var(--color-mint-400,#2ee6a6); border: 0; color: #08131f; font-weight: 800; box-shadow: 0 8px 20px -8px rgba(46,230,166,0.7); }
+  .mcr-call svg { stroke: #08131f !important; }
+  .mcr-call:active { transform: scale(0.96); }
+  .mcr-close { position: absolute; right: -8px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; color: rgba(10,22,40,0.7); background: none; border: 0; }
 
   /* Stage + card stack */
-  .mcr-stage { position: relative; flex: 1; margin: 0.7rem 0.9rem 0; }
+  /* The shell is light (dark chrome text), but the cards themselves are dark, so their
+     content must stay light — reset text colour inside the card stack to white. */
+  .mcr-stage { position: relative; flex: 1; margin: 0.7rem 0.9rem 0; color: #f5f8fa; }
   .mcr-card {
     position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
     padding: 0; border-radius: 22px; overflow: hidden;
@@ -481,9 +485,9 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
 
   /* Dating-app action buttons */
   .mcr-actions { position: relative; z-index: 20; display: flex; align-items: center; justify-content: center; gap: 1.6rem; padding: 0.9rem 0 calc(1rem + env(safe-area-inset-bottom)); }
-  .mcr-btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #0e2036; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 10px 24px -10px rgba(0,0,0,0.7); }
-  .mcr-btn-back { width: 52px; height: 52px; color: #0e2036; background: #f1f5f9; border-color: rgba(255,255,255,0.25); }
-  .mcr-btn-like { width: 64px; height: 64px; color: var(--color-navy-900,#081019); background: var(--color-mint-400,#2ee6a6); border-color: transparent; }
+  .mcr-btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #ffffff; border: 1px solid rgba(10,22,40,0.12); box-shadow: 0 10px 24px -12px rgba(10,22,40,0.45); }
+  .mcr-btn-back { width: 52px; height: 52px; color: #0e2036; }
+  .mcr-btn-like { width: 64px; height: 64px; color: #08131f; background: var(--color-mint-400,#2ee6a6); border-color: transparent; box-shadow: 0 12px 28px -10px rgba(46,230,166,0.7); }
   /* Flashes ~4s after landing on a card to nudge the viewer forward. */
   .mcr-btn-like.is-hint { animation: likeHint 1s ease-in-out infinite; }
   @keyframes likeHint { 0%,100% { transform: scale(1); box-shadow: 0 10px 24px -10px rgba(0,0,0,.7); } 50% { transform: scale(1.12); box-shadow: 0 0 0 8px rgba(46,230,166,.28); } }
