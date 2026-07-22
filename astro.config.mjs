@@ -17,7 +17,8 @@ export default defineConfig({
         !page.includes("/style-guide/") &&
         !page.includes("/demo/") &&
         !page.includes("/feeds/") &&
-        !page.includes("/lead-math"), // noindex landing — keep it out of the sitemap
+        !page.includes("/lead-math") && // noindex landing — keep it out of the sitemap
+        !page.includes("/agency-partners"), // unlinked agency reseller page — noindex, direct-URL only
       // Image sitemap: attach each Resource Center page's social card so the
       // 150+ generated images are discoverable. Adds <image:image> entries.
       serialize(item) {
