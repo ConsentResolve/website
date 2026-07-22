@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "consentresolve2",
+  "name": "consentresolve-website",
   "compatibility_date": "2024-12-01",
   // Worker entry handles /api/* (live demo). All other requests fall through to
   // the static Astro build via the ASSETS binding (asset-first by default), so
