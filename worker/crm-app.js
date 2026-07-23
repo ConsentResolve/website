@@ -36,7 +36,7 @@ const BOOTSTRAP = `<script>
 (async () => {
   var snap = {
     convs: window.DATA && window.DATA.conversations, counts: window.DATA && window.DATA.counts,
-    CL: window.CONSENT_LEDGER, CS: window.CONSENT_STATS, SEQ: window.SEQUENCES, SS: window.SITE_SOURCES
+    CL: window.CONSENT_LEDGER, CS: window.CONSENT_STATS, SEQ: window.SEQUENCES, SS: window.SITE_SOURCES, SPY: window.SITESPY
   };
   var d;
   try {
@@ -49,6 +49,7 @@ const BOOTSTRAP = `<script>
     if (d.CONSENT_STATS)  window.CONSENT_STATS = d.CONSENT_STATS;
     if (d.SEQUENCES && d.SEQUENCES.length) window.SEQUENCES = d.SEQUENCES;
     if (d.SITE_SOURCES) window.SITE_SOURCES = d.SITE_SOURCES;
+    if (d.SITESPY && d.SITESPY.visitors && d.SITESPY.visitors.length) window.SITESPY = d.SITESPY;
     if (d.me && window.DATA) window.DATA.me = d.me;
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.DATA) {
       window.DATA.conversations = d.DATA_CONVERSATIONS;
@@ -56,7 +57,7 @@ const BOOTSTRAP = `<script>
     }
     if (window.renderConsent) window.renderConsent();
     if (window.renderSequences) window.renderSequences();
-    if (d.SITE_SOURCES && window.renderSiteSpy) window.renderSiteSpy();
+    if ((d.SITE_SOURCES || d.SITESPY) && window.renderSiteSpy) window.renderSiteSpy();
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.renderList) {
       window.renderList('open');
       if (window.recount) window.recount();
@@ -66,7 +67,7 @@ const BOOTSTRAP = `<script>
     // FAIL-SAFE: any render error -> restore the demo fixtures so the app never breaks
     try {
       if (window.DATA) { window.DATA.conversations = snap.convs; window.DATA.counts = snap.counts; }
-      window.CONSENT_LEDGER = snap.CL; window.CONSENT_STATS = snap.CS; window.SEQUENCES = snap.SEQ; window.SITE_SOURCES = snap.SS;
+      window.CONSENT_LEDGER = snap.CL; window.CONSENT_STATS = snap.CS; window.SEQUENCES = snap.SEQ; window.SITE_SOURCES = snap.SS; window.SITESPY = snap.SPY;
       if (window.renderList) window.renderList('open');
       if (window.recount) window.recount();
       if (window.select && window.DATA && window.DATA.conversations[0]) window.select(window.DATA.conversations[0].id);

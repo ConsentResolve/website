@@ -220,6 +220,56 @@ export async function onRequestGet({ request, env }) {
     all: DATA_CONVERSATIONS.length,
   };
 
+  // ---- Site Spy visitors (from real site_visit events) ----
+  let SITESPY = null;
+  try {
+    const svSince = new Date(Date.now() - 48 * 3600 * 1000).toISOString();
+    const svRows = (await env.DB.prepare(
+      `SELECT e.contact_id, e.occurred_at, e.meta, e.company_id, c.full_name, c.source, co.name company
+         FROM crm_events e
+         LEFT JOIN contacts c ON c.id = e.contact_id
+         LEFT JOIN companies co ON co.id = COALESCE(e.company_id, c.company_id)
+        WHERE e.type='site_visit' AND e.occurred_at > ? AND e.contact_id IS NOT NULL
+        ORDER BY e.occurred_at DESC`
+    ).bind(svSince).all()).results || [];
+    if (svRows.length) {
+      const byCt = new Map();
+      for (const r of svRows) {
+        let g = byCt.get(r.contact_id);
+        if (!g) { g = { contact_id: r.contact_id, name: r.full_name || "Unknown", company: r.company || "", source: srcMap[r.source] || "site", visits: [] }; byCt.set(r.contact_id, g); }
+        let path = ""; try { path = (JSON.parse(r.meta || "{}").path) || ""; } catch (_) {}
+        g.visits.push({ at: r.occurred_at, path });
+      }
+      const svIds = [...byCt.keys()];
+      const engConv = new Set(), engRun = new Map(), engSupp = new Set();
+      for (const x of (await env.DB.prepare(`SELECT DISTINCT contact_id FROM conversations WHERE status='open' AND contact_id IN ${ph(svIds)}`).bind(...svIds).all()).results || []) engConv.add(x.contact_id);
+      for (const x of (await env.DB.prepare(`SELECT r.contact_id, w.name FROM workflow_runs r JOIN workflows w ON w.id=r.workflow_id WHERE r.status='active' AND r.contact_id IN ${ph(svIds)}`).bind(...svIds).all()).results || []) engRun.set(x.contact_id, x.name);
+      for (const x of (await env.DB.prepare(`SELECT DISTINCT contact_id FROM suppressions WHERE contact_id IN ${ph(svIds)}`).bind(...svIds).all()).results || []) engSupp.add(x.contact_id);
+      const now = Date.now(); const todayStart = new Date(); todayStart.setUTCHours(0, 0, 0, 0);
+      const visitors = [...byCt.values()].map((g) => {
+        const latest = g.visits[0];
+        const lastMin = Math.max(0, Math.round((now - Date.parse(latest.at)) / 60000));
+        const trail = [...new Set(g.visits.slice().reverse().map((v) => v.path).filter(Boolean))].slice(-4);
+        const run = engRun.get(g.contact_id);
+        const eng = engSupp.has(g.contact_id) ? { suppressed: true }
+          : run ? { seq: run, auto: true }
+          : engConv.has(g.contact_id) ? { conv: true } : { none: true };
+        return { name: g.name, company: g.company, source: g.source, live: lastMin < 5,
+          page: latest.path || "/", trail: trail.length ? trail : [latest.path || "/"],
+          time: "—", pages: g.visits.length, last: humanTime(latest.at), lastMin, eng };
+      });
+      SITESPY = {
+        stats: {
+          onSite: visitors.filter((v) => v.live).length,
+          today: [...byCt.values()].filter((g) => Date.parse(g.visits[0].at) >= todayStart.getTime()).length,
+          inWorkflow: visitors.filter((v) => v.eng.seq || v.eng.conv).length,
+          netNew: visitors.filter((v) => v.eng.none).length,
+        },
+        visitors,
+      };
+    }
+  } catch (_) {}
+
   // Data-source registry (Site Spy / Nurture transparency + extensibility).
   let SITE_SOURCES = null;
   try { SITE_SOURCES = await computeSources(env); } catch (_) {}
@@ -230,7 +280,7 @@ export async function onRequestGet({ request, env }) {
     CONSENT_LEDGER, CONSENT_STATS, consentSummary,
     SEQUENCES,
     DATA_CONVERSATIONS, DATA_COUNTS,
-    SITE_SOURCES,
+    SITESPY, SITE_SOURCES,
     inbox: { buckets },
     funnel,
     generated_at: new Date().toISOString(),
