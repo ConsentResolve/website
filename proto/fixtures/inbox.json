@@ -1,0 +1,200 @@
+{
+  "me": { "name": "Andy Mentges", "role": "sales" },
+  "counts": { "needs_attention": 5, "open": 11, "snoozed": 2, "all": 14 },
+  "conversations": [
+    {
+      "id": "c01", "source": "meta", "channel": "sms", "name": "Marcus Whitfield", "company": "Whitfield Heating & Air",
+      "initials": "MW", "lifecycle": "SQL", "hot": true, "unread": true, "ts": "2 min ago", "snoozed": false,
+      "preview": "SMS sent — no reply yet. AI call fires in 4 min.",
+      "consent": { "email": "granted", "sms": "granted", "voice": "granted" },
+      "sequence": { "step": 1, "total": 4, "label": "Speed-to-lead", "next_action": "AI call (Retell)", "next_in_min": 4, "status": "active" },
+      "sla": { "min": 6, "level": "warn" },
+      "intel": { "fit": "hot", "time_on_site": "4m 12s", "pages": 7, "first_seen": "9 min ago", "speed_to_lead_h": 0.1, "cost_per_lead": 12.9, "src_label": "Meta · Lead form (HVAC)", "site_status": "live · no capture", "pages_viewed": ["/hvac-leads/", "/pricing/", "/how-it-works/", "/sample-lead/"] },
+      "deal": null,
+      "messages": [
+        { "dir": "system", "body": "Lead created from Meta Lead Form “Exclusive HVAC Leads”.", "ts": "9 min ago" },
+        { "dir": "system", "body": "🔍 Website intel — live site, no lead-capture form, no chat. Fit: HOT. Pitch angle: they're paying for traffic and catching none of it.", "ts": "9 min ago" },
+        { "dir": "out", "channel": "sms", "body": "Hi Marcus, it's Andy at Consent Resolve — saw you grabbed our HVAC info. We turn the visitors your site already gets into real leads, $7 each. Want the 2-min version? (Reply STOP to opt out)", "ts": "8 min ago", "meta": "delivered" }
+      ]
+    },
+    {
+      "id": "c02", "source": "instantly", "channel": "email", "name": "Dana Reyes", "company": "Reyes Plumbing Co.",
+      "initials": "DR", "lifecycle": "Lead", "hot": false, "unread": true, "ts": "31 min ago", "snoozed": false,
+      "preview": "Cold outreach — no SMS/voice consent. Email-only earn-consent branch.",
+      "consent": { "email": "granted", "sms": "none", "voice": "none" },
+      "sequence": { "step": 2, "total": 3, "label": "Earn consent (email only)", "next_action": "Email 3 → preference center", "next_in_min": 1440, "status": "earn_consent" },
+      "sla": { "min": 31, "level": "ok" },
+      "intel": { "fit": "warm", "time_on_site": "—", "pages": 0, "first_seen": "cold list", "speed_to_lead_h": null, "cost_per_lead": null, "src_label": "Instantly · HVAC US v2", "site_status": "unknown", "pages_viewed": [] },
+      "deal": null,
+      "messages": [
+        { "dir": "out", "channel": "email", "body": "Subject: the visitors your site is losing\n\nQuick one — most plumbing sites lose the majority of the folks they pay to bring in. We hand the ones who opt in back to you, $7 each, never resold. Worth a look?", "ts": "3 days ago", "meta": "opened" },
+        { "dir": "out", "channel": "email", "body": "Subject: re: the visitors your site is losing\n\nCircling back — if it's useful, I can show it on your own site. No pressure either way.", "ts": "1 day ago", "meta": "sent" }
+      ]
+    },
+    {
+      "id": "c03", "source": "chatwoot", "channel": "chatwoot", "name": null, "company": null,
+      "initials": "?", "lifecycle": "Lead", "hot": false, "unread": true, "ts": "just now", "snoozed": false,
+      "preview": "“do you work with garage door companies?”",
+      "consent": { "email": "none", "sms": "none", "voice": "none" },
+      "sequence": { "step": 0, "total": 0, "label": "—", "next_action": "Awaiting a human", "next_in_min": null, "status": "none" },
+      "sla": { "min": 1, "level": "ok" },
+      "intel": { "fit": "warm", "time_on_site": "1m 30s", "pages": 3, "first_seen": "3 min ago", "speed_to_lead_h": null, "cost_per_lead": null, "src_label": "Chatwoot · site chat", "site_status": "—", "pages_viewed": ["/garage-door-leads/", "/pricing/"] },
+      "deal": null,
+      "messages": [
+        { "dir": "in", "channel": "chatwoot", "body": "do you work with garage door companies?", "ts": "just now" }
+      ]
+    },
+    {
+      "id": "c04", "source": "demo", "channel": "demo_form", "name": "Priya Nair", "company": "Nair Electric",
+      "initials": "PN", "lifecycle": "MQL", "hot": false, "unread": false, "ts": "1 hr ago", "snoozed": false,
+      "preview": "Signed up — onboarding: waiting on script install.",
+      "consent": { "email": "granted", "sms": "granted", "voice": "none" },
+      "sequence": { "step": 1, "total": 3, "label": "Onboarding → activation", "next_action": "Install reminder + concierge offer", "next_in_min": 1440, "status": "onboarding" },
+      "sla": { "min": 62, "level": "ok" },
+      "intel": { "fit": "hot", "time_on_site": "8m 40s", "pages": 11, "first_seen": "yesterday", "speed_to_lead_h": 0.2, "cost_per_lead": null, "src_label": "Site · demo signup", "site_status": "live · script NOT detected", "pages_viewed": ["/get-started/", "/pricing/", "/how-it-works/"] },
+      "deal": { "title": "Nair Electric — self-serve", "value_usd": 0, "prob": 38 },
+      "messages": [
+        { "dir": "system", "body": "Signed up via /get-started. PEWC checkbox: checked (email + SMS).", "ts": "1 hr ago" },
+        { "dir": "out", "channel": "email", "body": "Welcome! One step to go live: drop this line on your site. Want us to install it for you? Reply and we'll hop on a 10-min call.", "ts": "58 min ago", "meta": "opened" }
+      ]
+    },
+    {
+      "id": "c05", "source": "meta", "channel": "sms", "name": "Tomas Lang", "company": "Lang Roofing",
+      "initials": "TL", "lifecycle": "SQL", "hot": true, "unread": true, "ts": "6 min ago", "snoozed": false,
+      "preview": "“yeah I'm interested, how does it work?” — replied, sequence exited.",
+      "consent": { "email": "granted", "sms": "granted", "voice": "granted" },
+      "sequence": { "step": 1, "total": 4, "label": "Speed-to-lead", "next_action": "— exited: replied", "next_in_min": null, "status": "replied" },
+      "sla": { "min": 6, "level": "warn" },
+      "intel": { "fit": "hot", "time_on_site": "3m 05s", "pages": 5, "first_seen": "22 min ago", "speed_to_lead_h": 0.1, "cost_per_lead": 12.9, "src_label": "Meta · Lead form (Roofing)", "site_status": "live · has form", "pages_viewed": ["/roofing-leads/", "/pricing/"] },
+      "deal": { "title": "Lang Roofing", "value_usd": 0, "prob": 63 },
+      "messages": [
+        { "dir": "out", "channel": "sms", "body": "Hi Tomas, Andy at Consent Resolve — we turn your site visitors into $7 exclusive leads. Want the quick version? (Reply STOP to opt out)", "ts": "12 min ago", "meta": "delivered" },
+        { "dir": "in", "channel": "sms", "body": "yeah I'm interested, how does it work?", "ts": "6 min ago" }
+      ]
+    },
+    {
+      "id": "c06", "source": "meta", "channel": "ai_call", "name": "Gloria Bennett", "company": "Bennett Home Services",
+      "initials": "GB", "lifecycle": "MQL", "hot": false, "unread": true, "ts": "18 min ago", "snoozed": false,
+      "preview": "AI call → voicemail detected. Branched to email.",
+      "consent": { "email": "granted", "sms": "granted", "voice": "granted" },
+      "sequence": { "step": 3, "total": 4, "label": "Speed-to-lead", "next_action": "Email (call not answered)", "next_in_min": 2, "status": "voicemail" },
+      "sla": { "min": 18, "level": "warn" },
+      "intel": { "fit": "warm", "time_on_site": "2m 10s", "pages": 4, "first_seen": "40 min ago", "speed_to_lead_h": 0.3, "cost_per_lead": 12.9, "src_label": "Meta · Lead form", "site_status": "live", "pages_viewed": ["/handyman-leads/"] },
+      "deal": null,
+      "messages": [
+        { "dir": "out", "channel": "sms", "body": "Hi Gloria, Andy here — saw you were checking us out. Quick question when you have a sec. (STOP to opt out)", "ts": "35 min ago", "meta": "delivered" },
+        { "dir": "out", "channel": "ai_call", "body": "AI call placed (23s). AMD: voicemail. VM left: “Hi Gloria, this is the Consent Resolve team — this is an AI assistant — call or text us at (727) 202-5996.”", "ts": "18 min ago", "meta": "voicemail" }
+      ]
+    },
+    {
+      "id": "c07", "source": "instantly", "channel": "sms", "name": "Rick Osborne", "company": "Osborne Mechanical",
+      "initials": "RO", "lifecycle": "Lead", "hot": false, "unread": false, "ts": "2 hr ago", "snoozed": false,
+      "preview": "“STOP” — opted out. Suppressed on SMS. Sequence exited.",
+      "consent": { "email": "granted", "sms": "revoked", "voice": "revoked" },
+      "sequence": { "step": 2, "total": 4, "label": "Speed-to-lead", "next_action": "— exited: opted out", "next_in_min": null, "status": "opted_out" },
+      "sla": { "min": 0, "level": "ok" },
+      "intel": { "fit": "cold", "time_on_site": "—", "pages": 0, "first_seen": "cold list", "speed_to_lead_h": null, "cost_per_lead": null, "src_label": "Instantly · HVAC US v2", "site_status": "unknown", "pages_viewed": [] },
+      "deal": null,
+      "messages": [
+        { "dir": "out", "channel": "sms", "body": "Hi Rick, Andy at Consent Resolve — want to see who's visiting your site? (STOP to opt out)", "ts": "2 hr ago", "meta": "delivered" },
+        { "dir": "in", "channel": "sms", "body": "STOP", "ts": "2 hr ago", "meta": "suppressed" },
+        { "dir": "system", "body": "⛔ SMS + voice suppressed. Revocation recorded to the consent ledger.", "ts": "2 hr ago" }
+      ]
+    },
+    {
+      "id": "c08", "source": "meta", "channel": "sms", "name": "Sandra Cole", "company": "Cole & Sons Painting",
+      "initials": "SC", "lifecycle": "Lead", "hot": false, "unread": true, "ts": "24 min ago", "snoozed": false,
+      "preview": "⚠ SMS failed — carrier rejected (landline). Needs a human.",
+      "consent": { "email": "granted", "sms": "granted", "voice": "granted" },
+      "sequence": { "step": 1, "total": 4, "label": "Speed-to-lead", "next_action": "Paused — send failed", "next_in_min": null, "status": "failed" },
+      "sla": { "min": 24, "level": "bad" },
+      "intel": { "fit": "warm", "time_on_site": "1m 40s", "pages": 2, "first_seen": "30 min ago", "speed_to_lead_h": 0.4, "cost_per_lead": 12.9, "src_label": "Meta · Lead form", "site_status": "live", "pages_viewed": ["/painter-leads/"] },
+      "deal": null,
+      "messages": [
+        { "dir": "out", "channel": "sms", "body": "Hi Sandra, Andy at Consent Resolve…", "ts": "24 min ago", "meta": "failed · 30006 landline" },
+        { "dir": "system", "body": "⚠ SMS delivery failed (landline). Sequence paused — try email or call the number on file.", "ts": "24 min ago" }
+      ]
+    },
+    {
+      "id": "c09", "source": "site", "channel": "email", "name": "David Hendersen", "company": "Hendersen Construction",
+      "initials": "DH", "lifecycle": "Opportunity", "hot": false, "unread": false, "ts": "yesterday", "snoozed": false,
+      "preview": "Re: pricing for a 3-location GC — 40+ messages.",
+      "consent": { "email": "granted", "sms": "none", "voice": "none" },
+      "sequence": { "step": 4, "total": 4, "label": "Nurture", "next_action": "— human-owned", "next_in_min": null, "status": "active" },
+      "sla": { "min": 900, "level": "ok" },
+      "intel": { "fit": "hot", "time_on_site": "22m", "pages": 30, "first_seen": "3 weeks ago", "speed_to_lead_h": 0.5, "cost_per_lead": null, "src_label": "Site · organic", "site_status": "live · has form", "pages_viewed": ["/general-contractor-leads/", "/pricing/", "/compare/"] },
+      "deal": { "title": "Hendersen Construction — 3 locations", "value_usd": 6400, "prob": 63 },
+      "messages": [
+        { "dir": "in", "channel": "email", "body": "Following up — can you do a volume rate across our three offices?", "ts": "yesterday" },
+        { "dir": "out", "channel": "email", "body": "Absolutely. For three locations we'd… (thread of 40+)", "ts": "yesterday", "meta": "opened" }
+      ]
+    },
+    {
+      "id": "c10", "source": "manual", "channel": "email", "name": "Unknown", "company": null,
+      "initials": "U", "lifecycle": "Lead", "hot": false, "unread": true, "ts": "3 hr ago", "snoozed": false,
+      "preview": "jsmith88@gmail.com — no name, free email, no company matched.",
+      "consent": { "email": "granted", "sms": "none", "voice": "none" },
+      "sequence": { "step": 0, "total": 0, "label": "—", "next_action": "Awaiting a human", "next_in_min": null, "status": "none" },
+      "sla": { "min": 180, "level": "ok" },
+      "intel": { "fit": "unknown", "time_on_site": "—", "pages": 0, "first_seen": "3 hr ago", "speed_to_lead_h": null, "cost_per_lead": null, "src_label": "Manual · forwarded", "site_status": "—", "pages_viewed": [] },
+      "deal": null,
+      "messages": [
+        { "dir": "in", "channel": "email", "body": "hey saw your ad, what's the catch on the $7 thing", "ts": "3 hr ago" }
+      ]
+    },
+    {
+      "id": "c11", "source": "apollo", "channel": "identified", "name": "Karen Duval", "company": "Duval Comfort Systems",
+      "initials": "KD", "lifecycle": "Lead", "hot": false, "unread": false, "ts": "5 hr ago", "snoozed": false,
+      "preview": "⛓ Identified visitor — intel/retargeting only. No outreach.",
+      "consent": { "email": "na", "sms": "na", "voice": "na" },
+      "sequence": { "step": 0, "total": 0, "label": "—", "next_action": "— outreach blocked (identified)", "next_in_min": null, "status": "blocked" },
+      "sla": { "min": 0, "level": "ok" },
+      "intel": { "fit": "warm", "time_on_site": "5m 20s", "pages": 6, "first_seen": "5 hr ago", "speed_to_lead_h": null, "cost_per_lead": null, "src_label": "Apollo/Leadsy · identified", "site_status": "live", "pages_viewed": ["/hvac-leads/", "/pricing/", "/faq/"] },
+      "deal": null,
+      "messages": [
+        { "dir": "system", "body": "⛓ Visitor identified via Leadsy — NO consent to contact. Available for retargeting audiences + context only. Outreach actions are disabled.", "ts": "5 hr ago" }
+      ]
+    },
+    {
+      "id": "c12", "source": "meta", "channel": "email", "name": "Owen Frost", "company": "Frost Appliance Repair",
+      "initials": "OF", "lifecycle": "Lead", "hot": false, "unread": true, "ts": "44 min ago", "snoozed": false,
+      "preview": "Meta form had NO PEWC — treated as cold. Earn-consent email branch.",
+      "consent": { "email": "granted", "sms": "none", "voice": "none" },
+      "sequence": { "step": 1, "total": 3, "label": "Earn consent (email only)", "next_action": "Email → preference center", "next_in_min": 60, "status": "earn_consent" },
+      "sla": { "min": 44, "level": "ok" },
+      "intel": { "fit": "warm", "time_on_site": "2m", "pages": 3, "first_seen": "50 min ago", "speed_to_lead_h": 0.2, "cost_per_lead": 12.9, "src_label": "Meta · Lead form (no PEWC)", "site_status": "live", "pages_viewed": ["/appliance-repair-leads/"] },
+      "deal": null,
+      "messages": [
+        { "dir": "system", "body": "Lead form did not capture SMS/voice consent — routed to email-only earn-consent branch.", "ts": "44 min ago" }
+      ]
+    },
+    {
+      "id": "c13", "source": "site", "channel": "demo_form", "name": "Leah Cho", "company": "Cho Landscaping",
+      "initials": "LC", "lifecycle": "Opportunity", "hot": true, "unread": true, "ts": "12 min ago", "snoozed": false,
+      "preview": "🎉 Booked a demo — goal met, sequence exited.",
+      "consent": { "email": "granted", "sms": "granted", "voice": "granted" },
+      "sequence": { "step": 2, "total": 4, "label": "Speed-to-lead", "next_action": "— exited: booked", "next_in_min": null, "status": "booked" },
+      "sla": { "min": 12, "level": "ok" },
+      "intel": { "fit": "hot", "time_on_site": "6m", "pages": 9, "first_seen": "1 hr ago", "speed_to_lead_h": 0.1, "cost_per_lead": null, "src_label": "Site · demo signup", "site_status": "live", "pages_viewed": ["/lawn-care-leads/", "/get-started/"] },
+      "deal": { "title": "Cho Landscaping", "value_usd": 0, "prob": 88 },
+      "messages": [
+        { "dir": "out", "channel": "sms", "body": "Hi Leah! Andy at Consent Resolve — grab any time here to see it on your site: [link] (STOP to opt out)", "ts": "20 min ago", "meta": "delivered" },
+        { "dir": "in", "channel": "sms", "body": "booked the 2pm, thanks!", "ts": "12 min ago" },
+        { "dir": "system", "body": "🎉 Goal: booked. Sequence exited, deal moved to 76–99%.", "ts": "12 min ago" }
+      ]
+    },
+    {
+      "id": "c14", "source": "instantly", "channel": "email", "name": "Hector Alvarez", "company": "Alvarez Pest Control",
+      "initials": "HA", "lifecycle": "Lead", "hot": false, "unread": false, "ts": "snoozed · 2 days", "snoozed": true,
+      "preview": "Snoozed — asked to circle back next week.",
+      "consent": { "email": "granted", "sms": "none", "voice": "none" },
+      "sequence": { "step": 3, "total": 3, "label": "Earn consent (email only)", "next_action": "— snoozed 2d", "next_in_min": null, "status": "earn_consent" },
+      "sla": { "min": 0, "level": "ok" },
+      "intel": { "fit": "warm", "time_on_site": "—", "pages": 0, "first_seen": "cold list", "speed_to_lead_h": null, "cost_per_lead": null, "src_label": "Instantly · HVAC US v2", "site_status": "unknown", "pages_viewed": [] },
+      "deal": null,
+      "messages": [
+        { "dir": "in", "channel": "email", "body": "not now, circle back next week", "ts": "2 days ago" }
+      ]
+    }
+  ]
+}

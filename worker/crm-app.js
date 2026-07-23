@@ -36,7 +36,7 @@ const BOOTSTRAP = `<script>
 (async () => {
   var snap = {
     convs: window.DATA && window.DATA.conversations, counts: window.DATA && window.DATA.counts,
-    CL: window.CONSENT_LEDGER, CS: window.CONSENT_STATS, SEQ: window.SEQUENCES, SS: window.SITE_SOURCES, SPY: window.SITESPY, NUR: window.NURTURE
+    CL: window.CONSENT_LEDGER, CS: window.CONSENT_STATS, SEQ: window.SEQUENCES, SS: window.SITE_SOURCES, SPY: window.SITESPY, NUR: window.NURTURE, PIPE: window.PIPELINE
   };
   var d;
   try {
@@ -51,6 +51,7 @@ const BOOTSTRAP = `<script>
     if (d.SITE_SOURCES) window.SITE_SOURCES = d.SITE_SOURCES;
     if (d.SITESPY && d.SITESPY.visitors && d.SITESPY.visitors.length) window.SITESPY = d.SITESPY;
     if (d.NURTURE && d.NURTURE.pool && d.NURTURE.pool.length) window.NURTURE = d.NURTURE;
+    if (d.PIPELINE && d.PIPELINE.length) window.PIPELINE = d.PIPELINE;
     if (d.me && window.DATA) window.DATA.me = d.me;
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.DATA) {
       window.DATA.conversations = d.DATA_CONVERSATIONS;
@@ -60,6 +61,7 @@ const BOOTSTRAP = `<script>
     if (window.renderSequences) window.renderSequences();
     if ((d.SITE_SOURCES || d.SITESPY) && window.renderSiteSpy) window.renderSiteSpy();
     if (d.NURTURE && window.renderNurture) window.renderNurture();
+    if (d.PIPELINE && d.PIPELINE.length && window.renderPipeline) window.renderPipeline();
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.renderList) {
       window.renderList('open');
       if (window.recount) window.recount();

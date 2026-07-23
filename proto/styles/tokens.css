@@ -1,0 +1,64 @@
+/* CRM rebuild — design tokens (single source of truth).
+   Two candidate themes via data-theme; dark is default. Source-chip hues are
+   IDENTICAL across both themes (brand identity), only surfaces/text flip. */
+
+:root, :root[data-theme="dark"] {
+  /* surfaces (4-step elevation) */
+  --s0:#070e18; --s1:#0b1728; --s2:#10203552; --s2s:#122844; --s3:#16304e;
+  --surface-0:#070e18; --surface-1:#0c1a2c; --surface-2:#102338; --surface-3:#16304e;
+  /* text (3-step) */
+  --tx-1:#f1f6fa; --tx-2:#aab9c8; --tx-3:#66788b;
+  /* structure */
+  --line:rgba(148,163,184,.14); --line-2:rgba(148,163,184,.26);
+  /* action + semantic (semantic is SEPARATE from the mint accent) */
+  --accent:#00e5a0; --accent-hi:#2ff2b6; --on-accent:#04120b; --accent-soft:rgba(0,229,160,.12);
+  --good:#34d399; --good-soft:rgba(52,211,153,.14);
+  --warn:#f6b64b; --warn-soft:rgba(246,182,75,.15);
+  --bad:#f6708a; --bad-soft:rgba(246,112,138,.15);
+  --shadow:0 18px 44px -22px rgba(0,0,0,.75);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.35);
+  --shadow-card:0 1px 3px rgba(0,0,0,.4);
+  --hover:rgba(148,163,184,.07);
+  --focus:rgba(0,229,160,.55);
+}
+:root[data-theme="light"] {
+  --surface-0:#eef2f6; --surface-1:#ffffff; --surface-2:#f5f8fb; --surface-3:#eaf0f6;
+  --tx-1:#0e1c2e; --tx-2:#48586a; --tx-3:#8496a6;
+  --line:rgba(15,32,53,.11); --line-2:rgba(15,32,53,.2);
+  --accent:#00b985; --accent-hi:#00a877; --on-accent:#ffffff; --accent-soft:rgba(0,185,133,.12);
+  --good:#0f9d6b; --good-soft:rgba(15,157,107,.12);
+  --warn:#b9791a; --warn-soft:rgba(185,121,26,.14);
+  --bad:#d34b66; --bad-soft:rgba(211,75,102,.12);
+  --shadow:0 18px 44px -26px rgba(15,32,53,.28);
+  --shadow-sm:0 1px 2px rgba(15,32,53,.06);
+  --shadow-card:0 1px 2px rgba(15,32,53,.05),0 4px 12px -6px rgba(15,32,53,.08);
+  --hover:rgba(15,32,53,.04);
+  --focus:rgba(0,185,133,.5);
+}
+
+/* source-chip palette — same hue in BOTH themes, incl. charts */
+:root {
+  --src-meta:#4c8dff;      --src-meta-soft:rgba(76,141,255,.16);
+  --src-instantly:#a884ff; --src-instantly-soft:rgba(168,132,255,.16);
+  --src-chatwoot:#28c5c0;  --src-chatwoot-soft:rgba(40,197,192,.16);
+  --src-site:#33cf7a;      --src-site-soft:rgba(51,207,122,.16);
+  --src-apollo:#f0b23c;    --src-apollo-soft:rgba(240,178,60,.16);
+  --src-manual:#93a3b5;    --src-manual-soft:rgba(147,163,181,.16);
+
+  /* type */
+  --font-sans:"Hanken Grotesk",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-display:"Bricolage Grotesque",var(--font-sans);
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --t-11:11px; --t-12:12px; --t-13:13px; --t-14:14px; --t-16:16px; --t-19:19px; --t-24:24px; --t-32:32px;
+
+  /* spacing / radius */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px;
+  --r-1:6px; --r-2:9px; --r-3:13px; --r-full:999px;
+  --motion:150ms;
+}
+
+* { box-sizing:border-box }
+body { margin:0; background:var(--surface-0); color:var(--tx-1);
+  font-family:var(--font-sans); font-size:var(--t-14); line-height:1.5; -webkit-font-smoothing:antialiased; }
+.mono, .num { font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+@media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} }

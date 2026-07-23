@@ -314,6 +314,41 @@ export async function onRequestGet({ request, env }) {
     };
   } catch (_) {}
 
+  // ---- Pipeline (real deals -> kanban stages) ----
+  let PIPELINE = null;
+  try {
+    const OWCOL = ["#00b985", "#3b82f6", "#8b5cf6", "#f59e0b", "#ef4444", "#0ea5e9"];
+    const hashStr = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return h; };
+    const rows = (await env.DB.prepare(
+      `SELECT d.id, d.title, d.value_cents, d.close_probability, d.lead_status,
+              ct.full_name, co.name AS company, u.name AS owner_name
+       FROM deals d
+       LEFT JOIN contacts ct ON ct.id = d.primary_contact_id
+       LEFT JOIN companies co ON co.id = d.company_id
+       LEFT JOIN users u ON u.id = d.owner_id
+       ORDER BY d.value_cents DESC LIMIT 120`
+    ).all()).results || [];
+    const stageOf = (r) => {
+      const s = (r.lead_status || "").toLowerCase();
+      if (s === "lost") return "lost";
+      const p = r.close_probability == null ? 0 : Number(r.close_probability);
+      if (s === "won" || p >= 75) return "active";
+      if (p >= 40) return "trial";
+      return "new";
+    };
+    PIPELINE = rows.map((r, i) => {
+      const nm = r.full_name || r.title || "Untitled deal";
+      const ownNm = r.owner_name || "";
+      return {
+        id: r.id, name: nm, company: r.company || "",
+        value_usd: Math.round((r.value_cents || 0) / 100),
+        prob: r.close_probability == null ? null : Number(r.close_probability),
+        stage: stageOf(r),
+        owner: ownNm ? { init: inits(ownNm), name: ownNm, color: OWCOL[Math.abs(hashStr(ownNm)) % OWCOL.length] } : null,
+      };
+    });
+  } catch (_) {}
+
   // Data-source registry (Site Spy / Nurture transparency + extensibility).
   let SITE_SOURCES = null;
   try { SITE_SOURCES = await computeSources(env); } catch (_) {}
@@ -324,7 +359,7 @@ export async function onRequestGet({ request, env }) {
     CONSENT_LEDGER, CONSENT_STATS, consentSummary,
     SEQUENCES,
     DATA_CONVERSATIONS, DATA_COUNTS,
-    SITESPY, NURTURE, SITE_SOURCES,
+    SITESPY, NURTURE, SITE_SOURCES, PIPELINE,
     inbox: { buckets },
     funnel,
     generated_at: new Date().toISOString(),
