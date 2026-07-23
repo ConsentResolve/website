@@ -58,6 +58,9 @@ import * as crmPresence from "./api/crm-presence.js";
 import * as crmContact from "./api/crm-contact.js";
 import * as crmMerge from "./api/crm-merge.js";
 import * as crmDemoNotify from "./api/crm-demo-notify.js";
+import * as crmRebuildMigrate from "./api/crm-rebuild-migrate.js";
+import * as crmWorkflow from "./api/crm-workflow.js";
+import { tick as workflowTick } from "./_lib/workflow-engine.js";
 import { sweepDemoNotifications } from "./_lib/demo-notify.js";
 import { autoEnrichSweep } from "./_lib/apollo.js";
 import { metaConfigured, syncMetaSpend } from "./_lib/meta.js";
@@ -136,6 +139,8 @@ const ROUTES = {
   "/api/crm/contact": crmContact,
   "/api/crm/merge": crmMerge,
   "/api/crm/demo-notify": crmDemoNotify,
+  "/api/crm/rebuild/migrate": crmRebuildMigrate,
+  "/api/crm/workflow": crmWorkflow,
   "/api/crm/auth/login": crmAuth,
   "/api/crm/auth/callback": crmAuth,
   "/api/crm/auth/logout": crmAuth,
@@ -321,6 +326,14 @@ export default {
         }
       } catch (err) {
         console.log(`[apollo-auto] error: ${String(err).slice(0, 160)}`);
+      }
+      // Follow-up engine tick (CRM rebuild): auto-enroll new leads + fire due sequence
+      // steps. DORMANT unless WORKFLOW_ENGINE_ENABLED=true — no-op otherwise.
+      try {
+        const wf = await workflowTick(env);
+        if (wf && !wf.skipped) console.log(`[workflow] enroll ${wf.autoEnroll?.enrolled || 0}, process ${JSON.stringify(wf.process)}`);
+      } catch (err) {
+        console.log(`[workflow] error: ${String(err).slice(0, 160)}`);
       }
       // Meta ad-spend sync (~4×/day): pull live spend into crm_spend so cost-per-lead +
       // ROAS reflect real numbers. Idempotent per calendar month.
