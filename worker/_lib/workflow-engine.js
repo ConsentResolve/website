@@ -117,7 +117,8 @@ function emailShell(greeting, body, c) {
 }
 
 // ---- Providers ------------------------------------------------------------
-async function sendResend(env, { to, subject, html, text }) {
+async function sendResend(env, { to, subject, html, text }, dry) {
+  if (dry) return { ok: true, id: "dry-preview", dry: true, preview: { to, subject } };
   if (!env.RESEND_API_KEY) return { ok: false, error: "missing_resend_key" };
   const from = env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>";
   const r = await fetch("https://api.resend.com/emails", {
@@ -130,7 +131,8 @@ async function sendResend(env, { to, subject, html, text }) {
   return { ok: true, id: j.id };
 }
 // HOLD-FOR-MORNING: Telnyx SMS. Coded; inert until TELNYX_API_KEY + 10DLC approval.
-async function sendTelnyxSms(env, { to, text }) {
+async function sendTelnyxSms(env, { to, text }, dry) {
+  if (dry) return { ok: true, id: "dry-preview", dry: true, preview: { to, text } };
   if (!env.TELNYX_API_KEY || !env.TELNYX_FROM_NUMBER) return { ok: false, error: "telnyx_not_configured", hold: true };
   const r = await fetch("https://api.telnyx.com/v2/messages", {
     method: "POST",
@@ -141,7 +143,8 @@ async function sendTelnyxSms(env, { to, text }) {
   return r.ok ? { ok: true, id: j?.data?.id } : { ok: false, error: `telnyx_${r.status}` };
 }
 // HOLD-FOR-MORNING: Retell AI voice. Coded; inert until RETELL_API_KEY.
-async function placeRetellCall(env, { to, script }) {
+async function placeRetellCall(env, { to, script }, dry) {
+  if (dry) return { ok: true, id: "dry-preview", dry: true, preview: { to } };
   if (!env.RETELL_API_KEY || !env.RETELL_AGENT_ID || !env.RETELL_FROM_NUMBER) return { ok: false, error: "retell_not_configured", hold: true };
   const r = await fetch("https://api.retellai.com/v2/create-phone-call", {
     method: "POST",
@@ -211,16 +214,16 @@ async function handleGoalEvent(env, { contactId, goal }) {
 
 // ---- The cron tick --------------------------------------------------------
 // Process every run whose next step is due. Returns a summary.
-async function processDueRuns(env, { limit = 50 } = {}) {
-  if (!enabled(env)) return { skipped: "disabled" };
+async function processDueRuns(env, { limit = 50, dry = false } = {}) {
+  if (!dry && !enabled(env)) return { skipped: "disabled" };
   await ensureRebuildSchema(env); await seedWorkflows(env);
   const now = nowIso();
   const due = (await env.DB.prepare(
     "SELECT * FROM workflow_runs WHERE status='active' AND next_run_at IS NOT NULL AND next_run_at<=? ORDER BY next_run_at ASC LIMIT ?"
   ).bind(now, limit).all()).results || [];
-  const out = { processed: 0, emailed: 0, skipped: 0, deferred: 0, exited: 0, completed: 0 };
+  const out = { processed: 0, emailed: 0, skipped: 0, deferred: 0, exited: 0, completed: 0, dry };
   for (const run of due) {
-    try { await stepRun(env, run, out); } catch (e) {
+    try { await stepRun(env, run, out, dry); } catch (e) {
       await env.DB.prepare("UPDATE workflow_runs SET last_error=?, updated_at=? WHERE id=?").bind(String(e).slice(0, 200), now, run.id).run();
     }
     out.processed++;
@@ -228,7 +231,7 @@ async function processDueRuns(env, { limit = 50 } = {}) {
   return out;
 }
 
-async function stepRun(env, run, out) {
+async function stepRun(env, run, out, dry) {
   const wf = await env.DB.prepare("SELECT * FROM workflows WHERE id=?").bind(run.workflow_id).first();
   const steps = JSON.parse(wf?.definition || "[]");
   let idx = run.current_step;
@@ -264,7 +267,7 @@ async function stepRun(env, run, out) {
     }
 
     // Execute the action.
-    const res = await executeStep(env, run, c, step, idx, out);
+    const res = await executeStep(env, run, c, step, idx, out, dry);
     if (res === "exit") return;
     // schedule the NEXT step (if any) after its delay; else complete.
     const next = steps[idx + 1];
@@ -276,27 +279,27 @@ async function stepRun(env, run, out) {
   await completeRun(env, run, "completed"); out.completed++;
 }
 
-async function executeStep(env, run, c, step, idx, out) {
+async function executeStep(env, run, c, step, idx, out, dry) {
   const t = tpl(step.template, c);
   let res, type, cost = 0;
   if (step.action === "send_email") {
     if (!c.email) { await logStep(env, run, idx, "email", step.action, "skipped", "no_email"); out.skipped++; return; }
-    res = await sendResend(env, { to: c.email, subject: t.subject, html: t.html, text: t.text });
-    type = "email_sent";
-    await maybeCreateMessage(env, run, c, "email", t.subject, t.html);
+    res = await sendResend(env, { to: c.email, subject: t.subject, html: t.html, text: t.text }, dry);
+    type = dry ? "email_preview" : "email_sent";
+    if (!dry) await maybeCreateMessage(env, run, c, "email", t.subject, t.html);
   } else if (step.action === "send_sms") {
     if (!c.phone) { await logStep(env, run, idx, "sms", step.action, "skipped", "no_phone"); out.skipped++; return; }
-    res = await sendTelnyxSms(env, { to: c.phone, text: t.text });
-    type = "sms_sent"; cost = 1; // ~$0.0085/seg → tracked in cents rounded to 1 for now
+    res = await sendTelnyxSms(env, { to: c.phone, text: t.text }, dry);
+    type = dry ? "sms_preview" : "sms_sent"; cost = dry ? 0 : 1; // ~$0.0085/seg → tracked in cents rounded to 1 for now
   } else if (step.action === "place_ai_call") {
     if (!c.phone) { await logStep(env, run, idx, "voice", step.action, "skipped", "no_phone"); out.skipped++; return; }
-    res = await placeRetellCall(env, { to: c.phone, script: t.script });
-    type = "call_placed"; cost = 10;
+    res = await placeRetellCall(env, { to: c.phone, script: t.script }, dry);
+    type = dry ? "call_preview" : "call_placed"; cost = dry ? 0 : 10;
   } else { await logStep(env, run, idx, step.channel, step.action, "skipped", "unknown_action"); out.skipped++; return; }
 
   if (res.ok) {
-    await logStep(env, run, idx, step.channel, step.action, "sent", res.id || "");
-    await logEvent(env, { type, contactId: run.contact_id, conversationId: run.conversation_id, workflowRunId: run.id, channel: step.channel, costCents: cost, meta: { step: idx, provider_id: res.id, template: step.template } });
+    await logStep(env, run, idx, step.channel, step.action, dry ? "preview" : "sent", res.id || "");
+    await logEvent(env, { type, contactId: run.contact_id, conversationId: run.conversation_id, workflowRunId: run.id, channel: step.channel, costCents: cost, meta: { step: idx, provider_id: res.id, template: step.template, dry: dry || undefined, preview: res.preview } });
     if (step.action === "send_email") out.emailed++;
   } else if (res.hold) {
     // Provider not configured yet (Telnyx/Retell) → treat as skipped, keep sequence moving.
