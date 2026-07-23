@@ -270,6 +270,50 @@ export async function onRequestGet({ request, env }) {
     }
   } catch (_) {}
 
+  // ---- Nurture pool (dormant contacts + intent, from crm_events) ----
+  let NURTURE = null;
+  try {
+    const DORMANT_DAYS = 14, DAY = 864e5, now2 = Date.now();
+    const daysAgo = (iso) => (iso ? Math.floor((now2 - Date.parse(iso)) / DAY) : 999);
+    const agg = (await env.DB.prepare(
+      `SELECT e.contact_id,
+         SUM(CASE WHEN e.type='email_opened' THEN 1 ELSE 0 END) opens,
+         SUM(CASE WHEN e.type='link_clicked' THEN 1 ELSE 0 END) clicks,
+         SUM(CASE WHEN e.type='site_visit' THEN 1 ELSE 0 END) visits,
+         MAX(CASE WHEN e.type NOT IN ('site_visit','link_clicked','email_opened') THEN e.occurred_at END) last_engage,
+         MAX(CASE WHEN e.type IN ('site_visit','link_clicked') THEN e.occurred_at END) last_intent,
+         c.full_name, c.source, co.name company
+       FROM crm_events e
+       LEFT JOIN contacts c ON c.id = e.contact_id
+       LEFT JOIN companies co ON co.id = c.company_id
+       WHERE e.contact_id IS NOT NULL
+       GROUP BY e.contact_id`
+    ).all()).results || [];
+    const activeRun = new Set();
+    for (const x of (await env.DB.prepare("SELECT DISTINCT contact_id FROM workflow_runs WHERE status='active'").all()).results || []) activeRun.add(x.contact_id);
+    const dormant = agg.filter((r) => r.source !== "apollo" && r.last_engage && daysAgo(r.last_engage) >= DORMANT_DAYS && !activeRun.has(r.contact_id));
+    const CH = ["email"]; // default keep-warm channel (SMS needs a PEWC lookup — kept honest)
+    const pool = dormant.map((r) => ({
+      name: r.full_name || "Unknown", company: r.company || "", source: srcMap[r.source] || "manual",
+      channels: CH, cadence: "Monthly", last: humanTime(r.last_engage), next: "—",
+      opens: r.opens || 0, clicks: r.clicks || 0, visits: r.visits || 0,
+      dormant: daysAgo(r.last_engage), status: "dormant",
+    })).sort((a, b) => a.dormant - b.dormant);
+    const reengaging = dormant.filter((r) => r.last_intent && daysAgo(r.last_intent) <= 2).map((r) => ({
+      name: r.full_name || "Unknown", company: r.company || "", source: srcMap[r.source] || "manual", channels: CH,
+      signal: { kind: (r.clicks || 0) > (r.visits || 0) ? "click" : "visit",
+                text: (r.visits || 0) > 0 ? "Came back to the site" : "Clicked a link in our email",
+                when: humanTime(r.last_intent) },
+      seq: { step: 0, of: 3, done: "Intent detected", next: "Turn the engine on to auto-fire the re-engage sequence" },
+      dormant: daysAgo(r.last_engage),
+    }));
+    NURTURE = {
+      stats: { total: pool.length, added7: dormant.filter((r) => daysAgo(r.last_engage) < DORMANT_DAYS + 7).length,
+               cadence: pool.length, reengaging: reengaging.length, wonBack: 0, next7: 0 },
+      reengaging, pool: pool.slice(0, 40),
+    };
+  } catch (_) {}
+
   // Data-source registry (Site Spy / Nurture transparency + extensibility).
   let SITE_SOURCES = null;
   try { SITE_SOURCES = await computeSources(env); } catch (_) {}
@@ -280,7 +324,7 @@ export async function onRequestGet({ request, env }) {
     CONSENT_LEDGER, CONSENT_STATS, consentSummary,
     SEQUENCES,
     DATA_CONVERSATIONS, DATA_COUNTS,
-    SITESPY, SITE_SOURCES,
+    SITESPY, NURTURE, SITE_SOURCES,
     inbox: { buckets },
     funnel,
     generated_at: new Date().toISOString(),
