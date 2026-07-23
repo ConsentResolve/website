@@ -142,11 +142,89 @@ export async function onRequestGet({ request, env }) {
     funnel[t] = firstRow(await env.DB.prepare("SELECT COUNT(DISTINCT contact_id) n FROM crm_events WHERE type=?").bind(t).all())?.n || 0;
   }
 
+  // ---- Inbox conversations (DATA.conversations shape) ----
+  const convRows = (await env.DB.prepare(
+    `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview,
+            ct.id contact_id, ct.full_name, ct.primary_email, ct.source, ct.lifecycle_stage, co.name company
+       FROM conversations cv
+       LEFT JOIN contacts ct ON ct.id = cv.contact_id
+       LEFT JOIN companies co ON co.id = ct.company_id
+      ORDER BY cv.last_message_at DESC LIMIT 60`
+  ).all()).results || [];
+  const convIds = convRows.map((r) => r.id);
+  const contactIds = [...new Set(convRows.map((r) => r.contact_id).filter(Boolean))];
+  const ph = (arr) => (arr.length ? `(${arr.map(() => "?").join(",")})` : "(NULL)");
+  const msgsByConv = new Map();
+  if (convIds.length) {
+    const msgs = (await env.DB.prepare(
+      `SELECT conversation_id, direction, channel, body_text, body_html, sent_at
+         FROM messages WHERE conversation_id IN ${ph(convIds)} ORDER BY sent_at ASC`
+    ).bind(...convIds).all()).results || [];
+    for (const m of msgs) { const a = msgsByConv.get(m.conversation_id) || []; a.push(m); msgsByConv.set(m.conversation_id, a); }
+  }
+  const consentByCt = new Map(), dealByCt = new Map(), runByCt = new Map();
+  if (contactIds.length) {
+    for (const cr of (await env.DB.prepare(`SELECT contact_id, channel, action FROM consent_records WHERE contact_id IN ${ph(contactIds)} ORDER BY occurred_at ASC`).bind(...contactIds).all()).results || []) {
+      const s = consentByCt.get(cr.contact_id) || {}; s[cr.channel] = cr.action; consentByCt.set(cr.contact_id, s);
+    }
+    for (const d of (await env.DB.prepare(`SELECT primary_contact_id, title, value_cents, close_probability FROM deals WHERE primary_contact_id IN ${ph(contactIds)}`).bind(...contactIds).all()).results || []) {
+      if (!dealByCt.has(d.primary_contact_id)) dealByCt.set(d.primary_contact_id, d);
+    }
+    for (const r of (await env.DB.prepare(`SELECT r.contact_id, r.status, r.current_step, r.exit_reason, w.name FROM workflow_runs r JOIN workflows w ON w.id=r.workflow_id WHERE r.contact_id IN ${ph(contactIds)}`).bind(...contactIds).all()).results || []) {
+      if (!runByCt.has(r.contact_id)) runByCt.set(r.contact_id, r);
+    }
+  }
+  const srcMap = { meta: "meta", instantly: "instantly", crisp: "chatwoot", chatwoot: "chatwoot", site: "site", demo: "demo", apollo: "apollo", manual: "manual" };
+  const lifeMap = { lead: "Lead", mql: "MQL", sql: "SQL", opportunity: "Opportunity", customer: "Customer" };
+  const srcLabelMap = { meta: "Meta · Lead form", instantly: "Instantly · cold email", chatwoot: "Chatwoot · site chat", site: "Site · demo signup", demo: "Demo signup", apollo: "Apollo · identified", manual: "Manual" };
+  const stripHtml = (h) => (h || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const inits = (n) => (n ? n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase() : "?");
+  const DATA_CONVERSATIONS = convRows.map((r) => {
+    const src = srcMap[r.source] || "manual";
+    const channel = r.channel === "crisp" ? "chatwoot" : "email";
+    const cst = consentByCt.get(r.contact_id) || {};
+    const consent = { email: cst.email || "none", sms: cst.sms || "none", voice: cst.voice || "none" };
+    const run = runByCt.get(r.contact_id), deal = dealByCt.get(r.contact_id);
+    const unread = !!r.unread;
+    const mins = r.last_message_at ? Math.max(0, Math.round((Date.now() - Date.parse(r.last_message_at)) / 60000)) : 0;
+    const bucket = run && run.status === "active" ? "auto" : r.status === "archived" ? "suppressed" : r.status === "snoozed" ? "snoozed" : "open";
+    const cmsgs = (msgsByConv.get(r.id) || []).map((m) => ({
+      dir: m.direction === "in" ? "in" : "out", channel: m.channel === "crisp" ? "chatwoot" : m.channel,
+      body: m.body_text || stripHtml(m.body_html) || "", ts: humanTime(m.sent_at), meta: "",
+    }));
+    const seqTotal = run && /earn/i.test(run.name || "") ? 3 : 4;
+    return {
+      id: r.id, bucket, source: src, channel,
+      name: r.full_name || "Unknown", company: r.company || null, contact_email: r.primary_email || null,
+      initials: inits(r.full_name), lifecycle: lifeMap[r.lifecycle_stage] || "Lead",
+      hot: false, unread, ts: humanTime(r.last_message_at) || "—",
+      email_subject: channel === "email" ? (r.subject || "") : undefined,
+      task: unread ? { tag: "do", text: "New message — reply.", cta: "Reply" } : { tag: "auto", text: "No action needed right now.", cta: "" },
+      last: { label: r.last_message_preview || "Activity on this conversation", ts: humanTime(r.last_message_at) || "—", tone: "info" },
+      next: unread ? { kind: "you", label: "Reply", when: "now", tone: "act" } : { kind: "auto", label: "Waiting on them", when: "—", tone: "muted" },
+      consent,
+      sequence: run
+        ? { step: (run.current_step || 0) + 1, total: seqTotal, label: run.name || "Sequence", status: run.exit_reason || (run.status === "active" ? "active" : "none") }
+        : { step: 0, total: 0, label: "—", status: "none" },
+      sla: { min: mins, level: unread ? (mins > 15 ? "bad" : mins > 5 ? "warn" : "none") : "none" },
+      intel: { fit: "unknown", time_on_site: "—", pages: 0, first_seen: humanTime(r.last_message_at) || "—", speed_to_lead_h: null, cost_per_lead: null, src_label: srcLabelMap[src] || "Lead", site_status: "—", pages_viewed: [] },
+      deal: deal ? { title: deal.title || r.company || r.full_name || "Deal", value_usd: Math.round((deal.value_cents || 0) / 100), prob: deal.close_probability || 63 } : null,
+      messages: cmsgs.length ? cmsgs : [{ dir: "system", body: "No messages on this conversation yet.", ts: humanTime(r.last_message_at) || "" }],
+    };
+  });
+  const DATA_COUNTS = {
+    open: DATA_CONVERSATIONS.filter((c) => c.bucket === "open").length,
+    auto: DATA_CONVERSATIONS.filter((c) => c.bucket === "auto").length,
+    snoozed: DATA_CONVERSATIONS.filter((c) => c.bucket === "snoozed").length,
+    all: DATA_CONVERSATIONS.length,
+  };
+
   return json({
     ok: true,
     me: me ? { name: me.name, email: me.email, role: me.role } : null,
     CONSENT_LEDGER, CONSENT_STATS, consentSummary,
     SEQUENCES,
+    DATA_CONVERSATIONS, DATA_COUNTS,
     inbox: { buckets },
     funnel,
     generated_at: new Date().toISOString(),

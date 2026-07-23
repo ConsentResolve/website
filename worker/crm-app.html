@@ -1675,7 +1675,7 @@ function prow(status,k,v,link,tone){
 function xtile(v,k){return `<div class="xtile"><div class="v">${esc(String(v))}</div><div class="k">${k}</div></div>`;}
 function adsTxt(a){if(!a)return"not running";const p=[];if(a.google)p.push("Google Ads");if(a.lsa)p.push("LSA");return p.length?p.join(" + "):"not running";}
 function intelCard(c){
-  const it=c.intel, e=window.ENRICH[c.id];
+  const it=c.intel, e=((window.ENRICH||{})[c.id]||{});
   const fitRow=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span class="fit ${it.fit}">${it.fit.toUpperCase()}</span><span style="font-size:var(--t-12);color:var(--tx-2)">${esc(it.src_label)}</span></div>`;
   if(!e) return `<div class="card"><h4>Fit &amp; site — auto-verified</h4>${fitRow}
     <div class="noenrich" style="margin-top:8px">No public profile matched yet — need a name or company.<button class="mini">Run lookup ▸</button></div></div>`;
@@ -1851,6 +1851,8 @@ function showView(v){
 window.showView=showView;
 window.renderConsent=renderConsent; // exposed for the live-data bootstrap (fixture→fetch)
 window.renderSequences=renderSequences;
+window.renderList=renderList;
+window.recount=recount;
 function openFromPipeline(id){ showView('inbox'); select(id); }
 window.openFromPipeline=openFromPipeline;
 
@@ -2235,7 +2237,7 @@ function idRow(status,label,value,link){
 }
 function icardD(title,src,body){return `<div class="icard"><div class="icard-h"><h4>${title}</h4><span class="isrc">${src}</span></div>${body}</div>`;}
 function intelDashboard(c){
-  const e=window.ENRICH[c.id], x=(window.INTEL||{})[c.id]||{}, d=(window.DIRECTORY||{})[c.id]||{}, it=c.intel, ph=PHONES[c.id];
+  const e=((window.ENRICH||{})[c.id]||{}), x=(window.INTEL||{})[c.id]||{}, d=(window.DIRECTORY||{})[c.id]||{}, it=c.intel, ph=PHONES[c.id];
   const fit=`<span class="fit ${it.fit}">${it.fit.toUpperCase()}</span>`;
   if(!e){
     return `<div class="intel-dash"><div class="idash-hero"><div class="idh-title">${fit}${esc(c.name||'Unknown')}</div>
