@@ -114,6 +114,24 @@ full PEWC, treat those as email-only until re-consented (change is in
 
 ---
 
+## Jobber integration (Andy — shipped in this deploy, inert until set up)
+
+Andy's Jobber integration (`origin/partner-integrations-test`, commit `bbea6eb4`) was
+cherry-picked onto this branch and ships in the same deploy. It's **inert until its
+secrets exist** and only adds `/api/partners/jobber/*` routes — deploying it changes
+nothing that exists today. To activate it (Andy, when ready):
+1. Create the app at **developer.getjobber.com**; scopes: clients read/write.
+2. OAuth callback: `https://consentresolve.com/api/partners/jobber/callback`;
+   Webhook URL: `https://consentresolve.com/api/partners/jobber/webhook` (subscribe at
+   least to `APP_DISCONNECT`).
+3. `wrangler secret put JOBBER_CLIENT_ID` and `JOBBER_CLIENT_SECRET`.
+4. Visit `/api/partners/jobber/auth` from a signed-in `/crm` session to connect.
+Docs: `docs/crm/PARTNER-INTEGRATIONS.md`. Verify after deploy:
+`GET /api/partners/jobber/status` should return "not configured" until step 3.
+
+**Do NOT adopt** the `update_worker_name_to_consentresolve-website` branch tonight — it
+renames the Worker (new Worker + route re-pointing); separate careful task.
+
 ## Remaining work (the honest next steps, in order)
 
 1. **Per-screen fixture→fetch swap** (Task: "Serve frozen frontend wired to real endpoints").
