@@ -2019,13 +2019,33 @@ function pipeDrop(e,stage){e.preventDefault();e.currentTarget.classList.remove('
 function pipeOver(e){e.preventDefault();e.currentTarget.classList.add('dragover');}
 function pipeLeave(e){e.currentTarget.classList.remove('dragover');}
 window.pipeDrag=pipeDrag;window.pipeDrop=pipeDrop;window.pipeOver=pipeOver;window.pipeLeave=pipeLeave;
+/* live-data drop: persists the stage change to the real deal via POST /api/crm/deals.
+   Column -> {lead_status, close_probability} mapping; optimistic re-render, revert on failure. */
+function pipeDropReal(e,stage){
+  e.preventDefault(); e.currentTarget.classList.remove('dragover');
+  const id=dragId; dragId=null;
+  if(!id||!window.PIPELINE) return;
+  const d=window.PIPELINE.find(x=>x.id===id);
+  if(!d||d.stage===stage) return;
+  const map={lost:{lead_status:'lost'},'new':{lead_status:'active',close_probability:20},trial:{lead_status:'active',close_probability:50},active:{lead_status:'active',close_probability:85}};
+  const payload=map[stage]; if(!payload) return;
+  const prev={stage:d.stage,prob:d.prob,status:d.status};
+  d.stage=stage; d.status=payload.lead_status;
+  if(payload.close_probability!=null) d.prob=payload.close_probability;
+  renderPipeline();
+  fetch('/api/crm/deals',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({id},payload))})
+    .then(r=>{ if(!r.ok) throw new Error('http '+r.status); return r.json(); })
+    .then(j=>{ if(!j||j.ok!==true) throw new Error('bad response'); })
+    .catch(err=>{ d.stage=prev.stage; d.prob=prev.prob; d.status=prev.status; renderPipeline(); if(window.console) console.warn('deal update failed, reverted',err); alert('Could not save that move — reverted.'); });
+}
+window.pipeDropReal=pipeDropReal;
 /* live-data pipeline: real deals grouped by stage (view-only; editing needs an endpoint) */
 function renderPipelineReal(el,P){
   const cols=PSTAGES.map(([k,l])=>{
     const items=P.filter(d=>d.stage===k);
     const sum=items.reduce((a,d)=>a+(d.value_usd||0),0);
-    const cards=items.map(d=>`<div class="pcard" onclick="showView('inbox')"><div class="pc-top"><span class="pc-name">${esc(d.name||'Unknown')}</span>${d.owner?`<span class="oav-sm" style="background:${d.owner.color}">${esc(d.owner.init)}</span>`:''}</div><div class="pc-co">${esc(d.company||'—')}</div><div class="pc-val">$${(d.value_usd||0).toLocaleString()}${d.prob!=null?`<span> · ${d.prob}%</span>`:''}</div></div>`).join('')||`<div class="pcol-empty">No deals</div>`;
-    return `<div class="pcol ${k}"><div class="pcol-h"><span class="pcol-t">${l}</span><span class="pcol-c">${items.length}</span><span class="pcol-sum">$${sum.toLocaleString()}</span></div><div class="pcol-body">${cards}</div></div>`;
+    const cards=items.map(d=>`<div class="pcard" draggable="true" ondragstart="pipeDrag(event,'${d.id}')" onclick="showView('inbox')"><div class="pc-top"><span class="pc-name">${esc(d.name||'Unknown')}</span>${d.owner?`<span class="oav-sm" style="background:${d.owner.color}">${esc(d.owner.init)}</span>`:''}</div><div class="pc-co">${esc(d.company||'—')}</div><div class="pc-val">$${(d.value_usd||0).toLocaleString()}${d.prob!=null?`<span> · ${d.prob}%</span>`:''}</div></div>`).join('')||`<div class="pcol-empty">No deals</div>`;
+    return `<div class="pcol ${k}" ondragover="pipeOver(event)" ondragleave="pipeLeave(event)" ondrop="pipeDropReal(event,'${k}')"><div class="pcol-h"><span class="pcol-t">${l}</span><span class="pcol-c">${items.length}</span><span class="pcol-sum">$${sum.toLocaleString()}</span></div><div class="pcol-body">${cards}</div></div>`;
   }).join('');
   const openD=P.filter(d=>['new','trial','active'].includes(d.stage));
   const total=openD.reduce((a,d)=>a+(d.value_usd||0),0);

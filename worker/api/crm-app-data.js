@@ -343,6 +343,7 @@ export async function onRequestGet({ request, env }) {
         id: r.id, name: nm, company: r.company || "",
         value_usd: Math.round((r.value_cents || 0) / 100),
         prob: r.close_probability == null ? null : Number(r.close_probability),
+        status: (r.lead_status || "active").toLowerCase(),
         stage: stageOf(r),
         owner: ownNm ? { init: inits(ownNm), name: ownNm, color: OWCOL[Math.abs(hashStr(ownNm)) % OWCOL.length] } : null,
       };
