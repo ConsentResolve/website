@@ -53,7 +53,10 @@ export async function onRequestGet({ request, env }) {
       basis,
       form: consentForm(g.method),
       ip: g.ip,
-      proof: g.disclosure || consentProof(g.method, hasPewc, g.action),
+      // Use the stored disclosure only if it's real proof text (migrated rows sometimes
+      // hold just a version tag like "v1-2026-06" — fall back to the generated sentence).
+      proof: (g.disclosure && g.disclosure.length > 24 && !/^v\d/i.test(g.disclosure))
+        ? g.disclosure : consentProof(g.method, hasPewc, g.action),
     };
   });
   // Real stats for the KPI row + channel summary (window.CONSENT_STATS).
@@ -73,36 +76,56 @@ export async function onRequestGet({ request, env }) {
   };
   const consentSummary = { granted_contacts: consentedContacts, suppressions: suppressionCount, total_records: consentRows.length };
 
-  // ---- Sequences (backed by workflows + runs + steps) ----
+  // ---- Sequences (backed by workflows + runs + steps), shaped for renderSequences ----
   const wfs = (await env.DB.prepare("SELECT * FROM workflows WHERE enabled=1").all()).results || [];
+  const seqLabel = { send_sms: "SMS", place_ai_call: "AI call (Retell)", send_email: "Email" };
+  const seqCh = { send_sms: "sms", place_ai_call: "ai_call", send_email: "email" };
+  const seqTiming = (m) => !m ? "Immediately" : m < 60 ? `+${m} min if no reply` : m < 1440 ? `+${Math.round(m / 60)} hr` : `+${Math.round(m / 1440)} day`;
   const SEQUENCES = [];
   for (const w of wfs) {
     const runs = firstRow(await env.DB.prepare(
-      `SELECT COUNT(*) enrolled,
-              SUM(CASE WHEN status='active' THEN 1 ELSE 0 END) active,
+      `SELECT COUNT(*) enrolled, SUM(CASE WHEN status='active' THEN 1 ELSE 0 END) active,
               SUM(CASE WHEN exit_reason='replied' THEN 1 ELSE 0 END) replied,
               SUM(CASE WHEN exit_reason='booked' THEN 1 ELSE 0 END) booked,
               SUM(CASE WHEN exit_reason='opted_out' THEN 1 ELSE 0 END) opted_out
          FROM workflow_runs WHERE workflow_id=?`
     ).bind(w.id).all());
     const stepStats = (await env.DB.prepare(
-      `SELECT s.step_index step_index, s.channel channel, s.action action, s.status status, COUNT(*) n
+      `SELECT s.step_index step_index, s.status status, COUNT(*) n
          FROM workflow_steps s JOIN workflow_runs r ON r.id=s.run_id
-        WHERE r.workflow_id=? GROUP BY s.step_index, s.status ORDER BY s.step_index`
+        WHERE r.workflow_id=? GROUP BY s.step_index, s.status`
     ).bind(w.id).all()).results || [];
+    const cnt = (i, st) => stepStats.filter((x) => x.step_index === i && x.status === st).reduce((a, x) => a + x.n, 0);
     let def = []; try { def = JSON.parse(w.definition); } catch (_) {}
+    const enrolled = runs.enrolled || 0;
+    // Fold wait steps into the next touch's timing; only emit message nodes (SMS/call/email).
+    const steps = []; let pending = 0;
+    def.forEach((s, i) => {
+      if (s.action === "wait") { pending += (s.delay_minutes || 0); return; }
+      const sent = cnt(i, "sent"), skipped = cnt(i, "skipped");
+      const out = [{ n: sent, t: "sent", tone: "good" }];
+      if (skipped) out.push({ n: skipped, t: "skipped (no consent / on hold)", tone: "muted" });
+      steps.push({
+        ch: seqCh[s.action] || "email",
+        label: seqLabel[s.action] || "Step",
+        timing: seqTiming((s.delay_minutes || 0) + pending),
+        entered: steps.length === 0 ? enrolled : 0,
+        out,
+        branch: s.action === "place_ai_call" ? "Answering-machine detection splits the path" : undefined,
+      });
+      pending = 0;
+    });
     SEQUENCES.push({
-      id: w.id, name: w.name, trigger: w.trigger,
+      id: w.id, name: w.name,
+      trigger: "New lead (any source)",
+      goal: w.id === "earn-consent" ? "Earn consent" : "Book the demo",
       consent: safeJson(w.requires_consent, []),
-      metrics: {
-        active: runs.active || 0, enrolled: runs.enrolled || 0,
-        replied: runs.replied || 0, booked: runs.booked || 0, opted_out: runs.opted_out || 0,
-      },
-      steps: def.map((s, i) => ({
-        idx: i, ch: s.channel, action: s.action, delay_minutes: s.delay_minutes,
-        sent: stepStats.filter((x) => x.step_index === i && x.status === "sent").reduce((a, x) => a + x.n, 0),
-        skipped: stepStats.filter((x) => x.step_index === i && x.status === "skipped").reduce((a, x) => a + x.n, 0),
-      })),
+      active: runs.active || 0,
+      enrolled,
+      replyRate: enrolled ? (runs.replied || 0) / enrolled : 0,
+      goalRate: enrolled ? (runs.booked || 0) / enrolled : 0,
+      optoutRate: enrolled ? (runs.opted_out || 0) / enrolled : 0,
+      steps,
     });
   }
 

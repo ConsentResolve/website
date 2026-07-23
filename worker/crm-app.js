@@ -40,8 +40,10 @@ const BOOTSTRAP = `<script>
     const d = await r.json();
     if (d.CONSENT_LEDGER) window.CONSENT_LEDGER = d.CONSENT_LEDGER;
     if (d.CONSENT_STATS)  window.CONSENT_STATS = d.CONSENT_STATS;
+    if (d.SEQUENCES && d.SEQUENCES.length) window.SEQUENCES = d.SEQUENCES;
     if (d.me && window.DATA) window.DATA.me = d.me;
     if (window.renderConsent) window.renderConsent();
+    if (window.renderSequences) window.renderSequences();
   } catch (e) { /* keep fixtures on any error */ }
 })();
 </script>`;
