@@ -25,5 +25,23 @@ export async function handle({ request, env }) {
   if (!authed) {
     return new Response(LOGIN_HTML, { status: 401, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
   }
-  return new Response(APP_HTML, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
+  return new Response(APP_HTML + BOOTSTRAP, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
 }
+
+// Fixture→fetch bootstrap: runs after the frozen render code, pulls real data from
+// /api/crm/app and swaps it into the window globals the render layer reads. Only the
+// keys we can back with real data are overridden; every other screen keeps its
+// fixtures (graceful, incremental). Fails silent → app still works on fixtures.
+const BOOTSTRAP = `<script>
+(async () => {
+  try {
+    const r = await fetch('/api/crm/app', { credentials: 'same-origin' });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.CONSENT_LEDGER) window.CONSENT_LEDGER = d.CONSENT_LEDGER;
+    if (d.CONSENT_STATS)  window.CONSENT_STATS = d.CONSENT_STATS;
+    if (d.me && window.DATA) window.DATA.me = d.me;
+    if (window.renderConsent) window.renderConsent();
+  } catch (e) { /* keep fixtures on any error */ }
+})();
+</script>`;

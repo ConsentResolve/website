@@ -20,24 +20,58 @@ export async function onRequestGet({ request, env }) {
   const me = await currentUser(request, env).catch(() => null);
 
   // ---- Consent ledger (backed by consent_records) ----
+  // One row per (contact, event) with channels merged — matches the ledger UI shape
+  // { ts, name, co, ch[], action, basis, form, ip, proof }.
   const consentRows = (await env.DB.prepare(
-    `SELECT cr.occurred_at ts, cr.channel, cr.action, cr.basis, cr.capture_method method,
+    `SELECT cr.occurred_at, cr.channel, cr.action, cr.basis, cr.capture_method method,
+            cr.disclosure_text, cr.ip, cr.email, cr.contact_id,
             c.full_name name, co.name company
        FROM consent_records cr
        LEFT JOIN contacts c ON c.id = cr.contact_id
        LEFT JOIN companies co ON co.id = c.company_id
-      ORDER BY cr.occurred_at DESC LIMIT 100`
+      ORDER BY cr.occurred_at DESC LIMIT 400`
   ).all()).results || [];
-  const CONSENT_LEDGER = consentRows.map((r) => ({
-    ts: r.ts, name: r.name || "—", co: r.company || "", ch: [r.channel],
-    action: r.action, basis: r.basis, method: r.method,
-  }));
-  const consentSummary = firstRow(await env.DB.prepare(
-    `SELECT
-       (SELECT COUNT(DISTINCT contact_id) FROM consent_records WHERE action='granted') granted_contacts,
-       (SELECT COUNT(*) FROM suppressions) suppressions,
-       (SELECT COUNT(*) FROM consent_records) total_records`
-  ).all());
+  const groups = new Map();
+  for (const r of consentRows) {
+    const key = `${r.contact_id || r.email}|${r.occurred_at}|${r.action}|${r.method}`;
+    let g = groups.get(key);
+    if (!g) { g = { occurred_at: r.occurred_at, name: r.name || r.email || "—", co: r.company || "",
+                    action: r.action, method: r.method, ch: [], ip: r.ip || "", disclosure: r.disclosure_text || "" }; groups.set(key, g); }
+    if (!g.ch.includes(r.channel)) g.ch.push(r.channel);
+    if (!g.ip && r.ip) g.ip = r.ip;
+    if (!g.disclosure && r.disclosure_text) g.disclosure = r.disclosure_text;
+  }
+  const chOrder = { email: 0, sms: 1, voice: 2 };
+  const CONSENT_LEDGER = [...groups.values()].slice(0, 120).map((g) => {
+    const hasPewc = g.ch.includes("sms") || g.ch.includes("voice");
+    const basis = consentBasis(g.method, hasPewc, g.action);
+    return {
+      ts: humanTime(g.occurred_at),
+      name: g.name, co: g.co,
+      ch: g.ch.sort((a, b) => (chOrder[a] ?? 9) - (chOrder[b] ?? 9)),
+      action: g.action,
+      basis,
+      form: consentForm(g.method),
+      ip: g.ip,
+      proof: g.disclosure || consentProof(g.method, hasPewc, g.action),
+    };
+  });
+  // Real stats for the KPI row + channel summary (window.CONSENT_STATS).
+  const chStats = (await env.DB.prepare(
+    `SELECT channel, action, COUNT(DISTINCT COALESCE(contact_id, email)) n FROM consent_records GROUP BY channel, action`
+  ).all()).results || [];
+  const byChannel = { email: { g: 0, r: 0 }, sms: { g: 0, r: 0 }, voice: { g: 0, r: 0 } };
+  for (const s of chStats) { const b = byChannel[s.channel]; if (b) b[s.action === "revoked" ? "r" : "g"] += s.n; }
+  const consentedContacts = firstRow(await env.DB.prepare("SELECT COUNT(DISTINCT COALESCE(contact_id,email)) n FROM consent_records WHERE action='granted'").all())?.n || 0;
+  const pewcContacts = firstRow(await env.DB.prepare("SELECT COUNT(DISTINCT COALESCE(contact_id,email)) n FROM consent_records WHERE action='granted' AND channel='sms'").all())?.n || 0;
+  const suppressionCount = firstRow(await env.DB.prepare("SELECT COUNT(*) n FROM suppressions").all())?.n || 0;
+  const CONSENT_STATS = {
+    consented: consentedContacts,
+    suppressions: suppressionCount,
+    pewcPct: consentedContacts ? Math.round((pewcContacts / consentedContacts) * 100) : 0,
+    byChannel,
+  };
+  const consentSummary = { granted_contacts: consentedContacts, suppressions: suppressionCount, total_records: consentRows.length };
 
   // ---- Sequences (backed by workflows + runs + steps) ----
   const wfs = (await env.DB.prepare("SELECT * FROM workflows WHERE enabled=1").all()).results || [];
@@ -88,7 +122,7 @@ export async function onRequestGet({ request, env }) {
   return json({
     ok: true,
     me: me ? { name: me.name, email: me.email, role: me.role } : null,
-    CONSENT_LEDGER, consentSummary,
+    CONSENT_LEDGER, CONSENT_STATS, consentSummary,
     SEQUENCES,
     inbox: { buckets },
     funnel,
@@ -99,3 +133,34 @@ export async function onRequestGet({ request, env }) {
 
 function firstRow(res) { return (res.results && res.results[0]) || {}; }
 function safeJson(s, d) { try { return JSON.parse(s); } catch (_) { return d; } }
+
+// ---- consent-ledger humanizers (shape the row for the UI) ----
+function humanTime(iso) {
+  if (!iso) return "";
+  const t = Date.parse(iso); if (isNaN(t)) return iso;
+  const mins = Math.floor((Date.now() - t) / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hr ago`;
+  const days = Math.floor(hrs / 24);
+  if (days === 1) return "Yesterday";
+  if (days < 7) return `${days} days ago`;
+  return new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+function consentForm(method) {
+  return ({ get_started: "Demo signup", meta_lead_form: "Meta Lead Form", preference_center: "Preference center",
+            stop_keyword: "SMS reply", import: "Imported record" })[method] || "Signup";
+}
+function consentBasis(method, hasPewc, action) {
+  if (action === "revoked") return "Inbound opt-out (STOP / unsubscribe)";
+  const pewc = hasPewc ? "PEWC checkbox" : "email only";
+  return ({ get_started: `/get-started signup — ${pewc}`, meta_lead_form: `Meta Lead Form — ${pewc}`,
+            preference_center: `Preference-center opt-in — ${pewc}`, import: `Imported prior consent — ${pewc}` })[method]
+    || `Captured at signup — ${pewc}`;
+}
+function consentProof(method, hasPewc, action) {
+  if (action === "revoked") return "Contact opted out; the channel was auto-suppressed and the record retained as proof of compliance.";
+  if (hasPewc) return "Prior express written consent captured at signup: agreement to receive automated marketing calls, texts, and emails from Consent Resolve. Consent is not a condition of purchase. Reply STOP to opt out.";
+  return "Email opt-in captured. No SMS/voice consent was present — routed to the email-only earn-consent branch until the contact opts in.";
+}

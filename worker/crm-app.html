@@ -1849,6 +1849,7 @@ function showView(v){
   if(v==='consent')renderConsent();
 }
 window.showView=showView;
+window.renderConsent=renderConsent; // exposed for the live-data bootstrap (fixture→fetch)
 function openFromPipeline(id){ showView('inbox'); select(id); }
 window.openFromPipeline=openFromPipeline;
 
@@ -2133,13 +2134,15 @@ function renderConsent(){
   const chLabel={email:'✉ Email',sms:'💬 SMS',voice:'📞 Voice'};
   const actCls={granted:'g',revoked:'r',none:'n'};
   const kpi=(v,l,s)=>`<div class="kpi"><div class="kpi-v">${v}</div><div class="kpi-l">${l}</div>${s?`<div class="kpi-s">${s}</div>`:''}</div>`;
+  const cs=window.CONSENT_STATS;
   const kpis=[
-    kpi('271','Consented contacts','of 308 leads'),
-    kpi('8','Active suppressions','opt-outs honored'),
-    kpi('63%','PEWC capture','paid leads w/ SMS+voice'),
+    kpi(cs?cs.consented:'271','Consented contacts',cs?'contacts with consent':'of 308 leads'),
+    kpi(cs?cs.suppressions:'8','Active suppressions','opt-outs honored'),
+    kpi((cs?cs.pewcPct:'63')+'%','PEWC capture','SMS + voice consent'),
     kpi('100%','Sends backed by a record')
   ].join('');
-  const chanSummary=[['email','Email',271,0],['sms','SMS',168,8],['voice','Voice',168,8]].map(([k,l,g,r])=>
+  const cb=cs?cs.byChannel:null;
+  const chanSummary=[['email','Email',cb?cb.email.g:271,cb?cb.email.r:0],['sms','SMS',cb?cb.sms.g:168,cb?cb.sms.r:8],['voice','Voice',cb?cb.voice.g:168,cb?cb.voice.r:8]].map(([k,l,g,r])=>
     `<div class="chanrow"><span class="chan-l">${chLabel[k]}</span>
       <span class="chan-g">✓ ${g} granted</span>${r?`<span class="chan-r">⊘ ${r} revoked</span>`:''}</div>`).join('');
   const rows=L.map((e,i)=>{
