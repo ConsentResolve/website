@@ -9,6 +9,8 @@ import { verifyTurnstile } from "../_lib/turnstile.js";
 import { uuid, nowIso, insertParticipant, getByEmail, updateParticipant, logEvent, recentRegistrations } from "../_lib/db.js";
 import { sendLeadNotification } from "../_lib/email.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce } from "../_lib/crm-v2.js";
+import { recordConsent } from "../_lib/crm-rebuild.js";
+import { SMS_CONSENT_DISCLOSURE } from "../_lib/sms-consent.js";
 
 const SAMPLE_PATH = "/demo/sample/";
 const RATE_LIMIT = 8; // registrations per IP per minute
@@ -42,6 +44,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const trade = (fields.trade || "").toString().trim();
   const phone = (fields.phone || "").toString().trim();
   const consent_contact = fields.consent_contact === "1" || fields.consent_contact === 1 || fields.consent_contact === true;
+  const sms_consent = fields.sms_consent === "1" || fields.sms_consent === 1 || fields.sms_consent === true;
   const hp = (fields.hp || "").toString();
   const turnstileToken = (fields.turnstileToken || fields["cf-turnstile-response"] || "").toString();
 
@@ -120,6 +123,18 @@ export async function onRequestPost({ request, env, waitUntil }) {
     await ensureCrmV2Schema(env);
     const contactId = await findOrCreateContactByEmail(env, email, { name, phone, company: business_name, source: "demo_form" });
     if (!contactId) return;
+    // PEWC SMS opt-in: only when the box was checked AND a phone was given. Stores the exact
+    // disclosure shown as proof (toll-free/10DLC + TCPA). Email consent is unaffected.
+    if (sms_consent && phone) {
+      try {
+        await recordConsent(env, {
+          contactId, phone, channel: "sms", action: "granted", basis: "PEWC",
+          disclosureText: SMS_CONSENT_DISCLOSURE, captureMethod: "web_form",
+          sourceUrl: request.headers.get("Referer") || origin, ip,
+          userAgent: request.headers.get("User-Agent") || null, source: "demo_form",
+        });
+      } catch (_) {}
+    }
     // Session-stitch: tie this visitor's anonymous pageviews (cr_vid cookie) to the contact.
     try {
       const m = (request.headers.get("cookie") || "").match(/(?:^|;\s*)cr_vid=([^;]+)/);

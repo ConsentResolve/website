@@ -9,6 +9,17 @@ prerequisite work + the engine go-live checklist.
 
 ---
 
+## ✅ UPDATE (2026-07-23): the SMS opt-in is now BUILT
+
+The prerequisite below is done in code (commit lands with this doc). The demo form
+(`src/components/DemoForm.astro`, used on /demo + get-started) now has an **optional, unchecked,
+non-required** SMS-consent checkbox with the full disclosure; on submit-with-phone the server
+(`worker/api/register.js`) writes a `recordConsent(channel:'sms', action:'granted', basis:'PEWC')`
+row storing the **exact disclosure text** shown (shared via `worker/_lib/sms-consent.js` so the
+proof matches verbatim), plus IP, user-agent, and source URL. **Once a few real opt-ins come in,
+screenshot the live form + pull one consent record as the opt-in proof for the submission.**
+Everything below is the original requirement, now satisfied.
+
 ## ⛔ Critical path FIRST: there is no SMS opt-in yet
 
 Toll-free verification reviewers **require proof of a compliant opt-in** — a screenshot/URL of the
@@ -53,10 +64,10 @@ Privacy + Terms. Keep all of them.
 
 | Field | Value |
 |---|---|
-| Business legal name | **[Aaron to confirm legal entity name]** |
+| Business legal name | **ConsentResolve, LLC** |
 | Business address | 1907 Gulf Way #1, St Pete Beach, FL 33706 |
 | Business website | https://consentresolve.com |
-| EIN / Tax ID | **[Aaron to provide]** |
+| EIN / Tax ID | **41-4076608** |
 | Business contact name | **[Aaron / Andy]** |
 | Contact email | hello@consentresolve.com |
 | Contact phone | +1 (727) 202-5996 |
