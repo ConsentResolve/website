@@ -9,7 +9,7 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { isAdmin, findOrCreateContactByEmail } from "../_lib/crm-v2.js";
 import { ensureRebuildSchema, recordConsent, isSuppressed } from "../_lib/crm-rebuild.js";
-import { seedWorkflows, enrollContact, handleGoalEvent, tick, processDueRuns, sendTelnyxSms, enabled } from "../_lib/workflow-engine.js";
+import { seedWorkflows, enrollContact, handleGoalEvent, tick, processDueRuns, sendTelnyxSms, sendResend, tpl, enabled } from "../_lib/workflow-engine.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -64,6 +64,18 @@ export async function onRequestPost({ request, env }) {
     if (await isSuppressed(env, { phone: to, channel: "sms" })) return json({ ok: false, error: "suppressed", note: "this number opted out" }, {}, cors);
     const result = await sendTelnyxSms(env, { to, text });
     return json({ ok: result.ok === true, result, note: result.hold ? "Telnyx not configured yet — set TELNYX_API_KEY + TELNYX_FROM_NUMBER after verification" : undefined }, {}, cors);
+  }
+  // CONTROLLED SINGLE EMAIL: render a real engine template + send via Resend to one address,
+  // to verify delivery + rendering + the working unsubscribe, WITHOUT enrolling anyone. Email is
+  // already live, so this sends a real message. Refuses suppressed addresses.
+  if (body.testEmail?.to) {
+    const to = String(body.testEmail.to).trim();
+    if (await isSuppressed(env, { email: to.toLowerCase(), channel: "email" })) return json({ ok: false, error: "suppressed", note: "this address opted out" }, {}, cors);
+    const template = String(body.testEmail.template || "earn_1"); // earn_1|earn_2|earn_3|stl_email
+    const c = { id: "test", full_name: body.testEmail.name || "there", email: to, owner: "Andy" };
+    const t = tpl(template, c);
+    const result = await sendResend(env, { to, subject: t.subject, html: t.html, text: t.text, unsubUrl: "https://consentresolve.com/api/unsubscribe?c=test" });
+    return json({ ok: result.ok === true, template, subject: t.subject, result }, {}, cors);
   }
   // TURNKEY TEST: create/find a test contact, optionally grant SMS (PEWC) consent so it routes
   // to the SMS-first speed-to-lead sequence, then enroll. Pair with GET ?preview=1 to advance it.

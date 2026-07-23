@@ -113,18 +113,21 @@ function emailShell(greeting, body, c) {
     <p>— ${c.owner || "Andy"}, ${BRAND}</p>
     <hr style="border:none;border-top:1px solid #e5e9f0;margin:18px 0">
     <p style="font-size:12px;color:#8496a6">${BRAND} · ${addr}<br>
-    You received this because you expressed interest in lead generation. <a href="${PREF_CENTER}?unsub=1">Unsubscribe</a>.</p></div>`;
+    You received this because you expressed interest in lead generation. <a href="https://consentresolve.com/api/unsubscribe?c=${encodeURIComponent(c.id || "")}">Unsubscribe</a>.</p></div>`;
 }
 
 // ---- Providers ------------------------------------------------------------
-async function sendResend(env, { to, subject, html, text }, dry) {
+async function sendResend(env, { to, subject, html, text, unsubUrl }, dry) {
   if (dry) return { ok: true, id: "dry-preview", dry: true, preview: { to, subject } };
   if (!env.RESEND_API_KEY) return { ok: false, error: "missing_resend_key" };
   const from = env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>";
+  const payload = { from, to, subject, html, text, reply_to: env.REPLY_TO || "hello@consentresolve.com" };
+  // RFC 8058 one-click unsubscribe → required by Gmail/Yahoo for bulk senders + boosts deliverability.
+  if (unsubUrl) payload.headers = { "List-Unsubscribe": `<${unsubUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" };
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to, subject, html, text, reply_to: env.REPLY_TO || "hello@consentresolve.com" }),
+    body: JSON.stringify(payload),
   });
   if (!r.ok) return { ok: false, error: `resend_${r.status}` };
   const j = await r.json().catch(() => ({}));
@@ -284,7 +287,7 @@ async function executeStep(env, run, c, step, idx, out, dry) {
   let res, type, cost = 0;
   if (step.action === "send_email") {
     if (!c.email) { await logStep(env, run, idx, "email", step.action, "skipped", "no_email"); out.skipped++; return; }
-    res = await sendResend(env, { to: c.email, subject: t.subject, html: t.html, text: t.text }, dry);
+    res = await sendResend(env, { to: c.email, subject: t.subject, html: t.html, text: t.text, unsubUrl: c.id ? "https://consentresolve.com/api/unsubscribe?c=" + encodeURIComponent(c.id) : undefined }, dry);
     type = dry ? "email_preview" : "email_sent";
     if (!dry) await maybeCreateMessage(env, run, c, "email", t.subject, t.html);
   } else if (step.action === "send_sms") {
@@ -375,5 +378,5 @@ async function tick(env) {
 
 export {
   enabled, seedWorkflows, enrollContact, handleGoalEvent, processDueRuns,
-  autoEnrollSweep, tick, sendableAt, tpl, sendTelnyxSms,
+  autoEnrollSweep, tick, sendableAt, tpl, sendTelnyxSms, sendResend,
 };
