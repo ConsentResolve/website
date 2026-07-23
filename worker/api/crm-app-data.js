@@ -349,6 +349,55 @@ export async function onRequestGet({ request, env }) {
     });
   } catch (_) {}
 
+  // ---- Analytics (real: funnel + KPIs + by-source + spend + leads/day) ----
+  let ANALYTICS = null;
+  try {
+    const openPipe = (PIPELINE || []).filter((d) => ["new", "trial", "active"].includes(d.stage))
+      .reduce((a, d) => a + (d.value_usd || 0), 0);
+    // spend by channel (crm_spend) + total
+    const spendRows = (await env.DB.prepare("SELECT COALESCE(channel,'(unknown)') channel, SUM(amount_usd) amt FROM crm_spend GROUP BY channel").all()).results || [];
+    const spendTotal = spendRows.reduce((a, r) => a + (r.amt || 0), 0);
+    const spendByChannel = spendRows.map((r) => ({ k: r.channel, v: Math.round(r.amt || 0) })).sort((a, b) => b.v - a.v);
+    // spend per source-key (channel label -> SRC key, best-effort)
+    const chanToSrc = (c) => { const k = (c || "").toLowerCase(); if (k.includes("meta") || k.includes("facebook")) return "meta"; if (k.includes("instant")) return "instantly"; if (k.includes("google") || k.includes("lsa") || k.includes("search")) return "site"; return "manual"; };
+    const spendBySrc = {};
+    for (const r of spendRows) spendBySrc[chanToSrc(r.channel)] = (spendBySrc[chanToSrc(r.channel)] || 0) + (r.amt || 0);
+    // per-source funnel counts
+    const srcAgg = (await env.DB.prepare(
+      `SELECT c.source src,
+         COUNT(DISTINCT CASE WHEN e.type='lead_created' THEN e.contact_id END) leads,
+         COUNT(DISTINCT CASE WHEN e.type='replied'      THEN e.contact_id END) replied,
+         COUNT(DISTINCT CASE WHEN e.type='booked'       THEN e.contact_id END) demos,
+         COUNT(DISTINCT CASE WHEN e.type='activated'    THEN e.contact_id END) act
+       FROM crm_events e JOIN contacts c ON c.id = e.contact_id
+       GROUP BY c.source`
+    ).all()).results || [];
+    const sources = srcAgg.map((r) => {
+      const key = srcMap[r.source] || "manual";
+      return { src: key, leads: r.leads || 0, reply: r.leads ? (r.replied || 0) / r.leads : 0,
+               demos: r.demos || 0, act: r.act || 0, spend: Math.round(spendBySrc[key] || 0) };
+    }).filter((s) => s.leads > 0 || s.spend > 0).sort((a, b) => b.leads - a.leads);
+    // leads/day, last 30d, oldest->newest
+    const byDay = (await env.DB.prepare(
+      `SELECT CAST(julianday('now') - julianday(occurred_at) AS INTEGER) d, COUNT(*) n
+         FROM crm_events WHERE type='lead_created' AND occurred_at >= datetime('now','-30 days') GROUP BY d`
+    ).all()).results || [];
+    const leadsByDay = Array(30).fill(0);
+    for (const r of byDay) { const idx = 29 - (r.d || 0); if (idx >= 0 && idx < 30) leadsByDay[idx] = r.n || 0; }
+    // avg annual deal value (from real deals; sane fallback keeps ROAS honest)
+    const avgDeal = firstRow(await env.DB.prepare("SELECT AVG(value_cents) a FROM deals WHERE value_cents > 0").all())?.a;
+    const avgDealYr = avgDeal ? Math.round(avgDeal / 100) : 6000;
+    const F = { leads: funnel.lead_created || 0, replies: funnel.replied || 0, demos: funnel.booked || 0, activations: funnel.activated || 0 };
+    const kpis = {
+      leads: F.leads, replies: F.replies, demos: F.demos, activations: F.activations,
+      spend: Math.round(spendTotal), cpl: F.leads ? spendTotal / F.leads : 0,
+      cpd: F.demos ? Math.round(spendTotal / F.demos) : 0, pipeline: openPipe,
+    };
+    const FLBL = { lead_created: "Leads", contacted: "Contacted", replied: "Replied", booked: "Demo booked", signed_up: "Signed up", activated: "Activated" };
+    const funnelArr = Object.keys(FLBL).map((t) => ({ k: FLBL[t], n: funnel[t] || 0 }));
+    ANALYTICS = { kpis, funnel: funnelArr, sources, spendByChannel, leadsByDay, avgDealYr };
+  } catch (_) {}
+
   // Data-source registry (Site Spy / Nurture transparency + extensibility).
   let SITE_SOURCES = null;
   try { SITE_SOURCES = await computeSources(env); } catch (_) {}
@@ -359,7 +408,7 @@ export async function onRequestGet({ request, env }) {
     CONSENT_LEDGER, CONSENT_STATS, consentSummary,
     SEQUENCES,
     DATA_CONVERSATIONS, DATA_COUNTS,
-    SITESPY, NURTURE, SITE_SOURCES, PIPELINE,
+    SITESPY, NURTURE, SITE_SOURCES, PIPELINE, ANALYTICS,
     inbox: { buckets },
     funnel,
     generated_at: new Date().toISOString(),

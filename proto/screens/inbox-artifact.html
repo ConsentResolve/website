@@ -2116,7 +2116,7 @@ function renderAnalytics(){
   const kpi=(v,l,s)=>`<div class="kpi"><div class="kpi-v">${v}</div><div class="kpi-l">${l}</div>${s?`<div class="kpi-s">${s}</div>`:''}</div>`;
   const kpis=[
     kpi(k.leads,'Leads · 30d'),
-    kpi(Math.round(k.replies/k.leads*100)+'%','Reply rate',`${k.replies} replies`),
+    kpi((k.leads?Math.round(k.replies/k.leads*100):0)+'%','Reply rate',`${k.replies} replies`),
     kpi(k.demos,'Demos booked'),
     kpi(k.activations,'Activations','new customers'),
     kpi('$'+k.spend.toLocaleString(),'Ad spend'),
@@ -2124,7 +2124,7 @@ function renderAnalytics(){
     kpi('$'+k.cpd,'Cost / demo'),
     kpi('$'+k.pipeline.toLocaleString(),'Open pipeline','/mo')
   ].join('');
-  const fmax=A.funnel[0].n;
+  const fmax=Math.max(1,...A.funnel.map(f=>f.n));
   const funnel=A.funnel.map((f,i)=>`<div class="fnl-row"><span class="fnl-k">${f.k}</span><div class="fnl-bar"><i style="width:${Math.max(4,Math.round(f.n/fmax*100))}%"></i></div><span class="fnl-n">${f.n}</span><span class="fnl-p">${i?Math.round(f.n/fmax*100)+'%':'—'}</span></div>`).join('');
   const srows=A.sources.map(s=>{
     const cpl=s.spend>0?'$'+(s.spend/s.leads).toFixed(2):'—';
@@ -2138,10 +2138,10 @@ function renderAnalytics(){
       <td class="num">${cpl}</td><td class="num">${cpd}</td>
       <td class="num roas">${roas}</td></tr>`;
   }).join('');
-  const smax=Math.max(...A.spendByChannel.map(x=>x.v));
+  const smax=Math.max(1,...A.spendByChannel.map(x=>x.v));
   const spend=A.spendByChannel.map(x=>`<div class="sb-row"><span class="sb-k">${x.k}</span><div class="sb-bar"><i style="width:${Math.round(x.v/smax*100)}%"></i></div><span class="sb-v">$${x.v.toLocaleString()}</span></div>`).join('');
   const seqrows=S.map(s=>`<tr><td>${esc(s.name)}</td><td class="num">${s.enrolled.toLocaleString()}</td><td class="num">${Math.round(s.replyRate*100)}%</td><td class="num">${Math.round(s.goalRate*100)}%</td><td class="num">${Math.round(s.optoutRate*100)}%</td></tr>`).join('');
-  const dmax=Math.max(...A.leadsByDay);
+  const dmax=Math.max(1,...A.leadsByDay);
   const spark=A.leadsByDay.map(v=>`<span class="spk" style="height:${Math.max(8,Math.round(v/dmax*100))}%" title="${v} leads"></span>`).join('');
   el.innerHTML=`
     <div class="an-head"><h2>Analytics</h2><span class="an-sub">Last 30 days · which source, sequence, and message books the job — and what it costs</span></div>
@@ -2162,6 +2162,8 @@ function renderAnalytics(){
       </div>
     </div>`;
 }
+
+window.renderAnalytics=renderAnalytics; // exposed for the live-data bootstrap (fixture→fetch)
 
 /* ===================== CONSENT LEDGER ===================== */
 const CONSENT_OPEN=new Set();

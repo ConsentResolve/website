@@ -36,7 +36,7 @@ const BOOTSTRAP = `<script>
 (async () => {
   var snap = {
     convs: window.DATA && window.DATA.conversations, counts: window.DATA && window.DATA.counts,
-    CL: window.CONSENT_LEDGER, CS: window.CONSENT_STATS, SEQ: window.SEQUENCES, SS: window.SITE_SOURCES, SPY: window.SITESPY, NUR: window.NURTURE, PIPE: window.PIPELINE
+    CL: window.CONSENT_LEDGER, CS: window.CONSENT_STATS, SEQ: window.SEQUENCES, SS: window.SITE_SOURCES, SPY: window.SITESPY, NUR: window.NURTURE, PIPE: window.PIPELINE, AN: window.ANALYTICS
   };
   var d;
   try {
@@ -52,6 +52,7 @@ const BOOTSTRAP = `<script>
     if (d.SITESPY && d.SITESPY.visitors && d.SITESPY.visitors.length) window.SITESPY = d.SITESPY;
     if (d.NURTURE && d.NURTURE.pool && d.NURTURE.pool.length) window.NURTURE = d.NURTURE;
     if (d.PIPELINE && d.PIPELINE.length) window.PIPELINE = d.PIPELINE;
+    if (d.ANALYTICS && d.ANALYTICS.kpis) window.ANALYTICS = d.ANALYTICS;
     if (d.me && window.DATA) window.DATA.me = d.me;
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.DATA) {
       window.DATA.conversations = d.DATA_CONVERSATIONS;
@@ -62,6 +63,7 @@ const BOOTSTRAP = `<script>
     if ((d.SITE_SOURCES || d.SITESPY) && window.renderSiteSpy) window.renderSiteSpy();
     if (d.NURTURE && window.renderNurture) window.renderNurture();
     if (d.PIPELINE && d.PIPELINE.length && window.renderPipeline) window.renderPipeline();
+    if (d.ANALYTICS && d.ANALYTICS.kpis && window.renderAnalytics) window.renderAnalytics();
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.renderList) {
       window.renderList('open');
       if (window.recount) window.recount();
@@ -71,7 +73,7 @@ const BOOTSTRAP = `<script>
     // FAIL-SAFE: any render error -> restore the demo fixtures so the app never breaks
     try {
       if (window.DATA) { window.DATA.conversations = snap.convs; window.DATA.counts = snap.counts; }
-      window.CONSENT_LEDGER = snap.CL; window.CONSENT_STATS = snap.CS; window.SEQUENCES = snap.SEQ; window.SITE_SOURCES = snap.SS; window.SITESPY = snap.SPY; window.NURTURE = snap.NUR;
+      window.CONSENT_LEDGER = snap.CL; window.CONSENT_STATS = snap.CS; window.SEQUENCES = snap.SEQ; window.SITE_SOURCES = snap.SS; window.SITESPY = snap.SPY; window.NURTURE = snap.NUR; window.PIPELINE = snap.PIPE; window.ANALYTICS = snap.AN;
       if (window.renderList) window.renderList('open');
       if (window.recount) window.recount();
       if (window.select && window.DATA && window.DATA.conversations[0]) window.select(window.DATA.conversations[0].id);
@@ -79,6 +81,8 @@ const BOOTSTRAP = `<script>
       if (window.renderSequences) window.renderSequences();
       if (window.renderSiteSpy) window.renderSiteSpy();
       if (window.renderNurture) window.renderNurture();
+      if (window.renderPipeline) window.renderPipeline();
+      if (window.renderAnalytics) window.renderAnalytics();
     } catch (_) {}
     if (window.console) console.warn('crm/app: live-data swap failed, reverted to fixtures', e);
   }
