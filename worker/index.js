@@ -65,6 +65,7 @@ import { instantlyConfigured, syncInstantlyLeads } from "./_lib/instantly.js";
 import * as crmMetaAds from "./api/crm-meta-ads.js";
 import * as crmMetaAudience from "./api/crm-meta-audience.js";
 import * as crmMetaLaunch from "./api/crm-meta-launch.js";
+import * as partnersJobber from "./api/partners-jobber.js";
 import * as seoApi from "./api/seo.js";
 import * as seoDash from "./seo.js";
 import { logAeoTelemetry } from "./_lib/aeo.js";
@@ -140,6 +141,11 @@ const ROUTES = {
   "/api/crm/auth/callback": crmAuth,
   "/api/crm/auth/logout": crmAuth,
   "/api/crm/auth/me": crmAuth,
+  "/api/partners/jobber/auth": partnersJobber,
+  "/api/partners/jobber/callback": partnersJobber,
+  "/api/partners/jobber/status": partnersJobber,
+  "/api/partners/jobber/push": partnersJobber,
+  "/api/partners/jobber/webhook": partnersJobber,
   "/seo": seoDash,
   "/api/seo/overview": seoApi,
   "/api/seo/queries": seoApi,
