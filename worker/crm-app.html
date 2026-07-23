@@ -1,0 +1,2380 @@
+<title>Consent Resolve CRM — prototype</title>
+<style>
+/* ===== tokens (inlined) ===== */
+/* CRM rebuild — design tokens (single source of truth).
+   Two candidate themes via data-theme; dark is default. Source-chip hues are
+   IDENTICAL across both themes (brand identity), only surfaces/text flip. */
+
+:root, :root[data-theme="dark"] {
+  /* surfaces (4-step elevation) */
+  --s0:#070e18; --s1:#0b1728; --s2:#10203552; --s2s:#122844; --s3:#16304e;
+  --surface-0:#070e18; --surface-1:#0c1a2c; --surface-2:#102338; --surface-3:#16304e;
+  /* text (3-step) */
+  --tx-1:#f1f6fa; --tx-2:#aab9c8; --tx-3:#66788b;
+  /* structure */
+  --line:rgba(148,163,184,.14); --line-2:rgba(148,163,184,.26);
+  /* action + semantic (semantic is SEPARATE from the mint accent) */
+  --accent:#00e5a0; --accent-hi:#2ff2b6; --on-accent:#04120b; --accent-soft:rgba(0,229,160,.12);
+  --good:#34d399; --good-soft:rgba(52,211,153,.14);
+  --warn:#f6b64b; --warn-soft:rgba(246,182,75,.15);
+  --bad:#f6708a; --bad-soft:rgba(246,112,138,.15);
+  --shadow:0 18px 44px -22px rgba(0,0,0,.75);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.35);
+  --shadow-card:0 1px 3px rgba(0,0,0,.4);
+  --hover:rgba(148,163,184,.07);
+  --focus:rgba(0,229,160,.55);
+}
+:root[data-theme="light"] {
+  --surface-0:#eef2f6; --surface-1:#ffffff; --surface-2:#f5f8fb; --surface-3:#eaf0f6;
+  --tx-1:#0e1c2e; --tx-2:#48586a; --tx-3:#8496a6;
+  --line:rgba(15,32,53,.11); --line-2:rgba(15,32,53,.2);
+  --accent:#00b985; --accent-hi:#00a877; --on-accent:#ffffff; --accent-soft:rgba(0,185,133,.12);
+  --good:#0f9d6b; --good-soft:rgba(15,157,107,.12);
+  --warn:#b9791a; --warn-soft:rgba(185,121,26,.14);
+  --bad:#d34b66; --bad-soft:rgba(211,75,102,.12);
+  --shadow:0 18px 44px -26px rgba(15,32,53,.28);
+  --shadow-sm:0 1px 2px rgba(15,32,53,.06);
+  --shadow-card:0 1px 2px rgba(15,32,53,.05),0 4px 12px -6px rgba(15,32,53,.08);
+  --hover:rgba(15,32,53,.04);
+  --focus:rgba(0,185,133,.5);
+}
+
+/* source-chip palette — same hue in BOTH themes, incl. charts */
+:root {
+  --src-meta:#4c8dff;      --src-meta-soft:rgba(76,141,255,.16);
+  --src-instantly:#a884ff; --src-instantly-soft:rgba(168,132,255,.16);
+  --src-chatwoot:#28c5c0;  --src-chatwoot-soft:rgba(40,197,192,.16);
+  --src-site:#33cf7a;      --src-site-soft:rgba(51,207,122,.16);
+  --src-apollo:#f0b23c;    --src-apollo-soft:rgba(240,178,60,.16);
+  --src-manual:#93a3b5;    --src-manual-soft:rgba(147,163,181,.16);
+
+  /* type */
+  --font-sans:"Hanken Grotesk",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-display:"Bricolage Grotesque",var(--font-sans);
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --t-11:11px; --t-12:12px; --t-13:13px; --t-14:14px; --t-16:16px; --t-19:19px; --t-24:24px; --t-32:32px;
+
+  /* spacing / radius */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px;
+  --r-1:6px; --r-2:9px; --r-3:13px; --r-full:999px;
+  --motion:150ms;
+}
+
+* { box-sizing:border-box }
+body { margin:0; background:var(--surface-0); color:var(--tx-1);
+  font-family:var(--font-sans); font-size:var(--t-14); line-height:1.5; -webkit-font-smoothing:antialiased; }
+.mono, .num { font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+@media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} }
+/* ===== styles (inlined) ===== */
+html,body{height:100%}
+  body{display:flex;flex-direction:column;overflow:hidden}
+  .top{display:flex;align-items:center;gap:14px;height:52px;padding:0 16px;background:var(--surface-1);border-bottom:1px solid var(--line);flex:0 0 auto}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-family:var(--font-display);letter-spacing:-.01em}
+  .brand .mk{width:22px;height:22px;border-radius:6px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-size:13px}
+  .brand small{color:var(--tx-3);font-weight:600;font-family:var(--font-sans)}
+  .search{flex:1;max-width:420px;display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-2);padding:7px 11px;color:var(--tx-3);font-size:var(--t-13)}
+  .search kbd{margin-left:auto;font-family:var(--font-mono);font-size:11px;background:var(--surface-3);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+  .attn{display:flex;align-items:center;gap:7px;background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);border-radius:var(--r-full);padding:5px 12px;font-weight:700;font-size:var(--t-12)}
+  .attn b{font-family:var(--font-mono)}
+  .toggle{display:flex;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:2px}
+  .toggle button{border:0;background:none;color:var(--tx-3);font:inherit;font-size:12px;font-weight:700;padding:5px 12px;border-radius:var(--r-full);cursor:pointer}
+  .toggle button.on{background:var(--accent);color:var(--on-accent)}
+
+  .app{flex:1;display:grid;grid-template-columns:64px 1fr;grid-template-rows:1fr;min-height:0}
+  .viewwrap{grid-column:2;grid-row:1;display:grid;grid-template-columns:316px 1fr;min-height:0;min-width:0}
+  .pipeboard{grid-column:2;grid-row:1;min-height:0;min-width:0;overflow:auto;background:var(--surface-0);padding:22px 26px}
+  .viewwrap[hidden],.pipeboard[hidden]{display:none}
+  .rail{background:var(--surface-1);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 0}
+  .rail a{width:44px;height:44px;border-radius:var(--r-2);display:grid;place-items:center;color:var(--tx-3);text-decoration:none;font-size:20px;position:relative;cursor:pointer}
+  .rail a.on{background:var(--accent-soft);color:var(--accent)}
+  .rail a:hover{background:var(--hover);color:var(--tx-1)}
+  .rail a .lbl{position:absolute;left:52px;background:var(--surface-3);color:var(--tx-1);font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity var(--motion);box-shadow:var(--shadow);z-index:5}
+  .rail a:hover .lbl{opacity:1}
+  .rail .sp{flex:1}
+
+  .list{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:var(--surface-0)}
+  .list .filters{display:flex;gap:4px;padding:10px 12px 8px;border-bottom:1px solid var(--line)}
+  .filters button{border:0;background:none;color:var(--tx-3);font:inherit;font-size:var(--t-13);font-weight:600;padding:5px 9px;border-radius:var(--r-1);cursor:pointer}
+  .filters button.on{background:var(--surface-2);color:var(--tx-1)}
+  .filters button .n{font-family:var(--font-mono);color:var(--tx-3);font-size:11px;margin-left:4px}
+  .filters button.on .n{color:var(--accent)}
+  .rows{overflow-y:auto;flex:1}
+  .row{display:flex;align-items:center;gap:7px;width:100%;text-align:left;border:0;background:none;font:inherit;color:var(--tx-1);cursor:pointer;padding:11px 11px 12px 14px;border-bottom:1px solid var(--line);position:relative}
+  .row-main{flex:1;min-width:0}
+  .row:hover{background:var(--hover)}
+  .row.sel{background:var(--accent-soft)}
+  .row.sel::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+  .row.dim{opacity:.6}
+  /* row actions: snooze + delete — always visible, embedded column */
+  .rowacts{flex:0 0 auto;display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center}
+  .ract{width:24px;height:24px;border-radius:var(--r-1);border:1px solid var(--line);background:var(--surface-1);display:grid;place-items:center;cursor:pointer;font-size:12px;color:var(--tx-3);line-height:1}
+  .ract:hover{background:var(--surface-2);color:var(--tx-1);border-color:var(--line-2)}
+  .ract.del:hover{color:var(--bad);border-color:var(--bad)}
+  .row.fix{background:var(--bad-soft)}
+  .row.fix:hover{background:var(--bad-soft)}
+  .row.fix::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--bad)}
+  .row.fix .do{color:var(--bad);font-weight:600}
+  .row .l1{display:flex;align-items:center;gap:7px;margin-bottom:2px}
+  .row .nm{font-weight:700;font-size:var(--t-14);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .unread{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:0 0 auto}
+  .row .ts{margin-left:auto;color:var(--tx-3);font-size:11px;white-space:nowrap;font-family:var(--font-mono)}
+  .row .co{display:flex;align-items:center;gap:8px;color:var(--tx-2);font-size:var(--t-12);margin-bottom:6px}
+  .row .conm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .trollup{flex:0 0 auto;font-size:10px;font-weight:700;font-family:var(--font-mono);color:var(--tx-3);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:1px 7px;white-space:nowrap}
+  .trollup.done{color:var(--good);border-color:var(--good);background:var(--good-soft)}
+  .rstage{flex:0 0 auto;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:var(--r-full);white-space:nowrap}
+  .rstage.trial{background:var(--warn-soft);color:var(--warn)}
+  .rstage.active{background:var(--good-soft);color:var(--good)}
+  .rstage.lost{background:var(--bad-soft);color:var(--bad)}
+  /* pipeline total (top of the list) */
+  .pipe{display:flex;align-items:center;gap:6px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:var(--t-12);color:var(--tx-2);font-weight:600;background:var(--surface-1)}
+  .pipe b{color:var(--src-site);font-family:var(--font-mono);font-size:var(--t-16)}
+  .pipe .pmo{color:var(--tx-3)}
+  .pipe .pn{margin-left:auto;color:var(--tx-3);font-size:11px;font-weight:600}
+  .row .srcdot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;border:2px solid var(--tx-3)}
+
+  /* right-rail: status + activity (all tags/status live here now) */
+  .statusrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:11px}
+  .act{display:flex;flex-direction:column;gap:10px}
+  .actrow{display:flex;gap:9px;align-items:flex-start}
+  .actrow .adot{width:9px;height:9px;border-radius:50%;margin-top:4px;flex:0 0 auto;background:var(--tx-3)}
+  .actrow.good .adot{background:var(--good)} .actrow.bad .adot,.actrow.urgent .adot{background:var(--bad)} .actrow.info .adot,.actrow.act .adot{background:var(--accent)} .actrow.muted .adot{background:var(--tx-3)}
+  .actrow label{display:block;font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--tx-3);text-transform:uppercase;margin-bottom:2px}
+  .actrow b{font-size:var(--t-13);font-weight:700;display:block;line-height:1.35}
+  .actrow time{font-size:11px;color:var(--tx-3);font-family:var(--font-mono);display:block;margin-top:2px}
+  .actrow.act{background:var(--accent-soft);border-radius:var(--r-2);padding:9px 10px;margin:-4px}
+  .actrow.urgent{background:var(--bad-soft);border-radius:var(--r-2);padding:9px 10px;margin:-4px}
+  .actrow.urgent time{color:var(--bad)}
+  .card .tracker{margin-top:12px}
+
+  /* task instruction line (the explicit "do this") */
+  .taskline{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;font-size:var(--t-13);line-height:1.4}
+  .tasktag{font-size:9px;font-weight:800;letter-spacing:.05em;padding:3px 6px;border-radius:4px;flex:0 0 auto;margin-top:1px}
+  .tasktag.do{background:var(--accent);color:var(--on-accent)}
+  .tasktag.wait{background:var(--bad);color:#fff}
+  .tasktag.auto{background:var(--surface-3);color:var(--tx-3)}
+  .taskline .do{font-weight:600;color:var(--tx-1)}
+  .taskline.auto .do{color:var(--tx-2);font-weight:500}
+
+  .chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-full);white-space:nowrap;line-height:1.6}
+  .chip .dot{width:6px;height:6px;border-radius:50%}
+  .src-meta{background:var(--src-meta-soft);color:var(--src-meta)} .src-meta .dot{background:var(--src-meta)}
+  .src-instantly{background:var(--src-instantly-soft);color:var(--src-instantly)} .src-instantly .dot{background:var(--src-instantly)}
+  .src-chatwoot{background:var(--src-chatwoot-soft);color:var(--src-chatwoot)} .src-chatwoot .dot{background:var(--src-chatwoot)}
+  .src-site,.src-demo{background:var(--src-site-soft);color:var(--src-site)} .src-site .dot,.src-demo .dot{background:var(--src-site)}
+  .src-apollo{background:var(--src-apollo-soft);color:var(--src-apollo)} .src-apollo .dot{background:var(--src-apollo)}
+  .src-manual{background:var(--src-manual-soft);color:var(--src-manual)} .src-manual .dot{background:var(--src-manual)}
+  .life{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-1);border:1px solid var(--line-2);color:var(--tx-2)}
+  .cch{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--tx-3);font-weight:600}
+  .sla{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;font-family:var(--font-mono)}
+  .sla.warn{color:var(--warn)} .sla.bad{color:var(--bad)}
+  .hot{font-size:11px;font-weight:800;color:var(--bad);background:var(--bad-soft);padding:2px 7px;border-radius:var(--r-full)}
+  .autochip{font-size:10px;font-weight:800;letter-spacing:.04em;color:var(--tx-3);background:var(--surface-3);padding:2px 7px;border-radius:var(--r-full)}
+
+  .seq{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:var(--r-full);background:var(--surface-2);border:1px solid var(--line)}
+  .seq .ico{font-size:12px}
+  .seq.active{color:var(--accent);border-color:var(--accent)}
+  .seq.earn_consent{color:var(--warn);border-color:var(--warn)}
+  .seq.replied,.seq.booked{color:var(--good);border-color:var(--good);background:var(--good-soft)}
+  .seq.opted_out,.seq.failed{color:var(--bad);border-color:var(--bad);background:var(--bad-soft)}
+  .seq.voicemail{color:var(--src-instantly);border-color:var(--src-instantly)}
+  .seq.blocked,.seq.none,.seq.onboarding{color:var(--tx-3)}
+
+  /* clarity strip — what happened / next */
+  .clarity{display:flex;gap:10px;margin-top:13px;flex-wrap:wrap}
+  .ce{flex:1;min-width:210px;display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-2);padding:10px 12px}
+  .ce .cdot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex:0 0 auto;background:var(--tx-3)}
+  .ce.good .cdot{background:var(--good)} .ce.bad .cdot{background:var(--bad)} .ce.info .cdot{background:var(--accent)} .ce.muted .cdot{background:var(--tx-3)}
+  .ce label{display:block;font-size:9.5px;font-weight:800;letter-spacing:.09em;color:var(--tx-3);text-transform:uppercase;margin-bottom:3px}
+  .ce b{font-size:var(--t-13);font-weight:700;display:block;line-height:1.3}
+  .ce time{font-size:11px;color:var(--tx-3);font-family:var(--font-mono);display:block;margin-top:2px}
+  .ce.act{border-color:var(--accent);background:var(--accent-soft)} .ce.act .cdot{background:var(--accent)}
+  .ce.urgent{border-color:var(--bad);background:var(--bad-soft)} .ce.urgent .cdot{background:var(--bad)} .ce.urgent time{color:var(--bad)}
+
+  /* step tracker */
+  .tracker{display:flex;align-items:center;gap:0;margin-top:13px;max-width:520px}
+  .tracker .st{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;position:relative}
+  .tracker .st .bub{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--surface-2);border:2px solid var(--line-2);color:var(--tx-3);font-family:var(--font-mono);z-index:2}
+  .tracker .st.done .bub{background:var(--good);border-color:var(--good);color:#04120b}
+  .tracker .st.cur .bub{background:var(--accent);border-color:var(--accent);color:var(--on-accent);box-shadow:0 0 0 4px var(--accent-soft)}
+  .tracker .st .cap{font-size:10.5px;color:var(--tx-3);text-align:center;line-height:1.2;font-weight:600}
+  .tracker .st.cur .cap{color:var(--tx-1)}
+  .tracker .st::after{content:"";position:absolute;top:13px;left:50%;width:100%;height:2px;background:var(--line);z-index:1}
+  .tracker .st:last-child::after{display:none}
+  .tracker .st.done::after{background:var(--good)}
+  /* step numbers colored by automation state: green + white = Auto, red = Paused */
+  .tracker.tk-auto .st .bub{border-color:var(--good);color:var(--good)}
+  .tracker.tk-auto .st.done .bub,.tracker.tk-auto .st.cur .bub{background:var(--good);border-color:var(--good);color:#fff}
+  .tracker.tk-auto .st.cur .bub{box-shadow:0 0 0 4px var(--good-soft)}
+  .tracker.tk-auto .st.done::after{background:var(--good)}
+  .tracker.tk-paused .st .bub{border-color:var(--bad);color:var(--bad)}
+  .tracker.tk-paused .st.done .bub,.tracker.tk-paused .st.cur .bub{background:var(--bad);border-color:var(--bad);color:#fff}
+  .tracker.tk-paused .st.cur .bub{box-shadow:0 0 0 4px var(--bad-soft)}
+  .tracker.tk-paused .st.done::after{background:var(--bad)}
+
+  .thread{display:flex;flex-direction:column;min-height:0;background:var(--surface-0)}
+  .thead{padding:14px 18px;border-bottom:1px solid var(--line);background:var(--surface-1)}
+  .thead .t1{display:flex;align-items:flex-start;gap:11px}
+  .hdr-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex:0 0 auto}
+  .owner{align-self:flex-end;display:flex;align-items:center;gap:7px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:4px 11px 4px 5px;cursor:pointer;font-size:var(--t-12);font-weight:600;color:var(--tx-1);white-space:nowrap}
+  .owner:hover{border-color:var(--line-2)}
+  .owner.unassigned{border-style:dashed;color:var(--tx-3);padding-left:12px}
+  .owner .oav{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:10px;font-weight:800;flex:0 0 auto}
+  .owner .car{color:var(--tx-3);font-size:10px}
+
+  /* middle-section tabs: Activity / Intel / Task */
+  .thead{padding-bottom:0;border-bottom:0}
+  .tabs{display:flex;gap:4px;margin-top:12px;border-bottom:1px solid var(--line)}
+  .tab{display:inline-flex;align-items:center;gap:7px;border:0;background:none;font:inherit;font-size:var(--t-13);font-weight:700;color:var(--tx-3);padding:9px 14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;border-radius:var(--r-1) var(--r-1) 0 0;transition:background var(--motion),color var(--motion)}
+  .tab .ti{font-size:15px;line-height:1}
+  .tab:hover{color:var(--tx-1);background:var(--hover)}
+  .tab.on{color:var(--accent);border-bottom-color:var(--accent);background:var(--accent-soft)}
+  .tabbody{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:var(--surface-0)}
+  .tabscroll{flex:1;min-height:0;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+  .actsum{padding:14px 18px 0;flex:0 0 auto}
+  .actsum .card{margin:0}
+  .emptytab{margin:auto;text-align:center;color:var(--tx-3);padding:40px 20px;max-width:300px}
+  .emptytab .ei{font-size:32px;margin-bottom:10px}
+  .emptytab h3{margin:0 0 6px;color:var(--tx-2);font-size:var(--t-16)}
+  .emptytab p{margin:0;font-size:var(--t-13);line-height:1.55}
+
+  /* Tasks tab */
+  .tprog{font-size:var(--t-12);color:var(--tx-3);font-weight:600;margin-bottom:14px}
+  .tprog b{color:var(--tx-1)}
+  .tprog .tintel-note{color:var(--accent)}
+  .tgroup{margin-bottom:18px}
+  .tgroup h5{margin:0 0 4px;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--tx-3)}
+  .trow{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:var(--t-13)}
+  .tgroup .trow:first-of-type{border-top:0}
+  .tcheck{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--line-2);flex:0 0 auto;cursor:pointer;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:800;background:var(--surface-1)}
+  .tcheck.on{background:var(--accent);border-color:var(--accent)}
+  .tlabel{flex:1;min-width:0;color:var(--tx-1);font-weight:500}
+  .tlabel .sub{color:var(--tx-3);font-size:11px;font-weight:400;margin-top:1px}
+  .tnf{color:var(--warn);font-size:11px;margin-left:7px;font-weight:600}
+  .tval{display:flex;align-items:center;gap:7px;font-size:var(--t-12);color:var(--good);font-weight:600;white-space:nowrap;overflow:hidden}
+  .tval a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--line-2);overflow:hidden;text-overflow:ellipsis}
+  .tointel{font-size:8.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:2px 6px;border-radius:var(--r-full);flex:0 0 auto}
+  .tinput{width:150px;flex:0 1 auto;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-1);font:inherit;font-size:var(--t-12);padding:5px 8px;color:var(--tx-1)}
+  .tlook{border:1px solid var(--line-2);background:var(--surface-1);color:var(--tx-1);border-radius:var(--r-1);font:inherit;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer;white-space:nowrap;flex:0 0 auto}
+  .tlook:hover{border-color:var(--accent);color:var(--accent)}
+  .topen{flex:0 0 auto;font-size:11px;font-weight:700;color:var(--accent);text-decoration:none;border:1px solid var(--line-2);border-radius:var(--r-1);padding:4px 10px;white-space:nowrap}
+  .topen:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .topen.off{color:var(--tx-3);border-style:dashed;pointer-events:none;opacity:.55}
+
+  /* Deal tab — vivid, high-contrast, theme-adaptive via tokens */
+  .dblock{margin-bottom:26px;max-width:640px}
+  .dblock h5{margin:0 0 12px;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-2)}
+  .dstages{display:inline-flex;background:var(--surface-3);border:1px solid var(--line);border-radius:var(--r-full);padding:3px;gap:3px}
+  .dstage{border:0;background:none;color:var(--tx-2);font:inherit;font-size:var(--t-13);font-weight:800;padding:9px 24px;border-radius:var(--r-full);cursor:pointer;transition:background var(--motion),color var(--motion)}
+  .dstage:hover{background:var(--surface-1);color:var(--tx-1)}
+  .dstage.on{color:#fff}
+  .dstage.on.new{background:#475569}
+  .dstage.on.trial{background:#d98a0b}
+  .dstage.on.active{background:#0a9d5f}
+  .dstage.on.lost{background:#d0463d}
+  .dchk{display:flex;align-items:center;gap:11px;font-size:var(--t-14);font-weight:700;color:var(--tx-1);cursor:pointer}
+  .dchk .dsub{color:var(--tx-3);font-weight:500;font-size:var(--t-12)}
+  .duser{margin-top:14px}
+  .duser label{display:block;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-2);margin-bottom:6px}
+  .duser input{width:300px;max-width:100%;background:var(--surface-1);border:1.5px solid var(--line-2);border-radius:var(--r-1);font:inherit;font-size:var(--t-13);padding:10px 12px;color:var(--tx-1)}
+  .duser input:focus{outline:none;border-color:var(--accent)}
+  .dpredict{background:var(--surface-1);border:1.5px solid var(--line);border-radius:var(--r-3);padding:22px 24px;box-shadow:var(--shadow-card)}
+  .dp-value{display:flex;align-items:baseline;gap:9px;margin-bottom:20px}
+  .dp-big{font-family:var(--font-mono);font-size:38px;font-weight:800;color:var(--good);line-height:1}
+  .dp-per{font-size:var(--t-19);color:var(--tx-2);font-weight:800}
+  .dp-yr{margin-left:auto;font-size:var(--t-14);color:var(--tx-2);font-weight:800;font-family:var(--font-mono)}
+  .dp-flow{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+  .dp-cell{border-radius:var(--r-2);padding:13px 18px;text-align:center;min-width:112px}
+  .dp-cell .dp-n{font-family:var(--font-mono);font-size:var(--t-24);font-weight:800;line-height:1}
+  .dp-cell .dp-l{font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:800;margin-top:6px}
+  .dp-cell.visits{background:var(--surface-2);border:1.5px solid var(--line)}
+  .dp-cell.visits .dp-n{color:var(--tx-1)} .dp-cell.visits .dp-l{color:var(--tx-3)}
+  .dp-cell.leads{background:var(--good-soft);border:1.5px solid var(--good)}
+  .dp-cell.leads .dp-n{color:var(--good)} .dp-cell.leads .dp-l{color:var(--good)}
+  .dp-cell.rate{background:var(--accent-soft);border:1.5px solid var(--accent)}
+  .dp-cell.rate .dp-n{color:var(--accent)} .dp-cell.rate .dp-l{color:var(--accent)}
+  .dp-arrow{color:var(--tx-3);font-size:20px;font-weight:800}
+  .dslider{width:100%;accent-color:var(--accent);cursor:pointer}
+  .dscale{display:flex;justify-content:space-between;font-size:10px;color:var(--tx-3);font-weight:700;font-family:var(--font-mono);margin-top:6px}
+  .dp-note{font-size:12px;color:var(--tx-3);margin-top:14px;font-weight:500}
+
+  /* Intel — company intelligence dashboard */
+  .intel-scroll{padding:0}
+  .intel-dash{padding:20px 24px}
+  .idash-hero .idh-title{font-family:var(--font-display);font-size:var(--t-24);font-weight:800;color:var(--tx-1);display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+  .idh-trade{font-size:var(--t-13);color:var(--tx-3);font-weight:600}
+  .idh-brief{margin-top:11px;font-size:var(--t-14);line-height:1.65;color:var(--tx-2);max-width:900px}
+  .idh-src{margin-top:9px;font-size:11px;color:var(--tx-3)}
+  .idash-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:12px;margin:18px 0}
+  .itile{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:14px 16px}
+  .itile .iv{font-family:var(--font-mono);font-size:var(--t-24);font-weight:800;color:var(--tx-1);line-height:1}
+  .itile .il{font-size:11px;color:var(--tx-2);font-weight:600;margin-top:6px}
+  .itile.spend .iv{color:var(--good)}
+  .itile.opp{background:var(--good-soft);border-color:var(--good)}
+  .itile.opp .iv{color:var(--good)}
+  .itile.opp .il{color:var(--good);font-weight:800}
+  .itile.muted .iv{color:var(--tx-3)}
+  .idash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .icard{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:16px 18px}
+  .icard-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+  .icard-h h4{margin:0;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-2)}
+  .isrc{font-size:8.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--tx-3);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:3px 8px;white-space:nowrap}
+  .techchips{display:flex;flex-wrap:wrap;gap:6px}
+  .techchip{font-size:11px;font-weight:600;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-1);padding:4px 9px}
+  .gapline{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .gap-flag{font-size:11px;font-weight:700;color:var(--bad);background:var(--bad-soft);border:1px solid rgba(246,112,138,.32);border-radius:var(--r-1);padding:4px 9px}
+  .ad-total{font-family:var(--font-mono);font-size:var(--t-24);font-weight:800;color:var(--good);margin-bottom:9px}
+  .ad-total span{font-size:var(--t-13);color:var(--tx-3);font-weight:600}
+  .ad-ch{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .rep{display:flex;align-items:center;gap:16px}
+  .rep-big{font-family:var(--font-mono);font-size:38px;font-weight:800;color:var(--warn);line-height:1}
+  .rep-big span{font-size:var(--t-19)}
+  .rep-sub{font-size:var(--t-13);color:var(--tx-2);line-height:1.5}
+  .rep-sub b{color:var(--tx-1);font-family:var(--font-mono)}
+  .itiles-sm{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+  .itile-sm{background:var(--surface-2);border-radius:var(--r-2);padding:9px 11px}
+  .itile-sm .iv{font-family:var(--font-mono);font-weight:800;font-size:var(--t-16);color:var(--tx-1)}
+  .itile-sm .il{font-size:9.5px;color:var(--tx-3);text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-top:2px}
+  .idash-empty{font-size:var(--t-12);color:var(--tx-3);padding:4px 0}
+  .idash-opp{margin-top:16px;display:flex;gap:12px;align-items:flex-start;background:var(--bad-soft);border:1px solid rgba(246,112,138,.32);border-radius:var(--r-3);padding:15px 18px;font-size:var(--t-13);line-height:1.6;color:var(--tx-1)}
+  .idash-opp b{color:var(--tx-1)}
+  .opp-num{color:var(--good);font-weight:800;font-family:var(--font-mono)}
+  @media(max-width:1080px){.idash-grid{grid-template-columns:1fr}}
+
+  /* Pipeline board (kanban) */
+  .pipe-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;gap:16px}
+  .pipe-head h2{margin:0;font-family:var(--font-display);font-size:var(--t-24);font-weight:800}
+  .pipe-total{font-size:var(--t-13);color:var(--tx-2);font-weight:600}
+  .pipe-total b{color:var(--src-site);font-family:var(--font-mono);font-size:var(--t-16)}
+  .pboard{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
+  .pcol{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:12px;min-height:130px;transition:background var(--motion),border-color var(--motion)}
+  .pcol.dragover{border-color:var(--accent);background:var(--accent-soft)}
+  .pcol-h{display:flex;align-items:center;gap:8px;margin-bottom:11px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  .pcol-t{font-weight:800;font-size:var(--t-13)}
+  .pcol.new .pcol-t{color:var(--tx-2)} .pcol.trial .pcol-t{color:var(--warn)} .pcol.active .pcol-t{color:var(--good)} .pcol.lost .pcol-t{color:var(--bad)}
+  .pcol-c{font-size:11px;font-weight:700;color:var(--tx-3);font-family:var(--font-mono)}
+  .pcol-sum{margin-left:auto;font-size:11px;font-weight:700;color:var(--src-site);font-family:var(--font-mono)}
+  .pcol-body{display:flex;flex-direction:column;gap:9px;min-height:44px}
+  .pcard{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-2);padding:11px;cursor:grab}
+  .pcard:hover{border-color:var(--line-2)}
+  .pcard:active{cursor:grabbing}
+  .pc-top{display:flex;align-items:center;gap:7px;margin-bottom:2px}
+  .pc-name{font-weight:700;font-size:var(--t-13);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pc-co{font-size:var(--t-12);color:var(--tx-2);margin-bottom:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pc-val{font-family:var(--font-mono);font-weight:800;color:var(--src-site);font-size:var(--t-14)}
+  .pc-val span{font-size:11px;color:var(--tx-3);font-weight:600}
+  .pcol-empty{color:var(--tx-3);font-size:var(--t-12);text-align:center;padding:16px 0;border:1px dashed var(--line-2);border-radius:var(--r-2)}
+
+  /* ===== shared screen scaffolding (Sequences / Analytics / Consent) ===== */
+  .seqview,.anview,.cnview{grid-column:2;grid-row:1;min-height:0;min-width:0;background:var(--surface-0)}
+  .seqview[hidden],.anview[hidden],.cnview[hidden]{display:none}
+  .anview,.cnview{overflow:auto;padding:22px 26px}
+  .an-head,.cn-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+  .an-head h2,.cn-head h2{margin:0;font-family:var(--font-display);font-size:var(--t-24);font-weight:800}
+  .an-sub,.cn-sub{font-size:var(--t-13);color:var(--tx-2)}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+  .kpis-4{grid-template-columns:repeat(4,1fr)}
+  .kpi{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:14px 16px}
+  .kpi-v{font-family:var(--font-mono);font-size:var(--t-24);font-weight:800;color:var(--tx-1);line-height:1}
+  .kpi-l{font-size:var(--t-12);color:var(--tx-2);font-weight:600;margin-top:6px}
+  .kpi-s{font-size:11px;color:var(--tx-3);margin-top:2px}
+  .an-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  .an-card{margin:0}
+  .an-card h4{margin:0 0 12px}
+
+  /* Analytics — funnel, tables, charts */
+  .fnl{display:flex;flex-direction:column;gap:9px}
+  .fnl-row{display:flex;align-items:center;gap:10px;font-size:var(--t-13)}
+  .fnl-k{width:98px;color:var(--tx-2);font-weight:600;flex:0 0 auto}
+  .fnl-bar{flex:1;height:22px;background:var(--surface-3);border-radius:var(--r-1);overflow:hidden}
+  .fnl-bar i{display:block;height:100%;background:var(--accent);border-radius:var(--r-1)}
+  .fnl-n{width:42px;text-align:right;font-family:var(--font-mono);font-weight:700;color:var(--tx-1)}
+  .fnl-p{width:44px;text-align:right;font-size:11px;color:var(--tx-3);font-family:var(--font-mono)}
+  .spark{display:flex;align-items:flex-end;gap:3px;height:82px}
+  .spk{flex:1;background:var(--accent);border-radius:2px 2px 0 0;min-height:4px;opacity:.85}
+  .spark-x{display:flex;justify-content:space-between;font-size:10px;color:var(--tx-3);margin-top:7px;font-family:var(--font-mono)}
+  .atable{width:100%;border-collapse:collapse;font-size:var(--t-13)}
+  .atable th{text-align:left;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-3);padding:0 10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+  .atable td{padding:9px 10px;border-bottom:1px solid var(--line)}
+  .atable tbody tr:last-child td{border-bottom:0}
+  .atable td.num,.atable th.num{text-align:right;font-family:var(--font-mono)}
+  .atable td.roas{color:var(--src-site);font-weight:700}
+  .atable-note{font-size:11px;color:var(--tx-3);margin-top:10px}
+  .sbchart{display:flex;flex-direction:column;gap:10px}
+  .sb-row{display:flex;align-items:center;gap:10px;font-size:var(--t-13)}
+  .sb-k{width:64px;color:var(--tx-2);font-weight:600}
+  .sb-bar{flex:1;height:18px;background:var(--surface-3);border-radius:var(--r-1);overflow:hidden}
+  .sb-bar i{display:block;height:100%;background:var(--src-site)}
+  .sb-v{width:64px;text-align:right;font-family:var(--font-mono);font-weight:700;color:var(--tx-1)}
+
+  /* Sequences */
+  .seqview{display:flex;overflow:hidden}
+  .seq-list{width:236px;flex:0 0 auto;border-right:1px solid var(--line);overflow:auto;background:var(--surface-1);padding:14px 12px}
+  .seq-list-h{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-3);margin:0 6px 8px}
+  .seqitem{display:block;width:100%;text-align:left;border:1px solid transparent;background:none;border-radius:var(--r-2);padding:10px 11px;cursor:pointer;margin-bottom:4px}
+  .seqitem:hover{background:var(--hover)}
+  .seqitem.on{background:var(--accent-soft);border-color:var(--accent)}
+  .seqit-nm{font-weight:700;font-size:var(--t-13);color:var(--tx-1)}
+  .seqit-sub{display:flex;gap:10px;font-size:11px;color:var(--tx-3);margin-top:2px}
+  .seq-new{margin-top:8px;width:100%;border:1px dashed var(--line-2);background:none;color:var(--tx-2);border-radius:var(--r-2);padding:9px;font:inherit;font-weight:600;cursor:pointer}
+  .seq-detail{flex:1;overflow:auto;padding:22px 26px;min-width:0}
+  .seq-head{display:flex;justify-content:space-between;gap:24px;margin-bottom:22px;flex-wrap:wrap}
+  .seq-head h2{margin:0 0 6px;font-family:var(--font-display);font-size:var(--t-24);font-weight:800}
+  .seq-trig{font-size:var(--t-13);color:var(--tx-2);max-width:560px;line-height:1.5}
+  .seq-trig b{color:var(--tx-1)}
+  .seq-consent{margin-top:9px;display:flex;gap:6px;align-items:center;font-size:var(--t-12);color:var(--tx-3);flex-wrap:wrap}
+  .cchip{font-size:11px;font-weight:700;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:2px 9px}
+  .seq-metrics{display:flex;gap:22px;flex-wrap:wrap}
+  .seqm-v{font-family:var(--font-mono);font-size:var(--t-19);font-weight:800;color:var(--tx-1)}
+  .seqm-l{font-size:10px;color:var(--tx-3);text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-top:2px}
+  .stepflow{display:flex;align-items:stretch;flex-wrap:wrap;row-gap:16px}
+  .stepnode{flex:1;min-width:196px;background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:14px}
+  .sn-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+  .sn-ch{font-size:11px;font-weight:800;padding:3px 9px;border-radius:var(--r-full)}
+  .sn-ch.sms{background:var(--src-chatwoot-soft);color:var(--src-chatwoot)}
+  .sn-ch.ai_call{background:var(--src-instantly-soft);color:var(--src-instantly)}
+  .sn-ch.email{background:var(--src-meta-soft);color:var(--src-meta)}
+  .sn-idx{font-family:var(--font-mono);font-size:11px;color:var(--tx-3);font-weight:700}
+  .sn-label{font-weight:700;font-size:var(--t-14);margin-bottom:3px}
+  .sn-time{font-size:11px;color:var(--tx-3);margin-bottom:11px}
+  .sn-entered{font-size:var(--t-12);color:var(--tx-2);border-top:1px solid var(--line);padding-top:10px}
+  .sn-entered b{font-family:var(--font-mono);color:var(--tx-1);font-size:var(--t-14)}
+  .sn-outs{display:flex;flex-direction:column;gap:6px;margin-top:9px}
+  .sn-out{font-size:var(--t-12);color:var(--tx-2);display:flex;gap:8px;align-items:baseline}
+  .sn-n{font-family:var(--font-mono);font-weight:700;color:var(--tx-1);min-width:36px}
+  .sn-out.good .sn-n{color:var(--good)} .sn-out.accent .sn-n{color:var(--accent)}
+  .sn-out.muted,.sn-out.muted .sn-n{color:var(--tx-3)}
+  .sn-branch{margin-top:10px;font-size:11px;color:var(--src-instantly);background:var(--src-instantly-soft);border-radius:var(--r-1);padding:6px 9px;line-height:1.4}
+  .stepconn{display:flex;align-items:center;color:var(--tx-3);font-size:20px;padding:0 8px;flex:0 0 auto}
+  .seq-foot{margin-top:22px;font-size:var(--t-12);color:var(--tx-3);max-width:660px;line-height:1.55}
+
+  /* Consent */
+  .chansum{display:flex;flex-direction:column;gap:12px}
+  .chanrow{display:flex;align-items:center;gap:12px;font-size:var(--t-13)}
+  .chan-l{width:84px;font-weight:700;color:var(--tx-1)}
+  .chan-g{color:var(--good);font-weight:600;font-size:var(--t-12)}
+  .chan-r{color:var(--bad);font-weight:600;font-size:var(--t-12)}
+  .cn-methods{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:9px;font-size:var(--t-13);color:var(--tx-2);line-height:1.5}
+  .cn-methods b{color:var(--tx-1)}
+  .ltable{width:100%;border-collapse:collapse;font-size:var(--t-13)}
+  .ltable th{text-align:left;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-3);padding:0 10px 9px;border-bottom:1px solid var(--line)}
+  .lrow{cursor:pointer}
+  .lrow>td{padding:11px 10px;vertical-align:top;border-bottom:1px solid var(--line)}
+  .lrow:hover{background:var(--hover)}
+  .lrow.open>td{border-bottom:0}
+  .lt{font-family:var(--font-mono);font-size:11px;color:var(--tx-3);white-space:nowrap}
+  .lname{font-weight:700} .lco{font-size:11px;color:var(--tx-3)}
+  .lch{font-size:10px;font-weight:700;color:var(--tx-2);background:var(--surface-3);border-radius:var(--r-1);padding:2px 6px;margin-right:3px;white-space:nowrap;display:inline-block;margin-bottom:2px}
+  .lbadge{font-size:10px;font-weight:800;text-transform:uppercase;padding:3px 9px;border-radius:var(--r-full)}
+  .lbadge.g{background:var(--good-soft);color:var(--good)} .lbadge.r{background:var(--bad-soft);color:var(--bad)} .lbadge.n{background:var(--surface-3);color:var(--tx-3)}
+  .lbasis{color:var(--tx-2);font-size:var(--t-12)}
+  .lchev{color:var(--tx-3);margin-left:4px}
+  .proofrow>td{padding:0 10px 14px;border-bottom:1px solid var(--line)}
+  .proof{background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r-2);padding:14px 16px}
+  .proof-q{font-size:var(--t-13);line-height:1.55;color:var(--tx-1);border-left:3px solid var(--accent);padding-left:13px}
+  .proof-meta{display:flex;flex-wrap:wrap;gap:18px;margin-top:13px;font-size:var(--t-12);color:var(--tx-1)}
+  .proof-meta b{color:var(--tx-3);text-transform:uppercase;font-size:9px;letter-spacing:.05em;margin-right:6px;font-weight:800}
+  .proof-foot{margin-top:12px;font-size:11px;color:var(--tx-3)}
+  .avatar{width:38px;height:38px;border-radius:50%;background:var(--surface-3);display:grid;place-items:center;font-weight:800;font-size:14px;color:var(--tx-2);flex:0 0 auto}
+  .thead .who{min-width:0}
+  .thead h2{margin:0;font-size:var(--t-16);font-weight:700}
+  .thead .sub{color:var(--tx-2);font-size:var(--t-13)}
+  .cmeta{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:7px;font-size:var(--t-12);color:var(--tx-2)}
+  .cmeta .cm{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+  .cmeta .cm .ci{color:var(--tx-3)}
+  .cmeta a{color:var(--tx-2);text-decoration:none}
+  .cmeta a:hover{color:var(--accent);text-decoration:underline}
+  .cmeta .sep{color:var(--tx-3);opacity:.5}
+  .cmeta .none{color:var(--tx-3);font-style:italic}
+  /* animated cost-per-lead hero stat (only when the lead had a cost) */
+  .coststat{display:flex;align-items:center;gap:16px;margin-top:13px;padding:11px 15px;background:var(--src-site-soft);border:1px solid rgba(51,207,122,.4);border-radius:var(--r-2)}
+  .coststat .lab{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tx-3);margin-bottom:2px}
+  .coststat .big{font-family:var(--font-mono);font-size:var(--t-24);font-weight:800;color:var(--src-site);font-variant-numeric:tabular-nums;line-height:1}
+  .coststat .camp{margin-left:auto;text-align:right}
+  .coststat .camp b{display:block;color:var(--tx-1);font-weight:700;font-size:var(--t-13);margin-top:2px}
+
+  /* auto-verified prospect intel (Fit & site) */
+  .presence{margin:6px 0 12px}
+  .prow{display:flex;align-items:center;gap:9px;padding:7px 0;border-top:1px solid var(--line);font-size:var(--t-13)}
+  .prow:first-child{border-top:0}
+  .pst{width:15px;text-align:center;font-weight:800;flex:0 0 auto}
+  .pst.good{color:var(--good)} .pst.bad,.pst.mut{color:var(--tx-3)}
+  .prow .pk{width:88px;color:var(--tx-2);font-weight:600;flex:0 0 auto}
+  .prow .pv{color:var(--tx-1);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .prow .pv.warn{color:var(--warn);font-weight:600} .prow .pv.good{color:var(--good);font-weight:600}
+  .prow .pv a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--line-2)}
+  .prow .pv a:hover{border-bottom-style:solid}
+  .adspend{margin:2px 0 12px;padding:11px 13px;background:var(--src-site-soft);border:1px solid rgba(51,207,122,.35);border-radius:var(--r-2)}
+  .adspend .lab{font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--tx-3)}
+  .adspend .amt{font-family:var(--font-mono);font-size:var(--t-19);font-weight:800;color:var(--src-site);line-height:1.1;margin-top:2px}
+  .adspend .amt span{font-size:var(--t-12);color:var(--tx-3);font-weight:600}
+  .adspend .ch{font-size:var(--t-12);color:var(--tx-2);margin-top:3px}
+  .adspend.none{background:var(--surface-3);border-color:var(--line);color:var(--tx-3);font-size:var(--t-12);font-weight:600;text-align:center;padding:9px}
+  .xgrid{display:flex;gap:8px;margin-bottom:11px}
+  .xtile{flex:1;background:var(--surface-3);border-radius:var(--r-2);padding:8px 6px;text-align:center}
+  .xtile .v{font-family:var(--font-mono);font-weight:800;font-size:var(--t-14);color:var(--tx-1)}
+  .xtile .k{font-size:9px;color:var(--tx-3);text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-top:2px}
+  .signal{font-size:var(--t-12);line-height:1.5;color:var(--tx-1);background:var(--bad-soft);border:1px solid rgba(246,112,138,.28);border-radius:var(--r-2);padding:9px 11px;font-weight:600;display:flex;gap:7px}
+  .noenrich{font-size:var(--t-12);color:var(--tx-3);display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .mini{border:1px solid var(--line-2);background:var(--surface-1);color:var(--tx-1);border-radius:var(--r-1);font:inherit;font-size:11px;font-weight:700;padding:5px 9px;cursor:pointer;white-space:nowrap}
+  .thead .badges{display:flex;align-items:center;gap:7px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
+  .cbadge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 6px;border-radius:var(--r-1);cursor:help}
+  .cbadge.g{color:var(--good);background:var(--good-soft)} .cbadge.n{color:var(--tx-3);background:var(--surface-2)} .cbadge.r{color:var(--bad);background:var(--bad-soft)} .cbadge.na{color:var(--tx-3);background:var(--surface-2);opacity:.7}
+
+  /* SMS / chat bubble thread */
+  .msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+  .msg{max-width:74%;padding:10px 13px;border-radius:var(--r-3);font-size:var(--t-13);line-height:1.5;white-space:pre-wrap}
+  .msg .mh{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;opacity:.7;display:flex;gap:8px;align-items:center}
+  .msg.in{align-self:flex-start;background:var(--surface-2);border:1px solid var(--line);border-bottom-left-radius:4px}
+  .msg.out{align-self:flex-end;background:var(--accent-soft);border:1px solid var(--accent);border-bottom-right-radius:4px}
+  .msg.system{align-self:center;max-width:88%;background:none;border:1px dashed var(--line-2);color:var(--tx-2);font-size:var(--t-12);text-align:center;border-radius:var(--r-2)}
+  .msg .mt{color:var(--tx-3);font-size:10.5px;margin-top:5px;font-family:var(--font-mono)}
+
+  /* Gmail-style email thread */
+  .gmail{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+  .gm-subject{font-size:var(--t-19);font-weight:700;font-family:var(--font-display);color:var(--tx-1);display:flex;align-items:center;gap:8px}
+  .gm-subject .gm-count{font-size:var(--t-13);color:var(--tx-3);font-weight:600;font-family:var(--font-sans)}
+  .gm-msg{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-2);padding:13px 15px}
+  .gm-msg.sys{background:none;border:1px dashed var(--line-2);text-align:center;color:var(--tx-2);font-size:var(--t-12);padding:9px}
+  .gm-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px}
+  .gm-av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;color:#fff;flex:0 0 auto}
+  .gm-who{flex:1;min-width:0;font-size:var(--t-13)}
+  .gm-who b{font-weight:700}
+  .gm-who .addr{color:var(--tx-3);font-size:var(--t-12)}
+  .gm-who .to{display:block;color:var(--tx-3);font-size:11px;margin-top:1px}
+  .gm-time{color:var(--tx-3);font-size:11px;font-family:var(--font-mono);white-space:nowrap;text-align:right}
+  .gm-time .op{display:block;color:var(--good);font-weight:700;font-family:var(--font-sans);font-size:10px;margin-top:2px}
+  .gm-body{font-size:var(--t-13);line-height:1.6;color:var(--tx-1);white-space:pre-wrap}
+  .gm-reply{margin-top:2px;background:var(--surface-1);border:1px solid var(--line-2);border-radius:var(--r-2);padding:12px 14px}
+  .gm-reply .rt{display:flex;align-items:center;gap:8px;font-size:var(--t-12);color:var(--tx-3);margin-bottom:9px}
+  .gm-reply .rt b{color:var(--tx-2);font-weight:700}
+  .gm-reply textarea{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-1);color:var(--tx-1);font:inherit;font-size:var(--t-13);padding:10px 12px;resize:none;min-height:76px}
+  .gm-tools{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .gm-tools .icns{display:flex;gap:12px;color:var(--tx-3);font-size:15px;margin-left:6px}
+
+  /* SMS composer */
+  .composer{border-top:1px solid var(--line);padding:12px 16px;background:var(--surface-1)}
+  .composer .cbar{display:flex;align-items:center;gap:8px;margin-bottom:9px;flex-wrap:wrap}
+  .composer .tmpl{font-size:11px;font-weight:600;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:4px 10px;cursor:pointer}
+  .composer .box{display:flex;gap:9px;align-items:flex-end}
+  /* channel toggle — small segmented control that shows the active send channel */
+  .chswitch{display:inline-flex;background:var(--surface-3);border:1px solid var(--line);border-radius:var(--r-full);padding:2px}
+  .chseg{display:inline-flex;align-items:center;gap:4px;border:0;background:none;color:var(--tx-3);font:inherit;font-size:11px;font-weight:800;padding:4px 11px;border-radius:var(--r-full);cursor:pointer;white-space:nowrap;transition:background var(--motion),color var(--motion)}
+  .chseg .ci{font-size:11px;line-height:1}
+  .chseg:hover{color:var(--tx-1)}
+  .chseg.on{background:var(--accent);color:var(--on-accent);box-shadow:var(--shadow-sm)}
+  .rvia-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r-full);padding:4px 11px}
+  .rvia-lbl{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-3)}
+  .rc-head .clabel{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-3)}
+  .composer textarea{flex:1;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-2);color:var(--tx-1);font:inherit;font-size:var(--t-13);padding:10px 12px;resize:none;min-height:44px}
+  .btn{border:0;border-radius:var(--r-2);font:inherit;font-weight:700;padding:10px 18px;cursor:pointer;background:var(--accent);color:var(--on-accent)}
+  .banner{margin:0;padding:11px 16px;font-size:var(--t-13);font-weight:600;display:flex;gap:9px;align-items:center;border-top:1px solid var(--line)}
+  .banner.stop{background:var(--bad-soft);color:var(--bad)} .banner.block{background:var(--surface-2);color:var(--tx-2)}
+
+  /* Gmail-style reply: collapsed Reply button → expanded WYSIWYG editor */
+  .composer-wrap{flex:0 0 auto}
+  .rcollapse{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface-1)}
+  .rbtn-reply{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-2);background:var(--surface-1);border-radius:var(--r-full);padding:9px 20px;font:inherit;font-weight:700;font-size:var(--t-13);color:var(--tx-1);cursor:pointer;box-shadow:0 1px 3px rgba(15,32,53,.07)}
+  .rbtn-reply:hover{border-color:var(--accent);color:var(--accent)}
+  .rcollapse .rvia{font-size:11px;color:var(--tx-3);font-weight:600}
+  .rcomp{margin:10px 14px 14px;border:1px solid var(--line-2);border-radius:var(--r-2);background:var(--surface-1);box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden}
+  .rc-head{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+  .rc-head .clabel{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--tx-3)}
+  .rc-head .cto{font-size:11px;color:var(--tx-3);font-family:var(--font-mono)}
+  .rc-x{margin-left:auto;border:0;background:none;color:var(--tx-3);cursor:pointer;font-size:13px;width:26px;height:26px;border-radius:var(--r-1);display:grid;place-items:center}
+  .rc-x:hover{background:var(--hover);color:var(--tx-1)}
+  .rc-toolbar{display:flex;align-items:center;gap:2px;padding:6px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .rc-toolbar .tb{border:0;background:none;color:var(--tx-2);font:inherit;font-size:13px;width:30px;height:30px;border-radius:var(--r-1);cursor:pointer;display:grid;place-items:center}
+  .rc-toolbar .tb:hover{background:var(--hover);color:var(--tx-1)}
+  .rc-sep{width:1px;height:20px;background:var(--line);margin:0 5px}
+  .tmpl{display:inline-flex;align-items:center;font-size:11px;font-weight:600;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:4px 11px;cursor:pointer;white-space:nowrap}
+  .tmpl:hover{border-color:var(--accent);color:var(--accent)}
+  .rte{min-height:120px;max-height:300px;overflow-y:auto;padding:12px 14px;font-size:var(--t-13);line-height:1.6;color:var(--tx-1);outline:none}
+  .rte:empty::before{content:attr(data-ph);color:var(--tx-3);pointer-events:none}
+  .rte a{color:var(--accent)}
+  .rte ul,.rte ol{margin:6px 0 6px 22px}
+  .rc-attach{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 8px}
+  .rc-attach:empty{display:none}
+  .achip{display:inline-flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-1);padding:4px 9px;font-size:11px;color:var(--tx-2)}
+  .achip .ax{cursor:pointer;color:var(--tx-3);font-weight:700}
+  .achip .ax:hover{color:var(--bad)}
+  .rc-foot{display:flex;align-items:center;gap:6px;padding:9px 12px;border-top:1px solid var(--line)}
+  .rc-icon{border:0;background:none;color:var(--tx-3);cursor:pointer;font-size:15px;width:32px;height:32px;border-radius:var(--r-1);display:grid;place-items:center}
+  .rc-icon:hover{background:var(--hover);color:var(--tx-1)}
+  .rc-trash{margin-left:auto}
+
+  /* running lead-age clock + owner avatar in the list */
+  .row .l1{gap:7px}
+  .row .clk{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--tx-2);font-weight:600;white-space:nowrap}
+  .row.fix .clk{color:var(--bad)}
+  .row .oav-sm{width:19px;height:19px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:8.5px;font-weight:800;flex:0 0 auto}
+
+  /* Status panel — light card, reworked for legibility */
+  .card.status{padding:15px}
+  .card.status .shead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+  .card.status h4{margin:0}
+  /* automation switch */
+  .autoswitch{display:inline-flex;background:var(--surface-3);border:1px solid var(--line);border-radius:var(--r-full);padding:2px}
+  .autoswitch .seg{border:0;background:none;color:var(--tx-3);font:inherit;font-size:11px;font-weight:800;padding:4px 11px;border-radius:var(--r-full);cursor:pointer;letter-spacing:.02em}
+  .autoswitch .seg.on.onauto{background:var(--accent);color:var(--on-accent)}
+  .autoswitch .seg.on.onman{background:var(--bad);color:#fff}
+  .autobadge{font-size:11px;font-weight:800;padding:5px 11px;border-radius:var(--r-full)}
+  .autobadge.done{background:var(--good-soft);color:var(--good)}
+  .autobadge.off{background:var(--bad-soft);color:var(--bad)}
+  .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;margin-bottom:15px}
+  .scell{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .scell .sl{font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--tx-3)}
+  .scell .sv{font-size:var(--t-14);font-weight:700;color:var(--tx-1)}
+  .scell .sv.warn{color:var(--warn)} .scell .sv.bad{color:var(--bad)} .scell .sv.mut{color:var(--tx-3);font-weight:600}
+  /* automation note as a hover tooltip */
+  .autowrap{position:relative;display:inline-flex}
+  .autowrap .tip{position:absolute;top:calc(100% + 8px);right:0;width:232px;background:var(--surface-1);border:1px solid var(--line-2);border-radius:var(--r-2);padding:9px 11px;font-size:var(--t-12);line-height:1.5;color:var(--tx-2);box-shadow:var(--shadow);opacity:0;pointer-events:none;transform:translateY(-3px);transition:opacity var(--motion),transform var(--motion);z-index:20}
+  .autowrap .tip b{color:var(--tx-1);font-weight:700}
+  .autowrap:hover .tip{opacity:1;transform:none}
+  /* workflow tracker block (top of the status box) */
+  .seqwrap{margin-bottom:15px}
+  /* our acquisition cost for this lead (small, animated) */
+  .acqcost{margin-top:2px}
+  .acqcost .lab{font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--tx-3);margin-bottom:2px}
+  .acqcost .amt{font-family:var(--font-mono);font-size:var(--t-16);font-weight:800;color:var(--src-site);line-height:1.15}
+  .acqcost .ch{font-size:11px;color:var(--tx-2);margin-top:1px}
+  .acqcost.none{font-size:var(--t-12);color:var(--tx-3);font-weight:600;margin-top:4px}
+
+  .intel{border-left:1px solid var(--line);background:var(--surface-1);overflow-y:auto;padding:16px 15px;display:flex;flex-direction:column;gap:14px}
+  .card{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-3);padding:13px}
+  .card h4{margin:0 0 9px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--tx-3)}
+  .fit{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:2px 9px;border-radius:var(--r-full)}
+  .fit.hot{background:var(--bad-soft);color:var(--bad)} .fit.warm{background:var(--warn-soft);color:var(--warn)} .fit.cold,.fit.unknown{background:var(--surface-3);color:var(--tx-3)}
+  .clist{display:flex;flex-direction:column;gap:8px}
+  .crow{display:flex;align-items:center;gap:8px;font-size:var(--t-13)}
+  .crow .k{color:var(--tx-3);width:52px;text-transform:capitalize;font-weight:600}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tile{background:var(--surface-3);border-radius:var(--r-2);padding:9px 11px}
+  .tile .v{font-size:var(--t-16);font-weight:800;font-family:var(--font-mono)}
+  .tile .k{font-size:10px;color:var(--tx-3);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+  .pv-list{display:flex;flex-direction:column;gap:5px;font-size:var(--t-12);font-family:var(--font-mono);color:var(--tx-2)}
+  .cost{font-size:var(--t-13);font-weight:700;color:var(--src-site)}
+  .dealcard b{font-size:var(--t-16);font-family:var(--font-mono)}
+  .prob{height:6px;border-radius:3px;background:var(--surface-3);overflow:hidden;margin-top:7px}
+  .prob i{display:block;height:100%;background:var(--accent)}
+
+  /* ===== modern chrome: SVG icon system, focus rings, elevation ===== */
+  svg{flex:0 0 auto}
+  .rail a svg{width:21px;height:21px}
+  .tab .ti{display:inline-flex}
+  .tab .ti svg{width:16px;height:16px}
+  .ract svg{width:13px;height:13px}
+  .rc-icon svg{width:17px;height:17px}
+  .rbtn-reply svg{width:15px;height:15px}
+  .search svg{width:15px;height:15px;color:var(--tx-3)}
+  .pipe svg,.pipe-total svg{width:15px;height:15px;color:var(--src-site);vertical-align:-2px;margin-right:1px}
+  /* keyboard focus — visible only for keyboard users, never on mouse */
+  :focus{outline:none}
+  a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible,.row:focus-visible,.lrow:focus-visible,.seqitem:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:var(--r-1)}
+  input:focus-visible{outline-offset:0}
+  /* the rich-text editor shows focus by being the active surface — no clipped outline box */
+  .rte:focus,.rte:focus-visible{outline:none}
+  /* elevation: lift the top bar and primary surfaces off the canvas */
+  .top{box-shadow:var(--shadow-sm);position:relative;z-index:10}
+  .search:focus-within{border-color:var(--accent);background:var(--surface-1)}
+  /* refined rail active state — pill + accent icon + left tick */
+  .rail a{transition:background var(--motion),color var(--motion)}
+  .rail a.on::before{content:"";position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:3px;height:22px;border-radius:0 3px 3px 0;background:var(--accent)}
+  /* subtle, consistent elevation on dashboard cards — depth without puffiness */
+  .kpi,.itile,.icard,.pcard,.stepnode{box-shadow:var(--shadow-sm)}
+  .pcard:hover{box-shadow:var(--shadow-card)}
+
+  /* ===== Nurture view — dormant long-term follow-up pool ===== */
+  .nurtureview{grid-column:2;grid-row:1;min-height:0;min-width:0;background:var(--surface-0);overflow:auto;padding:22px 26px}
+  .nurtureview[hidden]{display:none}
+  .nu-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+  .nu-head h2{margin:0;font-family:var(--font-display);font-size:var(--t-24);font-weight:800}
+  .nu-head .sub{font-size:var(--t-13);color:var(--tx-2);max-width:680px;line-height:1.5}
+  /* how-it-works explainer */
+  .nu-how{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:16px 18px;margin-bottom:22px;box-shadow:var(--shadow-sm)}
+  .nu-how h4{margin:0 0 14px;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-2)}
+  .nu-how ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .nu-how li{font-size:var(--t-12);line-height:1.5;color:var(--tx-2);position:relative;padding-left:30px}
+  .nu-how li b{color:var(--tx-1);display:block;margin-bottom:3px;font-size:var(--t-13)}
+  .nu-how li .stp{position:absolute;top:0;left:0;width:21px;height:21px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:800;display:grid;place-items:center;font-family:var(--font-mono)}
+  .nu-how li::after{content:"→";position:absolute;right:-11px;top:0;color:var(--tx-3);font-weight:800}
+  .nu-how li:last-child::after{display:none}
+  @media(max-width:1000px){.nu-how ol{grid-template-columns:1fr 1fr}.nu-how li::after{display:none}}
+  /* re-engaging band */
+  .nu-band{margin-bottom:24px}
+  .nu-band-h{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-2)}
+  .nu-live{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;color:var(--accent);background:var(--accent-soft);border-radius:var(--r-full);padding:3px 9px;letter-spacing:.04em}
+  .nu-live .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:nupulse 1.6s ease-in-out infinite}
+  @keyframes nupulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .nu-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+  .nu-card{background:var(--surface-1);border:1px solid var(--accent);border-radius:var(--r-3);padding:15px 16px;box-shadow:var(--shadow-sm)}
+  .nu-c-top{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+  .nu-c-av{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:800;flex:0 0 auto}
+  .nu-c-id{min-width:0;flex:1}
+  .nu-c-name{font-weight:800;font-size:var(--t-14);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nu-c-co{font-size:var(--t-12);color:var(--tx-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nu-c-chs{display:flex;gap:5px;flex:0 0 auto;color:var(--tx-3)}
+  .nu-c-chs svg{width:15px;height:15px}
+  .nu-signal{display:flex;align-items:flex-start;gap:8px;background:var(--good-soft);border:1px solid rgba(15,157,107,.28);border-radius:var(--r-2);padding:9px 11px;font-size:var(--t-12);line-height:1.4;color:var(--tx-1);margin-bottom:11px}
+  .nu-signal svg{width:15px;height:15px;color:var(--good);margin-top:1px}
+  .nu-signal time{display:block;color:var(--tx-3);font-family:var(--font-mono);font-size:10.5px;margin-top:3px}
+  .nu-seq{display:flex;align-items:center;gap:11px}
+  .nu-seq-bar{flex:1;min-width:0}
+  .nu-seq-steps{display:flex;gap:4px;margin-bottom:6px}
+  .nu-seq-steps i{flex:1;height:5px;border-radius:3px;background:var(--surface-3)}
+  .nu-seq-steps i.on{background:var(--accent)}
+  .nu-seq-txt{font-size:11px;color:var(--tx-2);line-height:1.4}
+  .nu-seq-txt b{color:var(--tx-1)}
+  .nu-open{border:1px solid var(--line-2);background:var(--surface-1);color:var(--accent);border-radius:var(--r-1);font:inherit;font-size:11px;font-weight:700;padding:7px 12px;cursor:pointer;white-space:nowrap;flex:0 0 auto}
+  .nu-open:hover{border-color:var(--accent);background:var(--accent-soft)}
+  /* pool table */
+  .nu-pool-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px;flex-wrap:wrap}
+  .nu-pool-h h4{margin:0;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-2)}
+  .nu-cco{font-size:11px;color:var(--tx-3)}
+  .nu-ch-cell{display:flex;gap:5px;color:var(--tx-3)}
+  .nu-ch-cell svg{width:14px;height:14px}
+  .nu-act{font-family:var(--font-mono);font-size:11px;color:var(--tx-3);white-space:nowrap}
+  .nu-dd{font-family:var(--font-mono);color:var(--tx-3);font-size:11px;white-space:nowrap}
+  .nustat{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;padding:3px 9px;border-radius:var(--r-full)}
+  .nustat.dormant{background:var(--surface-3);color:var(--tx-3)}
+  .nustat.recovered{background:var(--good-soft);color:var(--good)}
+
+  /* ===== Profile menu (top-left) ===== */
+  .profile{position:relative;flex:0 0 auto;margin-left:auto}
+  .pfbtn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r-full);padding:4px 10px 4px 4px;cursor:pointer;font:inherit}
+  .pfbtn:hover{border-color:var(--line-2)}
+  .pfav{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-size:11px;font-weight:800;flex:0 0 auto;overflow:hidden}
+  .pfav img{width:100%;height:100%;object-fit:cover}
+  .pfname{font-size:var(--t-13);font-weight:700;color:var(--tx-1);white-space:nowrap}
+  .pfcar{width:14px;height:14px;color:var(--tx-3)}
+  .pfmenu{position:absolute;top:calc(100% + 8px);right:0;width:264px;background:var(--surface-1);border:1px solid var(--line-2);border-radius:var(--r-3);box-shadow:var(--shadow);padding:8px;z-index:50}
+  .pfmenu[hidden]{display:none}
+  .pf-head{display:flex;align-items:center;gap:11px;padding:8px 8px 12px}
+  .pfav.lg{width:40px;height:40px;font-size:14px}
+  .pf-id{min-width:0}
+  .pf-id b{display:block;font-size:var(--t-14);font-weight:700;color:var(--tx-1)}
+  .pf-id span{display:block;font-size:11px;color:var(--tx-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pf-upload{display:flex;align-items:center;gap:8px;width:100%;border:1px solid var(--line-2);background:var(--surface-1);color:var(--tx-1);border-radius:var(--r-2);padding:8px 11px;font:inherit;font-size:var(--t-13);font-weight:600;cursor:pointer}
+  .pf-upload svg{width:15px;height:15px;color:var(--tx-2)}
+  .pf-upload:hover{border-color:var(--accent);color:var(--accent)}
+  .pf-upload:hover svg{color:var(--accent)}
+  .pf-sep{height:1px;background:var(--line);margin:8px 0}
+  .pf-lbl{font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--tx-3);padding:0 8px 7px}
+  .pfmenu .toggle{width:100%;justify-content:stretch}
+  .pfmenu .toggle button{flex:1}
+  .pf-item{display:flex;align-items:center;gap:10px;padding:8px 8px;border-radius:var(--r-2);font-size:var(--t-13);font-weight:600;color:var(--tx-1);cursor:pointer;text-decoration:none}
+  .pf-item svg{width:16px;height:16px;color:var(--tx-3)}
+  .pf-item:hover{background:var(--hover)}
+  .pf-item.danger{color:var(--bad)} .pf-item.danger svg{color:var(--bad)}
+
+  /* ===== Site Spy — engagement pills + live "viewing" state ===== */
+  .se-pills{display:flex;flex-wrap:wrap;gap:5px}
+  .se-pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:var(--r-full);white-space:nowrap;border:1px solid transparent}
+  .se-pill::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;flex:0 0 auto}
+  .se-pill.seq{background:var(--accent-soft);color:var(--accent)}
+  .se-pill.conv{background:var(--src-chatwoot-soft);color:var(--src-chatwoot)}
+  .se-pill.auto{background:var(--good-soft);color:var(--good)}
+  .se-pill.paused{background:var(--bad-soft);color:var(--bad)}
+  .se-pill.nurture{background:var(--src-site-soft);color:var(--src-site)}
+  .se-pill.supp{background:var(--bad-soft);color:var(--bad)}
+  .se-pill.newp{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+  .sp-view{font-weight:700;color:var(--accent);font-family:var(--font-mono);font-size:var(--t-13)}
+  .sp-last{color:var(--tx-2);font-family:var(--font-mono);font-size:var(--t-13)}
+  .sp-page{font-family:var(--font-mono);font-size:var(--t-13);color:var(--tx-1)}
+  .sp-trail{font-family:var(--font-mono);font-size:11px;color:var(--tx-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  .sp-time{font-family:var(--font-mono);font-size:11px;color:var(--tx-3)}
+  .sp-livedot{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;color:var(--good);letter-spacing:.03em;flex:0 0 auto}
+  .sp-livedot .d{width:7px;height:7px;border-radius:50%;background:var(--good);animation:nupulse 1.6s ease-in-out infinite}
+  .nu-signal.now{background:var(--accent-soft);border-color:rgba(0,185,133,.32)}
+  .sp-eye{display:inline-flex;flex:0 0 auto}
+  .sp-eye svg{width:15px;height:15px;color:var(--accent);margin-top:1px}
+  .sp-cardfoot{margin-top:11px;display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="brand"><span class="mk">✓</span>Consent Resolve <small>CRM</small></div>
+    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> Search contacts, companies, conversations… <kbd>⌘K</kbd></div>
+    <div class="profile">
+      <button class="pfbtn" onclick="toggleProfile(event)" title="Account & settings">
+        <span class="pfav" id="pfav">AM</span>
+        <span class="pfname">Andy Mentges</span>
+        <svg class="pfcar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="pfmenu" id="pfmenu" hidden>
+        <div class="pf-head">
+          <span class="pfav lg" id="pfavLg">AM</span>
+          <div class="pf-id"><b>Andy Mentges</b><span>andy@consentresolve.com</span></div>
+        </div>
+        <button class="pf-upload" onclick="document.getElementById('avatarInput').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>Upload photo</button>
+        <input type="file" id="avatarInput" accept="image/*" hidden onchange="onAvatar(this.files)">
+        <div class="pf-sep"></div>
+        <div class="pf-lbl">Appearance</div>
+        <div class="toggle"><button data-th="dark">Dark</button><button data-th="light" class="on">Light</button></div>
+        <div class="pf-sep"></div>
+        <a class="pf-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Account settings</a>
+        <a class="pf-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6"/><path d="M17.5 20a6.5 6.5 0 0 0-3-5.5"/></svg>Team &amp; seats</a>
+        <a class="pf-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>Notifications</a>
+        <a class="pf-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 10h19"/></svg>Billing &amp; plan</a>
+        <div class="pf-sep"></div>
+        <a class="pf-item danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Sign out</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="app">
+    <nav class="rail">
+      <a class="on" data-view="inbox" tabindex="0" onclick="showView('inbox')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span class="lbl">Inbox</span></a>
+      <a data-view="pipeline" tabindex="0" onclick="showView('pipeline')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="5" height="16" rx="1.2"/><rect x="9.5" y="4" width="5" height="11" rx="1.2"/><rect x="15.5" y="4" width="5" height="6" rx="1.2"/></svg><span class="lbl">Pipeline</span></a>
+      <a data-view="nurture" tabindex="0" onclick="showView('nurture')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V11"/><path d="M12 11C12 7 9.5 4.5 4.5 4.5c0 4 2.5 6.5 7.5 6.5z"/><path d="M12 9.5c0-3 2.2-5.5 6.5-5.5 0 3.2-2.3 5.5-6.5 5.5z"/></svg><span class="lbl">Nurture</span></a>
+      <a data-view="sitespy" tabindex="0" onclick="showView('sitespy')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg><span class="lbl">Site Spy</span></a>
+      <a data-view="analytics" tabindex="0" onclick="showView('analytics')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M6 20v-6"/><path d="M12 20V6"/><path d="M18 20v-9"/></svg><span class="lbl">Analytics</span></a>
+      <a data-view="sequences" tabindex="0" onclick="showView('sequences')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span class="lbl">Sequences</span></a>
+      <a data-view="consent" tabindex="0" onclick="showView('consent')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><span class="lbl">Consent</span></a>
+      <span class="sp"></span>
+      <a tabindex="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="lbl">Settings</span></a>
+    </nav>
+
+    <div class="viewwrap" id="inboxview">
+    <section class="list">
+      <div class="pipe" id="pipe"></div>
+      <div class="filters">
+        <button class="on" data-f="open">Open <span class="n">6</span></button>
+        <button data-f="auto">Auto <span class="n">5</span></button>
+        <button data-f="snoozed">Snoozed <span class="n">1</span></button>
+        <button data-f="all">All <span class="n">14</span></button>
+      </div>
+      <div class="rows" id="rows"></div>
+    </section>
+
+    <section class="thread" id="thread"></section>
+    </div>
+    <section class="pipeboard" id="pipelineview" hidden></section>
+    <section class="nurtureview" id="nurtureview" hidden></section>
+    <section class="nurtureview" id="sitespyview" hidden></section>
+    <section class="seqview" id="sequencesview" hidden></section>
+    <section class="anview" id="analyticsview" hidden></section>
+    <section class="cnview" id="consentview" hidden></section>
+  </div>
+<script>
+/* Inbox fixture — bucket-classified (open/auto/snoozed/suppressed), with explicit
+   manual-task instructions, what-happened/next clarity events, and Gmail fields.
+   Order = how the Open queue should read (highest-priority action first). */
+window.DATA = {
+  me: { name: "Andy Mentges", role: "sales", email: "andy@consentresolve.com" },
+  counts: { open: 6, auto: 5, snoozed: 1, all: 14 },
+
+  conversations: [
+    /* ============ OPEN — a human must act ============ */
+    { id:"c05", bucket:"open", source:"meta", channel:"sms", name:"Tomas Lang", company:"Lang Roofing",
+      contact_email:"tomas@langroofing.com", initials:"TL", lifecycle:"SQL", hot:true, unread:true, ts:"6 min ago",
+      task:{ tag:"do", text:"Reply now — he asked “how does it work?”", cta:"Reply" },
+      last:{ label:"Tomas replied by SMS", ts:"6 min ago", tone:"good" },
+      next:{ kind:"you", label:"Reply — answer his question", when:"now", tone:"act" },
+      consent:{ email:"granted", sms:"granted", voice:"granted" },
+      sequence:{ step:1, total:4, label:"Speed-to-lead", status:"replied" },
+      sla:{ min:6, level:"warn" },
+      intel:{ fit:"hot", time_on_site:"3m 05s", pages:5, first_seen:"22 min ago", speed_to_lead_h:0.1, cost_per_lead:12.9, src_label:"Meta · Lead form (Roofing)", site_status:"live · has form", pages_viewed:["/roofing-leads/","/pricing/"] },
+      deal:{ title:"Lang Roofing", value_usd:0, prob:63 },
+      messages:[
+        { dir:"out", channel:"sms", body:"Hi Tomas, Andy at Consent Resolve — we turn your site visitors into $7 exclusive leads. Want the quick version? (Reply STOP to opt out)", ts:"12 min ago", meta:"delivered" },
+        { dir:"in", channel:"sms", body:"yeah I'm interested, how does it work?", ts:"6 min ago" } ] },
+
+    { id:"c08", bucket:"open", source:"meta", channel:"sms", name:"Sandra Cole", company:"Cole & Sons Painting",
+      contact_email:"sandra@coleandsons.com", initials:"SC", lifecycle:"Lead", hot:false, unread:true, ts:"24 min ago",
+      task:{ tag:"wait", text:"Auto-text failed (landline). Email her, or call (727) 202-5996.", cta:"Switch to email" },
+      last:{ label:"SMS failed — carrier rejected (landline)", ts:"24 min ago", tone:"bad" },
+      next:{ kind:"you", label:"Email her or call — sequence is paused", when:"overdue 24 min", tone:"urgent" },
+      consent:{ email:"granted", sms:"granted", voice:"granted" },
+      sequence:{ step:1, total:4, label:"Speed-to-lead", status:"failed" },
+      sla:{ min:24, level:"bad" },
+      intel:{ fit:"warm", time_on_site:"1m 40s", pages:2, first_seen:"30 min ago", speed_to_lead_h:0.4, cost_per_lead:12.9, src_label:"Meta · Lead form", site_status:"live", pages_viewed:["/painter-leads/"] },
+      deal:null,
+      messages:[
+        { dir:"out", channel:"sms", body:"Hi Sandra, Andy at Consent Resolve…", ts:"24 min ago", meta:"failed · 30006 landline" },
+        { dir:"system", body:"⚠ SMS delivery failed (landline). Sequence paused — try email or call the number on file.", ts:"24 min ago" } ] },
+
+    { id:"c03", bucket:"open", source:"chatwoot", channel:"chatwoot", name:null, company:null,
+      contact_email:null, initials:"?", lifecycle:"Lead", hot:false, unread:true, ts:"just now",
+      task:{ tag:"do", text:"Answer the chat — “do you work with garage door companies?” (yes, we do)", cta:"Answer" },
+      last:{ label:"New site chat", ts:"just now", tone:"info" },
+      next:{ kind:"you", label:"Answer his question", when:"now", tone:"act" },
+      consent:{ email:"none", sms:"none", voice:"none" },
+      sequence:{ step:0, total:0, label:"—", status:"none" },
+      sla:{ min:1, level:"warn" },
+      intel:{ fit:"warm", time_on_site:"1m 30s", pages:3, first_seen:"3 min ago", speed_to_lead_h:null, cost_per_lead:null, src_label:"Chatwoot · site chat", site_status:"—", pages_viewed:["/garage-door-leads/","/pricing/"] },
+      deal:null,
+      messages:[ { dir:"in", channel:"chatwoot", body:"do you work with garage door companies?", ts:"just now" } ] },
+
+    { id:"c13", bucket:"open", source:"site", channel:"sms", name:"Leah Cho", company:"Cho Landscaping",
+      contact_email:"leah@cholandscaping.com", initials:"LC", lifecycle:"Opportunity", hot:true, unread:true, ts:"12 min ago",
+      task:{ tag:"do", text:"Confirm & prep — she booked the 2:00 PM demo.", cta:"Open deal" },
+      last:{ label:"Leah booked the 2:00 PM demo", ts:"12 min ago", tone:"good" },
+      next:{ kind:"you", label:"Confirm & prep the demo", when:"before 2:00 PM", tone:"act" },
+      consent:{ email:"granted", sms:"granted", voice:"granted" },
+      sequence:{ step:2, total:4, label:"Speed-to-lead", status:"booked" },
+      sla:{ min:12, level:"none" },
+      intel:{ fit:"hot", time_on_site:"6m", pages:9, first_seen:"1 hr ago", speed_to_lead_h:0.1, cost_per_lead:null, src_label:"Site · demo signup", site_status:"live", pages_viewed:["/lawn-care-leads/","/get-started/"] },
+      deal:{ title:"Cho Landscaping", value_usd:0, prob:88 },
+      messages:[
+        { dir:"out", channel:"sms", body:"Hi Leah! Andy at Consent Resolve — grab any time here to see it on your site: [link] (STOP to opt out)", ts:"20 min ago", meta:"delivered" },
+        { dir:"in", channel:"sms", body:"booked the 2pm, thanks!", ts:"12 min ago" },
+        { dir:"system", body:"🎉 Goal: booked. Sequence exited, deal moved to 76–99%.", ts:"12 min ago" } ] },
+
+    { id:"c10", bucket:"open", source:"manual", channel:"email", name:"Unknown", company:null,
+      contact_email:"jsmith88@gmail.com", initials:"?", lifecycle:"Lead", hot:false, unread:true, ts:"3 hr ago",
+      email_subject:"Re: your ad — the $7 thing",
+      task:{ tag:"do", text:"Reply & qualify — get his name + company, then explain the $7 model.", cta:"Reply" },
+      last:{ label:"New email — no name/company matched", ts:"3 hr ago", tone:"info" },
+      next:{ kind:"you", label:"Reply & qualify", when:"today", tone:"act" },
+      consent:{ email:"granted", sms:"none", voice:"none" },
+      sequence:{ step:0, total:0, label:"—", status:"none" },
+      sla:{ min:180, level:"none" },
+      intel:{ fit:"unknown", time_on_site:"—", pages:0, first_seen:"3 hr ago", speed_to_lead_h:null, cost_per_lead:null, src_label:"Manual · forwarded", site_status:"—", pages_viewed:[] },
+      deal:null,
+      messages:[ { dir:"in", channel:"email", subject:"your ad — the $7 thing", body:"hey saw your ad, what's the catch on the $7 thing", ts:"3 hr ago" } ] },
+
+    { id:"c09", bucket:"open", source:"site", channel:"email", name:"David Hendersen", company:"Hendersen Construction",
+      contact_email:"david@hendersenconstruction.com", initials:"DH", lifecycle:"Opportunity", hot:false, unread:true, ts:"yesterday",
+      email_subject:"Re: volume pricing for 3 locations",
+      task:{ tag:"do", text:"Reply — he wants a volume rate across 3 offices.", cta:"Reply" },
+      last:{ label:"David replied — asked for volume pricing", ts:"yesterday", tone:"good" },
+      next:{ kind:"you", label:"Send a 3-location volume rate", when:"today", tone:"act" },
+      consent:{ email:"granted", sms:"none", voice:"none" },
+      sequence:{ step:4, total:4, label:"Nurture", status:"active" },
+      sla:{ min:900, level:"none" },
+      intel:{ fit:"hot", time_on_site:"22m", pages:30, first_seen:"3 weeks ago", speed_to_lead_h:0.5, cost_per_lead:null, src_label:"Site · organic", site_status:"live · has form", pages_viewed:["/general-contractor-leads/","/pricing/","/compare/"] },
+      deal:{ title:"Hendersen Construction — 3 locations", value_usd:6400, prob:63 },
+      messages:[
+        { dir:"out", channel:"email", subject:"Volume pricing for 3 locations", body:"Here's the breakdown for a single location — $7 per exclusive lead, no minimum, no reselling. Happy to talk multi-site whenever you're ready.", ts:"2 days ago", meta:"opened" },
+        { dir:"in", channel:"email", subject:"Re: Volume pricing for 3 locations", body:"Following up — can you do a volume rate across our three offices?", ts:"yesterday" } ] },
+
+    /* ============ AUTO — running a sequence, no human needed ============ */
+    { id:"c01", bucket:"auto", source:"meta", channel:"sms", name:"Marcus Whitfield", company:"Whitfield Heating & Air",
+      contact_email:"marcus@whitfieldheating.com", initials:"MW", lifecycle:"SQL", hot:true, unread:false, ts:"2 min ago",
+      last:{ label:"SMS delivered", ts:"8 min ago", tone:"good" },
+      next:{ kind:"auto", label:"AI call (Retell)", when:"in 4 min", tone:"info" },
+      consent:{ email:"granted", sms:"granted", voice:"granted" },
+      sequence:{ step:1, total:4, label:"Speed-to-lead", status:"active" },
+      sla:{ min:6, level:"none" },
+      intel:{ fit:"hot", time_on_site:"4m 12s", pages:7, first_seen:"9 min ago", speed_to_lead_h:0.1, cost_per_lead:12.9, src_label:"Meta · Lead form (HVAC)", site_status:"live · no capture", pages_viewed:["/hvac-leads/","/pricing/","/how-it-works/","/sample-lead/"] },
+      deal:null,
+      messages:[
+        { dir:"system", body:"Lead created from Meta Lead Form “Exclusive HVAC Leads”.", ts:"9 min ago" },
+        { dir:"system", body:"🔍 Website intel — live site, no lead-capture form, no chat. Fit: HOT. Pitch angle: they're paying for traffic and catching none of it.", ts:"9 min ago" },
+        { dir:"out", channel:"sms", body:"Hi Marcus, it's Andy at Consent Resolve — saw you grabbed our HVAC info. We turn the visitors your site already gets into real leads, $7 each. Want the 2-min version? (Reply STOP to opt out)", ts:"8 min ago", meta:"delivered" } ] },
+
+    { id:"c06", bucket:"auto", source:"meta", channel:"ai_call", name:"Gloria Bennett", company:"Bennett Home Services",
+      contact_email:"gloria@bennetthome.com", initials:"GB", lifecycle:"MQL", hot:false, unread:false, ts:"18 min ago",
+      last:{ label:"AI call → voicemail", ts:"18 min ago", tone:"info" },
+      next:{ kind:"auto", label:"Email (call not answered)", when:"in 2 min", tone:"info" },
+      consent:{ email:"granted", sms:"granted", voice:"granted" },
+      sequence:{ step:3, total:4, label:"Speed-to-lead", status:"voicemail" },
+      sla:{ min:18, level:"none" },
+      intel:{ fit:"warm", time_on_site:"2m 10s", pages:4, first_seen:"40 min ago", speed_to_lead_h:0.3, cost_per_lead:12.9, src_label:"Meta · Lead form", site_status:"live", pages_viewed:["/handyman-leads/"] },
+      deal:null,
+      messages:[
+        { dir:"out", channel:"sms", body:"Hi Gloria, Andy here — saw you were checking us out. Quick question when you have a sec. (STOP to opt out)", ts:"35 min ago", meta:"delivered" },
+        { dir:"out", channel:"ai_call", body:"AI call placed (23s). AMD: voicemail. VM left: “Hi Gloria, this is the Consent Resolve team — this is an AI assistant — call or text us at (727) 202-5996.”", ts:"18 min ago", meta:"voicemail" } ] },
+
+    { id:"c02", bucket:"auto", source:"instantly", channel:"email", name:"Dana Reyes", company:"Reyes Plumbing Co.",
+      contact_email:"dana@reyesplumbing.com", initials:"DR", lifecycle:"Lead", hot:false, unread:false, ts:"1 day ago",
+      email_subject:"The visitors your site is losing",
+      last:{ label:"Email 2 sent", ts:"1 day ago", tone:"info" },
+      next:{ kind:"auto", label:"Email 3 → preference center", when:"tomorrow", tone:"info" },
+      consent:{ email:"granted", sms:"none", voice:"none" },
+      sequence:{ step:2, total:3, label:"Earn consent (email only)", status:"earn_consent" },
+      sla:{ min:31, level:"none" },
+      intel:{ fit:"warm", time_on_site:"—", pages:0, first_seen:"cold list", speed_to_lead_h:null, cost_per_lead:null, src_label:"Instantly · HVAC US v2", site_status:"unknown", pages_viewed:[] },
+      deal:null,
+      messages:[
+        { dir:"out", channel:"email", subject:"The visitors your site is losing", body:"Quick one — most plumbing sites lose the majority of the folks they pay to bring in. We hand the ones who opt in back to you, $7 each, never resold. Worth a look?", ts:"3 days ago", meta:"opened" },
+        { dir:"out", channel:"email", subject:"Re: The visitors your site is losing", body:"Circling back — if it's useful, I can show it on your own site. No pressure either way.", ts:"1 day ago", meta:"sent" } ] },
+
+    { id:"c12", bucket:"auto", source:"meta", channel:"email", name:"Owen Frost", company:"Frost Appliance Repair",
+      contact_email:"owen@frostappliance.com", initials:"OF", lifecycle:"Lead", hot:false, unread:false, ts:"44 min ago",
+      email_subject:"Can we keep emailing you?",
+      last:{ label:"Routed to earn-consent (no PEWC on form)", ts:"44 min ago", tone:"info" },
+      next:{ kind:"auto", label:"Email → preference center", when:"in 1 hr", tone:"info" },
+      consent:{ email:"granted", sms:"none", voice:"none" },
+      sequence:{ step:1, total:3, label:"Earn consent (email only)", status:"earn_consent" },
+      sla:{ min:44, level:"none" },
+      intel:{ fit:"warm", time_on_site:"2m", pages:3, first_seen:"50 min ago", speed_to_lead_h:0.2, cost_per_lead:12.9, src_label:"Meta · Lead form (no PEWC)", site_status:"live", pages_viewed:["/appliance-repair-leads/"] },
+      deal:null,
+      messages:[ { dir:"system", body:"Lead form did not capture SMS/voice consent — routed to email-only earn-consent branch.", ts:"44 min ago" } ] },
+
+    { id:"c04", bucket:"auto", source:"demo", channel:"email", name:"Priya Nair", company:"Nair Electric",
+      contact_email:"priya@nairelectric.com", initials:"PN", lifecycle:"MQL", hot:false, unread:false, ts:"1 hr ago",
+      email_subject:"Welcome to Consent Resolve — one step to go live",
+      last:{ label:"Welcome email opened", ts:"58 min ago", tone:"good" },
+      next:{ kind:"auto", label:"Install reminder + concierge offer", when:"tomorrow", tone:"info" },
+      consent:{ email:"granted", sms:"granted", voice:"none" },
+      sequence:{ step:1, total:3, label:"Onboarding → activation", status:"onboarding" },
+      sla:{ min:62, level:"none" },
+      intel:{ fit:"hot", time_on_site:"8m 40s", pages:11, first_seen:"yesterday", speed_to_lead_h:0.2, cost_per_lead:null, src_label:"Site · demo signup", site_status:"live · script NOT detected", pages_viewed:["/get-started/","/pricing/","/how-it-works/"] },
+      deal:{ title:"Nair Electric — self-serve", value_usd:0, prob:38 },
+      messages:[
+        { dir:"system", body:"Signed up via /get-started. PEWC checkbox: checked (email + SMS).", ts:"1 hr ago" },
+        { dir:"out", channel:"email", subject:"Welcome to Consent Resolve — one step to go live", body:"Welcome! One step to go live: drop this line on your site. Want us to install it for you? Reply and we'll hop on a 10-min call.", ts:"58 min ago", meta:"opened" } ] },
+
+    /* ============ SNOOZED ============ */
+    { id:"c14", bucket:"snoozed", source:"instantly", channel:"email", name:"Hector Alvarez", company:"Alvarez Pest Control",
+      contact_email:"hector@alvarezpest.com", initials:"HA", lifecycle:"Lead", hot:false, unread:false, ts:"snoozed · 5 days",
+      email_subject:"Re: circling back next week",
+      last:{ label:"Hector asked to circle back", ts:"2 days ago", tone:"info" },
+      next:{ kind:"snoozed", label:"Wakes back into Open", when:"in 5 days", tone:"info" },
+      consent:{ email:"granted", sms:"none", voice:"none" },
+      sequence:{ step:3, total:3, label:"Earn consent (email only)", status:"earn_consent" },
+      sla:{ min:0, level:"none" },
+      intel:{ fit:"warm", time_on_site:"—", pages:0, first_seen:"cold list", speed_to_lead_h:null, cost_per_lead:null, src_label:"Instantly · HVAC US v2", site_status:"unknown", pages_viewed:[] },
+      deal:null,
+      messages:[ { dir:"in", channel:"email", subject:"circling back next week", body:"not now, circle back next week", ts:"2 days ago" } ] },
+
+    /* ============ SUPPRESSED — appear only in All (no action possible) ============ */
+    { id:"c07", bucket:"suppressed", source:"instantly", channel:"sms", name:"Rick Osborne", company:"Osborne Mechanical",
+      contact_email:"rick@osbornemech.com", initials:"RO", lifecycle:"Lead", hot:false, unread:false, ts:"2 hr ago",
+      last:{ label:"Rick replied STOP — opted out", ts:"2 hr ago", tone:"bad" },
+      next:{ kind:"none", label:"No outreach — email only if he initiates", when:"—", tone:"muted" },
+      consent:{ email:"granted", sms:"revoked", voice:"revoked" },
+      sequence:{ step:2, total:4, label:"Speed-to-lead", status:"opted_out" },
+      sla:{ min:0, level:"none" },
+      intel:{ fit:"cold", time_on_site:"—", pages:0, first_seen:"cold list", speed_to_lead_h:null, cost_per_lead:null, src_label:"Instantly · HVAC US v2", site_status:"unknown", pages_viewed:[] },
+      deal:null,
+      messages:[
+        { dir:"out", channel:"sms", body:"Hi Rick, Andy at Consent Resolve — want to see who's visiting your site? (STOP to opt out)", ts:"2 hr ago", meta:"delivered" },
+        { dir:"in", channel:"sms", body:"STOP", ts:"2 hr ago", meta:"suppressed" },
+        { dir:"system", body:"⛔ SMS + voice suppressed. Revocation recorded to the consent ledger.", ts:"2 hr ago" } ] },
+
+    { id:"c11", bucket:"suppressed", source:"apollo", channel:"identified", name:"Karen Duval", company:"Duval Comfort Systems",
+      contact_email:null, initials:"KD", lifecycle:"Lead", hot:false, unread:false, ts:"5 hr ago",
+      last:{ label:"Identified via Leadsy (no consent)", ts:"5 hr ago", tone:"muted" },
+      next:{ kind:"none", label:"Outreach disabled — retargeting only", when:"—", tone:"muted" },
+      consent:{ email:"na", sms:"na", voice:"na" },
+      sequence:{ step:0, total:0, label:"—", status:"blocked" },
+      sla:{ min:0, level:"none" },
+      intel:{ fit:"warm", time_on_site:"5m 20s", pages:6, first_seen:"5 hr ago", speed_to_lead_h:null, cost_per_lead:null, src_label:"Apollo/Leadsy · identified", site_status:"live", pages_viewed:["/hvac-leads/","/pricing/","/faq/"] },
+      deal:null,
+      messages:[ { dir:"system", body:"⛓ Visitor identified via Leadsy — NO consent to contact. Available for retargeting audiences + context only. Outreach actions are disabled.", ts:"5 hr ago" } ] }
+  ]
+};
+
+/* Auto-enrichment — things we can look up about the business to arm the sale.
+   website (live? captures leads?), Facebook (followers + ads running via the public
+   Meta Ad Library), Google Business Profile, Google Ads/LSA, tracking pixels,
+   estimated monthly ad spend, site traffic, size, tenure. Null = nothing matched yet. */
+window.ENRICH = {
+  c01:{website:{domain:"whitfieldheating.com",live:true,capture:false},facebook:{handle:"WhitfieldHeatingAir",followers:1800,ads_live:4},gmb:{rating:4.7,reviews:96,verified:true},ads:{google:true,lsa:true},pixels:["Meta","GA4"],spend_low:2400,spend_high:3200,spend_channels:["Meta","Google","LSA"],traffic_month:3100,employees:"10–25",years:14,signal:"Advertising on 3 channels but the site captures nothing — paying for traffic they can't catch."},
+  c05:{website:{domain:"langroofing.com",live:true,capture:true},facebook:{handle:"LangRoofingTX",followers:2400,ads_live:2},gmb:{rating:4.5,reviews:128,verified:true},ads:{google:true,lsa:false},pixels:["Meta"],spend_low:1800,spend_high:2400,spend_channels:["Meta","Google"],traffic_month:2600,employees:"10–25",years:9,signal:"Has a form but still loses most visitors — sell the exclusive-lead upgrade."},
+  c06:{website:{domain:"bennetthome.com",live:true,capture:false},facebook:{handle:"BennettHomeSvc",followers:900,ads_live:1},gmb:{rating:4.2,reviews:54,verified:true},ads:{google:false,lsa:true},pixels:["GA4"],spend_low:900,spend_high:1400,spend_channels:["Meta","LSA"],traffic_month:1400,employees:"3–10",years:6,signal:"Running LSA + a Meta ad, no capture on site — easy quick win."},
+  c08:{website:{domain:"colesandsons.com",live:true,capture:false},facebook:{handle:"ColeAndSonsPainting",followers:620,ads_live:0},gmb:{rating:4.8,reviews:41,verified:true},ads:{google:false,lsa:false},pixels:[],spend_low:0,spend_high:0,spend_channels:[],traffic_month:700,employees:"3–10",years:11,signal:"Great reviews, not advertising yet — 'try it on the traffic you already get'."},
+  c12:{website:{domain:"frostappliance.com",live:true,capture:false},facebook:{handle:"FrostApplianceRepair",followers:1100,ads_live:2},gmb:{rating:4.4,reviews:73,verified:true},ads:{google:true,lsa:false},pixels:["Meta"],spend_low:1200,spend_high:1700,spend_channels:["Meta","Google"],traffic_month:1900,employees:"3–10",years:8,signal:"Actively advertising, no lead capture — classic fit."},
+  c02:{website:{domain:"reyesplumbing.com",live:true,capture:false},facebook:{handle:"ReyesPlumbingCo",followers:1500,ads_live:0},gmb:{rating:4.3,reviews:88,verified:true},ads:{google:false,lsa:false},pixels:["GA4"],spend_low:0,spend_high:0,spend_channels:[],traffic_month:1600,employees:"10–25",years:15,signal:"Established, strong reviews, not advertising — warm outbound fit."},
+  c09:{website:{domain:"hendersenconstruction.com",live:true,capture:true},facebook:{handle:"HendersenConstruction",followers:5100,ads_live:5},gmb:{rating:4.6,reviews:210,verified:true},ads:{google:true,lsa:false},pixels:["Meta","GA4"],spend_low:4200,spend_high:6000,spend_channels:["Meta","Google"],traffic_month:8200,employees:"50+",years:20,signal:"3-location GC with heavy spend — high-value, multi-site expansion."},
+  c11:{website:{domain:"duvalcomfort.com",live:true,capture:false},facebook:{handle:"DuvalComfortSystems",followers:1300,ads_live:3},gmb:{rating:4.5,reviews:67,verified:true},ads:{google:true,lsa:true},pixels:["Meta","GA4"],spend_low:2000,spend_high:2800,spend_channels:["Meta","Google","LSA"],traffic_month:2400,employees:"10–25",years:10,signal:"Identified from our own traffic — advertising hard, no capture. Retarget + reach a warm channel."},
+  c04:{website:{domain:"nairelectric.com",live:true,capture:false},facebook:{handle:"NairElectric",followers:800,ads_live:1},gmb:{rating:4.9,reviews:38,verified:true},ads:{google:false,lsa:true},pixels:["Meta","GA4"],spend_low:600,spend_high:1000,spend_channels:["LSA"],traffic_month:1100,employees:"3–10",years:5,signal:"Signed up but script not installed — get them live to start catching the traffic they pay for."},
+  c13:{website:{domain:"cholandscaping.com",live:true,capture:true},facebook:{handle:"ChoLandscaping",followers:1700,ads_live:2},gmb:{rating:4.7,reviews:59,verified:true},ads:{google:true,lsa:false},pixels:["Meta"],spend_low:1000,spend_high:1500,spend_channels:["Meta","Google"],traffic_month:1500,employees:"3–10",years:7,signal:"Booked — confirm fit and get the pixel live before the demo."},
+  c07:{website:{domain:"osbornemech.com",live:true,capture:false},facebook:null,gmb:{rating:4.0,reviews:22,verified:false},ads:{google:false,lsa:false},pixels:[],spend_low:0,spend_high:0,spend_channels:[],traffic_month:600,employees:"1–3",years:4,signal:null},
+  c14:{website:{domain:"alvarezpest.com",live:true,capture:false},facebook:{handle:"AlvarezPestControl",followers:700,ads_live:0},gmb:{rating:4.4,reviews:49,verified:true},ads:{google:false,lsa:false},pixels:["GA4"],spend_low:0,spend_high:0,spend_channels:[],traffic_month:900,employees:"3–10",years:8,signal:null}
+  /* c03 (anonymous chat) + c10 (free email, no company) = nothing to match on → no card */
+};
+
+/* Discoverable directory data for the Tasks lookups (address + social handles).
+   Present = an auto-lookup can find it; absent = the rep enters it manually.
+   Website + Facebook already come from ENRICH (captured at lead time). */
+window.DIRECTORY = {
+  c01:{address:"482 Industrial Blvd, Tampa, FL 33601",linkedin:"whitfield-heating-air",instagram:"whitfieldhvac",tiktok:"whitfieldhvac"},
+  c05:{address:"1907 Prospect Rd, Austin, TX 78704",linkedin:"lang-roofing",instagram:"langroofingtx",tiktok:"langroofs"},
+  c06:{address:"77 Maple Ave, Ocala, FL 34470",linkedin:"bennett-home-services",instagram:"bennetthome"},
+  c08:{address:"310 Bayshore Blvd, Tampa, FL 33606",instagram:"coleandsonspainting"},
+  c09:{address:"5000 Post Oak Blvd, Beaumont, TX 77706",linkedin:"hendersen-construction",instagram:"hendersenbuilds",tiktok:"hendersenbuilds"},
+  c02:{address:"24 Alamo Plaza, San Antonio, TX 78205",linkedin:"reyes-plumbing-co",instagram:"reyesplumbing"},
+  c12:{address:"88 Frost Ln, Tampa, FL 33607",instagram:"frostappliancerepair",tiktok:"frostfixes"},
+  c04:{address:"12 Sparks Dr, Deltona, FL 32725",linkedin:"nair-electric",instagram:"nairelectric"},
+  c13:{address:"640 Green St, San Marcos, TX 78666",instagram:"cholandscaping",tiktok:"choscapes"},
+  c11:{address:"915 Cooling Way, Jacksonville, FL 32202",linkedin:"duval-comfort-systems",instagram:"duvalcomfort"},
+  c07:{address:"5 Old Mill Rd, Houston, TX 77002"},
+  c14:{address:"300 Border Ave, Laredo, TX 78040",instagram:"alvarezpest"}
+};
+
+/* ========================================================================
+   SEQUENCES — the automated workflows, with step-level conversion stats.
+   Each step: entered N, then outcome lines. Numbers are last-30-days totals. */
+window.SEQUENCES = [
+  { id:"speed", name:"Speed-to-lead", trigger:"New paid lead with SMS + voice consent (PEWC captured)",
+    goal:"Book the demo", consent:["sms","voice","email"], active:12,
+    enrolled:214, replyRate:0.32, goalRate:0.14, optoutRate:0.05,
+    steps:[
+      { ch:"sms", label:"SMS — first touch", timing:"Immediately", entered:214,
+        out:[{t:"Delivered",n:206},{t:"Replied → exit",n:38,tone:"good"},{t:"No reply → continue",n:176,tone:"muted"}] },
+      { ch:"ai_call", label:"AI call (Retell)", timing:"+5 min if no reply", branch:"Answering-machine detection splits the path",
+        entered:176, out:[{t:"Answered live",n:41,tone:"accent"},{t:"Booked on call",n:22,tone:"good"},{t:"Voicemail → email branch",n:135,tone:"muted"}] },
+      { ch:"email", label:"Email — recap + link", timing:"+30 min / right after voicemail", entered:135,
+        out:[{t:"Opened",n:74},{t:"Replied → exit",n:19,tone:"good"},{t:"No reply → continue",n:96,tone:"muted"}] },
+      { ch:"sms", label:"Next-day SMS", timing:"+1 day if still cold", entered:96,
+        out:[{t:"Replied → exit",n:11,tone:"good"},{t:"Sequence ends",n:85,tone:"muted"}] }
+    ]},
+  { id:"earn", name:"Earn consent (email only)", trigger:"Lead with email only — no PEWC (cold list / Instantly)",
+    goal:"Opt in to SMS + voice", consent:["email"], active:31,
+    enrolled:642, replyRate:0.055, goalRate:0.06, optoutRate:0.02,
+    steps:[
+      { ch:"email", label:"Email 1 — the leak", timing:"Immediately", entered:642,
+        out:[{t:"Opened",n:263},{t:"Replied",n:24,tone:"good"},{t:"Continue",n:618,tone:"muted"}] },
+      { ch:"email", label:"Email 2 — proof + sample lead", timing:"+2 days", entered:618,
+        out:[{t:"Opened",n:204},{t:"Replied",n:11,tone:"good"},{t:"Continue",n:607,tone:"muted"}] },
+      { ch:"email", label:"Preference center", timing:"+4 days", entered:607,
+        out:[{t:"Opted in to SMS/voice",n:38,tone:"good"},{t:"No response",n:569,tone:"muted"}] }
+    ]},
+  { id:"onboard", name:"Onboarding → activation", trigger:"Demo signup via /get-started (PEWC checked)",
+    goal:"Script live + first captured lead", consent:["email","sms"], active:6,
+    enrolled:37, replyRate:0.49, goalRate:0.43, optoutRate:0,
+    steps:[
+      { ch:"email", label:"Welcome + install snippet", timing:"Immediately", entered:37,
+        out:[{t:"Opened",n:32},{t:"Installed script",n:12,tone:"good"},{t:"Not live yet",n:25,tone:"muted"}] },
+      { ch:"sms", label:"Install reminder + concierge", timing:"+1 day if not live", entered:25,
+        out:[{t:"Replied",n:14,tone:"good"},{t:"Booked concierge call",n:8,tone:"accent"}] },
+      { ch:"email", label:"Activated", timing:"On first captured lead", entered:20,
+        out:[{t:"Activated 🎉",n:16,tone:"good"}] }
+    ]}
+];
+
+/* ========================================================================
+   ANALYTICS — Command Center aggregates (last 30 days). Kept internally
+   consistent: source rows sum to the KPI totals; spend is real ad spend. */
+window.ANALYTICS = {
+  kpis:{ leads:308, replies:68, demos:29, activations:11, spend:3300, cpl:10.71, cpd:114, pipeline:2156 },
+  funnel:[ {k:"Leads",n:308},{k:"Contacted",n:296},{k:"Replied",n:68},{k:"Demo booked",n:29},{k:"Activated",n:11} ],
+  sources:[
+    { src:"meta",     leads:132, reply:0.28, demos:15, act:6, spend:1700 },
+    { src:"instantly",leads:96,  reply:0.05, demos:2,  act:0, spend:0    },
+    { src:"site",     leads:41,  reply:0.44, demos:8,  act:4, spend:1600 },
+    { src:"apollo",   leads:22,  reply:0.00, demos:0,  act:0, spend:0    },
+    { src:"chatwoot", leads:11,  reply:0.55, demos:3,  act:1, spend:0    },
+    { src:"manual",   leads:6,   reply:0.33, demos:1,  act:0, spend:0    }
+  ],
+  spendByChannel:[ {k:"Meta",v:1700},{k:"Google",v:1100},{k:"LSA",v:500} ],
+  leadsByDay:[9,12,7,14,11,18,10,15,13,9,16,12,8,14,11,17,13,10,15,12,9,14,16,11,8,13,10,15,12,9],
+  avgDealYr:2340  /* assumed annual value per activation, for est. ROAS only */
+};
+
+/* ========================================================================
+   CONSENT LEDGER — every grant/revoke, with the proof behind it.
+   This is the auditable record that makes each send defensible (TCPA/CIPA). */
+window.CONSENT_LEDGER = [
+  { ts:"Today · 9:14 AM", name:"Marcus Whitfield", co:"Whitfield Heating & Air", ch:["email","sms","voice"], action:"granted",
+    basis:"Meta Lead Form — PEWC checkbox", form:"“Exclusive HVAC Leads”", ip:"98.6.204.11",
+    proof:"By submitting, I agree to receive automated marketing calls & texts from Consent Resolve at the number provided. Consent is not a condition of purchase. Msg & data rates may apply. Reply STOP to opt out." },
+  { ts:"Today · 8:40 AM", name:"Priya Nair", co:"Nair Electric", ch:["email","sms"], action:"granted",
+    basis:"/get-started signup — PEWC checkbox", form:"Demo signup", ip:"172.58.19.240",
+    proof:"I agree to receive account and marketing emails and texts from Consent Resolve. I can opt out any time via the link in any message or by replying STOP." },
+  { ts:"44 min ago", name:"Owen Frost", co:"Frost Appliance Repair", ch:["email"], action:"granted",
+    basis:"Meta Lead Form — email only (no phone consent captured)", form:"“Appliance Repair” (no PEWC)", ip:"66.87.125.9",
+    proof:"Form captured email opt-in only. No SMS/voice consent language was present — routed to the email-only earn-consent branch." },
+  { ts:"2 hr ago", name:"Rick Osborne", co:"Osborne Mechanical", ch:["sms","voice"], action:"revoked",
+    basis:"Inbound “STOP” keyword", form:"SMS reply", ip:"",
+    proof:"Inbound SMS: “STOP”. SMS + voice auto-suppressed at 2:03 PM; email consent retained. Suppression is permanent unless the contact re-subscribes." },
+  { ts:"3 hr ago", name:"Dana Reyes", co:"Reyes Plumbing Co.", ch:["email"], action:"granted",
+    basis:"Cold list — legitimate-interest email (CAN-SPAM)", form:"Instantly · HVAC US v2", ip:"",
+    proof:"B2B cold email under CAN-SPAM: physical address + one-click unsubscribe present. No SMS/voice contact permitted until they opt in via the preference center." },
+  { ts:"Yesterday", name:"Leah Cho", co:"Cho Landscaping", ch:["email","sms","voice"], action:"granted",
+    basis:"/get-started signup — PEWC checkbox", form:"Demo signup", ip:"70.114.30.5",
+    proof:"Full opt-in captured at signup; booked a demo the same day." },
+  { ts:"Yesterday", name:"Sandra Cole", co:"Cole & Sons Painting", ch:["email","sms","voice"], action:"granted",
+    basis:"Meta Lead Form — PEWC checkbox", form:"“Painter Leads”", ip:"104.28.7.62",
+    proof:"Consent captured, but the number is a landline — SMS failed (carrier 30006). Voice + email still permitted." },
+  { ts:"2 days ago", name:"Karen Duval", co:"Duval Comfort Systems", ch:["email","sms","voice"], action:"none",
+    basis:"Identified via Leadsy — NO consent to contact", form:"Anonymous site visitor (de-anonymized)", ip:"",
+    proof:"Company identified from first-party traffic. There is no consent of any kind — this contact is available for retargeting audiences and context only. All outreach is disabled." },
+  { ts:"2 days ago", name:"Hector Alvarez", co:"Alvarez Pest Control", ch:["email"], action:"granted",
+    basis:"Cold list — legitimate-interest email (CAN-SPAM)", form:"Instantly · HVAC US v2", ip:"",
+    proof:"Email-only, CAN-SPAM compliant. Asked to circle back next week — snoozed, no SMS/voice permitted." },
+  { ts:"3 days ago", name:"Tomas Lang", co:"Lang Roofing", ch:["email","sms","voice"], action:"granted",
+    basis:"Meta Lead Form — PEWC checkbox", form:"“Roofing Leads Q3”", ip:"45.21.88.140",
+    proof:"Full opt-in; replied to the first SMS asking how it works." }
+];
+
+/* ========================================================================
+   INTEL — the company-intelligence layer for the Intel dashboard.
+   In production these fields are populated by 3rd-party enrichment
+   (BuiltWith/Wappalyzer for tech, Meta Ad Library for ads, Google Business
+   for reputation, traffic estimators) + an AI-written research brief. */
+window.INTEL = {
+  c01:{trade:"HVAC",tech:["WordPress","PHP","GA4","Meta Pixel","Cloudflare","reCAPTCHA"],chat:false,
+    brief:"Established HVAC shop running paid traffic across Meta, Google and LSA to a WordPress site with no lead-capture form and no chat. They're paying to bring homeowners in and catching almost none — the clearest possible fit for consent-first recovery."},
+  c05:{trade:"Roofing",tech:["WordPress","Gravity Forms","Meta Pixel","GA4"],chat:false,
+    brief:"Roofing company advertising on Meta + Google with a form on-site that catches only a sliver of visitors. Strong 4.5★ reputation. Angle: recover the 98% who never fill the form as exclusive leads."},
+  c06:{trade:"Handyman",tech:["Wix","GA4"],chat:false,
+    brief:"Home-services shop running Google Local Services Ads plus a Meta ad, no capture on a lightly-tracked site. Small but active advertiser — an easy quick win."},
+  c08:{trade:"Painting",tech:["Squarespace","Squarespace Analytics"],chat:false,
+    brief:"Painters with an excellent 4.8★ reputation but no ad spend and no tracking. Organic-first pitch: prove recovery on the traffic they already earn before they scale ads."},
+  c09:{trade:"General contractor",tech:["WordPress","HubSpot Forms","Meta Pixel","GA4","Cloudflare"],chat:true,
+    brief:"Multi-location GC with the heaviest spend in the pipeline (~$4–6k/mo across Meta + Google) and a form-equipped site. High-value, multi-site expansion play."},
+  c02:{trade:"Plumbing",tech:["WordPress","GA4"],chat:false,
+    brief:"Established plumber with strong reviews, not currently advertising. Warm-outbound fit — email-only until they opt in to calls and texts."},
+  c12:{trade:"Appliance repair",tech:["WordPress","Meta Pixel","GA4"],chat:false,
+    brief:"Appliance-repair shop actively advertising on Meta + Google with a Meta Pixel but no lead capture. Textbook 'paying for traffic, catching none' fit."},
+  c04:{trade:"Electrical",tech:["Wix","Meta Pixel","GA4"],chat:false,
+    brief:"Electrician who signed up for a trial but hasn't installed the script yet. 4.9★ reputation, running LSA. Priority: get them live to start catching the traffic they already pay for."},
+  c13:{trade:"Landscaping",tech:["WordPress","Gravity Forms","Meta Pixel"],chat:false,
+    brief:"Lawn-care company that booked a demo, advertising on Meta + Google with a form on-site. Confirm fit and get the pixel live before the demo."},
+  c11:{trade:"HVAC",tech:["WordPress","Meta Pixel","GA4"],chat:false,
+    brief:"Identified from our own first-party traffic (no consent yet). Advertising hard on three channels with no capture — retarget and reach out via a warm channel."},
+  c07:{trade:"Mechanical",tech:["GoDaddy Website Builder"],chat:false,
+    brief:"Small mechanical shop, no advertising, thin reputation. Opted out of SMS/voice — email only if they re-engage."},
+  c14:{trade:"Pest control",tech:["Wix","GA4"],chat:false,
+    brief:"Pest-control shop with decent reviews, not advertising. Snoozed — email-only, circle back next week."}
+};
+
+/* ===== Nurture pool — dormant leads on long-term auto follow-up =====
+   They keep getting low-frequency email+SMS touches but we ignore them until
+   they show intent (link click or site visit); then a fast re-engage sequence
+   fires and they surface back into the Inbox. */
+window.NURTURE = {
+  stats: { total:148, added7:6, cadence:137, reengaging:4, wonBack:11, next7:42 },
+  /* just tripped an intent signal → re-engage sequence auto-firing right now */
+  reengaging: [
+    { name:"Priya Nair", company:"Nair Electric", source:"instantly", channels:["email","sms"],
+      signal:{kind:"visit", text:"Came back to the site · viewed /pricing", when:"2h ago"},
+      seq:{step:2, of:3, done:"SMS sent 1h ago", next:"Email in 3h"}, dormant:58 },
+    { name:"Owen Frost", company:"Frost Appliance Repair", source:"site", channels:["email"],
+      signal:{kind:"click", text:"Clicked the link in our monthly email", when:"5h ago"},
+      seq:{step:1, of:3, done:"Follow-up email sent", next:"SMS tomorrow 9am"}, dormant:44 },
+    { name:"Dana Reyes", company:"Reyes Plumbing Co.", source:"apollo", channels:["email"],
+      signal:{kind:"visit", text:"Returned to site · 3 pages in one session", when:"yesterday"},
+      seq:{step:3, of:3, done:"Book-a-demo email sent", next:"Hand off to Inbox"}, dormant:96 },
+    { name:"Marcus Whitfield", company:"Whitfield Heating & Air", source:"meta", channels:["email","sms"],
+      signal:{kind:"click", text:"Tapped the link in an SMS touch", when:"1d ago"},
+      seq:{step:2, of:3, done:"Email sent 20h ago", next:"SMS in 2d"}, dormant:33 }
+  ],
+  /* the long-term pool — grows over time; status: dormant | recovered */
+  pool: [
+    {name:"Karen Duval", company:"Duval Comfort Systems", source:"meta", channels:["email","sms"], cadence:"Monthly", last:"22d ago", next:"in 8d", opens:4, clicks:1, visits:0, dormant:71, status:"dormant"},
+    {name:"Rick Osborne", company:"Osborne Mechanical", source:"instantly", channels:["email"], cadence:"Monthly", last:"18d ago", next:"in 12d", opens:2, clicks:0, visits:0, dormant:54, status:"dormant"},
+    {name:"Gloria Bennett", company:"Bennett Home Services", source:"site", channels:["email","sms"], cadence:"Bi-weekly", last:"4d ago", next:"in 10d", opens:9, clicks:2, visits:1, dormant:0, status:"recovered", note:"Booked a demo from nurture"},
+    {name:"Hector Alvarez", company:"Alvarez Roofing", source:"instantly", channels:["email"], cadence:"Monthly", last:"27d ago", next:"in 3d", opens:1, clicks:0, visits:0, dormant:88, status:"dormant"},
+    {name:"Sabrina Kelly", company:"Kelly Electric & Solar", source:"meta", channels:["email","sms"], cadence:"Monthly", last:"12d ago", next:"in 18d", opens:6, clicks:1, visits:0, dormant:47, status:"dormant"},
+    {name:"Devon Pratt", company:"Pratt Plumbing", source:"apollo", channels:["email"], cadence:"Quarterly", last:"31d ago", next:"in 59d", opens:0, clicks:0, visits:0, dormant:124, status:"dormant"},
+    {name:"Nadia Feldman", company:"Feldman Heating", source:"site", channels:["email","sms"], cadence:"Monthly", last:"9d ago", next:"in 21d", opens:5, clicks:0, visits:0, dormant:38, status:"dormant"},
+    {name:"Curtis Yang", company:"Yang HVAC", source:"instantly", channels:["email"], cadence:"Monthly", last:"20d ago", next:"in 10d", opens:3, clicks:1, visits:0, dormant:63, status:"dormant"},
+    {name:"Renee Solis", company:"Solis Comfort Co.", source:"meta", channels:["email","sms"], cadence:"Bi-weekly", last:"6d ago", next:"in 8d", opens:7, clicks:0, visits:0, dormant:29, status:"dormant"},
+    {name:"Toby Grant", company:"Grant Mechanical", source:"apollo", channels:["email"], cadence:"Quarterly", last:"44d ago", next:"in 46d", opens:1, clicks:0, visits:0, dormant:142, status:"dormant"},
+    {name:"Ana Ruiz", company:"Ruiz Roofing & Gutters", source:"site", channels:["email","sms"], cadence:"Monthly", last:"2d ago", next:"in 12d", opens:11, clicks:3, visits:2, dormant:0, status:"recovered", note:"Replied — moved to Inbox"},
+    {name:"Wesley Boone", company:"Boone Electric", source:"instantly", channels:["email"], cadence:"Monthly", last:"25d ago", next:"in 5d", opens:2, clicks:0, visits:0, dormant:79, status:"dormant"},
+    {name:"Lena Ostrowski", company:"Ostrowski Plumbing", source:"meta", channels:["email","sms"], cadence:"Monthly", last:"14d ago", next:"in 16d", opens:4, clicks:1, visits:0, dormant:52, status:"dormant"},
+    {name:"Darius Cole", company:"Cole Heating & Air", source:"apollo", channels:["email"], cadence:"Quarterly", last:"38d ago", next:"in 52d", opens:0, clicks:0, visits:0, dormant:117, status:"dormant"},
+    {name:"Fiona Mercer", company:"Mercer Home Services", source:"site", channels:["email","sms"], cadence:"Bi-weekly", last:"5d ago", next:"in 9d", opens:8, clicks:1, visits:0, dormant:34, status:"dormant"},
+    {name:"Grant Whitaker", company:"Whitaker Mechanical", source:"instantly", channels:["email"], cadence:"Monthly", last:"29d ago", next:"in 1d", opens:1, clicks:0, visits:0, dormant:91, status:"dormant"}
+  ]
+};
+
+/* ===== Site Spy — known visitors by last activity =====
+   Who is on the site (or was recently), what they're looking at, and whether
+   we're already engaging them via a sequence, automation, or human chat. */
+window.SITESPY = {
+  stats: { onSite:4, today:22, inWorkflow:9, netNew:5 },
+  visitors: [
+    /* live = on the site right now */
+    { name:"Priya Nair", company:"Nair Electric", source:"instantly", live:true,
+      page:"/pricing", trail:["/","/how-it-works","/pricing"], time:"4m 12s",
+      eng:{seq:"Speed-to-lead · step 2", auto:true}, last:"now", lastMin:0 },
+    { name:"David Hendersen", company:"Hendersen Construction", source:"site", live:true,
+      page:"/industries/roofing-leads", trail:["/industries/","/industries/roofing-leads"], time:"2m 03s",
+      eng:{conv:true}, last:"now", lastMin:0 },
+    { name:"Tomas Lang", company:"Lang Roofing", source:"meta", live:true,
+      page:"/sample-lead", trail:["/","/pricing","/sample-lead"], time:"6m 40s",
+      eng:{conv:true, auto:false}, last:"now", lastMin:0 },
+    { name:"Nina Brooks", company:"Brooks Plumbing", source:"apollo", live:true,
+      page:"/how-it-works", trail:["/","/how-it-works"], time:"1m 20s",
+      eng:{none:true}, last:"now", lastMin:0 },
+    /* recent — by last activity */
+    { name:"Leah Cho", company:"Cho Landscaping", source:"site", live:false,
+      page:"/pricing", trail:["/","/faq","/pricing"], time:"5m 08s", pages:3,
+      eng:{seq:"Onboarding → activation", auto:true}, last:"3m ago", lastMin:3 },
+    { name:"Marcus Whitfield", company:"Whitfield Heating & Air", source:"meta", live:false,
+      page:"/industries/hvac-leads", trail:["/","/industries/hvac-leads"], time:"2m 44s", pages:2,
+      eng:{nurture:true}, last:"12m ago", lastMin:12 },
+    { name:"Owen Frost", company:"Frost Appliance Repair", source:"site", live:false,
+      page:"/pricing", trail:["/how-it-works","/pricing"], time:"3m 19s", pages:2,
+      eng:{nurture:true}, last:"18m ago", lastMin:18 },
+    { name:"Dana Reyes", company:"Reyes Plumbing Co.", source:"apollo", live:false,
+      page:"/how-it-works", trail:["/","/how-it-works"], time:"1m 55s", pages:2,
+      eng:{seq:"Earn consent (email only)", auto:true}, last:"26m ago", lastMin:26 },
+    { name:"Sabrina Kelly", company:"Kelly Electric & Solar", source:"meta", live:false,
+      page:"/faq", trail:["/","/pricing","/faq"], time:"4m 02s", pages:3,
+      eng:{none:true}, last:"40m ago", lastMin:40 },
+    { name:"Gloria Bennett", company:"Bennett Home Services", source:"meta", live:false,
+      page:"/sample-lead", trail:["/","/how-it-works","/sample-lead"], time:"3m 30s", pages:3,
+      eng:{seq:"Speed-to-lead · step 3", auto:true}, last:"1h ago", lastMin:60 },
+    { name:"Nadia Feldman", company:"Feldman Heating", source:"site", live:false,
+      page:"/about", trail:["/","/about"], time:"0m 48s", pages:2,
+      eng:{nurture:true}, last:"2h ago", lastMin:120 },
+    { name:"Wesley Boone", company:"Boone Electric", source:"instantly", live:false,
+      page:"/pricing", trail:["/pricing"], time:"0m 36s", pages:1,
+      eng:{none:true}, last:"3h ago", lastMin:180 },
+    { name:"Rick Osborne", company:"Osborne Mechanical", source:"instantly", live:false,
+      page:"/pricing", trail:["/","/pricing"], time:"1m 12s", pages:2,
+      eng:{suppressed:true}, last:"4h ago", lastMin:240 },
+    { name:"Fiona Mercer", company:"Mercer Home Services", source:"site", live:false,
+      page:"/how-it-works", trail:["/","/how-it-works"], time:"2m 10s", pages:2,
+      eng:{nurture:true}, last:"5h ago", lastMin:300 }
+  ]
+};
+</script>
+<script>
+/* Inbox render — reads window.DATA. Pure view logic, no app code (Rule Zero).
+   Middle stays calm (who + what to do + the messages); ALL status/tags/activity
+   live in the right rail. */
+const SRC = {meta:"Meta",instantly:"Instantly",chatwoot:"Chatwoot",site:"Site",demo:"Demo",apollo:"Apollo",manual:"Manual"};
+const SRC_COLOR = {meta:"var(--src-meta)",instantly:"var(--src-instantly)",chatwoot:"var(--src-chatwoot)",site:"var(--src-site)",demo:"var(--src-site)",apollo:"var(--src-apollo)",manual:"var(--src-manual)"};
+const CH  = {email:"✉ Email",sms:"💬 SMS",ai_call:"📞 AI call",chatwoot:"💬 Chat",demo_form:"✉ Demo",identified:"⛓ Identified"};
+const SEQ_ICON = {active:"●",earn_consent:"✉",replied:"✓",booked:"🎉",opted_out:"⛔",failed:"⚠",voicemail:"📞",blocked:"⛓",onboarding:"⚙",none:"—"};
+const SEQ_LBL = s => ({active:"In sequence",earn_consent:"Earn consent",replied:"Replied",booked:"Booked",opted_out:"Opted out",failed:"Send failed",voicemail:"Voicemail → email",blocked:"No outreach",onboarding:"Onboarding",none:"New"}[s.status]||"");
+/* inline SVG line-icon set — inherits currentColor from the parent */
+const _s='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">',_e='</svg>';
+const IC = {
+  reply:   _s+'<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v3"/>'+_e,
+  activity:_s+'<path d="M22 12h-4l-3 8-4-16-3 8H2"/>'+_e,
+  intel:   _s+'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>'+_e,
+  task:    _s+'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'+_e,
+  deal:    _s+'<path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'+_e,
+  snooze:  _s+'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'+_e,
+  wake:    _s+'<circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2"/>'+_e,
+  trash:   _s+'<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>'+_e,
+  attach:  _s+'<path d="M21.4 11 12.2 20.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.9-2.9l8.5-8.5"/>'+_e,
+  smiley:  _s+'<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/>'+_e,
+  pipe:    _s+'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>'+_e,
+  mail:    _s+'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/>'+_e,
+  sms:     _s+'<path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5z"/>'+_e,
+  click:   _s+'<path d="M9 9l5 12 1.8-5.2L21 14 9 9z"/><path d="M7.5 2.3 8 5M2.3 7.5 5 8M4.8 16 3 17.8M16 5l1.8-1.8"/>'+_e,
+  globe:   _s+'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/>'+_e
+};
+const AV_COLOR = ["#4c8dff","#a884ff","#28c5c0","#33cf7a","#f0b23c","#f6708a"];
+function avColor(s){let h=0;for(const c of (s||"?"))h=(h*31+c.charCodeAt(0))>>>0;return AV_COLOR[h%AV_COLOR.length];}
+function esc(s){const d=document.createElement("div");d.textContent=s==null?"":s;return d.innerHTML;}
+const srcChip = s => `<span class="chip src-${s.source}"><span class="dot"></span>${SRC[s.source]}</span>`;
+function initials(n){return (n||"?").split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();}
+function cbadge(ch,st){const map={granted:["g","✓"],none:["n","◌"],revoked:["r","⊘"],na:["na","–"]};const[cl,ic]=map[st]||["n","◌"];return `<span class="cbadge ${cl}" title="${ch} consent: ${st} — click to view ledger">${ic} ${ch[0].toUpperCase()+ch.slice(1)}</span>`;}
+
+/* lead phone numbers (prototype) */
+const PHONES = {c01:"(727) 555-0155",c02:"(210) 555-0134",c04:"(386) 555-0110",c05:"(512) 555-0142",
+  c06:"(352) 555-0188",c07:"(281) 555-0147",c08:"(813) 555-0198",c09:"(409) 555-0121",
+  c12:"(813) 555-0166",c13:"(830) 555-0173",c14:"(956) 555-0102"};
+function telHref(p){return "tel:+1"+(p||"").replace(/\D/g,"");}
+
+/* team + ownership. Open items were auto-assigned to a rep when the lead replied;
+   c10 is left unassigned to show the manual "Assign" state. Auto/suppressed = unassigned. */
+const TEAM = {
+  andy:{name:"Andy Mentges",init:"AM",color:"#00a86e"},
+  tyler:{name:"Tyler Reed",init:"TR",color:"#4c8dff"},
+  jason:{name:"Jason Poe",init:"JP",color:"#a884ff"} };
+const OWNERS = {c05:"andy",c08:"andy",c03:"tyler",c13:"jason",c09:"tyler"};
+function ownerOf(c){return TEAM[OWNERS[c.id]]||null;}
+
+/* campaign a paid lead came from (prototype) */
+const CAMPAIGN = {c01:"Meta · Exclusive HVAC Leads",c05:"Meta · Roofing Leads Q3",
+  c06:"Meta · Home Services US",c08:"Meta · Painter Leads",c12:"Meta · Appliance Repair (no PEWC)"};
+function animateCost(){
+  document.querySelectorAll('[data-cost]').forEach(el=>{
+    const to=parseFloat(el.dataset.cost), start=Date.now(), dur=650;
+    (function step(){const t=Math.min(1,(Date.now()-start)/dur),e=1-Math.pow(1-t,3);
+      el.textContent='$'+(to*e).toFixed(2); if(t<1)requestAnimationFrame(step);})();
+  });
+}
+
+/* lead age at page load (seconds) — the list clock ticks up from here */
+const AGE = {c01:540,c02:259200,c03:180,c04:86400,c05:1320,c06:2400,c07:7200,c08:1800,
+  c09:1814400,c10:10800,c11:18000,c12:3000,c13:3600,c14:172800};
+const T0 = Date.now();
+function fmtAge(sec){sec=Math.max(0,Math.floor(sec));const d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60),s=sec%60;
+  if(sec<3600)return `${m}m ${String(s).padStart(2,'0')}s`;
+  if(sec<86400)return `${h}h ${String(m).padStart(2,'0')}m`;
+  return `${d}d ${h}h`;}
+function tickClocks(){const now=Date.now();document.querySelectorAll('.clk[data-base]').forEach(n=>{n.textContent='⏱ '+fmtAge((+n.dataset.base)+(now-T0)/1000);});}
+
+let sel="c05";
+
+/* LIST — clean rows: source dot + name + time, company, one action/summary line */
+function renderList(filter){
+  const rows=document.getElementById("rows");
+  const items=DATA.conversations.filter(c=> filter==="all" ? true : c.bucket===filter);
+  rows.innerHTML = items.map(c=>{
+    const col=SRC_COLOR[c.source]||"var(--tx-3)";
+    const dot=`<span class="srcdot" style="border-color:${col};${c.unread?'background:'+col:''}"></span>`;
+    const needsFix = c.task && c.task.tag==="wait";
+    const o = ownerOf(c);
+    const ownerSm = o ? `<span class="oav-sm" style="background:${o.color}" title="Owner: ${o.name}">${o.init}</span>` : "";
+    const tp=taskProgress(c.id);
+    const dstg=dstate(c.id).stage;
+    const stagePill = dstg!=='new' ? `<span class="rstage ${dstg}" title="Deal stage">${dstg}</span>` : '';
+    return `<button class="row ${c.id===sel?'sel':''} ${needsFix?'fix':''} ${c.bucket==='suppressed'?'dim':''}" onclick="select('${c.id}')">
+      <div class="row-main">
+        <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="clk" data-base="${AGE[c.id]||0}">⏱ …</span></div>
+        <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${stagePill}<span class="trollup ${tp.done===tp.total?'done':''}" title="Research & engagement tasks done">🗒 ${tp.done}/${tp.total}</span></div>
+      </div>
+      <span class="rowacts">
+        <span class="ract" title="${c.bucket==='snoozed'?'Wake':'Snooze'}" onclick="event.stopPropagation();snoozeConv('${c.id}')">${c.bucket==='snoozed'?IC.wake:IC.snooze}</span>
+        <span class="ract del" title="Delete" onclick="event.stopPropagation();deleteConv('${c.id}')">${IC.trash}</span>
+      </span>
+    </button>`;
+  }).join("") || `<div style="padding:30px;text-align:center;color:var(--tx-3)">Nothing here. 🎉</div>`;
+  tickClocks();
+  updatePipe();
+}
+
+function tracker(seq,isAuto){
+  if(!seq.total) return "";
+  const steps=["SMS","AI call","Email","Next-day"].slice(0,seq.total);
+  const lbls = seq.label.startsWith("Earn")?["Email 1","Email 2","Pref center"]: seq.label.startsWith("Onboard")?["Welcome","Install","Activate"]: steps;
+  const exited=["replied","booked","opted_out"].includes(seq.status);
+  return `<div class="tracker ${isAuto?'tk-auto':'tk-paused'}">${lbls.map((l,i)=>{
+    const n=i+1; const done=n<seq.step||exited&&n<=seq.step; const cur=n===seq.step&&!exited;
+    return `<div class="st ${done?'done':''} ${cur?'cur':''}"><div class="bub">${done?'✓':n}</div><div class="cap">${l}</div></div>`;
+  }).join("")}</div>`;
+}
+
+/* SMS / chat bubble thread */
+function bubbleThread(c){
+  return `<div class="msgs">${c.messages.map(m=>{
+    if(m.dir==="system") return `<div class="msg system">${esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
+    return `<div class="msg ${m.dir}"><div class="mh">${m.dir==='in'?'▸ ':''}${(CH[m.channel]||m.channel||'').replace(/^[^ ]+ /,'')} ${m.meta?'· '+esc(m.meta):''}</div>${esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
+  }).join("")}</div>`;
+}
+
+/* unified composer with an SMS / Email channel switch (limited to consented channels) */
+const REPLYCH={}, CHLABEL={sms:'💬 SMS',email:'✉ Email',chat:'💬 Chat'};
+const CHWORD={sms:'SMS',email:'Email',chat:'Chat'}, CHICON={sms:'💬',email:'✉',chat:'💬'};
+function replyChannels(c){
+  const out=[];
+  if(c.channel==='chatwoot') out.push('chat');
+  if(c.consent.sms==='granted') out.push('sms');
+  if(c.consent.email==='granted') out.push('email');
+  return out;
+}
+function replyChOf(c){
+  const avail=replyChannels(c);
+  let cur=REPLYCH[c.id];
+  if(!cur||!avail.includes(cur)) cur=REPLYCH[c.id]= (avail.includes(c.channel)?c.channel:avail[0])||null;
+  return cur;
+}
+function setReplyCh(id,ch){REPLYCH[id]=ch; if(curTab==='reply') rerenderComposer(); else renderTab(DATA.conversations.find(x=>x.id===id));}
+window.setReplyCh=setReplyCh;
+
+/* Gmail-style reply: hidden behind a Reply button, expands into a WYSIWYG editor
+   with a formatting toolbar + attachments. */
+let replyOpen=false, ATTACH=[];
+function composer(c){
+  if(c.sequence.status==='opted_out') return `<div class="banner stop">⛔ Contact opted out of SMS/voice. Only email is permitted. Revocation is on the consent ledger.</div>`;
+  if(c.sequence.status==='blocked') return `<div class="banner block">⛓ Identified visitor (no consent to contact). Outreach is disabled — retargeting + context only.</div>`;
+  const avail=replyChannels(c), cur=replyChOf(c);
+  if(!cur) return `<div class="banner block">No consented channel to reply on yet — earn consent first (email preference center).</div>`;
+  const chToggle = avail.length>1
+    ? `<div class="chswitch">${avail.map(ch=>`<button class="chseg ${ch===cur?'on':''}" onclick="event.stopPropagation();setReplyCh('${c.id}','${ch}')"><span class="ci">${CHICON[ch]}</span>${CHWORD[ch]}</button>`).join('')}</div>`
+    : `<span class="rvia-chip"><span class="ci">${CHICON[cur]}</span>${CHWORD[cur]}</span>`;
+  if(!replyOpen){
+    return `<div class="rcollapse">
+      <button class="rbtn-reply" onclick="openReply()">${IC.reply}&nbsp;Reply</button>
+      <span class="rvia-lbl">Send via</span>${chToggle}
+    </div>`;
+  }
+  const sw = chToggle;
+  const fmtGroup = cur==='email' ? `
+      <button class="tb" onmousedown="return false" onclick="fmt('bold')" title="Bold" style="font-weight:800">B</button>
+      <button class="tb" onmousedown="return false" onclick="fmt('italic')" title="Italic" style="font-style:italic">I</button>
+      <button class="tb" onmousedown="return false" onclick="fmt('underline')" title="Underline" style="text-decoration:underline">U</button>
+      <span class="rc-sep"></span>
+      <button class="tb" onmousedown="return false" onclick="fmt('insertUnorderedList')" title="Bulleted list">•≡</button>
+      <button class="tb" onmousedown="return false" onclick="rteLink()" title="Insert link">🔗</button>
+      <span class="rc-sep"></span>` : '';
+  const ph = cur==='email' ? "Write your email reply…" : cur==='chat' ? "Reply in chat…" : "Write a reply… (auto-personalizes {first}/{trade})";
+  return `<div class="rcomp">
+    <div class="rc-head"><span class="clabel">Reply via</span>${sw}${cur==='email'?`<span class="cto">to ${esc(c.contact_email||'lead')}</span>`:''}<button class="rc-x" onclick="closeReply()" title="Discard">✕</button></div>
+    <div class="rc-toolbar">${fmtGroup}
+      <span class="tmpl" onmousedown="return false" onclick="insertTemplate('demo')">Book a demo</span>
+      <span class="tmpl" onmousedown="return false" onclick="insertTemplate('how')">How it works</span>
+      <span class="tmpl" onmousedown="return false" onclick="insertTemplate('pricing')">Pricing</span>
+    </div>
+    <div class="rte" id="rte" contenteditable="true" data-ph="${ph}"></div>
+    <div class="rc-attach" id="attachChips"></div>
+    <div class="rc-foot">
+      <button class="btn" onclick="sendReply()">Send</button>
+      <input type="file" id="attachInput" multiple hidden onchange="onAttach(this.files)">
+      <button class="rc-icon" onclick="document.getElementById('attachInput').click()" title="Attach files">${IC.attach}</button>
+      <button class="rc-icon" onmousedown="return false" onclick="insertText('🙂')" title="Insert emoji">${IC.smiley}</button>
+      <button class="rc-icon rc-trash" onclick="closeReply()" title="Discard draft">${IC.trash}</button>
+    </div>
+  </div>`;
+}
+function rerenderComposer(){const host=document.getElementById('composerhost'); if(!host)return; host.innerHTML=composer(DATA.conversations.find(x=>x.id===sel)); renderAttachChips();}
+function openReply(){replyOpen=true; ATTACH=[]; rerenderComposer(); setTimeout(()=>document.getElementById('rte')?.focus(),0);}
+function closeReply(){replyOpen=false; ATTACH=[]; rerenderComposer();}
+function fmt(cmd){document.execCommand(cmd,false,null); document.getElementById('rte')?.focus();}
+function rteLink(){const u=prompt('Link URL','https://'); if(u){document.getElementById('rte')?.focus(); document.execCommand('createLink',false,u);}}
+function insertText(t){const ed=document.getElementById('rte'); if(!ed)return; ed.focus(); document.execCommand('insertText',false,t);}
+const RTMPL={
+  demo:"Want the 2-minute version? Grab any time here and I'll show it on your own site: [link]",
+  how:"Short version: we turn the visitors your site already gets into consented, exclusive leads — $7 each, never resold.",
+  pricing:"Pricing is a flat $7 per exclusive lead. No minimum, no reselling — the lead is yours alone."
+};
+function insertTemplate(k){insertText(RTMPL[k]||'');}
+function onAttach(files){for(const f of files)ATTACH.push({name:f.name,size:f.size}); renderAttachChips();}
+function removeAttach(i){ATTACH.splice(i,1); renderAttachChips();}
+function renderAttachChips(){const el=document.getElementById('attachChips'); if(!el)return; el.innerHTML=ATTACH.map((a,i)=>`<span class="achip">📎 ${esc(a.name)}<span class="ax" onclick="removeAttach(${i})">✕</span></span>`).join('');}
+function sendReply(){
+  const c=DATA.conversations.find(x=>x.id===sel), ed=document.getElementById('rte');
+  const text=ed?ed.innerText.trim():'';
+  if(!text && !ATTACH.length){closeReply(); return;}
+  const ch=replyChOf(c), n=ATTACH.length;
+  c.messages.push({dir:'out',channel:ch,body:text||'(attachment sent)',ts:'just now',meta:n?`sent · ${n} file${n>1?'s':''}`:'sent'});
+  replyOpen=false; ATTACH=[];
+  renderTab(c);
+  const sc=document.querySelector('#tabbody .msgs, #tabbody .gmail'); if(sc)sc.scrollTop=sc.scrollHeight;
+}
+window.openReply=openReply; window.closeReply=closeReply; window.fmt=fmt; window.rteLink=rteLink;
+window.insertText=insertText; window.insertTemplate=insertTemplate; window.onAttach=onAttach; window.removeAttach=removeAttach; window.sendReply=sendReply;
+
+/* Gmail-style email thread */
+function gmailThread(c){
+  const subj = c.email_subject || (c.messages.find(m=>m.subject)||{}).subject || "(no subject)";
+  const emails = c.messages.filter(m=>m.dir!=="system");
+  const sys = c.messages.filter(m=>m.dir==="system");
+  const card = m=>{
+    const out = m.dir==="out";
+    const who = out ? DATA.me.name : (c.name||"Unknown");
+    const addr = out ? DATA.me.email : (c.contact_email||"");
+    const init = out ? initials(DATA.me.name) : (c.initials==="?"?"?":c.initials);
+    const opened = m.meta==="opened";
+    return `<div class="gm-msg">
+      <div class="gm-head">
+        <div class="gm-av" style="background:${out?'var(--accent)':avColor(who)};${out?'color:var(--on-accent)':''}">${esc(init)}</div>
+        <div class="gm-who"><b>${esc(who)}</b> <span class="addr">&lt;${esc(addr)}&gt;</span><span class="to">to ${out?esc(c.name||'lead'):'me'}</span></div>
+        <div class="gm-time">${esc(m.ts)}${opened?'<span class="op">✓ opened</span>':''}</div>
+      </div>
+      <div class="gm-body">${esc(m.body)}</div>
+    </div>`;
+  };
+  return `<div class="gmail">
+    <div class="gm-subject">${esc(subj)} <span class="gm-count">(${emails.length})</span></div>
+    ${sys.map(m=>`<div class="gm-msg sys">${esc(m.body)} · ${esc(m.ts)}</div>`).join("")}
+    ${emails.map(card).join("")}
+  </div>`;
+}
+
+/* RIGHT RAIL — status + activity + consent + intel (everything lives here) */
+/* automation state: on=workflow running, paused=human replying, none=no sequence yet,
+   done=goal met, off=outreach not allowed */
+function autoState(c){
+  const s=c.sequence.status;
+  if(c.bucket==="auto") return "on";
+  if(s==="booked") return "done";
+  if(s==="opted_out"||s==="blocked") return "off";
+  if(c.sequence.total>0) return "paused";
+  return "none";
+}
+const ANOTE = {
+  on:    `<b>Automation on.</b> The workflow is sending the next steps for you — no action needed.`,
+  paused:`<b>Paused — you're replying manually.</b> Flip to <b>Auto</b> to hand it back to the workflow. It also auto-resumes if the lead goes quiet.`,
+  none:  `<b>No workflow yet.</b> Reply manually, or flip to <b>Auto</b> to start a follow-up sequence.`,
+  done:  `<b>Sequence ended — goal met.</b> No further automated steps will fire.`,
+  off:   `<b>Automation off.</b> Outreach isn't permitted for this contact.`
+};
+function recount(){
+  const n={open:0,auto:0,snoozed:0};
+  DATA.conversations.forEach(c=>{ if(c.bucket in n) n[c.bucket]++; });
+  DATA.counts.open=n.open; DATA.counts.auto=n.auto; DATA.counts.snoozed=n.snoozed;
+  document.querySelector('.filters [data-f=open] .n').textContent=n.open;
+  document.querySelector('.filters [data-f=auto] .n').textContent=n.auto;
+  document.querySelector('.filters [data-f=snoozed] .n').textContent=n.snoozed;
+  document.querySelector('.filters [data-f=all] .n').textContent=DATA.conversations.length;
+}
+/* snooze / delete a conversation */
+function curFilter(){return document.querySelector('.filters .on').dataset.f;}
+function snoozeConv(id){
+  const c=DATA.conversations.find(x=>x.id===id); if(!c)return;
+  if(c.bucket==='snoozed'){ c.bucket=c._prevBucket||'open'; }
+  else { c._prevBucket=c.bucket; c.bucket='snoozed'; }
+  recount(); renderList(curFilter());
+}
+function deleteConv(id){
+  const i=DATA.conversations.findIndex(x=>x.id===id); if(i<0)return;
+  DATA.conversations.splice(i,1); recount();
+  const f=curFilter();
+  if(sel===id){ const nx=DATA.conversations.find(c=> f==='all'?true:c.bucket===f)||DATA.conversations[0];
+    if(nx){ select(nx.id); } else { document.getElementById('thread').innerHTML=`<div class="emptytab" style="margin:auto"><div class="ei">📭</div><h3>No conversations</h3></div>`; renderList(f); } }
+  else renderList(f);
+  if(!document.getElementById('pipelineview').hidden) renderPipeline();
+}
+window.snoozeConv=snoozeConv;window.deleteConv=deleteConv;
+function setAuto(btn,mode){
+  const c=DATA.conversations.find(x=>x.id===sel);
+  // Flipping automation re-buckets the conversation: Auto → runs in the workflow
+  // (Auto tab); Manual → a human owns it in Open.
+  if(c){
+    if(mode==='auto' && c.bucket!=='auto') c.bucket='auto';
+    else if(mode==='manual' && c.bucket!=='open') c.bucket='open';
+    recount();
+  }
+  const sw=btn.parentElement;
+  sw.querySelectorAll('.seg').forEach(b=>b.classList.remove('on','onauto','onman'));
+  btn.classList.add('on', mode==='auto'?'onauto':'onman');
+  document.getElementById('autotip').innerHTML = mode==='auto' ? ANOTE.on : ANOTE.paused;
+  const tk=document.querySelector('.tracker');
+  if(tk){ tk.classList.remove('tk-auto','tk-paused'); tk.classList.add(mode==='auto'?'tk-auto':'tk-paused'); }
+  renderList(document.querySelector('.filters .on').dataset.f);
+}
+window.setAuto = setAuto;
+
+function statusCard(c){
+  const s=c.sequence, st=autoState(c), autoOn=st==="on";
+  const controllable = st==="on"||st==="paused"||st==="none";
+  const control = controllable
+    ? `<div class="autoswitch">
+        <button class="seg ${!autoOn?'on onman':''}" onclick="setAuto(this,'manual')">⏸ Paused</button>
+        <button class="seg ${autoOn?'on onauto':''}" onclick="setAuto(this,'auto')">▶ Auto</button>
+      </div>`
+    : `<span class="autobadge ${st}">${st==="done"?"✓ Ended":"⛔ Off"}</span>`;
+  const waiting = st==="on" ? `<span class="sv mut">Automated</span>`
+    : (c.sla.level==="warn"||c.sla.level==="bad") ? `<span class="sv ${c.sla.level}">${c.sla.min}m</span>`
+    : (st==="done"||st==="off") ? `<span class="sv mut">—</span>`
+    : `<span class="sv mut">on track</span>`;
+  const seqBlock = s.total ? `<div class="seqwrap">${tracker(s, st==='on'||st==='done')}</div>` : '';
+  const acq = c.intel.cost_per_lead
+    ? `<div class="acqcost"><div class="lab">Our cost for this lead</div><div class="amt" data-cost="${c.intel.cost_per_lead}">$0.00</div><div class="ch">${esc(CAMPAIGN[c.id]||c.intel.src_label)}</div></div>`
+    : `<div class="acqcost none">No ad cost — organic / inbound</div>`;
+  return `<div class="card status">
+    <div class="shead"><h4>Status</h4>
+      <div class="autowrap">${control}<div class="tip" id="autotip">${ANOTE[st]}</div></div>
+    </div>
+    ${seqBlock}
+    <div class="sgrid">
+      <div class="scell"><span class="sl">Stage</span><span class="sv">${c.lifecycle}</span></div>
+      <div class="scell"><span class="sl">Channel</span><span class="sv">${CH[c.channel]||c.channel}</span></div>
+      <div class="scell"><span class="sl">Priority</span><span class="sv ${c.hot?'bad':'mut'}">${c.hot?'🔥 Hot':'Normal'}</span></div>
+      <div class="scell"><span class="sl">Response</span>${waiting}</div>
+    </div>
+    ${acq}
+  </div>`;
+}
+function activityCard(c){
+  const L=c.last, N=c.next;
+  const nextClass = N.kind==="you" ? (N.tone==="urgent"?"urgent":"act") : (N.tone||"info");
+  const nextLabel = N.kind==="you" ? "You — next step" : N.kind==="auto" ? "Next (automatic)" : N.kind==="snoozed" ? "Snoozed" : "Next";
+  return `<div class="card"><h4>Activity</h4>
+    <div class="act">
+      <div class="actrow ${L.tone}"><span class="adot"></span><div><label>What happened</label><b>${esc(L.label)}</b><time>${esc(L.ts)}</time></div></div>
+      <div class="actrow ${nextClass}"><span class="adot"></span><div><label>${nextLabel}</label><b>${esc(N.label)}</b><time>${esc(N.when)}</time></div></div>
+    </div>
+  </div>`;
+}
+
+/* ---- auto-verified prospect intel (Fit & site) ---- */
+function fmtK(n){return n>=1000?(n/1000).toFixed(1).replace(/\.0$/,'')+'k':String(n);}
+function prow(status,k,v,link,tone){
+  const s={ok:'✓',no:'✗',off:'—'}[status]||'—', sc={ok:'good',no:'bad',off:'mut'}[status];
+  const val = link?`<a href="${link}" target="_blank" rel="noopener">${esc(v)} ↗</a>`:esc(v);
+  return `<div class="prow"><span class="pst ${sc}">${s}</span><span class="pk">${k}</span><span class="pv ${tone||''}">${val}</span></div>`;
+}
+function xtile(v,k){return `<div class="xtile"><div class="v">${esc(String(v))}</div><div class="k">${k}</div></div>`;}
+function adsTxt(a){if(!a)return"not running";const p=[];if(a.google)p.push("Google Ads");if(a.lsa)p.push("LSA");return p.length?p.join(" + "):"not running";}
+function intelCard(c){
+  const it=c.intel, e=window.ENRICH[c.id];
+  const fitRow=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span class="fit ${it.fit}">${it.fit.toUpperCase()}</span><span style="font-size:var(--t-12);color:var(--tx-2)">${esc(it.src_label)}</span></div>`;
+  if(!e) return `<div class="card"><h4>Fit &amp; site — auto-verified</h4>${fitRow}
+    <div class="noenrich" style="margin-top:8px">No public profile matched yet — need a name or company.<button class="mini">Run lookup ▸</button></div></div>`;
+  const rows=[
+    prow(e.website?'ok':'no','Website', e.website?`${e.website.domain} · ${e.website.capture?'has a form':'no lead form'}`:'not found', e.website?('https://'+e.website.domain):null, e.website&&!e.website.capture?'warn':''),
+    prow(e.facebook?'ok':'no','Facebook', e.facebook?(e.facebook.ads_live>0?`@${e.facebook.handle} · ${e.facebook.ads_live} ads live`:`@${e.facebook.handle} · ${fmtK(e.facebook.followers)} followers`):'no page found', e.facebook?('https://facebook.com/'+e.facebook.handle):null, e.facebook&&e.facebook.ads_live>0?'good':''),
+    prow(e.gmb?'ok':'no','Google Biz', e.gmb?`${e.gmb.rating}★ (${e.gmb.reviews}) · ${e.gmb.verified?'verified':'unclaimed'}`:'no listing', null, ''),
+    prow(e.ads&&(e.ads.google||e.ads.lsa)?'ok':'off','Paid search', adsTxt(e.ads), null, ''),
+    prow(e.pixels&&e.pixels.length?'ok':'off','Tracking', e.pixels&&e.pixels.length?e.pixels.join(' + ')+' pixel':'none detected', null, ''),
+    prow(e.spend_high>0?'ok':'off','Ad spend', e.spend_high>0?`$${(e.spend_low/1000).toFixed(1).replace(/\.0$/,'')}k–${(e.spend_high/1000).toFixed(1).replace(/\.0$/,'')}k/mo · ${e.spend_channels.join(', ')}`:'not advertising', null, ''),
+    prow(foundVal(c.id,'address')?'ok':'off','Address', foundVal(c.id,'address')||'— add in Tasks', null, ''),
+    prow(foundVal(c.id,'linkedin')?'ok':'off','LinkedIn', foundVal(c.id,'linkedin')||'— add in Tasks', foundVal(c.id,'linkedin')?linkFor('linkedin',foundVal(c.id,'linkedin')):null, ''),
+    prow(foundVal(c.id,'instagram')?'ok':'off','Instagram', foundVal(c.id,'instagram')||'— add in Tasks', foundVal(c.id,'instagram')?linkFor('instagram',foundVal(c.id,'instagram')):null, ''),
+    prow(foundVal(c.id,'tiktok')?'ok':'off','TikTok', foundVal(c.id,'tiktok')||'— add in Tasks', foundVal(c.id,'tiktok')?linkFor('tiktok',foundVal(c.id,'tiktok')):null, '')
+  ].join("");
+  const extra=`<div class="xgrid">${e.traffic_month?xtile(fmtK(e.traffic_month),'Visits/mo'):''}${e.employees?xtile(e.employees,'Employees'):''}${e.years?xtile(e.years+' yr','In business'):''}</div>`;
+  const signal = e.signal?`<div class="signal">🔥 <span>${esc(e.signal)}</span></div>`:'';
+  return `<div class="card"><h4>Fit &amp; site — auto-verified</h4>${fitRow}
+    <div class="presence">${rows}</div>${extra}${signal}</div>`;
+}
+
+/* ---- right-rail cards + tab content ---- */
+function consentCard(c){return `<div class="card"><h4>Consent — click a row to open the ledger</h4><div class="clist">
+  <div class="crow"><span class="k">Email</span> ${cbadge('email',c.consent.email)}</div>
+  <div class="crow"><span class="k">SMS</span> ${cbadge('sms',c.consent.sms)}</div>
+  <div class="crow"><span class="k">Voice</span> ${cbadge('voice',c.consent.voice)}</div>
+</div></div>`;}
+function engagementCard(c){const it=c.intel;return `<div class="card"><h4>Engagement — visit to our site</h4><div class="tiles">
+  <div class="tile"><div class="v">${esc(it.time_on_site)}</div><div class="k">On site</div></div>
+  <div class="tile"><div class="v">${it.pages}</div><div class="k">Pages</div></div>
+  <div class="tile"><div class="v">${esc(it.first_seen)}</div><div class="k">First seen</div></div>
+  <div class="tile"><div class="v">${it.speed_to_lead_h!=null?it.speed_to_lead_h+'h':'—'}</div><div class="k">Speed→lead</div></div>
+</div></div>`;}
+function pagesCard(c){const it=c.intel;return it.pages_viewed.length?`<div class="card"><h4>Pages viewed</h4><div class="pv-list">${it.pages_viewed.map(p=>'→ '+esc(p)).join("")}</div></div>`:'';}
+function dealCard(c){return c.deal?`<div class="card dealcard"><h4>Deal</h4><div style="font-weight:700">${esc(c.deal.title)}</div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px"><b>${c.deal.value_usd?'$'+c.deal.value_usd.toLocaleString():'—'}</b><span style="color:var(--tx-3);font-size:var(--t-12)">${c.deal.prob}% likely</span></div>
+  <div class="prob"><i style="width:${c.deal.prob}%"></i></div></div>`:'';}
+
+/* ---- Tasks: auto-lookup data (→ Intel) + manual engagement actions ---- */
+const DATA_FIELDS=['website','address','facebook','linkedin','instagram','tiktok'];
+const ACTION_KEYS=['fb_follow','fb_group','li_follow','li_group','li_connect','ig_follow','ig_like','tt_follow','tt_like'];
+const TASKSTATE={};
+function initialFound(id){const e=(window.ENRICH||{})[id]||{};const f={};if(e.website)f.website=e.website.domain;if(e.facebook)f.facebook='@'+e.facebook.handle;return f;}
+function tstate(id){if(!TASKSTATE[id])TASKSTATE[id]={found:initialFound(id),done:new Set()};return TASKSTATE[id];}
+function foundVal(id,f){const x=tstate(id).found[f];return x&&x!=='__none__'?x:null;}
+function taskProgress(id){const st=tstate(id);
+  const d=DATA_FIELDS.filter(f=>foundVal(id,f)).length, a=ACTION_KEYS.filter(k=>st.done.has(k)).length;
+  return {done:d+a, total:DATA_FIELDS.length+ACTION_KEYS.length};}
+function linkFor(field,v){v=v.replace('@','');return {
+  website:'https://'+v, facebook:'https://facebook.com/'+v, linkedin:'https://linkedin.com/company/'+v,
+  instagram:'https://instagram.com/'+v, tiktok:'https://tiktok.com/@'+v }[field]||null;}
+function taskLookup(id,field){
+  const e=(window.ENRICH||{})[id]||{}, d=(window.DIRECTORY||{})[id]||{}, st=tstate(id);
+  const val = field==='website'?(e.website&&e.website.domain)
+    : field==='facebook'?(e.facebook&&'@'+e.facebook.handle) : d[field];
+  st.found[field]= val || '__none__';
+  rerenderTasks(id);
+}
+function taskEnter(id,field,val){val=(val||'').trim();const st=tstate(id);if(val)st.found[field]=val;else delete st.found[field];rerenderTasks(id);}
+function taskToggle(id,key){const st=tstate(id);st.done.has(key)?st.done.delete(key):st.done.add(key);rerenderTasks(id);}
+function rerenderTasks(id){
+  if(curTab==='task'&&sel===id)renderTab(DATA.conversations.find(x=>x.id===id));
+  renderList(document.querySelector('.filters .on').dataset.f); // roll the count up to the lead row
+}
+window.taskLookup=taskLookup;window.taskEnter=taskEnter;window.taskToggle=taskToggle;
+
+function dataRow(c,field,label){
+  const v=foundVal(c.id,field), st=tstate(c.id);
+  if(v){
+    const link=linkFor(field,v), disp=link?`<a href="${link}" target="_blank" rel="noopener">${esc(v)} ↗</a>`:esc(v);
+    return `<div class="trow"><span class="tcheck on">✓</span><div class="tlabel">${label}</div><div class="tval">${disp}<span class="tointel">→ Intel</span></div></div>`;
+  }
+  const nf = st.found[field]==='__none__' ? `<span class="tnf">not found — enter it</span>` : '';
+  return `<div class="trow"><span class="tcheck"></span><div class="tlabel">${label}${nf}</div>
+    <input class="tinput" placeholder="paste…" onchange="taskEnter('${c.id}','${field}',this.value)">
+    <button class="tlook" onclick="taskLookup('${c.id}','${field}')">Look up ▸</button></div>`;
+}
+function actionRow(c,key,label,sub,field,linkLabel){
+  const on=tstate(c.id).done.has(key);
+  const v=field?foundVal(c.id,field):null, link=v?linkFor(field,v):null;
+  const open = field ? (link
+      ? `<a class="topen" href="${link}" target="_blank" rel="noopener">${linkLabel||'Open'} ↗</a>`
+      : `<span class="topen off" title="Look up the ${field} handle first (in this tab)">${linkLabel||'Open'} ↗</span>`)
+    : '';
+  return `<div class="trow"><span class="tcheck ${on?'on':''}" onclick="taskToggle('${c.id}','${key}')">${on?'✓':''}</span>
+    <div class="tlabel">${label}${sub?`<div class="sub">${sub}</div>`:''}</div>${open}</div>`;
+}
+function taskTab(c){
+  const st=tstate(c.id);
+  const groups=[
+    ['Contact details',[dataRow(c,'website','Find website'),dataRow(c,'address','Find postal address')]],
+    ['Facebook',[dataRow(c,'facebook','Add Facebook handle'),actionRow(c,'fb_follow','Follow the page',null,'facebook','Follow'),actionRow(c,'fb_group','Join 1 group they’re in','as Consent Resolve','facebook','Find groups')]],
+    ['LinkedIn',[dataRow(c,'linkedin','Add company page + profile URL'),actionRow(c,'li_follow','Follow the page',null,'linkedin','Follow'),actionRow(c,'li_group','Join 1 group they’re in',null,'linkedin','Find groups'),actionRow(c,'li_connect','Connect via LinkedIn persona',null,'linkedin','Open')]],
+    ['Instagram',[dataRow(c,'instagram','Add username'),actionRow(c,'ig_follow','Follow',null,'instagram','Follow'),actionRow(c,'ig_like','Like a few videos',null,'instagram','Open')]],
+    ['TikTok',[dataRow(c,'tiktok','Add username'),actionRow(c,'tt_follow','Follow',null,'tiktok','Follow'),actionRow(c,'tt_like','Like a few videos',null,'tiktok','Open')]]
+  ];
+  const dataDone=DATA_FIELDS.filter(f=>foundVal(c.id,f)).length;
+  const actDone=ACTION_KEYS.filter(k=>st.done.has(k)).length;
+  const total=DATA_FIELDS.length+ACTION_KEYS.length, done=dataDone+actDone;
+  return `<div class="tasks">
+    <div class="tprog"><b>${done}</b> / ${total} done · <span class="tintel-note">${dataDone} data points synced to Intel</span></div>
+    ${groups.map(([t,rows])=>`<div class="tgroup"><h5>${t}</h5>${rows.join('')}</div>`).join('')}
+  </div>`;
+}
+
+/* automation toggle (moves to the header, under the owner) */
+function autoControl(c){
+  const st=autoState(c), autoOn=st==='on', controllable=st==='on'||st==='paused'||st==='none';
+  return controllable
+    ? `<div class="autowrap"><div class="autoswitch">
+        <button class="seg ${!autoOn?'on onman':''}" onclick="setAuto(this,'manual')">⏸ Paused</button>
+        <button class="seg ${autoOn?'on onauto':''}" onclick="setAuto(this,'auto')">▶ Auto</button>
+      </div><div class="tip" id="autotip">${ANOTE[st]}</div></div>`
+    : `<span class="autobadge ${st}">${st==='done'?'✓ Ended':'⛔ Off'}</span>`;
+}
+/* status detail (grid + step tracker) — lives at the top of the Intel tab */
+function statusIntel(c){
+  const s=c.sequence, st=autoState(c);
+  const waiting = st==="on" ? `<span class="sv mut">Automated</span>`
+    : (c.sla.level==="warn"||c.sla.level==="bad") ? `<span class="sv ${c.sla.level}">${c.sla.min}m</span>`
+    : (st==="done"||st==="off") ? `<span class="sv mut">—</span>`
+    : `<span class="sv mut">on track</span>`;
+  const seqBlock = s.total ? `<div class="seqwrap">${tracker(s, st==='on'||st==='done')}</div>` : '';
+  return `<div class="card status"><h4>Status</h4>
+    <div class="sgrid">
+      <div class="scell"><span class="sl">Stage</span><span class="sv">${c.lifecycle}</span></div>
+      <div class="scell"><span class="sl">Channel</span><span class="sv">${CH[c.channel]||c.channel}</span></div>
+      <div class="scell"><span class="sl">Priority</span><span class="sv ${c.hot?'bad':'mut'}">${c.hot?'🔥 Hot':'Normal'}</span></div>
+      <div class="scell"><span class="sl">Response</span>${waiting}</div>
+    </div>
+    ${seqBlock}
+  </div>`;
+}
+
+/* ---- Deal tab: stage · trial signup (console username) · traffic→deal-size predictor ---- */
+const CR_IDENTIFY_RATE=0.02, CR_PRICE=7;          // ~2% of visitors become consented $7 leads
+function predictLeads(v){return Math.round(v*CR_IDENTIFY_RATE);}
+function predictValue(v){return predictLeads(v)*CR_PRICE;}
+function snap(v){if(v<=100)return 100;if(v>=100000)return 100000;const m=Math.pow(10,Math.floor(Math.log10(v))-1);return Math.round(v/m)*m;}
+const DEALSTATE={};
+function initStage(id){const c=DATA.conversations.find(x=>x.id===id);if(!c)return'new';const s=c.sequence.status;if(s==='booked')return'trial';if(s==='opted_out'||s==='blocked')return'lost';return'new';}
+function dstate(id){if(!DEALSTATE[id]){const e=(window.ENRICH||{})[id]||{},st=initStage(id);DEALSTATE[id]={stage:st,trial:st==='trial',username:'',visitors:e.traffic_month||1000};}return DEALSTATE[id];}
+function dealStage(id,stage){dstate(id).stage=stage;rerenderDeal(id);}
+function dealTrial(id,on){dstate(id).trial=(on===true||on==='true');rerenderDeal(id);}
+function dealUser(id,val){dstate(id).username=(val||'').trim();}
+function dealTraffic(id,pct){const v=snap(Math.round(100*Math.pow(1000,pct/100)));dstate(id).visitors=v;
+  const set=(k,val)=>{const el=document.getElementById(k);if(el)el.textContent=val;};
+  set('dvalue',predictValue(v).toLocaleString());set('dyear',(predictValue(v)*12).toLocaleString());
+  set('dvisits',v.toLocaleString());set('dleads',predictLeads(v).toLocaleString());}
+function rerenderDeal(id){
+  if(curTab==='deal'&&sel===id)renderTab(DATA.conversations.find(x=>x.id===id));
+  renderList(document.querySelector('.filters .on').dataset.f); // roll stage + pipeline total to the list
+}
+function updatePipe(){
+  const el=document.getElementById('pipe'); if(!el) return;
+  let sum=0,n=0;
+  DATA.conversations.forEach(c=>{const d=dstate(c.id); if(d.stage==='trial'||d.stage==='active'){sum+=predictValue(d.visitors);n++;}});
+  el.innerHTML = `${IC.pipe} Pipeline <b>$${sum.toLocaleString()}</b><span class="pmo">/mo</span><span class="pn">${n} open deal${n===1?'':'s'}</span>`;
+}
+
+/* ---- view switching (Inbox ⇄ Pipeline) ---- */
+function showView(v){
+  document.querySelectorAll('.rail a[data-view]').forEach(a=>a.classList.toggle('on', a.dataset.view===v));
+  const views={inbox:'inboxview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview'};
+  Object.entries(views).forEach(([k,id])=>{const el=document.getElementById(id); if(el) el.hidden=k!==v;});
+  if(v==='pipeline')renderPipeline();
+  if(v==='nurture')renderNurture();
+  if(v==='sitespy')renderSiteSpy();
+  if(v==='sequences')renderSequences();
+  if(v==='analytics')renderAnalytics();
+  if(v==='consent')renderConsent();
+}
+window.showView=showView;
+function openFromPipeline(id){ showView('inbox'); select(id); }
+window.openFromPipeline=openFromPipeline;
+
+/* ---- Nurture: dormant long-term follow-up pool ---- */
+function nuChans(chs){ return chs.map(ch=> ch==='sms'?IC.sms:IC.mail).join(''); }
+function renderNurture(){
+  const el=document.getElementById('nurtureview'); if(!el||!window.NURTURE) return;
+  const N=window.NURTURE, s=N.stats;
+  const kpis = `<div class="kpis kpis-4" style="margin-bottom:20px">
+    <div class="kpi"><div class="kpi-v">${s.total}</div><div class="kpi-l">In nurture</div><div class="kpi-s" style="color:var(--good)">+${s.added7} this week</div></div>
+    <div class="kpi"><div class="kpi-v">${s.cadence}</div><div class="kpi-l">On auto follow-up</div><div class="kpi-s">email + SMS keep-warm</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:var(--accent)">${s.reengaging}</div><div class="kpi-l">Re-engaging now</div><div class="kpi-s">intent → sequence firing</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:var(--good)">${s.wonBack}</div><div class="kpi-l">Won back</div><div class="kpi-s">meetings from nurture</div></div>
+  </div>`;
+  const cards = N.reengaging.map(r=>{
+    const steps = Array.from({length:r.seq.of},(_,i)=>`<i class="${i<r.seq.step?'on':''}"></i>`).join('');
+    const sig = r.signal.kind==='visit'?IC.globe:IC.click;
+    return `<div class="nu-card">
+      <div class="nu-c-top"><span class="nu-c-av" style="background:${avColor(r.name)}">${initials(r.name)}</span>
+        <div class="nu-c-id"><div class="nu-c-name">${esc(r.name)}</div><div class="nu-c-co">${esc(r.company)} · <span class="chip src-${r.source}" style="padding:0 6px"><span class="dot"></span>${SRC[r.source]}</span></div></div>
+        <div class="nu-c-chs" title="${r.channels.join(' + ')}">${nuChans(r.channels)}</div>
+      </div>
+      <div class="nu-signal">${sig}<div><b>${esc(r.signal.text)}</b><time>${esc(r.signal.when)} · dormant ${r.dormant}d before this</time></div></div>
+      <div class="nu-seq">
+        <div class="nu-seq-bar"><div class="nu-seq-steps">${steps}</div><div class="nu-seq-txt">Re-engage · step ${r.seq.step} of ${r.seq.of} — <b>${esc(r.seq.done)}</b> · next: ${esc(r.seq.next)}</div></div>
+        <button class="nu-open" onclick="showView('inbox')">Open →</button>
+      </div>
+    </div>`;
+  }).join('');
+  const rows = N.pool.map(p=>{
+    const intent=(p.clicks+p.visits)>0, ic=intent?'var(--accent)':'var(--tx-3)';
+    const act=`${p.opens} opens · <b style="color:${ic}">${p.clicks} clk · ${p.visits} vis</b>`;
+    const stat = p.status==='recovered'?'recovered':'dormant', statTxt=p.status==='recovered'?'Recovered':'Dormant';
+    return `<tr>
+      <td><div class="nu-nm" style="font-weight:700">${esc(p.name)}</div><div class="nu-cco">${esc(p.company)}</div></td>
+      <td><span class="chip src-${p.source}"><span class="dot"></span>${SRC[p.source]}</span></td>
+      <td><div class="nu-ch-cell" title="${p.channels.join(' + ')}">${nuChans(p.channels)}</div></td>
+      <td>${esc(p.cadence)}</td>
+      <td class="nu-dd">${esc(p.last)}</td>
+      <td class="nu-dd">${esc(p.next)}</td>
+      <td class="nu-act">${act}</td>
+      <td>${p.status==='dormant'?`<span class="nu-dd">${p.dormant}d</span>`:'<span class="nu-dd">—</span>'}</td>
+      <td><span class="nustat ${stat}">${statTxt}</span>${p.note?`<div class="nu-cco" style="margin-top:3px">${esc(p.note)}</div>`:''}</td>
+    </tr>`;
+  }).join('');
+  el.innerHTML = `
+    <div class="nu-head"><h2>Nurture</h2><div class="sub">Dormant leads on long-term auto follow-up. They stay quiet until they click a link or visit the site — then a fast re-engage sequence fires and they surface back into the Inbox.</div></div>
+    ${kpis}
+    <div class="nu-how"><h4>How the nurture pool works</h4><ol>
+      <li><span class="stp">1</span><b>Goes quiet</b>All sequences finished, no reply, nothing automated running — the lead drops into nurture instead of being lost.</li>
+      <li><span class="stp">2</span><b>Keep-warm touches</b>Low-frequency email + SMS on a slow cadence, honoring consent &amp; STOP. Not worked day-to-day.</li>
+      <li><span class="stp">3</span><b>Watch for intent</b>A link click or a website visit is the buying signal we wait for.</li>
+      <li><span class="stp">4</span><b>Pounce</b>Intent auto-fires a fast re-engage sequence for a meeting or demo, and surfaces the lead into the Inbox.</li>
+    </ol></div>
+    <div class="nu-band">
+      <div class="nu-band-h">Re-engaging now <span class="nu-live"><span class="dot"></span>LIVE</span></div>
+      ${N.reengaging.length?`<div class="nu-cards">${cards}</div>`:`<div class="idash-empty">No intent signals right now — the pool is quiet.</div>`}
+    </div>
+    <div class="nu-pool-h"><h4>Nurture pool · showing ${N.pool.length} of ${s.total}</h4><span class="atable-note">Next 7 days: ${s.next7} scheduled keep-warm touches</span></div>
+    <table class="atable">
+      <thead><tr><th>Contact</th><th>Source</th><th>Channels</th><th>Cadence</th><th>Last touch</th><th>Next touch</th><th>Activity</th><th>Dormant</th><th>Status</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p class="atable-note" style="margin-top:14px">Activity in mint (clicks · visits) is intent — any lead that trips it jumps into “Re-engaging now” automatically.</p>
+  `;
+}
+window.renderNurture=renderNurture;
+
+/* ---- Site Spy: known visitors by last activity ---- */
+function spyEngPills(e){
+  const p=[];
+  if(e.seq) p.push(`<span class="se-pill seq">In sequence · ${esc(e.seq)}</span>`);
+  if(e.conv) p.push(`<span class="se-pill conv">Live conversation</span>`);
+  if(e.auto===true) p.push(`<span class="se-pill auto">Automation on</span>`);
+  if(e.auto===false) p.push(`<span class="se-pill paused">Manual — automation paused</span>`);
+  if(e.nurture) p.push(`<span class="se-pill nurture">In nurture</span>`);
+  if(e.suppressed) p.push(`<span class="se-pill supp">Opted out — do not contact</span>`);
+  if(e.none) p.push(`<span class="se-pill newp">Not engaged yet</span>`);
+  return `<div class="se-pills">${p.join('')}</div>`;
+}
+function renderSiteSpy(){
+  const el=document.getElementById('sitespyview'); if(!el||!window.SITESPY) return;
+  const S=window.SITESPY, st=S.stats;
+  const live=S.visitors.filter(v=>v.live);
+  const recent=S.visitors.filter(v=>!v.live).sort((a,b)=>a.lastMin-b.lastMin);
+  const kpis=`<div class="kpis kpis-4" style="margin-bottom:20px">
+    <div class="kpi"><div class="kpi-v" style="color:var(--good)">${st.onSite}</div><div class="kpi-l">On the site now</div><div class="kpi-s">identified, live</div></div>
+    <div class="kpi"><div class="kpi-v">${st.today}</div><div class="kpi-l">Identified today</div><div class="kpi-s">known visitors</div></div>
+    <div class="kpi"><div class="kpi-v">${st.inWorkflow}</div><div class="kpi-l">Already engaging</div><div class="kpi-s">sequence, chat or nurture</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:var(--accent)">${st.netNew}</div><div class="kpi-l">Not engaged yet</div><div class="kpi-s">net-new opportunities</div></div>
+  </div>`;
+  const liveCards=live.map(v=>`<div class="nu-card">
+    <div class="nu-c-top"><span class="nu-c-av" style="background:${avColor(v.name)}">${initials(v.name)}</span>
+      <div class="nu-c-id"><div class="nu-c-name">${esc(v.name)}</div><div class="nu-c-co">${esc(v.company)} · <span class="chip src-${v.source}" style="padding:0 6px"><span class="dot"></span>${SRC[v.source]}</span></div></div>
+      <span class="sp-livedot"><span class="d"></span>LIVE</span>
+    </div>
+    <div class="nu-signal now"><span class="sp-eye">${IC.globe}</span><div>Viewing <span class="sp-view">${esc(v.page)}</span><time>on site ${esc(v.time)} · ${v.trail.length} pages this session</time></div></div>
+    <div class="sp-trail">${v.trail.map(esc).join('  ›  ')}</div>
+    <div class="sp-cardfoot">${spyEngPills(v.eng)}<button class="nu-open" onclick="showView('inbox')">Open →</button></div>
+  </div>`).join('');
+  const rows=recent.map(v=>`<tr>
+    <td><div class="nu-nm" style="font-weight:700">${esc(v.name)}</div><div class="nu-cco">${esc(v.company)} · ${SRC[v.source]}</div></td>
+    <td><span class="sp-page">${esc(v.page)}</span><div class="sp-trail">${v.trail.map(esc).join(' › ')}</div></td>
+    <td class="sp-time">${v.pages||v.trail.length} pages · ${esc(v.time)}</td>
+    <td>${spyEngPills(v.eng)}</td>
+    <td class="sp-last">${esc(v.last)}</td>
+  </tr>`).join('');
+  el.innerHTML=`
+    <div class="nu-head"><h2>Site Spy</h2><div class="sub">Known visitors by last activity — who's on the site, what they're looking at, and whether we're already engaging them through a sequence, an automation, or a human conversation.</div></div>
+    ${kpis}
+    <div class="nu-band">
+      <div class="nu-band-h">On the site now <span class="nu-live"><span class="dot"></span>LIVE</span></div>
+      ${live.length?`<div class="nu-cards">${liveCards}</div>`:`<div class="idash-empty">No identified visitors on the site this moment.</div>`}
+    </div>
+    <div class="nu-pool-h"><h4>Recent visitors · by last activity</h4><span class="atable-note">Only consent-identified visitors are shown.</span></div>
+    <table class="atable">
+      <thead><tr><th>Visitor</th><th>Last page</th><th>Session</th><th>Engagement</th><th>Last active</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p class="atable-note" style="margin-top:14px">A “Not engaged yet” visitor is a net-new opportunity — open them to start a conversation or drop them into a sequence.</p>
+  `;
+}
+window.renderSiteSpy=renderSiteSpy;
+
+/* ---- Profile menu (top-left): open/close, avatar upload ---- */
+function toggleProfile(e){ e.stopPropagation(); const m=document.getElementById('pfmenu'); if(m) m.hidden=!m.hidden; }
+window.toggleProfile=toggleProfile;
+function onAvatar(files){
+  if(!files||!files[0]) return;
+  const r=new FileReader();
+  r.onload=ev=>{ const img=`<img src="${ev.target.result}" alt="">`; ['pfav','pfavLg'].forEach(id=>{const el=document.getElementById(id); if(el) el.innerHTML=img;}); };
+  r.readAsDataURL(files[0]);
+}
+window.onAvatar=onAvatar;
+document.addEventListener('click',e=>{ const m=document.getElementById('pfmenu'); if(m && !m.hidden && !e.target.closest('.profile')) m.hidden=true; });
+
+/* ---- Pipeline kanban board ---- */
+const PSTAGES=[['new','New'],['trial','Trial'],['active','Active'],['lost','Lost']];
+let dragId=null;
+function pipeDrag(e,id){dragId=id;e.dataTransfer.effectAllowed='move';}
+function pipeDrop(e,stage){e.preventDefault();e.currentTarget.classList.remove('dragover');
+  if(dragId){dstate(dragId).stage=stage;dragId=null;renderPipeline();renderList(curFilter());}}
+function pipeOver(e){e.preventDefault();e.currentTarget.classList.add('dragover');}
+function pipeLeave(e){e.currentTarget.classList.remove('dragover');}
+window.pipeDrag=pipeDrag;window.pipeDrop=pipeDrop;window.pipeOver=pipeOver;window.pipeLeave=pipeLeave;
+function renderPipeline(){
+  const el=document.getElementById('pipelineview'); if(!el) return;
+  const cols=PSTAGES.map(([k,l])=>{
+    const items=DATA.conversations.filter(c=>dstate(c.id).stage===k);
+    const sum=items.reduce((a,c)=>a+predictValue(dstate(c.id).visitors),0);
+    const cards=items.map(c=>{
+      const o=ownerOf(c), d=dstate(c.id);
+      return `<div class="pcard" draggable="true" ondragstart="pipeDrag(event,'${c.id}')" onclick="openFromPipeline('${c.id}')">
+        <div class="pc-top"><span class="pc-name">${esc(c.name||'Unknown')}</span>${o?`<span class="oav-sm" style="background:${o.color}">${o.init}</span>`:''}</div>
+        <div class="pc-co">${esc(c.company||'—')}</div>
+        <div class="pc-val">$${predictValue(d.visitors).toLocaleString()}<span> /mo</span></div>
+      </div>`;
+    }).join('') || `<div class="pcol-empty">Drag deals here</div>`;
+    return `<div class="pcol ${k}" ondragover="pipeOver(event)" ondragleave="pipeLeave(event)" ondrop="pipeDrop(event,'${k}')">
+      <div class="pcol-h"><span class="pcol-t">${l}</span><span class="pcol-c">${items.length}</span><span class="pcol-sum">$${sum.toLocaleString()}/mo</span></div>
+      <div class="pcol-body">${cards}</div>
+    </div>`;
+  }).join('');
+  const open=DATA.conversations.filter(c=>['trial','active'].includes(dstate(c.id).stage));
+  const total=open.reduce((a,c)=>a+predictValue(dstate(c.id).visitors),0);
+  el.innerHTML = `<div class="pipe-head"><h2>Pipeline</h2><div class="pipe-total">${IC.pipe} Open pipeline <b>$${total.toLocaleString()}</b>/mo · ${open.length} deal${open.length===1?'':'s'}</div></div>
+    <div class="pboard">${cols}</div>`;
+}
+
+/* ===================== SEQUENCES ===================== */
+const SEQ_CH={sms:{i:"💬",l:"SMS"},ai_call:{i:"📞",l:"AI call"},email:{i:"✉",l:"Email"}};
+let curSeq="speed";
+function selectSeq(id){curSeq=id;renderSequences();}
+window.selectSeq=selectSeq;
+function renderSequences(){
+  const el=document.getElementById("sequencesview"); if(!el) return;
+  const S=window.SEQUENCES;
+  const list=S.map(s=>`<button class="seqitem ${s.id===curSeq?'on':''}" onclick="selectSeq('${s.id}')">
+      <div class="seqit-nm">${esc(s.name)}</div>
+      <div class="seqit-sub"><span>${s.active} active</span><span>${Math.round(s.replyRate*100)}% reply</span></div>
+    </button>`).join('');
+  const s=S.find(x=>x.id===curSeq)||S[0];
+  const chip=c=>`<span class="cchip">${({sms:'💬 SMS',voice:'📞 Voice',email:'✉ Email'})[c]}</span>`;
+  const metric=(v,l)=>`<div class="seqm"><div class="seqm-v">${v}</div><div class="seqm-l">${l}</div></div>`;
+  const flow=s.steps.map((st,i)=>{
+    const m=SEQ_CH[st.ch]||{i:'•',l:st.ch};
+    const outs=st.out.map(o=>`<div class="sn-out ${o.tone||''}"><span class="sn-n">${o.n.toLocaleString()}</span>${esc(o.t)}</div>`).join('');
+    return `<div class="stepnode">
+        <div class="sn-h"><span class="sn-ch ${st.ch}">${m.i} ${m.l}</span><span class="sn-idx">${i+1}</span></div>
+        <div class="sn-label">${esc(st.label)}</div>
+        <div class="sn-time">🕓 ${esc(st.timing)}</div>
+        <div class="sn-entered">Entered <b>${st.entered.toLocaleString()}</b></div>
+        <div class="sn-outs">${outs}</div>
+        ${st.branch?`<div class="sn-branch">⑃ ${esc(st.branch)}</div>`:''}
+      </div>${i<s.steps.length-1?'<div class="stepconn">→</div>':''}`;
+  }).join('');
+  el.innerHTML = `
+    <aside class="seq-list">
+      <div class="seq-list-h">Sequences</div>${list}
+      <button class="seq-new">＋ New sequence</button>
+    </aside>
+    <div class="seq-detail">
+      <div class="seq-head">
+        <div><h2>${esc(s.name)}</h2>
+          <div class="seq-trig"><b>Enrolls:</b> ${esc(s.trigger)} &nbsp;·&nbsp; <b>Goal:</b> ${esc(s.goal)}</div>
+          <div class="seq-consent">Requires consent: ${s.consent.map(chip).join('')}</div>
+        </div>
+        <div class="seq-metrics">
+          ${metric(s.active,'Active now')}
+          ${metric(s.enrolled.toLocaleString(),'Enrolled · 30d')}
+          ${metric(Math.round(s.replyRate*100)+'%','Reply rate')}
+          ${metric(Math.round(s.goalRate*100)+'%',esc(s.goal))}
+          ${metric(Math.round(s.optoutRate*100)+'%','Opt-out')}
+        </div>
+      </div>
+      <div class="stepflow">${flow}</div>
+      <div class="seq-foot">Steps only fire on channels the contact has consented to. A reply, a booked demo, or an opt-out exits the sequence immediately.</div>
+    </div>`;
+}
+
+/* ===================== ANALYTICS ===================== */
+function renderAnalytics(){
+  const el=document.getElementById("analyticsview"); if(!el) return;
+  const A=window.ANALYTICS, k=A.kpis, S=window.SEQUENCES;
+  const kpi=(v,l,s)=>`<div class="kpi"><div class="kpi-v">${v}</div><div class="kpi-l">${l}</div>${s?`<div class="kpi-s">${s}</div>`:''}</div>`;
+  const kpis=[
+    kpi(k.leads,'Leads · 30d'),
+    kpi(Math.round(k.replies/k.leads*100)+'%','Reply rate',`${k.replies} replies`),
+    kpi(k.demos,'Demos booked'),
+    kpi(k.activations,'Activations','new customers'),
+    kpi('$'+k.spend.toLocaleString(),'Ad spend'),
+    kpi('$'+k.cpl.toFixed(2),'Cost / lead','blended'),
+    kpi('$'+k.cpd,'Cost / demo'),
+    kpi('$'+k.pipeline.toLocaleString(),'Open pipeline','/mo')
+  ].join('');
+  const fmax=A.funnel[0].n;
+  const funnel=A.funnel.map((f,i)=>`<div class="fnl-row"><span class="fnl-k">${f.k}</span><div class="fnl-bar"><i style="width:${Math.max(4,Math.round(f.n/fmax*100))}%"></i></div><span class="fnl-n">${f.n}</span><span class="fnl-p">${i?Math.round(f.n/fmax*100)+'%':'—'}</span></div>`).join('');
+  const srows=A.sources.map(s=>{
+    const cpl=s.spend>0?'$'+(s.spend/s.leads).toFixed(2):'—';
+    const cpd=s.spend>0&&s.demos>0?'$'+Math.round(s.spend/s.demos):'—';
+    const roas=s.spend>0?(s.act*A.avgDealYr/s.spend).toFixed(1)+'×':(s.leads?'organic':'—');
+    return `<tr>
+      <td><span class="chip src-${s.src}"><span class="dot"></span>${SRC[s.src]}</span></td>
+      <td class="num">${s.leads}</td><td class="num">${Math.round(s.reply*100)}%</td>
+      <td class="num">${s.demos}</td><td class="num">${s.act}</td>
+      <td class="num">${s.spend?'$'+s.spend.toLocaleString():'—'}</td>
+      <td class="num">${cpl}</td><td class="num">${cpd}</td>
+      <td class="num roas">${roas}</td></tr>`;
+  }).join('');
+  const smax=Math.max(...A.spendByChannel.map(x=>x.v));
+  const spend=A.spendByChannel.map(x=>`<div class="sb-row"><span class="sb-k">${x.k}</span><div class="sb-bar"><i style="width:${Math.round(x.v/smax*100)}%"></i></div><span class="sb-v">$${x.v.toLocaleString()}</span></div>`).join('');
+  const seqrows=S.map(s=>`<tr><td>${esc(s.name)}</td><td class="num">${s.enrolled.toLocaleString()}</td><td class="num">${Math.round(s.replyRate*100)}%</td><td class="num">${Math.round(s.goalRate*100)}%</td><td class="num">${Math.round(s.optoutRate*100)}%</td></tr>`).join('');
+  const dmax=Math.max(...A.leadsByDay);
+  const spark=A.leadsByDay.map(v=>`<span class="spk" style="height:${Math.max(8,Math.round(v/dmax*100))}%" title="${v} leads"></span>`).join('');
+  el.innerHTML=`
+    <div class="an-head"><h2>Analytics</h2><span class="an-sub">Last 30 days · which source, sequence, and message books the job — and what it costs</span></div>
+    <div class="kpis">${kpis}</div>
+    <div class="an-grid">
+      <div class="card an-card"><h4>Funnel — lead to customer</h4><div class="fnl">${funnel}</div></div>
+      <div class="card an-card"><h4>Leads / day</h4><div class="spark">${spark}</div><div class="spark-x"><span>30 days ago</span><span>today</span></div></div>
+    </div>
+    <div class="card an-card"><h4>By source</h4>
+      <table class="atable"><thead><tr><th>Source</th><th class="num">Leads</th><th class="num">Reply</th><th class="num">Demos</th><th class="num">Active</th><th class="num">Spend</th><th class="num">Cost/lead</th><th class="num">Cost/demo</th><th class="num">Est. ROAS</th></tr></thead>
+      <tbody>${srows}</tbody></table>
+      <div class="atable-note">Est. ROAS assumes $${A.avgDealYr.toLocaleString()}/yr average value per activation. “Organic” = no ad spend attributed.</div>
+    </div>
+    <div class="an-grid">
+      <div class="card an-card"><h4>Ad spend by channel</h4><div class="sbchart">${spend}</div></div>
+      <div class="card an-card"><h4>Sequence performance</h4>
+        <table class="atable"><thead><tr><th>Sequence</th><th class="num">Enrolled</th><th class="num">Reply</th><th class="num">Goal hit</th><th class="num">Opt-out</th></tr></thead><tbody>${seqrows}</tbody></table>
+      </div>
+    </div>`;
+}
+
+/* ===================== CONSENT LEDGER ===================== */
+const CONSENT_OPEN=new Set();
+function toggleProof(i){ CONSENT_OPEN.has(i)?CONSENT_OPEN.delete(i):CONSENT_OPEN.add(i); renderConsent(); }
+window.toggleProof=toggleProof;
+function renderConsent(){
+  const el=document.getElementById("consentview"); if(!el) return;
+  const L=window.CONSENT_LEDGER;
+  const chLabel={email:'✉ Email',sms:'💬 SMS',voice:'📞 Voice'};
+  const actCls={granted:'g',revoked:'r',none:'n'};
+  const kpi=(v,l,s)=>`<div class="kpi"><div class="kpi-v">${v}</div><div class="kpi-l">${l}</div>${s?`<div class="kpi-s">${s}</div>`:''}</div>`;
+  const kpis=[
+    kpi('271','Consented contacts','of 308 leads'),
+    kpi('8','Active suppressions','opt-outs honored'),
+    kpi('63%','PEWC capture','paid leads w/ SMS+voice'),
+    kpi('100%','Sends backed by a record')
+  ].join('');
+  const chanSummary=[['email','Email',271,0],['sms','SMS',168,8],['voice','Voice',168,8]].map(([k,l,g,r])=>
+    `<div class="chanrow"><span class="chan-l">${chLabel[k]}</span>
+      <span class="chan-g">✓ ${g} granted</span>${r?`<span class="chan-r">⊘ ${r} revoked</span>`:''}</div>`).join('');
+  const rows=L.map((e,i)=>{
+    const open=CONSENT_OPEN.has(i);
+    const chs=e.ch.map(c=>`<span class="lch">${chLabel[c]}</span>`).join('');
+    const badge=`<span class="lbadge ${actCls[e.action]}">${e.action}</span>`;
+    const detail=open?`<tr class="proofrow"><td colspan="5"><div class="proof">
+        <div class="proof-q">“${esc(e.proof)}”</div>
+        <div class="proof-meta">
+          <span><b>Basis</b> ${esc(e.basis)}</span>
+          ${e.form?`<span><b>Source</b> ${esc(e.form)}</span>`:''}
+          ${e.ip?`<span><b>IP</b> ${esc(e.ip)}</span>`:''}
+          <span><b>Logged</b> ${esc(e.ts)}</span>
+        </div>
+        <div class="proof-foot">🛡️ This is the record we can produce if a send is ever challenged.</div>
+      </div></td></tr>`:'';
+    return `<tr class="lrow ${open?'open':''}" onclick="toggleProof(${i})">
+        <td class="lt">${esc(e.ts)}</td>
+        <td><div class="lname">${esc(e.name)}</div><div class="lco">${esc(e.co)}</div></td>
+        <td>${chs}</td>
+        <td>${badge}</td>
+        <td class="lbasis">${esc(e.basis)} <span class="lchev">${open?'▾':'▸'}</span></td>
+      </tr>${detail}`;
+  }).join('');
+  el.innerHTML=`
+    <div class="cn-head"><h2>Consent ledger</h2><span class="cn-sub">Every message we send is backed by a timestamped, auditable record. Click any row to see the proof.</span></div>
+    <div class="kpis kpis-4">${kpis}</div>
+    <div class="an-grid">
+      <div class="card an-card"><h4>Consent by channel</h4><div class="chansum">${chanSummary}</div></div>
+      <div class="card an-card"><h4>How consent is captured</h4>
+        <ul class="cn-methods">
+          <li><b>PEWC checkbox</b> on Meta lead forms & /get-started — full SMS + voice + email opt-in.</li>
+          <li><b>Email-only</b> when a form has no PEWC — routed to the earn-consent branch, no calls/texts.</li>
+          <li><b>CAN-SPAM</b> legitimate-interest for cold B2B email (address + one-click unsubscribe).</li>
+          <li><b>STOP / unsubscribe</b> revokes instantly and suppresses permanently.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card an-card"><h4>Recent consent events</h4>
+      <table class="ltable"><thead><tr><th>When</th><th>Contact</th><th>Channels</th><th>Action</th><th>Basis</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+}
+window.dealStage=dealStage;window.dealTrial=dealTrial;window.dealUser=dealUser;window.dealTraffic=dealTraffic;
+function dealTab(c){
+  const d=dstate(c.id), v=d.visitors, pct=Math.max(0,Math.min(100,100*Math.log10(v/100)/3));
+  const stages=[['new','New'],['trial','Trial'],['active','Active'],['lost','Lost']];
+  return `<div class="dealtab">
+    <div class="dblock"><h5>Stage</h5>
+      <div class="dstages">${stages.map(([k,l])=>`<button class="dstage ${d.stage===k?'on '+k:''}" onclick="dealStage('${c.id}','${k}')">${l}</button>`).join('')}</div>
+    </div>
+    <div class="dblock"><h5>Trial</h5>
+      <div class="dchk"><span class="tcheck ${d.trial?'on':''}" onclick="dealTrial('${c.id}',${d.trial?'false':'true'})">${d.trial?'✓':''}</span>Signed up for a trial <span class="dsub">via console.consentresolve.com</span></div>
+      ${d.trial?`<div class="duser"><label>Console username</label><input placeholder="e.g. langroofing-tx" value="${esc(d.username)}" onchange="dealUser('${c.id}',this.value)"></div>`:''}
+    </div>
+    <div class="dblock"><h5>Estimated deal size — from monthly traffic</h5>
+      <div class="dpredict">
+        <div class="dp-value"><span class="dp-big">$<span id="dvalue">${predictValue(v).toLocaleString()}</span></span><span class="dp-per">/mo</span><span class="dp-yr">≈ $<span id="dyear">${(predictValue(v)*12).toLocaleString()}</span> / yr</span></div>
+        <div class="dp-flow">
+          <div class="dp-cell visits"><div class="dp-n" id="dvisits">${v.toLocaleString()}</div><div class="dp-l">Visitors / mo</div></div>
+          <span class="dp-arrow">→</span>
+          <div class="dp-cell leads"><div class="dp-n" id="dleads">${predictLeads(v).toLocaleString()}</div><div class="dp-l">Consented leads</div></div>
+          <span class="dp-arrow">×</span>
+          <div class="dp-cell rate"><div class="dp-n">$7</div><div class="dp-l">Per lead</div></div>
+        </div>
+        <input class="dslider" type="range" min="0" max="100" step="0.5" value="${pct.toFixed(1)}" oninput="dealTraffic('${c.id}',this.value)">
+        <div class="dscale"><span>100</span><span>1k</span><span>10k</span><span>100k</span></div>
+        <div class="dp-note">Assumes ~2% of monthly visitors opt in as consented $7 leads.</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* sequence tracker card — moves to the Activity tab */
+function seqCard(c){
+  const s=c.sequence, st=autoState(c);
+  if(!s.total) return '';
+  return `<div class="card"><h4>Sequence · ${esc(s.label)}</h4>${tracker(s, st==='on'||st==='done')}
+    <div style="text-align:center;font-size:11px;color:var(--tx-3);margin-top:8px">Step ${s.step} of ${s.total} · automation ${st==='on'?'on':st==='paused'?'paused':st}</div></div>`;
+}
+
+/* ===================== INTEL — company intelligence dashboard ===================== */
+function cityFrom(a){if(!a)return '';const p=a.split(',');return p.length>=2?(p[1].trim()+(p[2]?', '+p[2].trim().replace(/\s*\d{5}.*/,''):'')):'';}
+function tileD(v,l,variant){return `<div class="itile ${variant||''}"><div class="iv">${v}</div><div class="il">${l}</div></div>`;}
+function idRow(status,label,value,link){
+  const s={ok:'✓',no:'✗',off:'—'}[status]||'—', sc={ok:'good',no:'bad',off:'mut'}[status];
+  const val=link?`<a href="${link}" target="_blank" rel="noopener">${esc(value)} ↗</a>`:esc(value);
+  return `<div class="prow"><span class="pst ${sc}">${s}</span><span class="pk">${label}</span><span class="pv">${val}</span></div>`;
+}
+function icardD(title,src,body){return `<div class="icard"><div class="icard-h"><h4>${title}</h4><span class="isrc">${src}</span></div>${body}</div>`;}
+function intelDashboard(c){
+  const e=window.ENRICH[c.id], x=(window.INTEL||{})[c.id]||{}, d=(window.DIRECTORY||{})[c.id]||{}, it=c.intel, ph=PHONES[c.id];
+  const fit=`<span class="fit ${it.fit}">${it.fit.toUpperCase()}</span>`;
+  if(!e){
+    return `<div class="intel-dash"><div class="idash-hero"><div class="idh-title">${fit}${esc(c.name||'Unknown')}</div>
+      <p class="idh-brief">No public company profile matched yet — this lead came in without a company we can research (${esc(it.src_label)}). Add a name or company in the <b>Task</b> tab and we'll enrich it automatically.</p></div></div>`;
+  }
+  const traffic=e.traffic_month||it.traffic_month||0;
+  const recoverable=predictLeads(traffic||1000), city=cityFrom(d.address);
+  const k=n=>n?`$${(n/1000).toFixed(1).replace(/\.0$/,'')}`:'0';
+  const tiles=[
+    e.spend_high>0?tileD(`${k(e.spend_low)}–${k(e.spend_high)}k`,'Ad spend / mo','spend'):tileD('—','Not advertising','muted'),
+    tileD(traffic?fmtK(traffic):'—','Visits / mo'),
+    tileD(e.gmb?e.gmb.rating+'★':'—', e.gmb?`Google · ${e.gmb.reviews} reviews`:'Rating'),
+    tileD(e.employees||'—','Team size'),
+    tileD((e.years||'—')+' yr','In business'),
+    tileD(recoverable.toLocaleString(),'Recoverable leads / mo','opp')
+  ].join('');
+  const foot=[
+    idRow(e.website?'ok':'no','Website', e.website?`${e.website.domain} · ${e.website.capture?'has a form':'no form'}`:'not found', e.website?'https://'+e.website.domain:null),
+    idRow(e.gmb?'ok':'no','Google Biz', e.gmb?`${e.gmb.rating}★ (${e.gmb.reviews}) · ${e.gmb.verified?'verified':'unclaimed'}`:'no listing', null),
+    idRow(e.facebook?'ok':'no','Facebook', e.facebook?`@${e.facebook.handle}${e.facebook.ads_live>0?' · '+e.facebook.ads_live+' ads live':' · '+fmtK(e.facebook.followers)+' followers'}`:'not found', e.facebook?'https://facebook.com/'+e.facebook.handle:null),
+    idRow(d.linkedin?'ok':'off','LinkedIn', d.linkedin||'not found', d.linkedin?'https://linkedin.com/company/'+d.linkedin:null),
+    idRow(d.instagram?'ok':'off','Instagram', d.instagram||'not found', d.instagram?'https://instagram.com/'+d.instagram:null),
+    idRow(d.tiktok?'ok':'off','TikTok', d.tiktok||'not found', d.tiktok?'https://tiktok.com/@'+d.tiktok:null)
+  ].join('');
+  const adBody = e.spend_high>0 ? `
+    <div class="ad-total">$${e.spend_low.toLocaleString()}–${e.spend_high.toLocaleString()}<span> /mo</span></div>
+    <div class="ad-ch">${e.spend_channels.map(ch=>`<span class="techchip">${ch}</span>`).join('')}</div>
+    ${idRow(e.facebook&&e.facebook.ads_live>0?'ok':'off','Facebook ads', e.facebook&&e.facebook.ads_live>0?e.facebook.ads_live+' live now':'none live', null)}
+    ${idRow(e.ads.google?'ok':'off','Google Ads', e.ads.google?'running':'not running', null)}
+    ${idRow(e.ads.lsa?'ok':'off','Local Svc Ads', e.ads.lsa?'running':'not running', null)}`
+    : `<div class="idash-empty">Not running paid ads right now — an organic-first opportunity.</div>`;
+  const techChips=(x.tech||[]).map(t=>`<span class="techchip">${esc(t)}</span>`).join('') || `<span class="idash-empty">No technologies detected.</span>`;
+  const gaps=[];
+  if(e.website&&!e.website.capture) gaps.push('No lead-capture form');
+  if(!x.chat) gaps.push('No live chat');
+  if(!(e.pixels&&e.pixels.length)) gaps.push('No tracking pixel');
+  const gapFlags=gaps.length?`<div class="gapline">${gaps.map(g=>`<span class="gap-flag">⚠ ${g}</span>`).join('')}</div>`:'';
+  const rep = e.gmb ? `<div class="rep"><div class="rep-big">${e.gmb.rating}<span>★</span></div><div class="rep-sub"><b>${e.gmb.reviews}</b> Google reviews<br>${e.gmb.verified?'Verified profile':'Unclaimed profile'}</div></div>` : `<div class="idash-empty">No Google Business listing found.</div>`;
+  const eng=`<div class="itiles-sm">
+      <div class="itile-sm"><div class="iv">${esc(it.time_on_site)}</div><div class="il">On site</div></div>
+      <div class="itile-sm"><div class="iv">${it.pages}</div><div class="il">Pages</div></div>
+      <div class="itile-sm"><div class="iv">${esc(it.first_seen)}</div><div class="il">First seen</div></div>
+      <div class="itile-sm"><div class="iv">${it.speed_to_lead_h!=null?it.speed_to_lead_h+'h':'—'}</div><div class="il">Speed→lead</div></div>
+    </div>${it.pages_viewed.length?`<div class="pv-list">${it.pages_viewed.map(p=>'→ '+esc(p)).join('')}</div>`:''}`;
+  const contact=`
+    ${d.address?idRow('ok','Address',d.address,null):''}
+    ${ph?`<div class="prow"><span class="pst good">✓</span><span class="pk">Phone</span><span class="pv"><a href="${telHref(ph)}">${esc(ph)}</a></span></div>`:''}
+    ${c.contact_email?`<div class="prow"><span class="pst good">✓</span><span class="pk">Email</span><span class="pv"><a href="mailto:${esc(c.contact_email)}">${esc(c.contact_email)}</a></span></div>`:''}`;
+  return `<div class="intel-dash">
+    <div class="idash-hero">
+      <div class="idh-title">${fit}${esc(c.company||c.name||'Unknown')}<span class="idh-trade">${[x.trade,city].filter(Boolean).join(' · ')}</span></div>
+      <p class="idh-brief">${esc(x.brief||it.signal||'')}</p>
+      <div class="idh-src">✨ AI-researched · enriched via BuiltWith, Meta Ad Library, Google Business &amp; traffic estimators</div>
+    </div>
+    <div class="idash-tiles">${tiles}</div>
+    <div class="idash-grid">
+      ${icardD('Digital footprint','Search + BuiltWith', `<div class="presence">${foot}</div>`)}
+      ${icardD('Advertising','Meta Ad Library', adBody)}
+      ${icardD('Website tech','BuiltWith', `<div class="techchips">${techChips}</div>${gapFlags}`)}
+      ${icardD('Reputation','Google Business', rep)}
+      ${icardD('On-site engagement','First-party', eng)}
+      ${icardD('Contact &amp; location','CRM + directories', `<div class="presence">${contact||'<div class="idash-empty">—</div>'}</div>`)}
+    </div>
+    ${it.signal?`<div class="idash-opp">🔥 <div><b>Why they fit —</b> ${esc(it.signal)} <span class="opp-num">≈ ${recoverable.toLocaleString()} consented leads/mo</span> they're leaving on the table.</div></div>`:''}
+  </div>`;
+}
+
+let curTab="reply";
+function renderTab(c){
+  const b=document.getElementById("tabbody"); if(!b) return;
+  if(curTab==="reply"){
+    b.className="tabbody acttab";
+    b.innerHTML = (c.channel==="email"?gmailThread(c):bubbleThread(c)) + `<div class="composer-wrap" id="composerhost">${composer(c)}</div>`;
+    renderAttachChips();
+  } else if(curTab==="activity"){
+    b.className="tabbody";
+    b.innerHTML = `<div class="tabscroll">${activityCard(c)}${seqCard(c)}${consentCard(c)}</div>`;
+  } else if(curTab==="intel"){
+    b.className="tabbody";
+    b.innerHTML = `<div class="tabscroll intel-scroll">${intelDashboard(c)}</div>`;
+  } else if(curTab==="deal"){
+    b.className="tabbody";
+    b.innerHTML = `<div class="tabscroll">${dealTab(c)}</div>`;
+  } else {
+    b.className="tabbody";
+    b.innerHTML = `<div class="tabscroll">${taskTab(c)}</div>`;
+  }
+}
+function switchTab(t){
+  curTab=t; replyOpen=false; ATTACH=[];
+  document.querySelectorAll(".tabs .tab").forEach(x=>x.classList.toggle("on", x.dataset.tab===t));
+  renderTab(DATA.conversations.find(x=>x.id===sel));
+}
+window.switchTab = switchTab;
+
+function select(id){
+  sel=id; replyOpen=false; ATTACH=[]; curTab="reply";
+  const c=DATA.conversations.find(x=>x.id===id);
+  renderList(document.querySelector(".filters .on").dataset.f);
+  const useGmail = c.channel==="email";
+  const phone = PHONES[c.id];
+  const emailCm = c.contact_email
+    ? `<span class="cm"><span class="ci">✉</span><a href="mailto:${esc(c.contact_email)}">${esc(c.contact_email)}</a></span>`
+    : `<span class="cm none">no email yet</span>`;
+  const phoneCm = phone
+    ? `<span class="cm"><span class="ci">📞</span><a href="${telHref(phone)}">${esc(phone)}</a></span>`
+    : `<span class="cm none">no phone</span>`;
+  const o = ownerOf(c);
+  const ownerEl = o
+    ? `<div class="owner" title="Reassign this conversation"><span class="oav" style="background:${o.color}">${o.init}</span><span>${esc(o.name)}</span><span class="car">▾</span></div>`
+    : `<div class="owner unassigned" title="Assign a rep — happens automatically when someone replies"><span>＋ Assign</span><span class="car">▾</span></div>`;
+  const costTxt = c.intel.cost_per_lead ? ` ($${c.intel.cost_per_lead.toFixed(2)})` : '';
+  document.getElementById("thread").innerHTML = `
+    <div class="thead">
+      <div class="t1"><div class="avatar" style="background:${avColor(c.name||c.id)};color:#fff">${esc(c.initials)}</div>
+        <div class="who"><h2>${esc(c.name||"Unknown contact")}</h2><div class="sub">${esc(c.company||"no company")}</div>
+          <div class="cmeta">
+            <span class="cm"><span class="chip src-${c.source}"><span class="dot"></span>${SRC[c.source]}${costTxt}</span></span>
+            <span class="sep">·</span>${emailCm}
+            <span class="sep">·</span>${phoneCm}
+          </div>
+        </div>
+        <div class="hdr-right">${ownerEl}${autoControl(c)}</div>
+      </div>
+      <div class="tabs">
+        <button class="tab ${curTab==='reply'?'on':''}" data-tab="reply" onclick="switchTab('reply')"><span class="ti">${IC.reply}</span>Reply</button>
+        <button class="tab ${curTab==='activity'?'on':''}" data-tab="activity" onclick="switchTab('activity')"><span class="ti">${IC.activity}</span>Activity</button>
+        <button class="tab ${curTab==='intel'?'on':''}" data-tab="intel" onclick="switchTab('intel')"><span class="ti">${IC.intel}</span>Intel</button>
+        <button class="tab ${curTab==='task'?'on':''}" data-tab="task" onclick="switchTab('task')"><span class="ti">${IC.task}</span>Task</button>
+        <button class="tab ${curTab==='deal'?'on':''}" data-tab="deal" onclick="switchTab('deal')"><span class="ti">${IC.deal}</span>Deal</button>
+      </div>
+    </div>
+    <div class="tabbody" id="tabbody"></div>
+  `;
+  renderTab(c);
+}
+window.select = select;
+
+document.querySelectorAll(".filters button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filters button").forEach(x=>x.classList.remove("on"));b.classList.add("on");renderList(b.dataset.f);});
+document.querySelectorAll(".toggle button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".toggle button").forEach(x=>x.classList.remove("on"));b.classList.add("on");document.documentElement.setAttribute("data-theme",b.dataset.th);});
+
+document.documentElement.setAttribute("data-theme","light");
+renderList("open");
+select(sel);
+setInterval(tickClocks,1000);
+</script>

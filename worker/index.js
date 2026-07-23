@@ -29,6 +29,7 @@ import * as requeue from "./api/requeue.js";
 import * as gbpStatus from "./api/gbp-status.js";
 import * as admin from "./admin.js";
 import * as crm from "./crm.js";
+import * as crmApp from "./crm-app.js";
 import * as crmLeads from "./api/crm-leads.js";
 import * as crmAnalytics from "./api/crm-analytics.js";
 import * as crmSpend from "./api/crm-spend.js";
@@ -203,6 +204,17 @@ export default {
       const norm = url.pathname.replace(/\/+$/, "") || "/";
       const to = BLOG_REDIRECTS[norm];
       if (to) return Response.redirect(new URL(to, url.origin).toString(), 301);
+    }
+
+    // CRM rebuild app (frozen design, cr_crm-gated). Served before the legacy /crm
+    // so it can coexist during cutover. Its sub-routes (/crm/app/<section>) are a SPA.
+    if (url.pathname === "/crm/app" || url.pathname.startsWith("/crm/app/")) {
+      try {
+        return await crmApp.handle({ request, env, ctx });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: "crm_app_error", detail: String(err).slice(0, 300) }),
+          { status: 500, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+      }
     }
 
     // CRM app (gated: admin session OR ?key=<CRM_KEY>). Worker-rendered like /admin.
