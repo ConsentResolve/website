@@ -8,6 +8,7 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { currentUser } from "../_lib/crm-v2.js";
 import { ensureRebuildSchema } from "../_lib/crm-rebuild.js";
+import { computeSources } from "../_lib/sitespy.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -219,12 +220,17 @@ export async function onRequestGet({ request, env }) {
     all: DATA_CONVERSATIONS.length,
   };
 
+  // Data-source registry (Site Spy / Nurture transparency + extensibility).
+  let SITE_SOURCES = null;
+  try { SITE_SOURCES = await computeSources(env); } catch (_) {}
+
   return json({
     ok: true,
     me: me ? { name: me.name, email: me.email, role: me.role } : null,
     CONSENT_LEDGER, CONSENT_STATS, consentSummary,
     SEQUENCES,
     DATA_CONVERSATIONS, DATA_COUNTS,
+    SITE_SOURCES,
     inbox: { buckets },
     funnel,
     generated_at: new Date().toISOString(),

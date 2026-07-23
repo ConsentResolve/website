@@ -62,7 +62,9 @@ import * as crmDemoNotify from "./api/crm-demo-notify.js";
 import * as crmRebuildMigrate from "./api/crm-rebuild-migrate.js";
 import * as crmWorkflow from "./api/crm-workflow.js";
 import * as crmAppData from "./api/crm-app-data.js";
+import * as crmSources from "./api/crm-sources.js";
 import { tick as workflowTick } from "./_lib/workflow-engine.js";
+import { syncSiteVisits } from "./_lib/sitespy.js";
 import { sweepDemoNotifications } from "./_lib/demo-notify.js";
 import { autoEnrichSweep } from "./_lib/apollo.js";
 import { metaConfigured, syncMetaSpend } from "./_lib/meta.js";
@@ -145,6 +147,7 @@ const ROUTES = {
   "/api/crm/rebuild/migrate": crmRebuildMigrate,
   "/api/crm/workflow": crmWorkflow,
   "/api/crm/app": crmAppData,
+  "/api/crm/sources": crmSources,
   "/api/crm/auth/login": crmAuth,
   "/api/crm/auth/callback": crmAuth,
   "/api/crm/auth/logout": crmAuth,
@@ -354,6 +357,15 @@ export default {
         if (wf && !wf.skipped) console.log(`[workflow] enroll ${wf.autoEnroll?.enrolled || 0}, process ${JSON.stringify(wf.process)}`);
       } catch (err) {
         console.log(`[workflow] error: ${String(err).slice(0, 160)}`);
+      }
+      // Site Spy / Nurture intent pipeline: materialize identity-resolved pageviews
+      // (first-party traffic ⋈ visitor_links) into site_visit events. Always safe —
+      // only writes intel events, never sends anything.
+      try {
+        const sv = await syncSiteVisits(env, {});
+        if (sv && sv.emitted) console.log(`[sitespy] +${sv.emitted} site_visit events (${sv.scanned} scanned)`);
+      } catch (err) {
+        console.log(`[sitespy] error: ${String(err).slice(0, 160)}`);
       }
       // Meta ad-spend sync (~4×/day): pull live spend into crm_spend so cost-per-lead +
       // ROAS reflect real numbers. Idempotent per calendar month.

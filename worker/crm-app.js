@@ -36,7 +36,7 @@ const BOOTSTRAP = `<script>
 (async () => {
   var snap = {
     convs: window.DATA && window.DATA.conversations, counts: window.DATA && window.DATA.counts,
-    CL: window.CONSENT_LEDGER, CS: window.CONSENT_STATS, SEQ: window.SEQUENCES
+    CL: window.CONSENT_LEDGER, CS: window.CONSENT_STATS, SEQ: window.SEQUENCES, SS: window.SITE_SOURCES
   };
   var d;
   try {
@@ -48,6 +48,7 @@ const BOOTSTRAP = `<script>
     if (d.CONSENT_LEDGER) window.CONSENT_LEDGER = d.CONSENT_LEDGER;
     if (d.CONSENT_STATS)  window.CONSENT_STATS = d.CONSENT_STATS;
     if (d.SEQUENCES && d.SEQUENCES.length) window.SEQUENCES = d.SEQUENCES;
+    if (d.SITE_SOURCES) window.SITE_SOURCES = d.SITE_SOURCES;
     if (d.me && window.DATA) window.DATA.me = d.me;
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.DATA) {
       window.DATA.conversations = d.DATA_CONVERSATIONS;
@@ -55,6 +56,7 @@ const BOOTSTRAP = `<script>
     }
     if (window.renderConsent) window.renderConsent();
     if (window.renderSequences) window.renderSequences();
+    if (d.SITE_SOURCES && window.renderSiteSpy) window.renderSiteSpy();
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.renderList) {
       window.renderList('open');
       if (window.recount) window.recount();
@@ -64,12 +66,13 @@ const BOOTSTRAP = `<script>
     // FAIL-SAFE: any render error -> restore the demo fixtures so the app never breaks
     try {
       if (window.DATA) { window.DATA.conversations = snap.convs; window.DATA.counts = snap.counts; }
-      window.CONSENT_LEDGER = snap.CL; window.CONSENT_STATS = snap.CS; window.SEQUENCES = snap.SEQ;
+      window.CONSENT_LEDGER = snap.CL; window.CONSENT_STATS = snap.CS; window.SEQUENCES = snap.SEQ; window.SITE_SOURCES = snap.SS;
       if (window.renderList) window.renderList('open');
       if (window.recount) window.recount();
       if (window.select && window.DATA && window.DATA.conversations[0]) window.select(window.DATA.conversations[0].id);
       if (window.renderConsent) window.renderConsent();
       if (window.renderSequences) window.renderSequences();
+      if (window.renderSiteSpy) window.renderSiteSpy();
     } catch (_) {}
     if (window.console) console.warn('crm/app: live-data swap failed, reverted to fixtures', e);
   }

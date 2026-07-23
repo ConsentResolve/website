@@ -1960,6 +1960,26 @@ function renderSiteSpy(){
     <td>${spyEngPills(v.eng)}</td>
     <td class="sp-last">${esc(v.last)}</td>
   </tr>`).join('');
+  // Live data-source panel (real): where Site Spy / Nurture intent data comes from,
+  // how each source performs, and how to add more. Reads window.SITE_SOURCES.
+  const SS=window.SITE_SOURCES;
+  const stSty={connected:'background:var(--good-soft);color:var(--good)',ready:'background:var(--accent-soft);color:var(--accent)',needs_setup:'background:var(--warn-soft);color:var(--warn)',available:'background:var(--surface-3);color:var(--tx-3)'};
+  const stLbl={connected:'Connected',ready:'Ready',needs_setup:'Needs setup',available:'Available'};
+  const srcPanel = SS ? `
+    <div class="nu-pool-h" style="margin-top:28px"><h4>Where this data comes from</h4>
+      <span class="atable-note">${SS.summary.site_visit_events_30d} identified site visits · ${SS.summary.identity_match_rate}% identity match · ${SS.summary.link_click_events_30d} email clicks (30d)</span></div>
+    <div class="idash-grid" style="grid-template-columns:1fr 1fr">
+      ${SS.sources.map(s=>`<div class="icard">
+        <div class="icard-h"><h4>${esc(s.name)}</h4><span class="lbadge" style="${stSty[s.status]||stSty.available}">${stLbl[s.status]||esc(s.status)}</span></div>
+        <div style="font-size:var(--t-12);color:var(--tx-2);line-height:1.5">${esc(s.provides)}</div>
+        ${s.perf?`<div style="margin-top:9px;font-size:var(--t-12)"><b>${esc(s.perf.label)}:</b> <span style="color:var(--accent);font-weight:800">${esc(s.perf.value)}</span><div style="color:var(--tx-3);font-size:11px;margin-top:1px">${esc(s.perf.detail)}</div></div>`:''}
+        ${s.events30d!=null?`<div style="margin-top:7px;font-size:11px;color:var(--tx-3);font-family:var(--font-mono)">${s.events30d} events · 30d</div>`:''}
+        ${s.contribution?`<div style="margin-top:7px;font-size:11px;color:var(--tx-3)">${esc(s.contribution)}</div>`:''}
+        ${s.boost?`<div style="margin-top:9px;font-size:11px;color:var(--warn);font-weight:600">⚠ ${esc(s.boost)}</div>`:''}
+        ${s.status!=='connected'&&(s.howToEnable||s.note)?`<div style="margin-top:9px;font-size:11px;color:var(--tx-3);line-height:1.45">${esc(s.howToEnable||s.note)}</div>`:''}
+      </div>`).join('')}
+    </div>
+    <p class="atable-note" style="margin-top:12px">Add or strengthen a source when coverage is low — a higher identity-match rate means more of your visitors show up here by name, not as anonymous traffic.</p>` : '';
   el.innerHTML=`
     <div class="nu-head"><h2>Site Spy</h2><div class="sub">Known visitors by last activity — who's on the site, what they're looking at, and whether we're already engaging them through a sequence, an automation, or a human conversation.</div></div>
     ${kpis}
@@ -1973,6 +1993,7 @@ function renderSiteSpy(){
       <tbody>${rows}</tbody>
     </table>
     <p class="atable-note" style="margin-top:14px">A “Not engaged yet” visitor is a net-new opportunity — open them to start a conversation or drop them into a sequence.</p>
+    ${srcPanel}
   `;
 }
 window.renderSiteSpy=renderSiteSpy;
