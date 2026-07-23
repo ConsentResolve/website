@@ -61,6 +61,7 @@ import * as crmMerge from "./api/crm-merge.js";
 import * as crmDemoNotify from "./api/crm-demo-notify.js";
 import * as crmRebuildMigrate from "./api/crm-rebuild-migrate.js";
 import * as crmWorkflow from "./api/crm-workflow.js";
+import * as crmAppData from "./api/crm-app-data.js";
 import { tick as workflowTick } from "./_lib/workflow-engine.js";
 import { sweepDemoNotifications } from "./_lib/demo-notify.js";
 import { autoEnrichSweep } from "./_lib/apollo.js";
@@ -142,6 +143,7 @@ const ROUTES = {
   "/api/crm/demo-notify": crmDemoNotify,
   "/api/crm/rebuild/migrate": crmRebuildMigrate,
   "/api/crm/workflow": crmWorkflow,
+  "/api/crm/app": crmAppData,
   "/api/crm/auth/login": crmAuth,
   "/api/crm/auth/callback": crmAuth,
   "/api/crm/auth/logout": crmAuth,
