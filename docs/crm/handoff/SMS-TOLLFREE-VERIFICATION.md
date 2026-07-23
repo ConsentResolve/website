@@ -105,16 +105,31 @@ The code path is already built and inert — nothing sends until BOTH creds exis
 enabled AND the contact has granted SMS consent.
 
 1. **Buy** a toll-free number in Telnyx; **submit** verification with the packet above; wait for
-   approval.
-2. Set Cloudflare Worker secrets: `TELNYX_API_KEY` and `TELNYX_FROM_NUMBER` (the TFN in E.164,
-   e.g. `+18335551234`).
-3. Confirm wiring: `GET /api/crm/workflow` → `providers.sms` flips from
+   approval. *(Submitted 2026-07-23.)*
+2. Set Cloudflare Worker secrets:
+   - `TELNYX_API_KEY` and `TELNYX_FROM_NUMBER` (the TFN in E.164, e.g. `+18335551234`).
+   - `TELNYX_PUBLIC_KEY` (Ed25519 public key from the Telnyx portal) — enables webhook signature
+     verification on `/api/telnyx/inbound`. Optional to send, but set it before going live.
+3. In Telnyx: create/confirm a **Messaging Profile**, assign the TFN, and set the profile's
+   **inbound webhook URL** to `https://consentresolve.com/api/telnyx/inbound` (already built —
+   ingests replies, and on STOP revokes SMS consent + suppresses + exits the sequence).
+4. Confirm wiring: `GET /api/crm/workflow` → `providers.sms` flips from
    `"HOLD: TELNYX_API_KEY + 10DLC"` to `"configured"`.
-4. **Dry test** (no real send): `POST {testEnroll:{email, phone, smsConsent:true}}` then
-   `GET /api/crm/workflow?preview=1` — confirm it routes to `speed-to-lead` and previews the SMS.
-5. **Live single test:** text your own opted-in mobile — enroll a real consented contact and run
-   one live tick (needs the engine enabled). Verify STOP + HELP replies work end to end.
-6. Only then turn on the engine for real automation (`WORKFLOW_ENGINE_ENABLED=true`).
+5. **Dry test** (no real send, works today): `POST {testEnroll:{email, phone, smsConsent:true}}`
+   then `GET /api/crm/workflow?preview=1` — confirm it routes to `speed-to-lead` and previews the SMS.
+6. **Live single test** (after approval, no engine needed): `POST /api/crm/workflow
+   {testSms:{to:"+1YOURMOBILE", text:"Consent Resolve test. Reply STOP to opt out, HELP for help."}}`
+   → verify you receive it, then reply **STOP** and confirm a suppression + revoked-consent record
+   appears (Consent screen), and **HELP** returns the carrier auto-reply.
+7. Only then turn on the engine for real automation (`WORKFLOW_ENGINE_ENABLED=true`).
+
+### SMS plumbing already built (inert until creds + approval)
+- **Outbound:** `sendTelnyxSms` (engine) + speed-to-lead sequence + consent gate + quiet hours.
+- **Single-send test:** `POST /api/crm/workflow {testSms:{to,text}}` (admin-gated; refuses
+  suppressed numbers; returns "hold" until Telnyx creds exist).
+- **Inbound webhook:** `POST /api/telnyx/inbound` (`worker/api/telnyx-inbound.js`) — Ed25519
+  signature-verified when `TELNYX_PUBLIC_KEY` is set; ingests replies into the CRM inbox; STOP →
+  revoke + suppress + exit; other replies exit the sequence; delivery failures logged.
 
 ## What only Aaron can do
 - Confirm legal entity name + EIN.

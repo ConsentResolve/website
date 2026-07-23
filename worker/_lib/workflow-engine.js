@@ -375,5 +375,5 @@ async function tick(env) {
 
 export {
   enabled, seedWorkflows, enrollContact, handleGoalEvent, processDueRuns,
-  autoEnrollSweep, tick, sendableAt, tpl,
+  autoEnrollSweep, tick, sendableAt, tpl, sendTelnyxSms,
 };

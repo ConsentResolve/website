@@ -8,8 +8,8 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { isAdmin, findOrCreateContactByEmail } from "../_lib/crm-v2.js";
-import { ensureRebuildSchema, recordConsent } from "../_lib/crm-rebuild.js";
-import { seedWorkflows, enrollContact, handleGoalEvent, tick, processDueRuns, enabled } from "../_lib/workflow-engine.js";
+import { ensureRebuildSchema, recordConsent, isSuppressed } from "../_lib/crm-rebuild.js";
+import { seedWorkflows, enrollContact, handleGoalEvent, tick, processDueRuns, sendTelnyxSms, enabled } from "../_lib/workflow-engine.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -55,6 +55,16 @@ export async function onRequestPost({ request, env }) {
   await ensureRebuildSchema(env); await seedWorkflows(env);
   if (body.enroll?.contactId) return json({ ok: true, result: await enrollContact(env, body.enroll) }, {}, cors);
   if (body.goal?.contactId) return json({ ok: true, exited: await handleGoalEvent(env, body.goal) }, {}, cors);
+  // CONTROLLED SINGLE SEND: fire one real SMS to a chosen number to verify delivery, WITHOUT
+  // enabling the whole engine. Inert (returns hold) until TELNYX_API_KEY + TELNYX_FROM_NUMBER
+  // exist and the toll-free number is verified. Refuses suppressed numbers.
+  if (body.testSms?.to) {
+    const to = String(body.testSms.to).trim();
+    const text = String(body.testSms.text || "Consent Resolve test message. Reply STOP to opt out, HELP for help.");
+    if (await isSuppressed(env, { phone: to, channel: "sms" })) return json({ ok: false, error: "suppressed", note: "this number opted out" }, {}, cors);
+    const result = await sendTelnyxSms(env, { to, text });
+    return json({ ok: result.ok === true, result, note: result.hold ? "Telnyx not configured yet — set TELNYX_API_KEY + TELNYX_FROM_NUMBER after verification" : undefined }, {}, cors);
+  }
   // TURNKEY TEST: create/find a test contact, optionally grant SMS (PEWC) consent so it routes
   // to the SMS-first speed-to-lead sequence, then enroll. Pair with GET ?preview=1 to advance it.
   // Nothing sends here; sends only happen on a dry ?preview tick (all stubbed) or the live engine.
