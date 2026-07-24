@@ -86,7 +86,7 @@ function tpl(id, c) {
   const t = {
     stl_sms1: () => ({ text: `Hi ${first}, ${c.owner || "Andy"} at ${BRAND} — we turn your website visitors into exclusive $7 leads. Want the 2-min version? Reply STOP to opt out.` }),
     stl_sms2: () => ({ text: `${first}, still happy to show you how ${BRAND} recovers the 98% of site visitors who leave without filling a form. Reply YES for a quick look. STOP to opt out.` }),
-    stl_call: () => ({ script: `Hi, this is an AI assistant calling on behalf of ${BRAND}. I'm reaching out about turning your website visitors into exclusive leads — is now an OK time for 60 seconds?` }),
+    stl_call: () => ({ script: `Hi${first !== "there" ? " " + first : ""}, this is an AI assistant calling on behalf of ${BRAND}. I'll be quick — we help home-service businesses turn the website visitors who leave without filling out a form into exclusive leads. Is now an OK time for about sixty seconds?` }),
     stl_email: () => ({
       subject: `${first}, the 98% of your site visitors who leave without a trace`,
       html: emailShell(`Hi ${first},`, `Most contractors capture only the ~2% of website visitors who fill out a form. ${BRAND} identifies the rest — with consent — and delivers them as <b>exclusive</b> leads at a flat $7. No shared leads, no long contracts.<br><br>Worth a 10-minute look?`, c),
@@ -378,5 +378,5 @@ async function tick(env) {
 
 export {
   enabled, seedWorkflows, enrollContact, handleGoalEvent, processDueRuns,
-  autoEnrollSweep, tick, sendableAt, tpl, sendTelnyxSms, sendResend,
+  autoEnrollSweep, tick, sendableAt, tpl, sendTelnyxSms, sendResend, placeRetellCall,
 };

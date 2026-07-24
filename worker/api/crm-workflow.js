@@ -9,7 +9,7 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { isAdmin, findOrCreateContactByEmail } from "../_lib/crm-v2.js";
 import { ensureRebuildSchema, recordConsent, isSuppressed } from "../_lib/crm-rebuild.js";
-import { seedWorkflows, enrollContact, handleGoalEvent, tick, processDueRuns, sendTelnyxSms, sendResend, tpl, enabled } from "../_lib/workflow-engine.js";
+import { seedWorkflows, enrollContact, handleGoalEvent, tick, processDueRuns, sendTelnyxSms, sendResend, placeRetellCall, tpl, enabled } from "../_lib/workflow-engine.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -76,6 +76,16 @@ export async function onRequestPost({ request, env }) {
     const t = tpl(template, c);
     const result = await sendResend(env, { to, subject: t.subject, html: t.html, text: t.text, unsubUrl: "https://consentresolve.com/api/unsubscribe?c=test" });
     return json({ ok: result.ok === true, template, subject: t.subject, result }, {}, cors);
+  }
+  // CONTROLLED SINGLE CALL: place one real Retell AI call to a chosen number so you can HEAR the
+  // agent, WITHOUT enrolling anyone or needing voice consent (this is an internal test to your own
+  // phone). Inert (returns hold) until RETELL_API_KEY + RETELL_AGENT_ID + RETELL_FROM_NUMBER exist.
+  if (body.testCall?.to) {
+    const to = String(body.testCall.to).trim();
+    if (await isSuppressed(env, { phone: to, channel: "voice" })) return json({ ok: false, error: "suppressed" }, {}, cors);
+    const script = body.testCall.script || tpl("stl_call", { full_name: body.testCall.name || "there", owner: "Andy" }).script;
+    const result = await placeRetellCall(env, { to, script });
+    return json({ ok: result.ok === true, script, result, note: result.hold ? "Retell not configured yet — set RETELL_API_KEY + RETELL_AGENT_ID + RETELL_FROM_NUMBER" : undefined }, {}, cors);
   }
   // TURNKEY TEST: create/find a test contact, optionally grant SMS (PEWC) consent so it routes
   // to the SMS-first speed-to-lead sequence, then enroll. Pair with GET ?preview=1 to advance it.
