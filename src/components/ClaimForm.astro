@@ -47,7 +47,7 @@ const inp = "w-full rounded-lg border border-[color:var(--color-rule)] bg-white 
         <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-brand)]">You're on the list</p>
         <p class="mt-1 text-[15px]">Your 50 are reserved. Grab 15 minutes and we'll install it with you.</p>
       </div>
-      <div class="cr-claim-cal mt-4" style="min-height:600px"></div>
+      <div class="cr-claim-cal mt-4" style="min-height:440px"></div>
       <p class="mt-3 text-center text-[13px] text-[color:var(--color-ink-2)]">Rather just talk? <a href="tel:+17272025996" class="font-semibold text-[color:var(--color-brand-pressed)]">Call (727) 202-5996</a></p>
     </div>
 
@@ -98,7 +98,7 @@ const inp = "w-full rounded-lg border border-[color:var(--color-rule)] bg-white 
         if(calLink && box && Cal){
           if(!box.id) box.id="cr-claim-cal-el";
           Cal("init",{origin:"https://cal.com"});
-          Cal("inline",{elementOrSelector:"#"+box.id,calLink,config:{name:el("name").value,email:el("email").value,theme:"light"}});
+          Cal("inline",{elementOrSelector:"#"+box.id,calLink,config:{name:el("name").value,email:el("email").value,theme:"light",layout:"column_view"}});
           // Accurate conversion: fire the Google Ads booking conversion only when they actually book.
           Cal("on",{action:"bookingSuccessful",callback:()=>{ try{ (window as any).gtag?.("event","ads_conversion_book_appointment_a"); }catch(_){}}});
         }

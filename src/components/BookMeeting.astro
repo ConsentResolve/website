@@ -166,12 +166,12 @@ const fieldCls = "w-full rounded-lg border border-[color:var(--color-rule)] bg-w
           const Cal = (window as any).Cal;
           if (calLink && calBox && Cal) {
             if (!calBox.id) calBox.id = "cr-cal-inline";
-            calBox.style.minHeight = "620px";
+            calBox.style.minHeight = "440px";
             Cal("init", { origin: "https://cal.com" });
             Cal("inline", {
               elementOrSelector: "#" + calBox.id,
               calLink: calLink,
-              config: { name: String(payload.name || ""), email: String(payload.email || ""), theme: "light" },
+              config: { name: String(payload.name || ""), email: String(payload.email || ""), theme: "light", layout: "column_view" },
             });
           } else if (fallback) {
             fallback.classList.remove("hidden");
