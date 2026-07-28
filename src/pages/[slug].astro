@@ -123,8 +123,10 @@ const tradeCpl = getTradeCpl(trade.slug);
 // landing-page demo clicks attribute to the trade; the original ad source is
 // preserved separately in the first-party cr_src cookie (set on first hit),
 // so this never clobbers ad attribution. `trade` prefills the demo form.
+// Internal CTA → /claim-50/. Carry only ?trade= (prefill) + ?ref= (a plain breadcrumb,
+// NOT a utm_* param) so we never reset GA4's real acquisition source on an internal click.
 const demoHref = (slot: string) =>
-  `/claim-50/?utm_source=${trade.slug}-leads&utm_medium=landing_page&utm_content=${slot}&trade=${trade.slug}`;
+  `/claim-50/?trade=${trade.slug}&ref=${trade.slug}-leads-${slot}`;
 
 // Canonical "booked job" math — one comparison used everywhere (demo,
 // landing pages, ads). $7/lead stays the offer; this is the proof.
