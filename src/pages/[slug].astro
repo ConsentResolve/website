@@ -124,7 +124,7 @@ const tradeCpl = getTradeCpl(trade.slug);
 // preserved separately in the first-party cr_src cookie (set on first hit),
 // so this never clobbers ad attribution. `trade` prefills the demo form.
 const demoHref = (slot: string) =>
-  `/demo/?utm_source=${trade.slug}-leads&utm_medium=landing_page&utm_content=${slot}&trade=${trade.slug}`;
+  `/claim-50/?utm_source=${trade.slug}-leads&utm_medium=landing_page&utm_content=${slot}&trade=${trade.slug}`;
 
 // Canonical "booked job" math — one comparison used everywhere (demo,
 // landing pages, ads). $7/lead stays the offer; this is the proof.
@@ -436,13 +436,12 @@ const HERO_ANGLES: Record<string, string> = {
   <section class="bg-[color:var(--color-brand-soft)]">
     <div class="container-content py-16">
       <div class="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
-        <h2 class="display-2 text-[color:var(--color-ink)]">See it work on yourself.</h2>
+        <h2 class="display-2 text-[color:var(--color-ink)]">Your first 50 leads are on us.</h2>
         <p class="text-[17px] leading-relaxed text-[color:var(--color-ink-2)]">
-          Register, browse a sample {trade.shortName.toLowerCase()} site, accept the banner — and watch the new-lead notification land in your inbox. The lead is you. About 60 seconds, no card required.
+          Real homeowners who visited your {trade.shortName.toLowerCase()} site and said yes — name, email, and the job they were shopping for. Your first 50 cost you nothing; after that a flat $7, never resold. No card to claim.
         </p>
-        <Button href={demoHref("cta-band")} target="_blank" rel="noopener" variant="primary" size="lg">
-          <IconEye size={18} stroke={2} />
-          Try the live demo
+        <Button href={demoHref("cta-band")} variant="primary" size="lg">
+          Claim my 50 leads →
         </Button>
       </div>
     </div>
@@ -463,7 +462,12 @@ const HERO_ANGLES: Record<string, string> = {
   />
 
   <AEOAnswer text={trade.aeoAnswer} />
-  <FinalCTA heading={trade.finalCtaH2} />
+  <FinalCTA
+    heading={trade.finalCtaH2}
+    body="Your first 50 leads are on us — real homeowners who visited your site and said yes. After that a flat $7, never resold. No card to claim, cancel anytime."
+    ctaLabel="Claim my 50 leads →"
+    ctaHref={demoHref("final-cta")}
+  />
 
   <!-- Demo modal: the consent → click → CRM animation, opened from the steps section. -->
   <div data-demo-modal style="display:none" class="fixed inset-0 z-[100] items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
