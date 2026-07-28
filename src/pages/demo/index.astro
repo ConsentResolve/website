@@ -3,54 +3,148 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 import BookMeeting from "~/components/BookMeeting.astro";
 import LeakVisual from "~/components/ui/demo/LeakVisual.astro";
 
-// Book-a-meeting landing. Intake captures the lead + fires the "Book appointment"
-// conversion on-page, then reveals the Google Calendar scheduler + the ungated live demo.
+// High-converting book-a-meeting landing page. Single CTA = book the walkthrough.
+// The live demo is demoted to a small "artifact" section + the post-booking offer.
+const stats = [
+  ["98%", "of your website visitors leave without ever filling out a form"],
+  ["$7", "flat per exclusive lead — never shared, never resold"],
+  ["15 min", "to see the leads your own site is already losing"],
+];
+const onCall = [
+  ["We pull up your site", "No generic slide deck — we look at your actual website and the traffic it's getting."],
+  ["We show you the leak", "The visitors leaving without converting, and roughly what recovering them is worth to you."],
+  ["You decide, no pressure", "15 minutes, no obligation, no contract. If it's not a fit, we'll say so."],
+];
+const why = [
+  ["Exclusive, always", "Every lead is yours alone — never resold to the four competitors down the road, the way shared-lead resellers do."],
+  ["Flat $7, no contract", "No monthly minimum, no lock-in. You only pay for exclusive leads you actually receive. Cancel anytime."],
+  ["Consent-first by design", "Nothing is identified until a real, consented yes — and every lead carries a signed audit trail if a regulator ever asks."],
+];
+const faqs = [
+  ["What does it cost?", "The walkthrough is no-cost. If you activate, it's a flat $7 per exclusive lead — no contract, cancel anytime."],
+  ["What actually happens on the call?", "We look at your real website, show you the visitors it's losing, and estimate what recovering them is worth. 15 minutes, no pressure."],
+  ["Are the leads really exclusive?", "Yes. Every lead comes from your own website traffic and is delivered only to you — never resold, unlike Angi, Thumbtack, or HomeAdvisor."],
+  ["Do I need a website?", "Yes — Consent Resolve installs on your website to recover the visitors you're already getting. If you don't have one yet, we're not the right fit yet."],
+  ["Is this compliant?", "It's built consent-first: identification only fires after a consented yes, and every lead is timestamped and signed. That's the whole point of the product."],
+];
 ---
 
 <BaseLayout
   ogImage="/og/demo.png"
-  title="Book a Walkthrough — Consent Resolve"
-  description="Book a 15-minute walkthrough and we'll show you the leads your website is already leaving on the table. Or try the 60-second live demo right now."
+  title="Book a Walkthrough — See the Leads Your Site Is Losing | Consent Resolve"
+  description="Book a 15-minute walkthrough. We'll show you — on your own website — the ~98% of visitors leaving without a form, and how to recover them as exclusive $7 leads."
   noindex
 >
+  <!-- HERO — booking is the single focus -->
   <section class="bg-[color:var(--color-bg-inverse)]">
     <div class="mx-auto max-w-6xl px-6 py-16 lg:py-24">
       <div class="grid items-start gap-12 lg:grid-cols-2">
         <div class="text-[color:var(--color-on-inverse)]">
-          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--color-brand)]">Book a walkthrough · 15 min</p>
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--color-brand)]">Book a walkthrough · 15 minutes</p>
           <h1 class="mt-3 font-display text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl">
-            See the leads your site is already leaving on the table.
+            See the leads your website is already losing.
           </h1>
           <p class="mt-5 max-w-md text-lg leading-relaxed text-[color:var(--color-on-inverse-muted)]">
-            About 98% of the people who visit your website leave without ever filling out the form. On a quick call we'll show you — on your own site — how Consent Resolve recovers them as <strong>exclusive</strong> leads at a flat <strong>$7</strong>.
+            About 98% of the people who visit your site leave without ever filling out the form. On a quick call we'll show you — on <em>your</em> site — how Consent Resolve recovers them as exclusive leads at a flat $7.
           </p>
-
-          <ul class="mt-8 space-y-3">
-            {[
-              "A look at your own site's leak — not a generic pitch",
-              "Exclusive leads, never resold. Flat $7, cancel anytime",
-              "Consent-first: every lead carries a signed audit trail",
-            ].map((t) => (
-              <li class="flex gap-3 text-[color:var(--color-on-inverse)]">
-                <span class="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand)] text-xs font-bold text-[color:var(--color-on-brand)]">✓</span>
-                <span>{t}</span>
-              </li>
+          <ul class="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-[color:var(--color-on-inverse-muted)]">
+            {["Exclusive leads, never resold", "Flat $7 · no contract", "Consent-first, audit-trailed"].map((t) => (
+              <li class="flex items-center gap-2"><span class="text-[color:var(--color-brand)]">✓</span>{t}</li>
             ))}
           </ul>
-
-          <p class="mt-8 text-sm text-[color:var(--color-on-inverse-muted)]">
-            In a hurry? Skip the call and <a href="/demo/sample/" class="font-semibold text-[color:var(--color-brand)] underline underline-offset-2">try the 60-second live demo</a> — the lead is you.
-          </p>
         </div>
 
-        <div id="book">
+        <div id="book" class="scroll-mt-24">
           <BookMeeting />
         </div>
       </div>
+    </div>
+  </section>
 
-      <div class="mt-14 max-w-3xl">
-        <LeakVisual />
+  <!-- STAT BAR -->
+  <section class="border-b border-[color:var(--color-rule)] bg-[color:var(--color-bg)]">
+    <div class="mx-auto grid max-w-6xl gap-6 px-6 py-10 sm:grid-cols-3">
+      {stats.map(([n, d]) => (
+        <div>
+          <div class="font-display text-3xl font-bold text-[color:var(--color-brand-pressed)]">{n}</div>
+          <div class="mt-1 text-sm leading-snug text-[color:var(--color-ink-2)]">{d}</div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- WHAT HAPPENS ON THE CALL — reduces friction on the CTA -->
+  <section class="bg-[color:var(--color-bg)]">
+    <div class="mx-auto max-w-6xl px-6 py-16 lg:py-20">
+      <h2 class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-ink)]">What you'll get on the call</h2>
+      <p class="mt-2 max-w-xl text-[color:var(--color-ink-2)]">No pitch deck. It's a working session on your own website.</p>
+      <div class="mt-8 grid gap-6 md:grid-cols-3">
+        {onCall.map(([t, d], i) => (
+          <div class="rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] p-6">
+            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--color-brand)] text-sm font-bold text-[color:var(--color-on-brand)]">{i + 1}</div>
+            <h3 class="mt-4 font-semibold text-[color:var(--color-ink)]">{t}</h3>
+            <p class="mt-1.5 text-sm leading-relaxed text-[color:var(--color-ink-2)]">{d}</p>
+          </div>
+        ))}
       </div>
+      <div class="mt-8"><a href="#book" class="inline-flex items-center justify-center rounded-lg bg-[color:var(--color-brand)] px-5 py-3 text-[15px] font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)]">Book your 15-minute walkthrough →</a></div>
+    </div>
+  </section>
+
+  <!-- WHY -->
+  <section class="border-y border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+    <div class="mx-auto max-w-6xl px-6 py-16 lg:py-20">
+      <h2 class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-ink)]">Why contractors switch</h2>
+      <div class="mt-8 grid gap-6 md:grid-cols-3">
+        {why.map(([t, d]) => (
+          <div class="rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg)] p-6">
+            <h3 class="font-semibold text-[color:var(--color-ink)]">{t}</h3>
+            <p class="mt-1.5 text-sm leading-relaxed text-[color:var(--color-ink-2)]">{d}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- THE LEAK VISUAL — reinforces the pain, then CTA -->
+  <section class="bg-[color:var(--color-bg)]">
+    <div class="mx-auto max-w-3xl px-6 py-16 lg:py-20">
+      <LeakVisual />
+      <div class="mt-8 text-center"><a href="#book" class="inline-flex items-center justify-center rounded-lg bg-[color:var(--color-brand)] px-6 py-3 text-[15px] font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)]">Show me my site's leak →</a></div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="border-t border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+    <div class="mx-auto max-w-3xl px-6 py-16 lg:py-20">
+      <h2 class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-ink)]">Before you book</h2>
+      <div class="mt-8 space-y-3">
+        {faqs.map(([q, a]) => (
+          <details class="group rounded-xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg)] p-5">
+            <summary class="flex cursor-pointer list-none items-center justify-between font-semibold text-[color:var(--color-ink)]">{q}<span class="ml-4 text-[color:var(--color-ink-muted)] transition-transform group-open:rotate-45">+</span></summary>
+            <p class="mt-3 text-sm leading-relaxed text-[color:var(--color-ink-2)]">{a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMO — demoted to a quiet artifact -->
+  <section class="bg-[color:var(--color-bg)]">
+    <div class="mx-auto max-w-3xl px-6 pb-16">
+      <div class="flex flex-col items-start gap-3 rounded-xl border border-dashed border-[color:var(--color-rule)] p-5 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-sm text-[color:var(--color-ink-2)]">Rather poke around on your own first? There's a 60-second interactive demo — the lead is you.</p>
+        <a href="/demo/sample/" class="shrink-0 text-sm font-semibold text-[color:var(--color-brand-pressed)] underline underline-offset-2 hover:opacity-80">Try the live demo →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="bg-[color:var(--color-bg-inverse)]">
+    <div class="mx-auto max-w-3xl px-6 py-16 text-center lg:py-20">
+      <h2 class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-on-inverse)] md:text-4xl">Ready to see what your site is leaving on the table?</h2>
+      <p class="mx-auto mt-3 max-w-lg text-[color:var(--color-on-inverse-muted)]">15 minutes, on your own website, no obligation.</p>
+      <div class="mt-7"><a href="#book" class="inline-flex items-center justify-center rounded-lg bg-[color:var(--color-brand)] px-7 py-3.5 text-base font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)]">Book my walkthrough →</a></div>
     </div>
   </section>
 </BaseLayout>
