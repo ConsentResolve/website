@@ -171,7 +171,7 @@ const fieldCls = "w-full rounded-lg border border-[color:var(--color-rule)] bg-w
             Cal("inline", {
               elementOrSelector: "#" + calBox.id,
               calLink: calLink,
-              config: { name: String(payload.name || ""), email: String(payload.email || ""), theme: "light", layout: "column_view" },
+              config: { name: String(payload.name || ""), email: String(payload.email || ""), theme: "light", layout: "column_view", hideEventTypeDetails: true },
             });
           } else if (fallback) {
             fallback.classList.remove("hidden");
