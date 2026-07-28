@@ -1,0 +1,172 @@
+---
+// Intake-first "book a meeting" flow for /demo/.
+//   1. Short intake (name, work email, company, website qualifier) → POST /api/register
+//      (reuses the existing lead-capture + demo-token endpoint).
+//   2. On success: fire the Google Ads "Book appointment" conversion + GA4/Meta lead —
+//      ON THIS PAGE, so the conversion is trackable (Google Calendar can't fire it).
+//   3. Reveal the Google Calendar scheduler (PUBLIC_GCAL_BOOKING_URL) + a live-demo offer
+//      linking to the ungated /demo/sample/?dt=<token> (personalized to what they entered).
+import { TRADE_OPTIONS } from "../../worker/_lib/trades.js";
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+// Set PUBLIC_GCAL_BOOKING_URL to your Google Calendar appointment-schedule embed URL
+// (…/calendar/appointments/schedules/XXXX?gv=true). Empty → shows a "we'll reach out" fallback.
+const GCAL_URL = import.meta.env.PUBLIC_GCAL_BOOKING_URL || "";
+const fieldCls = "w-full rounded-lg border border-[color:var(--color-rule)] bg-white px-3.5 py-2.5 text-[15px] text-[color:var(--color-ink)] outline-none focus:border-[color:var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-brand-soft)]";
+---
+
+<div class="cr-book rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] p-6 shadow-sm sm:p-8" data-gcal={GCAL_URL}>
+  <!-- STEP 1: intake -->
+  <div class="cr-book-intake">
+    <h3 class="font-display text-2xl font-bold tracking-tight text-[color:var(--color-ink)]">Book a 15-minute walkthrough</h3>
+    <p class="mt-2 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">Tell us where to look and we'll show you the leads your site is already leaving on the table — then pick a time that works.</p>
+
+    <form class="cr-book-form mt-6 space-y-4" action="/api/register" method="POST" novalidate>
+      <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">
+        <label>Leave this empty <input type="text" name="hp" tabindex="-1" autocomplete="off" /></label>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="block">
+          <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Your name</span>
+          <input name="name" type="text" required autocomplete="name" placeholder="Jordan Smith" class={fieldCls} />
+        </label>
+        <label class="block">
+          <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Work email</span>
+          <input name="email" type="email" required autocomplete="email" placeholder="you@yourshop.com" class={fieldCls} />
+        </label>
+        <label class="block">
+          <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Business name</span>
+          <input name="business_name" type="text" autocomplete="organization" placeholder="Smith Plumbing & Air" class={fieldCls} />
+        </label>
+        <label class="block">
+          <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Your website</span>
+          <input name="website" type="text" inputmode="url" required placeholder="smithplumbing.com" class={fieldCls} />
+        </label>
+      </div>
+
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Your trade</span>
+        <select name="trade" class={fieldCls}>
+          <option value="" selected>Select your trade…</option>
+          {TRADE_OPTIONS.map((o) => (<option value={o.value}>{o.label}</option>))}
+        </select>
+      </label>
+
+      <label class="flex items-start gap-2.5 text-sm text-[color:var(--color-ink-2)]">
+        <input type="checkbox" name="consent_contact" value="1" required class="mt-0.5 h-4 w-4 rounded border-[color:var(--color-rule)] text-[color:var(--color-brand)] focus:ring-[color:var(--color-brand-soft)]" />
+        <span>I agree Consent Resolve may email me about my request. No spam, unsubscribe anytime.</span>
+      </label>
+
+      {siteKey && (<div class="cf-turnstile" data-sitekey={siteKey}></div>)}
+      <p class="cr-book-error hidden text-sm font-medium text-[color:var(--color-danger)]" role="alert"></p>
+
+      <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--color-brand)] px-5 py-3 text-[15px] font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
+        <span class="cr-book-btn-label">Continue to pick a time →</span>
+      </button>
+      <p class="text-xs text-[color:var(--color-ink-muted)]">Free walkthrough. You only pay <strong class="text-[color:var(--color-ink)]">$7 per exclusive lead</strong> if you activate — no contract, cancel anytime.</p>
+    </form>
+  </div>
+
+  <!-- STEP 2: revealed after submit -->
+  <div class="cr-book-success hidden">
+    <div class="flex items-center gap-3">
+      <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand)] text-lg font-bold text-[color:var(--color-on-brand)]">✓</span>
+      <div>
+        <h3 class="font-display text-xl font-bold text-[color:var(--color-ink)]">You're in — pick a time below.</h3>
+        <p class="text-sm text-[color:var(--color-ink-2)]">We'll take a look at your site before the call.</p>
+      </div>
+    </div>
+
+    <div class="cr-book-cal mt-5"></div>
+    <p class="cr-book-cal-fallback mt-5 hidden rounded-lg border border-[color:var(--color-rule)] bg-white p-4 text-sm text-[color:var(--color-ink-2)]">Thanks — we've got your request and will email you within one business day to lock in a time.</p>
+
+    <div class="mt-6 rounded-xl border border-dashed border-[color:var(--color-brand)] bg-[color:var(--color-brand-soft)] p-5">
+      <p class="text-sm font-semibold text-[color:var(--color-ink)]">Don't want to wait for the call?</p>
+      <p class="mt-1 text-sm text-[color:var(--color-ink-2)]">See it work on your own site right now — takes about 60 seconds, the lead is you.</p>
+      <a class="cr-book-demo mt-3 inline-flex items-center gap-2 rounded-lg bg-[color:var(--color-ink)] px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90" href="/demo/sample/">▶ See the 60-second live demo</a>
+    </div>
+  </div>
+</div>
+
+{siteKey && (<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>)}
+
+<script>
+  function initBook() {
+    document.querySelectorAll<HTMLElement>(".cr-book").forEach((root) => {
+      if (root.dataset.crBound) return;
+      root.dataset.crBound = "1";
+      const form = root.querySelector<HTMLFormElement>("form.cr-book-form");
+      if (!form) return;
+      const gcal = root.dataset.gcal || "";
+      const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const label = form.querySelector<HTMLElement>(".cr-book-btn-label");
+      const errEl = form.querySelector<HTMLElement>(".cr-book-error");
+      const showError = (m: string) => { if (errEl) { errEl.textContent = m; errEl.classList.remove("hidden"); } };
+
+      // ?trade= / named prefill (parity with the old demo form).
+      const params = new URLSearchParams(location.search);
+      const tradeSel = form.querySelector<HTMLSelectElement>('[name="trade"]');
+      if (params.get("trade") && tradeSel && !tradeSel.value) tradeSel.value = params.get("trade")!;
+
+      form.addEventListener("submit", async (e) => {
+        if (!form.checkValidity()) { e.preventDefault(); form.reportValidity(); return; }
+        e.preventDefault();
+        errEl?.classList.add("hidden");
+        const fd = new FormData(form);
+        const payload: Record<string, unknown> = {
+          name: fd.get("name"), email: fd.get("email"), business_name: fd.get("business_name"),
+          website: fd.get("website"), trade: fd.get("trade"),
+          consent_contact: fd.get("consent_contact") ? "1" : "", hp: fd.get("hp") || "",
+          turnstileToken: (fd.get("cf-turnstile-response") as string) || "",
+        };
+        if (btn) btn.disabled = true;
+        if (label) label.textContent = "One sec…";
+        try {
+          const res = await fetch(form.action, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+          if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.message || "Something went wrong. Please try again."); }
+          const data = await res.json();
+
+          // Remember name/email first-party (Crisp prefill), same as the demo form.
+          try { const _e = String(payload.email || ""), _n = String(payload.name || ""); if (_e) document.cookie = "cr_id=" + encodeURIComponent(JSON.stringify({ n: _n, e: _e })) + "; Path=/; Max-Age=15552000; SameSite=Lax"; } catch {}
+
+          // --- Conversions fire HERE (on our page → trackable) ---
+          const g = (window as any).gtag;
+          try { g?.("event", "ads_conversion_book_appointment_a"); } catch {}      // Google Ads "Book appointment"
+          try { g?.("event", "generate_lead", { method: "book_meeting" }); } catch {} // GA4
+          try {
+            const _fbq = (window as any).fbq;
+            if (_fbq) {
+              const _eid = (self.crypto && (crypto as any).randomUUID) ? (crypto as any).randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2);
+              _fbq("track", "Lead", {}, { eventID: _eid });
+              const _ck = (k: string) => { const m = document.cookie.match(new RegExp("(?:^|; )" + k + "=([^;]*)")); return m ? decodeURIComponent(m[1]) : undefined; };
+              fetch("/api/meta-capi", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ event_id: _eid, email: String(payload.email || ""), event_source_url: location.href, fbp: _ck("_fbp"), fbc: _ck("_fbc") }) }).catch(() => {});
+            }
+          } catch {}
+
+          // --- Reveal step 2: scheduler + live-demo offer ---
+          const intake = root.querySelector<HTMLElement>(".cr-book-intake");
+          const success = root.querySelector<HTMLElement>(".cr-book-success");
+          const demoLink = root.querySelector<HTMLAnchorElement>(".cr-book-demo");
+          if (demoLink && data.demo_token) demoLink.href = "/demo/sample/?dt=" + encodeURIComponent(data.demo_token);
+          const calBox = root.querySelector<HTMLElement>(".cr-book-cal");
+          const fallback = root.querySelector<HTMLElement>(".cr-book-cal-fallback");
+          if (gcal && calBox) {
+            const sep = gcal.indexOf("?") >= 0 ? "&" : "?";
+            calBox.innerHTML = '<iframe src="' + gcal + sep + 'gv=true" style="border:0;width:100%;height:640px;border-radius:12px;background:#fff" frameborder="0" title="Book a meeting"></iframe>';
+          } else if (fallback) {
+            fallback.classList.remove("hidden");
+          }
+          intake?.classList.add("hidden");
+          success?.classList.remove("hidden");
+          root.scrollIntoView({ behavior: "smooth", block: "start" });
+        } catch (err) {
+          if (btn) btn.disabled = false;
+          if (label) label.textContent = "Continue to pick a time →";
+          showError(err instanceof Error ? err.message : "Something went wrong.");
+        }
+      });
+    });
+  }
+  initBook();
+  document.addEventListener("astro:page-load", initBook);
+</script>

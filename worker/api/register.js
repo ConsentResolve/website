@@ -43,6 +43,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const business_name = (fields.business_name || "").toString().trim();
   const trade = (fields.trade || "").toString().trim();
   const phone = (fields.phone || "").toString().trim();
+  const website = (fields.website || "").toString().trim();
   const consent_contact = fields.consent_contact === "1" || fields.consent_contact === 1 || fields.consent_contact === true;
   const sms_consent = fields.sms_consent === "1" || fields.sms_consent === 1 || fields.sms_consent === true;
   const hp = (fields.hp || "").toString();
@@ -150,7 +151,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     });
     await insertMessageOnce(env, {
       conversationId: convId, direction: "in", channel: "demo_form", externalMessageId: "demo:" + token,
-      bodyText: "Demo request\nName: " + name + "\nEmail: " + email + (business_name ? "\nBusiness: " + business_name : "") + (trade ? "\nTrade: " + trade : "") + (phone ? "\nPhone: " + phone : ""),
+      bodyText: "Demo / meeting request\nName: " + name + "\nEmail: " + email + (business_name ? "\nBusiness: " + business_name : "") + (website ? "\nWebsite: " + website : "") + (trade ? "\nTrade: " + trade : "") + (phone ? "\nPhone: " + phone : ""),
       sentAt: nowIso(),
     });
   })().catch(() => {});
