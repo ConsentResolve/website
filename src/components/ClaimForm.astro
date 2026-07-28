@@ -1,0 +1,168 @@
+---
+// Multi-step "claim your 50" lead form, on the site design system.
+// Step 1 website → 2 trade+traffic taps → 3 estimate + name/email/phone + CONSENT stack
+// → 4 Cal.com booking. Submits to /api/claim-50, records email + SMS (PEWC) consent,
+// fires the Google Ads "Book appointment" conversion on-page, then reveals Cal.com.
+import { TRADE_OPTIONS } from "../../worker/_lib/trades.js";
+import { SMS_CONSENT_DISCLOSURE } from "../../worker/_lib/sms-consent.js";
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+const CAL_LINK = import.meta.env.PUBLIC_CAL_LINK || "aaron-phillips-xl2cpq/30min";
+const inp = "w-full rounded-lg border border-[color:var(--color-rule)] bg-white px-3.5 py-3 text-[15px] text-[color:var(--color-ink)] outline-none transition focus:border-[color:var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-brand-soft)]";
+const TRADES = [["Plumbing","Plumbing"],["Roofing","Roofing"],["HVAC","HVAC"],["Electrical","Electrical"],["General contracting","GC / Remodel"],["Other trade","Other"]];
+const TRAFFIC = [["400","Under 500","just getting going"],["1200","500–2,000","steady"],["3500","2,000–5,000","busy"],["8000","5,000+","running ads hard"]];
+---
+<div class="cr-claim rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] p-6 shadow-lg sm:p-7" data-cal-link={CAL_LINK}>
+  <div class="flex items-baseline justify-between gap-3">
+    <span class="cr-claim-title font-display text-lg font-bold text-[color:var(--color-ink)]">Where should we look?</span>
+    <span class="cr-claim-stepn font-mono text-[11px] uppercase tracking-[0.13em] text-[color:var(--color-ink-muted)]" aria-live="polite">Step 1 of 3</span>
+  </div>
+  <div class="mt-3 h-1 overflow-hidden rounded-full bg-[color:var(--color-rule)]"><div class="cr-claim-prog h-full rounded-full bg-[color:var(--color-brand)] transition-[width] duration-300" style="width:25%"></div></div>
+
+  <form class="cr-claim-form mt-6" novalidate>
+    <div aria-hidden="true" style="position:absolute;left:-9999px"><input type="text" name="hp" tabindex="-1" autocomplete="off" /></div>
+
+    <!-- Step 1 -->
+    <div data-step="1" class="space-y-4">
+      <label class="block">
+        <span class="mb-1.5 block text-sm font-semibold text-[color:var(--color-ink)]">Your website</span>
+        <input name="website" type="text" inputmode="url" autocomplete="url" required placeholder="yourshop.com" class={inp} />
+        <span class="cr-err mt-1.5 hidden text-[13px] font-semibold text-[color:var(--color-danger)]">Type your website so we know where to pull the numbers.</span>
+      </label>
+      <button type="button" data-next="1" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--color-brand)] px-5 py-3.5 text-base font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)]">Claim my 50 leads →</button>
+      <p class="text-center text-[13px] text-[color:var(--color-ink-2)]">One field to start. <strong class="text-[color:var(--color-ink)]">No sales script</strong> — the report is yours either way.</p>
+    </div>
+
+    <!-- Step 2 -->
+    <div data-step="2" hidden class="space-y-5">
+      <div>
+        <span class="mb-2 block text-sm font-semibold text-[color:var(--color-ink)]">What do you do?</span>
+        <div class="grid grid-cols-3 gap-2" data-group="trade">
+          {TRADES.map(([v,l]) => (<button type="button" data-v={v} aria-pressed="false" class="cr-opt rounded-lg border border-[color:var(--color-rule)] bg-white px-2 py-3 text-sm font-semibold text-[color:var(--color-ink)] transition hover:border-[color:var(--color-brand)]">{l}</button>))}
+        </div>
+      </div>
+      <div>
+        <span class="mb-2 block text-sm font-semibold text-[color:var(--color-ink)]">Roughly how many visit your site a month?</span>
+        <div class="grid grid-cols-2 gap-2" data-group="traffic">
+          {TRAFFIC.map(([v,l,s]) => (<button type="button" data-v={v} aria-pressed="false" class="cr-opt rounded-lg border border-[color:var(--color-rule)] bg-white px-3 py-3 text-sm font-semibold text-[color:var(--color-ink)] transition hover:border-[color:var(--color-brand)]">{l}<small class="mt-0.5 block font-normal text-xs opacity-70">{s}</small></button>))}
+        </div>
+      </div>
+      <button type="button" data-next="2" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--color-brand)] px-5 py-3.5 text-base font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)]">Continue →</button>
+      <p class="text-center"><button type="button" data-back="1" class="text-sm font-semibold text-[color:var(--color-ink-muted)] underline underline-offset-2">Back</button></p>
+    </div>
+
+    <!-- Step 3 -->
+    <div data-step="3" hidden class="space-y-4">
+      <div class="rounded-xl bg-[color:var(--color-bg-inverse)] p-5 text-[color:var(--color-on-inverse)]">
+        <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-brand)]">Your estimate</p>
+        <div class="cr-rev-leads mt-1 font-display text-4xl font-extrabold leading-none text-[color:var(--color-brand)]">—</div>
+        <p class="mt-2 text-sm leading-relaxed text-[color:var(--color-on-inverse-muted)]">consented homeowners a month you're likely leaving on the table — about <b class="cr-rev-rev text-[color:var(--color-on-inverse)]">—</b> in booked work. Your 50 covers roughly <b class="cr-rev-weeks text-[color:var(--color-on-inverse)]">—</b> of that, before you pay for one.</p>
+      </div>
+      <label class="block"><span class="mb-1.5 block text-sm font-semibold text-[color:var(--color-ink)]">Your name</span><input name="name" type="text" autocomplete="name" required placeholder="Mike Alvarez" class={inp} /><span class="cr-err mt-1.5 hidden text-[13px] font-semibold text-[color:var(--color-danger)]">We need a name for the calendar invite.</span></label>
+      <label class="block"><span class="mb-1.5 block text-sm font-semibold text-[color:var(--color-ink)]">Where do we send the report?</span><input name="email" type="email" autocomplete="email" required placeholder="mike@yourshop.com" class={inp} /><span class="cr-err mt-1.5 hidden text-[13px] font-semibold text-[color:var(--color-danger)]">That email doesn't look right — check it once?</span></label>
+      <label class="block"><span class="mb-1.5 block text-sm font-semibold text-[color:var(--color-ink)]">Mobile <span class="font-normal text-[color:var(--color-ink-muted)]">— so we can text you the link</span></span><input name="phone" type="tel" autocomplete="tel" required placeholder="(555) 123-4567" class={inp} /><span class="cr-err mt-1.5 hidden text-[13px] font-semibold text-[color:var(--color-danger)]">Add a mobile number so we can text the meeting link.</span></label>
+
+      <div class="cr-consent space-y-2.5 pt-1">
+        <label class="flex items-start gap-2.5 text-[13px] text-[color:var(--color-ink-2)]"><input type="checkbox" name="consent_contact" value="1" class="mt-0.5 h-4 w-4 shrink-0 rounded border-[color:var(--color-rule)] text-[color:var(--color-brand)]" /><span>I agree Consent Resolve may email me about my request. No spam, unsubscribe anytime.</span></label>
+        <label class="flex items-start gap-2.5 text-[13px] text-[color:var(--color-ink-2)]"><input type="checkbox" name="sms_consent" value="1" class="mt-0.5 h-4 w-4 shrink-0 rounded border-[color:var(--color-rule)] text-[color:var(--color-brand)]" /><span>{SMS_CONSENT_DISCLOSURE} See our <a href="/privacy-policy/" class="underline">Privacy Policy</a> and <a href="/terms/" class="underline">Terms</a>. <span class="text-[color:var(--color-ink-muted)]">(Optional.)</span></span></label>
+        <span class="cr-err-consent hidden text-[13px] font-semibold text-[color:var(--color-danger)]">Please check the box so we can email you your report.</span>
+      </div>
+
+      {siteKey && (<div class="cf-turnstile" data-sitekey={siteKey}></div>)}
+      <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--color-brand)] px-5 py-3.5 text-base font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)] disabled:opacity-60"><span class="cr-claim-sub">Lock in my 50 leads →</span></button>
+      <p class="text-center text-[13px] text-[color:var(--color-ink-2)]"><strong class="text-[color:var(--color-ink)]">Next screen picks your time.</strong> Slots today and tomorrow.</p>
+      <p class="text-center"><button type="button" data-back="2" class="text-sm font-semibold text-[color:var(--color-ink-muted)] underline underline-offset-2">Back</button></p>
+    </div>
+
+    <!-- Step 4 -->
+    <div data-step="4" hidden>
+      <div class="rounded-xl bg-[color:var(--color-bg-inverse)] p-5 text-center text-[color:var(--color-on-inverse)]">
+        <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-brand)]">You're on the list</p>
+        <p class="mt-1 text-[15px]">Your 50 are reserved. Grab 15 minutes and we'll install it with you and walk your real numbers.</p>
+      </div>
+      <div class="cr-claim-cal mt-4" style="min-height:600px"></div>
+      <p class="mt-3 text-center text-[13px] text-[color:var(--color-ink-2)]">Rather just talk? <a href="tel:+17272025996" class="font-semibold text-[color:var(--color-brand-pressed)]">Call (727) 202-5996</a></p>
+    </div>
+
+    <input type="hidden" name="trade" /><input type="hidden" name="monthly_visitors" /><input type="hidden" name="est_leads" /><input type="hidden" name="est_revenue" /><input type="hidden" name="segment" />
+  </form>
+</div>
+
+{siteKey && (<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>)}
+<script>
+  (function (C:any,A:string,L:string){let p=function(a:any,ar:any){a.q.push(ar)};let d=C.document;C.Cal=C.Cal||function(){let cal=C.Cal;let ar=arguments;if(!cal.loaded){cal.ns={};cal.q=cal.q||[];d.head.appendChild(d.createElement("script")).src=A;cal.loaded=true}if(ar[0]===L){const api:any=function(){p(api,arguments)};const ns=ar[1];api.q=api.q||[];if(typeof ns==="string"){cal.ns[ns]=cal.ns[ns]||api;p(cal.ns[ns],ar);p(cal,["initNamespace",ns])}else p(cal,ar);return}p(cal,ar)}})(window,"https://app.cal.com/embed/embed.js","init");
+
+  const CFG = { resolveRate:0.02, closeRate:0.10, ticket:850, freeLeads:50 };
+  function initClaim(){
+    document.querySelectorAll<HTMLElement>(".cr-claim").forEach((root)=>{
+      if(root.dataset.b) return; root.dataset.b="1";
+      const f=root.querySelector<HTMLFormElement>(".cr-claim-form"); if(!f) return;
+      const calLink=root.dataset.calLink||"";
+      const titles=["Where should we look?","Two quick taps","Here's your estimate","Pick your 15 minutes"];
+      const st={trade:"",traffic:0};
+      const $=(s:string)=>root.querySelector<HTMLElement>(s);
+      const el=(n:string)=>f.elements.namedItem(n) as HTMLInputElement;
+      function show(n:number){
+        f.querySelectorAll<HTMLElement>("[data-step]").forEach(s=>{ (s as HTMLElement).hidden = +s.dataset.step! !== n; });
+        ($(".cr-claim-prog") as HTMLElement).style.width = (n/4*100)+"%";
+        $(".cr-claim-stepn")!.textContent = n<4 ? "Step "+n+" of 3" : "Almost done";
+        $(".cr-claim-title")!.textContent = titles[n-1];
+        if(n>1) root.scrollIntoView({block:"center",behavior:"smooth"});
+      }
+      function markErr(input:HTMLInputElement,on:boolean){ const e=input.parentElement?.querySelector(".cr-err"); if(e) e.classList.toggle("hidden",!on); }
+      // ?trade= prefill
+      const qTrade=new URLSearchParams(location.search).get("trade");
+      f.querySelectorAll<HTMLElement>('[data-group="trade"] .cr-opt').forEach(b=>{
+        b.addEventListener("click",()=>{ b.closest("[data-group]")!.querySelectorAll(".cr-opt").forEach(x=>x.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed","true"); st.trade=b.dataset.v!; el("trade").value=b.dataset.v!; });
+        if(qTrade && b.dataset.v!.toLowerCase().startsWith(qTrade.toLowerCase())) (b as HTMLElement).click();
+      });
+      f.querySelectorAll<HTMLElement>('[data-group="traffic"] .cr-opt').forEach(b=>{
+        b.addEventListener("click",()=>{ b.closest("[data-group]")!.querySelectorAll(".cr-opt").forEach(x=>x.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed","true"); st.traffic=+b.dataset.v!; el("monthly_visitors").value=b.dataset.v!; });
+      });
+      f.querySelector('[data-next="1"]')!.addEventListener("click",()=>{
+        const v=el("website").value.trim().replace(/^https?:\/\//i,"").replace(/\/.*$/,"");
+        if(!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(v)){ markErr(el("website"),true); el("website").focus(); return; }
+        markErr(el("website"),false); el("website").value=v; show(2);
+      });
+      f.querySelector('[data-next="2"]')!.addEventListener("click",()=>{
+        if(!st.trade||!st.traffic){ alert("Pick your trade and rough traffic so the estimate means something."); return; }
+        const leads=Math.max(1,Math.round(st.traffic*CFG.resolveRate));
+        const rev=Math.round(leads*CFG.closeRate*CFG.ticket);
+        const weeks=Math.round(CFG.freeLeads/leads*4.3);
+        $(".cr-rev-leads")!.textContent=String(leads);
+        $(".cr-rev-rev")!.textContent="$"+rev.toLocaleString();
+        $(".cr-rev-weeks")!.textContent= weeks>=8 ? Math.round(weeks/4.3)+" months" : weeks+" weeks";
+        el("est_leads").value=String(leads); el("est_revenue").value=String(rev);
+        el("segment").value = st.traffic<500 ? "self_serve_candidate":"sales_qualified";
+        show(3);
+      });
+      f.querySelectorAll<HTMLElement>("[data-back]").forEach(b=>b.addEventListener("click",()=>show(+b.dataset.back!)));
+
+      f.addEventListener("submit",async(e)=>{
+        e.preventDefault(); let ok=true;
+        if(!el("name").value.trim()){ markErr(el("name"),true); ok=false; } else markErr(el("name"),false);
+        if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(el("email").value)){ markErr(el("email"),true); ok=false; } else markErr(el("email"),false);
+        if(el("phone").value.replace(/\D/g,"").length<10){ markErr(el("phone"),true); ok=false; } else markErr(el("phone"),false);
+        const consentEl = el("consent_contact"); const cErr = root.querySelector(".cr-err-consent");
+        if(!consentEl.checked){ cErr?.classList.remove("hidden"); ok=false; } else cErr?.classList.add("hidden");
+        if(!ok) return;
+        const btn=f.querySelector<HTMLButtonElement>('[type="submit"]'); const lbl=root.querySelector(".cr-claim-sub");
+        if(btn) btn.disabled=true; if(lbl) lbl.textContent="Reserving…";
+        const payload:Record<string,unknown>={ offer:"FIRST50" }; new FormData(f).forEach((v,k)=>payload[k]=v);
+        payload.turnstileToken=(new FormData(f).get("cf-turnstile-response") as string)||"";
+        try { await fetch("/api/claim-50",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}); } catch(_){}
+        const g=(window as any).gtag;
+        try{ g?.("event","ads_conversion_book_appointment_a",{value:+el("est_revenue").value||0,currency:"USD"}); }catch(_){}
+        try{ g?.("event","generate_lead",{method:"claim50"}); }catch(_){}
+        const box=$(".cr-claim-cal"); const Cal=(window as any).Cal;
+        if(calLink && box && Cal){ if(!box.id) box.id="cr-claim-cal-el"; Cal("init",{origin:"https://cal.com"}); Cal("inline",{elementOrSelector:"#"+box.id,calLink,config:{name:el("name").value,email:el("email").value,theme:"light"}}); }
+        show(4);
+      });
+    });
+  }
+  initClaim();
+  document.addEventListener("astro:page-load",initClaim);
+</script>
+
+<style>
+  .cr-opt[aria-pressed="true"]{ border-color: var(--color-brand); background: var(--color-brand); color: var(--color-on-brand); }
+</style>
