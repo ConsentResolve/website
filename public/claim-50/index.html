@@ -23,7 +23,7 @@
   --mint:#37D6A0; --mint-soft:#C9F5E4;
   --brand:#0F9E72; --brand-hi:#0B7F5C;
   --sage:#F2F7F4; --paper:#FFF; --line:#DDE7E2;
-  --body:#3C4F49; --muted:#7E938C;
+  --body:#33453F; --muted:#5C7069;
   --danger:#C4453A; --amber:#D08A16;
 
   --f-display:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -76,7 +76,7 @@ a{color:var(--brand)}
 .bar__sp{flex:1}
 .bar__tel{font-family:var(--f-display);font-weight:700;font-size:16px;color:var(--ink);text-decoration:none;white-space:nowrap}
 .bar__tel small{color:var(--muted);font-family:var(--f-body);font-weight:500;font-size:12.5px;display:block;letter-spacing:.01em}
-.bar .btn{padding:11px 18px;font-size:15px}
+.bar .btn{padding:13px 18px;font-size:15px}
 @media(max-width:760px){.bar__tel small{display:none}.bar .btn{display:none}}
 
 /* ══ 5. HERO ══ */
@@ -147,8 +147,8 @@ a{color:var(--brand)}
 .reveal__big{font-family:var(--f-display);font-weight:800;font-size:46px;line-height:1;color:var(--mint);letter-spacing:-.03em}
 .reveal__cap{font-size:14.5px;color:#B7CCC4;margin:9px 0 0;line-height:1.5}
 .reveal__cap b{color:#fff}
-.reveal__note{margin:14px 0 0;padding:13px 15px;background:rgba(255,255,255,.06);
-  border-left:3px solid var(--amber);border-radius:0 8px 8px 0;font-size:14px;color:#CFE2DB;line-height:1.5}
+.reveal__note{margin:14px 0 0;padding:13px 15px;background:rgba(208,138,22,.12);
+  border:1px solid rgba(208,138,22,.42);border-radius:10px;font-size:14px;color:#F1DDA8;line-height:1.5}
 .step[hidden]{display:none}
 
 /* ══ 7. GHOST TICKER — signature element ══ */
@@ -166,8 +166,8 @@ a{color:var(--brand)}
 @keyframes slidein{from{opacity:0;transform:translateY(-9px)}to{opacity:1;transform:none}}
 .row__av{width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:13px}
 .row__t{min-width:0;flex:1}
-.row__n{font-size:14.5px;font-weight:600;color:#DCEBE5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row__m{font-family:var(--f-mono);font-size:11.5px;color:#7C9A90;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row__n{display:block;font-size:14.5px;font-weight:600;color:#DCEBE5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row__m{display:block;font-family:var(--f-mono);font-size:11.5px;color:#7C9A90;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row.is-ghost .row__av{background:rgba(255,255,255,.07);color:#5E7C73}
 .row.is-ghost .row__n{color:#5E7C73;font-weight:500}
 .row.is-won{background:rgba(55,214,160,.11);border-color:rgba(55,214,160,.32)}
@@ -377,8 +377,8 @@ a{color:var(--brand)}
       <!-- ═══ FORM ═══ -->
       <form class="form" id="crForm" novalidate style="margin-top:22px">
         <div class="form__head">
-          <span class="form__title" data-title>Where should we look?</span>
-          <span class="form__step" data-stepnum>Step 1 of 3</span>
+          <span class="form__title" data-title aria-live="polite">Where should we look?</span>
+          <span class="form__step" data-stepnum aria-live="polite">Step 1 of 3</span>
         </div>
         <div class="prog"><div class="prog__fill" data-prog></div></div>
 
