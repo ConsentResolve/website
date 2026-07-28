@@ -166,11 +166,12 @@ const fieldCls = "w-full rounded-lg border border-[color:var(--color-rule)] bg-w
           const Cal = (window as any).Cal;
           if (calLink && calBox && Cal) {
             if (!calBox.id) calBox.id = "cr-cal-inline";
-            calBox.style.minHeight = "440px";
+            calBox.style.height = "520px"; calBox.style.overflowY = "auto"; calBox.style.borderRadius = "12px";
+            const link = calLink + (calLink.indexOf("?") >= 0 ? "&" : "?") + "layout=column_view&hideEventTypeDetails=true";
             Cal("init", { origin: "https://cal.com" });
             Cal("inline", {
               elementOrSelector: "#" + calBox.id,
-              calLink: calLink,
+              calLink: link,
               config: { name: String(payload.name || ""), email: String(payload.email || ""), theme: "light", layout: "column_view", hideEventTypeDetails: true },
             });
           } else if (fallback) {
