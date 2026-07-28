@@ -93,9 +93,9 @@ const inp = "w-full rounded-lg border border-[color:var(--color-rule)] bg-white 
         const box=$(".cr-claim-cal"); const Cal=(window as any).Cal;
         if(calLink && box && Cal){
           if(!box.id) box.id="cr-claim-cal-el";
-          const link = calLink + (calLink.indexOf("?")>=0?"&":"?") + "layout=column_view&hideEventTypeDetails=true";
           Cal("init",{origin:"https://cal.com"});
-          Cal("inline",{elementOrSelector:"#"+box.id,calLink:link,config:{name:el("name").value,email:el("email").value,theme:"light",layout:"column_view",hideEventTypeDetails:true}});
+          Cal("ui",{hideEventTypeDetails:true,layout:"column_view",theme:"light"});
+          Cal("inline",{elementOrSelector:"#"+box.id,calLink,config:{name:el("name").value,email:el("email").value}});
           // Accurate conversion: fire the Google Ads booking conversion only when they actually book.
           Cal("on",{action:"bookingSuccessful",callback:()=>{ try{ (window as any).gtag?.("event","ads_conversion_book_appointment_a"); }catch(_){}}});
         }

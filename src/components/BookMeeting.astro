@@ -167,12 +167,12 @@ const fieldCls = "w-full rounded-lg border border-[color:var(--color-rule)] bg-w
           if (calLink && calBox && Cal) {
             if (!calBox.id) calBox.id = "cr-cal-inline";
             calBox.style.height = "520px"; calBox.style.overflowY = "auto"; calBox.style.borderRadius = "12px";
-            const link = calLink + (calLink.indexOf("?") >= 0 ? "&" : "?") + "layout=column_view&hideEventTypeDetails=true";
             Cal("init", { origin: "https://cal.com" });
+            Cal("ui", { hideEventTypeDetails: true, layout: "column_view", theme: "light" });
             Cal("inline", {
               elementOrSelector: "#" + calBox.id,
-              calLink: link,
-              config: { name: String(payload.name || ""), email: String(payload.email || ""), theme: "light", layout: "column_view", hideEventTypeDetails: true },
+              calLink: calLink,
+              config: { name: String(payload.name || ""), email: String(payload.email || "") },
             });
           } else if (fallback) {
             fallback.classList.remove("hidden");
