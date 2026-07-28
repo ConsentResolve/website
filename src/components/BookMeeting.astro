@@ -7,6 +7,7 @@
 //   3. Reveal the Google Calendar scheduler (PUBLIC_GCAL_BOOKING_URL) + a live-demo offer
 //      linking to the ungated /demo/sample/?dt=<token> (personalized to what they entered).
 import { TRADE_OPTIONS } from "../../worker/_lib/trades.js";
+import { SMS_CONSENT_DISCLOSURE } from "../../worker/_lib/sms-consent.js";
 const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 // Cal.com booking link ("username/event-slug", or "team/slug" for a round-robin group cal).
 // Swap PUBLIC_CAL_LINK to the team round-robin event once created. Empty → "we'll reach out" fallback.
@@ -42,19 +43,28 @@ const fieldCls = "w-full rounded-lg border border-[color:var(--color-rule)] bg-w
           <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Your website</span>
           <input name="website" type="text" inputmode="url" required placeholder="smithplumbing.com" class={fieldCls} />
         </label>
+        <label class="block">
+          <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Phone <span class="font-normal text-[color:var(--color-ink-muted)]">(optional)</span></span>
+          <input name="phone" type="tel" autocomplete="tel" placeholder="(555) 123-4567" class={fieldCls} />
+        </label>
+        <label class="block">
+          <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Your trade</span>
+          <select name="trade" class={fieldCls}>
+            <option value="" selected>Select your trade…</option>
+            {TRADE_OPTIONS.map((o) => (<option value={o.value}>{o.label}</option>))}
+          </select>
+        </label>
       </div>
-
-      <label class="block">
-        <span class="mb-1 block text-sm font-semibold text-[color:var(--color-ink)]">Your trade</span>
-        <select name="trade" class={fieldCls}>
-          <option value="" selected>Select your trade…</option>
-          {TRADE_OPTIONS.map((o) => (<option value={o.value}>{o.label}</option>))}
-        </select>
-      </label>
 
       <label class="flex items-start gap-2.5 text-sm text-[color:var(--color-ink-2)]">
         <input type="checkbox" name="consent_contact" value="1" required class="mt-0.5 h-4 w-4 rounded border-[color:var(--color-rule)] text-[color:var(--color-brand)] focus:ring-[color:var(--color-brand-soft)]" />
         <span>I agree Consent Resolve may email me about my request. No spam, unsubscribe anytime.</span>
+      </label>
+
+      {/* Optional SMS opt-in (PEWC). Unchecked + not required. Shared disclosure = stored proof matches verbatim. */}
+      <label class="flex items-start gap-2.5 text-sm text-[color:var(--color-ink-2)]">
+        <input type="checkbox" name="sms_consent" value="1" class="mt-0.5 h-4 w-4 rounded border-[color:var(--color-rule)] text-[color:var(--color-brand)] focus:ring-[color:var(--color-brand-soft)]" />
+        <span>{SMS_CONSENT_DISCLOSURE} See our <a href="/privacy-policy/" class="underline hover:text-[color:var(--color-brand-pressed)]">Privacy Policy</a> and <a href="/terms/" class="underline hover:text-[color:var(--color-brand-pressed)]">Terms</a>. <span class="text-[color:var(--color-ink-muted)]">(Optional — add your phone above.)</span></span>
       </label>
 
       {siteKey && (<div class="cf-turnstile" data-sitekey={siteKey}></div>)}
@@ -118,9 +128,9 @@ const fieldCls = "w-full rounded-lg border border-[color:var(--color-rule)] bg-w
         const fd = new FormData(form);
         const payload: Record<string, unknown> = {
           name: fd.get("name"), email: fd.get("email"), business_name: fd.get("business_name"),
-          website: fd.get("website"), trade: fd.get("trade"),
-          consent_contact: fd.get("consent_contact") ? "1" : "", hp: fd.get("hp") || "",
-          turnstileToken: (fd.get("cf-turnstile-response") as string) || "",
+          website: fd.get("website"), phone: fd.get("phone"), trade: fd.get("trade"),
+          consent_contact: fd.get("consent_contact") ? "1" : "", sms_consent: fd.get("sms_consent") ? "1" : "",
+          hp: fd.get("hp") || "", turnstileToken: (fd.get("cf-turnstile-response") as string) || "",
         };
         if (btn) btn.disabled = true;
         if (label) label.textContent = "One sec…";
