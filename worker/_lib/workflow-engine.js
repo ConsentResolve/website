@@ -357,7 +357,6 @@ async function autoEnrollSweep(env, { hours = 24, limit = 30 } = {}) {
     `SELECT cv.id conv_id, cv.contact_id, cv.channel, ct.source
        FROM conversations cv JOIN contacts ct ON ct.id=cv.contact_id
       WHERE cv.created_at>=? AND cv.contact_id IS NOT NULL AND ct.source IS NOT 'apollo'
-        AND (ct.lifecycle_stage IS NULL OR ct.lifecycle_stage != 'disqualified')
         AND NOT EXISTS (SELECT 1 FROM workflow_runs r WHERE r.contact_id=cv.contact_id)
       ORDER BY cv.created_at DESC LIMIT ?`
   ).bind(since, limit).all()).results || [];
