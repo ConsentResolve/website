@@ -1,0 +1,57 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import DemoForm from "~/components/DemoForm.astro";
+import LeakVisual from "~/components/ui/demo/LeakVisual.astro";
+
+// Reddit ads landing — blunt, native tone (Redditors distrust marketing gloss).
+// Link ads here with ?utm_source=reddit so channel attribution flows via cr_src.
+// noindex — ad destination, not organic content.
+---
+
+<BaseLayout
+  ogImage="/og/demo.png"
+  title="You Pay for the 2% Who Fill Out the Form. Here's the Other 98%."
+  description="Most contractors capture a tiny slice of their site traffic. We identify the rest — with consent — and hand them over as exclusive leads at $7 flat. See it on your own site."
+  noindex
+>
+  <section class="bg-[color:var(--color-bg-inverse)]">
+    <div class="mx-auto max-w-6xl px-6 py-16 lg:py-24">
+      <div class="grid items-start gap-12 lg:grid-cols-2">
+        <div class="text-[color:var(--color-on-inverse)]">
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--color-brand)]">No fluff — here's the deal</p>
+          <h1 class="mt-3 font-display text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl">
+            You pay for the 2% who fill out the form. Here's the other 98%.
+          </h1>
+          <p class="mt-5 max-w-md text-lg leading-relaxed text-[color:var(--color-on-inverse-muted)]">
+            Most contractors capture a tiny slice of their website traffic. We identify the rest — with their consent — and hand them over as <strong>exclusive</strong> leads at <strong>$7 flat</strong>. No shared leads, no contract. See exactly what it'd recover on your own site.
+          </p>
+
+          <ul class="mt-8 space-y-3">
+            {[
+              "Exclusive — never resold to your competitors",
+              "$7 flat per lead, cancel anytime",
+              "Consent-first, every lead has a paper trail",
+            ].map((t) => (
+              <li class="flex gap-3 text-[color:var(--color-on-inverse)]">
+                <span class="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand)] text-xs font-bold text-[color:var(--color-on-brand)]">✓</span>
+                <span>{t}</span>
+              </li>
+            ))}
+          </ul>
+
+          <p class="mt-8 text-sm text-[color:var(--color-on-inverse-muted)]">
+            Try it on your own site — takes about a minute, the lead is you.
+          </p>
+        </div>
+
+        <div id="demo-register">
+          <DemoForm heading="Try it on your own site" sub="Register, browse a sample site, consent — and watch the new-lead notification land in your inbox. The lead is you. About 60 seconds." />
+        </div>
+      </div>
+
+      <div class="mt-14 max-w-3xl">
+        <LeakVisual />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
