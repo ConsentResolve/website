@@ -193,12 +193,10 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
             }
           } catch {}
           try { (window as any).ttq?.track?.("CompleteRegistration"); } catch {}
-          // GA4 lead event (works with the existing G-6JTD5SZNFY config).
+          // GA4 lead event (works with the existing G-6JTD5SZNFY config). Watching the demo is a
+          // LEAD, not a booking — so we fire generate_lead only. The "book_meeting" booking
+          // conversion is reserved for an actual Cal.com booking (see ClaimForm / BookMeeting).
           try { (window as any).gtag?.("event", "generate_lead", { method: "demo_form" }); } catch {}
-          // Google Ads conversion (new gtag named-event format). The Ads account AW-18263188422
-          // is configured in BaseLayout, so firing this event records the "Book appointment"
-          // conversion. Only fires post-consent (gtag is CMP-gated), keeping us consent-first.
-          try { (window as any).gtag?.("event", "ads_conversion_book_appointment_a"); } catch {}
           if (data.redirect_url) {
             if (demoTab) {
               demoTab.location.href = data.redirect_url;   // demo opens in the new tab; this page stays

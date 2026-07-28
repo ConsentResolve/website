@@ -144,8 +144,7 @@ const fieldCls = "w-full rounded-lg border border-[color:var(--color-rule)] bg-w
 
           // --- Conversions fire HERE (on our page → trackable) ---
           const g = (window as any).gtag;
-          try { g?.("event", "ads_conversion_book_appointment_a"); } catch {}      // Google Ads "Book appointment"
-          try { g?.("event", "generate_lead", { method: "book_meeting" }); } catch {} // GA4
+          try { g?.("event", "generate_lead", { method: "book_meeting" }); } catch {} // GA4 lead (intake). Booking conversion fires on Cal bookingSuccessful below — not here.
           try {
             const _fbq = (window as any).fbq;
             if (_fbq) {
@@ -174,6 +173,8 @@ const fieldCls = "w-full rounded-lg border border-[color:var(--color-rule)] bg-w
               calLink: calLink,
               config: { name: String(payload.name || ""), email: String(payload.email || "") },
             });
+            // Booking conversion fires only when they actually book (not on intake submit).
+            Cal("on", { action: "bookingSuccessful", callback: () => { try { (window as any).gtag?.("event", "book_meeting", { method: "book_meeting", trade: String(payload.trade || "unknown") }); } catch {} } });
           } else if (fallback) {
             fallback.classList.remove("hidden");
           }

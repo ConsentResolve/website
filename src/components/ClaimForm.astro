@@ -97,7 +97,7 @@ const inp = "w-full rounded-lg border border-[color:var(--color-rule)] bg-white 
           Cal("ui",{hideEventTypeDetails:true,layout:"column_view",theme:"light"});
           Cal("inline",{elementOrSelector:"#"+box.id,calLink,config:{name:el("name").value,email:el("email").value}});
           // Accurate conversion: fire the Google Ads booking conversion only when they actually book.
-          Cal("on",{action:"bookingSuccessful",callback:()=>{ const g=(window as any).gtag; try{ g?.("event","ads_conversion_book_appointment_a"); }catch(_){} try{ g?.("event","book_meeting",{method:"claim50",trade:el("trade").value||"unknown"}); }catch(_){} }});
+          Cal("on",{action:"bookingSuccessful",callback:()=>{ try{ (window as any).gtag?.("event","book_meeting",{method:"claim50",trade:el("trade").value||"unknown"}); }catch(_){} }});
         }
         f.querySelector<HTMLElement>('[data-step="1"]')!.hidden=true;
         f.querySelector<HTMLElement>('[data-step="2"]')!.hidden=false;
