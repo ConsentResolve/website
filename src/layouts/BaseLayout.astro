@@ -95,24 +95,28 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       }catch(e){}})();
     </script>
 
-    <!-- Google Analytics (GA4) + Google Ads remarketing (AW-) — CONSENT-GATED via
-         ConsentResolve/Usercentrics autoblocker. Both ride one gtag.js loader, so they are
-         gated together under the "Google Analytics" service: type=text/plain keeps the loader
-         AND the config inert until consent, then the CMP flips them to executable. The loader
-         must be gated too — otherwise gtag.js fetches (and can set _ga/_gcl cookies) pre-consent.
-         data-usercentrics MUST match the configured service name.
-         NOTE: Consent Mode v2 was attempted (denied-default + un-gated loader) but reverted —
-         the ConsentResolve wrapper does not emit gtag('consent','update') on grant, so the tag
-         would have stayed denied for consenting users (a tracking regression). Re-enable only
-         once consentresolve.js relays consent to gtag (or via a verified consent→gtag bridge). -->
-    <script is:inline type="text/plain" data-usercentrics="Google Analytics" async src="https://www.googletagmanager.com/gtag/js?id=G-6JTD5SZNFY"></script>
-    <script is:inline type="text/plain" data-usercentrics="Google Analytics">
+    <!-- Google Analytics (GA4) + Google Ads (AW-) via GOOGLE CONSENT MODE v2.
+         Consent Mode is enabled in the ConsentResolve/Usercentrics (Termageddon) CMP, which
+         fires gtag('consent','update',…) on the user's choice. VERIFIED 2026-07-28 (real
+         browser): Accept All grants all four signals — analytics_storage (Google Analytics
+         service → Statistics) + ad_storage/ad_user_data/ad_personalization (Google Ads service
+         → Marketing). We set all four DENIED by default here (before gtag), so the tag boots
+         cookieless and sends only anonymous modeled pings until the CMP upgrades to granted.
+         The loader is intentionally NOT type=text/plain — Consent Mode needs gtag present to
+         model declined conversions. No _ga/_gcl cookies are set while denied. -->
+    <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied', analytics_storage: 'denied',
+        ad_user_data: 'denied', ad_personalization: 'denied',
+        wait_for_update: 500
+      });
       gtag('js', new Date());
       gtag('config', 'G-6JTD5SZNFY');
       gtag('config', 'AW-18263188422');
     </script>
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-6JTD5SZNFY"></script>
 
     <!-- Meta Pixel is consent-gated above (PUBLIC_META_PIXEL_ID). The old un-gated
          duplicate was removed — it double-counted PageViews and bypassed consent. -->
