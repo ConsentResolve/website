@@ -101,7 +101,7 @@ const inp = "w-full rounded-lg border border-[color:var(--color-rule)] bg-white 
         }
         f.querySelector<HTMLElement>('[data-step="1"]')!.hidden=true;
         f.querySelector<HTMLElement>('[data-step="2"]')!.hidden=false;
-        root.querySelector(".cr-claim-title")!.textContent="Pick your 15 minutes";
+        const t=root.querySelector(".cr-claim-title"); if(t) (t as HTMLElement).style.display="none";
         const sub=root.querySelector(".cr-claim-sub2"); if(sub) (sub as HTMLElement).style.display="none";
         root.scrollIntoView({block:"start",behavior:"smooth"});
       });
