@@ -9,6 +9,7 @@
 // so they stay portable.
 
 import * as register from "./api/register.js";
+import * as claim50 from "./api/claim-50.js";
 import * as visit from "./api/visit.js";
 import * as consent from "./api/consent.js";
 import * as status from "./api/status.js";
@@ -83,6 +84,7 @@ import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib
 
 const ROUTES = {
   "/api/register": register,
+  "/api/claim-50": claim50,
   "/api/visit": visit,
   "/api/consent": consent,
   "/api/status": status,
