@@ -316,5 +316,17 @@ async function ingestLead(env, { fields, leadgenId, formId, fieldData }) {
             }
           } catch (_) {}
         }
-        return { convId, fit, siteFlag, note };
+        // HARD GATE: a lead we can't sell to (no live website, or wrong-trade junk) is archived out
+        // of the active inbox and flagged 'disqualified' on the contact, so it (a) drops out of the
+        // open-lead counts, and (b) never gets auto-enrolled into the email sequence (pointless —
+        // our product installs on a website they don't have). Still retrievable in Archived for a
+        // future "get a website first" nurture. NOTE: this does NOT refund Meta — see billing note.
+        const qualified = siteFlag === "ok" && fit !== "cold";
+        if (!qualified) {
+          try {
+            await env.DB.prepare("UPDATE conversations SET status='archived', updated_at=datetime('now') WHERE id=?").bind(convId).run();
+            await env.DB.prepare("UPDATE contacts SET lifecycle_stage='disqualified', updated_at=datetime('now') WHERE id=? AND (lifecycle_stage IS NULL OR lifecycle_stage NOT IN ('customer','opportunity'))").bind(contactId).run();
+          } catch (_) {}
+        }
+        return { convId, fit, siteFlag, qualified, note };
 }
