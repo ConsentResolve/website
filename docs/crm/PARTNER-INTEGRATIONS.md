@@ -95,10 +95,19 @@ interface PartnerAdapter {
   differentiator, so every adapter writes it into the partner's notes/custom
   fields even when the partner has no first-class field for it.
 
-## Jobber build (landed on `partner-integrations-test`)
+## Jobber build (landed on `partner-integrations-test`; completed on `claude/jobber-consentresolve-integration-r0nsjx`)
 
 Adapter: `worker/_lib/partners/jobber.js` · routes: `worker/api/partners-jobber.js`
-· offline tests: `node scripts/test-jobber.mjs`.
+· delivery dispatch: `worker/_lib/partners/deliver.js` · offline tests:
+`node scripts/test-jobber.mjs`.
+
+The recovered-lead loop is now wired end to end: a demo consent
+(`worker/api/consent.js`) normalizes the participant into the shared
+`RecoveredLead` shape and fans it out via `deliverLeadToPartners()` after the
+response (waitUntil) — skipped silently until a partner account is actually
+connected, and each delivery is logged both to `partner_deliveries` and to the
+participant's event timeline (`partner_delivery`). New adapters plug into
+`deliver.js`, not into the consent flow.
 
 Endpoints (all under the existing CRM gate):
 `GET /api/partners/jobber/auth` (start OAuth) · `/callback` · `/status`
@@ -108,10 +117,15 @@ Endpoints (all under the existing CRM gate):
 To go live: create the app in Jobber's Developer Center (client read/write
 scopes; callback + webhook URLs are in the header of `partners-jobber.js`),
 `wrangler secret put JOBBER_CLIENT_ID` / `JOBBER_CLIENT_SECRET`, then visit
-`/api/partners/jobber/auth` from a `/crm` session. One open verification:
-the `clientNoteCreate` argument shape (consent-note write) needs a GraphiQL
-introspection pass once a dev account exists — note failures are non-fatal
-to the lead push by design.
+`/api/partners/jobber/auth` from a `/crm` session.
+
+Consent-note mutation: the original build used `clientNoteCreate`, but
+Jobber's public changelog shows that field was **removed** from the Mutation
+type; the current naming pattern is `clientCreateNote` / `clientEditNote`
+(edit also lost its `clientId` arg). The adapter now sends
+`clientCreateNote(clientId:, input: { message: })`. Field-level shape still
+deserves a GraphiQL introspection pass once a dev account exists — note
+failures stay non-fatal to the lead push by design.
 
 ## Site-claims drift (flag, don't fix yet)
 

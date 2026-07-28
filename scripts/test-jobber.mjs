@@ -8,6 +8,7 @@ import {
   splitName, buildClientCreateMutation, buildConsentNote, buildNoteMutation,
   accessTokenExpiry, verifyWebhookSignature, jobberAuthUrl,
 } from "../worker/_lib/partners/jobber.js";
+import { participantToLead } from "../worker/_lib/partners/deliver.js";
 
 let passed = 0;
 const test = (name, fn) => Promise.resolve().then(fn).then(() => { passed++; console.log("  ok:", name); });
@@ -54,7 +55,34 @@ await test("consent note carries the trail", () => {
   assert.match(note, /Policy version: v3/);
   assert.match(note, /Pages viewed: \/, \/quote/);
   const m = buildNoteMutation("Q2xpZW50LTE=", note);
-  assert.match(m, /clientNoteCreate\(clientId: "Q2xpZW50LTE="/);
+  // clientCreateNote, NOT clientNoteCreate — the latter was removed from the
+  // schema per Jobber's public changelog.
+  assert.match(m, /clientCreateNote\(clientId: "Q2xpZW50LTE="/);
+  assert.ok(!m.includes("clientNoteCreate"), m);
+  assert.match(m, /userErrors \{ message path \}/);
+});
+
+await test("participantToLead maps the demo row to the shared lead shape", () => {
+  const lead = participantToLead({
+    name: "Jane Doe", email: "jane@acme-roofing.com", phone: "555-0100",
+    business_name: "Acme Roofing", trade: "roofer", sample_page: "/demo/sample/",
+    consented_at: "2026-07-28T10:00:00Z", consent_text_version: "v1", created_at: "2026-07-28T09:00:00Z",
+  });
+  assert.equal(lead.email, "jane@acme-roofing.com");
+  assert.equal(lead.company, "Acme Roofing");
+  assert.equal(lead.consent.ts, "2026-07-28T10:00:00Z");
+  assert.equal(lead.consent.policyVersion, "v1");
+  assert.equal(lead.consent.sourceUrl, "/demo/sample/");
+  assert.deepEqual(lead.session.pages, ["/demo/sample/"]);
+  assert.equal(lead.session.firstSeen, "2026-07-28T09:00:00Z");
+  // Explicit overrides (the consent orchestrator passes the fresh timestamp).
+  const l2 = participantToLead({ email: "a@b.c" }, { consentedAt: "T1", policyVersion: "v2", pages: ["/x", "/y"] });
+  assert.equal(l2.consent.ts, "T1");
+  assert.equal(l2.consent.policyVersion, "v2");
+  assert.deepEqual(l2.session.pages, ["/x", "/y"]);
+  // The mapped lead feeds straight into the mutation builder.
+  const m = buildClientCreateMutation(lead);
+  assert.match(m, /companyName: "Acme Roofing"/);
 });
 
 await test("accessTokenExpiry reads JWT exp (minus 60s skew)", () => {

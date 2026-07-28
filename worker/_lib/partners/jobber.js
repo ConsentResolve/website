@@ -238,11 +238,15 @@ export function buildConsentNote(lead) {
 }
 
 export function buildNoteMutation(clientId, message) {
-  // clientNoteCreate + NoteCreateAttributes confirmed to exist via the public
-  // changelog; the exact argument shape is unverified until we can introspect
-  // with a dev account (GraphiQL). Callers treat note failure as non-fatal.
+  // Public changelog (2026-07 check): clientNoteCreate was REMOVED from the
+  // Mutation type; the surviving naming pattern is clientCreateNote /
+  // clientEditNote (clientEditNote also lost its clientId arg — edit keys on
+  // the note id, create still takes the client). Field-level shape still wants
+  // a GraphiQL introspection pass once a dev account exists; callers treat
+  // note failure as non-fatal either way.
   return `mutation {
-  clientNoteCreate(clientId: ${q(clientId)}, input: { message: ${q(message)} }) {
+  clientCreateNote(clientId: ${q(clientId)}, input: { message: ${q(message)} }) {
+    clientNote { id }
     userErrors { message path }
   }
 }`;
@@ -270,7 +274,7 @@ export async function pushLead(env, lead) {
     // Best-effort consent note — never fails the delivery.
     try {
       const noteData = await gql(env, buildNoteMutation(result.client_id, buildConsentNote(lead)));
-      result.note_ok = !(noteData?.clientNoteCreate?.userErrors || []).length;
+      result.note_ok = !(noteData?.clientCreateNote?.userErrors || []).length;
     } catch (e) {
       result.note_ok = false;
       result.note_error = String(e).slice(0, 200);

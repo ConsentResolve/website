@@ -1,15 +1,17 @@
 // POST /api/consent { dt } — the orchestrator.
 // record consent (proof: version + timestamp + IP) -> send reveal email ->
-// mark emailed -> enroll in sales -> mark enrolled. Email/webhook failures are
-// logged + retried once but never block the confirmation screen.
+// mark emailed -> enroll in sales -> mark enrolled -> fan out to connected
+// partner CRMs (fire-and-forget). Email/webhook failures are logged + retried
+// once but never block the confirmation screen.
 
 import { json, clientIp, baseOrigin } from "../_lib/http.js";
 import { getParticipant, updateParticipant, logEvent, nowIso } from "../_lib/db.js";
 import { sendRevealEmail } from "../_lib/email.js";
 import { enrollSales } from "../_lib/sales.js";
 import { tradeProfile } from "../_lib/trades.js";
+import { participantToLead, deliverLeadToPartners } from "../_lib/partners/deliver.js";
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, ctx }) {
   let dt = "";
   try {
     const body = await request.json();
@@ -60,6 +62,18 @@ export async function onRequestPost({ request, env }) {
   } else {
     await logEvent(env, p.id, "error", { stage: "enroll", error: sales.error });
   }
+
+  // --- Partner CRM delivery (Jobber, …) ---
+  // The consented lead is exactly what the partner integrations exist to carry.
+  // Runs after the response; skips silently when no partner is connected.
+  const deliver = deliverLeadToPartners(env, participantToLead(enriched, { consentedAt, policyVersion: version }))
+    .then(async (results) => {
+      for (const r of results.filter((x) => !x.skipped)) {
+        await logEvent(env, p.id, "partner_delivery", { partner: r.partner, ok: !!r.ok, client_id: r.client_id, error: r.error });
+      }
+    })
+    .catch(() => {});
+  if (ctx) ctx.waitUntil(deliver); else await deliver;
 
   // Always succeed for the UI — the user has consented; the email is in flight.
   // Return the lead fields so the sample page can render the "here's the email
