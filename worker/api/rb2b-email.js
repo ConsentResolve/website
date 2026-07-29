@@ -228,8 +228,11 @@ async function fetchGmailAttachment(tok, msgId, attId) {
 // Poll the connected inbox(es) for RB2B's CSV email and ingest the attachment.
 // Idempotent twice over: a rb2b_seen guard skips already-processed Gmail messages,
 // and ingestRb2bCsv upserts by email so a re-run never duplicates leads.
-export async function pollRb2bGmail(env) {
+// opts: { force } bypass the sender gate, { reprocess } ignore the rb2b_seen dedup,
+// { debug } include per-message skip reasons (incl. the From address) in `detail`.
+export async function pollRb2bGmail(env, opts = {}) {
   if (!env.DB) return { error: "no_db" };
+  const { force = false, reprocess = false, debug = false } = opts;
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS rb2b_seen (msg_id TEXT PRIMARY KEY, processed_at TEXT)").run();
   const accounts = (env.CRM_INBOX_EMAILS || "hello@consentresolve.com")
     .split(/[,\s]+/).map((s) => s.trim().toLowerCase()).filter(Boolean);
@@ -249,17 +252,21 @@ export async function pollRb2bGmail(env) {
     if (lj.error) { detail.push({ account, error: (lj.error && lj.error.message) || "list_failed" }); continue; }
     for (const ref of (lj.messages || [])) {
       scanned++;
-      const already = await env.DB.prepare("SELECT msg_id FROM rb2b_seen WHERE msg_id=?").bind(ref.id).first();
-      if (already) continue;
+      if (!reprocess) {
+        const already = await env.DB.prepare("SELECT msg_id FROM rb2b_seen WHERE msg_id=?").bind(ref.id).first();
+        if (already) { if (debug) detail.push({ msg: ref.id, skip: "already_seen" }); continue; }
+      }
       const mr = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/" + ref.id + "?format=full",
         { headers: { Authorization: "Bearer " + tok } });
       const m = await mr.json();
-      if (m.error) continue;
+      if (m.error) { if (debug) detail.push({ msg: ref.id, skip: "get_error" }); continue; }
       const headers = (m.payload && m.payload.headers) || [];
       const from = String((headers.find((h) => h.name.toLowerCase() === "from") || {}).value || "").toLowerCase();
+      const subject = String((headers.find((h) => h.name.toLowerCase() === "subject") || {}).value || "");
       // Not from RB2B — remember it so we don't full-fetch it again, then skip.
-      if (senders.length && !senders.some((s) => from.includes(s))) {
+      if (!force && senders.length && !senders.some((s) => from.includes(s))) {
         await env.DB.prepare("INSERT OR IGNORE INTO rb2b_seen (msg_id, processed_at) VALUES (?,?)").bind(ref.id, now).run();
+        if (debug) detail.push({ msg: ref.id, from, subject, skip: "sender_not_allowed", allow: senders });
         continue;
       }
       let csv = null, filename = null;
@@ -275,7 +282,9 @@ export async function pollRb2bGmail(env) {
         const out = await ingestRb2bCsv(env, csv, { from });
         ingested += out.ingested || 0;
         processed++;
-        detail.push({ account, msg: ref.id, filename, ingested: out.ingested, skipped: out.skipped, rows: out.rows, error: out.error });
+        detail.push({ account, msg: ref.id, from, filename, ingested: out.ingested, skipped: out.skipped, rows: out.rows, error: out.error });
+      } else if (debug) {
+        detail.push({ msg: ref.id, from, subject, skip: "no_csv_attachment" });
       }
       await env.DB.prepare("INSERT OR IGNORE INTO rb2b_seen (msg_id, processed_at) VALUES (?,?)").bind(ref.id, now).run();
     }
@@ -291,9 +300,14 @@ export async function onRequestGet({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
   const u = new URL(request.url);
-  if (u.searchParams.get("run") || u.searchParams.get("test")) {
-    const out = await pollRb2bGmail(env);
+  const q = u.searchParams;
+  if (q.get("run") || q.get("test")) {
+    const out = await pollRb2bGmail(env, {
+      force: q.get("force") === "1" || q.get("any") === "1",
+      reprocess: q.get("reprocess") === "1" || q.get("again") === "1",
+      debug: q.get("debug") === "1" || q.get("test") === "1",
+    });
     return json({ ok: !out.error, ...out }, out.error ? { status: 502 } : {}, cors);
   }
-  return json({ ok: true, usage: "?run=1 to poll the connected inbox for RB2B's CSV attachment and import it" }, {}, cors);
+  return json({ ok: true, usage: "?run=1 imports; add &debug=1 to see per-message skip reasons, &any=1 to bypass the sender gate, &again=1 to re-process already-seen messages" }, {}, cors);
 }
