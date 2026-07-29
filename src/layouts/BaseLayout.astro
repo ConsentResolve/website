@@ -76,6 +76,14 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
          ConsentResolve/Usercentrics dashboard, or the script never loads. -->
     <script is:inline type="text/plain" data-usercentrics="Leadsy" id="vtag-ai-js" async src="https://r2.leadsy.ai/tag.js" data-pid="1a05vWNgmDU1HfyCP" data-version="062024"></script>
 
+    <!-- RB2B (GetEmails) website-visitor identification — CONSENT-GATED via the
+         ConsentResolve/Usercentrics autoblocker: type=text/plain keeps it inert until the
+         visitor consents to the "RB2B" service (Termageddon built-in, template 22sYxVE_5GTFil).
+         Fires only after consent — consistent with our consent-first stance. key=9NMMZHRE54NW. -->
+    <script is:inline type="text/plain" data-usercentrics="RB2B">
+      !function(key){if(window.reb2b)return;window.reb2b={loaded:true};var s=document.createElement("script");s.async=true;s.src="https://b2bjsstore.s3.us-west-2.amazonaws.com/b/"+key+"/"+key+".js.gz";document.getElementsByTagName("script")[0].parentNode.insertBefore(s,document.getElementsByTagName("script")[0]);}("9NMMZHRE54NW");
+    </script>
+
     <!-- Apollo.io website visitor tracker (visitor identification; replaced RB2B) —
          CONSENT-GATED via ConsentResolve/Usercentrics autoblocker: type=text/plain keeps
          it inert until the user consents to the "Apollo" service. data-usercentrics MUST
