@@ -60,7 +60,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
     const contactId = await findOrCreateContactByEmail(env, email, { name, source: "cal" });
     if (!contactId) return;
 
-    const when = startTime ? new Date(startTime).toISOString() : new Date().toISOString();
+    const receivedIso = new Date().toISOString();                                   // when we got the booking (drives inbox sort + timer)
+    const when = startTime ? new Date(startTime).toISOString() : receivedIso;        // the meeting time itself (display only)
     const isCreated = trigger === "BOOKING_CREATED";
     const isCancelled = trigger === "BOOKING_CANCELLED";
     const isRescheduled = trigger === "BOOKING_RESCHEDULED";
@@ -78,13 +79,13 @@ export async function onRequestPost({ request, env, waitUntil }) {
     const convId = await upsertConversationByThread(env, {
       channel: "cal", externalThreadId: "cal:" + (uid || email), contactId,
       subject: "Cal.com — " + (name || email), sourceDetail: meetingType ? "type:" + meetingType : null,
-      incoming: true, lastAt: when,
+      incoming: true, lastAt: receivedIso,
       preview: [emoji, verb, name || email, startTime ? when.slice(0, 16).replace("T", " ") : ""].filter(Boolean).join(" · ").slice(0, 160),
     });
     await insertMessageOnce(env, {
       conversationId: convId, direction: "in", channel: "cal",
       externalMessageId: "cal:" + trigger + ":" + (uid || email) + ":" + (startTime || Date.now()),
-      bodyText: lines, sentAt: when,
+      bodyText: lines, sentAt: receivedIso,
     });
 
     if (isCreated || isRescheduled) {
