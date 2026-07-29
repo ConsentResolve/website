@@ -41,6 +41,8 @@ import * as crmGmail from "./api/crm-gmail.js";
 import * as crmCrisp from "./api/crm-crisp.js";
 import * as crmApollo from "./api/crm-apollo.js";
 import * as crmApolloSync from "./api/crm-apollo-sync.js";
+import * as crOwnSync from "./api/cr-own-sync.js";
+import * as rb2bEmail from "./api/rb2b-email.js";
 import * as crmSocialScores from "./api/crm-social-scores.js";
 import * as crmSocialPromote from "./api/crm-social-promote.js";
 import * as crmGbpAuth from "./api/crm-gbp-auth.js";
@@ -122,6 +124,7 @@ const ROUTES = {
   "/api/crm/crisp": crmCrisp,
   "/api/crm/apollo": crmApollo,
   "/api/crm/apollo/sync": crmApolloSync,
+  "/api/crm/cr/sync": crOwnSync,
   "/api/crm/social/scores": crmSocialScores,
   "/api/crm/social/promote": crmSocialPromote,
   "/api/crm/gbp/auth": crmGbpAuth,
@@ -310,6 +313,13 @@ export default {
       } catch (err) {
         console.log(`[apollo] sync error: ${String(err).slice(0, 160)}`);
       }
+      // Our own Consent Resolve visitor-ID API -> CRM. No-op until CR_API_KEY is set.
+      try {
+        const out = await crOwnSync.runScheduledSync(env);
+        if (out && out.synced) console.log(`[cr-own] synced ${out.synced} new (${out.skipped} skipped)`);
+      } catch (err) {
+        console.log(`[cr-own] sync error: ${String(err).slice(0, 160)}`);
+      }
       // Unified inbox: pull new mail for the configured mailbox(es). No-op until a
       // CRM_INBOX_EMAILS account (default hello@) is Gmail-OAuth connected.
       try {
@@ -463,5 +473,14 @@ export default {
         console.log(`[social] ${platform} fatal: ${String(err).slice(0, 160)}`);
       }
     }
+  },
+
+  // Inbound email (Cloudflare Email Routing). RB2B's free tier only emails a daily
+  // CSV of identified visitors — route that address (e.g. rb2b@consentresolve.com)
+  // to this worker in the Email Routing dashboard and we parse it into CRM leads.
+  async email(message, env, ctx) {
+    ctx.waitUntil(rb2bEmail.handleRb2bEmail(message, env).catch((e) =>
+      console.log(`[rb2b-email] fatal: ${String(e).slice(0, 160)}`)
+    ));
   },
 };
