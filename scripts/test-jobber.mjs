@@ -55,10 +55,11 @@ await test("consent note carries the trail", () => {
   assert.match(note, /Policy version: v3/);
   assert.match(note, /Pages viewed: \/, \/quote/);
   const m = buildNoteMutation("Q2xpZW50LTE=", note);
-  // clientCreateNote, NOT clientNoteCreate — the latter was removed from the
-  // schema per Jobber's public changelog.
+  // clientCreateNote, NOT clientNoteCreate — the latter no longer exists in
+  // the schema (confirmed by live introspection on API 2025-04-16).
   assert.match(m, /clientCreateNote\(clientId: "Q2xpZW50LTE="/);
   assert.ok(!m.includes("clientNoteCreate"), m);
+  assert.match(m, /pinned: true/);
   assert.match(m, /userErrors \{ message path \}/);
 });
 

@@ -238,14 +238,14 @@ export function buildConsentNote(lead) {
 }
 
 export function buildNoteMutation(clientId, message) {
-  // Public changelog (2026-07 check): clientNoteCreate was REMOVED from the
-  // Mutation type; the surviving naming pattern is clientCreateNote /
-  // clientEditNote (clientEditNote also lost its clientId arg — edit keys on
-  // the note id, create still takes the client). Field-level shape still wants
-  // a GraphiQL introspection pass once a dev account exists; callers treat
-  // note failure as non-fatal either way.
+  // Confirmed by live GraphiQL introspection (API 2025-04-16, 2026-07-29):
+  // the mutation is clientCreateNote (clientNoteCreate no longer exists) and
+  // ClientCreateNoteInput = { message: String, attachments, pinned: Boolean,
+  // linkedTo }. pinned:true keeps the consent receipt at the top of the
+  // client's notes — it's the product's proof artifact, so it should lead.
+  // Callers treat note failure as non-fatal either way.
   return `mutation {
-  clientCreateNote(clientId: ${q(clientId)}, input: { message: ${q(message)} }) {
+  clientCreateNote(clientId: ${q(clientId)}, input: { message: ${q(message)}, pinned: true }) {
     clientNote { id }
     userErrors { message path }
   }
