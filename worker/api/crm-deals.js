@@ -54,6 +54,12 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, id }, {}, cors);
   }
 
+  if (b.delete) {
+    await env.DB.prepare("DELETE FROM deals WHERE id=?").bind(b.delete).run();
+    await addActivityV2(env, { actorId: actor, entityType: "deal", entityId: b.delete, action: "deleted" });
+    return json({ ok: true }, {}, cors);
+  }
+
   if (!b.id) return json({ error: "id_required" }, { status: 400 }, cors);
   const allowed = ["close_probability", "expected_close_date", "value_cents", "lead_status", "title", "owner_id"];
   const sets = [], vals = [];
