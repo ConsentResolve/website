@@ -173,7 +173,10 @@ async function enrollContact(env, { contactId, conversationId, dealId, source })
   await ensureRebuildSchema(env); await ensureCrmV2Schema(env);
   const c = await loadContact(env, contactId);
   if (!c) return { skipped: "no_contact" };
-  if (c.source === "apollo") return { skipped: "identified_no_outreach" }; // consent guardrail
+  // Note: the former source==='apollo' outreach block was removed 2026-07-29 at the
+  // owner's direction — identified visitors accepted the cookie banner (lawful basis
+  // captured), so identified/prospected leads are eligible for automation. The
+  // suppression (opted-out) and already-enrolled checks below still apply.
   if (await isSuppressed(env, { contactId, email: c.email, channel: "all" })) return { skipped: "suppressed" };
   const st = await consentState(env, { contactId, email: c.email });
   const workflowId = st.sms === "granted" ? "speed-to-lead" : "earn-consent";
