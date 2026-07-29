@@ -12,7 +12,9 @@
 // Idempotent: upsertLead is keyed on email (ON CONFLICT), and we only log an
 // "identified" activity for genuinely new leads, so re-delivering the same daily
 // CSV never duplicates leads or spams the timeline.
-import { upsertLead, addActivity, ensureCrmSchema } from "../_lib/crm.js";
+import { upsertLead, addActivity, ensureCrmSchema, crmAuthed } from "../_lib/crm.js";
+import { gAccessToken } from "../_lib/gmail.js";
+import { json, corsHeaders } from "../_lib/http.js";
 
 // ---- raw email -> text --------------------------------------------------------
 async function streamToText(stream) {
@@ -194,4 +196,104 @@ export async function handleRb2bEmail(message, env) {
   } catch (err) {
     console.log(`[rb2b-email] error: ${String(err).slice(0, 200)}`);
   }
+}
+
+// ---- Gmail path (the one we actually use) -------------------------------------
+// consentresolve.com's MX points to Google Workspace, so Cloudflare Email Routing
+// can't receive mail without hijacking the whole domain's email. Instead, RB2B
+// emails hello@consentresolve.com (already Gmail-OAuth connected) and we pull the
+// daily CSV attachment via the Gmail API — reusing ingestRb2bCsv() verbatim.
+function decodeB64UrlToText(d) {
+  try {
+    const bin = atob(String(d || "").replace(/-/g, "+").replace(/_/g, "/"));
+    const b = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+    return new TextDecoder("utf-8").decode(b);
+  } catch (_) { return ""; }
+}
+
+function collectParts(payload) {
+  const out = [];
+  (function walk(p) { if (!p) return; out.push(p); (p.parts || []).forEach(walk); })(payload);
+  return out;
+}
+
+async function fetchGmailAttachment(tok, msgId, attId) {
+  const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}/attachments/${attId}`,
+    { headers: { Authorization: "Bearer " + tok } });
+  const j = await r.json();
+  return j && j.data ? decodeB64UrlToText(j.data) : null;
+}
+
+// Poll the connected inbox(es) for RB2B's CSV email and ingest the attachment.
+// Idempotent twice over: a rb2b_seen guard skips already-processed Gmail messages,
+// and ingestRb2bCsv upserts by email so a re-run never duplicates leads.
+export async function pollRb2bGmail(env) {
+  if (!env.DB) return { error: "no_db" };
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS rb2b_seen (msg_id TEXT PRIMARY KEY, processed_at TEXT)").run();
+  const accounts = (env.CRM_INBOX_EMAILS || "hello@consentresolve.com")
+    .split(/[,\s]+/).map((s) => s.trim().toLowerCase()).filter(Boolean);
+  // Sender gate so an unrelated CSV email never gets ingested as leads.
+  const senders = (env.RB2B_FROM_ALLOW || "rb2b,retention.com,getemails")
+    .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  const query = env.RB2B_GMAIL_QUERY || "has:attachment filename:csv newer_than:8d";
+  const now = new Date().toISOString();
+  let ingested = 0, processed = 0, scanned = 0;
+  const detail = [];
+  for (const account of accounts) {
+    const tok = await gAccessToken(env, account);
+    if (!tok) { detail.push({ account, error: "no_token" }); continue; }
+    const lr = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=25&q=" + encodeURIComponent(query),
+      { headers: { Authorization: "Bearer " + tok } });
+    const lj = await lr.json();
+    if (lj.error) { detail.push({ account, error: (lj.error && lj.error.message) || "list_failed" }); continue; }
+    for (const ref of (lj.messages || [])) {
+      scanned++;
+      const already = await env.DB.prepare("SELECT msg_id FROM rb2b_seen WHERE msg_id=?").bind(ref.id).first();
+      if (already) continue;
+      const mr = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/" + ref.id + "?format=full",
+        { headers: { Authorization: "Bearer " + tok } });
+      const m = await mr.json();
+      if (m.error) continue;
+      const headers = (m.payload && m.payload.headers) || [];
+      const from = String((headers.find((h) => h.name.toLowerCase() === "from") || {}).value || "").toLowerCase();
+      // Not from RB2B — remember it so we don't full-fetch it again, then skip.
+      if (senders.length && !senders.some((s) => from.includes(s))) {
+        await env.DB.prepare("INSERT OR IGNORE INTO rb2b_seen (msg_id, processed_at) VALUES (?,?)").bind(ref.id, now).run();
+        continue;
+      }
+      let csv = null, filename = null;
+      for (const p of collectParts(m.payload)) {
+        const fn = p.filename || "";
+        const isCsv = /\.csv$/i.test(fn) || /csv/i.test(p.mimeType || "");
+        if (!isCsv) continue;
+        if (p.body && p.body.attachmentId) csv = await fetchGmailAttachment(tok, ref.id, p.body.attachmentId);
+        else if (p.body && p.body.data) csv = decodeB64UrlToText(p.body.data);
+        if (csv) { filename = fn; break; }
+      }
+      if (csv) {
+        const out = await ingestRb2bCsv(env, csv, { from });
+        ingested += out.ingested || 0;
+        processed++;
+        detail.push({ account, msg: ref.id, filename, ingested: out.ingested, skipped: out.skipped, rows: out.rows, error: out.error });
+      }
+      await env.DB.prepare("INSERT OR IGNORE INTO rb2b_seen (msg_id, processed_at) VALUES (?,?)").bind(ref.id, now).run();
+    }
+  }
+  return { ingested, processed, scanned, detail };
+}
+
+export async function onRequestOptions({ request, env }) {
+  return new Response(null, { status: 204, headers: corsHeaders(request, env) });
+}
+
+export async function onRequestGet({ request, env }) {
+  const cors = corsHeaders(request, env);
+  if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
+  const u = new URL(request.url);
+  if (u.searchParams.get("run") || u.searchParams.get("test")) {
+    const out = await pollRb2bGmail(env);
+    return json({ ok: !out.error, ...out }, out.error ? { status: 502 } : {}, cors);
+  }
+  return json({ ok: true, usage: "?run=1 to poll the connected inbox for RB2B's CSV attachment and import it" }, {}, cors);
 }

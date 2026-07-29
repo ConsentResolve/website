@@ -125,6 +125,7 @@ const ROUTES = {
   "/api/crm/apollo": crmApollo,
   "/api/crm/apollo/sync": crmApolloSync,
   "/api/crm/cr/sync": crOwnSync,
+  "/api/crm/rb2b/poll": rb2bEmail,
   "/api/crm/social/scores": crmSocialScores,
   "/api/crm/social/promote": crmSocialPromote,
   "/api/crm/gbp/auth": crmGbpAuth,
@@ -319,6 +320,14 @@ export default {
         if (out && out.synced) console.log(`[cr-own] synced ${out.synced} new (${out.skipped} skipped)`);
       } catch (err) {
         console.log(`[cr-own] sync error: ${String(err).slice(0, 160)}`);
+      }
+      // RB2B daily CSV — pull the attachment from the connected Gmail inbox and import
+      // it. No-op until a Gmail account (default hello@) is connected. Idempotent.
+      try {
+        const out = await rb2bEmail.pollRb2bGmail(env);
+        if (out && out.ingested) console.log(`[rb2b] imported ${out.ingested} from ${out.processed} CSV email(s)`);
+      } catch (err) {
+        console.log(`[rb2b] gmail poll error: ${String(err).slice(0, 160)}`);
       }
       // Unified inbox: pull new mail for the configured mailbox(es). No-op until a
       // CRM_INBOX_EMAILS account (default hello@) is Gmail-OAuth connected.
