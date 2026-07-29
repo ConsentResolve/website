@@ -61,7 +61,10 @@ async function domainsFromLabel(env, labelId, cap) {
 }
 
 async function peopleAtDomain(env, domain, titles, perPage) {
-  const r = await apolloPost(env, "mixed_people/search", {
+  // mixed_people/search was deprecated for API callers -> use api_search. It returns
+  // a MASKED preview (first_name, title, org.name, id, has_email) and no email/last
+  // name until you enrich by id.
+  const r = await apolloPost(env, "mixed_people/api_search", {
     q_organization_domains: domain, person_titles: titles, page: 1, per_page: perPage || 5,
   });
   return { error: r.error, total: (r.data.pagination || {}).total_entries || 0, people: r.data.people || [] };
@@ -71,7 +74,7 @@ const usableEmail = (e) =>
   !!e && e.includes("@") && !/^email_not_unlocked/i.test(e) && !/@domain\.com$/i.test(e);
 
 async function enrichPerson(env, person) {
-  // reveal the unlocked email for a person we found via search (costs 1 credit)
+  // reveal full name + email for a person we found via api_search (costs 1 credit)
   const r = await apolloPost(env, "people/match", { id: person.id, reveal_personal_emails: false });
   return r.data.person || null;
 }
@@ -114,21 +117,27 @@ export async function onRequestGet({ request, env }) {
     if (s.error) { searchErr = s.error; results.push({ domain: c.domain, name: c.name, error: s.error }); continue; }
     const people = [];
     for (const p of s.people) {
-      let person = p, email = p.email;
-      if (enrich && !usableEmail(email)) {
-        const e = await enrichPerson(env, p);
-        if (e) { person = e; email = e.email; enriched++; credits++; }
-      }
+      // api_search gives a masked preview: first_name + title + org, and has_email.
+      const company = (p.organization && p.organization.name) || c.name || null;
       const rec = {
-        name: person.name, title: person.title, seniority: person.seniority || null,
-        email: usableEmail(email) ? email : null, email_status: person.email_status || null,
-        linkedin: person.linkedin_url || null,
+        name: p.first_name || null, title: p.title || null,
+        company, email: null, email_available: !!p.has_email, apollo_id: p.id || null,
+        linkedin: null,
       };
+      // Reveal full name + email only when explicitly enriching (and one exists).
+      if (enrich && p.has_email) {
+        const e = await enrichPerson(env, p);
+        if (e) {
+          enriched++; credits++;
+          rec.name = e.name || rec.name;
+          rec.linkedin = e.linkedin_url || null;
+          if (usableEmail(e.email)) rec.email = e.email;
+        }
+      }
       people.push(rec); found++;
       if (run && rec.email) {
-        const company = (person.organization && person.organization.name) || c.name || null;
         const id = await upsertLead(env, {
-          source: "apollo", email: rec.email, name: rec.name || null, company, domain: c.domain,
+          source: "apollo", email: rec.email, name: rec.name || null, company: rec.company, domain: c.domain,
           consent_status: "identified",
           notes: [rec.title, rec.linkedin ? "LinkedIn: " + rec.linkedin : ""].filter(Boolean).join(" · ") || null,
         });
