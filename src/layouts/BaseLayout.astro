@@ -5,6 +5,7 @@ import Nav from "~/components/sections/Nav.astro";
 import Footer from "~/components/sections/Footer.astro";
 import MobileStickyCTA from "~/components/sections/MobileStickyCTA.astro";
 import MobileProductStory from "~/components/sections/MobileProductStory.astro";
+import DemoWidget from "~/components/DemoWidget.astro";
 
 interface Props {
   title: string;
@@ -15,8 +16,12 @@ interface Props {
   ogImage?: string;
   ogType?: "website" | "article";
   schema?: unknown[];
+  /** Site-wide "See it live" demo widget. On by default; pass false on the demo pages
+   *  themselves and on /claim-50/ (the conversion page) so it doesn't distract. */
+  demoWidget?: boolean;
 }
 const props = Astro.props as Props;
+const showDemoWidget = props.demoWidget !== false;
 
 // Ad-platform pixels — only emitted when the ID env var is set (no-op otherwise).
 // Set in Cloudflare Pages env: PUBLIC_META_PIXEL_ID, PUBLIC_TIKTOK_PIXEL_ID.
@@ -193,5 +198,6 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <Footer />
     <MobileStickyCTA />
     <MobileProductStory />
+    {showDemoWidget && <DemoWidget />}
   </body>
 </html>
