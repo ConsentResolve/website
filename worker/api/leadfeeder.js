@@ -20,16 +20,16 @@ const BASE = "https://api.leadfeeder.com";
 const TOK = (env) => String(env.LEADFEEDER_API_TOKEN || "").trim();
 
 async function lfGet(env, path) {
-  // Leadfeeder API v2 uses "Authorization: Token token=<TOKEN>".
-  const r = await fetch(BASE + path, { headers: { Authorization: "Token token=" + TOK(env), Accept: "application/json" } });
+  // New Leadfeeder/Dealfront API: base /v1, auth via the X-Api-Key header.
+  const r = await fetch(BASE + path, { headers: { "X-Api-Key": TOK(env), Accept: "application/json" } });
   let body = null; try { body = await r.json(); } catch (_) {}
   return { status: r.status, ok: r.ok, body };
 }
 
 async function resolveAccount(env) {
   if (env.LEADFEEDER_ACCOUNT_ID) return String(env.LEADFEEDER_ACCOUNT_ID).trim();
-  const r = await lfGet(env, "/accounts");
-  const data = (r.body && (r.body.data || r.body.accounts)) || [];
+  const r = await lfGet(env, "/v1/accounts");
+  const data = (r.body && r.body.data) || [];
   return data[0] ? (data[0].id || (data[0].attributes && data[0].attributes.id)) : null;
 }
 
@@ -39,16 +39,18 @@ const cleanDomain = (s) =>
 // ICP = home-services trades (matches our 17 trade verticals). Tune freely.
 const ICP_RE = /\b(hvac|air ?condition|heating|furnace|plumb|roof|electric|garage ?door|landscap|lawn|pest|extermin|pool|spa|clean|janitor|paint|floor|carpet|fenc|concrete|foundation|tree service|arborist|appliance repair|locksmith|restoration|water damage|remodel|contractor|mechanical|solar|drain|sewer|duct|insulation|handyman|pressure wash|window|gutter|deck|patio|irrigation|septic|home service)\b/i;
 
-function normalize(L) {
-  const a = L.attributes || L; // tolerate JSON:API {id,attributes} or flat
+function normalize(row) {
+  // /v1/web-visits/companies returns company_location rows: { company{...}, location{...} }.
+  const c = (row.company && (row.company.attributes || row.company)) || row.attributes || row;
+  const loc = row.location || c.location || {};
   return {
-    lf_id: L.id || a.id || null,
-    name: a.name || a.company_name || "",
-    domain: cleanDomain(a.website || a.domain || a.company_domain || ""),
-    industry: a.industry || a.industry_label || a.industry_name || "",
-    loc: [a.city, a.region || a.state, a.country].filter(Boolean).join(", "),
-    employees: a.employee_count || a.employees_range || a.size || null,
-    visits: a.visits || a.total_visits || a.page_views || null,
+    lf_id: (row.company && row.company.id) || row.id || c.id || null,
+    name: c.name || c.company_name || "",
+    domain: cleanDomain(c.root_domain || c.domain || c.website || c.company_domain || ""),
+    industry: c.industry || c.industry_label || c.industry_name || "",
+    loc: [loc.city, loc.region || loc.state, loc.country].filter(Boolean).join(", "),
+    employees: c.employee_count || c.employees || c.size || null,
+    visits: c.visits || row.visits || null,
   };
 }
 function isICP(c) {
@@ -60,10 +62,10 @@ function ymd(d) { return d.toISOString().slice(0, 10); }
 async function fetchCompanies(env, accountId, days) {
   const end = new Date();
   const start = new Date(Date.now() - (days || 7) * 864e5);
-  const qs = `start_date=${ymd(start)}&end_date=${ymd(end)}&page[size]=100`;
-  const r = await lfGet(env, `/accounts/${accountId}/leads?${qs}`);
+  const qs = `account_id=${encodeURIComponent(accountId)}&start_date=${ymd(start)}&end_date=${ymd(end)}&include=company`;
+  const r = await lfGet(env, `/v1/web-visits/companies?${qs}`);
   if (!r.ok) return { error: `API ${r.status}: ${JSON.stringify(r.body).slice(0, 200)}`, status: r.status };
-  const rows = (r.body && (r.body.data || r.body.leads)) || (Array.isArray(r.body) ? r.body : []);
+  const rows = (r.body && r.body.data) || (Array.isArray(r.body) ? r.body : []);
   return { rows: rows.map(normalize) };
 }
 
