@@ -9,10 +9,13 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed, upsertLead, addActivity, ensureCrmSchema } from "../_lib/crm.js";
 
 async function apolloSearch(env, page, perPage, extra) {
-  const body = Object.assign({ api_key: env.APOLLO_API_KEY, page: page || 1, per_page: perPage || 25 }, extra || {});
+  // Trim: a trailing newline baked into the secret (common with `security ... -w |
+  // wrangler secret put`) makes a valid key 401. outreach.js trims for this reason too.
+  const key = String(env.APOLLO_API_KEY || "").trim();
+  const body = Object.assign({ api_key: key, page: page || 1, per_page: perPage || 25 }, extra || {});
   const res = await fetch("https://api.apollo.io/api/v1/contacts/search", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json", "Cache-Control": "no-cache", "X-Api-Key": env.APOLLO_API_KEY },
+    headers: { "Content-Type": "application/json", Accept: "application/json", "Cache-Control": "no-cache", "X-Api-Key": key },
     body: JSON.stringify(body),
   });
   let data = null; try { data = await res.json(); } catch (_) {}
