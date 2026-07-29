@@ -409,7 +409,11 @@ export async function onRequestPost({ request, env }) {
 
   const status = ["open", "snoozed", "archived"].includes(b.status) ? b.status : "open";
   let snooze = null;
-  if (status === "snoozed") snooze = new Date(Date.now() + (Number(b.snooze_days) || 3) * 86400000).toISOString();
+  if (status === "snoozed") {
+    // Precise reminder time (ISO) preferred — e.g. "call back tomorrow 10am"; else fall back to N days.
+    if (b.snooze_until && !isNaN(Date.parse(b.snooze_until))) snooze = new Date(b.snooze_until).toISOString();
+    else snooze = new Date(Date.now() + (Number(b.snooze_days) || 3) * 86400000).toISOString();
+  }
   await env.DB.prepare(
     "UPDATE conversations SET status=?, snooze_until=?, updated_at=datetime('now') WHERE id=?"
   ).bind(status, snooze, b.id).run();

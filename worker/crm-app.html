@@ -832,6 +832,34 @@ html,body{height:100%}
   .am-btn.go{background:var(--accent);border-color:var(--accent);color:#fff}
   .am-btn.go:hover{filter:brightness(.96)}
   .am-btn.go:disabled{opacity:.5;cursor:not-allowed}
+
+  /* Reminder picker + Reminders view */
+  .rm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 14px}
+  .rm-quick{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);font-size:13.5px;font-weight:700;color:var(--tx-1);cursor:pointer;text-align:left}
+  .rm-quick:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .rm-quick b{display:block;font-size:10.5px;font-weight:600;color:var(--tx-3);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+  .rm-custom{display:flex;gap:8px;align-items:center}
+  .rm-custom input{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface-1);color:var(--tx-1);font-size:13px}
+  .rm-hdr-btn{align-self:flex-end;display:inline-flex;align-items:center;gap:5px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:5px 12px;cursor:pointer;font-size:var(--t-12);font-weight:700;color:var(--tx-1);white-space:nowrap}
+  .rm-hdr-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .row .rmchip{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:var(--r-full);background:var(--surface-3);color:var(--tx-2);margin-left:6px;font-family:var(--font-mono)}
+  .row .rmchip.due{background:var(--bad-soft);color:var(--bad)}
+  .rmview{padding:20px 24px;overflow:auto;height:100%}
+  .rmview h2{margin:0 0 3px;font-size:20px;font-weight:800;color:var(--tx-1)}
+  .rmview .sub{color:var(--tx-3);font-size:13px;margin-bottom:14px}
+  .rm-sec{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--tx-3);margin:20px 0 9px}
+  .rm-sec.overdue{color:var(--bad)}
+  .rm-item{display:flex;align-items:center;gap:14px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:var(--surface-1)}
+  .rm-item.due{border-color:var(--bad);background:var(--bad-soft)}
+  .rm-when{flex:0 0 150px;font-family:var(--font-mono);font-size:12.5px;font-weight:800;color:var(--accent)}
+  .rm-item.due .rm-when{color:var(--bad)}
+  .rm-who{flex:1;min-width:0}
+  .rm-who .nm{font-weight:700;font-size:14px;color:var(--tx-1)}
+  .rm-who .co{font-size:12px;color:var(--tx-3)}
+  .rm-acts{display:flex;gap:6px;flex:0 0 auto}
+  .rm-acts button{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:6px 13px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--tx-1)}
+  .rm-acts .done{color:var(--good);border-color:var(--good)}
+  .rm-empty{padding:44px;text-align:center;color:var(--tx-3);font-size:14px}
 </style>
 </head>
 <body>
@@ -868,6 +896,7 @@ html,body{height:100%}
   <div class="app">
     <nav class="rail">
       <a class="on" data-view="inbox" tabindex="0" onclick="showView('inbox')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span class="lbl">Inbox</span></a>
+      <a data-view="reminders" tabindex="0" onclick="showView('reminders')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="lbl">Reminders</span></a>
       <a data-view="pipeline" tabindex="0" onclick="showView('pipeline')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="5" height="16" rx="1.2"/><rect x="9.5" y="4" width="5" height="11" rx="1.2"/><rect x="15.5" y="4" width="5" height="6" rx="1.2"/></svg><span class="lbl">Pipeline</span></a>
       <a data-view="nurture" tabindex="0" onclick="showView('nurture')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V11"/><path d="M12 11C12 7 9.5 4.5 4.5 4.5c0 4 2.5 6.5 7.5 6.5z"/><path d="M12 9.5c0-3 2.2-5.5 6.5-5.5 0 3.2-2.3 5.5-6.5 5.5z"/></svg><span class="lbl">Nurture</span></a>
       <a data-view="sitespy" tabindex="0" onclick="showView('sitespy')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg><span class="lbl">Site Spy</span></a>
@@ -893,6 +922,7 @@ html,body{height:100%}
     <section class="thread" id="thread"></section>
     </div>
     <section class="pipeboard" id="pipelineview" hidden></section>
+    <section id="remindersview" hidden></section>
     <section class="nurtureview" id="nurtureview" hidden></section>
     <section class="nurtureview" id="sitespyview" hidden></section>
     <section class="seqview" id="sequencesview" hidden></section>
@@ -1459,10 +1489,10 @@ function renderList(filter){
     return `<button class="row ${c.id===sel?'sel':''} ${needsFix?'fix':''} ${c.bucket==='suppressed'?'dim':''}" onclick="select('${c.id}')">
       <div class="row-main">
         <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="clk calm" data-ts="${c.age_ts||''}" data-base="${AGE[c.id]||0}" data-wait="${(c.unread && c.bucket==='open')?'1':'0'}">⏱ …</span></div>
-        <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${stagePill}<span class="trollup ${tp.done===tp.total?'done':''}" title="Research & engagement tasks done">🗒 ${tp.done}/${tp.total}</span></div>
+        <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${stagePill}${c.snooze_until?`<span class="rmchip ${remOverdue(c.snooze_until)?'due':''}" title="Reminder">⏰ ${fmtRemWhen(c.snooze_until)}</span>`:''}<span class="trollup ${tp.done===tp.total?'done':''}" title="Research & engagement tasks done">🗒 ${tp.done}/${tp.total}</span></div>
       </div>
       <span class="rowacts">
-        <span class="ract" title="${c.bucket==='snoozed'?'Wake':'Snooze'}" onclick="event.stopPropagation();snoozeConv('${c.id}')">${c.bucket==='snoozed'?IC.wake:IC.snooze}</span>
+        <span class="ract" title="${c.bucket==='snoozed'?'Clear reminder':'Set reminder'}" onclick="event.stopPropagation();${c.bucket==='snoozed'?`wakeConv('${c.id}')`:`openRemind('${c.id}')`}">${c.bucket==='snoozed'?IC.wake:IC.snooze}</span>
         <span class="ract del" title="Delete" onclick="event.stopPropagation();deleteConv('${c.id}')">${IC.trash}</span>
       </span>
     </button>`;
@@ -1638,12 +1668,93 @@ function recount(){
 }
 /* snooze / delete a conversation */
 function curFilter(){return document.querySelector('.filters .on').dataset.f;}
-function snoozeConv(id){
-  const c=DATA.conversations.find(x=>x.id===id); if(!c)return;
-  if(c.bucket==='snoozed'){ c.bucket=c._prevBucket||'open'; }
-  else { c._prevBucket=c.bucket; c.bucket='snoozed'; }
-  recount(); renderList(curFilter());
+/* ---- Reminders (persisted snooze-until a specific time) ---- */
+function fmtRemWhen(iso){
+  const d=new Date(iso), now=new Date();
+  const sameDay=(a,b)=>a.toDateString()===b.toDateString();
+  const tmr=new Date(now); tmr.setDate(now.getDate()+1);
+  let day = sameDay(d,now)?'Today' : sameDay(d,tmr)?'Tomorrow' : d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+  return day+' '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
 }
+function remOverdue(iso){ return iso && new Date(iso).getTime()<=Date.now(); }
+async function postStatus(id, body){
+  try{ await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({id},body))}); }catch(_){}
+}
+function quickTime(kind){
+  const at=(base,h)=>{ base.setHours(h,0,0,0); return base; };
+  const d=new Date(); d.setSeconds(0,0);
+  if(kind==='2h'){ d.setHours(d.getHours()+2); d.setMinutes(0,0,0); return d; }
+  if(kind==='tmr9'){ d.setDate(d.getDate()+1); return at(d,9); }
+  if(kind==='tmr14'){ d.setDate(d.getDate()+1); return at(d,14); }
+  if(kind==='fri9'||kind==='mon9'){ const target=kind==='fri9'?5:1; const day=d.getDay(); let add=(target-day+7)%7; if(add===0)add=7; d.setDate(d.getDate()+add); return at(d,9); }
+  return d;
+}
+let _remId=null;
+function openRemind(id){
+  _remId=id;
+  const c=DATA.conversations.find(x=>x.id===id)||{};
+  document.getElementById('rmtitle').textContent='Remind me about '+(c.name||'this lead');
+  const dt=document.getElementById('rmcustom'); const n=new Date(Date.now()+3600000); n.setSeconds(0,0);
+  dt.value=new Date(n.getTime()-n.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  document.getElementById('remindmodal').classList.add('show');
+}
+function closeRemind(){ document.getElementById('remindmodal').classList.remove('show'); _remId=null; }
+function setRemindQuick(kind){ applyRemind(_remId, quickTime(kind).toISOString()); }
+function setRemindCustom(){ const v=document.getElementById('rmcustom').value; if(v) applyRemind(_remId, new Date(v).toISOString()); }
+function applyRemind(id, iso){
+  const c=DATA.conversations.find(x=>x.id===id); if(!c){ closeRemind(); return; }
+  if(c.bucket!=='snoozed') c._prevBucket=c.bucket;
+  c.bucket='snoozed'; c.snooze_until=iso;
+  postStatus(id,{status:'snoozed',snooze_until:iso});
+  recount(); renderList(curFilter());
+  if(document.getElementById('remindersview') && !document.getElementById('remindersview').hidden) renderReminders();
+  closeRemind();
+}
+function wakeConv(id){
+  const c=DATA.conversations.find(x=>x.id===id); if(!c)return;
+  c.bucket=c._prevBucket||'open'; c.snooze_until=null;
+  postStatus(id,{status:'open'});
+  recount(); renderList(curFilter());
+  if(document.getElementById('remindersview') && !document.getElementById('remindersview').hidden) renderReminders();
+}
+function renderReminders(){
+  const el=document.getElementById('remindersview'); if(!el) return;
+  const items=DATA.conversations.filter(c=>c.bucket==='snoozed'&&c.snooze_until).sort((a,b)=>new Date(a.snooze_until)-new Date(b.snooze_until));
+  const overdue=items.filter(c=>remOverdue(c.snooze_until)), upcoming=items.filter(c=>!remOverdue(c.snooze_until));
+  const row=c=>`<div class="rm-item ${remOverdue(c.snooze_until)?'due':''}">
+      <span class="rm-when">${remOverdue(c.snooze_until)?'⏰ DUE · ':''}${fmtRemWhen(c.snooze_until)}</span>
+      <div class="rm-who"><div class="nm">${esc(c.name||'Unknown')}</div><div class="co">${esc(c.company||'—')}</div></div>
+      <div class="rm-acts"><button class="open" onclick="openFromReminders('${c.id}')">Open</button><button class="done" onclick="wakeConv('${c.id}')">✓ Done</button></div>
+    </div>`;
+  el.innerHTML=`<div class="rmview">
+    <h2>Reminders</h2><div class="sub">Callbacks and follow-ups you've scheduled — overdue ones surface first.</div>
+    ${overdue.length?`<div class="rm-sec overdue">Due now (${overdue.length})</div>${overdue.map(row).join('')}`:''}
+    ${upcoming.length?`<div class="rm-sec">Upcoming (${upcoming.length})</div>${upcoming.map(row).join('')}`:''}
+    ${items.length?'':`<div class="rm-empty">📭 No reminders yet. Set one from any lead with the ⏰ Remind button.</div>`}
+  </div>`;
+}
+function openFromReminders(id){ showView('inbox'); select(id); }
+window.openRemind=openRemind;window.closeRemind=closeRemind;window.setRemindQuick=setRemindQuick;window.setRemindCustom=setRemindCustom;window.wakeConv=wakeConv;window.renderReminders=renderReminders;window.openFromReminders=openFromReminders;
+
+document.body.insertAdjacentHTML('beforeend', `
+  <div id="remindmodal" class="am-overlay" role="dialog" aria-modal="true" aria-labelledby="rmtitle">
+    <div class="am-card">
+      <div class="am-head"><h3 id="rmtitle">Remind me</h3><button class="am-x" onclick="closeRemind()" aria-label="Cancel">&times;</button></div>
+      <div class="am-lead">When should this lead pop back up?</div>
+      <div class="am-body">
+        <div class="rm-grid">
+          <button class="rm-quick" onclick="setRemindQuick('2h')">In 2 hours<b>later today</b></button>
+          <button class="rm-quick" onclick="setRemindQuick('tmr9')">Tomorrow 9 AM<b>morning</b></button>
+          <button class="rm-quick" onclick="setRemindQuick('tmr14')">Tomorrow 2 PM<b>afternoon</b></button>
+          <button class="rm-quick" onclick="setRemindQuick('fri9')">Friday 9 AM<b>end of week</b></button>
+          <button class="rm-quick" onclick="setRemindQuick('mon9')">Monday 9 AM<b>next week</b></button>
+        </div>
+        <div class="rm-custom"><input type="datetime-local" id="rmcustom"><button class="am-btn go" onclick="setRemindCustom()">Set</button></div>
+      </div>
+      <div class="am-foot"><button class="am-btn cancel" onclick="closeRemind()">Cancel</button></div>
+    </div>
+  </div>`);
+document.getElementById('remindmodal').addEventListener('click',e=>{ if(e.target.id==='remindmodal') closeRemind(); });
 function deleteConv(id){
   const i=DATA.conversations.findIndex(x=>x.id===id); if(i<0)return;
   DATA.conversations.splice(i,1); recount();
@@ -1653,7 +1764,7 @@ function deleteConv(id){
   else renderList(f);
   if(!document.getElementById('pipelineview').hidden) renderPipeline();
 }
-window.snoozeConv=snoozeConv;window.deleteConv=deleteConv;
+window.deleteConv=deleteConv;
 // Paused → apply immediately. Auto → gate behind an approval modal that previews the sequence.
 let _pendingAutoBtn = null;
 function setAuto(btn,mode){
@@ -1941,8 +2052,9 @@ function updatePipe(){
 /* ---- view switching (Inbox ⇄ Pipeline) ---- */
 function showView(v){
   document.querySelectorAll('.rail a[data-view]').forEach(a=>a.classList.toggle('on', a.dataset.view===v));
-  const views={inbox:'inboxview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview'};
+  const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview'};
   Object.entries(views).forEach(([k,id])=>{const el=document.getElementById(id); if(el) el.hidden=k!==v;});
+  if(v==='reminders')renderReminders();
   if(v==='pipeline')renderPipeline();
   if(v==='nurture')renderNurture();
   if(v==='sitespy')renderSiteSpy();
@@ -2522,7 +2634,7 @@ function select(id){
             <span class="sep">·</span>${phoneCm}
           </div>
         </div>
-        <div class="hdr-right">${ownerEl}${autoControl(c)}</div>
+        <div class="hdr-right"><button class="rm-hdr-btn" onclick="openRemind('${c.id}')" title="Set a callback / follow-up reminder">⏰ Remind</button>${ownerEl}${autoControl(c)}</div>
       </div>
       <div class="stagebar ${stageMeta.c}"><span class="sb-ic">${stageMeta.ic}</span><span class="sb-lab">Stage</span><span class="sb-val">${esc(c.lifecycle)}</span></div>
       <div class="tabs">

@@ -145,7 +145,7 @@ export async function onRequestGet({ request, env }) {
 
   // ---- Inbox conversations (DATA.conversations shape) ----
   const convRows = (await env.DB.prepare(
-    `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview,
+    `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until,
             ct.id contact_id, ct.full_name, ct.primary_email, ct.source, ct.lifecycle_stage, co.name company
        FROM conversations cv
        LEFT JOIN contacts ct ON ct.id = cv.contact_id
@@ -200,6 +200,7 @@ export async function onRequestGet({ request, env }) {
       initials: inits(r.full_name), lifecycle: lifeMap[r.lifecycle_stage] || "Lead",
       hot: false, unread, ts: humanTime(r.last_message_at) || "—",
       age_ts: r.last_message_at ? Date.parse(r.last_message_at) : null,   // real arrival epoch → timer survives refresh
+      snooze_until: r.snooze_until || null,                               // reminder due time (ISO) when snoozed
       email_subject: channel === "email" ? (r.subject || "") : undefined,
       task: unread ? { tag: "do", text: "New message — reply.", cta: "Reply" } : { tag: "auto", text: "No action needed right now.", cta: "" },
       last: { label: r.last_message_preview || "Activity on this conversation", ts: humanTime(r.last_message_at) || "—", tone: "info" },
