@@ -3,7 +3,7 @@
 // Keys are paths with NO trailing slash; the handler normalizes before lookup.
 // General site path redirects (retired pages -> canonical). Keys have NO trailing slash.
 export const PATH_REDIRECTS = {
-  "/demo": "/claim-50/", // retired the "Book a Walkthrough" lander; /demo/sample/ (Live Demo) is unaffected
+  "/claim-50": "/demo/", // the book-a-meeting funnel now lives at /demo/; old /claim-50/ links redirect here
 };
 
 export const BLOG_REDIRECTS = {

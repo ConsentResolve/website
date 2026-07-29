@@ -36,10 +36,10 @@ export async function onRequestPost({ request, env, waitUntil }) {
 
     // Consent records (email required for the normal flow; SMS is the PEWC opt-in).
     if (emailConsent) {
-      await recordConsent(env, { contactId, email, channel: "email", action: "granted", basis: b.type === "exit_report" ? "report request" : "web form", captureMethod: "claim50_form", sourceUrl: "https://consentresolve.com/claim-50/", ip, userAgent: ua, source: "claim50" }).catch(() => {});
+      await recordConsent(env, { contactId, email, channel: "email", action: "granted", basis: b.type === "exit_report" ? "report request" : "web form", captureMethod: "claim50_form", sourceUrl: "https://consentresolve.com/demo/", ip, userAgent: ua, source: "claim50" }).catch(() => {});
     }
     if (smsConsent && phone) {
-      await recordConsent(env, { contactId, phone, channel: "sms", action: "granted", basis: "PEWC", disclosureText: SMS_CONSENT_DISCLOSURE, captureMethod: "claim50_form", sourceUrl: "https://consentresolve.com/claim-50/", ip, userAgent: ua, source: "claim50" }).catch(() => {});
+      await recordConsent(env, { contactId, phone, channel: "sms", action: "granted", basis: "PEWC", disclosureText: SMS_CONSENT_DISCLOSURE, captureMethod: "claim50_form", sourceUrl: "https://consentresolve.com/demo/", ip, userAgent: ua, source: "claim50" }).catch(() => {});
     }
 
     // Inbox conversation + message with all the qualifier/estimate/attribution context.

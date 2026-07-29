@@ -62,7 +62,7 @@ export const FOOTER_NAV = {
   product: [
     { label: "Features", href: "/features/" },
     { label: "How It Works", href: "/how-it-works/" },
-    { label: "Book a Walkthrough", href: "/claim-50/" },
+    { label: "Book a Walkthrough", href: "/demo/" },
     { label: "Live Demo", href: "/demo/sample/" },
     { label: "Channel ROI", href: "/resources/compare/" },
     { label: "Pricing", href: "/pricing/" },

@@ -1,275 +1,72 @@
 ---
-// Site-wide "See it live" demo widget: a quiet edge tab (desktop) / floating pill
-// (mobile) that opens a slide-over drawer with a curated ~13s auto-play highlight of the
-// product's money-shot — anonymous visitor → consents → identified → lead lands in the
-// inbox — ending on a CTA to /claim-50/. No auto-popup; opens only on click. The full
-// clickable demo still lives at /demo/. Respects prefers-reduced-motion + keyboard.
-const CLAIM = "/claim-50/?ref=demo-widget";
+// Site-wide "See it live" launcher: a prominent edge tab (desktop) / floating pill (mobile)
+// that opens the interactive Live Demo (/demo/sample/) in a NEW WINDOW. It sends people
+// straight to the real product demo rather than a curated in-page version. Suppressed on the
+// /demo/* pages themselves via the BaseLayout `demoWidget` prop.
+const DEMO = "/demo/sample/";
 ---
-<div class="cr-dw" data-open="false">
-  <!-- Launcher: desktop edge tab -->
-  <button type="button" class="cr-dw-tab" aria-haspopup="dialog" aria-controls="cr-dw-panel" aria-expanded="false">
+<div class="cr-dw">
+  <!-- Desktop edge tab -->
+  <a class="cr-dw-tab" href={DEMO} target="_blank" rel="noopener" data-demo-launch aria-label="See the live demo (opens in a new tab)">
     <span class="cr-dw-dot" aria-hidden="true"></span>
     <span class="cr-dw-tab-label">See it live</span>
-  </button>
+  </a>
 
-  <!-- Launcher: mobile pill -->
-  <button type="button" class="cr-dw-pill" aria-haspopup="dialog" aria-controls="cr-dw-panel" aria-expanded="false">
-    <span class="cr-dw-dot" aria-hidden="true"></span> Demo
-  </button>
-
-  <!-- Backdrop + drawer -->
-  <div class="cr-dw-backdrop" hidden></div>
-  <aside id="cr-dw-panel" class="cr-dw-panel" role="dialog" aria-modal="true" aria-label="Live product demo" hidden>
-    <header class="cr-dw-head">
-      <div class="cr-dw-head-title">
-        <span class="cr-dw-livedot" aria-hidden="true"></span>
-        <strong>Live demo</strong>
-        <span class="cr-dw-head-sub">60 seconds, no signup</span>
-      </div>
-      <button type="button" class="cr-dw-close" aria-label="Close demo">&times;</button>
-    </header>
-
-    <!-- Stage: scenes cross-fade based on [data-step] -->
-    <div class="cr-dw-stage" data-step="0" aria-live="polite">
-      <!-- The simulated contractor site (browser) -->
-      <div class="cr-dw-browser">
-        <div class="cr-dw-bar">
-          <span class="cr-dw-dots"><i></i><i></i><i></i></span>
-          <span class="cr-dw-url">acmeplumbing.com</span>
-        </div>
-        <div class="cr-dw-view">
-          <!-- Visitor avatar card -->
-          <div class="cr-dw-visitor">
-            <div class="cr-dw-ava">
-              <span class="cr-dw-ava-q">?</span>
-              <img class="cr-dw-ava-face" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%23134E4A'/%3E%3Ccircle cx='32' cy='25' r='11' fill='%2399F6E4'/%3E%3Crect x='14' y='40' width='36' height='20' rx='10' fill='%2399F6E4'/%3E%3C/svg%3E" alt="" />
-              <span class="cr-dw-ava-check" aria-hidden="true">&#10003;</span>
-            </div>
-            <div class="cr-dw-vmeta">
-              <div class="cr-dw-vname"><span class="dw-anon">Anonymous visitor</span><span class="dw-known">Sarah Mitchell</span></div>
-              <div class="cr-dw-vsub"><span class="dw-anon">Browsing your site — 98% leave without a trace</span><span class="dw-known">sarah.mitchell@gmail.com &middot; Austin, TX</span></div>
-            </div>
-          </div>
-
-          <!-- Consent banner (rises in step 1) -->
-          <div class="cr-dw-consent">
-            <p>We use cookies to improve your experience.</p>
-            <span class="cr-dw-accept">Accept</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Inbox notification (slides in step 3) -->
-      <div class="cr-dw-notif">
-        <div class="cr-dw-notif-ico" aria-hidden="true">&#128276;</div>
-        <div class="cr-dw-notif-body">
-          <div class="cr-dw-notif-t">New lead in your inbox</div>
-          <div class="cr-dw-notif-s">Sarah Mitchell &middot; Kitchen remodel</div>
-        </div>
-      </div>
-
-      <!-- Step caption -->
-      <p class="cr-dw-cap">
-        <span data-cap="0">An anonymous homeowner lands on your site.</span>
-        <span data-cap="1">They accept consent — with a signed audit trail.</span>
-        <span data-cap="2">Consent Resolve identifies them: name + email.</span>
-        <span data-cap="3">The exclusive lead lands in your inbox instantly.</span>
-        <span data-cap="4">That’s a booked-job lead you’d have lost.</span>
-      </p>
-    </div>
-
-    <footer class="cr-dw-foot">
-      <a class="cr-dw-cta" href={CLAIM}>See it on your own site →</a>
-      <button type="button" class="cr-dw-replay" hidden>↻ Replay</button>
-    </footer>
-  </aside>
+  <!-- Mobile pill -->
+  <a class="cr-dw-pill" href={DEMO} target="_blank" rel="noopener" data-demo-launch aria-label="See the live demo (opens in a new tab)">
+    <span class="cr-dw-dot" aria-hidden="true"></span> Live demo
+  </a>
 </div>
 
 <style>
   .cr-dw { --dw-navy: var(--color-navy-900, #0A1628); --dw-mint: var(--color-brand, #00E5A0); }
 
-  /* ---- Launchers ---- */
+  /* Desktop edge tab — 2× the previous size */
   .cr-dw-tab {
     position: fixed; right: 0; top: 50%; transform: translateY(-50%);
-    z-index: 60; display: inline-flex; align-items: center; gap: 8px;
-    padding: 12px 10px; border: 0; cursor: pointer;
+    z-index: 60; display: inline-flex; align-items: center; gap: 14px;
+    padding: 26px 18px; text-decoration: none;
     background: var(--dw-navy); color: #fff;
-    border-radius: 12px 0 0 12px; box-shadow: -6px 8px 24px rgba(10,22,40,.28);
+    border-radius: 18px 0 0 18px; box-shadow: -8px 10px 32px rgba(10,22,40,.34);
     writing-mode: vertical-rl; text-orientation: mixed;
-    font: 600 13px/1 var(--font-sans, system-ui); letter-spacing: .02em;
-    transition: transform .25s cubic-bezier(.22,1,.36,1), background .2s;
+    font: 700 20px/1 var(--font-sans, system-ui); letter-spacing: .01em;
+    transition: transform .25s cubic-bezier(.22,1,.36,1), background .2s, box-shadow .2s;
   }
-  .cr-dw-tab:hover { background: #12233d; transform: translateY(-50%) translateX(-3px); }
+  .cr-dw-tab:hover { background: #12233d; transform: translateY(-50%) translateX(-4px); box-shadow: -12px 12px 40px rgba(10,22,40,.4); }
+  .cr-dw-tab:focus-visible { outline: 3px solid var(--dw-mint); outline-offset: 2px; }
   .cr-dw-tab-label { rotate: 180deg; }
-  .cr-dw-pill { display: none; }
 
-  .cr-dw-dot, .cr-dw-livedot {
-    width: 8px; height: 8px; border-radius: 50%; background: var(--dw-mint);
+  .cr-dw-dot {
+    width: 13px; height: 13px; border-radius: 50%; background: var(--dw-mint); flex: none;
     box-shadow: 0 0 0 0 rgba(0,229,160,.6); animation: cr-dw-pulse 2.4s infinite;
   }
-  @keyframes cr-dw-pulse { 0%{box-shadow:0 0 0 0 rgba(0,229,160,.55)} 70%{box-shadow:0 0 0 8px rgba(0,229,160,0)} 100%{box-shadow:0 0 0 0 rgba(0,229,160,0)} }
+  @keyframes cr-dw-pulse { 0%{box-shadow:0 0 0 0 rgba(0,229,160,.55)} 70%{box-shadow:0 0 0 12px rgba(0,229,160,0)} 100%{box-shadow:0 0 0 0 rgba(0,229,160,0)} }
 
-  /* ---- Backdrop + panel ---- */
-  .cr-dw-backdrop {
-    position: fixed; inset: 0; z-index: 70; background: rgba(10,22,40,.5);
-    backdrop-filter: blur(2px); opacity: 0; transition: opacity .3s ease;
-  }
-  .cr-dw[data-open="true"] .cr-dw-backdrop { opacity: 1; }
-
-  .cr-dw-panel {
-    position: fixed; top: 0; right: 0; z-index: 71; height: 100dvh; width: min(400px, 92vw);
-    display: flex; flex-direction: column; background: var(--color-bg, #fff);
-    box-shadow: -18px 0 50px rgba(10,22,40,.28);
-    transform: translateX(100%); transition: transform .38s cubic-bezier(.22,1,.36,1);
-  }
-  .cr-dw[data-open="true"] .cr-dw-panel { transform: translateX(0); }
-
-  .cr-dw-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--color-rule, #e6e9ef); }
-  .cr-dw-head-title { display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--color-ink, #0A1628); }
-  .cr-dw-head-sub { color: var(--color-ink-2, #5b6472); font-weight: 500; font-size: 12.5px; }
-  .cr-dw-close { border: 0; background: transparent; font-size: 26px; line-height: 1; color: var(--color-ink-2, #5b6472); cursor: pointer; padding: 0 4px; }
-  .cr-dw-close:hover { color: var(--color-ink, #0A1628); }
-
-  /* ---- Stage ---- */
-  .cr-dw-stage { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px 18px; background: linear-gradient(180deg, #f6f8fb, #eef2f7); overflow: hidden; }
-
-  .cr-dw-browser { background: var(--dw-navy); border-radius: 14px; overflow: hidden; box-shadow: 0 14px 34px rgba(10,22,40,.24); }
-  .cr-dw-bar { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: #0e1f38; }
-  .cr-dw-dots { display: inline-flex; gap: 5px; }
-  .cr-dw-dots i { width: 9px; height: 9px; border-radius: 50%; background: #2c3e5a; }
-  .cr-dw-url { font: 500 12px var(--font-sans, system-ui); color: #8aa0bd; }
-  .cr-dw-view { position: relative; padding: 20px 16px 18px; min-height: 168px; }
-
-  .cr-dw-visitor { display: flex; align-items: center; gap: 13px; transition: transform .5s cubic-bezier(.22,1,.36,1); }
-  .cr-dw-ava { position: relative; width: 52px; height: 52px; flex: none; border-radius: 50%; background: #172a46; display: grid; place-items: center; overflow: hidden; box-shadow: 0 0 0 1px rgba(153,246,228,.18) inset; }
-  .cr-dw-ava-q { font: 800 22px var(--font-sans, system-ui); color: #4d6488; transition: opacity .4s; }
-  .cr-dw-ava-face { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transform: scale(.85); transition: opacity .5s, transform .5s cubic-bezier(.22,1,.36,1); }
-  .cr-dw-ava-check { position: absolute; right: -2px; bottom: -2px; width: 20px; height: 20px; border-radius: 50%; background: var(--dw-mint); color: var(--dw-navy); font-size: 12px; font-weight: 800; display: grid; place-items: center; opacity: 0; transform: scale(.4); transition: opacity .35s, transform .35s cubic-bezier(.34,1.56,.64,1); box-shadow: 0 0 0 3px var(--dw-navy); }
-  .cr-dw-vmeta { min-width: 0; }
-  .cr-dw-vname { font: 700 15px var(--font-sans, system-ui); color: #fff; }
-  .cr-dw-vsub { font: 500 12.5px var(--font-sans, system-ui); color: #8aa0bd; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cr-dw-vname .dw-known, .cr-dw-vsub .dw-known { display: none; }
-
-  .cr-dw-consent { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; background: #fff; border-radius: 10px; box-shadow: 0 8px 22px rgba(0,0,0,.28); transform: translateY(140%); opacity: 0; transition: transform .45s cubic-bezier(.22,1,.36,1), opacity .3s; }
-  .cr-dw-consent p { margin: 0; font: 500 11.5px var(--font-sans, system-ui); color: #3a4658; }
-  .cr-dw-accept { flex: none; padding: 6px 12px; border-radius: 7px; background: var(--dw-navy); color: #fff; font: 700 11.5px var(--font-sans, system-ui); transition: background .2s, transform .2s; }
-
-  .cr-dw-notif { display: flex; align-items: center; gap: 11px; max-width: 100%; padding: 13px 14px; background: #fff; border: 1px solid var(--color-rule, #e6e9ef); border-radius: 12px; box-shadow: 0 10px 26px rgba(10,22,40,.12); transform: translateX(120%); opacity: 0; transition: transform .5s cubic-bezier(.22,1,.36,1), opacity .3s; }
-  .cr-dw-notif-ico { width: 38px; height: 38px; flex: none; border-radius: 10px; background: color-mix(in oklab, var(--dw-mint) 18%, #fff); display: grid; place-items: center; font-size: 18px; }
-  .cr-dw-notif-body { min-width: 0; }
-  .cr-dw-notif-t { font: 700 13.5px var(--font-sans, system-ui); color: var(--color-ink, #0A1628); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cr-dw-notif-s { font: 500 12.5px var(--font-sans, system-ui); color: var(--color-ink-2, #5b6472); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .cr-dw-cap { margin: 2px 0 0; min-height: 34px; font: 600 13.5px/1.35 var(--font-sans, system-ui); color: var(--color-ink, #0A1628); }
-  .cr-dw-cap span { display: none; }
-
-  /* ---- Step machine ---- */
-  .cr-dw-stage[data-step="1"] .cr-dw-consent { transform: translateY(0); opacity: 1; }
-  .cr-dw-stage[data-step="1"] .cr-dw-accept { background: var(--dw-mint); color: var(--dw-navy); transform: scale(1.06); }
-  .cr-dw-stage[data-step="2"] .cr-dw-ava-q,
-  .cr-dw-stage[data-step="3"] .cr-dw-ava-q,
-  .cr-dw-stage[data-step="4"] .cr-dw-ava-q { opacity: 0; }
-  .cr-dw-stage[data-step="2"] .cr-dw-ava-face,
-  .cr-dw-stage[data-step="3"] .cr-dw-ava-face,
-  .cr-dw-stage[data-step="4"] .cr-dw-ava-face { opacity: 1; transform: scale(1); }
-  .cr-dw-stage[data-step="2"] .cr-dw-ava-check,
-  .cr-dw-stage[data-step="3"] .cr-dw-ava-check,
-  .cr-dw-stage[data-step="4"] .cr-dw-ava-check { opacity: 1; transform: scale(1); }
-  .cr-dw-stage[data-step="3"] .cr-dw-notif,
-  .cr-dw-stage[data-step="4"] .cr-dw-notif { transform: translateX(0); opacity: 1; }
-
-  /* Identity reveal: swap anonymous → known name/email at step 2+ */
-  .cr-dw-stage[data-step="2"] .dw-anon,
-  .cr-dw-stage[data-step="3"] .dw-anon,
-  .cr-dw-stage[data-step="4"] .dw-anon { display: none; }
-  .cr-dw-stage[data-step="2"] .cr-dw-vname .dw-known,
-  .cr-dw-stage[data-step="3"] .cr-dw-vname .dw-known,
-  .cr-dw-stage[data-step="4"] .cr-dw-vname .dw-known,
-  .cr-dw-stage[data-step="2"] .cr-dw-vsub .dw-known,
-  .cr-dw-stage[data-step="3"] .cr-dw-vsub .dw-known,
-  .cr-dw-stage[data-step="4"] .cr-dw-vsub .dw-known { display: inline; }
-
-  .cr-dw-stage[data-step="0"] .cr-dw-cap span[data-cap="0"],
-  .cr-dw-stage[data-step="1"] .cr-dw-cap span[data-cap="1"],
-  .cr-dw-stage[data-step="2"] .cr-dw-cap span[data-cap="2"],
-  .cr-dw-stage[data-step="3"] .cr-dw-cap span[data-cap="3"],
-  .cr-dw-stage[data-step="4"] .cr-dw-cap span[data-cap="4"] { display: inline; }
-
-  /* Progress dots via footer replay visibility handled in JS */
-  .cr-dw-foot { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-top: 1px solid var(--color-rule, #e6e9ef); }
-  .cr-dw-cta { flex: 1; text-align: center; padding: 12px 16px; border-radius: 10px; background: var(--dw-mint); color: var(--dw-navy); font: 700 14px var(--font-sans, system-ui); text-decoration: none; transition: filter .2s, transform .2s; }
-  .cr-dw-cta:hover { filter: brightness(.95); transform: translateY(-1px); }
-  .cr-dw-replay { border: 0; background: transparent; color: var(--color-ink-2, #5b6472); font: 600 13px var(--font-sans, system-ui); cursor: pointer; }
-  .cr-dw-replay:hover { color: var(--color-ink, #0A1628); }
-
+  .cr-dw-pill { display: none; }
   @media (max-width: 640px) {
     .cr-dw-tab { display: none; }
-    .cr-dw-pill { display: inline-flex; align-items: center; gap: 7px; position: fixed; left: 14px; bottom: 84px; z-index: 60;
-      padding: 10px 15px; border: 0; cursor: pointer; border-radius: 999px; background: var(--dw-navy); color: #fff;
-      font: 700 13px var(--font-sans, system-ui); box-shadow: 0 8px 22px rgba(10,22,40,.3); }
+    .cr-dw-pill {
+      display: inline-flex; align-items: center; gap: 9px; position: fixed; left: 14px; bottom: 84px; z-index: 60;
+      padding: 14px 20px; text-decoration: none; border-radius: 999px; background: var(--dw-navy); color: #fff;
+      font: 700 16px var(--font-sans, system-ui); box-shadow: 0 8px 22px rgba(10,22,40,.32);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .cr-dw-tab, .cr-dw-panel, .cr-dw-backdrop, .cr-dw-visitor, .cr-dw-ava-face, .cr-dw-ava-check, .cr-dw-consent, .cr-dw-notif, .cr-dw-cta { transition: none !important; }
-    .cr-dw-dot, .cr-dw-livedot { animation: none !important; }
+    .cr-dw-tab { transition: none !important; }
+    .cr-dw-dot { animation: none !important; }
   }
 </style>
 
 <script>
-  function initDemoWidget() {
-    const root = document.querySelector<HTMLElement>(".cr-dw");
-    if (!root || root.dataset.b) return; root.dataset.b = "1";
-    const panel = root.querySelector<HTMLElement>(".cr-dw-panel")!;
-    const backdrop = root.querySelector<HTMLElement>(".cr-dw-backdrop")!;
-    const stage = root.querySelector<HTMLElement>(".cr-dw-stage")!;
-    const replay = root.querySelector<HTMLButtonElement>(".cr-dw-replay")!;
-    const openers = root.querySelectorAll<HTMLButtonElement>(".cr-dw-tab, .cr-dw-pill");
-    const closer = root.querySelector<HTMLButtonElement>(".cr-dw-close")!;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const STEPS = 5;
-    const DUR = [2000, 2600, 2600, 3000, 4200]; // ms per step
-    let timer: number | undefined;
-    let step = 0;
-
-    function render() { stage.setAttribute("data-step", String(step)); }
-    function stop() { if (timer) { clearTimeout(timer); timer = undefined; } }
-    function advance() {
-      stop();
-      if (step >= STEPS - 1) { replay.hidden = false; return; }   // hold on the end card
-      timer = window.setTimeout(() => { step++; render(); advance(); }, DUR[step]);
-    }
-    function play() {
-      step = 0; replay.hidden = true; render();
-      if (reduce) { step = STEPS - 1; render(); replay.hidden = false; return; }
-      advance();
-    }
-
-    let lastFocus: HTMLElement | null = null;
-    function open() {
-      lastFocus = document.activeElement as HTMLElement;
-      root.dataset.open = "true";
-      backdrop.hidden = false; panel.hidden = false;
-      openers.forEach((o) => o.setAttribute("aria-expanded", "true"));
-      document.body.style.overflow = "hidden";
-      closer.focus();
-      play();
-      try { (window as any).gtag?.("event", "demo_widget_open", { ref: new URLSearchParams(location.search).get("ref") || "" }); } catch (_) {}
-    }
-    function close() {
-      root.dataset.open = "false"; stop();
-      openers.forEach((o) => o.setAttribute("aria-expanded", "false"));
-      document.body.style.overflow = "";
-      window.setTimeout(() => { backdrop.hidden = true; panel.hidden = true; }, 380);
-      lastFocus?.focus();
-    }
-
-    openers.forEach((o) => o.addEventListener("click", open));
-    closer.addEventListener("click", close);
-    backdrop.addEventListener("click", close);
-    replay.addEventListener("click", play);
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && root.dataset.open === "true") close(); });
+  function initDemoLaunch() {
+    document.querySelectorAll<HTMLElement>("[data-demo-launch]").forEach((a) => {
+      if (a.dataset.b) return; a.dataset.b = "1";
+      a.addEventListener("click", () => {
+        try { (window as any).gtag?.("event", "live_demo_click", { ref: new URLSearchParams(location.search).get("ref") || "" }); } catch (_) {}
+      });
+    });
   }
-  initDemoWidget();
-  document.addEventListener("astro:page-load", initDemoWidget);
+  initDemoLaunch();
+  document.addEventListener("astro:page-load", initDemoLaunch);
 </script>

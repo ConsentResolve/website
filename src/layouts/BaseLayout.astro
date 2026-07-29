@@ -16,8 +16,8 @@ interface Props {
   ogImage?: string;
   ogType?: "website" | "article";
   schema?: unknown[];
-  /** Site-wide "See it live" demo widget. On by default; pass false on the demo pages
-   *  themselves and on /claim-50/ (the conversion page) so it doesn't distract. */
+  /** Site-wide "See it live" demo widget (links to /demo/sample/ in a new tab). On by
+   *  default; pass false on the /demo/* pages themselves so it isn't self-referential. */
   demoWidget?: boolean;
 }
 const props = Astro.props as Props;
