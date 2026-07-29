@@ -80,7 +80,7 @@ import * as partnersJobber from "./api/partners-jobber.js";
 import * as seoApi from "./api/seo.js";
 import * as seoDash from "./seo.js";
 import { logAeoTelemetry } from "./_lib/aeo.js";
-import { BLOG_REDIRECTS } from "./_lib/redirects.js";
+import { BLOG_REDIRECTS, PATH_REDIRECTS } from "./_lib/redirects.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
@@ -221,7 +221,7 @@ export default {
     // Worker (not public/_redirects) because Cloudflare caps _redirects at 100 rules.
     {
       const norm = url.pathname.replace(/\/+$/, "") || "/";
-      const to = BLOG_REDIRECTS[norm];
+      const to = PATH_REDIRECTS[norm] || BLOG_REDIRECTS[norm];
       if (to) return Response.redirect(new URL(to, url.origin).toString(), 301);
     }
 

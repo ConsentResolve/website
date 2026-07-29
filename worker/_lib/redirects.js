@@ -1,6 +1,11 @@
 // Blog slug redirects (old rewritten/duplicate slugs -> canonical). Lives here,
 // not in public/_redirects, because Cloudflare caps _redirects at 100 rules.
 // Keys are paths with NO trailing slash; the handler normalizes before lookup.
+// General site path redirects (retired pages -> canonical). Keys have NO trailing slash.
+export const PATH_REDIRECTS = {
+  "/demo": "/claim-50/", // retired the "Book a Walkthrough" lander; /demo/sample/ (Live Demo) is unaffected
+};
+
 export const BLOG_REDIRECTS = {
   "/resources/blog/a-signed-receipt-on-every-lead-why-consent-records-protect-your-shop-2": "/resources/blog/do-bought-leads-come-with-proof-of-consent/",
   "/resources/blog/a-signed-receipt-on-every-lead-why-consent-records-protect-your-shop-3": "/resources/blog/what-the-ftc-homeadvisor-order-teaches-contractors-about-leads/",
