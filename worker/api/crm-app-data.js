@@ -175,8 +175,8 @@ export async function onRequestGet({ request, env }) {
       if (!runByCt.has(r.contact_id)) runByCt.set(r.contact_id, r);
     }
   }
-  const srcMap = { meta: "meta", instantly: "instantly", crisp: "chatwoot", chatwoot: "chatwoot", site: "site", demo: "demo", apollo: "apollo", manual: "manual" };
-  const lifeMap = { lead: "Lead", mql: "MQL", sql: "SQL", opportunity: "Opportunity", customer: "Customer" };
+  const srcMap = { meta: "meta", instantly: "instantly", crisp: "chatwoot", chatwoot: "chatwoot", site: "site", demo: "demo", claim50: "demo", cal: "demo", apollo: "apollo", manual: "manual" };
+  const lifeMap = { lead: "Lead", mql: "MQL", sql: "SQL", meeting_booked: "Meeting Booked", opportunity: "Opportunity", customer: "Customer" };
   const srcLabelMap = { meta: "Meta · Lead form", instantly: "Instantly · cold email", chatwoot: "Chatwoot · site chat", site: "Site · demo signup", demo: "Demo signup", apollo: "Apollo · identified", manual: "Manual" };
   const stripHtml = (h) => (h || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   const inits = (n) => (n ? n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase() : "?");
