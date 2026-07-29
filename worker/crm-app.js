@@ -36,7 +36,7 @@ const BOOTSTRAP = `<script>
 (async () => {
   var snap = {
     convs: window.DATA && window.DATA.conversations, counts: window.DATA && window.DATA.counts,
-    CL: window.CONSENT_LEDGER, CS: window.CONSENT_STATS, SEQ: window.SEQUENCES, SS: window.SITE_SOURCES, SPY: window.SITESPY, NUR: window.NURTURE, PIPE: window.PIPELINE, AN: window.ANALYTICS
+    CL: window.CONSENT_LEDGER, CS: window.CONSENT_STATS, SEQ: window.SEQUENCES, SS: window.SITE_SOURCES, SPY: window.SITESPY, SPYL: window.SPY_LEADS, NUR: window.NURTURE, PIPE: window.PIPELINE, AN: window.ANALYTICS
   };
   var d;
   try {
@@ -50,6 +50,7 @@ const BOOTSTRAP = `<script>
     if (d.SEQUENCES && d.SEQUENCES.length) window.SEQUENCES = d.SEQUENCES;
     if (d.SITE_SOURCES) window.SITE_SOURCES = d.SITE_SOURCES;
     if (d.SITESPY && d.SITESPY.visitors && d.SITESPY.visitors.length) window.SITESPY = d.SITESPY;
+    if (d.SPY_LEADS) window.SPY_LEADS = d.SPY_LEADS;
     if (d.NURTURE && d.NURTURE.pool && d.NURTURE.pool.length) window.NURTURE = d.NURTURE;
     if (d.PIPELINE && d.PIPELINE.length) window.PIPELINE = d.PIPELINE;
     if (d.ANALYTICS && d.ANALYTICS.kpis) window.ANALYTICS = d.ANALYTICS;
@@ -60,7 +61,7 @@ const BOOTSTRAP = `<script>
     }
     if (window.renderConsent) window.renderConsent();
     if (window.renderSequences) window.renderSequences();
-    if ((d.SITE_SOURCES || d.SITESPY) && window.renderSiteSpy) window.renderSiteSpy();
+    if ((d.SITE_SOURCES || d.SITESPY || d.SPY_LEADS) && window.renderSiteSpy) window.renderSiteSpy();
     if (d.NURTURE && window.renderNurture) window.renderNurture();
     if (d.PIPELINE && d.PIPELINE.length && window.renderPipeline) window.renderPipeline();
     if (d.ANALYTICS && d.ANALYTICS.kpis && window.renderAnalytics) window.renderAnalytics();
@@ -73,7 +74,7 @@ const BOOTSTRAP = `<script>
     // FAIL-SAFE: any render error -> restore the demo fixtures so the app never breaks
     try {
       if (window.DATA) { window.DATA.conversations = snap.convs; window.DATA.counts = snap.counts; }
-      window.CONSENT_LEDGER = snap.CL; window.CONSENT_STATS = snap.CS; window.SEQUENCES = snap.SEQ; window.SITE_SOURCES = snap.SS; window.SITESPY = snap.SPY; window.NURTURE = snap.NUR; window.PIPELINE = snap.PIPE; window.ANALYTICS = snap.AN;
+      window.CONSENT_LEDGER = snap.CL; window.CONSENT_STATS = snap.CS; window.SEQUENCES = snap.SEQ; window.SITE_SOURCES = snap.SS; window.SITESPY = snap.SPY; window.SPY_LEADS = snap.SPYL; window.NURTURE = snap.NUR; window.PIPELINE = snap.PIPE; window.ANALYTICS = snap.AN;
       if (window.renderList) window.renderList('open');
       if (window.recount) window.recount();
       if (window.select && window.DATA && window.DATA.conversations[0]) window.select(window.DATA.conversations[0].id);

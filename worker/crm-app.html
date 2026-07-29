@@ -2164,8 +2164,74 @@ function spyEngPills(e){
   if(e.none) p.push(`<span class="se-pill newp">Not engaged yet</span>`);
   return `<div class="se-pills">${p.join('')}</div>`;
 }
+// Site Spy source badge labels/colors (covers the identified ingests).
+const SPY_SRC_LBL={apollo:'Apollo',instantly:'Instantly',leadsy:'Instantly',rb2b:'RB2B',consentresolve:'Consent Resolve',meta:'Meta',site:'Site',demo:'Demo',manual:'Manual',other:'Other'};
+const SPY_SRC_CLR={apollo:'#6c5ce7',instantly:'#0984e3',leadsy:'#0984e3',rb2b:'#e17055',consentresolve:'#00b894',meta:'#4267b2',site:'#0aa',demo:'#0aa',manual:'#888',other:'#888'};
+function spyAge(iso){ if(!iso) return ''; const t=Date.parse(iso); if(!t) return ''; const s=(Date.now()-t)/1000; if(s<3600) return Math.max(1,Math.round(s/60))+'m ago'; if(s<86400) return Math.round(s/3600)+'h ago'; return Math.round(s/86400)+'d ago'; }
+function spyAct(id,action,btn){
+  const row=btn&&btn.closest('tr'); if(row) row.style.opacity=.45;
+  fetch('/api/crm/spy',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action})})
+    .then(r=>r.json()).then(j=>{
+      if(j&&j.ok){
+        if(window.SPY_LEADS) window.SPY_LEADS=window.SPY_LEADS.filter(x=>x.id!==id);
+        renderSiteSpy();
+      }else{
+        if(row) row.style.opacity=1;
+        alert((j&&j.message)||'Could not complete that action.');
+      }
+    }).catch(()=>{ if(row) row.style.opacity=1; alert('Network error — try again.'); });
+}
+window.spyAct=spyAct;
+// Live data-source panel — where Site Spy data comes from. Reads window.SITE_SOURCES.
+function srcPanelHtml(){
+  const SS=window.SITE_SOURCES; if(!SS) return '';
+  const stSty={connected:'background:var(--good-soft);color:var(--good)',ready:'background:var(--accent-soft);color:var(--accent)',needs_setup:'background:var(--warn-soft);color:var(--warn)',available:'background:var(--surface-3);color:var(--tx-3)'};
+  const stLbl={connected:'Connected',ready:'Ready',needs_setup:'Needs setup',available:'Available'};
+  return `
+    <div class="nu-pool-h" style="margin-top:28px"><h4>Where this data comes from</h4>
+      <span class="atable-note">${SS.summary.site_visit_events_30d} identified site visits · ${SS.summary.identity_match_rate}% identity match · ${SS.summary.link_click_events_30d} email clicks (30d)</span></div>
+    <div class="idash-grid" style="grid-template-columns:1fr 1fr">
+      ${SS.sources.map(s=>`<div class="icard">
+        <div class="icard-h"><h4>${esc(s.name)}</h4><span class="lbadge" style="${stSty[s.status]||stSty.available}">${stLbl[s.status]||esc(s.status)}</span></div>
+        <div style="font-size:var(--t-12);color:var(--tx-2);line-height:1.5">${esc(s.provides)}</div>
+        ${s.perf?`<div style="margin-top:9px;font-size:var(--t-12)"><b>${esc(s.perf.label)}:</b> <span style="color:var(--accent);font-weight:800">${esc(s.perf.value)}</span><div style="color:var(--tx-3);font-size:11px;margin-top:1px">${esc(s.perf.detail)}</div></div>`:''}
+        ${s.events30d!=null?`<div style="margin-top:7px;font-size:11px;color:var(--tx-3);font-family:var(--font-mono)">${s.events30d} events · 30d</div>`:''}
+        ${s.contribution?`<div style="margin-top:7px;font-size:11px;color:var(--tx-3)">${esc(s.contribution)}</div>`:''}
+        ${s.boost?`<div style="margin-top:9px;font-size:11px;color:var(--warn);font-weight:600">⚠ ${esc(s.boost)}</div>`:''}
+        ${s.status!=='connected'&&(s.howToEnable||s.note)?`<div style="margin-top:9px;font-size:11px;color:var(--tx-3);line-height:1.45">${esc(s.howToEnable||s.note)}</div>`:''}
+      </div>`).join('')}
+    </div>
+    <p class="atable-note" style="margin-top:12px">Add or strengthen a source when coverage is low — a higher identity-match rate means more of your visitors show up here by name, not as anonymous traffic.</p>`;
+}
 function renderSiteSpy(){
-  const el=document.getElementById('sitespyview'); if(!el||!window.SITESPY) return;
+  const el=document.getElementById('sitespyview'); if(!el) return;
+  // ---- Identified people table (the primary Site Spy surface) ----
+  const SPY=window.SPY_LEADS||[];
+  const idRows=SPY.map(p=>{
+    const src=p.source||'other', lbl=SPY_SRC_LBL[src]||src, clr=SPY_SRC_CLR[src]||'#888';
+    const sub=[p.title,p.company||p.domain].filter(Boolean).join(' · ');
+    return `<tr id="spy-${esc(p.id)}">
+      <td><div class="nu-nm" style="font-weight:700">${esc(p.name)}</div><div class="nu-cco">${p.email?esc(p.email):'<span style="color:var(--tx-3)">no email on file</span>'}</div></td>
+      <td>${esc(sub||'—')}</td>
+      <td><span class="lbadge" style="background:${clr}22;color:${clr};font-weight:700">${esc(lbl)}</span></td>
+      <td class="sp-last">${esc(spyAge(p.created_at))}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="nu-open" title="Add to an outreach automation" onclick="spyAct('${esc(p.id)}','enroll',this)">+ Automation</button>
+        <button class="nu-open" title="Open in the inbox" onclick="spyAct('${esc(p.id)}','open',this)">Open</button>
+        <button class="nu-open" style="opacity:.7" title="Not our ICP — remove from Site Spy" onclick="spyAct('${esc(p.id)}','disqualify',this)">Disqualify</button>
+      </td></tr>`;
+  }).join('');
+  const idTable=`
+    <div class="nu-pool-h" style="margin-top:4px"><h4>Identified people</h4><span class="atable-note">${SPY.length} identified · add to an automation, open in the inbox, or disqualify if not a fit.</span></div>
+    ${SPY.length?`<table class="atable" id="spytable">
+      <thead><tr><th>Person</th><th>Title · Company</th><th>Source</th><th>Identified</th><th style="text-align:right">Actions</th></tr></thead>
+      <tbody>${idRows}</tbody></table>`:`<div class="idash-empty">No identified people yet. As Apollo, RB2B and your own visitor API resolve visitors, they'll appear here to action.</div>`}`;
+
+  // ---- Live visitor stream (only when we have real site_visit data) ----
+  if(!window.SITESPY){
+    el.innerHTML=`<div class="nu-head"><h2>Site Spy</h2><div class="sub">Everyone we've identified — where they came from, with one-click add-to-automation, open, or disqualify.</div></div>${idTable}${srcPanelHtml()}`;
+    return;
+  }
   const S=window.SITESPY, st=S.stats;
   const live=S.visitors.filter(v=>v.live);
   const recent=S.visitors.filter(v=>!v.live).sort((a,b)=>a.lastMin-b.lastMin);
@@ -2191,28 +2257,10 @@ function renderSiteSpy(){
     <td>${spyEngPills(v.eng)}</td>
     <td class="sp-last">${esc(v.last)}</td>
   </tr>`).join('');
-  // Live data-source panel (real): where Site Spy / Nurture intent data comes from,
-  // how each source performs, and how to add more. Reads window.SITE_SOURCES.
-  const SS=window.SITE_SOURCES;
-  const stSty={connected:'background:var(--good-soft);color:var(--good)',ready:'background:var(--accent-soft);color:var(--accent)',needs_setup:'background:var(--warn-soft);color:var(--warn)',available:'background:var(--surface-3);color:var(--tx-3)'};
-  const stLbl={connected:'Connected',ready:'Ready',needs_setup:'Needs setup',available:'Available'};
-  const srcPanel = SS ? `
-    <div class="nu-pool-h" style="margin-top:28px"><h4>Where this data comes from</h4>
-      <span class="atable-note">${SS.summary.site_visit_events_30d} identified site visits · ${SS.summary.identity_match_rate}% identity match · ${SS.summary.link_click_events_30d} email clicks (30d)</span></div>
-    <div class="idash-grid" style="grid-template-columns:1fr 1fr">
-      ${SS.sources.map(s=>`<div class="icard">
-        <div class="icard-h"><h4>${esc(s.name)}</h4><span class="lbadge" style="${stSty[s.status]||stSty.available}">${stLbl[s.status]||esc(s.status)}</span></div>
-        <div style="font-size:var(--t-12);color:var(--tx-2);line-height:1.5">${esc(s.provides)}</div>
-        ${s.perf?`<div style="margin-top:9px;font-size:var(--t-12)"><b>${esc(s.perf.label)}:</b> <span style="color:var(--accent);font-weight:800">${esc(s.perf.value)}</span><div style="color:var(--tx-3);font-size:11px;margin-top:1px">${esc(s.perf.detail)}</div></div>`:''}
-        ${s.events30d!=null?`<div style="margin-top:7px;font-size:11px;color:var(--tx-3);font-family:var(--font-mono)">${s.events30d} events · 30d</div>`:''}
-        ${s.contribution?`<div style="margin-top:7px;font-size:11px;color:var(--tx-3)">${esc(s.contribution)}</div>`:''}
-        ${s.boost?`<div style="margin-top:9px;font-size:11px;color:var(--warn);font-weight:600">⚠ ${esc(s.boost)}</div>`:''}
-        ${s.status!=='connected'&&(s.howToEnable||s.note)?`<div style="margin-top:9px;font-size:11px;color:var(--tx-3);line-height:1.45">${esc(s.howToEnable||s.note)}</div>`:''}
-      </div>`).join('')}
-    </div>
-    <p class="atable-note" style="margin-top:12px">Add or strengthen a source when coverage is low — a higher identity-match rate means more of your visitors show up here by name, not as anonymous traffic.</p>` : '';
+  const srcPanel = srcPanelHtml();
   el.innerHTML=`
-    <div class="nu-head"><h2>Site Spy</h2><div class="sub">Known visitors by last activity — who's on the site, what they're looking at, and whether we're already engaging them through a sequence, an automation, or a human conversation.</div></div>
+    <div class="nu-head"><h2>Site Spy</h2><div class="sub">Everyone we've identified — where they came from, with one-click add-to-automation, open, or disqualify. Below: who's live on the site right now.</div></div>
+    ${idTable}
     ${kpis}
     <div class="nu-band">
       <div class="nu-band-h">On the site now <span class="nu-live"><span class="dot"></span>LIVE</span></div>

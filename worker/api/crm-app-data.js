@@ -9,6 +9,7 @@ import { crmAuthed } from "../_lib/crm.js";
 import { currentUser } from "../_lib/crm-v2.js";
 import { ensureRebuildSchema } from "../_lib/crm-rebuild.js";
 import { computeSources } from "../_lib/sitespy.js";
+import { listSpyLeads } from "./crm-spy.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -408,13 +409,17 @@ export async function onRequestGet({ request, env }) {
   let SITE_SOURCES = null;
   try { SITE_SOURCES = await computeSources(env); } catch (_) {}
 
+  // Identified-people table for Site Spy (Apollo/RB2B/CR-own/Instantly).
+  let SPY_LEADS = [];
+  try { SPY_LEADS = await listSpyLeads(env); } catch (_) {}
+
   return json({
     ok: true,
     me: me ? { name: me.name, email: me.email, role: me.role } : null,
     CONSENT_LEDGER, CONSENT_STATS, consentSummary,
     SEQUENCES,
     DATA_CONVERSATIONS, DATA_COUNTS,
-    SITESPY, NURTURE, SITE_SOURCES, PIPELINE, ANALYTICS,
+    SITESPY, NURTURE, SITE_SOURCES, SPY_LEADS, PIPELINE, ANALYTICS,
     inbox: { buckets },
     funnel,
     generated_at: new Date().toISOString(),

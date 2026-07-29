@@ -43,6 +43,7 @@ import * as crmApollo from "./api/crm-apollo.js";
 import * as crmApolloSync from "./api/crm-apollo-sync.js";
 import * as crOwnSync from "./api/cr-own-sync.js";
 import * as apolloProspect from "./api/apollo-prospect.js";
+import * as crmSpy from "./api/crm-spy.js";
 import * as rb2bEmail from "./api/rb2b-email.js";
 import * as crmSocialScores from "./api/crm-social-scores.js";
 import * as crmSocialPromote from "./api/crm-social-promote.js";
@@ -128,6 +129,7 @@ const ROUTES = {
   "/api/crm/apollo/prospect": apolloProspect,
   "/api/crm/cr/sync": crOwnSync,
   "/api/crm/rb2b/poll": rb2bEmail,
+  "/api/crm/spy": crmSpy,
   "/api/crm/social/scores": crmSocialScores,
   "/api/crm/social/promote": crmSocialPromote,
   "/api/crm/gbp/auth": crmGbpAuth,
