@@ -616,8 +616,14 @@ html,body{height:100%}
 
   /* running lead-age clock + owner avatar in the list */
   .row .l1{gap:7px}
-  .row .clk{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--tx-2);font-weight:600;white-space:nowrap}
-  .row.fix .clk{color:var(--bad)}
+  /* speed-to-lead urgency chip: escalates as a lead waits for a human reply */
+  .row .clk{margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:12.5px;font-weight:800;white-space:nowrap;padding:3px 9px;border-radius:var(--r-full);letter-spacing:.02em;line-height:1.15}
+  .clk.calm{background:var(--surface-3);color:var(--tx-3)}                                   /* handled / not awaiting reply */
+  .clk.fresh{background:var(--good-soft);color:var(--good)}                                  /* < 5 min — on time */
+  .clk.warm{background:var(--src-apollo-soft);color:var(--src-apollo)}                       /* 5–15 min — getting late */
+  .clk.hot{background:var(--bad-soft);color:var(--bad);animation:clkpulse 1.3s ease-in-out infinite}  /* 15 min–24 h — respond now */
+  .clk.stale{background:var(--bad-soft);color:var(--bad);opacity:.8}                                   /* > 24 h — missed, no strobe */
+  @keyframes clkpulse{0%{box-shadow:0 0 0 0 var(--bad-soft)}70%{box-shadow:0 0 0 6px rgba(0,0,0,0)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}}
   .row .oav-sm{width:19px;height:19px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:8.5px;font-weight:800;flex:0 0 auto}
 
   /* Status panel — light card, reworked for legibility */
@@ -1399,7 +1405,14 @@ function fmtAge(sec){sec=Math.max(0,Math.floor(sec));const d=Math.floor(sec/8640
   if(sec<3600)return `${m}m ${String(s).padStart(2,'0')}s`;
   if(sec<86400)return `${h}h ${String(m).padStart(2,'0')}m`;
   return `${d}d ${h}h`;}
-function tickClocks(){const now=Date.now();document.querySelectorAll('.clk[data-base]').forEach(n=>{n.textContent='⏱ '+fmtAge((+n.dataset.base)+(now-T0)/1000);});}
+function tickClocks(){const now=Date.now();document.querySelectorAll('.clk[data-base]').forEach(n=>{
+  const sec=(+n.dataset.base)+(now-T0)/1000;
+  n.textContent='⏱ '+fmtAge(sec);
+  // urgency tier — only rows awaiting a human reply escalate; others stay calm
+  let tier='calm';
+  if(n.dataset.wait==='1'){ tier = sec<300 ? 'fresh' : sec<900 ? 'warm' : sec<86400 ? 'hot' : 'stale'; }
+  const cls='clk '+tier; if(n.className!==cls) n.className=cls;   // avoid restarting the pulse each tick
+});}
 
 let sel="c05";
 
@@ -1418,7 +1431,7 @@ function renderList(filter){
     const stagePill = dstg!=='new' ? `<span class="rstage ${dstg}" title="Deal stage">${dstg}</span>` : '';
     return `<button class="row ${c.id===sel?'sel':''} ${needsFix?'fix':''} ${c.bucket==='suppressed'?'dim':''}" onclick="select('${c.id}')">
       <div class="row-main">
-        <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="clk" data-base="${AGE[c.id]||0}">⏱ …</span></div>
+        <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="clk calm" data-base="${AGE[c.id]||0}" data-wait="${(c.unread && c.bucket==='open')?'1':'0'}">⏱ …</span></div>
         <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${stagePill}<span class="trollup ${tp.done===tp.total?'done':''}" title="Research & engagement tasks done">🗒 ${tp.done}/${tp.total}</span></div>
       </div>
       <span class="rowacts">
