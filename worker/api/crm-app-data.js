@@ -199,6 +199,7 @@ export async function onRequestGet({ request, env }) {
       name: r.full_name || "Unknown", company: r.company || null, contact_email: r.primary_email || null,
       initials: inits(r.full_name), lifecycle: lifeMap[r.lifecycle_stage] || "Lead",
       hot: false, unread, ts: humanTime(r.last_message_at) || "—",
+      age_ts: r.last_message_at ? Date.parse(r.last_message_at) : null,   // real arrival epoch → timer survives refresh
       email_subject: channel === "email" ? (r.subject || "") : undefined,
       task: unread ? { tag: "do", text: "New message — reply.", cta: "Reply" } : { tag: "auto", text: "No action needed right now.", cta: "" },
       last: { label: r.last_message_preview || "Activity on this conversation", ts: humanTime(r.last_message_at) || "—", tone: "info" },

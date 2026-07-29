@@ -1406,7 +1406,8 @@ function fmtAge(sec){sec=Math.max(0,Math.floor(sec));const d=Math.floor(sec/8640
   if(sec<86400)return `${h}h ${String(m).padStart(2,'0')}m`;
   return `${d}d ${h}h`;}
 function tickClocks(){const now=Date.now();document.querySelectorAll('.clk[data-base]').forEach(n=>{
-  const sec=(+n.dataset.base)+(now-T0)/1000;
+  const ts=+n.dataset.ts;
+  const sec = ts ? (now-ts)/1000 : (+n.dataset.base)+(now-T0)/1000;  // real arrival ts survives refresh; AGE map is demo-only fallback
   n.textContent='⏱ '+fmtAge(sec);
   // urgency tier — only rows awaiting a human reply escalate; others stay calm
   let tier='calm';
@@ -1431,7 +1432,7 @@ function renderList(filter){
     const stagePill = dstg!=='new' ? `<span class="rstage ${dstg}" title="Deal stage">${dstg}</span>` : '';
     return `<button class="row ${c.id===sel?'sel':''} ${needsFix?'fix':''} ${c.bucket==='suppressed'?'dim':''}" onclick="select('${c.id}')">
       <div class="row-main">
-        <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="clk calm" data-base="${AGE[c.id]||0}" data-wait="${(c.unread && c.bucket==='open')?'1':'0'}">⏱ …</span></div>
+        <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="clk calm" data-ts="${c.age_ts||''}" data-base="${AGE[c.id]||0}" data-wait="${(c.unread && c.bucket==='open')?'1':'0'}">⏱ …</span></div>
         <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${stagePill}<span class="trollup ${tp.done===tp.total?'done':''}" title="Research & engagement tasks done">🗒 ${tp.done}/${tp.total}</span></div>
       </div>
       <span class="rowacts">
