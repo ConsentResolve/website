@@ -335,13 +335,10 @@ export default {
       } catch (err) {
         console.log(`[rb2b] gmail poll error: ${String(err).slice(0, 160)}`);
       }
-      // Instantly Website Visitors -> CRM. No-op until INSTANTLY_API_KEY has the scope.
-      try {
-        const out = await instantlyVisitors.runScheduledSync(env);
-        if (out && out.synced) console.log(`[instantly-visitors] synced ${out.synced} new (${out.skipped} skipped)`);
-      } catch (err) {
-        console.log(`[instantly-visitors] sync error: ${String(err).slice(0, 160)}`);
-      }
+      // Instantly Website Visitors ingest DISABLED (2026-07-29): the Instantly
+      // "Website Visitors" list turned out to be the HVAC cold-campaign's
+      // (mostly-unsubscribed) leads, not real visitors. Left off the cron; the
+      // endpoint stays for manual purge/inspection only.
       // Unified inbox: pull new mail for the configured mailbox(es). No-op until a
       // CRM_INBOX_EMAILS account (default hello@) is Gmail-OAuth connected.
       try {

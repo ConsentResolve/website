@@ -62,7 +62,7 @@ function normalize(L) {
 async function fetchVisitors(env, listId, want) {
   const rows = [];
   let cursor = null;
-  for (let page = 0; page < 6; page++) {
+  for (let page = 0; page < 30; page++) {
     const payload = { list_ids: [listId], limit: 100 };
     if (cursor) payload.starting_after = cursor;
     const r = await instPost(env, "/leads/list", payload);
@@ -117,9 +117,16 @@ export async function onRequestGet({ request, env }) {
     const rows = got.rows || [];
     return json({ ok: true, list: listId, count: rows.length, mapped: q.get("raw") ? rows.map(normalize) : undefined }, {}, cors);
   }
+  if (q.get("purge")) {
+    // Undo a mistaken import: the "Website Visitors" list turned out to be the
+    // HVAC cold-campaign's (mostly-unsubscribed) leads, not real visitors.
+    const r = await env.DB.prepare("DELETE FROM crm_leads WHERE source='instantly' AND consent_status='identified'").run();
+    const purged = (r && r.meta && (r.meta.changes != null ? r.meta.changes : r.meta.rows_written)) || 0;
+    return json({ ok: true, purged, message: "Deleted imported Instantly identified leads from crm_leads." }, {}, cors);
+  }
   if (q.get("run")) {
     const out = await runScheduledSync(env);
     return json({ ok: !out.error, ...out }, out.error ? { status: 502 } : {}, cors);
   }
-  return json({ ok: true, list: listId, usage: "?test=1 resolve list · ?raw=1 preview mapped records · ?run=1 import" }, {}, cors);
+  return json({ ok: true, list: listId, usage: "?purge=1 remove imported instantly leads · ?test=1 resolve list · ?raw=1 preview · ?run=1 import (disabled from cron)" }, {}, cors);
 }
