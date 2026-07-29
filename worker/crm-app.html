@@ -222,6 +222,17 @@ html,body{height:100%}
   .owner .oav{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:10px;font-weight:800;flex:0 0 auto}
   .owner .car{color:var(--tx-3);font-size:10px}
 
+  /* prominent lifecycle-stage bar in the contact header */
+  .stagebar{display:flex;align-items:center;gap:10px;margin-top:12px;padding:11px 15px;border-radius:var(--r-1);border:1px solid transparent;font-family:var(--font-mono)}
+  .stagebar .sb-ic{font-size:18px;line-height:1}
+  .stagebar .sb-lab{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.7}
+  .stagebar .sb-val{font-size:16px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;margin-left:2px}
+  .stagebar.lead{background:var(--surface-3);border-color:var(--line-2);color:var(--tx-2)}
+  .stagebar.mql,.stagebar.sql{background:var(--src-meta-soft);border-color:var(--src-meta);color:var(--src-meta)}
+  .stagebar.booked{background:var(--good-soft);border-color:var(--good);color:var(--good);box-shadow:0 0 0 3px var(--good-soft)}
+  .stagebar.opp{background:var(--src-apollo-soft);border-color:var(--src-apollo);color:var(--src-apollo)}
+  .stagebar.won{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+
   /* middle-section tabs: Activity / Intel / Task */
   .thead{padding-bottom:0;border-bottom:0}
   .tabs{display:flex;gap:4px;margin-top:12px;border-bottom:1px solid var(--line)}
@@ -2404,6 +2415,8 @@ function select(id){
     ? `<span class="cm"><span class="ci">📞</span><a href="${telHref(phone)}">${esc(phone)}</a></span>`
     : `<span class="cm none">no phone</span>`;
   const o = ownerOf(c);
+  const STAGE_META = { "Lead":{c:"lead",ic:"◍"}, "MQL":{c:"mql",ic:"◑"}, "SQL":{c:"sql",ic:"◕"}, "Meeting Booked":{c:"booked",ic:"📅"}, "Opportunity":{c:"opp",ic:"◆"}, "Customer":{c:"won",ic:"★"} };
+  const stageMeta = STAGE_META[c.lifecycle] || { c:"lead", ic:"◍" };
   const ownerEl = o
     ? `<div class="owner" title="Reassign this conversation"><span class="oav" style="background:${o.color}">${o.init}</span><span>${esc(o.name)}</span><span class="car">▾</span></div>`
     : `<div class="owner unassigned" title="Assign a rep — happens automatically when someone replies"><span>＋ Assign</span><span class="car">▾</span></div>`;
@@ -2420,6 +2433,7 @@ function select(id){
         </div>
         <div class="hdr-right">${ownerEl}${autoControl(c)}</div>
       </div>
+      <div class="stagebar ${stageMeta.c}"><span class="sb-ic">${stageMeta.ic}</span><span class="sb-lab">Stage</span><span class="sb-val">${esc(c.lifecycle)}</span></div>
       <div class="tabs">
         <button class="tab ${curTab==='reply'?'on':''}" data-tab="reply" onclick="switchTab('reply')"><span class="ti">${IC.reply}</span>Reply</button>
         <button class="tab ${curTab==='activity'?'on':''}" data-tab="activity" onclick="switchTab('activity')"><span class="ti">${IC.activity}</span>Activity</button>
