@@ -21,7 +21,7 @@ import { crmAuthed, upsertLead, addActivity, ensureCrmSchema } from "../_lib/crm
 const KEY = (env) => String(env.APOLLO_API_KEY || "").trim();
 
 // Owner/exec + marketing + ops decision-makers — a broad net for mixed B2B visitors.
-const DEFAULT_TITLES = [
+export const DEFAULT_TITLES = [
   "owner", "founder", "co-founder", "ceo", "chief executive officer", "president",
   "partner", "principal", "vice president", "vp", "chief marketing officer", "cmo",
   "vp marketing", "director of marketing", "marketing director", "head of marketing",
@@ -60,7 +60,7 @@ async function domainsFromLabel(env, labelId, cap) {
   return { domains };
 }
 
-async function peopleAtDomain(env, domain, titles, perPage) {
+export async function peopleAtDomain(env, domain, titles, perPage) {
   // mixed_people/search was deprecated for API callers -> use api_search. It returns
   // a MASKED preview (first_name, title, org.name, id, has_email) and no email/last
   // name until you enrich by id.
@@ -70,10 +70,10 @@ async function peopleAtDomain(env, domain, titles, perPage) {
   return { error: r.error, total: (r.data.pagination || {}).total_entries || 0, people: r.data.people || [] };
 }
 
-const usableEmail = (e) =>
+export const usableEmail = (e) =>
   !!e && e.includes("@") && !/^email_not_unlocked/i.test(e) && !/@domain\.com$/i.test(e);
 
-async function enrichPerson(env, person) {
+export async function enrichPerson(env, person) {
   // reveal full name + email for a person we found via api_search (costs 1 credit)
   const r = await apolloPost(env, "people/match", { id: person.id, reveal_personal_emails: false });
   return r.data.person || null;

@@ -2165,8 +2165,8 @@ function spyEngPills(e){
   return `<div class="se-pills">${p.join('')}</div>`;
 }
 // Site Spy source badge labels/colors (covers the identified ingests).
-const SPY_SRC_LBL={apollo:'Apollo',instantly:'Instantly',leadsy:'Instantly',rb2b:'RB2B',consentresolve:'Consent Resolve',meta:'Meta',site:'Site',demo:'Demo',manual:'Manual',other:'Other'};
-const SPY_SRC_CLR={apollo:'#6c5ce7',instantly:'#0984e3',leadsy:'#0984e3',rb2b:'#e17055',consentresolve:'#00b894',meta:'#4267b2',site:'#0aa',demo:'#0aa',manual:'#888',other:'#888'};
+const SPY_SRC_LBL={apollo:'Apollo',instantly:'Instantly',leadsy:'Instantly',leadfeeder:'Leadfeeder',rb2b:'RB2B',consentresolve:'Consent Resolve',meta:'Meta',site:'Site',demo:'Demo',manual:'Manual',other:'Other'};
+const SPY_SRC_CLR={apollo:'#6c5ce7',instantly:'#0984e3',leadsy:'#0984e3',leadfeeder:'#d63384',rb2b:'#e17055',consentresolve:'#00b894',meta:'#4267b2',site:'#0aa',demo:'#0aa',manual:'#888',other:'#888'};
 function spyAge(iso){ if(!iso) return ''; const t=Date.parse(iso); if(!t) return ''; const s=(Date.now()-t)/1000; if(s<3600) return Math.max(1,Math.round(s/60))+'m ago'; if(s<86400) return Math.round(s/3600)+'h ago'; return Math.round(s/86400)+'d ago'; }
 function spyAct(id,action,btn){
   const row=btn&&btn.closest('tr'); if(row) row.style.opacity=.45;
