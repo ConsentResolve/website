@@ -119,13 +119,15 @@ scopes; callback + webhook URLs are in the header of `partners-jobber.js`),
 `wrangler secret put JOBBER_CLIENT_ID` / `JOBBER_CLIENT_SECRET`, then visit
 `/api/partners/jobber/auth` from a `/crm` session.
 
-Consent-note mutation: the original build used `clientNoteCreate`, but
-Jobber's public changelog shows that field was **removed** from the Mutation
-type; the current naming pattern is `clientCreateNote` / `clientEditNote`
-(edit also lost its `clientId` arg). The adapter now sends
-`clientCreateNote(clientId:, input: { message: })`. Field-level shape still
-deserves a GraphiQL introspection pass once a dev account exists — note
-failures stay non-fatal to the lead push by design.
+Consent-note mutation: the original build used `clientNoteCreate`, but that
+field was **removed** from the Mutation type; the current mutation is
+`clientCreateNote(clientId:, input: ClientCreateNoteInput)` where the input
+carries `{ message, attachments, pinned, linkedTo }`. **Verified live**
+(GraphiQL against a dev account, API 2025-04-16, 2026-07-29): the adapter's
+exact mutation — including the `clientNote { id }` payload selection and
+`pinned: true`, which keeps the consent receipt at the top of the client's
+notes — executed cleanly. Note failures stay non-fatal to the lead push by
+design.
 
 ## Site-claims drift (flag, don't fix yet)
 
