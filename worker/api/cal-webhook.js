@@ -93,6 +93,19 @@ export async function onRequestPost({ request, env, waitUntil }) {
       await env.DB.prepare("UPDATE contacts SET lifecycle_stage='meeting_booked', updated_at=datetime('now') WHERE id=?").bind(contactId).run().catch(() => {});
       await handleGoalEvent(env, { contactId, goal: "booked" }).catch(() => {});
     }
+    if (isCreated) {
+      // Auto-create a Pipeline deal for the booking — once per contact, if they have a company.
+      try {
+        const existing = await env.DB.prepare("SELECT id FROM deals WHERE primary_contact_id=? AND lead_status IN ('active','won') LIMIT 1").bind(contactId).first();
+        const ct2 = existing ? null : await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first();
+        if (!existing && ct2 && ct2.company_id) {
+          const dealId = "deal_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+          await env.DB.prepare(
+            "INSERT INTO deals (id, company_id, primary_contact_id, origin_conversation_id, owner_id, title, lead_status, close_probability) VALUES (?, ?, ?, ?, ?, ?, 'active', 50)"
+          ).bind(dealId, ct2.company_id, contactId, convId, null, "Meeting booked — " + (name || email)).run();
+        }
+      } catch (_) {}
+    }
     await logEvent(env, {
       type: isCancelled ? "meeting_cancelled" : isRescheduled ? "meeting_rescheduled" : "meeting_booked",
       contactId, conversationId: convId, source: "cal",

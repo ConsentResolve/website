@@ -414,10 +414,12 @@ export async function onRequestPost({ request, env }) {
     if (b.snooze_until && !isNaN(Date.parse(b.snooze_until))) snooze = new Date(b.snooze_until).toISOString();
     else snooze = new Date(Date.now() + (Number(b.snooze_days) || 3) * 86400000).toISOString();
   }
+  const note = status === "snoozed" ? ((b.snooze_note || "").toString().trim().slice(0, 300) || null) : null;
+  try { await env.DB.prepare("ALTER TABLE conversations ADD COLUMN snooze_note TEXT").run(); } catch (_) {} // idempotent
   await env.DB.prepare(
-    "UPDATE conversations SET status=?, snooze_until=?, updated_at=datetime('now') WHERE id=?"
-  ).bind(status, snooze, b.id).run();
-  return json({ ok: true, status, snooze_until: snooze }, {}, cors);
+    "UPDATE conversations SET status=?, snooze_until=?, snooze_note=?, updated_at=datetime('now') WHERE id=?"
+  ).bind(status, snooze, note, b.id).run();
+  return json({ ok: true, status, snooze_until: snooze, snooze_note: note }, {}, cors);
 }
 
 // Snooze sweep (BUILD-PLAN P1-10): resurface due conversations. Called from the cron.

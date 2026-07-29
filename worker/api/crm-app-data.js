@@ -144,8 +144,9 @@ export async function onRequestGet({ request, env }) {
   }
 
   // ---- Inbox conversations (DATA.conversations shape) ----
+  try { await env.DB.prepare("ALTER TABLE conversations ADD COLUMN snooze_note TEXT").run(); } catch (_) {} // ensure column exists before selecting it
   const convRows = (await env.DB.prepare(
-    `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until,
+    `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until, cv.snooze_note,
             ct.id contact_id, ct.full_name, ct.primary_email, ct.source, ct.lifecycle_stage, co.name company
        FROM conversations cv
        LEFT JOIN contacts ct ON ct.id = cv.contact_id
@@ -201,6 +202,7 @@ export async function onRequestGet({ request, env }) {
       hot: false, unread, ts: humanTime(r.last_message_at) || "—",
       age_ts: r.last_message_at ? Date.parse(r.last_message_at) : null,   // real arrival epoch → timer survives refresh
       snooze_until: r.snooze_until || null,                               // reminder due time (ISO) when snoozed
+      snooze_note: r.snooze_note || null,                                 // optional reminder note
       email_subject: channel === "email" ? (r.subject || "") : undefined,
       task: unread ? { tag: "do", text: "New message — reply.", cta: "Reply" } : { tag: "auto", text: "No action needed right now.", cta: "" },
       last: { label: r.last_message_preview || "Activity on this conversation", ts: humanTime(r.last_message_at) || "—", tone: "info" },
@@ -322,7 +324,7 @@ export async function onRequestGet({ request, env }) {
     const OWCOL = ["#00b985", "#3b82f6", "#8b5cf6", "#f59e0b", "#ef4444", "#0ea5e9"];
     const hashStr = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return h; };
     const rows = (await env.DB.prepare(
-      `SELECT d.id, d.title, d.value_cents, d.close_probability, d.lead_status,
+      `SELECT d.id, d.title, d.value_cents, d.close_probability, d.lead_status, d.owner_id,
               ct.full_name, co.name AS company, u.name AS owner_name
        FROM deals d
        LEFT JOIN contacts ct ON ct.id = d.primary_contact_id
@@ -347,6 +349,7 @@ export async function onRequestGet({ request, env }) {
         prob: r.close_probability == null ? null : Number(r.close_probability),
         status: (r.lead_status || "active").toLowerCase(),
         stage: stageOf(r),
+        owner_id: r.owner_id || null,
         owner: ownNm ? { init: inits(ownNm), name: ownNm, color: OWCOL[Math.abs(hashStr(ownNm)) % OWCOL.length] } : null,
       };
     });

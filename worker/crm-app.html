@@ -849,6 +849,9 @@ html,body{height:100%}
   .rm-quick{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);font-size:13.5px;font-weight:700;color:var(--tx-1);cursor:pointer;text-align:left}
   .rm-quick:hover{border-color:var(--accent);background:var(--accent-soft)}
   .rm-quick b{display:block;font-size:10.5px;font-weight:600;color:var(--tx-3);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+  .rm-note{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface-1);color:var(--tx-1);font-size:13px;margin-bottom:12px;box-sizing:border-box}
+  .rm-note:focus{outline:none;border-color:var(--accent)}
+  .rm-note-txt{font-size:12px;color:var(--tx-2);margin-top:3px}
   .rm-custom{display:flex;gap:8px;align-items:center}
   .rm-custom input{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface-1);color:var(--tx-1);font-size:13px}
   .rm-hdr-btn{align-self:flex-end;display:inline-flex;align-items:center;gap:5px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:5px 12px;cursor:pointer;font-size:var(--t-12);font-weight:700;color:var(--tx-1);white-space:nowrap}
@@ -1500,7 +1503,7 @@ function renderList(filter){
     return `<button class="row ${c.id===sel?'sel':''} ${needsFix?'fix':''} ${c.bucket==='suppressed'?'dim':''}" onclick="select('${c.id}')">
       <div class="row-main">
         <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="clk calm" data-ts="${c.age_ts||''}" data-base="${AGE[c.id]||0}" data-wait="${(c.unread && c.bucket==='open')?'1':'0'}">⏱ …</span></div>
-        <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${stagePill}${c.snooze_until?`<span class="rmchip ${remOverdue(c.snooze_until)?'due':''}" title="Reminder">⏰ ${fmtRemWhen(c.snooze_until)}</span>`:''}<span class="trollup ${tp.done===tp.total?'done':''}" title="Research & engagement tasks done">🗒 ${tp.done}/${tp.total}</span></div>
+        <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${stagePill}${c.snooze_until?`<span class="rmchip ${remOverdue(c.snooze_until)?'due':''}" title="${c.snooze_note?esc(c.snooze_note):'Reminder'}">⏰ ${fmtRemWhen(c.snooze_until)}</span>`:''}<span class="trollup ${tp.done===tp.total?'done':''}" title="Research & engagement tasks done">🗒 ${tp.done}/${tp.total}</span></div>
       </div>
       <span class="rowacts">
         <span class="ract" title="${c.bucket==='snoozed'?'Clear reminder':'Set reminder'}" onclick="event.stopPropagation();${c.bucket==='snoozed'?`wakeConv('${c.id}')`:`openRemind('${c.id}')`}">${c.bucket==='snoozed'?IC.wake:IC.snooze}</span>
@@ -1707,6 +1710,7 @@ function openRemind(id){
   document.getElementById('rmtitle').textContent='Remind me about '+(c.name||'this lead');
   const dt=document.getElementById('rmcustom'); const n=new Date(Date.now()+3600000); n.setSeconds(0,0);
   dt.value=new Date(n.getTime()-n.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  document.getElementById('rmnote').value=c.snooze_note||'';
   document.getElementById('remindmodal').classList.add('show');
 }
 function closeRemind(){ document.getElementById('remindmodal').classList.remove('show'); _remId=null; }
@@ -1714,9 +1718,10 @@ function setRemindQuick(kind){ applyRemind(_remId, quickTime(kind).toISOString()
 function setRemindCustom(){ const v=document.getElementById('rmcustom').value; if(v) applyRemind(_remId, new Date(v).toISOString()); }
 function applyRemind(id, iso){
   const c=DATA.conversations.find(x=>x.id===id); if(!c){ closeRemind(); return; }
+  const note=(document.getElementById('rmnote')?.value||'').trim();
   if(c.bucket!=='snoozed') c._prevBucket=c.bucket;
-  c.bucket='snoozed'; c.snooze_until=iso;
-  postStatus(id,{status:'snoozed',snooze_until:iso});
+  c.bucket='snoozed'; c.snooze_until=iso; c.snooze_note=note||null;
+  postStatus(id,{status:'snoozed',snooze_until:iso,snooze_note:note});
   recount(); renderList(curFilter());
   if(document.getElementById('remindersview') && !document.getElementById('remindersview').hidden) renderReminders();
   closeRemind();
@@ -1734,7 +1739,7 @@ function renderReminders(){
   const overdue=items.filter(c=>remOverdue(c.snooze_until)), upcoming=items.filter(c=>!remOverdue(c.snooze_until));
   const row=c=>`<div class="rm-item ${remOverdue(c.snooze_until)?'due':''}">
       <span class="rm-when">${remOverdue(c.snooze_until)?'⏰ DUE · ':''}${fmtRemWhen(c.snooze_until)}</span>
-      <div class="rm-who"><div class="nm">${esc(c.name||'Unknown')}</div><div class="co">${esc(c.company||'—')}</div></div>
+      <div class="rm-who"><div class="nm">${esc(c.name||'Unknown')}</div><div class="co">${esc(c.company||'—')}</div>${c.snooze_note?`<div class="rm-note-txt">📝 ${esc(c.snooze_note)}</div>`:''}</div>
       <div class="rm-acts"><button class="open" onclick="openFromReminders('${c.id}')">Open</button><button class="done" onclick="wakeConv('${c.id}')">✓ Done</button></div>
     </div>`;
   el.innerHTML=`<div class="rmview">
@@ -1753,6 +1758,7 @@ document.body.insertAdjacentHTML('beforeend', `
       <div class="am-head"><h3 id="rmtitle">Remind me</h3><button class="am-x" onclick="closeRemind()" aria-label="Cancel">&times;</button></div>
       <div class="am-lead">When should this lead pop back up?</div>
       <div class="am-body">
+        <input id="rmnote" class="rm-note" type="text" placeholder="Optional note — e.g. call back re: pricing" maxlength="300">
         <div class="rm-grid">
           <button class="rm-quick" onclick="setRemindQuick('2h')">In 2 hours<b>later today</b></button>
           <button class="rm-quick" onclick="setRemindQuick('tmr9')">Tomorrow 9 AM<b>morning</b></button>
@@ -2271,7 +2277,16 @@ function editDeal(e,id){ e.stopPropagation(); const d=(window.PIPELINE||[]).find
   document.getElementById('dl-title').value=d.name||'';
   document.getElementById('dl-val').value=d.value_usd||0;
   document.getElementById('dl-prob').value=d.prob!=null?d.prob:'';
+  populateOwners(d.owner_id);
   document.getElementById('dealmodal').classList.add('show');
+}
+function ptInit(n){return (n||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();}
+function populateOwners(sel){
+  const el=document.getElementById('dl-owner'); if(!el)return;
+  const build=(u)=>{ el.innerHTML='<option value="">Unassigned</option>'+u.map(x=>`<option value="${x.id}" ${x.id===sel?'selected':''}>${esc(x.name)}</option>`).join(''); };
+  if(window._crmUsers){ build(window._crmUsers); return; }
+  el.innerHTML='<option value="">Loading…</option>';
+  fetch('/api/crm/deals?include=all',{credentials:'same-origin'}).then(r=>r.json()).then(j=>{ window._crmUsers=j.users||[]; build(window._crmUsers); }).catch(()=>{ el.innerHTML='<option value="">Unassigned</option>'; });
 }
 function closeDeal(){ document.getElementById('dealmodal').classList.remove('show'); _dealId=null; }
 function saveDeal(){
@@ -2280,10 +2295,14 @@ function saveDeal(){
   const val=Math.max(0,Math.round(+document.getElementById('dl-val').value||0));
   const pr=document.getElementById('dl-prob').value;
   const prob=pr===''?null:Math.max(0,Math.min(100,Math.round(+pr)));
-  const prev={name:d.name,value_usd:d.value_usd,prob:d.prob};
+  const ownerId=document.getElementById('dl-owner').value||null;
+  const prev={name:d.name,value_usd:d.value_usd,prob:d.prob,owner:d.owner,owner_id:d.owner_id};
   if(title) d.name=title; d.value_usd=val; if(prob!=null) d.prob=prob;
+  d.owner_id=ownerId;
+  const _u=(window._crmUsers||[]).find(x=>x.id===ownerId);
+  d.owner = _u ? {init:ptInit(_u.name), name:_u.name, color:avColor(_u.name)} : null;
   renderPipeline(); closeDeal();
-  const payload={id:d.id,value_cents:val*100}; if(title)payload.title=title; if(prob!=null)payload.close_probability=prob;
+  const payload={id:d.id,value_cents:val*100,owner_id:ownerId}; if(title)payload.title=title; if(prob!=null)payload.close_probability=prob;
   fetch('/api/crm/deals',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
     .then(r=>{ if(!r.ok)throw 0; return r.json(); }).then(j=>{ if(!j||j.ok!==true)throw 0; })
     .catch(()=>{ Object.assign(d,prev); renderPipeline(); alert('Could not save that edit — reverted.'); });
@@ -2306,6 +2325,7 @@ document.body.insertAdjacentHTML('beforeend', `
         <label class="dl-f"><span>Title</span><input id="dl-title" type="text" placeholder="Deal title"></label>
         <label class="dl-f"><span>Value ($)</span><input id="dl-val" type="number" min="0" step="1"></label>
         <label class="dl-f"><span>Probability (%)</span><input id="dl-prob" type="number" min="0" max="100" step="5" placeholder="e.g. 50"></label>
+        <label class="dl-f"><span>Owner</span><select id="dl-owner"></select></label>
       </div>
       <div class="am-foot"><button class="am-btn cancel" onclick="closeDeal()">Cancel</button><button class="am-btn go" onclick="saveDeal()">Save</button></div>
     </div>
