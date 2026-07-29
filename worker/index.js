@@ -44,6 +44,7 @@ import * as crmApolloSync from "./api/crm-apollo-sync.js";
 import * as crOwnSync from "./api/cr-own-sync.js";
 import * as apolloProspect from "./api/apollo-prospect.js";
 import * as crmSpy from "./api/crm-spy.js";
+import * as instantlyVisitors from "./api/instantly-visitors.js";
 import * as rb2bEmail from "./api/rb2b-email.js";
 import * as crmSocialScores from "./api/crm-social-scores.js";
 import * as crmSocialPromote from "./api/crm-social-promote.js";
@@ -129,6 +130,7 @@ const ROUTES = {
   "/api/crm/apollo/prospect": apolloProspect,
   "/api/crm/cr/sync": crOwnSync,
   "/api/crm/rb2b/poll": rb2bEmail,
+  "/api/crm/instantly/visitors": instantlyVisitors,
   "/api/crm/spy": crmSpy,
   "/api/crm/social/scores": crmSocialScores,
   "/api/crm/social/promote": crmSocialPromote,
@@ -332,6 +334,13 @@ export default {
         if (out && out.ingested) console.log(`[rb2b] imported ${out.ingested} from ${out.processed} CSV email(s)`);
       } catch (err) {
         console.log(`[rb2b] gmail poll error: ${String(err).slice(0, 160)}`);
+      }
+      // Instantly Website Visitors -> CRM. No-op until INSTANTLY_API_KEY has the scope.
+      try {
+        const out = await instantlyVisitors.runScheduledSync(env);
+        if (out && out.synced) console.log(`[instantly-visitors] synced ${out.synced} new (${out.skipped} skipped)`);
+      } catch (err) {
+        console.log(`[instantly-visitors] sync error: ${String(err).slice(0, 160)}`);
       }
       // Unified inbox: pull new mail for the configured mailbox(es). No-op until a
       // CRM_INBOX_EMAILS account (default hello@) is Gmail-OAuth connected.
