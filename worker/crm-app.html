@@ -806,6 +806,32 @@ html,body{height:100%}
   .sp-eye{display:inline-flex;flex:0 0 auto}
   .sp-eye svg{width:15px;height:15px;color:var(--accent);margin-top:1px}
   .sp-cardfoot{margin-top:11px;display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+
+  /* Auto-switch approval modal */
+  .am-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(10,22,40,.5);backdrop-filter:blur(2px);padding:20px}
+  .am-overlay.show{display:flex}
+  .am-card{width:min(460px,94vw);max-height:88vh;overflow:auto;background:var(--surface-1);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 64px rgba(10,22,40,.4)}
+  .am-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 20px 6px}
+  .am-head h3{margin:0;font-size:17px;font-weight:800;color:var(--tx-1)}
+  .am-head .am-x{border:0;background:transparent;font-size:24px;line-height:1;color:var(--tx-3);cursor:pointer}
+  .am-lead{padding:0 20px 4px;font-size:13px;color:var(--tx-2)}
+  .am-body{padding:8px 20px 4px}
+  .am-ok{font-size:12.5px;font-weight:700;color:var(--good);background:var(--good-soft);padding:7px 11px;border-radius:8px;margin-bottom:12px}
+  .am-warn{font-size:12.5px;font-weight:700;color:var(--bad);background:var(--bad-soft);padding:7px 11px;border-radius:8px;margin-bottom:12px}
+  .am-seq{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+  .am-seq li{display:flex;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px dashed var(--line)}
+  .am-seq li:last-child{border-bottom:0}
+  .am-when{flex:0 0 74px;font-family:var(--font-mono);font-size:11.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--accent)}
+  .am-what{font-size:13.5px;color:var(--tx-1);font-weight:600}
+  .am-sub{margin-top:10px;font-size:12px;color:var(--tx-3)}
+  .am-stop{margin-top:12px;font-size:12.5px;color:var(--tx-2);background:var(--surface-2);border-radius:8px;padding:9px 11px}
+  .am-foot{display:flex;gap:10px;justify-content:flex-end;padding:14px 20px 18px}
+  .am-btn{border-radius:9px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer;border:1px solid var(--line)}
+  .am-btn.cancel{background:transparent;color:var(--tx-2)}
+  .am-btn.cancel:hover{background:var(--surface-2)}
+  .am-btn.go{background:var(--accent);border-color:var(--accent);color:#fff}
+  .am-btn.go:hover{filter:brightness(.96)}
+  .am-btn.go:disabled{opacity:.5;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -1628,24 +1654,75 @@ function deleteConv(id){
   if(!document.getElementById('pipelineview').hidden) renderPipeline();
 }
 window.snoozeConv=snoozeConv;window.deleteConv=deleteConv;
+// Paused → apply immediately. Auto → gate behind an approval modal that previews the sequence.
+let _pendingAutoBtn = null;
 function setAuto(btn,mode){
+  if(mode==='auto'){ _pendingAutoBtn = btn; openAutoModal(); return; }
+  applyAuto(btn,'manual');
+}
+function applyAuto(btn,mode){
   const c=DATA.conversations.find(x=>x.id===sel);
-  // Flipping automation re-buckets the conversation: Auto → runs in the workflow
-  // (Auto tab); Manual → a human owns it in Open.
+  // Flipping automation re-buckets the conversation: Auto → runs in the workflow; Manual → a human owns it in Open.
   if(c){
     if(mode==='auto' && c.bucket!=='auto') c.bucket='auto';
     else if(mode==='manual' && c.bucket!=='open') c.bucket='open';
     recount();
   }
-  const sw=btn.parentElement;
-  sw.querySelectorAll('.seg').forEach(b=>b.classList.remove('on','onauto','onman'));
-  btn.classList.add('on', mode==='auto'?'onauto':'onman');
-  document.getElementById('autotip').innerHTML = mode==='auto' ? ANOTE.on : ANOTE.paused;
+  if(btn && btn.parentElement){
+    const sw=btn.parentElement;
+    sw.querySelectorAll('.seg').forEach(b=>b.classList.remove('on','onauto','onman'));
+    btn.classList.add('on', mode==='auto'?'onauto':'onman');
+  }
+  const tip=document.getElementById('autotip'); if(tip) tip.innerHTML = mode==='auto' ? ANOTE.on : ANOTE.paused;
   const tk=document.querySelector('.tracker');
   if(tk){ tk.classList.remove('tk-auto','tk-paused'); tk.classList.add(mode==='auto'?'tk-auto':'tk-paused'); }
   renderList(document.querySelector('.filters .on').dataset.f);
 }
 window.setAuto = setAuto;
+
+/* ---- Auto approval modal ---- */
+function seqPreviewHtml(c){
+  const first=(c.name||'this lead').split(' ')[0];
+  const emailOK = c.consent && c.consent.email==='granted';
+  const smsOK   = c.consent && c.consent.sms==='granted';
+  const steps=[
+    ['Now',      'A consent-first way to get more leads from your site'],
+    ['In 2 days','Quick follow-up'],
+    ['In 5 days','Last note (for now)'],
+  ];
+  const rows = steps.map(([w,s])=>`<li><span class="am-when">${w}</span><span class="am-what">✉ ${esc(s)}</span></li>`).join('');
+  const consentNote = emailOK
+    ? `<div class="am-ok">✓ Email consent on file — the sequence can send.</div>`
+    : `<div class="am-warn">⚠ No email consent on file — nothing will send until ${esc(first)} opts in.</div>`;
+  const phoneNote = smsOK
+    ? `<div class="am-sub">SMS &amp; AI-call steps are available (phone consent on file).</div>`
+    : `<div class="am-sub">SMS &amp; AI calls stay off — no phone consent yet.</div>`;
+  return `${consentNote}<ul class="am-seq">${rows}</ul>${phoneNote}<div class="am-stop">It stops the moment ${esc(first)} replies, books, or opts out — then hands them back to you in Open.</div>`;
+}
+function openAutoModal(){
+  const c=DATA.conversations.find(x=>x.id===sel); if(!c) return;
+  document.getElementById('am-title').textContent = 'Switch '+(c.name||'this lead')+' to Auto?';
+  document.getElementById('am-body').innerHTML = seqPreviewHtml(c);
+  document.getElementById('automodal').classList.add('show');
+}
+function closeAutoModal(){ document.getElementById('automodal').classList.remove('show'); _pendingAutoBtn=null; }
+function approveAuto(){ applyAuto(_pendingAutoBtn,'auto'); closeAutoModal(); }
+window.closeAutoModal=closeAutoModal; window.approveAuto=approveAuto;
+
+document.body.insertAdjacentHTML('beforeend', `
+  <div id="automodal" class="am-overlay" role="dialog" aria-modal="true" aria-labelledby="am-title">
+    <div class="am-card">
+      <div class="am-head"><h3 id="am-title">Switch to Auto?</h3><button class="am-x" onclick="closeAutoModal()" aria-label="Cancel">&times;</button></div>
+      <div class="am-lead">The follow-up workflow takes over from you — here's exactly what it will do:</div>
+      <div class="am-body" id="am-body"></div>
+      <div class="am-foot">
+        <button class="am-btn cancel" onclick="closeAutoModal()">Cancel</button>
+        <button class="am-btn go" id="am-go" onclick="approveAuto()">▶ Approve &amp; hand to Auto</button>
+      </div>
+    </div>
+  </div>`);
+document.getElementById('automodal').addEventListener('click',e=>{ if(e.target.id==='automodal') closeAutoModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && document.getElementById('automodal').classList.contains('show')) closeAutoModal(); });
 
 function statusCard(c){
   const s=c.sequence, st=autoState(c), autoOn=st==="on";
