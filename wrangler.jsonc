@@ -74,6 +74,13 @@
     "CONSENT_TEXT_VERSION": "v1-2026-06",
     "ALLOWED_ORIGINS": "https://consentresolve.com,https://www.consentresolve.com",
     "SOCIAL_AUTOPOST_ENABLED": "true",
-    "INDEXNOW_KEY": "0452ce57fb0d3bbfdcb0d12e1ee8b142"
+    "INDEXNOW_KEY": "0452ce57fb0d3bbfdcb0d12e1ee8b142",
+    // Speed-to-Lead — non-secret config kept here so it survives `wrangler deploy`
+    // (dashboard plain-text vars get wiped on each CI deploy; secrets persist).
+    // TWILIO_FROM_NUMBER is the public business line; the SID/AUTH_TOKEN stay secrets.
+    // Clean value (no trailing newline) — a CLI-set secret can smuggle a "\n" that
+    // makes Twilio report a From/account "mismatch" even when the account owns it.
+    "TWILIO_FROM_NUMBER": "+17272025996",
+    "STL_PUBLIC_ORIGIN": "https://consentresolve.com"
   }
 }
