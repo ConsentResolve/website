@@ -2617,6 +2617,18 @@ function renderAnalytics(){
   const seqrows=S.map(s=>`<tr><td>${esc(s.name)}</td><td class="num">${s.enrolled.toLocaleString()}</td><td class="num">${Math.round(s.replyRate*100)}%</td><td class="num">${Math.round(s.goalRate*100)}%</td><td class="num">${Math.round(s.optoutRate*100)}%</td></tr>`).join('');
   const dmax=Math.max(1,...A.leadsByDay);
   const spark=A.leadsByDay.map(v=>`<span class="spk" style="height:${Math.max(8,Math.round(v/dmax*100))}%" title="${v} leads"></span>`).join('');
+  // Identified visitors by source (Site Spy — de-anonymized, kept separate from the consented funnel).
+  const ID=A.identified;
+  const idBlock=(ID&&ID.total>0)?`
+    <div class="card an-card"><h4>Identified visitors by source <span class="atable-note" style="font-weight:400">— de-anonymized website visitors (Site Spy), separate from consented leads</span></h4>
+      <div class="kpis" style="margin:8px 0 14px">
+        <div class="kpi"><div class="kpi-v">${ID.total.toLocaleString()}</div><div class="kpi-l">Identified · all time</div></div>
+        <div class="kpi"><div class="kpi-v">${ID.last30.toLocaleString()}</div><div class="kpi-l">Identified · 30d</div></div>
+      </div>
+      <table class="atable"><thead><tr><th>Source</th><th class="num">Identified</th><th class="num">Last 30d</th></tr></thead>
+      <tbody>${ID.bySource.map(s=>{const lbl=(typeof SPY_SRC_LBL!=='undefined'&&SPY_SRC_LBL[s.src])||s.src,clr=(typeof SPY_SRC_CLR!=='undefined'&&SPY_SRC_CLR[s.src])||'#888';return `<tr><td><span class="lbadge" style="background:${clr}22;color:${clr};font-weight:700">${esc(lbl)}</span></td><td class="num">${s.n.toLocaleString()}</td><td class="num">${(s.n30||0).toLocaleString()}</td></tr>`;}).join('')}</tbody></table>
+      <div class="atable-note">These are de-anonymized visitors from Apollo / RB2B / Consent Resolve / Leadfeeder — not consented leads. Work them in Site Spy.</div>
+    </div>`:'';
   el.innerHTML=`
     <div class="an-head"><h2>Analytics</h2><span class="an-sub">Last 30 days · which source, sequence, and message books the job — and what it costs</span></div>
     <div class="kpis">${kpis}</div>
@@ -2629,6 +2641,7 @@ function renderAnalytics(){
       <tbody>${srows}</tbody></table>
       <div class="atable-note">Est. ROAS assumes $${A.avgDealYr.toLocaleString()}/yr average value per activation. “Organic” = no ad spend attributed.</div>
     </div>
+    ${idBlock}
     <div class="an-grid">
       <div class="card an-card"><h4>Ad spend by channel</h4><div class="sbchart">${spend}</div></div>
       <div class="card an-card"><h4>Sequence performance</h4>

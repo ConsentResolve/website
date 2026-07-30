@@ -408,7 +408,16 @@ export async function onRequestGet({ request, env }) {
     };
     const FLBL = { lead_created: "Leads", contacted: "Contacted", replied: "Replied", booked: "Demo booked", signed_up: "Signed up", activated: "Activated" };
     const funnelArr = Object.keys(FLBL).map((t) => ({ k: FLBL[t], n: funnel[t] || 0 }));
-    ANALYTICS = { kpis, funnel: funnelArr, sources, spendByChannel, leadsByDay, avgDealYr };
+    // Identified visitors by source (Site Spy sources — from crm_leads, kept SEPARATE
+    // from the consented funnel above so we never count identified≠consented as "leads").
+    let identified = null;
+    try {
+      const idRows = (await env.DB.prepare("SELECT COALESCE(source,'other') src, COUNT(*) n, SUM(CASE WHEN created_at >= datetime('now','-30 days') THEN 1 ELSE 0 END) n30 FROM crm_leads WHERE consent_status='identified' GROUP BY source ORDER BY n DESC").all()).results || [];
+      const idTotal = idRows.reduce((a, r) => a + (r.n || 0), 0);
+      const id30 = idRows.reduce((a, r) => a + (r.n30 || 0), 0);
+      if (idTotal > 0) identified = { total: idTotal, last30: id30, bySource: idRows.map((r) => ({ src: r.src, n: r.n || 0, n30: r.n30 || 0 })) };
+    } catch (_) {}
+    ANALYTICS = { kpis, funnel: funnelArr, sources, spendByChannel, leadsByDay, avgDealYr, identified };
   } catch (_) {}
 
   // Data-source registry (Site Spy / Nurture transparency + extensibility).
