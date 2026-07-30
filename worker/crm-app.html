@@ -596,6 +596,15 @@ html,body{height:100%}
   /* Gmail-style reply: collapsed Reply button → expanded WYSIWYG editor */
   .composer-wrap{flex:0 0 auto}
   .rcollapse{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface-1)}
+  .rc-actbar{margin-left:auto;display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .rc-act{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:6px 12px;font:inherit;font-size:var(--t-12);font-weight:600;color:var(--tx-1);cursor:pointer;white-space:nowrap}
+  .rc-act:hover{border-color:var(--line-2);background:var(--surface-3)}
+  .rc-act.danger{color:var(--bad)}
+  .rc-act.danger:hover{background:var(--bad-soft);border-color:var(--bad)}
+  .rc-assign-menu{position:fixed;z-index:80;background:var(--surface-1);border:1px solid var(--line-2);border-radius:var(--r-2);box-shadow:var(--shadow);padding:5px;min-width:196px;display:flex;flex-direction:column;gap:1px}
+  .rc-assign-menu button{display:flex;align-items:center;gap:9px;background:none;border:none;text-align:left;padding:8px 9px;border-radius:8px;cursor:pointer;font:inherit;font-size:var(--t-13);color:var(--tx-1)}
+  .rc-assign-menu button:hover{background:var(--surface-2)}
+  .rc-assign-menu .unassign{color:var(--tx-3);border-top:1px solid var(--line);margin-top:3px;border-radius:0 0 8px 8px}
   .rbtn-reply{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-2);background:var(--surface-1);border-radius:var(--r-full);padding:9px 20px;font:inherit;font-weight:700;font-size:var(--t-13);color:var(--tx-1);cursor:pointer;box-shadow:0 1px 3px rgba(15,32,53,.07)}
   .rbtn-reply:hover{border-color:var(--accent);color:var(--accent)}
   .rcollapse .rvia{font-size:11px;color:var(--tx-3);font-weight:600}
@@ -1476,8 +1485,11 @@ function fmtAge(sec){sec=Math.max(0,Math.floor(sec));const d=Math.floor(sec/8640
   if(sec<86400)return `${h}h ${String(m).padStart(2,'0')}m`;
   return `${d}d ${h}h`;}
 function tickClocks(){const now=Date.now();document.querySelectorAll('.clk[data-base]').forEach(n=>{
-  const ts=+n.dataset.ts;
-  const sec = ts ? (now-ts)/1000 : (+n.dataset.base)+(now-T0)/1000;  // real arrival ts survives refresh; AGE map is demo-only fallback
+  const ts=+n.dataset.ts, base=+n.dataset.base;
+  let sec;
+  if(ts){ sec=(now-ts)/1000; }                       // real arrival epoch → live age, survives refresh
+  else if(base>0){ sec=base+(now-T0)/1000; }          // demo fixtures only
+  else { n.textContent=n.dataset.rel||'—'; if(n.className!=='clk calm')n.className='clk calm'; return; }  // no timestamp → show the date, not a fake 0-timer
   n.textContent='⏱ '+fmtAge(sec);
   // urgency tier — only rows awaiting a human reply escalate; others stay calm
   let tier='calm';
@@ -1502,13 +1514,9 @@ function renderList(filter){
     const stagePill = dstg!=='new' ? `<span class="rstage ${dstg}" title="Deal stage">${dstg}</span>` : '';
     return `<button class="row ${c.id===sel?'sel':''} ${needsFix?'fix':''} ${c.bucket==='suppressed'?'dim':''}" onclick="select('${c.id}')">
       <div class="row-main">
-        <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="clk calm" data-ts="${c.age_ts||''}" data-base="${AGE[c.id]||0}" data-wait="${(c.unread && c.bucket==='open')?'1':'0'}">⏱ …</span></div>
+        <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="clk calm" data-ts="${c.age_ts||''}" data-base="${AGE[c.id]||0}" data-rel="${esc(c.ts||'')}" data-wait="${(c.unread && c.bucket==='open')?'1':'0'}">⏱ …</span></div>
         <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${stagePill}${c.snooze_until?`<span class="rmchip ${remOverdue(c.snooze_until)?'due':''}" title="${c.snooze_note?esc(c.snooze_note):'Reminder'}">⏰ ${fmtRemWhen(c.snooze_until)}</span>`:''}<span class="trollup ${tp.done===tp.total?'done':''}" title="Research & engagement tasks done">🗒 ${tp.done}/${tp.total}</span></div>
       </div>
-      <span class="rowacts">
-        <span class="ract" title="${c.bucket==='snoozed'?'Clear reminder':'Set reminder'}" onclick="event.stopPropagation();${c.bucket==='snoozed'?`wakeConv('${c.id}')`:`openRemind('${c.id}')`}">${c.bucket==='snoozed'?IC.wake:IC.snooze}</span>
-        <span class="ract del" title="Delete" onclick="event.stopPropagation();deleteConv('${c.id}')">${IC.trash}</span>
-      </span>
     </button>`;
   }).join("") || `<div style="padding:30px;text-align:center;color:var(--tx-3)">Nothing here. 🎉</div>`;
   tickClocks();
@@ -1565,9 +1573,16 @@ function composer(c){
     ? `<div class="chswitch">${avail.map(ch=>`<button class="chseg ${ch===cur?'on':''}" onclick="event.stopPropagation();setReplyCh('${c.id}','${ch}')"><span class="ci">${CHICON[ch]}</span>${CHWORD[ch]}</button>`).join('')}</div>`
     : `<span class="rvia-chip"><span class="ci">${CHICON[cur]}</span>${CHWORD[cur]}</span>`;
   if(!replyOpen){
+    const o=ownerOf(c);
+    const asg = o ? '👤 '+esc(o.name.split(' ')[0]) : '＋ Assign';
     return `<div class="rcollapse">
       <button class="rbtn-reply" onclick="openReply()">${IC.reply}&nbsp;Reply</button>
       <span class="rvia-lbl">Send via</span>${chToggle}
+      <span class="rc-actbar">
+        <button class="rc-act" onclick="openRemind('${c.id}')" title="Set a reminder / callback">⏰ Remind</button>
+        <button class="rc-act" onclick="assignConv('${c.id}',event)" title="Assign a rep">${asg}</button>
+        <button class="rc-act danger" onclick="deleteConv('${c.id}')" title="Delete conversation">🗑 Delete</button>
+      </span>
     </div>`;
   }
   const sw = chToggle;
@@ -1782,6 +1797,32 @@ function deleteConv(id){
   if(!document.getElementById('pipelineview').hidden) renderPipeline();
 }
 window.deleteConv=deleteConv;
+
+/* Assign a rep to a conversation — lightweight picker (in-session; owner map). */
+function assignConv(id, ev){
+  if(ev){ ev.stopPropagation(); }
+  document.querySelectorAll('.rc-assign-menu').forEach(m=>m.remove());
+  const cur=OWNERS[id];
+  const menu=document.createElement('div');
+  menu.className='rc-assign-menu';
+  let html='';
+  for(const k in TEAM){ const t=TEAM[k]; html+=`<button data-k="${k}"><span class="oav-sm" style="background:${t.color}">${t.init}</span>${esc(t.name)}${k===cur?' &#10003;':''}</button>`; }
+  html+=`<button data-k="" class="unassign">Unassign</button>`;
+  menu.innerHTML=html;
+  document.body.appendChild(menu);
+  const btn=ev&&ev.currentTarget;
+  const r=btn?btn.getBoundingClientRect():{left:innerWidth/2,top:innerHeight-120};
+  menu.style.left=Math.max(8,Math.min(r.left, innerWidth-menu.offsetWidth-8))+'px';
+  menu.style.top=Math.max(8,(r.top-menu.offsetHeight-6))+'px';   // open upward (bar is at the bottom)
+  menu.addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b)return;
+    if(b.dataset.k){ OWNERS[id]=b.dataset.k; } else { delete OWNERS[id]; }
+    menu.remove(); rerenderComposer();
+    const f=document.querySelector('.filters .on'); if(f) renderList(f.dataset.f);
+  });
+  setTimeout(()=>document.addEventListener('click',function off(){ menu.remove(); document.removeEventListener('click',off); }),0);
+}
+window.assignConv=assignConv;
 // Paused → apply immediately. Auto → gate behind an approval modal that previews the sequence.
 let _pendingAutoBtn = null;
 function setAuto(btn,mode){
@@ -2770,7 +2811,7 @@ function select(id){
             <span class="sep">·</span>${phoneCm}
           </div>
         </div>
-        <div class="hdr-right"><button class="rm-hdr-btn" onclick="openRemind('${c.id}')" title="Set a callback / follow-up reminder">⏰ Remind</button>${ownerEl}${autoControl(c)}</div>
+        <div class="hdr-right">${autoControl(c)}</div>
       </div>
       <div class="stagebar ${stageMeta.c}"><span class="sb-ic">${stageMeta.ic}</span><span class="sb-lab">Stage</span><span class="sb-val">${esc(c.lifecycle)}</span></div>
       <div class="tabs">
