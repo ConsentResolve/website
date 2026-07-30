@@ -2,10 +2,11 @@
 <style>
 /* ===== tokens (inlined) ===== */
 /* CRM rebuild — design tokens (single source of truth).
-   Two candidate themes via data-theme; dark is default. Source-chip hues are
+   Two candidate themes via data-theme; LIGHT is the default (app is light-locked)
+   so the page never flash-paints dark before JS runs. Source-chip hues are
    IDENTICAL across both themes (brand identity), only surfaces/text flip. */
 
-:root, :root[data-theme="dark"] {
+:root[data-theme="dark"] {
   /* surfaces (4-step elevation) */
   --s0:#070e18; --s1:#0b1728; --s2:#10203552; --s2s:#122844; --s3:#16304e;
   --surface-0:#070e18; --surface-1:#0c1a2c; --surface-2:#102338; --surface-3:#16304e;
@@ -24,7 +25,7 @@
   --hover:rgba(148,163,184,.07);
   --focus:rgba(0,229,160,.55);
 }
-:root[data-theme="light"] {
+:root, :root[data-theme="light"] {
   --surface-0:#eef2f6; --surface-1:#ffffff; --surface-2:#f5f8fb; --surface-3:#eaf0f6;
   --tx-1:#0e1c2e; --tx-2:#48586a; --tx-3:#8496a6;
   --line:rgba(15,32,53,.11); --line-2:rgba(15,32,53,.2);
