@@ -24,6 +24,15 @@ function readiness(env) {
     alert_url: !!(env.STL_ALERT_URL || env.TEAM_NOTIFY_URL || env.SALES_WEBHOOK_URL),
     verify_webhooks: env.STL_VERIFY_WEBHOOKS === "1",
     booking_link: env.STL_BOOKING_LINK || "",
+    // Diagnostics — public/non-secret values + lengths only (never the auth token).
+    _debug: {
+      from_value: env.TWILIO_FROM_NUMBER || null,
+      from_len: (env.TWILIO_FROM_NUMBER || "").length,
+      sid: env.TWILIO_ACCOUNT_SID || null,          // account SID is not secret
+      sid_len: (env.TWILIO_ACCOUNT_SID || "").length,
+      auth_token_len: (env.TWILIO_AUTH_TOKEN || "").length,
+      messaging_service: env.TWILIO_MESSAGING_SERVICE_SID || null,
+    },
   };
 }
 

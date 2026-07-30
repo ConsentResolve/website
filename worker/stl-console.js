@@ -84,6 +84,7 @@ details{border:1px solid var(--ln);border-radius:9px;margin:6px 0;background:var
 <h2>Integrations &amp; go-live</h2>
 <div class=card>
   <div id=readiness class="grid g4"></div>
+  <div id=twilioDebug class="note mono" style="margin-top:8px"></div>
   <div class=row style="margin-top:14px;gap:10px">
     <button onclick=provisionRetell()>⚡ Provision Ruby (Retell)</button>
     <button class=ghost onclick=listNumbers()>List Retell numbers</button>
@@ -216,6 +217,9 @@ function renderReadiness(r){
     chip(r.alert_url,'Alerts / paging')+
     chip(!!r.booking_link,'Booking link')+
     chip(r.verify_webhooks,'Webhook signatures');
+  const d=r._debug||{};
+  const dbg=document.getElementById('twilioDebug');
+  if(dbg) dbg.textContent='Twilio env → From='+JSON.stringify(d.from_value)+' (len '+d.from_len+') · SID='+(d.sid||'—')+' (len '+d.sid_len+') · auth_token len '+d.auth_token_len+' · MsgService='+(d.messaging_service||'—');
 }
 async function provisionRetell(){ $('#intgOut').textContent='provisioning Ruby…'; const d=await api('POST',{action:'retell_setup'}); $('#intgOut').textContent=JSON.stringify(d); await load(); }
 async function listNumbers(){ $('#intgOut').textContent='fetching numbers…'; const d=await api('POST',{action:'retell_numbers'}); $('#intgOut').textContent=JSON.stringify(d); }
