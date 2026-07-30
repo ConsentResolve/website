@@ -122,6 +122,29 @@ export async function listMessagingServices(env) {
   return { ok: true, count: services.length, services };
 }
 
+// Attach an owned number to a Messaging Service (completes A2P: campaign → service →
+// number). Resolves the E.164 to its PN SID, then adds it to the service's sender pool.
+export async function attachNumberToService(env, serviceSid, number) {
+  if (!hasCreds(env)) return { ok: false, error: "missing_twilio_creds" };
+  serviceSid = (serviceSid || env.TWILIO_MESSAGING_SERVICE_SID || "").trim();
+  number = (number || env.TWILIO_FROM_NUMBER || "").trim();
+  if (!serviceSid) return { ok: false, error: "no messaging service SID" };
+  if (!number) return { ok: false, error: "no number" };
+  // Resolve E.164 → PhoneNumber SID (PN…).
+  const nr = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/IncomingPhoneNumbers.json?PhoneNumber=${encodeURIComponent(number)}`, { headers: { Authorization: basic(env) } });
+  if (!nr.ok) return { ok: false, status: nr.status, error: `lookup_${nr.status}` };
+  const nj = await nr.json().catch(() => ({}));
+  const pn = (nj.incoming_phone_numbers || [])[0];
+  if (!pn) return { ok: false, error: `number ${number} not found in this account` };
+  const form = new URLSearchParams(); form.set("PhoneNumberSid", pn.sid);
+  const ar = await fetch(`https://messaging.twilio.com/v1/Services/${serviceSid}/PhoneNumbers`, {
+    method: "POST", headers: { Authorization: basic(env), "Content-Type": "application/x-www-form-urlencoded" }, body: form.toString(),
+  });
+  const aj = await ar.json().catch(() => ({}));
+  if (!ar.ok) return { ok: false, status: ar.status, error: aj.message || `attach_${ar.status}` };
+  return { ok: true, attached: number, phone_sid: pn.sid, service: serviceSid };
+}
+
 export async function listTwilioNumbers(env) {
   if (!hasCreds(env)) return { ok: false, error: "missing_twilio_creds" };
   const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/IncomingPhoneNumbers.json?PageSize=50`, { headers: { Authorization: basic(env) } });
