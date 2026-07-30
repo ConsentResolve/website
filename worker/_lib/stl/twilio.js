@@ -177,6 +177,15 @@ async function trk(env, method, path, body) {
   const t = await res.text().catch(() => ""); let j = null; try { j = t ? JSON.parse(t) : null; } catch (_) {}
   return { ok: res.ok, status: res.status, json: j, text: t.slice(0, 300) };
 }
+// SIP credential lists live under the main API, not the trunking API.
+async function sipApi(env, method, path, body) {
+  const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}${path}`, {
+    method, headers: { Authorization: basic(env), "Content-Type": "application/x-www-form-urlencoded" },
+    body: body ? new URLSearchParams(body).toString() : undefined,
+  });
+  const t = await res.text().catch(() => ""); let j = null; try { j = t ? JSON.parse(t) : null; } catch (_) {}
+  return { ok: res.ok, status: res.status, json: j, text: t.slice(0, 300) };
+}
 function randPw() {
   const U = "ABCDEFGHJKLMNPQRSTUVWXYZ", L = "abcdefghijkmnpqrstuvwxyz", D = "23456789", all = U + L + D;
   let s = U[Math.floor(Math.random() * U.length)] + L[Math.floor(Math.random() * L.length)] + D[Math.floor(Math.random() * D.length)];
@@ -209,12 +218,27 @@ export async function createSipTrunk(env) {
   const termination = trunk.domain_name;
 
   // Credential list + credential (Retell authenticates outbound with these).
+  // Credential lists are main-API resources; associating them to the trunk is trunking-API.
   const password = randPw();
-  const cl = await trk(env, "POST", "/CredentialLists", { FriendlyName: "cr-stl-retell" });
-  if (!cl.ok || !cl.json) return { ok: false, error: "create_credlist_failed", detail: cl.text, trunk_sid: trunkSid };
-  const cred = await trk(env, "POST", `/CredentialLists/${cl.json.sid}/Credentials`, { Username: "retell", Password: password });
-  if (!cred.ok) return { ok: false, error: "create_credential_failed", detail: cred.text };
-  await trk(env, "POST", `/Trunks/${trunkSid}/CredentialLists`, { CredentialListSid: cl.json.sid });
+  let clSid = null;
+  const cls = await sipApi(env, "GET", "/SIP/CredentialLists.json?PageSize=50");
+  if (cls.ok && cls.json) { const ex = (cls.json.credential_lists || []).find((c) => c.friendly_name === "cr-stl-retell"); if (ex) clSid = ex.sid; }
+  if (!clSid) {
+    const cl = await sipApi(env, "POST", "/SIP/CredentialLists.json", { FriendlyName: "cr-stl-retell" });
+    if (!cl.ok || !cl.json) return { ok: false, error: "create_credlist_failed", detail: cl.text, trunk_sid: trunkSid };
+    clSid = cl.json.sid;
+  }
+  // Credential "retell": reset the password if it exists, else create it.
+  let credSid = null;
+  const creds = await sipApi(env, "GET", `/SIP/CredentialLists/${clSid}/Credentials.json?PageSize=50`);
+  if (creds.ok && creds.json) { const ex = (creds.json.credentials || []).find((c) => c.username === "retell"); if (ex) credSid = ex.sid; }
+  if (credSid) {
+    await sipApi(env, "POST", `/SIP/CredentialLists/${clSid}/Credentials/${credSid}.json`, { Password: password });
+  } else {
+    const cr = await sipApi(env, "POST", `/SIP/CredentialLists/${clSid}/Credentials.json`, { Username: "retell", Password: password });
+    if (!cr.ok) return { ok: false, error: "create_credential_failed", detail: cr.text };
+  }
+  await trk(env, "POST", `/Trunks/${trunkSid}/CredentialLists`, { CredentialListSid: clSid }); // idempotent-ish
 
   // Associate our number with the trunk (authorizes it as an outbound caller-ID).
   const assoc = await trk(env, "POST", `/Trunks/${trunkSid}/PhoneNumbers`, { PhoneNumberSid: pn.sid });
