@@ -62,7 +62,7 @@ window.CRM_LIVE_PENDING = true; // set before restoreView runs → data views sh
     if (d.NURTURE && d.NURTURE.pool && d.NURTURE.pool.length) window.NURTURE = d.NURTURE;
     if (d.PIPELINE && d.PIPELINE.length) window.PIPELINE = d.PIPELINE;
     if (d.ANALYTICS && d.ANALYTICS.kpis) window.ANALYTICS = d.ANALYTICS;
-    if (d.me && window.DATA) window.DATA.me = d.me;
+    if (d.me && window.DATA) { window.DATA.me = d.me; if (window.applyMe) window.applyMe(); }
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.DATA) {
       window.DATA.conversations = d.DATA_CONVERSATIONS;
       if (d.DATA_COUNTS) window.DATA.counts = d.DATA_COUNTS;

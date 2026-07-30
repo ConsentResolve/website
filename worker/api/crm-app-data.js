@@ -7,6 +7,7 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { currentUser } from "../_lib/crm-v2.js";
+import { crmSessionEmail } from "../_lib/auth.js";
 import { ensureRebuildSchema } from "../_lib/crm-rebuild.js";
 import { computeSources } from "../_lib/sitespy.js";
 import { listSpyLeads } from "./crm-spy.js";
@@ -21,6 +22,14 @@ export async function onRequestGet({ request, env }) {
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
   await ensureRebuildSchema(env);
   const me = await currentUser(request, env).catch(() => null);
+  // Always resolve who's signed in — fall back to the Google session email even when
+  // there's no users-table row, so the header chip never shows a stale demo name.
+  const sessEmail = await crmSessionEmail(request, env).catch(() => null);
+  const nameFromEmail = (e) => (e || "").split("@")[0].split(/[._-]+/).filter(Boolean)
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(" ") || (e || "");
+  const meOut = me
+    ? { name: me.name, email: me.email, role: me.role }
+    : (sessEmail ? { name: nameFromEmail(sessEmail), email: sessEmail, role: "member" } : null);
 
   // ---- Consent ledger (backed by consent_records) ----
   // One row per (contact, event) with channels merged — matches the ledger UI shape
@@ -376,7 +385,7 @@ export async function onRequestGet({ request, env }) {
 
   return json({
     ok: true,
-    me: me ? { name: me.name, email: me.email, role: me.role } : null,
+    me: meOut,
     CONSENT_LEDGER, CONSENT_STATS, consentSummary,
     SEQUENCES,
     DATA_CONVERSATIONS, DATA_COUNTS,

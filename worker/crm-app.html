@@ -936,9 +936,7 @@ html,body{height:100%}
         <div class="toggle"><button data-th="dark">Dark</button><button data-th="light" class="on">Light</button></div>
         <div class="pf-sep"></div>
         <a class="pf-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Account settings</a>
-        <a class="pf-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6"/><path d="M17.5 20a6.5 6.5 0 0 0-3-5.5"/></svg>Team &amp; seats</a>
         <a class="pf-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>Notifications</a>
-        <a class="pf-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 10h19"/></svg>Billing &amp; plan</a>
         <div class="pf-sep"></div>
         <a class="pf-item danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Sign out</a>
       </div>
@@ -2408,6 +2406,18 @@ window.pollLive=pollLive;
 /* ---- Profile menu (top-left): open/close, avatar upload ---- */
 function toggleProfile(e){ e.stopPropagation(); const m=document.getElementById('pfmenu'); if(m) m.hidden=!m.hidden; }
 window.toggleProfile=toggleProfile;
+// Reflect the signed-in user (DATA.me from /api/crm/app) onto the header chip + menu.
+function applyMe(){
+  const me = window.DATA && window.DATA.me; if(!me) return;
+  const nm = me.name || (me.email||"").split("@")[0] || "Account";
+  const init = (typeof initials==='function') ? initials(nm) : nm.slice(0,2).toUpperCase();
+  document.querySelectorAll('.pfname').forEach(el=>{ el.textContent = nm; });
+  const idb=document.querySelector('.pf-id b'); if(idb) idb.textContent = nm;
+  const ids=document.querySelector('.pf-id span'); if(ids) ids.textContent = me.email||"";
+  // Only set initials where no uploaded avatar image is present.
+  ['pfav','pfavLg'].forEach(id=>{ const el=document.getElementById(id); if(el && !el.querySelector('img')) el.textContent = init; });
+}
+window.applyMe=applyMe;
 function onAvatar(files){
   if(!files||!files[0]) return;
   const r=new FileReader();
