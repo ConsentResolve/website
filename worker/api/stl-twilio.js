@@ -30,12 +30,17 @@ export async function onRequestPost({ request, env }) {
   if (!(await twilioVerify(env, request, p))) return new Response("forbidden", { status: 403 });
 
   if (path.endsWith("/status")) {
-    // Delivery status callback — attach outcome to the touchpoint by provider_ref.
+    // Delivery status callback — attach outcome + any carrier error to the touchpoint.
     const sid = p.MessageSid || p.SmsSid, status = p.MessageStatus || p.SmsStatus;
     if (sid) {
       const map = { delivered: "sms_delivered", failed: "sms_failed", undelivered: "sms_failed" };
-      await env.DB.prepare("UPDATE stl_touchpoints SET outcome=COALESCE(?, outcome) WHERE provider_ref=?")
-        .bind(map[status] || null, sid).run().catch(() => {});
+      const note = p.ErrorCode ? `twilio_${p.ErrorCode} (delivery ${status})` : null;
+      await env.DB.prepare("UPDATE stl_touchpoints SET outcome=COALESCE(?, outcome), notes=COALESCE(?, notes) WHERE provider_ref=?")
+        .bind(map[status] || null, note, sid).run().catch(() => {});
+      if (p.ErrorCode) {
+        const row = await env.DB.prepare("SELECT lead_id FROM stl_touchpoints WHERE provider_ref=? LIMIT 1").bind(sid).first().catch(() => null);
+        await logEvent(env, row ? row.lead_id : null, "sms_delivery_failed", { error_code: p.ErrorCode, status });
+      }
     }
     return twiml("");
   }

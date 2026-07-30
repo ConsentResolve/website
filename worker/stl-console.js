@@ -131,6 +131,9 @@ details{border:1px solid var(--ln);border-radius:9px;margin:6px 0;background:var
 <h2>Gate violations <span class=note>— target: zero. Any row is a bug or a real block.</span></h2>
 <div class=card id=violations><span class=muted>none</span></div>
 
+<h2>Recent errors <span class=note>— live send failures with the provider's exact code (catch via GET /api/stl/admin → errors[])</span></h2>
+<div class=card id=errors><span class=muted>none</span></div>
+
 <h2>Leads &amp; touchpoints</h2>
 <div id=leads></div>
 
@@ -166,6 +169,10 @@ async function load(){
     K((m.dispatch_by_mode&&(m.dispatch_by_mode.live||0))+' / '+(m.dispatch_by_mode&&(m.dispatch_by_mode.simulate||0)),'Live / simulated sends');
   // readiness
   renderReadiness(d.readiness||{});
+  // recent errors (live send failures with the provider code)
+  const errs=d.errors||[];
+  $('#errors').innerHTML=errs.length? '<table><tr><th>When</th><th>Kind</th><th>Detail</th><th>Lead</th></tr>'+
+    errs.map(e=>{let dt='';try{dt=e.detail?JSON.stringify(JSON.parse(e.detail)):''}catch(_){dt=e.detail||''}return '<tr><td>'+ts(e.at)+'</td><td class=s-failed>'+esc(e.kind)+'</td><td class=mono>'+esc(dt)+'</td><td class=tp>'+esc((e.lead_id||'').slice(0,8))+'</td></tr>';}).join('')+'</table>' : '<span class=muted>none</span>';
   // violations
   $('#violations').innerHTML=d.violations.length? '<table><tr><th>When</th><th>Channel</th><th>Reason</th><th>Caller</th><th>Lead</th></tr>'+
     d.violations.map(v=>'<tr><td>'+ts(v.attempted_at)+'</td><td>'+esc(v.channel)+'</td><td class=s-blocked>'+esc(v.reason)+'</td><td class=tp>'+esc(v.caller)+'</td><td class=tp>'+esc(v.lead_id.slice(0,8))+'</td></tr>').join('')+'</table>' : '<span class=muted>none — clean</span>';

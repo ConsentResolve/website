@@ -131,8 +131,11 @@ export async function tick(env, limit = 50) {
       notes: res.detail || null,
     });
     if (res.act === "paused") { summary.skipped++; }
-    else if (status === "failed") summary.failed++;
-    else { summary.sent++; if (res.act === "simulate") summary.simulated++; }
+    else if (status === "failed") {
+      summary.failed++;
+      await logEvent(env, t.lead_id, "send_failed", { channel: t.channel, step: t.sequence_step, detail: res.detail || null });
+      await alert(env, `Live ${t.channel} FAILED for lead ${t.lead_id} (${t.sequence_step}): ${res.detail || "unknown"}`);
+    } else { summary.sent++; if (res.act === "simulate") summary.simulated++; }
   }
   return summary;
 }

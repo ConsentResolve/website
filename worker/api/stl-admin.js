@@ -85,7 +85,10 @@ export async function onRequestGet({ request, env }) {
       ORDER BY scheduled_for ASC`);
   const violations = await all(env, "SELECT * FROM stl_gate_violations ORDER BY attempted_at DESC LIMIT 20");
   const reps = await all(env, "SELECT id, name, phone, active FROM stl_reps ORDER BY name");
-  return json({ ok: true, settings, defaults: DEFAULTS, readiness: readiness(env), metrics: await metrics(env), leads, touchpoints: tps, violations, reps }, {}, cors);
+  // Recent event log — send_failed / sms_delivery_failed / disclosure_fail etc.
+  const events = await all(env, "SELECT id, lead_id, at, kind, detail FROM stl_events ORDER BY at DESC LIMIT 40");
+  const errors = await all(env, "SELECT id, lead_id, at, kind, detail FROM stl_events WHERE kind LIKE '%fail%' ORDER BY at DESC LIMIT 40");
+  return json({ ok: true, settings, defaults: DEFAULTS, readiness: readiness(env), metrics: await metrics(env), leads, touchpoints: tps, violations, reps, events, errors }, {}, cors);
 }
 
 export async function onRequestPost({ request, env }) {

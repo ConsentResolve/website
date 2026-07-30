@@ -48,8 +48,8 @@ async function sendEmail(env, lead, r) {
       text: r.text || "",
     }),
   });
-  if (!res.ok) return { act: "live", outcome: "failed", detail: `resend_${res.status}` };
   const j = await res.json().catch(() => ({}));
+  if (!res.ok) return { act: "live", outcome: "failed", detail: `resend_${res.status}: ${String(j.message || j.error || "").slice(0, 180)}` };
   return { act: "live", outcome: "delivered", providerRef: j.id || null };
 }
 
@@ -68,8 +68,9 @@ async function sendSms(env, lead, r) {
     headers: { Authorization: "Basic " + btoa(`${sid}:${tok}`), "Content-Type": "application/x-www-form-urlencoded" },
     body: form.toString(),
   });
-  if (!res.ok) return { act: "live", outcome: "sms_failed", detail: `twilio_${res.status}` };
   const j = await res.json().catch(() => ({}));
+  // Twilio returns { code, message, more_info } on error — capture the real code (e.g. 21608 trial, 30034 10DLC).
+  if (!res.ok) return { act: "live", outcome: "sms_failed", detail: `twilio_${j.code || res.status}: ${String(j.message || "").slice(0, 180)}`, moreInfo: j.more_info || null };
   return { act: "live", outcome: "sms_delivered", providerRef: j.sid || null };
 }
 
@@ -85,8 +86,8 @@ async function startRetell(env, lead, ctx) {
       metadata: { lead_id: lead.id, touchpoint_id: ctx.touchpointId, step: ctx.step },
     }),
   });
-  if (!res.ok) return { act: "live", outcome: "failed", detail: `retell_${res.status}` };
   const j = await res.json().catch(() => ({}));
+  if (!res.ok) return { act: "live", outcome: "failed", detail: `retell_${res.status}: ${String(j.message || j.error_message || j.error || "").slice(0, 180)}` };
   return { act: "live", outcome: "no_answer", providerRef: j.call_id || null, pending: true };
 }
 
