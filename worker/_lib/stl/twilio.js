@@ -64,6 +64,31 @@ export async function sendTestSms(env, to, body) {
   return res.ok ? { ok: true, sid: j.sid, status: j.status } : { ok: false, status: res.status, error: j.message || `twilio_${res.status}` };
 }
 
+// Find which account (this one or any of its subaccounts) owns a given number.
+// Twilio has no global reverse-owner lookup, but the parent creds can list all
+// subaccounts and search each. Answers "which Account SID owns +17272025996?".
+export async function findNumberOwner(env, number) {
+  if (!hasCreds(env)) return { ok: false, error: "missing_twilio_creds" };
+  const num = (number || env.TWILIO_FROM_NUMBER || "").trim();
+  if (!num) return { ok: false, error: "no number given" };
+  // List the main account + all its subaccounts.
+  const ar = await fetch("https://api.twilio.com/2010-04-01/Accounts.json?PageSize=200", { headers: { Authorization: basic(env) } });
+  if (!ar.ok) return { ok: false, status: ar.status, error: `cannot_list_accounts_${ar.status}` };
+  const aj = await ar.json().catch(() => ({}));
+  const accounts = aj.accounts || [];
+  const owners = [];
+  for (const a of accounts) {
+    const auth = "Basic " + btoa(`${a.sid}:${a.auth_token}`);
+    const r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${a.sid}/IncomingPhoneNumbers.json?PhoneNumber=${encodeURIComponent(num)}`, { headers: { Authorization: auth } });
+    if (!r.ok) continue;
+    const j = await r.json().catch(() => ({}));
+    if ((j.incoming_phone_numbers || []).length) {
+      owners.push({ account_sid: a.sid, friendly_name: a.friendly_name, status: a.status, type: a.type, is_subaccount: a.sid !== env.TWILIO_ACCOUNT_SID });
+    }
+  }
+  return { ok: true, number: num, found: owners.length > 0, owners, accounts_scanned: accounts.length, configured_account: env.TWILIO_ACCOUNT_SID };
+}
+
 export async function listTwilioNumbers(env) {
   if (!hasCreds(env)) return { ok: false, error: "missing_twilio_creds" };
   const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/IncomingPhoneNumbers.json?PageSize=50`, { headers: { Authorization: basic(env) } });
