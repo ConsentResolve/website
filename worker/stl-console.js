@@ -173,7 +173,10 @@ async function load(){
   const byLead={};d.touchpoints.forEach(t=>{(byLead[t.lead_id]=byLead[t.lead_id]||[]).push(t);});
   $('#leads').innerHTML=d.leads.map(l=>{
     const tps=(byLead[l.id]||[]).sort((a,b)=>a.scheduled_for-b.scheduled_for);
-    const rows=tps.map(t=>'<tr><td class=tp>'+esc(t.sequence_step)+'</td><td>'+esc(t.channel)+'</td><td class=s-'+esc(t.status)+'>'+esc(t.status)+'</td><td>'+esc(t.outcome||'')+'</td><td>'+(t.consent_check==='blocked'?'<span class=s-blocked>blocked: '+esc(t.block_reason)+'</span>':(t.consent_check||''))+'</td><td>'+(t.dispatch_mode||'')+'</td><td class=tp>'+(t.attempted_at?ts(t.attempted_at):esc(fmtDelta(t.scheduled_for)))+'</td></tr>').join('');
+    const rows=tps.map(t=>{
+      const detail=(t.status==='failed'||t.outcome==='sms_failed')&&t.notes?' <span class=s-failed>('+esc(t.notes)+')</span>':(t.notes?' <span class=muted>'+esc(t.notes)+'</span>':'');
+      return '<tr><td class=tp>'+esc(t.sequence_step)+'</td><td>'+esc(t.channel)+'</td><td class=s-'+esc(t.status)+'>'+esc(t.status)+'</td><td>'+esc(t.outcome||'')+detail+'</td><td>'+(t.consent_check==='blocked'?'<span class=s-blocked>blocked: '+esc(t.block_reason)+'</span>':(t.consent_check||''))+'</td><td>'+(t.dispatch_mode||'')+'</td><td class=tp>'+(t.attempted_at?ts(t.attempted_at):esc(fmtDelta(t.scheduled_for)))+'</td></tr>';
+    }).join('');
     return '<details><summary><span class="pill p'+l.population+'">'+l.population+'</span> '+esc(l.first_name||'')+' '+esc(l.company?'· '+l.company:'')+' <span class=muted>'+esc(l.email||'')+' · '+esc(l.phone||'')+'</span> — <span class=muted>'+esc(l.status)+'</span> '+(l.is_test?'<span class=note>[test]</span>':'')+' <button class=ghost style="float:right;padding:3px 9px" onclick="event.preventDefault();revokeLead(\\''+l.id+'\\')">Revoke</button>'+(l.population==='B'?' <button class=ghost style="float:right;padding:3px 9px;margin-right:6px" onclick="event.preventDefault();markTransfer(\\''+l.id+'\\')">Mark B1 transfer</button>':'')+'</summary>'+
       '<div style="padding:0 12px 10px"><table><tr><th>Step</th><th>Channel</th><th>Status</th><th>Outcome</th><th>Gate</th><th>Mode</th><th>When</th></tr>'+(rows||'<tr><td colspan=7 class=muted>no touchpoints</td></tr>')+'</table></div></details>';
   }).join('')||'<span class=muted>No leads yet — inject one above.</span>';

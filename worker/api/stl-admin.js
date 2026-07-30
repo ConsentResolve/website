@@ -80,7 +80,7 @@ export async function onRequestGet({ request, env }) {
     `SELECT id, created_at, population, status, first_name, last_name, company, trade, email, phone, is_test
        FROM stl_leads ORDER BY created_at DESC LIMIT 40`);
   const tps = await all(env,
-    `SELECT id, lead_id, sequence_step, channel, status, scheduled_for, attempted_at, outcome, consent_check, block_reason, dispatch_mode
+    `SELECT id, lead_id, sequence_step, channel, status, scheduled_for, attempted_at, outcome, consent_check, block_reason, dispatch_mode, notes, provider_ref
        FROM stl_touchpoints WHERE lead_id IN (SELECT id FROM stl_leads ORDER BY created_at DESC LIMIT 40)
       ORDER BY scheduled_for ASC`);
   const violations = await all(env, "SELECT * FROM stl_gate_violations ORDER BY attempted_at DESC LIMIT 20");
