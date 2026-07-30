@@ -101,19 +101,6 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       (function(ss,ex){window.ldfdr=window.ldfdr||function(){(ldfdr._q=ldfdr._q||[]).push([].slice.call(arguments));};(function(d,s){fs=d.getElementsByTagName(s)[0];function ce(src){var cs=d.createElement(s);cs.src=src;cs.async=1;fs.parentNode.insertBefore(cs,fs);};ce('https://sc.lfeeder.com/lftracker_v1_'+ss+(ex?'_'+ex:'')+'.js');})(document,'script');})('kn9Eq4R0mJk8RlvP');
     </script>
 
-    <!-- ZoomInfo WebSights website-visitor tracker (COMPANY-level identification) —
-         CONSENT-GATED via ConsentResolve/Usercentrics autoblocker: type=text/plain keeps
-         it inert until the visitor consents to the "ZoomInfo" service. data-usercentrics
-         MUST match the EXACT service name configured in Termageddon, or it never loads.
-         ZIProjectKey 7ac3b238c51785351682 (deobfuscated from the ZoomInfo install snippet). -->
-    <script is:inline type="text/plain" data-usercentrics="ZoomInfo">
-      window.ZIProjectKey = "7ac3b238c51785351682";
-      var zi = document.createElement("script");
-      zi.type = "text/javascript"; zi.async = true;
-      zi.src = "https://js.zi-scripts.com/zi-tag.js";
-      (document.readyState === "complete") ? document.body.appendChild(zi)
-        : window.addEventListener("load", function(){ document.body.appendChild(zi); });
-    </script>
 
 
     <!-- First-party pageview beacon (no PII) → /api/hit, powers the campaign dashboard Clicks KPI -->
