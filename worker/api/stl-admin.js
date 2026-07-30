@@ -93,7 +93,11 @@ export async function onRequestGet({ request, env }) {
        FROM stl_touchpoints WHERE lead_id IN (SELECT id FROM stl_leads ORDER BY created_at DESC LIMIT 40)
       ORDER BY scheduled_for ASC`);
   const violations = await all(env, "SELECT * FROM stl_gate_violations ORDER BY attempted_at DESC LIMIT 20");
-  const reps = await all(env, "SELECT id, name, phone, active FROM stl_reps ORDER BY name");
+  const nowMs = Date.now();
+  const reps = await all(env,
+    `SELECT rp.id, rp.name, rp.phone, rp.active, COALESCE(rp.priority,100) priority,
+            EXISTS(SELECT 1 FROM stl_rep_availability a WHERE a.rep_id=rp.id AND a.state='available' AND a.starts_at<=? AND a.ends_at>=?) available
+       FROM stl_reps rp ORDER BY COALESCE(rp.priority,100) ASC, rp.name`, nowMs, nowMs);
   // Recent event log — send_failed / sms_delivery_failed / disclosure_fail etc.
   const events = await all(env, "SELECT id, lead_id, at, kind, detail FROM stl_events ORDER BY at DESC LIMIT 40");
   const errors = await all(env, "SELECT id, lead_id, at, kind, detail FROM stl_events WHERE kind LIKE '%fail%' ORDER BY at DESC LIMIT 40");
@@ -129,12 +133,28 @@ export async function onRequestPost({ request, env }) {
     }
     if (action === "seed_rep") {
       const id = crypto.randomUUID();
-      await env.DB.prepare("INSERT INTO stl_reps (id, name, phone, email, active) VALUES (?,?,?,?,1)")
-        .bind(id, body.name || "Test Rep", body.phone || "+15555550100", body.email || null).run();
+      const priority = parseInt(body.priority, 10) || 100;
+      await env.DB.prepare("INSERT INTO stl_reps (id, name, phone, email, active, priority) VALUES (?,?,?,?,1,?)")
+        .bind(id, body.name || "Rep", body.phone || "", body.email || null, priority).run();
       const now = Date.now();
       await env.DB.prepare("INSERT INTO stl_rep_availability (id, rep_id, starts_at, ends_at, state) VALUES (?,?,?,?, 'available')")
-        .bind(crypto.randomUUID(), id, now - 3600000, now + 30 * 86400000).run();
+        .bind(crypto.randomUUID(), id, now - 3600000, now + 365 * 86400000).run();
       return json({ ok: true, rep_id: id }, {}, cors);
+    }
+    if (action === "set_rep_state") {
+      // On-shift toggle: available = one long window; away = no available window.
+      const rid = body.rep_id;
+      await env.DB.prepare("DELETE FROM stl_rep_availability WHERE rep_id=?").bind(rid).run().catch(() => {});
+      if (body.state === "available") {
+        const now = Date.now();
+        await env.DB.prepare("INSERT INTO stl_rep_availability (id, rep_id, starts_at, ends_at, state) VALUES (?,?,?,?, 'available')")
+          .bind(crypto.randomUUID(), rid, now - 3600000, now + 365 * 86400000).run().catch(() => {});
+      }
+      return json({ ok: true, rep_id: rid, state: body.state === "available" ? "available" : "away" }, {}, cors);
+    }
+    if (action === "set_rep_priority") {
+      await env.DB.prepare("UPDATE stl_reps SET priority=? WHERE id=?").bind(parseInt(body.priority, 10) || 100, body.rep_id).run().catch(() => {});
+      return json({ ok: true }, {}, cors);
     }
     if (action === "delete_rep") {
       await env.DB.prepare("DELETE FROM stl_rep_availability WHERE rep_id=?").bind(body.rep_id).run().catch(() => {});

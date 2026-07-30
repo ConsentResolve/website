@@ -132,11 +132,12 @@ details{border:1px solid var(--ln);border-radius:9px;margin:6px 0;background:var
     <div class=row><button onclick=runTick()>▶ Run tick now</button></div>
     <div style="margin-top:12px"><b>Reps</b> <span class=note>— Ruby warm-transfers to an available rep. Add yourself so a B1 call can bridge to you.</span></div>
     <div class=row style="margin-top:6px">
-      <input id=repName placeholder="Rep name" style="max-width:130px" value="Me">
-      <input id=repPhone placeholder="+17135551234 (your mobile)" style="max-width:210px">
+      <input id=repName placeholder="Rep name" style="max-width:120px">
+      <input id=repPhone placeholder="+17135551234" style="max-width:170px">
+      <select id=repPriority style="max-width:130px"><option value=1>Primary</option><option value=2>Backup 1</option><option value=3>Backup 2</option></select>
       <button class=ghost onclick=seedRep()>+ Add rep</button>
     </div>
-    <div id=reps class=note style="margin-top:8px"></div>
+    <div id=reps style="margin-top:8px;font-size:12.5px"></div>
     <p class=note style="margin-top:14px"><b>Reset:</b> remove all test leads + their data.</p>
     <button class=danger onclick=resetTests()>Delete test data</button>
     <div id=tickOut class="note mono" style="margin-top:10px"></div>
@@ -219,9 +220,21 @@ async function inject(){
   const d=await api('POST',{action:'inject',population:$('#inPop').value,lead});$('#tickOut').textContent=d.ok?('Injected '+d.population+' lead '+d.lead_id.slice(0,8)):('error: '+(d.error||''));await load();
 }
 async function runTick(){$('#tickOut').textContent='ticking…';const d=await api('POST',{action:'tick'});$('#tickOut').textContent=d.ok?('tick: '+JSON.stringify(d.summary)):'error';await load();}
-async function seedRep(){ const name=$('#repName').value.trim()||'Me', phone=$('#repPhone').value.trim(); if(!phone){$('#tickOut').textContent='enter the rep phone (E.164, e.g. +17135551234)';return;} const d=await api('POST',{action:'seed_rep',name,phone}); $('#tickOut').textContent=d.ok?('rep added: '+name+' '+phone):('error: '+(d.error||'')); await load(); }
+const REP_RANK={1:'Primary',2:'Backup 1',3:'Backup 2'};
+async function seedRep(){ const name=$('#repName').value.trim()||'Rep', phone=$('#repPhone').value.trim(), priority=$('#repPriority').value; if(!phone){$('#tickOut').textContent='enter the rep phone (E.164, e.g. +17135551234)';return;} const d=await api('POST',{action:'seed_rep',name,phone,priority}); $('#tickOut').textContent=d.ok?('added '+name+' as '+(REP_RANK[priority]||('P'+priority))):('error: '+(d.error||'')); $('#repName').value='';$('#repPhone').value=''; await load(); }
 async function removeRep(id){ await api('POST',{action:'delete_rep',rep_id:id}); await load(); }
-function renderReps(reps){ const el=document.getElementById('reps'); if(!el) return; el.innerHTML=(reps&&reps.length)? 'Available for transfer: '+reps.map(r=>'<b>'+esc(r.name)+'</b> '+esc(r.phone)+(r.active?'':' (inactive)')+' <a href="#" onclick="removeRep(\\''+r.id+'\\');return false" style="color:var(--bad)">remove</a>').join(' · ') : '<span style="color:var(--warn)">No reps yet — add yourself above so Ruby has someone to warm-transfer to.</span>'; }
+async function repState(id,state){ await api('POST',{action:'set_rep_state',rep_id:id,state}); await load(); }
+async function repPriority(id,priority){ await api('POST',{action:'set_rep_priority',rep_id:id,priority}); await load(); }
+function renderReps(reps){
+  const el=document.getElementById('reps'); if(!el) return;
+  if(!reps||!reps.length){ el.innerHTML='<span style="color:var(--warn)">No reps yet — add your primary + backups above so Ruby can warm-transfer.</span>'; return; }
+  el.innerHTML='<table style="width:auto"><tr><th>Rank</th><th>Rep</th><th>Phone</th><th>On shift</th><th></th></tr>'+
+    reps.map(r=>{ const rank=REP_RANK[r.priority]||('P'+r.priority);
+      const avail=r.available? '<span style="color:var(--ok);font-weight:700">● available</span>' : '<span style="color:var(--tx2)">○ away</span>';
+      const toggle='<a href="#" onclick="repState(\\''+r.id+'\\',\\''+(r.available?'away':'available')+'\\');return false">'+(r.available?'set away':'set available')+'</a>';
+      return '<tr><td>'+esc(rank)+'</td><td>'+esc(r.name)+'</td><td class=mono>'+esc(r.phone)+'</td><td>'+avail+' · '+toggle+'</td><td><a href="#" onclick="removeRep(\\''+r.id+'\\');return false" style="color:var(--bad)">remove</a></td></tr>';
+    }).join('')+'</table><div class=note style="margin-top:4px">Ruby transfers to the highest-rank rep who is on shift. If the primary is away, it rolls to the next available backup; if all are away, she confirms the slot instead.</div>';
+}
 async function resetTests(){if(!confirm('Delete ALL test leads and their data?'))return;const d=await api('POST',{action:'reset_tests'});$('#tickOut').textContent=d.ok?('deleted '+d.deleted):'error';await load();}
 function renderReadiness(r){
   const chip=(ok,label,note)=>'<div class="kpi '+(ok?'good':'')+'"><div class=v style="font-size:15px">'+(ok?'● ready':'○ not set')+'</div><div class=l>'+label+(note?' <span class=muted>'+note+'</span>':'')+'</div></div>';

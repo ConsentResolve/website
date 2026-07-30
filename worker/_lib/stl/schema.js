@@ -116,6 +116,8 @@ const STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS idx_stl_tp_lead ON stl_touchpoints(lead_id, scheduled_for)`,
   `CREATE INDEX IF NOT EXISTS idx_stl_consent_lead ON stl_consent_events(lead_id, created_at)`,
   `CREATE INDEX IF NOT EXISTS idx_stl_consent_token ON stl_consent_events(revoke_token)`,
+  // Rep transfer priority (1 = primary, 2/3 = backups). Guarded — harmless if it exists.
+  `ALTER TABLE stl_reps ADD COLUMN priority INTEGER DEFAULT 100`,
 ];
 
 export async function ensureStlSchema(env) {

@@ -33,16 +33,17 @@ export async function scheduleLead(env, lead, steps) {
   await logEvent(env, lead.id, "sequence_scheduled", { population: lead.population, steps: seq.length });
 }
 
+// Highest-priority rep who is currently available (1=primary, then backups). If nobody
+// is available, returns null → Ruby confirms the slot instead of transferring.
 async function pickRep(env) {
   const now = Date.now();
-  let r = await env.DB.prepare(
+  return await env.DB.prepare(
     `SELECT rp.* FROM stl_reps rp
        JOIN stl_rep_availability a ON a.rep_id = rp.id
       WHERE rp.active=1 AND a.state='available' AND a.starts_at<=? AND a.ends_at>=?
+      ORDER BY COALESCE(rp.priority, 100) ASC, rp.id
       LIMIT 1`
   ).bind(now, now).first().catch(() => null);
-  if (!r) r = await env.DB.prepare("SELECT * FROM stl_reps WHERE active=1 LIMIT 1").first().catch(() => null);
-  return r || null;
 }
 
 async function latestMeeting(env, leadId) {
