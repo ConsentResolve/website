@@ -1,0 +1,107 @@
+// Speed-to-Lead — channel adapters. Real provider calls (Resend / Twilio / Retell)
+// gated by the simulate↔live switch (settings.js). In simulate (or when a live
+// send is suppressed by the internal test allowlist) we RECORD the intended send
+// and return act:"simulate" — the full flow is exercisable without touching a real
+// number. build step 5–7.
+import { decideDispatch } from "./settings.js";
+import { logEvent } from "./classifier.js";
+
+// Returns { act, outcome, providerRef, detail }
+export async function dispatch(env, settings, channel, ctx, rendered) {
+  const lead = ctx.lead;
+  const recipient = channel === "email" ? lead.email : lead.phone;
+  const decision = decideDispatch(settings, channel, recipient);
+
+  if (decision.act === "paused") return { act: "paused", outcome: "skipped", detail: "engine paused" };
+  if (!recipient) return { act: decision.act, outcome: "failed", detail: `no ${channel === "email" ? "email" : "phone"} on lead` };
+
+  if (decision.act === "simulate") {
+    await logEvent(env, lead.id, "simulated_send", { channel, step: ctx.step, to: recipient });
+    return { act: "simulate", outcome: simulatedOutcome(channel), providerRef: "sim-" + crypto.randomUUID().slice(0, 8), detail: "simulated" };
+  }
+
+  // ---- LIVE ----
+  try {
+    if (channel === "email") return await sendEmail(env, lead, rendered);
+    if (channel === "sms") return await sendSms(env, lead, rendered);
+    if (channel === "call_ai") return await startRetell(env, lead, ctx);
+    if (channel === "call_human") return await queueHumanDial(env, lead, ctx, rendered);
+  } catch (e) {
+    return { act: "live", outcome: "failed", detail: String(e).slice(0, 160) };
+  }
+  return { act: "live", outcome: "failed", detail: "unhandled channel" };
+}
+
+function simulatedOutcome(channel) {
+  return channel === "email" ? "delivered" : channel === "sms" ? "sms_delivered" : "no_answer";
+}
+
+async function sendEmail(env, lead, r) {
+  if (!env.RESEND_API_KEY) return { act: "live", outcome: "failed", detail: "missing_resend_key" };
+  const from = env.STL_FROM_EMAIL || env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>";
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from, to: [lead.email], reply_to: env.REPLY_TO || undefined,
+      subject: r.subject || "Consent Resolve",
+      text: r.text || "",
+    }),
+  });
+  if (!res.ok) return { act: "live", outcome: "failed", detail: `resend_${res.status}` };
+  const j = await res.json().catch(() => ({}));
+  return { act: "live", outcome: "delivered", providerRef: j.id || null };
+}
+
+async function sendSms(env, lead, r) {
+  const sid = env.TWILIO_ACCOUNT_SID, tok = env.TWILIO_AUTH_TOKEN;
+  if (!sid || !tok) return { act: "live", outcome: "failed", detail: "missing_twilio_creds" };
+  const form = new URLSearchParams();
+  form.set("To", lead.phone);
+  if (env.TWILIO_MESSAGING_SERVICE_SID) form.set("MessagingServiceSid", env.TWILIO_MESSAGING_SERVICE_SID);
+  else form.set("From", env.TWILIO_FROM_NUMBER || "");
+  form.set("Body", r.text || "");
+  const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
+    method: "POST",
+    headers: { Authorization: "Basic " + btoa(`${sid}:${tok}`), "Content-Type": "application/x-www-form-urlencoded" },
+    body: form.toString(),
+  });
+  if (!res.ok) return { act: "live", outcome: "sms_failed", detail: `twilio_${res.status}` };
+  const j = await res.json().catch(() => ({}));
+  return { act: "live", outcome: "sms_delivered", providerRef: j.sid || null };
+}
+
+async function startRetell(env, lead, ctx) {
+  if (!env.RETELL_API_KEY) return { act: "live", outcome: "failed", detail: "missing_retell_key" };
+  const res = await fetch("https://api.retellai.com/v2/create-phone-call", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${env.RETELL_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from_number: env.RETELL_FROM_NUMBER,
+      to_number: lead.phone,
+      override_agent_id: env.RETELL_AGENT_ID || undefined,
+      metadata: { lead_id: lead.id, touchpoint_id: ctx.touchpointId, step: ctx.step },
+    }),
+  });
+  if (!res.ok) return { act: "live", outcome: "failed", detail: `retell_${res.status}` };
+  const j = await res.json().catch(() => ({}));
+  return { act: "live", outcome: "no_answer", providerRef: j.call_id || null, pending: true };
+}
+
+// Human dial = queue for a rep (no external API). Notify the on-call/rep webhook.
+async function queueHumanDial(env, lead, ctx, r) {
+  await alert(env, `Dial queued: ${lead.first_name || "lead"} ${lead.company ? "(" + lead.company + ")" : ""} — ${lead.phone} · step ${ctx.step}`);
+  return { act: "live", outcome: "queued", detail: "queued for rep", script: (r && r.script) || null };
+}
+
+// Paging / notification for gate violations and rep queue (spec §4). Best-effort.
+export async function alert(env, message, extra) {
+  const url = env.STL_ALERT_URL || env.TEAM_NOTIFY_URL || env.SALES_WEBHOOK_URL;
+  if (!url) return;
+  try {
+    await fetch(url, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: `[Speed-to-Lead] ${message}`, ...(extra || {}) }),
+    });
+  } catch (_) {}
+}

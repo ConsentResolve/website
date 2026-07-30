@@ -43,7 +43,9 @@
     // Non-GBP platforms self-skip on the 2nd run via their cadence gate; GBP posts up
     // to GBP_POSTS_PER_DAY (default 2) so the two runs give it spaced 2×/day posting.
     // "*/5 * * * *" → Apollo visitor sync. scheduled() in worker/index.js branches on event.cron.
-    "crons": ["0 15 * * *", "0 23 * * *", "*/5 * * * *"]
+    // "* * * * *" → Speed-to-Lead cadence ticker (gates + dispatches due touchpoints;
+    // safe no-op / simulate-only until the engine is switched to live at /crm/speed).
+    "crons": ["0 15 * * *", "0 23 * * *", "*/5 * * * *", "* * * * *"]
   },
   //
   // Non-secret config. Secrets (set via `wrangler secret put` or the dashboard —

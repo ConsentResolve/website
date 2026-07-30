@@ -48,6 +48,15 @@ import * as crmSpy from "./api/crm-spy.js";
 import * as crmLive from "./api/crm-live.js";
 import * as crmAnalyticsRange from "./api/crm-analytics-range.js";
 import * as crmProfile from "./api/crm-profile.js";
+// Speed-to-Lead engine
+import * as stlLead from "./api/stl-lead.js";
+import * as stlRevoke from "./api/stl-revoke.js";
+import * as stlTwilio from "./api/stl-twilio.js";
+import * as stlRetell from "./api/stl-retell.js";
+import * as stlCalcom from "./api/stl-calcom.js";
+import * as stlAdmin from "./api/stl-admin.js";
+import * as stlConsole from "./stl-console.js";
+import { tick as stlTick } from "./_lib/stl/runner.js";
 import * as instantlyVisitors from "./api/instantly-visitors.js";
 import * as leadfeeder from "./api/leadfeeder.js";
 import * as rb2bEmail from "./api/rb2b-email.js";
@@ -192,6 +201,14 @@ const ROUTES = {
   "/api/seo/indexnow": seoApi,
   "/api/seo/digest": seoApi,
   "/api/seo/aeo": seoApi,
+  // ── Speed-to-Lead engine ──────────────────────────────────────────────────
+  "/api/lead": stlLead,
+  "/consent/revoke": stlRevoke,
+  "/api/stl/twilio/inbound": stlTwilio,
+  "/api/stl/twilio/status": stlTwilio,
+  "/api/stl/retell/webhook": stlRetell,
+  "/api/stl/calcom/webhook": stlCalcom,
+  "/api/stl/admin": stlAdmin,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
@@ -243,6 +260,16 @@ export default {
       const norm = url.pathname.replace(/\/+$/, "") || "/";
       const to = PATH_REDIRECTS[norm] || BLOG_REDIRECTS[norm];
       if (to) return Response.redirect(new URL(to, url.origin).toString(), 301);
+    }
+
+    // Speed-to-Lead internal test console (cr_crm-gated). Before the generic /crm/.
+    if (url.pathname === "/crm/speed" || url.pathname.startsWith("/crm/speed/")) {
+      try {
+        return await stlConsole.handle({ request, env, ctx });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: "stl_console_error", detail: String(err).slice(0, 300) }),
+          { status: 500, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+      }
     }
 
     // CRM rebuild app (frozen design, cr_crm-gated). Served before the legacy /crm
@@ -320,6 +347,15 @@ export default {
   // missing). On success the row is marked published with the live post URL; on
   // error it stays ready_to_publish and retries next eligible run.
   async scheduled(event, env, ctx) {
+    // Speed-to-Lead cadence ticker — every minute. Gates + dispatches every due
+    // touchpoint. Cheap when idle (indexed status/scheduled_for scan). Safe in
+    // simulate mode (default): records intended sends without touching a provider.
+    if (event.cron === "* * * * *") {
+      if (!env.DB) return;
+      try { const s = await stlTick(env); if (s && s.processed) console.log(`[stl] ${JSON.stringify(s)}`); }
+      catch (e) { console.log(`[stl] tick error: ${String(e).slice(0, 200)}`); }
+      return;
+    }
     // Apollo visitor sync — frequent cron. Incremental (only new emails), so it's
     // cheap to run often. No-op until APOLLO_API_KEY + APOLLO_CONTACTS_LABEL are set.
     if (event.cron === "*/5 * * * *") {
