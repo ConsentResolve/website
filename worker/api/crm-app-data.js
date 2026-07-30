@@ -8,6 +8,7 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { currentUser } from "../_lib/crm-v2.js";
 import { crmSessionEmail } from "../_lib/auth.js";
+import { getUserSettings } from "../_lib/user-settings.js";
 import { ensureRebuildSchema } from "../_lib/crm-rebuild.js";
 import { computeSources } from "../_lib/sitespy.js";
 import { listSpyLeads } from "./crm-spy.js";
@@ -27,9 +28,16 @@ export async function onRequestGet({ request, env }) {
   const sessEmail = await crmSessionEmail(request, env).catch(() => null);
   const nameFromEmail = (e) => (e || "").split("@")[0].split(/[._-]+/).filter(Boolean)
     .map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(" ") || (e || "");
-  const meOut = me
-    ? { name: me.name, email: me.email, role: me.role }
-    : (sessEmail ? { name: nameFromEmail(sessEmail), email: sessEmail, role: "member" } : null);
+  const uset = sessEmail ? await getUserSettings(env, sessEmail).catch(() => ({})) : {};
+  const meOut = (me || sessEmail)
+    ? {
+        email: me ? me.email : sessEmail,
+        name: uset.name || (me ? me.name : nameFromEmail(sessEmail)),
+        role: me ? me.role : "member",
+        title: uset.title || "",
+        avatar: uset.avatar || "",
+      }
+    : null;
 
   // ---- Consent ledger (backed by consent_records) ----
   // One row per (contact, event) with channels merged — matches the ledger UI shape

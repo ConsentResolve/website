@@ -882,6 +882,40 @@ html,body{height:100%}
   .am-btn.go:hover{filter:brightness(.96)}
   .am-btn.go:disabled{opacity:.5;cursor:not-allowed}
 
+  /* Account settings + Notifications panels (reuse .am-overlay/.am-card) */
+  .acc-form{display:flex;flex-direction:column;gap:14px;padding-top:6px}
+  .acc-av{display:flex;align-items:center;gap:14px}
+  .acc-av .av{width:64px;height:64px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-size:22px;font-weight:800;overflow:hidden;flex:0 0 auto}
+  .acc-av .av img{width:100%;height:100%;object-fit:cover}
+  .acc-av .btns{display:flex;gap:8px;flex-wrap:wrap}
+  .acc-field{display:flex;flex-direction:column;gap:5px}
+  .acc-field label{font-size:12px;font-weight:700;color:var(--tx-2)}
+  .acc-in,.acc-ta{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--surface-1);color:var(--tx-1);font-size:13.5px;box-sizing:border-box;font-family:inherit}
+  .acc-in:focus,.acc-ta:focus{outline:none;border-color:var(--accent)}
+  .acc-in[readonly]{background:var(--surface-2);color:var(--tx-2);cursor:not-allowed}
+  .acc-ta{min-height:84px;resize:vertical;line-height:1.5}
+  .acc-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .acc-sec{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-3);margin:4px 0 -4px}
+  .acc-soc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .acc-hint{font-size:11.5px;color:var(--tx-3)}
+  .acc-note{font-size:12.5px;font-weight:800;color:var(--good);margin-right:auto;align-self:center}
+  @media(max-width:520px){ .acc-row2,.acc-soc{grid-template-columns:1fr} }
+
+  .ntf-personas{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 10px}
+  .ntf-persona{flex:1;min-width:130px;border:1px solid var(--line);border-radius:11px;background:var(--surface-1);padding:10px 12px;cursor:pointer;text-align:left}
+  .ntf-persona:hover{border-color:var(--accent)}
+  .ntf-persona.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+  .ntf-persona b{display:block;font-size:13px;font-weight:800;color:var(--tx-1)}
+  .ntf-persona span{font-size:11px;color:var(--tx-3)}
+  .ntf-grouphd{display:grid;grid-template-columns:1fr 54px 54px;gap:8px;align-items:center;padding:6px 0 2px;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-3)}
+  .ntf-grouphd span:not(:first-child){text-align:center}
+  .ntf-cat{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin:14px 0 2px}
+  .ntf-row{display:grid;grid-template-columns:1fr 54px 54px;gap:8px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+  .ntf-row .lab b{display:block;font-size:13px;font-weight:700;color:var(--tx-1)}
+  .ntf-row .lab span{font-size:11.5px;color:var(--tx-3)}
+  .ntf-row .cell{display:grid;place-items:center}
+  .ntf-row input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:pointer}
+
   /* Reminder picker + Reminders view */
   .rm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 14px}
   .rm-quick{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);font-size:13.5px;font-weight:700;color:var(--tx-1);cursor:pointer;text-align:left}
@@ -929,14 +963,13 @@ html,body{height:100%}
           <span class="pfav lg" id="pfavLg">AM</span>
           <div class="pf-id"><b>Andy Mentges</b><span>andy@consentresolve.com</span></div>
         </div>
-        <button class="pf-upload" onclick="document.getElementById('avatarInput').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>Upload photo</button>
-        <input type="file" id="avatarInput" accept="image/*" hidden onchange="onAvatar(this.files)">
+        <button class="pf-upload" onclick="openAccount()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>Upload photo</button>
         <div class="pf-sep"></div>
         <div class="pf-lbl">Appearance</div>
         <div class="toggle"><button data-th="dark">Dark</button><button data-th="light" class="on">Light</button></div>
         <div class="pf-sep"></div>
-        <a class="pf-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Account settings</a>
-        <a class="pf-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>Notifications</a>
+        <a class="pf-item" onclick="openAccount()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Account settings</a>
+        <a class="pf-item" onclick="openNotif()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>Notifications</a>
         <div class="pf-sep"></div>
         <a class="pf-item danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Sign out</a>
       </div>
@@ -1920,6 +1953,193 @@ document.body.insertAdjacentHTML('beforeend', `
 document.getElementById('automodal').addEventListener('click',e=>{ if(e.target.id==='automodal') closeAutoModal(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && document.getElementById('automodal').classList.contains('show')) closeAutoModal(); });
 
+/* ===================== Account settings + Notifications ===================== */
+/* One per-user profile store (/api/crm/profile), keyed by the Google sign-in email. */
+let _profile=null, _accAvatar='';
+const SOC_FIELDS=[['linkedin','LinkedIn'],['x','X / Twitter'],['facebook','Facebook'],['instagram','Instagram'],['youtube','YouTube'],['tiktok','TikTok'],['website','Website'],['github','GitHub']];
+const NTF_CAT=[
+  ['Leads & pipeline',[
+    ['lead_new_assigned','New lead assigned to me','A fresh lead lands in your queue'],
+    ['lead_new_any','Any new lead captured','Every new lead across the site'],
+    ['lead_replied','A lead replies','Someone answers your outreach'],
+    ['demo_booked','Demo or call booked','A lead schedules time with you'],
+    ['deal_stage','Deal changes stage','Pipeline movement on a deal'],
+    ['deal_won','Deal won','A deal closes'],
+    ['deal_lost','Deal lost','A deal is marked lost'],
+  ]],
+  ['Site Spy & visitors',[
+    ['visitor_hot','High-intent visitor on site now','A hot visitor is live on the site'],
+    ['visitor_identified','New identified visitor','A de-anonymized company or person'],
+    ['visitor_returning','A known visitor returns','Repeat visit from a known contact'],
+  ]],
+  ['Outreach & sequences',[
+    ['seq_reply','Reply inside a sequence','A sequenced lead responds'],
+    ['seq_complete','Sequence finishes','All steps ran for a lead'],
+    ['optout','Unsubscribe / opt-out','Someone opts out of messaging'],
+  ]],
+  ['Reporting',[
+    ['summary_daily','Daily summary','One digest each morning'],
+    ['summary_weekly','Weekly performance summary','Roll-up of the week'],
+    ['spend_alert','Ad-spend threshold hit','Budget pacing alert'],
+    ['roas_drop','ROAS drops below target','Return-on-ad-spend warning'],
+  ]],
+  ['Team & system',[
+    ['mention','I&#39;m @mentioned or assigned','Direct mentions and handoffs'],
+    ['system','Billing & system alerts','Account, billing, and outage notices'],
+  ]],
+];
+const NTF_PRESETS={
+  exec:['lead_new_any','demo_booked','deal_won','deal_lost','summary_daily','summary_weekly','spend_alert','roas_drop','mention','system'],
+  sales:['lead_new_assigned','lead_replied','demo_booked','deal_stage','deal_won','deal_lost','visitor_hot','visitor_identified','visitor_returning','seq_reply','summary_daily','mention'],
+  marketing:['lead_new_any','deal_won','visitor_identified','seq_complete','optout','summary_daily','summary_weekly','spend_alert','roas_drop','mention'],
+};
+const NTF_PERSONA_META=[['exec','Executive','Money, outcomes & summaries'],['sales','Sales rep','Leads, replies & live visitors'],['marketing','Marketing','Capture, sequences & spend']];
+function ntfDefaults(persona){
+  const on=new Set(NTF_PRESETS[persona]||NTF_PRESETS.sales); const m={};
+  NTF_CAT.forEach(([,items])=>items.forEach(([k])=>{ m[k]={inapp:on.has(k),email:on.has(k)}; }));
+  return m;
+}
+async function loadProfile(force){
+  if(_profile && !force) return _profile;
+  try{ const r=await fetch('/api/crm/profile',{credentials:'same-origin'}); const j=await r.json(); if(j&&j.ok) _profile=j.me; }catch(_){}
+  if(!_profile){ const m=(window.DATA&&window.DATA.me)||{}; _profile={name:m.name||'',email:m.email||'',title:m.title||'',phone:'',avatar:m.avatar||'',signature:'',socials:{},persona:'',notifications:null}; }
+  return _profile;
+}
+function _hideMenu(){ const m=document.getElementById('pfmenu'); if(m) m.hidden=true; }
+
+/* ---- Account settings ---- */
+document.body.insertAdjacentHTML('beforeend', `
+  <div id="accmodal" class="am-overlay" role="dialog" aria-modal="true" aria-labelledby="acc-title">
+    <div class="am-card">
+      <div class="am-head"><h3 id="acc-title">Account settings</h3><button class="am-x" onclick="closeAccount()" aria-label="Close">&times;</button></div>
+      <div class="am-body"><div class="acc-form">
+        <div class="acc-av">
+          <div class="av" id="acc-av">?</div>
+          <div class="btns">
+            <button class="am-btn cancel" type="button" onclick="document.getElementById('acc-file').click()">Upload photo</button>
+            <button class="am-btn cancel" type="button" onclick="accRemoveAvatar()">Remove</button>
+          </div>
+          <input type="file" id="acc-file" accept="image/*" hidden onchange="accAvatar(this.files)">
+        </div>
+        <div class="acc-row2">
+          <div class="acc-field"><label for="acc-name">Full name</label><input class="acc-in" id="acc-name" oninput="renderAccAvatar()"></div>
+          <div class="acc-field"><label for="acc-titlein">Title</label><input class="acc-in" id="acc-titlein" placeholder="e.g. Account Executive"></div>
+        </div>
+        <div class="acc-row2">
+          <div class="acc-field"><label for="acc-email">Email (sign-in)</label><input class="acc-in" id="acc-email" readonly><div class="acc-hint">Your Google sign-in — where notifications are sent.</div></div>
+          <div class="acc-field"><label for="acc-phone">Phone</label><input class="acc-in" id="acc-phone" placeholder="(555) 123-4567"></div>
+        </div>
+        <div class="acc-field"><label for="acc-sig">Email signature</label><textarea class="acc-ta" id="acc-sig" placeholder="Aaron Phillips&#10;Consent Resolve&#10;(555) 123-4567 · consentresolve.com"></textarea></div>
+        <div class="acc-sec">Personal social links</div>
+        <div class="acc-soc" id="acc-soc"></div>
+      </div></div>
+      <div class="am-foot"><span class="acc-note" id="acc-msg"></span><button class="am-btn cancel" onclick="closeAccount()">Cancel</button><button class="am-btn go" id="acc-save" onclick="saveAccount()">Save changes</button></div>
+    </div>
+  </div>`);
+
+function renderAccAvatar(){
+  const el=document.getElementById('acc-av'); if(!el) return;
+  const nm=(document.getElementById('acc-name').value)||(_profile&&_profile.name)||(_profile&&_profile.email)||'?';
+  if(_accAvatar) el.innerHTML='<img src="'+_accAvatar+'" alt="">';
+  else el.textContent=(typeof initials==='function')?initials(nm):nm.slice(0,2).toUpperCase();
+}
+function accRemoveAvatar(){ _accAvatar=''; renderAccAvatar(); }
+function accAvatar(files){
+  if(!files||!files[0]) return;
+  const r=new FileReader();
+  r.onload=ev=>{ const img=new Image(); img.onload=()=>{
+    const S=256, c=document.createElement('canvas'); c.width=S; c.height=S;
+    const g=c.getContext('2d'), min=Math.min(img.width,img.height), sx=(img.width-min)/2, sy=(img.height-min)/2;
+    g.drawImage(img,sx,sy,min,min,0,0,S,S);
+    _accAvatar=c.toDataURL('image/jpeg',0.85); renderAccAvatar();
+  }; img.src=ev.target.result; };
+  r.readAsDataURL(files[0]);
+}
+async function openAccount(){
+  _hideMenu();
+  const p=await loadProfile(true);
+  document.getElementById('acc-name').value=p.name||'';
+  document.getElementById('acc-titlein').value=p.title||'';
+  document.getElementById('acc-email').value=p.email||'';
+  document.getElementById('acc-phone').value=p.phone||'';
+  document.getElementById('acc-sig').value=p.signature||'';
+  _accAvatar=p.avatar||'';
+  const soc=p.socials||{};
+  document.getElementById('acc-soc').innerHTML=SOC_FIELDS.map(([k,lbl])=>`<div class="acc-field"><label>${lbl}</label><input class="acc-in" data-soc="${k}" value="${String(soc[k]||'').replace(/"/g,'&quot;')}" placeholder="https://…"></div>`).join('');
+  document.getElementById('acc-msg').textContent='';
+  renderAccAvatar();
+  document.getElementById('accmodal').classList.add('show');
+}
+function closeAccount(){ document.getElementById('accmodal').classList.remove('show'); }
+async function saveAccount(){
+  const btn=document.getElementById('acc-save'), msg=document.getElementById('acc-msg'); btn.disabled=true; msg.style.color=''; msg.textContent='Saving…';
+  const socials={}; document.querySelectorAll('#acc-soc [data-soc]').forEach(i=>{ socials[i.getAttribute('data-soc')]=i.value.trim(); });
+  const body={ name:document.getElementById('acc-name').value.trim(), title:document.getElementById('acc-titlein').value.trim(), phone:document.getElementById('acc-phone').value.trim(), signature:document.getElementById('acc-sig').value, avatar:_accAvatar, socials };
+  try{
+    const r=await fetch('/api/crm/profile',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json();
+    if(j&&j.ok){ _profile=j.me; if(window.DATA) window.DATA.me={...(window.DATA.me||{}),name:j.me.name,email:j.me.email,title:j.me.title,avatar:j.me.avatar}; if(window.applyMe) window.applyMe(); msg.textContent='Saved ✓'; setTimeout(closeAccount,650); }
+    else { msg.style.color='var(--bad)'; msg.textContent='Could not save'; }
+  }catch(_){ msg.style.color='var(--bad)'; msg.textContent='Could not save'; }
+  btn.disabled=false;
+}
+
+/* ---- Notifications ---- */
+let _ntfState={}, _ntfPersona='';
+document.body.insertAdjacentHTML('beforeend', `
+  <div id="ntfmodal" class="am-overlay" role="dialog" aria-modal="true" aria-labelledby="ntf-title">
+    <div class="am-card" style="width:min(640px,95vw)">
+      <div class="am-head"><h3 id="ntf-title">Notifications</h3><button class="am-x" onclick="closeNotif()" aria-label="Close">&times;</button></div>
+      <div class="am-lead">Start from your role, then fine-tune exactly what reaches you — and where.</div>
+      <div class="am-body">
+        <div class="ntf-personas" id="ntf-personas"></div>
+        <div class="ntf-grouphd"><span>Notify me about…</span><span>In-app</span><span>Email</span></div>
+        <div id="ntf-list"></div>
+      </div>
+      <div class="am-foot"><span class="acc-note" id="ntf-msg"></span><button class="am-btn cancel" onclick="closeNotif()">Cancel</button><button class="am-btn go" id="ntf-save" onclick="saveNotif()">Save preferences</button></div>
+    </div>
+  </div>`);
+function renderNtfPersonas(){
+  document.getElementById('ntf-personas').innerHTML=NTF_PERSONA_META.map(([k,t,d])=>`<button class="ntf-persona${_ntfPersona===k?' on':''}" type="button" onclick="applyPersona('${k}')"><b>${t}</b><span>${d}</span></button>`).join('');
+}
+function renderNtfList(){
+  document.getElementById('ntf-list').innerHTML=NTF_CAT.map(([cat,items])=>`<div class="ntf-cat">${cat}</div>`+items.map(([k,lbl,desc])=>{
+    const s=_ntfState[k]||{inapp:false,email:false};
+    return `<div class="ntf-row"><div class="lab"><b>${lbl}</b><span>${desc}</span></div>
+      <div class="cell"><input type="checkbox" aria-label="${lbl} in-app" ${s.inapp?'checked':''} onchange="ntfToggle('${k}','inapp',this.checked)"></div>
+      <div class="cell"><input type="checkbox" aria-label="${lbl} email" ${s.email?'checked':''} onchange="ntfToggle('${k}','email',this.checked)"></div></div>`;
+  }).join('')).join('');
+}
+function ntfToggle(k,ch,v){ if(!_ntfState[k]) _ntfState[k]={inapp:false,email:false}; _ntfState[k][ch]=v; _ntfPersona='custom'; renderNtfPersonas(); }
+function applyPersona(p){ _ntfPersona=p; _ntfState=ntfDefaults(p); renderNtfPersonas(); renderNtfList(); }
+function inferPersona(p){ const t=((p&&p.title||'')+' '+(p&&p.role||'')).toLowerCase(); if(/exec|ceo|owner|founder|president|chief|director|\bvp\b|head of/.test(t)) return 'exec'; if(/market|content|brand|demand|growth|social/.test(t)) return 'marketing'; return 'sales'; }
+async function openNotif(){
+  _hideMenu();
+  const p=await loadProfile(true);
+  if(p.notifications && Object.keys(p.notifications).length){
+    _ntfState={}; NTF_CAT.forEach(([,items])=>items.forEach(([k])=>{ const s=p.notifications[k]; _ntfState[k]=s?{inapp:!!s.inapp,email:!!s.email}:{inapp:false,email:false}; }));
+    _ntfPersona=p.persona||'custom';
+  } else { _ntfPersona=p.persona||inferPersona(p); _ntfState=ntfDefaults(_ntfPersona); }
+  document.getElementById('ntf-msg').textContent='';
+  renderNtfPersonas(); renderNtfList();
+  document.getElementById('ntfmodal').classList.add('show');
+}
+function closeNotif(){ document.getElementById('ntfmodal').classList.remove('show'); }
+async function saveNotif(){
+  const btn=document.getElementById('ntf-save'), msg=document.getElementById('ntf-msg'); btn.disabled=true; msg.style.color=''; msg.textContent='Saving…';
+  try{
+    const r=await fetch('/api/crm/profile',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({persona:_ntfPersona,notifications:_ntfState})});
+    const j=await r.json();
+    if(j&&j.ok){ _profile=j.me; msg.textContent='Saved ✓'; setTimeout(closeNotif,650); }
+    else { msg.style.color='var(--bad)'; msg.textContent='Could not save'; }
+  }catch(_){ msg.style.color='var(--bad)'; msg.textContent='Could not save'; }
+  btn.disabled=false;
+}
+['accmodal','ntfmodal'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('click',e=>{ if(e.target.id===id) el.classList.remove('show'); }); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ ['accmodal','ntfmodal'].forEach(id=>{ const el=document.getElementById(id); if(el&&el.classList.contains('show')) el.classList.remove('show'); }); } });
+window.openAccount=openAccount;window.closeAccount=closeAccount;window.saveAccount=saveAccount;window.accAvatar=accAvatar;window.accRemoveAvatar=accRemoveAvatar;window.renderAccAvatar=renderAccAvatar;
+window.openNotif=openNotif;window.closeNotif=closeNotif;window.saveNotif=saveNotif;window.ntfToggle=ntfToggle;window.applyPersona=applyPersona;
+
 function statusCard(c){
   const s=c.sequence, st=autoState(c), autoOn=st==="on";
   const controllable = st==="on"||st==="paused"||st==="none";
@@ -2414,8 +2634,9 @@ function applyMe(){
   document.querySelectorAll('.pfname').forEach(el=>{ el.textContent = nm; });
   const idb=document.querySelector('.pf-id b'); if(idb) idb.textContent = nm;
   const ids=document.querySelector('.pf-id span'); if(ids) ids.textContent = me.email||"";
-  // Only set initials where no uploaded avatar image is present.
-  ['pfav','pfavLg'].forEach(id=>{ const el=document.getElementById(id); if(el && !el.querySelector('img')) el.textContent = init; });
+  const av = me.avatar || "";
+  ['pfav','pfavLg'].forEach(id=>{ const el=document.getElementById(id); if(!el) return;
+    if(av) el.innerHTML = '<img src="'+av+'" alt="">'; else el.textContent = init; });
 }
 window.applyMe=applyMe;
 function onAvatar(files){
