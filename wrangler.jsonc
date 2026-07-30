@@ -92,6 +92,9 @@
     // Retell "Ruby" agent (provisioned 2026-07-30). RETELL_API_KEY stays a secret;
     // RETELL_FROM_NUMBER (a Retell/imported number) still needs to be set once bought.
     "RETELL_AGENT_ID": "agent_f1d60fc460c72e08f581d7466a",
+    // Ruby dials FROM the SMS/engine number via the Twilio SIP trunk connected in Retell,
+    // so leads see one number for both SMS and AI voice. (Was the Retell-bought number.)
+    "RETELL_FROM_NUMBER": "+17279999846",
     // Rep warm-transfer "hunt" number: Ruby transfers here, and this number's Twilio
     // Voice webhook (/api/stl/twilio/voice-cascade) rings Primary → Backup1 → Backup2
     // with no-answer failover. Run the console's "Set up voice cascade" once to point
