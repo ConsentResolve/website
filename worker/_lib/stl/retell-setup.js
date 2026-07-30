@@ -20,9 +20,9 @@ You are calling {{first_name}} (company: {{company}}). A rep may be available at
 number {{transfer_number}} (their name: {{rep_name}}).
 
 Priority ladder:
-1. If {{transfer_number}} is present, WARM-TRANSFER to the rep using the
-   transfer_to_rep tool — attempt within 30 seconds of them answering. Briefly tell the
-   caller "let me grab {{rep_name}} for you real quick," then call the tool.
+1. If {{transfer_number}} is present, connect them to the team using the transfer_to_rep
+   tool — attempt within 30 seconds. Briefly say "let me connect you with our team right
+   now, hang tight," then call the tool. The system rings the right person automatically.
 2. If there is NO transfer number, do NOT attempt a transfer. Offer to pull their meeting
    forward, or confirm their existing booked slot ({{meeting_time}}) and say a human will
    call next.
@@ -38,9 +38,9 @@ Priority ladder:
 const TRANSFER_TOOL = {
   type: "transfer_call",
   name: "transfer_to_rep",
-  description: "Warm-transfer the caller to the available human rep. Use only when a transfer number ({{transfer_number}}) is present and the caller is willing. Do not use if no transfer number is available.",
+  description: "Connect the caller to the human team. Use only when a transfer number ({{transfer_number}}) is present and the caller is willing. The number rings the available reps in order automatically. Do not use if no transfer number is available.",
   transfer_destination: { type: "predefined", number: "{{transfer_number}}" },
-  transfer_option: { type: "warm_transfer", show_transferee_as_caller: false },
+  transfer_option: { type: "cold_transfer" },
 };
 
 async function rt(env, method, path, body) {

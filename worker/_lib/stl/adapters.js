@@ -80,10 +80,13 @@ async function startRetell(env, lead, ctx) {
   // Per-call dynamic variables — Ruby's prompt + transfer tool interpolate these.
   // transfer_number drives the warm-transfer destination (the on-shift rep). Empty =
   // no rep available → Ruby confirms the slot instead of transferring.
+  // Transfer destination is the HUNT number (STL_TRANSFER_NUMBER) which runs the
+  // priority cascade (primary → backups w/ no-answer failover). Only set it when at
+  // least one rep is available (ctx.rep non-null); empty => Ruby confirms the slot.
   const dyn = {
     first_name: lead.first_name || "there",
     company: lead.company || "",
-    transfer_number: (rep && rep.phone) || "",
+    transfer_number: (rep && env.STL_TRANSFER_NUMBER) ? env.STL_TRANSFER_NUMBER : "",
     rep_name: (rep && rep.name) || "a teammate",
     meeting_time: (ctx.meeting && ctx.meeting.scheduled_for)
       ? new Intl.DateTimeFormat("en-US", { weekday: "long", hour: "numeric", minute: "2-digit", timeZone: lead.timezone || "America/Chicago" }).format(new Date(ctx.meeting.scheduled_for))

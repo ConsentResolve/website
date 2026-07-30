@@ -9,7 +9,7 @@ import { getSettings, setSetting, DEFAULTS } from "../_lib/stl/settings.js";
 import { createLead } from "../_lib/stl/classifier.js";
 import { scheduleLead, tick, revoke } from "../_lib/stl/runner.js";
 import { provisionRuby, listRetellNumbers } from "../_lib/stl/retell-setup.js";
-import { twilioStatus, sendTestSms, listTwilioNumbers, findNumberOwner, messageStatus, listMessagingServices, attachNumberToService } from "../_lib/stl/twilio.js";
+import { twilioStatus, sendTestSms, listTwilioNumbers, findNumberOwner, messageStatus, listMessagingServices, attachNumberToService, setupCascadeNumber } from "../_lib/stl/twilio.js";
 
 // Which integrations are wired? Booleans only — never leak secret values.
 function readiness(env) {
@@ -185,6 +185,7 @@ export async function onRequestPost({ request, env }) {
     if (action === "twilio_message_status") return json(await messageStatus(env, String(body.sid || "").trim()), {}, cors);
     if (action === "twilio_messaging_services") return json(await listMessagingServices(env), {}, cors);
     if (action === "twilio_attach_number") return json(await attachNumberToService(env, body.service_sid, body.number), {}, cors);
+    if (action === "twilio_setup_cascade") return json(await setupCascadeNumber(env), {}, cors);
     if (action === "test_sms") return json(await sendTestSms(env, String(body.to || "").trim(), body.text), {}, cors);
     if (action === "test_email") {
       if (!env.RESEND_API_KEY) return json({ ok: false, error: "missing RESEND_API_KEY" }, {}, cors);

@@ -145,6 +145,27 @@ export async function attachNumberToService(env, serviceSid, number) {
   return { ok: true, attached: number, phone_sid: pn.sid, service: serviceSid };
 }
 
+// Point the hunt number's Voice webhook at our cascade endpoint, so a call transferred
+// there rings the reps in priority order with no-answer failover.
+export async function setupCascadeNumber(env) {
+  if (!hasCreds(env)) return { ok: false, error: "missing_twilio_creds" };
+  const num = (env.STL_TRANSFER_NUMBER || "").trim();
+  if (!num) return { ok: false, error: "STL_TRANSFER_NUMBER not set" };
+  if (!env.STL_PUBLIC_ORIGIN) return { ok: false, error: "STL_PUBLIC_ORIGIN not set" };
+  const nr = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/IncomingPhoneNumbers.json?PhoneNumber=${encodeURIComponent(num)}`, { headers: { Authorization: basic(env) } });
+  if (!nr.ok) return { ok: false, status: nr.status, error: `lookup_${nr.status}` };
+  const pn = ((await nr.json().catch(() => ({}))).incoming_phone_numbers || [])[0];
+  if (!pn) return { ok: false, error: `${num} not owned by this account` };
+  const voiceUrl = `${env.STL_PUBLIC_ORIGIN}/api/stl/twilio/voice-cascade`;
+  const form = new URLSearchParams(); form.set("VoiceUrl", voiceUrl); form.set("VoiceMethod", "POST");
+  const r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/IncomingPhoneNumbers/${pn.sid}.json`, {
+    method: "POST", headers: { Authorization: basic(env), "Content-Type": "application/x-www-form-urlencoded" }, body: form.toString(),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) return { ok: false, status: r.status, error: j.message || `update_${r.status}` };
+  return { ok: true, hunt_number: num, voice_url: voiceUrl };
+}
+
 export async function listTwilioNumbers(env) {
   if (!hasCreds(env)) return { ok: false, error: "missing_twilio_creds" };
   const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/IncomingPhoneNumbers.json?PageSize=50`, { headers: { Authorization: basic(env) } });

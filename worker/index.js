@@ -55,6 +55,7 @@ import * as stlRevoke from "./api/stl-revoke.js";
 import * as stlTwilio from "./api/stl-twilio.js";
 import * as stlRetell from "./api/stl-retell.js";
 import * as stlCalcom from "./api/stl-calcom.js";
+import * as stlVoiceCascade from "./api/stl-voice-cascade.js";
 import * as stlAdmin from "./api/stl-admin.js";
 import * as stlConsole from "./stl-console.js";
 import * as stlDemo from "./stl-demo.js";
@@ -209,6 +210,7 @@ const ROUTES = {
   "/consent/revoke": stlRevoke,
   "/api/stl/twilio/inbound": stlTwilio,
   "/api/stl/twilio/status": stlTwilio,
+  "/api/stl/twilio/voice-cascade": stlVoiceCascade,
   "/api/stl/retell/webhook": stlRetell,
   "/api/stl/calcom/webhook": stlCalcom,
   "/api/stl/admin": stlAdmin,
