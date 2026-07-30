@@ -16,6 +16,27 @@ const twiml = (inner) => new Response(
 );
 const RING_SECONDS = 18;
 
+// A rep picked up the cascade → attribute it to the most recent in-flight B1 call
+// (the transferred call carries no lead id, so we match by recency) and mark the
+// transfer accepted. Feeds the transfer-accept-rate metric + B4 skip-if-transferred.
+async function recordTransferAccepted(env, rep, backupLevel, p) {
+  try {
+    const since = Date.now() - 15 * 60 * 1000;
+    const row = await env.DB.prepare(
+      `SELECT c.touchpoint_id FROM stl_calls c JOIN stl_touchpoints t ON t.id = c.touchpoint_id
+        WHERE t.sequence_step='B1_retell' AND t.attempted_at >= ? AND COALESCE(c.transfer_accepted,0)=0
+        ORDER BY t.attempted_at DESC LIMIT 1`
+    ).bind(since).first();
+    if (row) {
+      await env.DB.prepare("UPDATE stl_calls SET transfer_attempted=1, transfer_accepted=1, transfer_rep_id=? WHERE touchpoint_id=?")
+        .bind(rep ? rep.id : null, row.touchpoint_id).run();
+      await logEvent(env, null, "transfer_accepted", { rep: rep ? rep.name : null, rep_phone: rep ? rep.phone : null, backup_level: backupLevel, touchpoint_id: row.touchpoint_id, talk_seconds: parseInt(p.DialCallDuration || "0", 10) || null });
+    } else {
+      await logEvent(env, null, "transfer_accepted_unmatched", { rep: rep ? rep.name : null, backup_level: backupLevel });
+    }
+  } catch (_) {}
+}
+
 export async function onRequestPost({ request, env }) {
   await ensureStlSchema(env);
   const url = new URL(request.url);
@@ -25,22 +46,23 @@ export async function onRequestPost({ request, env }) {
 
   if (!(await twilioVerify(env, request, p))) return new Response("forbidden", { status: 403 });
 
-  // A prior leg connected → the bridged call already happened; just end.
-  const status = p.DialCallStatus;
-  if (status === "completed" || status === "answered") {
-    return twiml("<Hangup/>");
-  }
-  if (step > 0) {
-    await logEvent(env, null, "cascade_no_answer", { step: step - 1, status: status || "n/a", dialed: p.DialCallSid || null });
-  }
-
-  // Highest-priority available reps, in order.
+  // Highest-priority available reps, in order (re-queried each step; ordering is stable).
   const now = Date.now();
   const reps = ((await env.DB.prepare(
-    `SELECT rp.phone, rp.name FROM stl_reps rp JOIN stl_rep_availability a ON a.rep_id = rp.id
+    `SELECT rp.id, rp.phone, rp.name FROM stl_reps rp JOIN stl_rep_availability a ON a.rep_id = rp.id
       WHERE rp.active=1 AND a.state='available' AND a.starts_at<=? AND a.ends_at>=? AND rp.phone IS NOT NULL AND rp.phone<>''
       ORDER BY COALESCE(rp.priority,100) ASC, rp.id`
   ).bind(now, now).all()).results) || [];
+
+  // A rep answered → record the transfer outcome against the most recent B1 call, then end.
+  const status = p.DialCallStatus;
+  if (status === "completed" || status === "answered") {
+    await recordTransferAccepted(env, reps[Math.max(0, step - 1)] || null, Math.max(0, step - 1), p);
+    return twiml("<Hangup/>");
+  }
+  if (step > 0) {
+    await logEvent(env, null, "cascade_no_answer", { step: step - 1, status: status || "n/a" });
+  }
 
   if (step >= reps.length) {
     // Everyone tried, nobody answered.

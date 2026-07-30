@@ -45,5 +45,14 @@ export async function onRequestPost({ request, env }) {
     await alert(env, `P1: Retell call ${call.call_id || tpId} missing AI-disclosure phrase in transcript.`);
     await logEvent(env, meta.lead_id || null, "disclosure_fail", { touchpoint_id: tpId, call_id: call.call_id });
   }
+
+  // Did Ruby invoke the transfer tool? Mark transfer_attempted (the cascade marks
+  // transfer_accepted when a rep answers). Together these drive the transfer-accept rate.
+  const transferred = /transfer/i.test(call.disconnection_reason || "") || !!call.transfer_destination_number
+    || /transfer_to_rep|transfer_call/i.test(transcript);
+  if (transferred) {
+    await env.DB.prepare("UPDATE stl_calls SET transfer_attempted=1 WHERE touchpoint_id=?").bind(tpId).run().catch(() => {});
+    await logEvent(env, meta.lead_id || null, "transfer_attempted", { touchpoint_id: tpId, call_id: call.call_id });
+  }
   return json({ ok: true });
 }

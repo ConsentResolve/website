@@ -183,6 +183,7 @@ async function load(){
     K(m.gate_violations, 'Gate violations', m.gate_violations>0?'alarm':'good')+
     K(m.cookie_leak_flags,'Cookie-banner leaks', m.cookie_leak_flags>0?'alarm':'good')+
     K(m.window_compliance_dials_sent,'Dials sent (in-window)')+
+    K(m.transfer_accept_rate_pct==null?'—':m.transfer_accept_rate_pct+'%','Transfer accept rate', (m.transfer_accept_rate_pct!=null&&m.transfer_accept_rate_pct<60)?'alarm':(m.transfer_accepts?'good':''))+
     K((m.dispatch_by_mode&&(m.dispatch_by_mode.live||0))+' / '+(m.dispatch_by_mode&&(m.dispatch_by_mode.simulate||0)),'Live / simulated sends');
   // readiness
   renderReadiness(d.readiness||{});

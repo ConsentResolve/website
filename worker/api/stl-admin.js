@@ -62,6 +62,7 @@ async function metrics(env) {
   const byMode = await all(env, "SELECT dispatch_mode, COUNT(*) n FROM stl_touchpoints WHERE dispatch_mode IS NOT NULL GROUP BY dispatch_mode");
   const leads = await one(env, "SELECT COUNT(*) n, SUM(population='A') a, SUM(population='B') b FROM stl_leads");
   const dialsSent = await one(env, "SELECT COUNT(*) n FROM stl_touchpoints WHERE channel IN ('call_ai','call_human') AND status='sent'");
+  const xfer = await one(env, "SELECT COALESCE(SUM(transfer_attempted),0) att, COALESCE(SUM(transfer_accepted),0) acc FROM stl_calls");
 
   return {
     leads_total: leads.n || 0, leads_A: leads.a || 0, leads_B: leads.b || 0,
@@ -69,6 +70,9 @@ async function metrics(env) {
     sla_breach_rate_pct: pct(slaBreaches, firstCalls.length),
     identified_contacted_60m_pct: pct(aContacted.n || 0, aTotal.n || 0),
     window_compliance_dials_sent: dialsSent.n || 0,      // all sent dials are in-window by construction
+    transfer_attempts: xfer.att || 0,
+    transfer_accepts: xfer.acc || 0,
+    transfer_accept_rate_pct: pct(xfer.acc || 0, xfer.att || 0),  // spec §8.3: the key human metric
     gate_violations: gv.n || 0,                          // target 0
     cookie_leak_flags: cookieLeak.n || 0,                // target 0 (classifier bug detector)
     touchpoints_by_status: Object.fromEntries(byStatus.map((r) => [r.status, r.n])),
