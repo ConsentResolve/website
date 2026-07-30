@@ -80,7 +80,10 @@
     // TWILIO_FROM_NUMBER is the public business line; the SID/AUTH_TOKEN stay secrets.
     // Clean value (no trailing newline) — a CLI-set secret can smuggle a "\n" that
     // makes Twilio report a From/account "mismatch" even when the account owns it.
-    "TWILIO_FROM_NUMBER": "+17272025996",
+    // Sending number must be owned by the configured Twilio account (ACbf53…).
+    // The branded 727-202-5996 lives in a different account we can't reach; using an
+    // owned number here. Swap back once that number is moved into this account.
+    "TWILIO_FROM_NUMBER": "+17279999846",
     "STL_PUBLIC_ORIGIN": "https://consentresolve.com"
   }
 }
