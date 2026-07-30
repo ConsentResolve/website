@@ -11,6 +11,7 @@ import { corsHeaders, json } from "../_lib/http.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce } from "../_lib/crm-v2.js";
 import { ensureRebuildSchema, logEvent } from "../_lib/crm-rebuild.js";
 import { handleGoalEvent } from "../_lib/workflow-engine.js";
+import { recordStlMeeting } from "./stl-calcom.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -110,6 +111,13 @@ export async function onRequestPost({ request, env, waitUntil }) {
       type: isCancelled ? "meeting_cancelled" : isRescheduled ? "meeting_rescheduled" : "meeting_booked",
       contactId, conversationId: convId, source: "cal",
       meta: { uid: uid || null, startTime: startTime || null, meetingType: meetingType || null },
+    }).catch(() => {});
+
+    // Also feed the Speed-to-Lead engine: attach the booking to the STL lead (if any),
+    // mark it booked, and schedule/cancel the B5 T-1h reminder. No-op if not an STL lead.
+    await recordStlMeeting(env, {
+      trigger, email, phone: String(attendee.phoneNumber || p.responses?.phone?.value || "").trim(),
+      name, calUid: uid, startTime,
     }).catch(() => {});
   })().catch(() => {});
   if (typeof waitUntil === "function") waitUntil(work); else await work;

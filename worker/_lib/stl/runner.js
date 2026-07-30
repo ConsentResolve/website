@@ -160,6 +160,24 @@ async function setStatus(env, tpId, status, fields = {}) {
   await env.DB.prepare(`UPDATE stl_touchpoints SET ${cols.join(", ")} WHERE id=?`).bind(...vals).run();
 }
 
+// Missed-dial text-back: when a call goes unanswered, text the lead from our number.
+// Idempotent-ish — skips if a text-back was already queued for this lead in the last 30
+// min so B1 + a later human dial don't both fire one. Consent-gated at dispatch.
+export async function maybeTextbackOnNoAnswer(env, leadId, afterTag) {
+  await ensureStlSchema(env);
+  const cutoff = Date.now() - 30 * 60 * 1000;
+  const recent = await env.DB.prepare(
+    "SELECT 1 x FROM stl_touchpoints WHERE lead_id=? AND sequence_step IN ('B1_textback','DIAL_textback') AND scheduled_for>=? LIMIT 1"
+  ).bind(leadId, cutoff).first().catch(() => null);
+  if (recent) return false;
+  await env.DB.prepare(
+    `INSERT INTO stl_touchpoints (id, lead_id, sequence_step, channel, actor_type, scheduled_for, template_id, status)
+     VALUES (?,?,?,?,?,?,?, 'pending')`
+  ).bind(uid(), leadId, "DIAL_textback", "sms", "system", Date.now() + 15000, "B2_sms", "pending").run().catch(() => {});
+  await logEvent(env, leadId, "dial_textback", { after: afterTag || null });
+  return true;
+}
+
 // A→B graduation on a new consent event (spec §7). Re-enter at B2, never re-run B1.
 export async function graduate(env, leadId, consentPayload) {
   await ensureStlSchema(env);

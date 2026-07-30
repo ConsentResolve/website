@@ -7,7 +7,7 @@ import { crmAuthed } from "../_lib/crm.js";
 import { ensureStlSchema } from "../_lib/stl/schema.js";
 import { getSettings, setSetting, DEFAULTS } from "../_lib/stl/settings.js";
 import { createLead } from "../_lib/stl/classifier.js";
-import { scheduleLead, tick, revoke } from "../_lib/stl/runner.js";
+import { scheduleLead, tick, revoke, maybeTextbackOnNoAnswer } from "../_lib/stl/runner.js";
 import { provisionRuby, listRetellNumbers } from "../_lib/stl/retell-setup.js";
 import { twilioStatus, sendTestSms, listTwilioNumbers, findNumberOwner, messageStatus, listMessagingServices, attachNumberToService, setupCascadeNumber, createSipTrunk, addSipOrigination } from "../_lib/stl/twilio.js";
 
@@ -164,6 +164,19 @@ export async function onRequestPost({ request, env }) {
       await env.DB.prepare("DELETE FROM stl_rep_availability WHERE rep_id=?").bind(body.rep_id).run().catch(() => {});
       await env.DB.prepare("DELETE FROM stl_reps WHERE id=?").bind(body.rep_id).run().catch(() => {});
       return json({ ok: true }, {}, cors);
+    }
+    if (action === "set_disposition") {
+      // Rep records a call outcome. A no-answer on a call fires the missed-dial text-back.
+      const tpId = body.touchpoint_id, outcome = String(body.outcome || "");
+      const tp = await env.DB.prepare("SELECT lead_id, channel FROM stl_touchpoints WHERE id=?").bind(tpId).first().catch(() => null);
+      if (!tp) return json({ ok: false, error: "not_found" }, { status: 404 }, cors);
+      await env.DB.prepare("UPDATE stl_touchpoints SET outcome=?, completed_at=?, status=CASE WHEN status='pending' THEN 'sent' ELSE status END WHERE id=?")
+        .bind(outcome, Date.now(), tpId).run().catch(() => {});
+      let textback = false;
+      if ((tp.channel === "call_human" || tp.channel === "call_ai") && ["no_answer", "voicemail", "busy"].includes(outcome)) {
+        textback = await maybeTextbackOnNoAnswer(env, tp.lead_id, "disposition:" + outcome);
+      }
+      return json({ ok: true, textback }, {}, cors);
     }
     if (action === "mark_transfer") {
       // Test helper: simulate Ruby's warm transfer being accepted on a lead's B1 call.

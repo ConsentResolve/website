@@ -204,9 +204,14 @@ async function load(){
   const byLead={};d.touchpoints.forEach(t=>{(byLead[t.lead_id]=byLead[t.lead_id]||[]).push(t);});
   $('#leads').innerHTML=d.leads.map(l=>{
     const tps=(byLead[l.id]||[]).sort((a,b)=>a.scheduled_for-b.scheduled_for);
+    const DISPO=['connected_dm','connected_gk','voicemail','no_answer','busy','callback_requested','not_interested','bad_number','do_not_call'];
     const rows=tps.map(t=>{
       const detail=(t.status==='failed'||t.outcome==='sms_failed')&&t.notes?' <span class=s-failed>('+esc(t.notes)+')</span>':(t.notes?' <span class=muted>'+esc(t.notes)+'</span>':'');
-      return '<tr><td class=tp>'+esc(t.sequence_step)+'</td><td>'+esc(t.channel)+'</td><td class=s-'+esc(t.status)+'>'+esc(t.status)+'</td><td>'+esc(t.outcome||'')+detail+'</td><td>'+(t.consent_check==='blocked'?'<span class=s-blocked>blocked: '+esc(t.block_reason)+'</span>':(t.consent_check||''))+'</td><td>'+(t.dispatch_mode||'')+'</td><td class=tp>'+(t.attempted_at?ts(t.attempted_at):esc(fmtDelta(t.scheduled_for)))+'</td></tr>';
+      const isCall=t.channel==='call_human'||t.channel==='call_ai';
+      const outcomeCell=isCall
+        ? '<select onchange="setDisposition(\\''+t.id+'\\',this.value)" style="font-size:11px;padding:2px 4px;max-width:130px"><option value="">'+(t.outcome?esc(t.outcome):'— set outcome —')+'</option>'+DISPO.map(o=>'<option'+(o===t.outcome?' selected':'')+'>'+o+'</option>').join('')+'</select>'
+        : esc(t.outcome||'')+detail;
+      return '<tr><td class=tp>'+esc(t.sequence_step)+'</td><td>'+esc(t.channel)+'</td><td class=s-'+esc(t.status)+'>'+esc(t.status)+'</td><td>'+outcomeCell+'</td><td>'+(t.consent_check==='blocked'?'<span class=s-blocked>blocked: '+esc(t.block_reason)+'</span>':(t.consent_check||''))+'</td><td>'+(t.dispatch_mode||'')+'</td><td class=tp>'+(t.attempted_at?ts(t.attempted_at):esc(fmtDelta(t.scheduled_for)))+'</td></tr>';
     }).join('');
     return '<details><summary><span class="pill p'+l.population+'">'+l.population+'</span> '+esc(l.first_name||'')+' '+esc(l.company?'· '+l.company:'')+' <span class=muted>'+esc(l.email||'')+' · '+esc(l.phone||'')+'</span> — <span class=muted>'+esc(l.status)+'</span> '+(l.is_test?'<span class=note>[test]</span>':'')+' <button class=ghost style="float:right;padding:3px 9px" onclick="event.preventDefault();revokeLead(\\''+l.id+'\\')">Revoke</button>'+(l.population==='B'?' <button class=ghost style="float:right;padding:3px 9px;margin-right:6px" onclick="event.preventDefault();markTransfer(\\''+l.id+'\\')">Mark B1 transfer</button>':'')+'</summary>'+
       '<div style="padding:0 12px 10px"><table><tr><th>Step</th><th>Channel</th><th>Status</th><th>Outcome</th><th>Gate</th><th>Mode</th><th>When</th></tr>'+(rows||'<tr><td colspan=7 class=muted>no touchpoints</td></tr>')+'</table></div></details>';
@@ -273,5 +278,6 @@ async function sendTestSms(){ const to=$('#testSms').value.trim(); if(!to){$('#i
 async function checkSms(){ const sid=$('#msgSid').value.trim(); if(!sid){$('#intgOut').textContent='paste a message SID (SM…)';return;} $('#intgOut').textContent='checking delivery…'; const d=await api('POST',{action:'twilio_message_status',sid}); $('#intgOut').textContent=JSON.stringify(d); }
 async function revokeLead(id){const d=await api('POST',{action:'revoke',lead_id:id});await load();}
 async function markTransfer(id){const d=await api('POST',{action:'mark_transfer',lead_id:id});await load();}
+async function setDisposition(tpId,outcome){ if(!outcome)return; const d=await api('POST',{action:'set_disposition',touchpoint_id:tpId,outcome}); if(d&&d.textback)$('#tickOut').textContent='outcome saved — missed-dial text-back queued'; await load(); }
 load();setInterval(load,15000);
 </script></div></body></html>`;
