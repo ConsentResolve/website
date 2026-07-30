@@ -394,7 +394,12 @@ html,body{height:100%}
   .anview,.cnview{overflow:auto;padding:22px 26px}
   .an-head,.cn-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px;flex-wrap:wrap}
   .an-head h2,.cn-head h2{margin:0;font-family:var(--font-display);font-size:var(--t-24);font-weight:800}
-  .an-sub,.cn-sub{font-size:var(--t-13);color:var(--tx-2)}
+  .an-sub,.cn-sub{font-size:var(--t-13);color:var(--tx-2);display:block;margin-top:2px}
+  .an-head{align-items:center}
+  .an-range{margin-left:auto;display:inline-flex;gap:2px;border:1px solid var(--line);border-radius:9px;padding:3px}
+  .an-rbtn{border:0;background:none;color:var(--tx-2);font-size:var(--t-13);font-weight:600;padding:5px 11px;border-radius:6px;cursor:pointer;line-height:1}
+  .an-rbtn:hover{color:var(--tx-1)}
+  .an-rbtn.on{background:var(--accent);color:var(--on-accent)}
   .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
   .kpis-4{grid-template-columns:repeat(4,1fr)}
   .kpi{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:14px 16px}
@@ -2597,8 +2602,9 @@ function renderAnalytics(){
   const el=document.getElementById("analyticsview"); if(!el) return;
   const A=window.ANALYTICS, k=A.kpis, S=window.SEQUENCES;
   const kpi=(v,l,s)=>`<div class="kpi"><div class="kpi-v">${v}</div><div class="kpi-l">${l}</div>${s?`<div class="kpi-s">${s}</div>`:''}</div>`;
+  const days=A.days||window._anDays||30;
   const kpis=[
-    kpi(k.leads,'Leads · 30d'),
+    kpi(k.leads,'Leads'),
     kpi((k.leads?Math.round(k.replies/k.leads*100):0)+'%','Reply rate',`${k.replies} replies`),
     kpi(k.demos,'Demos booked'),
     kpi(k.activations,'Activations','new customers'),
@@ -2607,9 +2613,10 @@ function renderAnalytics(){
     kpi('$'+k.cpd,'Cost / demo'),
     kpi('$'+k.pipeline.toLocaleString(),'Open pipeline','/mo'),
     ...(A.traffic30?[
-      kpi(A.traffic30.uniques.toLocaleString(),'Site visitors · 30d','unique'),
-      kpi(A.traffic30.pageviews.toLocaleString(),'Pageviews · 30d','first-party beacon')
-    ]:[])
+      kpi(A.traffic30.uniques.toLocaleString(),'Site visitors','unique'),
+      kpi(A.traffic30.pageviews.toLocaleString(),'Pageviews','first-party beacon')
+    ]:[]),
+    ...(A.socialViews!=null?[kpi(A.socialViews.toLocaleString(),'Social views','all-time, all channels')]:[])
   ].join('');
   const fmax=Math.max(1,...A.funnel.map(f=>f.n));
   const funnel=A.funnel.map((f,i)=>`<div class="fnl-row"><span class="fnl-k">${f.k}</span><div class="fnl-bar"><i style="width:${Math.max(4,Math.round(f.n/fmax*100))}%"></i></div><span class="fnl-n">${f.n}</span><span class="fnl-p">${i?Math.round(f.n/fmax*100)+'%':'—'}</span></div>`).join('');
@@ -2635,19 +2642,21 @@ function renderAnalytics(){
   const idBlock=(ID&&ID.total>0)?`
     <div class="card an-card"><h4>Identified visitors by source <span class="atable-note" style="font-weight:400">— de-anonymized website visitors (Site Spy), separate from consented leads</span></h4>
       <div class="kpis" style="margin:8px 0 14px">
-        <div class="kpi"><div class="kpi-v">${ID.total.toLocaleString()}</div><div class="kpi-l">Identified · all time</div></div>
-        <div class="kpi"><div class="kpi-v">${ID.last30.toLocaleString()}</div><div class="kpi-l">Identified · 30d</div></div>
+        <div class="kpi"><div class="kpi-v">${ID.total.toLocaleString()}</div><div class="kpi-l">Identified visitors</div></div>
       </div>
-      <table class="atable"><thead><tr><th>Source</th><th class="num">Identified</th><th class="num">Last 30d</th></tr></thead>
-      <tbody>${ID.bySource.map(s=>{const lbl=(typeof SPY_SRC_LBL!=='undefined'&&SPY_SRC_LBL[s.src])||s.src,clr=(typeof SPY_SRC_CLR!=='undefined'&&SPY_SRC_CLR[s.src])||'#888';return `<tr><td><span class="lbadge" style="background:${clr}22;color:${clr};font-weight:700">${esc(lbl)}</span></td><td class="num">${s.n.toLocaleString()}</td><td class="num">${(s.n30||0).toLocaleString()}</td></tr>`;}).join('')}</tbody></table>
-      <div class="atable-note">These are de-anonymized visitors from Apollo / RB2B / Consent Resolve / Leadfeeder — not consented leads. Work them in Site Spy.</div>
+      <table class="atable"><thead><tr><th>Source</th><th class="num">Identified</th></tr></thead>
+      <tbody>${ID.bySource.map(s=>{const lbl=(typeof SPY_SRC_LBL!=='undefined'&&SPY_SRC_LBL[s.src])||s.src,clr=(typeof SPY_SRC_CLR!=='undefined'&&SPY_SRC_CLR[s.src])||'#888';return `<tr><td><span class="lbadge" style="background:${clr}22;color:${clr};font-weight:700">${esc(lbl)}</span></td><td class="num">${s.n.toLocaleString()}</td></tr>`;}).join('')}</tbody></table>
+      <div class="atable-note">De-anonymized visitors from Apollo / RB2B / Consent Resolve / Leadfeeder — not consented leads. Work them in Site Spy.</div>
     </div>`:'';
+  const RANGES=[[7,'7 days'],[30,'30 days'],[90,'90 days'],[365,'1 year']];
+  const rangeLabel=(RANGES.find(r=>r[0]===days)||[days,days+' days'])[1];
+  const rangeSel=`<span class="an-range">${RANGES.map(r=>`<button class="an-rbtn${r[0]===days?' on':''}" onclick="setAnRange(${r[0]})">${r[0]===365?'1y':r[0]+'d'}</button>`).join('')}</span>`;
   el.innerHTML=`
-    <div class="an-head"><h2>Analytics</h2><span class="an-sub">Last 30 days · which source, sequence, and message books the job — and what it costs</span></div>
+    <div class="an-head"><div><h2>Analytics</h2><span class="an-sub">Last ${rangeLabel} · which source, sequence, and message books the job — and what it costs</span></div>${rangeSel}</div>
     <div class="kpis">${kpis}</div>
     <div class="an-grid">
       <div class="card an-card"><h4>Funnel — lead to customer</h4><div class="fnl">${funnel}</div></div>
-      <div class="card an-card"><h4>Leads / day</h4><div class="spark">${spark}</div><div class="spark-x"><span>30 days ago</span><span>today</span></div></div>
+      <div class="card an-card"><h4>Leads / day</h4><div class="spark">${spark}</div><div class="spark-x"><span>${rangeLabel} ago</span><span>today</span></div></div>
     </div>
     <div class="card an-card"><h4>By source</h4>
       <table class="atable"><thead><tr><th>Source</th><th class="num">Leads</th><th class="num">Reply</th><th class="num">Demos</th><th class="num">Active</th><th class="num">Spend</th><th class="num">Cost/lead</th><th class="num">Cost/demo</th><th class="num">Est. ROAS</th></tr></thead>
@@ -2664,6 +2673,23 @@ function renderAnalytics(){
 }
 
 window.renderAnalytics=renderAnalytics; // exposed for the live-data bootstrap (fixture→fetch)
+
+// Date-range selector: re-fetch the whole ANALYTICS payload for the chosen window.
+let _anLoading=false;
+function setAnRange(days){
+  if(_anLoading) return;
+  const cur=(window.ANALYTICS&&window.ANALYTICS.days)||30;
+  if(days===cur) return;
+  _anLoading=true;
+  window._anDays=days;
+  const sub=document.querySelector('#analyticsview .an-sub');
+  if(sub) sub.textContent='Loading '+days+'-day range…';
+  fetch('/api/crm/analytics/range?days='+days,{credentials:'same-origin'})
+    .then(r=>r.json())
+    .then(j=>{ _anLoading=false; if(j&&j.ok&&j.analytics){ window.ANALYTICS=j.analytics; renderAnalytics(); } else { renderAnalytics(); } })
+    .catch(()=>{ _anLoading=false; renderAnalytics(); });
+}
+window.setAnRange=setAnRange;
 
 /* ===================== CONSENT LEDGER ===================== */
 const CONSENT_OPEN=new Set();
