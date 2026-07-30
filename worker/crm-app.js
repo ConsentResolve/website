@@ -33,17 +33,25 @@ export async function handle({ request, env }) {
 // keys we can back with real data are overridden; every other screen keeps its
 // fixtures (graceful, incremental). Fails silent → app still works on fixtures.
 const BOOTSTRAP = `<script>
+window.CRM_LIVE_PENDING = true; // set before restoreView runs → data views show a loader, not fixtures
 (async () => {
   var snap = {
     convs: window.DATA && window.DATA.conversations, counts: window.DATA && window.DATA.counts,
     CL: window.CONSENT_LEDGER, CS: window.CONSENT_STATS, SEQ: window.SEQUENCES, SS: window.SITE_SOURCES, SPY: window.SITESPY, SPYL: window.SPY_LEADS, NUR: window.NURTURE, PIPE: window.PIPELINE, AN: window.ANALYTICS
   };
+  // Clear the loader flag and re-render whatever view is active (with live data on
+  // success, or fixtures on failure) so a data view never stays stuck on "Loading…".
+  var finish = function () {
+    window.CRM_LIVE_PENDING = false;
+    try { if (window.__crmView && window.showView) window.showView(window.__crmView); } catch (_) {}
+  };
   var d;
   try {
     var r = await fetch('/api/crm/app', { credentials: 'same-origin' });
-    if (!r.ok) return;                 // not signed in / error -> keep fixtures
+    if (!r.ok) { finish(); return; }   // not signed in / error -> keep fixtures
     d = await r.json();
-  } catch (e) { return; }
+  } catch (e) { finish(); return; }
+  window.CRM_LIVE_PENDING = false;      // live data in hand → renders below use it, not fixtures
   try {
     if (d.CONSENT_LEDGER) window.CONSENT_LEDGER = d.CONSENT_LEDGER;
     if (d.CONSENT_STATS)  window.CONSENT_STATS = d.CONSENT_STATS;
@@ -70,8 +78,10 @@ const BOOTSTRAP = `<script>
       if (window.recount) window.recount();
       if (window.select && window.DATA.conversations[0]) window.select(window.DATA.conversations[0].id);
     }
+    if (window.__crmView) try { window.showView(window.__crmView); } catch (_) {}  // re-render active view with live data
   } catch (e) {
     // FAIL-SAFE: any render error -> restore the demo fixtures so the app never breaks
+    window.CRM_LIVE_PENDING = false;
     try {
       if (window.DATA) { window.DATA.conversations = snap.convs; window.DATA.counts = snap.counts; }
       window.CONSENT_LEDGER = snap.CL; window.CONSENT_STATS = snap.CS; window.SEQUENCES = snap.SEQ; window.SITE_SOURCES = snap.SS; window.SITESPY = snap.SPY; window.SPY_LEADS = snap.SPYL; window.NURTURE = snap.NUR; window.PIPELINE = snap.PIPE; window.ANALYTICS = snap.AN;

@@ -417,7 +417,13 @@ export async function onRequestGet({ request, env }) {
       const id30 = idRows.reduce((a, r) => a + (r.n30 || 0), 0);
       if (idTotal > 0) identified = { total: idTotal, last30: id30, bySource: idRows.map((r) => ({ src: r.src, n: r.n || 0, n30: r.n30 || 0 })) };
     } catch (_) {}
-    ANALYTICS = { kpis, funnel: funnelArr, sources, spendByChannel, leadsByDay, avgDealYr, identified };
+    // Site traffic (first-party /api/hit beacon) — pageviews + unique visitors, 30d.
+    let traffic30 = null;
+    try {
+      const t = firstRow(await env.DB.prepare("SELECT COUNT(*) pv, COUNT(DISTINCT vid) uv FROM traffic WHERE created_at >= datetime('now','-30 days')").all());
+      traffic30 = { pageviews: (t && t.pv) || 0, uniques: (t && t.uv) || 0 };
+    } catch (_) {}
+    ANALYTICS = { kpis, funnel: funnelArr, sources, spendByChannel, leadsByDay, avgDealYr, identified, traffic30 };
   } catch (_) {}
 
   // Data-source registry (Site Spy / Nurture transparency + extensibility).

@@ -2137,10 +2137,19 @@ function updatePipe(){
 function showView(v){
   document.querySelectorAll('.rail a[data-view]').forEach(a=>a.classList.toggle('on', a.dataset.view===v));
   const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview'};
+  window.__crmView=v;
   Object.entries(views).forEach(([k,id])=>{const el=document.getElementById(id); if(el) el.hidden=k!==v;});
   // Render the active view defensively — a single view throwing must never blank the app.
+  // While live data is still loading, show a loader for data-backed views instead of the
+  // demo fixtures (which flashed e.g. "308 Leads" before the swap). crm-app.js re-renders
+  // the active view once the fetch resolves.
+  const LIVE_PENDING={reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1};
   try{
-    if(v==='reminders')renderReminders();
+    if(window.CRM_LIVE_PENDING && LIVE_PENDING[v]){
+      const host=document.getElementById(views[v]);
+      if(host) host.innerHTML='<div class="idash-empty" style="padding:56px;text-align:center;color:var(--tx-3)">Loading live data…</div>';
+    }
+    else if(v==='reminders')renderReminders();
     else if(v==='pipeline')renderPipeline();
     else if(v==='nurture')renderNurture();
     else if(v==='sitespy')renderSiteSpy();
@@ -2596,7 +2605,11 @@ function renderAnalytics(){
     kpi('$'+k.spend.toLocaleString(),'Ad spend'),
     kpi('$'+k.cpl.toFixed(2),'Cost / lead','blended'),
     kpi('$'+k.cpd,'Cost / demo'),
-    kpi('$'+k.pipeline.toLocaleString(),'Open pipeline','/mo')
+    kpi('$'+k.pipeline.toLocaleString(),'Open pipeline','/mo'),
+    ...(A.traffic30?[
+      kpi(A.traffic30.uniques.toLocaleString(),'Site visitors · 30d','unique'),
+      kpi(A.traffic30.pageviews.toLocaleString(),'Pageviews · 30d','first-party beacon')
+    ]:[])
   ].join('');
   const fmax=Math.max(1,...A.funnel.map(f=>f.n));
   const funnel=A.funnel.map((f,i)=>`<div class="fnl-row"><span class="fnl-k">${f.k}</span><div class="fnl-bar"><i style="width:${Math.max(4,Math.round(f.n/fmax*100))}%"></i></div><span class="fnl-n">${f.n}</span><span class="fnl-p">${i?Math.round(f.n/fmax*100)+'%':'—'}</span></div>`).join('');
