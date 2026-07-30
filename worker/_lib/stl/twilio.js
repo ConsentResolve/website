@@ -57,6 +57,7 @@ export async function sendTestSms(env, to, body) {
   if (env.TWILIO_MESSAGING_SERVICE_SID) form.set("MessagingServiceSid", env.TWILIO_MESSAGING_SERVICE_SID);
   else form.set("From", env.TWILIO_FROM_NUMBER || "");
   form.set("Body", body || "Speed-to-Lead test SMS ✓ — reply STOP to opt out.");
+  if (env.STL_PUBLIC_ORIGIN) form.set("StatusCallback", `${env.STL_PUBLIC_ORIGIN}/api/stl/twilio/status`);
   const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/Messages.json`, {
     method: "POST", headers: { Authorization: basic(env), "Content-Type": "application/x-www-form-urlencoded" }, body: form.toString(),
   });
@@ -87,6 +88,18 @@ export async function findNumberOwner(env, number) {
     }
   }
   return { ok: true, number: num, found: owners.length > 0, owners, accounts_scanned: accounts.length, configured_account: env.TWILIO_ACCOUNT_SID };
+}
+
+// Look up a sent message's delivery status + carrier error by SID.
+// Reveals whether "queued" became delivered / undelivered / failed and the code
+// (e.g. 30034 = A2P 10DLC not registered).
+export async function messageStatus(env, sid) {
+  if (!hasCreds(env)) return { ok: false, error: "missing_twilio_creds" };
+  if (!sid) return { ok: false, error: "need a message SID (SM…)" };
+  const r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/Messages/${encodeURIComponent(sid)}.json`, { headers: { Authorization: basic(env) } });
+  if (!r.ok) return { ok: false, status: r.status, error: `twilio_${r.status}` };
+  const j = await r.json().catch(() => ({}));
+  return { ok: true, sid: j.sid, status: j.status, error_code: j.error_code, error_message: j.error_message, to: j.to, from: j.from, date_sent: j.date_sent, date_updated: j.date_updated };
 }
 
 export async function listTwilioNumbers(env) {

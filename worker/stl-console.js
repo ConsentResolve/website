@@ -101,6 +101,10 @@ details{border:1px solid var(--ln);border-radius:9px;margin:6px 0;background:var
     <input id=testSms placeholder="+15555550123" style="max-width:200px">
     <button class=ghost onclick=sendTestSms()>Send test SMS</button>
   </div>
+  <div class=row style="margin-top:10px">
+    <input id=msgSid placeholder="SM… message SID to check delivery" style="max-width:340px">
+    <button class=ghost onclick=checkSms()>Check SMS delivery status</button>
+  </div>
   <div id=intgOut class="note mono" style="margin-top:10px"></div>
 </div>
 
@@ -228,7 +232,8 @@ async function sendTestEmail(){ const to=$('#testEmail').value.trim(); if(!to){$
 async function verifyTwilio(){ $('#intgOut').textContent='checking Twilio…'; const d=await api('POST',{action:'twilio_status'}); $('#intgOut').textContent=JSON.stringify(d); }
 async function listTwilioNums(){ $('#intgOut').textContent='fetching…'; const d=await api('POST',{action:'twilio_numbers'}); $('#intgOut').textContent=JSON.stringify(d); }
 async function findNumberOwner(){ $('#intgOut').textContent='searching this account + subaccounts…'; const d=await api('POST',{action:'twilio_find_number'}); $('#intgOut').textContent=JSON.stringify(d); }
-async function sendTestSms(){ const to=$('#testSms').value.trim(); if(!to){$('#intgOut').textContent='enter a to-number (E.164)';return;} $('#intgOut').textContent='sending…'; const d=await api('POST',{action:'test_sms',to}); $('#intgOut').textContent=JSON.stringify(d); }
+async function sendTestSms(){ const to=$('#testSms').value.trim(); if(!to){$('#intgOut').textContent='enter a to-number (E.164)';return;} $('#intgOut').textContent='sending…'; const d=await api('POST',{action:'test_sms',to}); $('#intgOut').textContent=JSON.stringify(d); if(d&&d.sid){$('#msgSid').value=d.sid;} }
+async function checkSms(){ const sid=$('#msgSid').value.trim(); if(!sid){$('#intgOut').textContent='paste a message SID (SM…)';return;} $('#intgOut').textContent='checking delivery…'; const d=await api('POST',{action:'twilio_message_status',sid}); $('#intgOut').textContent=JSON.stringify(d); }
 async function revokeLead(id){const d=await api('POST',{action:'revoke',lead_id:id});await load();}
 async function markTransfer(id){const d=await api('POST',{action:'mark_transfer',lead_id:id});await load();}
 load();setInterval(load,15000);
