@@ -4,12 +4,13 @@
 import { json, corsHeaders, clientIp } from "../_lib/http.js";
 import { createLead } from "../_lib/stl/classifier.js";
 import { scheduleLead } from "../_lib/stl/runner.js";
+import { backfillPhoneType } from "../_lib/stl/twilio.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   const cors = corsHeaders(request, env);
   let body = {};
   try { body = await request.json(); } catch (_) { return json({ ok: false, error: "bad_json" }, { status: 400 }, cors); }
@@ -24,6 +25,12 @@ export async function onRequestPost({ request, env }) {
     const { leadId, population, revokeToken } = await createLead(env, body);
     const lead = await env.DB.prepare("SELECT * FROM stl_leads WHERE id=?").bind(leadId).first();
     await scheduleLead(env, lead);
+    // Enrich phone_type (mobile/landline/voip) in the background via Twilio Lookup —
+    // the gate uses it to allow a manual dial to a published business line.
+    if (lead && lead.phone && !lead.phone_type) {
+      const job = backfillPhoneType(env, leadId, lead.phone).catch(() => {});
+      if (waitUntil) waitUntil(job);
+    }
     const origin = env.STL_PUBLIC_ORIGIN || new URL(request.url).origin;
     return json({
       ok: true, lead_id: leadId, population,

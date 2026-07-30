@@ -9,6 +9,7 @@ import { getSettings, setSetting, DEFAULTS } from "../_lib/stl/settings.js";
 import { createLead } from "../_lib/stl/classifier.js";
 import { scheduleLead, tick, revoke } from "../_lib/stl/runner.js";
 import { provisionRuby, listRetellNumbers } from "../_lib/stl/retell-setup.js";
+import { twilioStatus, sendTestSms, listTwilioNumbers } from "../_lib/stl/twilio.js";
 
 // Which integrations are wired? Booleans only — never leak secret values.
 function readiness(env) {
@@ -141,6 +142,9 @@ export async function onRequestPost({ request, env }) {
     if (action === "retell_numbers") {
       return json(await listRetellNumbers(env), {}, cors);
     }
+    if (action === "twilio_status") return json(await twilioStatus(env), {}, cors);
+    if (action === "twilio_numbers") return json(await listTwilioNumbers(env), {}, cors);
+    if (action === "test_sms") return json(await sendTestSms(env, String(body.to || "").trim(), body.text), {}, cors);
     if (action === "test_email") {
       if (!env.RESEND_API_KEY) return json({ ok: false, error: "missing RESEND_API_KEY" }, {}, cors);
       const to = String(body.to || "").trim();

@@ -6,6 +6,7 @@
 import { revoke } from "../_lib/stl/runner.js";
 import { logEvent } from "../_lib/stl/classifier.js";
 import { ensureStlSchema } from "../_lib/stl/schema.js";
+import { twilioVerify } from "../_lib/stl/twilio.js";
 
 const STOP_RE = /\b(stop|stopall|unsubscribe|cancel|end|quit|remove me|opt ?out|don'?t (text|call|contact)( me)?)\b/i;
 const twiml = (msg) => new Response(
@@ -24,6 +25,9 @@ export async function onRequestPost({ request, env }) {
   const form = await request.formData().catch(() => null);
   const p = {};
   if (form) for (const [k, v] of form.entries()) p[k] = v;
+
+  // Verify the request really came from Twilio (opt-in via STL_VERIFY_WEBHOOKS=1).
+  if (!(await twilioVerify(env, request, p))) return new Response("forbidden", { status: 403 });
 
   if (path.endsWith("/status")) {
     // Delivery status callback — attach outcome to the touchpoint by provider_ref.

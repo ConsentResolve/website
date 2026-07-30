@@ -61,6 +61,8 @@ async function sendSms(env, lead, r) {
   if (env.TWILIO_MESSAGING_SERVICE_SID) form.set("MessagingServiceSid", env.TWILIO_MESSAGING_SERVICE_SID);
   else form.set("From", env.TWILIO_FROM_NUMBER || "");
   form.set("Body", r.text || "");
+  // Delivery status callbacks flow back to /api/stl/twilio/status → update the touchpoint.
+  if (env.STL_PUBLIC_ORIGIN) form.set("StatusCallback", `${env.STL_PUBLIC_ORIGIN}/api/stl/twilio/status`);
   const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
     method: "POST",
     headers: { Authorization: "Basic " + btoa(`${sid}:${tok}`), "Content-Type": "application/x-www-form-urlencoded" },
