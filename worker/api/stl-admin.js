@@ -136,6 +136,11 @@ export async function onRequestPost({ request, env }) {
         .bind(crypto.randomUUID(), id, now - 3600000, now + 30 * 86400000).run();
       return json({ ok: true, rep_id: id }, {}, cors);
     }
+    if (action === "delete_rep") {
+      await env.DB.prepare("DELETE FROM stl_rep_availability WHERE rep_id=?").bind(body.rep_id).run().catch(() => {});
+      await env.DB.prepare("DELETE FROM stl_reps WHERE id=?").bind(body.rep_id).run().catch(() => {});
+      return json({ ok: true }, {}, cors);
+    }
     if (action === "mark_transfer") {
       // Test helper: simulate Ruby's warm transfer being accepted on a lead's B1 call.
       const tp = await env.DB.prepare("SELECT id FROM stl_touchpoints WHERE lead_id=? AND sequence_step='B1_retell' ORDER BY scheduled_for DESC LIMIT 1").bind(body.lead_id).first();

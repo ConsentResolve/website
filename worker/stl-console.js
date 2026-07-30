@@ -129,7 +129,14 @@ details{border:1px solid var(--ln);border-radius:9px;margin:6px 0;background:var
   <div class=card>
     <b>Run the engine</b>
     <p class=note>The cron ticks every minute in production. Here you can fire it on demand to dispatch every due touchpoint through the consent gate.</p>
-    <div class=row><button onclick=runTick()>▶ Run tick now</button> <button class=ghost onclick=seedRep()>+ Seed a rep</button></div>
+    <div class=row><button onclick=runTick()>▶ Run tick now</button></div>
+    <div style="margin-top:12px"><b>Reps</b> <span class=note>— Ruby warm-transfers to an available rep. Add yourself so a B1 call can bridge to you.</span></div>
+    <div class=row style="margin-top:6px">
+      <input id=repName placeholder="Rep name" style="max-width:130px" value="Me">
+      <input id=repPhone placeholder="+17135551234 (your mobile)" style="max-width:210px">
+      <button class=ghost onclick=seedRep()>+ Add rep</button>
+    </div>
+    <div id=reps class=note style="margin-top:8px"></div>
     <p class=note style="margin-top:14px"><b>Reset:</b> remove all test leads + their data.</p>
     <button class=danger onclick=resetTests()>Delete test data</button>
     <div id=tickOut class="note mono" style="margin-top:10px"></div>
@@ -177,6 +184,7 @@ async function load(){
     K((m.dispatch_by_mode&&(m.dispatch_by_mode.live||0))+' / '+(m.dispatch_by_mode&&(m.dispatch_by_mode.simulate||0)),'Live / simulated sends');
   // readiness
   renderReadiness(d.readiness||{});
+  renderReps(d.reps||[]);
   // recent errors (live send failures with the provider code)
   const errs=d.errors||[];
   $('#errors').innerHTML=errs.length? '<table><tr><th>When</th><th>Kind</th><th>Detail</th><th>Lead</th></tr>'+
@@ -211,7 +219,9 @@ async function inject(){
   const d=await api('POST',{action:'inject',population:$('#inPop').value,lead});$('#tickOut').textContent=d.ok?('Injected '+d.population+' lead '+d.lead_id.slice(0,8)):('error: '+(d.error||''));await load();
 }
 async function runTick(){$('#tickOut').textContent='ticking…';const d=await api('POST',{action:'tick'});$('#tickOut').textContent=d.ok?('tick: '+JSON.stringify(d.summary)):'error';await load();}
-async function seedRep(){const d=await api('POST',{action:'seed_rep'});$('#tickOut').textContent=d.ok?'rep seeded':'error';await load();}
+async function seedRep(){ const name=$('#repName').value.trim()||'Me', phone=$('#repPhone').value.trim(); if(!phone){$('#tickOut').textContent='enter the rep phone (E.164, e.g. +17135551234)';return;} const d=await api('POST',{action:'seed_rep',name,phone}); $('#tickOut').textContent=d.ok?('rep added: '+name+' '+phone):('error: '+(d.error||'')); await load(); }
+async function removeRep(id){ await api('POST',{action:'delete_rep',rep_id:id}); await load(); }
+function renderReps(reps){ const el=document.getElementById('reps'); if(!el) return; el.innerHTML=(reps&&reps.length)? 'Available for transfer: '+reps.map(r=>'<b>'+esc(r.name)+'</b> '+esc(r.phone)+(r.active?'':' (inactive)')+' <a href="#" onclick="removeRep(\\''+r.id+'\\');return false" style="color:var(--bad)">remove</a>').join(' · ') : '<span style="color:var(--warn)">No reps yet — add yourself above so Ruby has someone to warm-transfer to.</span>'; }
 async function resetTests(){if(!confirm('Delete ALL test leads and their data?'))return;const d=await api('POST',{action:'reset_tests'});$('#tickOut').textContent=d.ok?('deleted '+d.deleted):'error';await load();}
 function renderReadiness(r){
   const chip=(ok,label,note)=>'<div class="kpi '+(ok?'good':'')+'"><div class=v style="font-size:15px">'+(ok?'● ready':'○ not set')+'</div><div class=l>'+label+(note?' <span class=muted>'+note+'</span>':'')+'</div></div>';
