@@ -88,6 +88,9 @@
     // adapter prefers this over TWILIO_FROM_NUMBER. The From number must be attached
     // to this service — use the console's "Attach From # to Messaging Service".
     "TWILIO_MESSAGING_SERVICE_SID": "MGf93d07d2f149ca488919ab529bc3df62",
-    "STL_PUBLIC_ORIGIN": "https://consentresolve.com"
+    "STL_PUBLIC_ORIGIN": "https://consentresolve.com",
+    // Retell "Ruby" agent (provisioned 2026-07-30). RETELL_API_KEY stays a secret;
+    // RETELL_FROM_NUMBER (a Retell/imported number) still needs to be set once bought.
+    "RETELL_AGENT_ID": "agent_f1d60fc460c72e08f581d7466a"
   }
 }
