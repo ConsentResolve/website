@@ -94,6 +94,7 @@ details{border:1px solid var(--ln);border-radius:9px;margin:6px 0;background:var
     <button class=ghost onclick=verifyTwilio()>Verify Twilio</button>
     <button class=ghost onclick=listTwilioNums()>List Twilio numbers</button>
     <button class=ghost onclick=findNumberOwner()>Which account owns the From #?</button>
+    <button class=ghost onclick=listMsgServices()>List Messaging Services (A2P)</button>
   </div>
   <div class=row style="margin-top:10px">
     <input id=testEmail placeholder="you@consentresolve.com" style="max-width:260px">
@@ -232,6 +233,7 @@ async function sendTestEmail(){ const to=$('#testEmail').value.trim(); if(!to){$
 async function verifyTwilio(){ $('#intgOut').textContent='checking Twilio…'; const d=await api('POST',{action:'twilio_status'}); $('#intgOut').textContent=JSON.stringify(d); }
 async function listTwilioNums(){ $('#intgOut').textContent='fetching…'; const d=await api('POST',{action:'twilio_numbers'}); $('#intgOut').textContent=JSON.stringify(d); }
 async function findNumberOwner(){ $('#intgOut').textContent='searching this account + subaccounts…'; const d=await api('POST',{action:'twilio_find_number'}); $('#intgOut').textContent=JSON.stringify(d); }
+async function listMsgServices(){ $('#intgOut').textContent='listing Messaging Services + their numbers…'; const d=await api('POST',{action:'twilio_messaging_services'}); $('#intgOut').textContent=JSON.stringify(d); }
 async function sendTestSms(){ const to=$('#testSms').value.trim(); if(!to){$('#intgOut').textContent='enter a to-number (E.164)';return;} $('#intgOut').textContent='sending…'; const d=await api('POST',{action:'test_sms',to}); $('#intgOut').textContent=JSON.stringify(d); if(d&&d.sid){$('#msgSid').value=d.sid;} }
 async function checkSms(){ const sid=$('#msgSid').value.trim(); if(!sid){$('#intgOut').textContent='paste a message SID (SM…)';return;} $('#intgOut').textContent='checking delivery…'; const d=await api('POST',{action:'twilio_message_status',sid}); $('#intgOut').textContent=JSON.stringify(d); }
 async function revokeLead(id){const d=await api('POST',{action:'revoke',lead_id:id});await load();}

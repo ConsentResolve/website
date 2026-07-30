@@ -102,6 +102,26 @@ export async function messageStatus(env, sid) {
   return { ok: true, sid: j.sid, status: j.status, error_code: j.error_code, error_message: j.error_message, to: j.to, from: j.from, date_sent: j.date_sent, date_updated: j.date_updated };
 }
 
+// List Messaging Services + the numbers attached to each. A2P 10DLC campaigns are
+// linked to a Messaging Service, so this reveals which MG SID is approved and which
+// numbers send under it — set TWILIO_MESSAGING_SERVICE_SID to that MG… value.
+export async function listMessagingServices(env) {
+  if (!hasCreds(env)) return { ok: false, error: "missing_twilio_creds" };
+  const r = await fetch("https://messaging.twilio.com/v1/Services?PageSize=50", { headers: { Authorization: basic(env) } });
+  if (!r.ok) return { ok: false, status: r.status, error: `twilio_${r.status}` };
+  const j = await r.json().catch(() => ({}));
+  const services = [];
+  for (const s of (j.services || [])) {
+    let numbers = [];
+    try {
+      const nr = await fetch(`https://messaging.twilio.com/v1/Services/${s.sid}/PhoneNumbers?PageSize=50`, { headers: { Authorization: basic(env) } });
+      if (nr.ok) { const nj = await nr.json().catch(() => ({})); numbers = (nj.phone_numbers || []).map((p) => p.phone_number); }
+    } catch (_) {}
+    services.push({ sid: s.sid, name: s.friendly_name, numbers, use_case: s.usecase || null });
+  }
+  return { ok: true, count: services.length, services };
+}
+
 export async function listTwilioNumbers(env) {
   if (!hasCreds(env)) return { ok: false, error: "missing_twilio_creds" };
   const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/IncomingPhoneNumbers.json?PageSize=50`, { headers: { Authorization: basic(env) } });
