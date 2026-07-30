@@ -44,6 +44,7 @@ import * as crmApolloSync from "./api/crm-apollo-sync.js";
 import * as crOwnSync from "./api/cr-own-sync.js";
 import * as apolloProspect from "./api/apollo-prospect.js";
 import * as crmSpy from "./api/crm-spy.js";
+import * as crmLive from "./api/crm-live.js";
 import * as instantlyVisitors from "./api/instantly-visitors.js";
 import * as leadfeeder from "./api/leadfeeder.js";
 import * as rb2bEmail from "./api/rb2b-email.js";
@@ -134,6 +135,7 @@ const ROUTES = {
   "/api/crm/instantly/visitors": instantlyVisitors,
   "/api/crm/leadfeeder": leadfeeder,
   "/api/crm/spy": crmSpy,
+  "/api/crm/live": crmLive,
   "/api/crm/social/scores": crmSocialScores,
   "/api/crm/social/promote": crmSocialPromote,
   "/api/crm/gbp/auth": crmGbpAuth,

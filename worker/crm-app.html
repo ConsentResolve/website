@@ -742,6 +742,25 @@ html,body{height:100%}
   .nu-band-h{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-2)}
   .nu-live{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;color:var(--accent);background:var(--accent-soft);border-radius:var(--r-full);padding:3px 9px;letter-spacing:.04em}
   .nu-live .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:nupulse 1.6s ease-in-out infinite}
+  /* Real-time Site Spy widgets */
+  .lv-list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r-2);overflow:hidden}
+  .lv-row{display:grid;grid-template-columns:14px 1.4fr 1.6fr auto;gap:12px;align-items:center;background:var(--surface-1);padding:11px 14px;font-size:var(--t-13)}
+  .lv-row.intent{background:var(--good-soft)}
+  .lv-dot{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 22%,transparent)}
+  .lv-who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lv-page{color:var(--tx-2);font-family:var(--font-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lv-meta{color:var(--tx-3);font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .attn-list{display:flex;flex-direction:column;gap:8px}
+  .attn-item{display:flex;align-items:flex-start;gap:9px;padding:11px 14px;border-radius:var(--r-2);font-size:var(--t-13);line-height:1.45;border:1px solid var(--line)}
+  .attn-item.warn{background:var(--warn-soft,#fff7ed);border-color:var(--warn,#c2820a)}
+  .attn-item.good{background:var(--good-soft);border-color:color-mix(in srgb,var(--good) 40%,transparent)}
+  .attn-ic{flex:0 0 auto;font-weight:800}
+  .attn-item.warn .attn-ic{color:var(--warn,#c2820a)} .attn-item.good .attn-ic{color:var(--good)}
+  .tp-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:7px 0;border-top:1px solid var(--line);font-size:var(--t-13)}
+  .tp-row:first-of-type{border-top:0}
+  .tp-path{color:var(--tx-2);font-family:var(--font-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tp-n{font-weight:800;font-variant-numeric:tabular-nums}
+  @media(max-width:1080px){.lv-row{grid-template-columns:12px 1fr auto;gap:8px}.lv-page{display:none}}
   @keyframes nupulse{0%,100%{opacity:1}50%{opacity:.3}}
   .nu-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
   .nu-card{background:var(--surface-1);border:1px solid var(--accent);border-radius:var(--r-3);padding:15px 16px;box-shadow:var(--shadow-sm)}
@@ -2278,55 +2297,55 @@ function renderSiteSpy(){
       <thead><tr><th>Person</th><th>Title · Company</th><th>Source</th><th>Identified</th><th style="text-align:right">Actions</th></tr></thead>
       <tbody>${idRows}</tbody></table>`:`<div class="idash-empty">No identified people yet. As Apollo, RB2B and your own visitor API resolve visitors, they'll appear here to action.</div>`}`;
 
-  // ---- Live visitor stream (only when we have real site_visit data) ----
-  if(!window.SITESPY){
-    el.innerHTML=`<div class="nu-head"><h2>Site Spy</h2><div class="sub">Everyone we've identified — where they came from, with one-click add-to-automation, open, or disqualify.</div></div>${idTable}${srcPanelHtml()}`;
-    return;
-  }
-  const S=window.SITESPY, st=S.stats;
-  const live=S.visitors.filter(v=>v.live);
-  const recent=S.visitors.filter(v=>!v.live).sort((a,b)=>a.lastMin-b.lastMin);
-  const kpis=`<div class="kpis kpis-4" style="margin-bottom:20px">
-    <div class="kpi"><div class="kpi-v" style="color:var(--good)">${st.onSite}</div><div class="kpi-l">On the site now</div><div class="kpi-s">identified, live</div></div>
-    <div class="kpi"><div class="kpi-v">${st.today}</div><div class="kpi-l">Identified today</div><div class="kpi-s">known visitors</div></div>
-    <div class="kpi"><div class="kpi-v">${st.inWorkflow}</div><div class="kpi-l">Already engaging</div><div class="kpi-s">sequence, chat or nurture</div></div>
-    <div class="kpi"><div class="kpi-v" style="color:var(--accent)">${st.netNew}</div><div class="kpi-l">Not engaged yet</div><div class="kpi-s">net-new opportunities</div></div>
-  </div>`;
-  const liveCards=live.map(v=>`<div class="nu-card">
-    <div class="nu-c-top"><span class="nu-c-av" style="background:${avColor(v.name)}">${initials(v.name)}</span>
-      <div class="nu-c-id"><div class="nu-c-name">${esc(v.name)}</div><div class="nu-c-co">${esc(v.company)} · <span class="chip src-${v.source}" style="padding:0 6px"><span class="dot"></span>${SRC[v.source]}</span></div></div>
-      <span class="sp-livedot"><span class="d"></span>LIVE</span>
-    </div>
-    <div class="nu-signal now"><span class="sp-eye">${IC.globe}</span><div>Viewing <span class="sp-view">${esc(v.page)}</span><time>on site ${esc(v.time)} · ${v.trail.length} pages this session</time></div></div>
-    <div class="sp-trail">${v.trail.map(esc).join('  ›  ')}</div>
-    <div class="sp-cardfoot">${spyEngPills(v.eng)}<button class="nu-open" onclick="showView('inbox')">Open →</button></div>
-  </div>`).join('');
-  const rows=recent.map(v=>`<tr>
-    <td><div class="nu-nm" style="font-weight:700">${esc(v.name)}</div><div class="nu-cco">${esc(v.company)} · ${SRC[v.source]}</div></td>
-    <td><span class="sp-page">${esc(v.page)}</span><div class="sp-trail">${v.trail.map(esc).join(' › ')}</div></td>
-    <td class="sp-time">${v.pages||v.trail.length} pages · ${esc(v.time)}</td>
-    <td>${spyEngPills(v.eng)}</td>
-    <td class="sp-last">${esc(v.last)}</td>
-  </tr>`).join('');
-  const srcPanel = srcPanelHtml();
+  // ---- Real-time pulse + today + attention (live from /api/crm/live) ----
   el.innerHTML=`
-    <div class="nu-head"><h2>Site Spy</h2><div class="sub">Everyone we've identified — where they came from, with one-click add-to-automation, open, or disqualify. Below: who's live on the site right now.</div></div>
+    <div class="nu-head"><h2>Site Spy</h2><div class="sub">Who's on your site right now, today's activity, and what needs your attention — plus everyone we've identified.</div></div>
+    <div id="cr-live"><div class="idash-empty">Loading live activity…</div></div>
     ${idTable}
-    ${kpis}
-    <div class="nu-band">
-      <div class="nu-band-h">On the site now <span class="nu-live"><span class="dot"></span>LIVE</span></div>
-      ${live.length?`<div class="nu-cards">${liveCards}</div>`:`<div class="idash-empty">No identified visitors on the site this moment.</div>`}
-    </div>
-    <div class="nu-pool-h"><h4>Recent visitors · by last activity</h4><span class="atable-note">Only consent-identified visitors are shown.</span></div>
-    <table class="atable">
-      <thead><tr><th>Visitor</th><th>Last page</th><th>Session</th><th>Engagement</th><th>Last active</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <p class="atable-note" style="margin-top:14px">A “Not engaged yet” visitor is a net-new opportunity — open them to start a conversation or drop them into a sequence.</p>
-    ${srcPanel}
-  `;
+    ${srcPanelHtml()}`;
+  pollLive();
+  startLivePoll();
 }
 window.renderSiteSpy=renderSiteSpy;
+
+/* ---- Real-time Site Spy: live visitors, today's pulse, attention feed ---- */
+let _liveTimer=null;
+function startLivePoll(){ stopLivePoll(); _liveTimer=setInterval(()=>{ const sv=document.getElementById('sitespyview'); if(!sv||sv.hidden){ stopLivePoll(); return; } pollLive(); }, 25000); }
+function stopLivePoll(){ if(_liveTimer){ clearInterval(_liveTimer); _liveTimer=null; } }
+function pollLive(){
+  const host=document.getElementById('cr-live'); if(!host) return;
+  fetch('/api/crm/live',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).then(d=>{
+    if(!host.isConnected) return;
+    if(!d||!d.ok){ host.innerHTML='<div class="idash-empty">Live activity unavailable.</div>'; return; }
+    host.innerHTML=liveHtml(d);
+  }).catch(()=>{});
+}
+function liveHtml(d){
+  const L=d.live||{count:0,known:0,window_min:5,visitors:[]}, T=d.today||{}, A=d.attention||[];
+  const pvY=T.pageviews_yesterday||0, pvDelta=pvY>0?Math.round((T.pageviews/pvY-1)*100):null;
+  const intentN=T.intent?((T.intent.pricing||0)+(T.intent.demo||0)+(T.intent.getStarted||0)):0;
+  const vis=(L.visitors||[]).map(v=>{
+    const who=v.known?`<strong>${esc(v.known.name||v.known.company||'Known contact')}</strong>${v.known.company&&v.known.name?` · ${esc(v.known.company)}`:''}`:`<span style="color:var(--tx-3)">Anonymous visitor</span>`;
+    return `<div class="lv-row${v.intent?' intent':''}"><span class="lv-dot"></span><span class="lv-who">${who}</span><span class="lv-page">${esc(v.path)}</span><span class="lv-meta">${v.pages} pg · ${v.mins?('~'+v.mins+'m'):'now'}</span></div>`;
+  }).join('') || `<div class="idash-empty">No one on the site in the last ${L.window_min} min.</div>`;
+  const kpis=`<div class="kpis kpis-4" style="margin-bottom:16px">
+    <div class="kpi"><div class="kpi-v" style="color:var(--good)">${L.count}</div><div class="kpi-l">On the site now</div><div class="kpi-s">${L.known} identified · last ${L.window_min}m</div></div>
+    <div class="kpi"><div class="kpi-v">${T.uniques||0}</div><div class="kpi-l">Visitors today</div><div class="kpi-s">${T.pageviews||0} views${pvDelta!=null?` · ${pvDelta>=0?'▲':'▼'} ${Math.abs(pvDelta)}% vs yest`:''}</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:var(--accent)">${intentN}</div><div class="kpi-l">High-intent views</div><div class="kpi-s">pricing · demo · get-started</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:${A.length?'var(--warn)':'var(--tx-2)'}">${A.length}</div><div class="kpi-l">Needs attention</div><div class="kpi-s">signals below</div></div>
+  </div>`;
+  const att=A.length?`<div class="nu-pool-h" style="margin-top:18px"><h4>Needs your attention</h4></div><div class="attn-list">${A.map(a=>`<div class="attn-item ${a.tone==='good'?'good':'warn'}"><span class="attn-ic">${a.tone==='good'?'✓':'⚠'}</span><span>${esc(a.text)}</span></div>`).join('')}</div>`:'';
+  const pageRows=(T.topPages||[]).map(p=>`<div class="tp-row"><span class="tp-path">${esc(p.path)}</span><span class="tp-n">${p.n}</span></div>`).join('')||'<div class="idash-empty">No pageviews today.</div>';
+  const srcRows=(T.topSources||[]).map(s=>`<div class="tp-row"><span class="tp-path">${esc(s.src)}</span><span class="tp-n">${s.n}</span></div>`).join('')||'<div class="idash-empty">—</div>';
+  return `${kpis}
+    <div class="nu-band"><div class="nu-band-h">On the site now <span class="nu-live"><span class="dot"></span>LIVE</span></div><div class="lv-list">${vis}</div></div>
+    ${att}
+    <div class="idash-grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
+      <div class="icard"><div class="icard-h"><h4>Top pages today</h4></div>${pageRows}</div>
+      <div class="icard"><div class="icard-h"><h4>Where they came from today</h4></div>${srcRows}</div>
+    </div>`;
+}
+window.pollLive=pollLive;
 
 /* ---- Profile menu (top-left): open/close, avatar upload ---- */
 function toggleProfile(e){ e.stopPropagation(); const m=document.getElementById('pfmenu'); if(m) m.hidden=!m.hidden; }
