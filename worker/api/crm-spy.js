@@ -39,7 +39,18 @@ export async function listSpyLeads(env) {
       WHERE consent_status='identified' AND (spy_state IS NULL OR spy_state='identified')
       ORDER BY datetime(created_at) DESC LIMIT 500`
   ).all()).results || [];
-  return rows.map(mapRow);
+  // Which of these identified people have actually browsed our site? (email ->
+  // contact -> visitor_links -> traffic). One set query, then flag each row.
+  const visited = new Set();
+  try {
+    const vr = (await env.DB.prepare(
+      `SELECT DISTINCT lower(c.primary_email) em
+         FROM contacts c JOIN visitor_links vl ON vl.contact_id=c.id
+        WHERE c.primary_email IS NOT NULL`
+    ).all()).results || [];
+    for (const r of vr) if (r.em) visited.add(r.em);
+  } catch (_) {}
+  return rows.map((r) => { const m = mapRow(r); m.visited = !!(r.email && visited.has(r.email.toLowerCase())); return m; });
 }
 
 export async function onRequestOptions({ request, env }) {

@@ -35,8 +35,8 @@ export async function onRequestGet({ request, env }) {
   // that never pinged.
   try { await env.DB.prepare("CREATE TABLE IF NOT EXISTS presence (vid TEXT PRIMARY KEY, path TEXT, last_seen TEXT, ip TEXT, country TEXT, region TEXT, city TEXT)").run(); } catch (_) {}
   const presSince = new Date(now - 90 * 1000).toISOString();
-  let liveVals = (await all("SELECT vid, path, last_seen, ip, country, region, city FROM presence WHERE last_seen > ?", presSince))
-    .map((r) => ({ vid: r.vid, path: r.path, at: r.last_seen, hits: 1, ip: r.ip, country: r.country, region: r.region, city: r.city }));
+  let liveVals = (await all("SELECT vid, path, last_seen, ip, country, region, city, consent FROM presence WHERE last_seen > ?", presSince))
+    .map((r) => ({ vid: r.vid, path: r.path, at: r.last_seen, hits: 1, ip: r.ip, country: r.country, region: r.region, city: r.city, consent: r.consent }));
   let liveSource = "presence";
   if (!liveVals.length) {
     const liveRows = await all("SELECT vid, path, created_at FROM traffic WHERE created_at > ? ORDER BY created_at DESC LIMIT 500", sinceLive);
@@ -86,6 +86,7 @@ export async function onRequestGet({ request, env }) {
       ip: v.ip || null,
       location: [v.city, v.region, v.country].filter(Boolean).join(", ") || null,
       known: k ? { name: k.name || "", company: k.company || "" } : null,
+      consent: v.consent || "unknown", // granted | denied | unknown (from the CMP)
       intent: isIntent(v.path),
     };
   }).sort((a, b) => (b.known ? 1 : 0) - (a.known ? 1 : 0) || (b.intent - a.intent) || (a.lastMin - b.lastMin));

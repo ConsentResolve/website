@@ -123,14 +123,29 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <script is:inline>
       (function(){try{
         function vid(){return (document.cookie.match(/(?:^|;\s*)cr_vid=([^;]+)/)||[])[1]||"";}
+        // Best-effort consent read from the CMP (Usercentrics API the CR CMP wraps).
+        function consent(){ try{ if(window.UC_UI&&UC_UI.getServicesBaseInfo){ var svc=UC_UI.getServicesBaseInfo()||[];
+          if(!svc.length) return "unknown";
+          return svc.some(function(s){return s&&s.consent&&s.consent.status===true;})?"granted":"denied"; } }catch(e){} return "unknown"; }
         function ping(){ if(document.visibilityState!=="visible") return; var v=vid(); if(!v) return;
-          var s=JSON.stringify({vid:v,path:location.pathname});
+          var s=JSON.stringify({vid:v,path:location.pathname,consent:consent()});
           if(navigator.sendBeacon){navigator.sendBeacon("/api/ping",new Blob([s],{type:"application/json"}));}
           else{fetch("/api/ping",{method:"POST",headers:{"Content-Type":"application/json"},body:s,keepalive:true});}
         }
         ping();
         setInterval(ping,20000);
         document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible") ping(); });
+        // Video-view beacon — fire once per <video> on first play so Site Spy can show
+        // which videos a visitor consumed. Recorded as a traffic hit with a "video:" path.
+        var _seenVid={};
+        document.addEventListener("play",function(e){ try{
+          var el=e.target; if(!el||el.tagName!=="VIDEO") return;
+          var key=(el.currentSrc||el.getAttribute("data-vid-name")||el.id||"video"); if(_seenVid[key]) return; _seenVid[key]=1;
+          var name=(el.getAttribute("data-vid-name")||(el.currentSrc||"").split("/").pop()||el.id||"video").split("?")[0];
+          var v=vid(); if(!v) return;
+          var s=JSON.stringify({vid:v,path:"video:"+name,ref:location.pathname});
+          if(navigator.sendBeacon){navigator.sendBeacon("/api/hit",new Blob([s],{type:"application/json"}));}
+        }catch(e){} },true);
       }catch(e){}})();
     </script>
 

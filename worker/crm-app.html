@@ -771,6 +771,37 @@ html,body{height:100%}
   .tp-path{color:var(--tx-2);font-family:var(--font-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .tp-n{font-weight:800;font-variant-numeric:tabular-nums}
   @media(max-width:1080px){.lv-row{grid-template-columns:12px 1fr auto;gap:8px}.lv-page{display:none}}
+  .lv-row.clickable{cursor:pointer}.lv-row.clickable:hover{background:var(--surface-2)}
+  /* consent / visited chips */
+  .vchip{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:999px;white-space:nowrap;letter-spacing:.01em}
+  .cs-yes{background:rgba(0,185,133,.16);color:var(--good,#00a877)}
+  .cs-no{background:rgba(220,80,80,.16);color:var(--bad,#d64545)}
+  .cs-unk{background:rgba(148,163,184,.18);color:var(--tx-3)}
+  .vv-yes{background:rgba(0,185,133,.14);color:var(--good,#00a877)}
+  .vv-no{background:rgba(148,163,184,.14);color:var(--tx-3)}
+  /* identified-by-company groups */
+  .spy-co{border:1px solid var(--line);border-radius:var(--r-2);margin-bottom:8px;background:var(--surface-1);overflow:hidden}
+  .spy-co>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:11px 14px;font-weight:700}
+  .spy-co>summary::-webkit-details-marker{display:none}
+  .spy-co>summary::before{content:'▸';color:var(--tx-3);transition:transform .15s}
+  .spy-co[open]>summary::before{transform:rotate(90deg)}
+  .spy-co-nm{font-weight:800}.spy-co-n{font-size:12px;color:var(--tx-3);font-weight:600}
+  .spy-co-tbl{margin:0}.spy-co-tbl thead th{background:var(--surface-2)}
+  /* visitor 360 detail card */
+  .vd-card{border:1px solid var(--accent);border-radius:var(--r-3);background:var(--surface-1);padding:14px 16px;margin:8px 0 14px;box-shadow:var(--shadow-sm)}
+  .vd-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+  .vd-nm{font-size:16px;font-weight:800}.vd-sub{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+  .vd-x{border:0;background:transparent;font-size:22px;line-height:1;color:var(--tx-3);cursor:pointer}
+  .vd-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:16px}
+  @media(max-width:820px){.vd-grid{grid-template-columns:1fr}}
+  .vd-col h5{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx-3)}
+  .vd-c{background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:0 6px;font-size:10px;margin-left:4px}
+  .vd-kv{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  .vd-kv span{color:var(--tx-3)}
+  .vd-notes{margin-top:8px;font-size:12.5px;color:var(--tx-2);background:var(--surface-2);border-radius:8px;padding:8px 10px}
+  .vd-list{display:flex;flex-direction:column;max-height:230px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+  .vd-row{display:flex;justify-content:space-between;gap:10px;padding:6px 10px;font-size:12.5px;border-bottom:1px solid var(--line)}
+  .vd-row:last-child{border-bottom:0}.vd-path{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vd-at{color:var(--tx-3);white-space:nowrap;font-size:11px}
   @keyframes nupulse{0%,100%{opacity:1}50%{opacity:.3}}
   .nu-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
   .nu-card{background:var(--surface-1);border:1px solid var(--accent);border-radius:var(--r-3);padding:15px 16px;box-shadow:var(--shadow-sm)}
@@ -2527,27 +2558,35 @@ function srcPanelHtml(){
 }
 function renderSiteSpy(){
   const el=document.getElementById('sitespyview'); if(!el) return;
-  // ---- Identified people table (the primary Site Spy surface) ----
+  // ---- Identified people, grouped by company (expandable → contacts) ----
   const SPY=window.SPY_LEADS||[];
-  const idRows=SPY.map(p=>{
+  const groups={};
+  SPY.forEach(p=>{ const key=(p.company||p.domain||'— No company'); (groups[key]=groups[key]||[]).push(p); });
+  const companyNames=Object.keys(groups).sort((a,b)=>groups[b].length-groups[a].length);
+  const contactRow=p=>{
     const src=p.source||'other', lbl=SPY_SRC_LBL[src]||src, clr=SPY_SRC_CLR[src]||'#888';
-    const sub=[p.title,p.company||p.domain].filter(Boolean).join(' · ');
     return `<tr id="spy-${esc(p.id)}">
-      <td><div class="nu-nm" style="font-weight:700">${esc(p.name)}</div><div class="nu-cco">${p.email?esc(p.email):'<span style="color:var(--tx-3)">no email on file</span>'}</div></td>
-      <td>${esc(sub||'—')}</td>
+      <td><div class="nu-nm" style="font-weight:700;cursor:pointer" onclick="openVisitorDetail('lead','${esc(p.id)}')">${esc(p.name)}</div><div class="nu-cco">${p.email?esc(p.email):'<span style="color:var(--tx-3)">no email on file</span>'}${p.visited?' <span class="vchip vv-yes" title="Has browsed our website">● visited site</span>':''}</div></td>
+      <td>${esc(p.title||'—')}</td>
       <td><span class="lbadge" style="background:${clr}22;color:${clr};font-weight:700">${esc(lbl)}</span></td>
       <td class="sp-last">${esc(spyAge(p.created_at))}</td>
       <td style="text-align:right;white-space:nowrap">
+        <button class="nu-open" title="See what we know about this person" onclick="openVisitorDetail('lead','${esc(p.id)}')">Details</button>
         <button class="nu-open" title="Add to an outreach automation" onclick="spyAct('${esc(p.id)}','enroll',this)">+ Automation</button>
         <button class="nu-open" title="Open in the inbox" onclick="spyAct('${esc(p.id)}','open',this)">Open</button>
         <button class="nu-open" style="opacity:.7" title="Not our ICP — remove from Site Spy" onclick="spyAct('${esc(p.id)}','disqualify',this)">Disqualify</button>
       </td></tr>`;
+  };
+  const companyBlocks=companyNames.map(co=>{
+    const ppl=groups[co]; const anyVisited=ppl.some(p=>p.visited);
+    return `<details class="spy-co"${companyNames.length<=3?' open':''}>
+      <summary><span class="spy-co-nm">${esc(co)}</span><span class="spy-co-n">${ppl.length} ${ppl.length===1?'contact':'contacts'}</span>${anyVisited?'<span class="vchip vv-yes">● visited site</span>':''}</summary>
+      <table class="atable spy-co-tbl"><thead><tr><th>Person</th><th>Title</th><th>Source</th><th>Identified</th><th style="text-align:right">Actions</th></tr></thead>
+      <tbody>${ppl.map(contactRow).join('')}</tbody></table></details>`;
   }).join('');
   const idTable=`
-    <div class="nu-pool-h" style="margin-top:4px"><h4>Identified people</h4><span class="atable-note">${SPY.length} identified · add to an automation, open in the inbox, or disqualify if not a fit.</span></div>
-    ${SPY.length?`<table class="atable" id="spytable">
-      <thead><tr><th>Person</th><th>Title · Company</th><th>Source</th><th>Identified</th><th style="text-align:right">Actions</th></tr></thead>
-      <tbody>${idRows}</tbody></table>`:`<div class="idash-empty">No identified people yet. As Apollo, RB2B and your own visitor API resolve visitors, they'll appear here to action.</div>`}`;
+    <div class="nu-pool-h" style="margin-top:4px"><h4>Identified people · by company</h4><span class="atable-note">${SPY.length} identified across ${companyNames.length} ${companyNames.length===1?'company':'companies'} · expand a company, click a name to see what we know.</span></div>
+    ${SPY.length?`<div id="spy-detail"></div>${companyBlocks}`:`<div class="idash-empty">No identified people yet. As Apollo, RB2B and your own visitor API resolve visitors, they'll appear here to action.</div>`}`;
 
   // ---- Real-time pulse + today + attention (live from /api/crm/live) ----
   el.innerHTML=`
@@ -2602,7 +2641,8 @@ function liveHtml(d){
   const vis=(L.visitors||[]).map(v=>{
     const who=v.known?`<strong>${esc(v.known.name||v.known.company||'Known contact')}</strong>${v.known.company&&v.known.name?` · ${esc(v.known.company)}`:''}`:`<span style="color:var(--tx-3)">Anonymous visitor</span>`;
     const sub=[v.location, v.ip].filter(Boolean).join(' · ');
-    return `<div class="lv-row${v.intent?' intent':''}"><span class="lv-dot"></span><span class="lv-who">${who}${sub?`<span class="lv-loc">📍 ${esc(sub)}</span>`:''}</span><span class="lv-page">on <b>${esc(v.path)}</b></span><span class="lv-meta">via ${esc(spySrcLabel(v.source))} · ${v.pages} pg · ${spyDur(v.onSiteMin)}</span></div>`;
+    const clickable=v.id?` clickable" onclick="openVisitorDetail('vid','${esc(v.id)}')" title="Click to see their pages & videos"`:'"';
+    return `<div class="lv-row${v.intent?' intent':''}${clickable}><span class="lv-dot"></span><span class="lv-who">${who} ${consentBadge(v.consent)}${sub?`<span class="lv-loc">📍 ${esc(sub)}</span>`:''}</span><span class="lv-page">on <b>${esc(v.path)}</b></span><span class="lv-meta">via ${esc(spySrcLabel(v.source))} · ${v.pages} pg · ${spyDur(v.onSiteMin)}</span></div>`;
   }).join('');
   const kpis=`<div class="kpis kpis-4" style="margin-bottom:16px">
     <div class="kpi"><div class="kpi-v" style="color:var(--good)">${L.count}</div><div class="kpi-l">On the site now</div><div class="kpi-s">${L.known} identified · last ${L.window_min}m</div></div>
@@ -2622,6 +2662,53 @@ function liveHtml(d){
     </div>`;
 }
 window.pollLive=pollLive;
+
+/* ---- Consent badge + visitor 360 detail (shared by live rows & identified people) ---- */
+function consentBadge(state){
+  if(state==='granted') return '<span class="vchip cs-yes" title="Accepted the consent banner">✓ consented</span>';
+  if(state==='denied')  return '<span class="vchip cs-no" title="Declined the consent banner">⛔ no consent</span>';
+  return '<span class="vchip cs-unk" title="No consent decision recorded yet">○ consent unknown</span>';
+}
+function fmtWhen(t){ if(!t) return '—'; const d=new Date(t); if(isNaN(d)) return esc(String(t)); return d.toLocaleString(); }
+function visitorDetailHtml(d){
+  const id=d.identity||{};
+  const name=id.name||(id.email?id.email.split('@')[0]:'Anonymous visitor');
+  const tr=d.trail||{pages:[],videos:[]};
+  const pages=(tr.pages||[]).slice(0,40).map(p=>`<div class="vd-row"><span class="vd-path">${esc(p.path)}</span><span class="vd-at">${esc(fmtWhen(p.at))}</span></div>`).join('')||'<div class="idash-empty">No pageviews recorded.</div>';
+  const vids=(tr.videos||[]).map(v=>`<div class="vd-row"><span class="vd-path">🎬 ${esc(v.name)}${v.on?` <span style="color:var(--tx-3)">on ${esc(v.on)}</span>`:''}</span><span class="vd-at">${esc(fmtWhen(v.at))}</span></div>`).join('')||'<div class="idash-empty">No videos watched.</div>';
+  const know=[];
+  if(id.title) know.push(['Title',id.title]);
+  if(id.company) know.push(['Company',id.company]);
+  if(id.email) know.push(['Email',id.email]);
+  if(id.domain) know.push(['Domain',id.domain]);
+  if(id.source) know.push(['Source',(typeof SPY_SRC_LBL!=='undefined'&&SPY_SRC_LBL[id.source])||id.source]);
+  if(d.location) know.push(['Location',d.location]);
+  if(d.ip) know.push(['IP',d.ip]);
+  const en=d.enrichment||{};
+  if(en.seniority) know.push(['Seniority',en.seniority]);
+  if(en.headline) know.push(['Headline',en.headline]);
+  const knowRows=know.map(([k,v])=>`<div class="vd-kv"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')||'<div class="idash-empty">Nothing enriched yet.</div>';
+  const visitedChip=d.visited?'<span class="vchip vv-yes">● has visited our site</span>':'<span class="vchip vv-no">has not visited our site</span>';
+  return `<div class="vd-card">
+    <div class="vd-head"><div><div class="vd-nm">${esc(name)}</div><div class="vd-sub">${consentBadge(d.consent)} ${visitedChip}</div></div>
+      <button class="vd-x" onclick="closeVisitorDetail()" aria-label="Close">&times;</button></div>
+    <div class="vd-grid">
+      <div class="vd-col"><h5>What we know</h5>${knowRows}${d.notes?`<div class="vd-notes">${esc(d.notes)}</div>`:''}</div>
+      <div class="vd-col"><h5>Pages viewed ${tr.visits?`<span class="vd-c">${tr.visits}</span>`:''}</h5><div class="vd-list">${pages}</div>
+        <h5 style="margin-top:12px">Videos watched</h5><div class="vd-list">${vids}</div></div>
+    </div></div>`;
+}
+function openVisitorDetail(kind,id){
+  const host=document.getElementById('spy-detail')||(function(){ const cl=document.getElementById('cr-live'); if(!cl)return null; let h=document.getElementById('spy-detail'); if(!h){h=document.createElement('div');h.id='spy-detail';cl.parentNode.insertBefore(h,cl.nextSibling);} return h; })();
+  if(!host) return;
+  host.innerHTML='<div class="vd-card"><div class="idash-empty">Loading…</div></div>';
+  host.scrollIntoView({behavior:'smooth',block:'nearest'});
+  fetch('/api/crm/visitor?'+kind+'='+encodeURIComponent(id),{credentials:'same-origin'})
+    .then(r=>r.ok?r.json():null).then(d=>{ if(!d||!d.ok){ host.innerHTML='<div class="vd-card"><div class="idash-empty">Could not load visitor detail.</div></div>'; return; } host.innerHTML=visitorDetailHtml(d); })
+    .catch(()=>{ host.innerHTML=''; });
+}
+function closeVisitorDetail(){ const h=document.getElementById('spy-detail'); if(h) h.innerHTML=''; }
+window.openVisitorDetail=openVisitorDetail; window.closeVisitorDetail=closeVisitorDetail; window.consentBadge=consentBadge;
 
 /* ---- Profile menu (top-left): open/close, avatar upload ---- */
 function toggleProfile(e){ e.stopPropagation(); const m=document.getElementById('pfmenu'); if(m) m.hidden=!m.hidden; }

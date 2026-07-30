@@ -48,6 +48,7 @@ import * as crmSpy from "./api/crm-spy.js";
 import * as crmLive from "./api/crm-live.js";
 import * as crmAnalyticsRange from "./api/crm-analytics-range.js";
 import * as crmProfile from "./api/crm-profile.js";
+import * as crmVisitor from "./api/crm-visitor.js";
 // Speed-to-Lead engine
 import * as stlLead from "./api/stl-lead.js";
 import * as stlRevoke from "./api/stl-revoke.js";
@@ -151,6 +152,7 @@ const ROUTES = {
   "/api/crm/live": crmLive,
   "/api/crm/analytics/range": crmAnalyticsRange,
   "/api/crm/profile": crmProfile,
+  "/api/crm/visitor": crmVisitor,
   "/api/crm/social/scores": crmSocialScores,
   "/api/crm/social/promote": crmSocialPromote,
   "/api/crm/gbp/auth": crmGbpAuth,

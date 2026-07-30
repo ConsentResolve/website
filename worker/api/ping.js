@@ -12,7 +12,7 @@ let _presenceReady = false;
 async function ensurePresence(env) {
   if (_presenceReady) return;
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS presence (vid TEXT PRIMARY KEY, path TEXT, last_seen TEXT, ip TEXT, country TEXT, region TEXT, city TEXT)").run();
-  for (const col of ["ip TEXT", "country TEXT", "region TEXT", "city TEXT"]) {
+  for (const col of ["ip TEXT", "country TEXT", "region TEXT", "city TEXT", "consent TEXT"]) {
     try { await env.DB.prepare(`ALTER TABLE presence ADD COLUMN ${col}`).run(); } catch (_) {}
   }
   _presenceReady = true;
@@ -34,11 +34,15 @@ export async function onRequestPost({ request, env }) {
     const country = String(cf.country || "").slice(0, 4);
     const region = String(cf.region || cf.regionCode || "").slice(0, 60);
     const city = String(cf.city || "").slice(0, 80);
+    // Consent state as read client-side from the CMP (granted|denied|unknown).
+    const consent = ["granted", "denied", "unknown"].includes(b.consent) ? b.consent : "unknown";
     await ensurePresence(env);
     await env.DB.prepare(
-      "INSERT INTO presence (vid, path, last_seen, ip, country, region, city) VALUES (?,?,?,?,?,?,?) " +
-      "ON CONFLICT(vid) DO UPDATE SET path=excluded.path, last_seen=excluded.last_seen, ip=excluded.ip, country=excluded.country, region=excluded.region, city=excluded.city"
-    ).bind(vid, path, new Date().toISOString(), ip, country, region, city).run();
+      "INSERT INTO presence (vid, path, last_seen, ip, country, region, city, consent) VALUES (?,?,?,?,?,?,?,?) " +
+      "ON CONFLICT(vid) DO UPDATE SET path=excluded.path, last_seen=excluded.last_seen, ip=excluded.ip, country=excluded.country, region=excluded.region, city=excluded.city, " +
+      // Never downgrade a known consent decision back to 'unknown' on a later ping.
+      "consent=CASE WHEN excluded.consent='unknown' THEN presence.consent ELSE excluded.consent END"
+    ).bind(vid, path, new Date().toISOString(), ip, country, region, city, consent).run();
     return json({ ok: true });
   } catch (_) {
     return json({ ok: true });
