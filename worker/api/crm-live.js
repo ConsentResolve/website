@@ -9,6 +9,7 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 
 const isIntent = (p) => /(^\/pricing|^\/demo|^\/get-started|pricing|\/demo)/i.test(p || "");
+const hostOf = (u) => { if (!u) return ""; try { return new URL(u).hostname.replace(/^www\./, ""); } catch (_) { return String(u).replace(/^https?:\/\//, "").split("/")[0]; } };
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -57,11 +58,35 @@ export async function onRequestGet({ request, env }) {
       if (!known.has(r.vid)) known.set(r.vid, { name: r.full_name, company: r.company });
     }
   }
+  // Session stats per live vid (time on site, pages consumed, entry source) — 3h window.
+  const sessMap = new Map();
+  if (vids.length) {
+    const ph2 = "(" + vids.map(() => "?").join(",") + ")";
+    const since3h = new Date(now - 3 * 3600 * 1000).toISOString();
+    for (const r of await all(`SELECT vid, utm_source, ref, created_at FROM traffic WHERE vid IN ${ph2} AND created_at > ? ORDER BY created_at ASC`, ...vids, since3h)) {
+      let g = sessMap.get(r.vid);
+      if (!g) { // first (earliest) hit = session entry → capture the source
+        const src = (r.utm_source && String(r.utm_source).trim()) ? String(r.utm_source) : (hostOf(r.ref) || "Direct");
+        g = { pages: 0, firstAt: r.created_at, source: src };
+        sessMap.set(r.vid, g);
+      }
+      g.pages++;
+    }
+  }
   const visitors = liveVals.map((v) => {
     const k = v.vid && known.get(v.vid);
-    return { path: v.path || "/", pages: v.hits, mins: Math.max(0, Math.round((now - Date.parse(v.at)) / 60000)),
-      known: k ? { name: k.name || "", company: k.company || "" } : null, intent: isIntent(v.path) };
-  }).sort((a, b) => (b.known ? 1 : 0) - (a.known ? 1 : 0) || (b.intent - a.intent) || (a.mins - b.mins));
+    const s = v.vid && sessMap.get(v.vid);
+    return {
+      id: v.vid || null,
+      path: v.path || "/",
+      pages: s ? s.pages : (v.hits || 1),
+      onSiteMin: s ? Math.max(0, Math.round((now - Date.parse(s.firstAt)) / 60000)) : 0,
+      lastMin: Math.max(0, Math.round((now - Date.parse(v.at)) / 60000)),
+      source: s ? s.source : "Direct",
+      known: k ? { name: k.name || "", company: k.company || "" } : null,
+      intent: isIntent(v.path),
+    };
+  }).sort((a, b) => (b.known ? 1 : 0) - (a.known ? 1 : 0) || (b.intent - a.intent) || (a.lastMin - b.lastMin));
 
   // --- Today's pulse.
   const pv = await one("SELECT COUNT(*) pageviews, COUNT(DISTINCT vid) uniques FROM traffic WHERE created_at >= ?", tISO);

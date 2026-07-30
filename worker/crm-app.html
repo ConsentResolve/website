@@ -751,6 +751,8 @@ html,body{height:100%}
   .lv-who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lv-page{color:var(--tx-2);font-family:var(--font-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lv-meta{color:var(--tx-3);font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .bell-toggle{margin-left:auto;background:none;border:none;cursor:pointer;font-size:15px;line-height:1;padding:2px 5px;border-radius:6px}
+  .bell-toggle:hover{background:var(--hover)}
   .attn-list{display:flex;flex-direction:column;gap:8px}
   .attn-item{display:flex;align-items:flex-start;gap:9px;padding:11px 14px;border-radius:var(--r-2);font-size:var(--t-13);line-height:1.45;border:1px solid var(--line)}
   .attn-item.warn{background:var(--warn-soft,#fff7ed);border-color:var(--warn,#c2820a)}
@@ -2310,6 +2312,27 @@ function renderSiteSpy(){
 window.renderSiteSpy=renderSiteSpy;
 
 /* ---- Real-time Site Spy: live visitors, today's pulse, attention feed ---- */
+const SPY_SRC_FRIENDLY={google_search:'Google',google:'Google',meta:'Meta',facebook:'Meta',fb:'Meta',instagram:'Instagram',bing:'Bing',reddit:'Reddit',instantly:'Email',email:'Email',linkedin:'LinkedIn',x:'X',twitter:'X',direct:'Direct'};
+function spySrcLabel(s){ if(!s) return 'Direct'; const k=String(s).toLowerCase(); return SPY_SRC_FRIENDLY[k]||String(s).replace(/^www\./,''); }
+function spyDur(m){ m=+m||0; if(m<1) return 'just arrived'; if(m<60) return m+'m on site'; return Math.floor(m/60)+'h '+(m%60)+'m on site'; }
+/* New-visitor bell */
+let _bellOn=true; try{ _bellOn=localStorage.getItem('crm_bell')!=='0'; }catch(e){}
+function playBell(){ if(!_bellOn) return; try{
+  const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+  const ac=window._crmAC||(window._crmAC=new AC()); if(ac.state==='suspended') ac.resume();
+  const t=ac.currentTime;
+  [880,1320].forEach((f,i)=>{ const o=ac.createOscillator(),g=ac.createGain(); o.type='sine'; o.frequency.value=f;
+    const s=t+i*0.055; g.gain.setValueAtTime(0.0001,s); g.gain.exponentialRampToValueAtTime(i?0.11:0.2,s+0.008); g.gain.exponentialRampToValueAtTime(0.0001,s+0.5);
+    o.connect(g).connect(ac.destination); o.start(s); o.stop(s+0.55); });
+}catch(e){} }
+function toggleBell(btn){ _bellOn=!_bellOn; try{localStorage.setItem('crm_bell',_bellOn?'1':'0');}catch(e){} if(btn)btn.textContent=_bellOn?'🔔':'🔕'; if(_bellOn)playBell(); }
+window.toggleBell=toggleBell;
+let _liveSeen=null;
+function detectNewVisitors(vis){
+  const ids=new Set((vis||[]).map(v=>v.id).filter(Boolean));
+  if(_liveSeen!==null){ for(const id of ids){ if(!_liveSeen.has(id)){ playBell(); break; } } }
+  _liveSeen=ids;
+}
 let _liveTimer=null;
 function startLivePoll(){ stopLivePoll(); _liveTimer=setInterval(()=>{ const sv=document.getElementById('sitespyview'); if(!sv||sv.hidden){ stopLivePoll(); return; } pollLive(); }, 25000); }
 function stopLivePoll(){ if(_liveTimer){ clearInterval(_liveTimer); _liveTimer=null; } }
@@ -2318,6 +2341,7 @@ function pollLive(){
   fetch('/api/crm/live',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).then(d=>{
     if(!host.isConnected) return;
     if(!d||!d.ok){ host.innerHTML='<div class="idash-empty">Live activity unavailable.</div>'; return; }
+    detectNewVisitors(d.live&&d.live.visitors);
     host.innerHTML=liveHtml(d);
   }).catch(()=>{});
 }
@@ -2328,7 +2352,7 @@ function liveHtml(d){
   const hasLive=(L.visitors||[]).length>0;
   const vis=(L.visitors||[]).map(v=>{
     const who=v.known?`<strong>${esc(v.known.name||v.known.company||'Known contact')}</strong>${v.known.company&&v.known.name?` · ${esc(v.known.company)}`:''}`:`<span style="color:var(--tx-3)">Anonymous visitor</span>`;
-    return `<div class="lv-row${v.intent?' intent':''}"><span class="lv-dot"></span><span class="lv-who">${who}</span><span class="lv-page">${esc(v.path)}</span><span class="lv-meta">${v.pages} pg · ${v.mins?('~'+v.mins+'m'):'now'}</span></div>`;
+    return `<div class="lv-row${v.intent?' intent':''}"><span class="lv-dot"></span><span class="lv-who">${who}</span><span class="lv-page">on <b>${esc(v.path)}</b></span><span class="lv-meta">via ${esc(spySrcLabel(v.source))} · ${v.pages} pg · ${spyDur(v.onSiteMin)}</span></div>`;
   }).join('');
   const kpis=`<div class="kpis kpis-4" style="margin-bottom:16px">
     <div class="kpi"><div class="kpi-v" style="color:var(--good)">${L.count}</div><div class="kpi-l">On the site now</div><div class="kpi-s">${L.known} identified · last ${L.window_min}m</div></div>
@@ -2340,7 +2364,7 @@ function liveHtml(d){
   const pageRows=(T.topPages||[]).map(p=>`<div class="tp-row"><span class="tp-path">${esc(p.path)}</span><span class="tp-n">${p.n}</span></div>`).join('')||'<div class="idash-empty">No pageviews today.</div>';
   const srcRows=(T.topSources||[]).map(s=>`<div class="tp-row"><span class="tp-path">${esc(s.src)}</span><span class="tp-n">${s.n}</span></div>`).join('')||'<div class="idash-empty">—</div>';
   return `${kpis}
-    ${hasLive?`<div class="nu-band"><div class="nu-band-h">On the site now <span class="nu-live"><span class="dot"></span>LIVE</span></div><div class="lv-list">${vis}</div></div>`:''}
+    ${hasLive?`<div class="nu-band"><div class="nu-band-h">On the site now <span class="nu-live"><span class="dot"></span>LIVE</span><button class="bell-toggle" onclick="toggleBell(this)" title="Play a sound when a new visitor arrives">${_bellOn?'🔔':'🔕'}</button></div><div class="lv-list">${vis}</div></div>`:''}
     ${att}
     <div class="idash-grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
       <div class="icard"><div class="icard-h"><h4>Top pages today</h4></div>${pageRows}</div>
