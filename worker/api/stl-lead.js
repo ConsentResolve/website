@@ -5,6 +5,7 @@ import { json, corsHeaders, clientIp } from "../_lib/http.js";
 import { createLead } from "../_lib/stl/classifier.js";
 import { scheduleLead } from "../_lib/stl/runner.js";
 import { backfillPhoneType } from "../_lib/stl/twilio.js";
+import { linkLeadToCrm } from "../_lib/stl/crm-bridge.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -20,11 +21,17 @@ export async function onRequestPost({ request, env, waitUntil }) {
   body.user_agent = request.headers.get("user-agent") || body.user_agent || null;
   if (request.cf && request.cf.timezone && !body.timezone) body.timezone = request.cf.timezone;
   if (request.cf && request.cf.regionCode && !body.state) body.state = request.cf.regionCode;
+  // UTM / source attribution → ad_source + campaign_id (feeds by-source ROAS).
+  if (!body.ad_source && body.utm_source) body.ad_source = String(body.utm_source).slice(0, 40);
+  if (!body.campaign_id && body.utm_campaign) body.campaign_id = String(body.utm_campaign).slice(0, 80);
 
   try {
     const { leadId, population, revokeToken } = await createLead(env, body);
     const lead = await env.DB.prepare("SELECT * FROM stl_leads WHERE id=?").bind(leadId).first();
     await scheduleLead(env, lead);
+    // Mirror into the CRM (system of record): contact/company + Inbox conversation.
+    const crmJob = linkLeadToCrm(env, lead).catch(() => {});
+    if (waitUntil) waitUntil(crmJob); else await crmJob;
     // Enrich phone_type (mobile/landline/voip) in the background via Twilio Lookup —
     // the gate uses it to allow a manual dial to a published business line.
     if (lead && lead.phone && !lead.phone_type) {

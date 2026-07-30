@@ -22,7 +22,24 @@ export const SEQUENCE_A = [
   { step: "A8_dial",   offset: 8 * D,           channel: "call_human", actor: "human",  template: "A_dial", windowed: true },
 ];
 
-export function sequenceFor(population) {
+// Compressed schedule for the shareable team demo (is_demo leads): the whole B flow
+// runs in ~15 min so 3 teammates can watch it start→finish in one sitting. Windows are
+// ignored for demo leads (see runner) so nothing waits for a calling window.
+export const SEQUENCE_B_DEMO = [
+  { step: "B1_retell", offset: 30,       channel: "call_ai",    actor: "ai",     template: "B1_retell" },
+  { step: "B2_sms",    offset: 2 * 60,   channel: "sms",        actor: "system", template: "B2_sms" },
+  { step: "B3_email",  offset: 4 * 60,   channel: "email",      actor: "system", template: "B3_email" },
+  { step: "B4_dial",   offset: 8 * 60,   channel: "call_human", actor: "human",  template: "B4_dial", windowed: true, skipIfTransferred: true },
+];
+export const SEQUENCE_A_DEMO = [
+  { step: "A1_email", offset: 60,       channel: "email",      actor: "system", template: "A1_email" },
+  { step: "A2_dial",  offset: 3 * 60,   channel: "call_human", actor: "human",  template: "A_dial", windowed: true },
+  { step: "A3_email", offset: 6 * 60,   channel: "email",      actor: "system", template: "A3_email" },
+  { step: "A7_email", offset: 12 * 60,  channel: "email",      actor: "system", template: "A7_email" },
+];
+
+export function sequenceFor(population, isDemo) {
+  if (isDemo) return population === "B" ? SEQUENCE_B_DEMO : SEQUENCE_A_DEMO;
   return population === "B" ? SEQUENCE_B : SEQUENCE_A;
 }
 

@@ -8,6 +8,7 @@ import { ensureStlSchema } from "../_lib/stl/schema.js";
 import { getSettings, setSetting, DEFAULTS } from "../_lib/stl/settings.js";
 import { createLead } from "../_lib/stl/classifier.js";
 import { scheduleLead, tick, revoke, maybeTextbackOnNoAnswer } from "../_lib/stl/runner.js";
+import { linkLeadToCrm } from "../_lib/stl/crm-bridge.js";
 import { provisionRuby, listRetellNumbers } from "../_lib/stl/retell-setup.js";
 import { twilioStatus, sendTestSms, listTwilioNumbers, findNumberOwner, messageStatus, listMessagingServices, attachNumberToService, setupCascadeNumber, createSipTrunk, addSipOrigination } from "../_lib/stl/twilio.js";
 
@@ -129,6 +130,7 @@ export async function onRequestPost({ request, env }) {
       const { leadId, population, revokeToken } = await createLead(env, p);
       const lead = await env.DB.prepare("SELECT * FROM stl_leads WHERE id=?").bind(leadId).first();
       await scheduleLead(env, lead);
+      await linkLeadToCrm(env, lead).catch(() => {});
       return json({ ok: true, lead_id: leadId, population, revoke_token: revokeToken }, {}, cors);
     }
     if (action === "tick") {

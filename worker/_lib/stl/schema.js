@@ -118,6 +118,8 @@ const STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS idx_stl_consent_token ON stl_consent_events(revoke_token)`,
   // Rep transfer priority (1 = primary, 2/3 = backups). Guarded — harmless if it exists.
   `ALTER TABLE stl_reps ADD COLUMN priority INTEGER DEFAULT 100`,
+  // Link to the CRM contact this lead was mirrored to (system of record = CRM v2).
+  `ALTER TABLE stl_leads ADD COLUMN crm_contact_id TEXT`,
 ];
 
 export async function ensureStlSchema(env) {

@@ -11,6 +11,7 @@ import { dispatch, alert } from "./adapters.js";
 import { renderTemplate } from "./templates.js";
 import { addConsentEvent, classifyPopulation, logEvent } from "./classifier.js";
 import { getSettings } from "./settings.js";
+import { mirrorTouchpoint } from "./crm-bridge.js";
 
 const uid = () => crypto.randomUUID();
 
@@ -19,11 +20,11 @@ async function fromName(env) { return env.STL_FROM_NAME || "Consent Resolve"; }
 // Create pending touchpoints for a lead's whole sequence.
 export async function scheduleLead(env, lead, steps) {
   await ensureStlSchema(env);
-  const seq = steps || sequenceFor(lead.population);
+  const seq = steps || sequenceFor(lead.population, lead.is_demo);
   const base = lead.created_at || Date.now();
   for (const s of seq) {
     let at = base + s.offset * 1000;
-    if (s.windowed) at = nextWindowOpen(at, lead.trade, lead.timezone);
+    if (s.windowed && !lead.is_demo) at = nextWindowOpen(at, lead.trade, lead.timezone);
     await env.DB.prepare(
       `INSERT INTO stl_touchpoints
          (id, lead_id, sequence_step, channel, actor_type, actor_id, scheduled_for, template_id, status)
@@ -67,7 +68,7 @@ export async function tick(env, limit = 50) {
   const settings = await getSettings(env);
   const now = Date.now();
   const due = ((await env.DB.prepare(
-    `SELECT t.*, l.population, l.trade, l.timezone, l.status AS lead_status
+    `SELECT t.*, l.population, l.trade, l.timezone, l.is_demo, l.status AS lead_status
        FROM stl_touchpoints t JOIN stl_leads l ON l.id=t.lead_id
       WHERE t.status='pending' AND t.scheduled_for<=?
       ORDER BY t.scheduled_for ASC LIMIT ?`
@@ -86,7 +87,8 @@ export async function tick(env, limit = 50) {
       await setStatus(env, t.id, "skipped", { notes: "B1 transfer accepted" }); summary.skipped++; continue;
     }
     // Window enforcement at dispatch time — never dial outside §5; defer instead.
-    if (stepDef && stepDef.windowed && !inWindow(now, t.trade, t.timezone)) {
+    // Demo leads bypass windows so the shareable end-to-end flow never stalls.
+    if (stepDef && stepDef.windowed && !t.is_demo && !inWindow(now, t.trade, t.timezone)) {
       const next = nextWindowOpen(now, t.trade, t.timezone);
       await env.DB.prepare("UPDATE stl_touchpoints SET scheduled_for=? WHERE id=?").bind(next, t.id).run();
       summary.deferred++; continue;
@@ -131,6 +133,9 @@ export async function tick(env, limit = 50) {
       dispatch_mode: res.act, actor_id: rep ? rep.id : (t.channel === "call_ai" ? "ruby" : "system"),
       notes: res.detail || null,
     });
+    // Mirror the touch into the CRM timeline (system of record) unless paused.
+    if (res.act !== "paused") await mirrorTouchpoint(env, lead, t, res);
+
     if (res.act === "paused") { summary.skipped++; }
     else if (status === "failed") {
       summary.failed++;

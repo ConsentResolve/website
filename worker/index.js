@@ -59,6 +59,7 @@ import * as stlVoiceCascade from "./api/stl-voice-cascade.js";
 import * as stlAdmin from "./api/stl-admin.js";
 import * as stlConsole from "./stl-console.js";
 import * as stlDemo from "./stl-demo.js";
+import * as stlTry from "./stl-try.js";
 import { tick as stlTick } from "./_lib/stl/runner.js";
 import * as instantlyVisitors from "./api/instantly-visitors.js";
 import * as leadfeeder from "./api/leadfeeder.js";
@@ -270,6 +271,10 @@ export default {
     }
 
     // Speed-to-Lead public TEST demo form (noindex). Posts to /api/lead.
+    if (url.pathname === "/try") {
+      try { return await stlTry.handle({ request, env, ctx }); }
+      catch (err) { return new Response("try error", { status: 500 }); }
+    }
     if (url.pathname === "/speed-demo") {
       try { return await stlDemo.handle({ request, env, ctx }); }
       catch (err) { return new Response("demo error", { status: 500 }); }

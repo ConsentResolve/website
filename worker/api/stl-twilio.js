@@ -7,6 +7,7 @@ import { revoke } from "../_lib/stl/runner.js";
 import { logEvent } from "../_lib/stl/classifier.js";
 import { ensureStlSchema } from "../_lib/stl/schema.js";
 import { twilioVerify } from "../_lib/stl/twilio.js";
+import { mirrorInboundSms } from "../_lib/stl/crm-bridge.js";
 
 const STOP_RE = /\b(stop|stopall|unsubscribe|cancel|end|quit|remove me|opt ?out|don'?t (text|call|contact)( me)?)\b/i;
 const twiml = (msg) => new Response(
@@ -58,6 +59,8 @@ export async function onRequestPost({ request, env }) {
       `INSERT INTO stl_touchpoints (id, lead_id, sequence_step, channel, actor_type, scheduled_for, attempted_at, completed_at, outcome, status, notes)
        VALUES (?,?,?,?,?,?,?,?,?,?,?)`
     ).bind(crypto.randomUUID(), lead.id, "inbound", "sms", "system", Date.now(), Date.now(), Date.now(), "sms_replied", "sent", bodyTxt.slice(0, 400)).run().catch(() => {});
+    // Surface the reply in the CRM Inbox so a rep can respond from /crm/app.
+    await mirrorInboundSms(env, lead, bodyTxt, p.MessageSid || p.SmsSid).catch(() => {});
   }
   return twiml(""); // a human reads these; no auto-reply
 }
