@@ -748,7 +748,9 @@ html,body{height:100%}
   .lv-row{display:grid;grid-template-columns:14px 1.4fr 1.6fr auto;gap:12px;align-items:center;background:var(--surface-1);padding:11px 14px;font-size:var(--t-13)}
   .lv-row.intent{background:var(--good-soft)}
   .lv-dot{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 22%,transparent)}
-  .lv-who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lv-who{display:flex;flex-direction:column;gap:1px;justify-content:center;overflow:hidden}
+  .lv-who>*{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lv-loc{font-size:11px;color:var(--tx-3);font-variant-numeric:tabular-nums}
   .lv-page{color:var(--tx-2);font-family:var(--font-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lv-meta{color:var(--tx-3);font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}
   .bell-toggle{margin-left:auto;background:none;border:none;cursor:pointer;font-size:15px;line-height:1;padding:2px 5px;border-radius:6px}
@@ -2352,7 +2354,8 @@ function liveHtml(d){
   const hasLive=(L.visitors||[]).length>0;
   const vis=(L.visitors||[]).map(v=>{
     const who=v.known?`<strong>${esc(v.known.name||v.known.company||'Known contact')}</strong>${v.known.company&&v.known.name?` · ${esc(v.known.company)}`:''}`:`<span style="color:var(--tx-3)">Anonymous visitor</span>`;
-    return `<div class="lv-row${v.intent?' intent':''}"><span class="lv-dot"></span><span class="lv-who">${who}</span><span class="lv-page">on <b>${esc(v.path)}</b></span><span class="lv-meta">via ${esc(spySrcLabel(v.source))} · ${v.pages} pg · ${spyDur(v.onSiteMin)}</span></div>`;
+    const sub=[v.location, v.ip].filter(Boolean).join(' · ');
+    return `<div class="lv-row${v.intent?' intent':''}"><span class="lv-dot"></span><span class="lv-who">${who}${sub?`<span class="lv-loc">📍 ${esc(sub)}</span>`:''}</span><span class="lv-page">on <b>${esc(v.path)}</b></span><span class="lv-meta">via ${esc(spySrcLabel(v.source))} · ${v.pages} pg · ${spyDur(v.onSiteMin)}</span></div>`;
   }).join('');
   const kpis=`<div class="kpis kpis-4" style="margin-bottom:16px">
     <div class="kpi"><div class="kpi-v" style="color:var(--good)">${L.count}</div><div class="kpi-l">On the site now</div><div class="kpi-s">${L.known} identified · last ${L.window_min}m</div></div>
