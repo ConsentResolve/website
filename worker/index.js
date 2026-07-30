@@ -57,6 +57,7 @@ import * as stlRetell from "./api/stl-retell.js";
 import * as stlCalcom from "./api/stl-calcom.js";
 import * as stlAdmin from "./api/stl-admin.js";
 import * as stlConsole from "./stl-console.js";
+import * as stlDemo from "./stl-demo.js";
 import { tick as stlTick } from "./_lib/stl/runner.js";
 import * as instantlyVisitors from "./api/instantly-visitors.js";
 import * as leadfeeder from "./api/leadfeeder.js";
@@ -262,6 +263,12 @@ export default {
       const norm = url.pathname.replace(/\/+$/, "") || "/";
       const to = PATH_REDIRECTS[norm] || BLOG_REDIRECTS[norm];
       if (to) return Response.redirect(new URL(to, url.origin).toString(), 301);
+    }
+
+    // Speed-to-Lead public TEST demo form (noindex). Posts to /api/lead.
+    if (url.pathname === "/speed-demo") {
+      try { return await stlDemo.handle({ request, env, ctx }); }
+      catch (err) { return new Response("demo error", { status: 500 }); }
     }
 
     // Speed-to-Lead internal test console (cr_crm-gated). Before the generic /crm/.

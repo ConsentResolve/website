@@ -8,6 +8,23 @@ import { ensureStlSchema } from "../_lib/stl/schema.js";
 import { getSettings, setSetting, DEFAULTS } from "../_lib/stl/settings.js";
 import { createLead } from "../_lib/stl/classifier.js";
 import { scheduleLead, tick, revoke } from "../_lib/stl/runner.js";
+import { provisionRuby, listRetellNumbers } from "../_lib/stl/retell-setup.js";
+
+// Which integrations are wired? Booleans only — never leak secret values.
+function readiness(env) {
+  return {
+    email_resend: !!env.RESEND_API_KEY,
+    twilio: !!(env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN),
+    twilio_from: !!(env.TWILIO_FROM_NUMBER || env.TWILIO_MESSAGING_SERVICE_SID),
+    retell_key: !!env.RETELL_API_KEY,
+    retell_agent: !!env.RETELL_AGENT_ID,
+    retell_from: !!env.RETELL_FROM_NUMBER,
+    calcom: !!env.CALCOM_WEBHOOK_SECRET,
+    alert_url: !!(env.STL_ALERT_URL || env.TEAM_NOTIFY_URL || env.SALES_WEBHOOK_URL),
+    verify_webhooks: env.STL_VERIFY_WEBHOOKS === "1",
+    booking_link: env.STL_BOOKING_LINK || "",
+  };
+}
 
 const all = async (env, sql, ...b) => { try { return (await env.DB.prepare(sql).bind(...b).all()).results || []; } catch (_) { return []; } };
 const one = async (env, sql, ...b) => { try { return (await env.DB.prepare(sql).bind(...b).first()) || {}; } catch (_) { return {}; } };
@@ -67,7 +84,7 @@ export async function onRequestGet({ request, env }) {
       ORDER BY scheduled_for ASC`);
   const violations = await all(env, "SELECT * FROM stl_gate_violations ORDER BY attempted_at DESC LIMIT 20");
   const reps = await all(env, "SELECT id, name, phone, active FROM stl_reps ORDER BY name");
-  return json({ ok: true, settings, defaults: DEFAULTS, metrics: await metrics(env), leads, touchpoints: tps, violations, reps }, {}, cors);
+  return json({ ok: true, settings, defaults: DEFAULTS, readiness: readiness(env), metrics: await metrics(env), leads, touchpoints: tps, violations, reps }, {}, cors);
 }
 
 export async function onRequestPost({ request, env }) {
@@ -115,6 +132,28 @@ export async function onRequestPost({ request, env }) {
     if (action === "revoke") {
       const r = await revoke(env, { leadId: body.lead_id, via: "admin" });
       return json(r, {}, cors);
+    }
+    if (action === "retell_setup") {
+      const origin = env.STL_PUBLIC_ORIGIN || new URL(request.url).origin;
+      const r = await provisionRuby(env, origin);
+      return json(r, {}, cors);
+    }
+    if (action === "retell_numbers") {
+      return json(await listRetellNumbers(env), {}, cors);
+    }
+    if (action === "test_email") {
+      if (!env.RESEND_API_KEY) return json({ ok: false, error: "missing RESEND_API_KEY" }, {}, cors);
+      const to = String(body.to || "").trim();
+      if (!to) return json({ ok: false, error: "need a 'to' address" }, {}, cors);
+      const from = env.STL_FROM_EMAIL || env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>";
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ from, to: [to], reply_to: env.REPLY_TO || undefined,
+          subject: "Speed-to-Lead test email ✓", text: "This is a live test send from the Speed-to-Lead engine. If you got this, email dispatch works." }),
+      });
+      const j = await res.json().catch(() => ({}));
+      return json({ ok: res.ok, id: j.id || null, detail: res.ok ? "sent" : `resend_${res.status}` }, {}, cors);
     }
     if (action === "reset_tests") {
       // Delete only test leads and their children.

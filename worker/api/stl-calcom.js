@@ -4,6 +4,7 @@
 // booking.cancelled → mark the meeting, cancel its B5.
 import { ensureStlSchema } from "../_lib/stl/schema.js";
 import { logEvent } from "../_lib/stl/classifier.js";
+import { verifyHmac } from "../_lib/stl/verify.js";
 import { json } from "../_lib/http.js";
 
 async function leadByEmailOrPhone(env, email, phone) {
@@ -17,8 +18,12 @@ async function leadByEmailOrPhone(env, email, phone) {
 
 export async function onRequestPost({ request, env }) {
   await ensureStlSchema(env);
+  const raw = await request.text().catch(() => "");
+  if (!(await verifyHmac(env, raw, request.headers.get("x-cal-signature-256"), env.CALCOM_WEBHOOK_SECRET))) {
+    return json({ ok: false, error: "bad_signature" }, { status: 401 });
+  }
   let ev = {};
-  try { ev = await request.json(); } catch (_) { return json({ ok: false }, { status: 400 }); }
+  try { ev = raw ? JSON.parse(raw) : {}; } catch (_) { return json({ ok: false }, { status: 400 }); }
   const trigger = ev.triggerEvent || ev.type;
   const payload = ev.payload || ev;
   const attendee = (payload.attendees && payload.attendees[0]) || {};

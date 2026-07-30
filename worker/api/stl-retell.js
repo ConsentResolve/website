@@ -5,6 +5,7 @@
 import { ensureStlSchema } from "../_lib/stl/schema.js";
 import { logEvent } from "../_lib/stl/classifier.js";
 import { alert } from "../_lib/stl/adapters.js";
+import { verifyHmac } from "../_lib/stl/verify.js";
 import { json } from "../_lib/http.js";
 
 // Ruby must identify as an AI. Any transcript missing this is a P1.
@@ -13,8 +14,12 @@ const RUBY_RE = /\bruby\b/i;
 
 export async function onRequestPost({ request, env }) {
   await ensureStlSchema(env);
+  const raw = await request.text().catch(() => "");
+  if (!(await verifyHmac(env, raw, request.headers.get("x-retell-signature"), env.RETELL_API_KEY))) {
+    return json({ ok: false, error: "bad_signature" }, { status: 401 });
+  }
   let ev = {};
-  try { ev = await request.json(); } catch (_) { return json({ ok: false }, { status: 400 }); }
+  try { ev = raw ? JSON.parse(raw) : {}; } catch (_) { return json({ ok: false }, { status: 400 }); }
   const call = ev.call || ev.data || ev;
   const meta = call.metadata || {};
   const tpId = meta.touchpoint_id;

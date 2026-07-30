@@ -81,6 +81,21 @@ details{border:1px solid var(--ln);border-radius:9px;margin:6px 0;background:var
 <h2>Metrics</h2>
 <div class="grid g4" id=kpis></div>
 
+<h2>Integrations &amp; go-live</h2>
+<div class=card>
+  <div id=readiness class="grid g4"></div>
+  <div class=row style="margin-top:14px;gap:10px">
+    <button onclick=provisionRetell()>⚡ Provision Ruby (Retell)</button>
+    <button class=ghost onclick=listNumbers()>List Retell numbers</button>
+    <a href="/speed-demo" target="_blank"><button class=ghost type=button>Open test demo form ↗</button></a>
+  </div>
+  <div class=row style="margin-top:10px">
+    <input id=testEmail placeholder="you@consentresolve.com" style="max-width:280px">
+    <button class=ghost onclick=sendTestEmail()>Send test email</button>
+  </div>
+  <div id=intgOut class="note mono" style="margin-top:10px"></div>
+</div>
+
 <h2>Test drive</h2>
 <div class="grid g2">
   <div class=card>
@@ -143,6 +158,8 @@ async function load(){
     K(m.cookie_leak_flags,'Cookie-banner leaks', m.cookie_leak_flags>0?'alarm':'good')+
     K(m.window_compliance_dials_sent,'Dials sent (in-window)')+
     K((m.dispatch_by_mode&&(m.dispatch_by_mode.live||0))+' / '+(m.dispatch_by_mode&&(m.dispatch_by_mode.simulate||0)),'Live / simulated sends');
+  // readiness
+  renderReadiness(d.readiness||{});
   // violations
   $('#violations').innerHTML=d.violations.length? '<table><tr><th>When</th><th>Channel</th><th>Reason</th><th>Caller</th><th>Lead</th></tr>'+
     d.violations.map(v=>'<tr><td>'+ts(v.attempted_at)+'</td><td>'+esc(v.channel)+'</td><td class=s-blocked>'+esc(v.reason)+'</td><td class=tp>'+esc(v.caller)+'</td><td class=tp>'+esc(v.lead_id.slice(0,8))+'</td></tr>').join('')+'</table>' : '<span class=muted>none — clean</span>';
@@ -172,6 +189,21 @@ async function inject(){
 async function runTick(){$('#tickOut').textContent='ticking…';const d=await api('POST',{action:'tick'});$('#tickOut').textContent=d.ok?('tick: '+JSON.stringify(d.summary)):'error';await load();}
 async function seedRep(){const d=await api('POST',{action:'seed_rep'});$('#tickOut').textContent=d.ok?'rep seeded':'error';await load();}
 async function resetTests(){if(!confirm('Delete ALL test leads and their data?'))return;const d=await api('POST',{action:'reset_tests'});$('#tickOut').textContent=d.ok?('deleted '+d.deleted):'error';await load();}
+function renderReadiness(r){
+  const chip=(ok,label,note)=>'<div class="kpi '+(ok?'good':'')+'"><div class=v style="font-size:15px">'+(ok?'● ready':'○ not set')+'</div><div class=l>'+label+(note?' <span class=muted>'+note+'</span>':'')+'</div></div>';
+  document.getElementById('readiness').innerHTML=
+    chip(r.email_resend,'Email (Resend)')+
+    chip(r.retell_key,'Retell key')+
+    chip(r.retell_agent&&r.retell_from,'Retell agent + number')+
+    chip(r.twilio&&r.twilio_from,'Twilio (SMS)','partner')+
+    chip(r.calcom,'Cal.com secret')+
+    chip(r.alert_url,'Alerts / paging')+
+    chip(!!r.booking_link,'Booking link')+
+    chip(r.verify_webhooks,'Webhook signatures');
+}
+async function provisionRetell(){ $('#intgOut').textContent='provisioning Ruby…'; const d=await api('POST',{action:'retell_setup'}); $('#intgOut').textContent=JSON.stringify(d); await load(); }
+async function listNumbers(){ $('#intgOut').textContent='fetching numbers…'; const d=await api('POST',{action:'retell_numbers'}); $('#intgOut').textContent=JSON.stringify(d); }
+async function sendTestEmail(){ const to=$('#testEmail').value.trim(); if(!to){$('#intgOut').textContent='enter a to-address';return;} $('#intgOut').textContent='sending…'; const d=await api('POST',{action:'test_email',to}); $('#intgOut').textContent=JSON.stringify(d); }
 async function revokeLead(id){const d=await api('POST',{action:'revoke',lead_id:id});await load();}
 async function markTransfer(id){const d=await api('POST',{action:'mark_transfer',lead_id:id});await load();}
 load();setInterval(load,15000);
