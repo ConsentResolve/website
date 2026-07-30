@@ -166,6 +166,80 @@ export async function setupCascadeNumber(env) {
   return { ok: true, hunt_number: num, voice_url: voiceUrl };
 }
 
+// --- Elastic SIP Trunk: connect our Twilio number to Retell so Ruby calls FROM it ---
+const TRUNK_BASE = "https://trunking.twilio.com/v1";
+const TRUNK_NAME = "consentresolve-speed-to-lead";
+async function trk(env, method, path, body) {
+  const res = await fetch(TRUNK_BASE + path, {
+    method, headers: { Authorization: basic(env), "Content-Type": "application/x-www-form-urlencoded" },
+    body: body ? new URLSearchParams(body).toString() : undefined,
+  });
+  const t = await res.text().catch(() => ""); let j = null; try { j = t ? JSON.parse(t) : null; } catch (_) {}
+  return { ok: res.ok, status: res.status, json: j, text: t.slice(0, 300) };
+}
+function randPw() {
+  const U = "ABCDEFGHJKLMNPQRSTUVWXYZ", L = "abcdefghijkmnpqrstuvwxyz", D = "23456789", all = U + L + D;
+  let s = U[Math.floor(Math.random() * U.length)] + L[Math.floor(Math.random() * L.length)] + D[Math.floor(Math.random() * D.length)];
+  for (let i = 0; i < 15; i++) s += all[Math.floor(Math.random() * all.length)];
+  return s;
+}
+
+// Creates (or reuses) an Elastic SIP Trunk, a credential for Retell to auth with, and
+// associates our number so it can be Ruby's outbound caller-ID. Returns the values to
+// paste into Retell's "Connect via SIP trunking".
+export async function createSipTrunk(env) {
+  if (!hasCreds(env)) return { ok: false, error: "missing_twilio_creds" };
+  const num = (env.TWILIO_FROM_NUMBER || "").trim();
+  if (!num) return { ok: false, error: "TWILIO_FROM_NUMBER not set" };
+  const nr = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/IncomingPhoneNumbers.json?PhoneNumber=${encodeURIComponent(num)}`, { headers: { Authorization: basic(env) } });
+  const pn = (((await nr.json().catch(() => ({}))) || {}).incoming_phone_numbers || [])[0];
+  if (!pn) return { ok: false, error: `${num} not owned by this account` };
+
+  // Reuse an existing trunk of ours, else create one with a unique termination domain.
+  let trunk = null;
+  const list = await trk(env, "GET", "/Trunks?PageSize=50");
+  if (list.ok && list.json) trunk = (list.json.trunks || []).find((t) => t.friendly_name === TRUNK_NAME) || null;
+  if (!trunk) {
+    const domain = `cr-stl-${Math.floor(Math.random() * 4294967295).toString(16)}.pstn.twilio.com`;
+    const ct = await trk(env, "POST", "/Trunks", { FriendlyName: TRUNK_NAME, DomainName: domain });
+    if (!ct.ok || !ct.json) return { ok: false, error: "create_trunk_failed", detail: ct.text };
+    trunk = ct.json;
+  }
+  const trunkSid = trunk.sid;
+  const termination = trunk.domain_name;
+
+  // Credential list + credential (Retell authenticates outbound with these).
+  const password = randPw();
+  const cl = await trk(env, "POST", "/CredentialLists", { FriendlyName: "cr-stl-retell" });
+  if (!cl.ok || !cl.json) return { ok: false, error: "create_credlist_failed", detail: cl.text, trunk_sid: trunkSid };
+  const cred = await trk(env, "POST", `/CredentialLists/${cl.json.sid}/Credentials`, { Username: "retell", Password: password });
+  if (!cred.ok) return { ok: false, error: "create_credential_failed", detail: cred.text };
+  await trk(env, "POST", `/Trunks/${trunkSid}/CredentialLists`, { CredentialListSid: cl.json.sid });
+
+  // Associate our number with the trunk (authorizes it as an outbound caller-ID).
+  const assoc = await trk(env, "POST", `/Trunks/${trunkSid}/PhoneNumbers`, { PhoneNumberSid: pn.sid });
+  return {
+    ok: true, trunk_sid: trunkSid, number: num,
+    termination_uri: termination, sip_username: "retell", sip_password: password,
+    number_associated: assoc.ok,
+    next: "In Retell → Add number → Connect via SIP trunking: enter Termination URI + Username + Password above and the number. Then paste Retell's SIP URI back to me and I'll add it as origination (for inbound).",
+  };
+}
+
+// After Retell gives you its SIP URI, add it as an origination URL so inbound calls to
+// our number route to Retell (Ruby answers callbacks).
+export async function addSipOrigination(env, sipUri) {
+  if (!hasCreds(env)) return { ok: false, error: "missing_twilio_creds" };
+  if (!sipUri) return { ok: false, error: "need Retell's SIP URI (sip:...)" };
+  const list = await trk(env, "GET", "/Trunks?PageSize=50");
+  const trunk = list.ok && list.json ? (list.json.trunks || []).find((t) => t.friendly_name === TRUNK_NAME) : null;
+  if (!trunk) return { ok: false, error: "trunk_not_found — run createSipTrunk first" };
+  const r = await trk(env, "POST", `/Trunks/${trunk.sid}/OriginationUrls`, {
+    FriendlyName: "retell", SipUrl: sipUri, Weight: "10", Priority: "10", Enabled: "true",
+  });
+  return r.ok ? { ok: true, trunk_sid: trunk.sid, origination: sipUri } : { ok: false, status: r.status, error: r.text };
+}
+
 export async function listTwilioNumbers(env) {
   if (!hasCreds(env)) return { ok: false, error: "missing_twilio_creds" };
   const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/IncomingPhoneNumbers.json?PageSize=50`, { headers: { Authorization: basic(env) } });

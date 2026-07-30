@@ -93,7 +93,8 @@ async function handleCascade(env, url, p) {
   const rep = reps[step];
   const origin = env.STL_PUBLIC_ORIGIN || url.origin;
   const action = `${origin}/api/stl/twilio/voice-cascade?step=${step + 1}`;
-  const callerId = env.STL_TRANSFER_NUMBER || "";
+  // Present the main engine number (…9846) to reps, not the internal hunt number.
+  const callerId = env.STL_CALLER_ID || env.TWILIO_FROM_NUMBER || env.STL_TRANSFER_NUMBER || "";
   return twiml(
     `<Dial timeout="${RING_SECONDS}" action="${xesc(action)}" method="POST"${callerId ? ` callerId="${xesc(callerId)}"` : ""}>` +
     `<Number>${xesc(rep.phone)}</Number></Dial>`
