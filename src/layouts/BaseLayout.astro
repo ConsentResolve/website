@@ -118,6 +118,22 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       }catch(e){}})();
     </script>
 
+    <!-- First-party presence heartbeat (no PII) → /api/ping. Powers Site Spy's real-time
+         "on the site now" — pings while the tab is visible so live presence is accurate. -->
+    <script is:inline>
+      (function(){try{
+        function vid(){return (document.cookie.match(/(?:^|;\s*)cr_vid=([^;]+)/)||[])[1]||"";}
+        function ping(){ if(document.visibilityState!=="visible") return; var v=vid(); if(!v) return;
+          var s=JSON.stringify({vid:v,path:location.pathname});
+          if(navigator.sendBeacon){navigator.sendBeacon("/api/ping",new Blob([s],{type:"application/json"}));}
+          else{fetch("/api/ping",{method:"POST",headers:{"Content-Type":"application/json"},body:s,keepalive:true});}
+        }
+        ping();
+        setInterval(ping,20000);
+        document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible") ping(); });
+      }catch(e){}})();
+    </script>
+
     <!-- Google Analytics (GA4) + Google Ads (AW-) via GOOGLE CONSENT MODE v2.
          Consent Mode is enabled in the ConsentResolve/Usercentrics (Termageddon) CMP, which
          fires gtag('consent','update',…) on the user's choice. VERIFIED 2026-07-28 (real

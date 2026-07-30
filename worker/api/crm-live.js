@@ -29,16 +29,25 @@ export async function onRequestGet({ request, env }) {
   const all = async (sql, ...b) => { try { return (await env.DB.prepare(sql).bind(...b).all()).results || []; } catch (_) { return []; } };
   const one = async (sql, ...b) => { const r = await all(sql, ...b); return r[0] || {}; };
 
-  // --- Live now: group recent hits by vid, keep the latest path per visitor.
-  const liveRows = await all("SELECT vid, path, created_at FROM traffic WHERE created_at > ? ORDER BY created_at DESC LIMIT 500", sinceLive);
-  const byVid = new Map();
-  let anonSeq = 0;
-  for (const r of liveRows) {
-    const key = r.vid || "anon" + (anonSeq++);
-    if (!byVid.has(key)) byVid.set(key, { vid: r.vid, path: r.path, at: r.created_at, hits: 0 });
-    byVid.get(key).hits++;
+  // --- Live now: prefer the presence heartbeat (who's actually on the site right
+  // now). Fall back to pageview recency until the heartbeat is warmed / for tabs
+  // that never pinged.
+  try { await env.DB.prepare("CREATE TABLE IF NOT EXISTS presence (vid TEXT PRIMARY KEY, path TEXT, last_seen TEXT)").run(); } catch (_) {}
+  const presSince = new Date(now - 90 * 1000).toISOString();
+  let liveVals = (await all("SELECT vid, path, last_seen FROM presence WHERE last_seen > ?", presSince))
+    .map((r) => ({ vid: r.vid, path: r.path, at: r.last_seen, hits: 1 }));
+  let liveSource = "presence";
+  if (!liveVals.length) {
+    const liveRows = await all("SELECT vid, path, created_at FROM traffic WHERE created_at > ? ORDER BY created_at DESC LIMIT 500", sinceLive);
+    const byVid = new Map(); let anonSeq = 0;
+    for (const r of liveRows) {
+      const key = r.vid || "anon" + (anonSeq++);
+      if (!byVid.has(key)) byVid.set(key, { vid: r.vid, path: r.path, at: r.created_at, hits: 0 });
+      byVid.get(key).hits++;
+    }
+    liveVals = [...byVid.values()];
+    liveSource = "pageviews";
   }
-  const liveVals = [...byVid.values()];
   // Map known vids -> contact name/company.
   const vids = liveVals.map((v) => v.vid).filter(Boolean);
   const known = new Map();
@@ -76,7 +85,7 @@ export async function onRequestGet({ request, env }) {
 
   return json({
     ok: true, generated_at: new Date(now).toISOString(),
-    live: { count: liveVals.length, known: visitors.filter((v) => v.known).length, window_min: liveMin, visitors: visitors.slice(0, 12) },
+    live: { count: liveVals.length, known: visitors.filter((v) => v.known).length, window_min: liveSource === "presence" ? 2 : liveMin, source: liveSource, visitors: visitors.slice(0, 12) },
     today: {
       pageviews: pv.pageviews || 0, uniques: pv.uniques || 0,
       pageviews_yesterday: yPv.pageviews || 0, uniques_yesterday: yPv.uniques || 0,

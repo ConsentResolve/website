@@ -22,6 +22,7 @@ import * as feedback from "./api/feedback.js";
 import * as outreach from "./api/outreach.js";
 import * as queue from "./api/queue.js";
 import * as hit from "./api/hit.js";
+import * as ping from "./api/ping.js";
 import * as identify from "./api/identify.js";
 import * as analytics from "./api/analytics.js";
 import * as liStatus from "./api/li-status.js";
@@ -108,6 +109,7 @@ const ROUTES = {
   "/api/outreach/webhook": outreach,
   "/api/queue": queue,
   "/api/hit": hit,
+  "/api/ping": ping,
   "/api/identify": identify,
   "/api/analytics": analytics,
   "/api/li-status": liStatus,

@@ -2324,10 +2324,11 @@ function liveHtml(d){
   const L=d.live||{count:0,known:0,window_min:5,visitors:[]}, T=d.today||{}, A=d.attention||[];
   const pvY=T.pageviews_yesterday||0, pvDelta=pvY>0?Math.round((T.pageviews/pvY-1)*100):null;
   const intentN=T.intent?((T.intent.pricing||0)+(T.intent.demo||0)+(T.intent.getStarted||0)):0;
+  const hasLive=(L.visitors||[]).length>0;
   const vis=(L.visitors||[]).map(v=>{
     const who=v.known?`<strong>${esc(v.known.name||v.known.company||'Known contact')}</strong>${v.known.company&&v.known.name?` · ${esc(v.known.company)}`:''}`:`<span style="color:var(--tx-3)">Anonymous visitor</span>`;
     return `<div class="lv-row${v.intent?' intent':''}"><span class="lv-dot"></span><span class="lv-who">${who}</span><span class="lv-page">${esc(v.path)}</span><span class="lv-meta">${v.pages} pg · ${v.mins?('~'+v.mins+'m'):'now'}</span></div>`;
-  }).join('') || `<div class="idash-empty">No one on the site in the last ${L.window_min} min.</div>`;
+  }).join('');
   const kpis=`<div class="kpis kpis-4" style="margin-bottom:16px">
     <div class="kpi"><div class="kpi-v" style="color:var(--good)">${L.count}</div><div class="kpi-l">On the site now</div><div class="kpi-s">${L.known} identified · last ${L.window_min}m</div></div>
     <div class="kpi"><div class="kpi-v">${T.uniques||0}</div><div class="kpi-l">Visitors today</div><div class="kpi-s">${T.pageviews||0} views${pvDelta!=null?` · ${pvDelta>=0?'▲':'▼'} ${Math.abs(pvDelta)}% vs yest`:''}</div></div>
@@ -2338,7 +2339,7 @@ function liveHtml(d){
   const pageRows=(T.topPages||[]).map(p=>`<div class="tp-row"><span class="tp-path">${esc(p.path)}</span><span class="tp-n">${p.n}</span></div>`).join('')||'<div class="idash-empty">No pageviews today.</div>';
   const srcRows=(T.topSources||[]).map(s=>`<div class="tp-row"><span class="tp-path">${esc(s.src)}</span><span class="tp-n">${s.n}</span></div>`).join('')||'<div class="idash-empty">—</div>';
   return `${kpis}
-    <div class="nu-band"><div class="nu-band-h">On the site now <span class="nu-live"><span class="dot"></span>LIVE</span></div><div class="lv-list">${vis}</div></div>
+    ${hasLive?`<div class="nu-band"><div class="nu-band-h">On the site now <span class="nu-live"><span class="dot"></span>LIVE</span></div><div class="lv-list">${vis}</div></div>`:''}
     ${att}
     <div class="idash-grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
       <div class="icard"><div class="icard-h"><h4>Top pages today</h4></div>${pageRows}</div>
