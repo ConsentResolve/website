@@ -54,5 +54,22 @@ export async function onRequestPost({ request, env }) {
     await env.DB.prepare("UPDATE stl_calls SET transfer_attempted=1 WHERE touchpoint_id=?").bind(tpId).run().catch(() => {});
     await logEvent(env, meta.lead_id || null, "transfer_attempted", { touchpoint_id: tpId, call_id: call.call_id });
   }
+
+  // Missed-call text-back: if Ruby's call wasn't answered, text the lead right away from
+  // the same number they saw ring (SMS is on this number). Runs once, only on the final
+  // call event, and replaces the later B2 confirmation so we don't double-text. The
+  // consent gate still applies at dispatch (Population B has SMS consent).
+  const ended = ["call_ended", "ended", "call_analyzed"].includes(eventName);
+  if (ended && answered === 0 && meta.lead_id) {
+    const exists = await env.DB.prepare("SELECT 1 x FROM stl_touchpoints WHERE lead_id=? AND sequence_step='B1_textback' LIMIT 1").bind(meta.lead_id).first().catch(() => null);
+    if (!exists) {
+      await env.DB.prepare("UPDATE stl_touchpoints SET status='canceled', notes='replaced by missed-call text-back' WHERE lead_id=? AND sequence_step='B2_sms' AND status='pending'").bind(meta.lead_id).run().catch(() => {});
+      await env.DB.prepare(
+        `INSERT INTO stl_touchpoints (id, lead_id, sequence_step, channel, actor_type, scheduled_for, template_id, status)
+         VALUES (?,?,?,?,?,?,?, 'pending')`
+      ).bind(crypto.randomUUID(), meta.lead_id, "B1_textback", "sms", "system", Date.now() + 15000, "B2_sms", "pending").run().catch(() => {});
+      await logEvent(env, meta.lead_id, "missed_call_textback", { touchpoint_id: tpId });
+    }
+  }
   return json({ ok: true });
 }
