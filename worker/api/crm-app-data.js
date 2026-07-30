@@ -165,7 +165,7 @@ export async function onRequestGet({ request, env }) {
     ).bind(...convIds).all()).results || [];
     for (const m of msgs) { const a = msgsByConv.get(m.conversation_id) || []; a.push(m); msgsByConv.set(m.conversation_id, a); }
   }
-  const consentByCt = new Map(), dealByCt = new Map(), runByCt = new Map();
+  const consentByCt = new Map(), dealByCt = new Map(), runByCt = new Map(), geoByCt = new Map();
   if (contactIds.length) {
     for (const cr of (await env.DB.prepare(`SELECT contact_id, channel, action FROM consent_records WHERE contact_id IN ${ph(contactIds)} ORDER BY occurred_at ASC`).bind(...contactIds).all()).results || []) {
       const s = consentByCt.get(cr.contact_id) || {}; s[cr.channel] = cr.action; consentByCt.set(cr.contact_id, s);
@@ -176,6 +176,12 @@ export async function onRequestGet({ request, env }) {
     for (const r of (await env.DB.prepare(`SELECT r.contact_id, r.status, r.current_step, r.exit_reason, w.name FROM workflow_runs r JOIN workflows w ON w.id=r.workflow_id WHERE r.contact_id IN ${ph(contactIds)}`).bind(...contactIds).all()).results || []) {
       if (!runByCt.has(r.contact_id)) runByCt.set(r.contact_id, r);
     }
+    // Last-known IP + geo per contact (from the presence heartbeat, via visitor_links).
+    try {
+      for (const g of (await env.DB.prepare(`SELECT vl.contact_id, p.ip, p.city, p.region, p.country FROM visitor_links vl JOIN presence p ON p.vid=vl.vid WHERE vl.contact_id IN ${ph(contactIds)} ORDER BY p.last_seen DESC`).bind(...contactIds).all()).results || []) {
+        if (!geoByCt.has(g.contact_id)) geoByCt.set(g.contact_id, g);
+      }
+    } catch (_) {}
   }
   const srcMap = { meta: "meta", instantly: "instantly", crisp: "chatwoot", chatwoot: "chatwoot", site: "site", demo: "demo", claim50: "demo", cal: "demo", apollo: "apollo", manual: "manual" };
   const lifeMap = { lead: "Lead", mql: "MQL", sql: "SQL", meeting_booked: "Meeting Booked", opportunity: "Opportunity", customer: "Customer" };
@@ -213,7 +219,7 @@ export async function onRequestGet({ request, env }) {
         ? { step: (run.current_step || 0) + 1, total: seqTotal, label: run.name || "Sequence", status: run.exit_reason || (run.status === "active" ? "active" : "none") }
         : { step: 0, total: 0, label: "—", status: "none" },
       sla: { min: mins, level: unread ? (mins > 15 ? "bad" : mins > 5 ? "warn" : "none") : "none" },
-      intel: { fit: "unknown", time_on_site: "—", pages: 0, first_seen: humanTime(r.last_message_at) || "—", speed_to_lead_h: null, cost_per_lead: null, src_label: srcLabelMap[src] || "Lead", site_status: "—", pages_viewed: [] },
+      intel: (() => { const g = geoByCt.get(r.contact_id); return { fit: "unknown", time_on_site: "—", pages: 0, first_seen: humanTime(r.last_message_at) || "—", speed_to_lead_h: null, cost_per_lead: null, src_label: srcLabelMap[src] || "Lead", site_status: "—", pages_viewed: [], ip: g ? (g.ip || null) : null, location: g ? ([g.city, g.region, g.country].filter(Boolean).join(", ") || null) : null }; })(),
       deal: deal ? { title: deal.title || r.company || r.full_name || "Deal", value_usd: Math.round((deal.value_cents || 0) / 100), prob: deal.close_probability || 63 } : null,
       messages: cmsgs.length ? cmsgs : [{ dir: "system", body: "No messages on this conversation yet.", ts: humanTime(r.last_message_at) || "" }],
     };

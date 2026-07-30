@@ -1969,6 +1969,8 @@ function prow(status,k,v,link,tone){
 }
 function xtile(v,k){return `<div class="xtile"><div class="v">${esc(String(v))}</div><div class="k">${k}</div></div>`;}
 function adsTxt(a){if(!a)return"not running";const p=[];if(a.google)p.push("Google Ads");if(a.lsa)p.push("LSA");return p.length?p.join(" + "):"not running";}
+/* Last-known IP + geo location for a contact (from the presence heartbeat). */
+function spyGeoLine(it){ if(!it||(!it.location&&!it.ip)) return ''; return `<div style="margin-top:8px;font-size:var(--t-13);color:var(--tx-2)">📍 ${it.location?esc(it.location):''}${it.location&&it.ip?' · ':''}${it.ip?`<span style="font-family:var(--font-mono);color:var(--tx-3)">${esc(it.ip)}</span>`:''} <span style="color:var(--tx-3);font-size:11px">· last seen on site</span></div>`; }
 function intelCard(c){
   const it=c.intel, e=((window.ENRICH||{})[c.id]||{});
   const fitRow=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span class="fit ${it.fit}">${it.fit.toUpperCase()}</span><span style="font-size:var(--t-12);color:var(--tx-2)">${esc(it.src_label)}</span></div>`;
@@ -2738,7 +2740,7 @@ function intelDashboard(c){
   const fit=`<span class="fit ${it.fit}">${it.fit.toUpperCase()}</span>`;
   if(!e){
     return `<div class="intel-dash"><div class="idash-hero"><div class="idh-title">${fit}${esc(c.name||'Unknown')}</div>
-      <p class="idh-brief">No public company profile matched yet — this lead came in without a company we can research (${esc(it.src_label)}). Add a name or company in the <b>Task</b> tab and we'll enrich it automatically.</p></div></div>`;
+      <p class="idh-brief">No public company profile matched yet — this lead came in without a company we can research (${esc(it.src_label)}). Add a name or company in the <b>Task</b> tab and we'll enrich it automatically.</p>${spyGeoLine(it)}</div></div>`;
   }
   const traffic=e.traffic_month||it.traffic_month||0;
   const recoverable=predictLeads(traffic||1000), city=cityFrom(d.address);
@@ -2796,7 +2798,7 @@ function intelDashboard(c){
       ${icardD('Website tech','BuiltWith', `<div class="techchips">${techChips}</div>${gapFlags}`)}
       ${icardD('Reputation','Google Business', rep)}
       ${icardD('On-site engagement','First-party', eng)}
-      ${icardD('Contact &amp; location','CRM + directories', `<div class="presence">${contact||'<div class="idash-empty">—</div>'}</div>`)}
+      ${icardD('Contact &amp; location','CRM + directories', `<div class="presence">${contact||'<div class="idash-empty">—</div>'}</div>${spyGeoLine(it)}`)}
     </div>
     ${it.signal?`<div class="idash-opp">🔥 <div><b>Why they fit —</b> ${esc(it.signal)} <span class="opp-num">≈ ${recoverable.toLocaleString()} consented leads/mo</span> they're leaving on the table.</div></div>`:''}
   </div>`;
