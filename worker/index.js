@@ -211,6 +211,8 @@ const ROUTES = {
   "/api/stl/twilio/inbound": stlTwilio,
   "/api/stl/twilio/status": stlTwilio,
   "/api/stl/twilio/voice-cascade": stlVoiceCascade,
+  "/api/stl/twilio/voicemail": stlVoiceCascade,
+  "/api/stl/twilio/voicemail-transcription": stlVoiceCascade,
   "/api/stl/retell/webhook": stlRetell,
   "/api/stl/calcom/webhook": stlCalcom,
   "/api/stl/admin": stlAdmin,
