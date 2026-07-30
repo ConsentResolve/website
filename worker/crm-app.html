@@ -2078,8 +2078,18 @@ function showView(v){
   if(v==='sequences')renderSequences();
   if(v==='analytics')renderAnalytics();
   if(v==='consent')renderConsent();
+  // Persist the active view so a refresh returns here (hash = shareable, localStorage = durable).
+  try{ localStorage.setItem('crm_view', v); }catch(e){}
+  if(location.hash.slice(1)!==v){ try{ history.replaceState(null,'','#'+v); }catch(e){ location.hash=v; } }
 }
 window.showView=showView;
+// Restore the last view on load (hash wins for shareable links, else localStorage).
+(function restoreView(){
+  var valid={inbox:1,reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1};
+  var v=decodeURIComponent(location.hash.slice(1)||'');
+  if(!valid[v]){ try{ v=localStorage.getItem('crm_view')||''; }catch(e){ v=''; } }
+  if(valid[v] && v!=='inbox'){ showView(v); }
+})();
 window.renderConsent=renderConsent; // exposed for the live-data bootstrap (fixture→fetch)
 window.renderSequences=renderSequences;
 window.renderList=renderList;
