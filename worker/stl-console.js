@@ -231,7 +231,7 @@ async function inject(){
   const lead={first_name:$('#inFirst').value,company:$('#inCo').value,trade:$('#inTrade').value,email:$('#inEmail').value,phone:$('#inPhone').value,timezone:$('#inTz').value,state:$('#inState').value};
   const d=await api('POST',{action:'inject',population:$('#inPop').value,lead});$('#tickOut').textContent=d.ok?('Injected '+d.population+' lead '+d.lead_id.slice(0,8)):('error: '+(d.error||''));await load();
 }
-async function runTick(){$('#tickOut').textContent='ticking…';const d=await api('POST',{action:'tick'});$('#tickOut').textContent=d.ok?('tick: '+JSON.stringify(d.summary)):'error';await load();}
+async function runTick(){$('#tickOut').textContent='ticking…';const d=await api('POST',{action:'tick'});$('#tickOut').textContent=d.ok?('tick: '+JSON.stringify(d.summary)):('error: '+(d.error||JSON.stringify(d)));await load();}
 const REP_RANK={1:'Primary',2:'Backup 1',3:'Backup 2'};
 async function seedRep(){ const name=$('#repName').value.trim()||'Rep', phone=$('#repPhone').value.trim(), priority=$('#repPriority').value; if(!phone){$('#tickOut').textContent='enter the rep phone (E.164, e.g. +17135551234)';return;} const d=await api('POST',{action:'seed_rep',name,phone,priority}); $('#tickOut').textContent=d.ok?('added '+name+' as '+(REP_RANK[priority]||('P'+priority))):('error: '+(d.error||'')); $('#repName').value='';$('#repPhone').value=''; await load(); }
 async function removeRep(id){ await api('POST',{action:'delete_rep',rep_id:id}); await load(); }

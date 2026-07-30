@@ -134,7 +134,8 @@ export async function tick(env, limit = 50) {
       notes: res.detail || null,
     });
     // Mirror the touch into the CRM timeline (system of record) unless paused.
-    if (res.act !== "paused") await mirrorTouchpoint(env, lead, t, res);
+    // Never let a CRM-mirror hiccup break the dispatch loop.
+    if (res.act !== "paused") { try { await mirrorTouchpoint(env, lead, t, res); } catch (_) {} }
 
     if (res.act === "paused") { summary.skipped++; }
     else if (status === "failed") {
