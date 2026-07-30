@@ -106,8 +106,18 @@ export async function onRequestOptions({ request, env }) {
 export async function onRequestGet({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
-  if (!KEY(env)) return json({ ok: false, error: "no_key", message: "INSTANTLY_API_KEY not set." }, { status: 400 }, cors);
   const q = new URL(request.url).searchParams;
+
+  // Purge FIRST — it's a pure DB delete and must never depend on the Instantly API
+  // or the list resolving (the mistaken import lives in crm_leads regardless).
+  if (q.get("purge")) {
+    if (!env.DB) return json({ ok: false, error: "no_db" }, { status: 500 }, cors);
+    const r = await env.DB.prepare("DELETE FROM crm_leads WHERE source='instantly'").run();
+    const purged = (r && r.meta && (r.meta.changes != null ? r.meta.changes : r.meta.rows_written)) || 0;
+    return json({ ok: true, purged, message: "Deleted all imported Instantly leads from crm_leads (Site Spy). Reload the CRM to see it." }, {}, cors);
+  }
+
+  if (!KEY(env)) return json({ ok: false, error: "no_key", message: "INSTANTLY_API_KEY not set." }, { status: 400 }, cors);
   const listId = await resolveListId(env);
   if (!listId) return json({ ok: false, error: "no_list", message: "No 'Website Visitors' lead list found. Set INSTANTLY_VISITORS_LIST_ID or name the list 'Website Visitors'." }, { status: 400 }, cors);
 
@@ -116,13 +126,6 @@ export async function onRequestGet({ request, env }) {
     if (got.error) return json({ ok: false, list: listId, error: got.error }, {}, cors);
     const rows = got.rows || [];
     return json({ ok: true, list: listId, count: rows.length, mapped: q.get("raw") ? rows.map(normalize) : undefined }, {}, cors);
-  }
-  if (q.get("purge")) {
-    // Undo a mistaken import: the "Website Visitors" list turned out to be the
-    // HVAC cold-campaign's (mostly-unsubscribed) leads, not real visitors.
-    const r = await env.DB.prepare("DELETE FROM crm_leads WHERE source='instantly' AND consent_status='identified'").run();
-    const purged = (r && r.meta && (r.meta.changes != null ? r.meta.changes : r.meta.rows_written)) || 0;
-    return json({ ok: true, purged, message: "Deleted imported Instantly identified leads from crm_leads." }, {}, cors);
   }
   if (q.get("run")) {
     const out = await runScheduledSync(env);
