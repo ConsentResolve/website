@@ -2138,25 +2138,38 @@ function showView(v){
   document.querySelectorAll('.rail a[data-view]').forEach(a=>a.classList.toggle('on', a.dataset.view===v));
   const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview'};
   Object.entries(views).forEach(([k,id])=>{const el=document.getElementById(id); if(el) el.hidden=k!==v;});
-  if(v==='reminders')renderReminders();
-  if(v==='pipeline')renderPipeline();
-  if(v==='nurture')renderNurture();
-  if(v==='sitespy')renderSiteSpy();
-  if(v==='sequences')renderSequences();
-  if(v==='analytics')renderAnalytics();
-  if(v==='consent')renderConsent();
+  // Render the active view defensively — a single view throwing must never blank the app.
+  try{
+    if(v==='reminders')renderReminders();
+    else if(v==='pipeline')renderPipeline();
+    else if(v==='nurture')renderNurture();
+    else if(v==='sitespy')renderSiteSpy();
+    else if(v==='sequences')renderSequences();
+    else if(v==='analytics')renderAnalytics();
+    else if(v==='consent')renderConsent();
+  }catch(e){
+    if(window.console) console.warn('view render failed: '+v, e);
+    const host=document.getElementById(views[v]);
+    if(host) host.innerHTML='<div class="idash-empty" style="padding:40px">Couldn’t load this view. <a href="#" onclick="showView(\''+v+'\');return false" style="color:var(--accent)">Retry</a></div>';
+  }
   // Persist the active view so a refresh returns here (hash = shareable, localStorage = durable).
   try{ localStorage.setItem('crm_view', v); }catch(e){}
   if(location.hash.slice(1)!==v){ try{ history.replaceState(null,'','#'+v); }catch(e){ location.hash=v; } }
 }
 window.showView=showView;
 // Restore the last view on load (hash wins for shareable links, else localStorage).
-(function restoreView(){
-  var valid={inbox:1,reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1};
-  var v=decodeURIComponent(location.hash.slice(1)||'');
-  if(!valid[v]){ try{ v=localStorage.getItem('crm_view')||''; }catch(e){ v=''; } }
-  if(valid[v] && v!=='inbox'){ showView(v); }
-})();
+// DEFERRED to a macrotask so every render helper (const/fn defined later in this
+// script) is initialized first — otherwise restoring #sitespy hit a TDZ error and
+// blanked the app. Wrapped so any failure falls back to the default Inbox.
+function restoreView(){
+  try{
+    var valid={inbox:1,reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1};
+    var v=decodeURIComponent(location.hash.slice(1)||'');
+    if(!valid[v]){ try{ v=localStorage.getItem('crm_view')||''; }catch(e){ v=''; } }
+    if(valid[v] && v!=='inbox') showView(v);
+  }catch(e){ if(window.console) console.warn('restoreView failed', e); }
+}
+setTimeout(restoreView,0);
 window.renderConsent=renderConsent; // exposed for the live-data bootstrap (fixture→fetch)
 window.renderSequences=renderSequences;
 window.renderList=renderList;
