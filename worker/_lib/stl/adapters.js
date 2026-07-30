@@ -76,6 +76,19 @@ async function sendSms(env, lead, r) {
 
 async function startRetell(env, lead, ctx) {
   if (!env.RETELL_API_KEY) return { act: "live", outcome: "failed", detail: "missing_retell_key" };
+  const rep = ctx.rep;
+  // Per-call dynamic variables — Ruby's prompt + transfer tool interpolate these.
+  // transfer_number drives the warm-transfer destination (the on-shift rep). Empty =
+  // no rep available → Ruby confirms the slot instead of transferring.
+  const dyn = {
+    first_name: lead.first_name || "there",
+    company: lead.company || "",
+    transfer_number: (rep && rep.phone) || "",
+    rep_name: (rep && rep.name) || "a teammate",
+    meeting_time: (ctx.meeting && ctx.meeting.scheduled_for)
+      ? new Intl.DateTimeFormat("en-US", { weekday: "long", hour: "numeric", minute: "2-digit", timeZone: lead.timezone || "America/Chicago" }).format(new Date(ctx.meeting.scheduled_for))
+      : "your booked time",
+  };
   const res = await fetch("https://api.retellai.com/v2/create-phone-call", {
     method: "POST",
     headers: { Authorization: `Bearer ${env.RETELL_API_KEY}`, "Content-Type": "application/json" },
@@ -83,7 +96,8 @@ async function startRetell(env, lead, ctx) {
       from_number: env.RETELL_FROM_NUMBER,
       to_number: lead.phone,
       override_agent_id: env.RETELL_AGENT_ID || undefined,
-      metadata: { lead_id: lead.id, touchpoint_id: ctx.touchpointId, step: ctx.step },
+      retell_llm_dynamic_variables: dyn,
+      metadata: { lead_id: lead.id, touchpoint_id: ctx.touchpointId, step: ctx.step, transfer_number: dyn.transfer_number },
     }),
   });
   const j = await res.json().catch(() => ({}));

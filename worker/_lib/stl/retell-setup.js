@@ -16,17 +16,32 @@ company. Do you have thirty seconds, or should I just grab a human?"
 You MUST identify yourself as an AI. Never imply you are a person.
 
 ## Your only job: warm-transfer to a human rep.
+You are calling {{first_name}} (company: {{company}}). A rep may be available at the
+number {{transfer_number}} (their name: {{rep_name}}).
+
 Priority ladder:
-1. Warm transfer to an available rep — attempt within 30 seconds of them answering.
-2. If no rep is free, offer to pull their meeting forward: "I've got a rep free in ten
-   minutes — want it now instead of your booked time?"
-3. Otherwise confirm their existing booked slot and say who will call next.
+1. If {{transfer_number}} is present, WARM-TRANSFER to the rep using the
+   transfer_to_rep tool — attempt within 30 seconds of them answering. Briefly tell the
+   caller "let me grab {{rep_name}} for you real quick," then call the tool.
+2. If there is NO transfer number, do NOT attempt a transfer. Offer to pull their meeting
+   forward, or confirm their existing booked slot ({{meeting_time}}) and say a human will
+   call next.
 
 ## Hard rules
 - Do NOT pitch. Do NOT qualify beyond trade + company size.
 - Keep it under 90 seconds. You are a bridge, not a closer.
 - If they ask to stop / opt out, acknowledge, end the call politely, do not push back.
 - Be warm, fast, and a little self-aware about being an AI. That's the brand.`;
+
+// The transfer tool that lets Ruby physically bridge the call to an available rep.
+// The destination is a dynamic variable injected per call (the on-shift rep's number).
+const TRANSFER_TOOL = {
+  type: "transfer_call",
+  name: "transfer_to_rep",
+  description: "Warm-transfer the caller to the available human rep. Use only when a transfer number ({{transfer_number}}) is present and the caller is willing. Do not use if no transfer number is available.",
+  transfer_destination: { type: "predefined", number: "{{transfer_number}}" },
+  transfer_option: { type: "warm_transfer", show_transferee_as_caller: false },
+};
 
 async function rt(env, method, path, body) {
   const res = await fetch(BASE + path, {
@@ -45,16 +60,24 @@ export async function provisionRuby(env, origin) {
   const webhookUrl = `${origin}/api/stl/retell/webhook`;
   const voiceId = env.RETELL_VOICE_ID || "11labs-Kate";
 
-  // Already provisioned?
+  // Already provisioned? Update BOTH the brain (prompt + transfer tool) and the agent.
   const list = await rt(env, "GET", "/list-agents");
   const existing = Array.isArray(list.json) ? list.json.find((a) => (a.agent_name || "").toLowerCase() === "ruby") : null;
   if (existing) {
+    let llmId = existing.response_engine && existing.response_engine.llm_id;
+    if (!llmId) { const ga = await rt(env, "GET", `/get-agent/${existing.agent_id}`); llmId = ga.json && ga.json.response_engine && ga.json.response_engine.llm_id; }
+    let llmUpd = { ok: true };
+    if (llmId) llmUpd = await rt(env, "PATCH", `/update-retell-llm/${llmId}`, { general_prompt: RUBY_PROMPT, general_tools: [TRANSFER_TOOL] });
     const upd = await rt(env, "PATCH", `/update-agent/${existing.agent_id}`, { webhook_url: webhookUrl, voice_id: voiceId });
-    return { ok: upd.ok, agent_id: existing.agent_id, updated: true, webhook_url: webhookUrl, detail: upd.ok ? "updated existing Ruby agent" : upd.text };
+    return {
+      ok: upd.ok && llmUpd.ok, agent_id: existing.agent_id, llm_id: llmId || null, updated: true,
+      transfer_tool_added: !!(llmId && llmUpd.ok), webhook_url: webhookUrl,
+      detail: (upd.ok && llmUpd.ok) ? "updated Ruby: brain + transfer tool + webhook" : (llmUpd.text || upd.text),
+    };
   }
 
-  // Create the LLM brain, then the agent bound to it.
-  const llm = await rt(env, "POST", "/create-retell-llm", { general_prompt: RUBY_PROMPT, begin_message: "" });
+  // Create the LLM brain (with the transfer tool), then the agent bound to it.
+  const llm = await rt(env, "POST", "/create-retell-llm", { general_prompt: RUBY_PROMPT, general_tools: [TRANSFER_TOOL], begin_message: "" });
   if (!llm.ok || !llm.json || !llm.json.llm_id) return { ok: false, error: "create-retell-llm failed", detail: llm.text || llm.status };
   const agent = await rt(env, "POST", "/create-agent", {
     response_engine: { type: "retell-llm", llm_id: llm.json.llm_id },
