@@ -81,8 +81,10 @@
     // Clean value (no trailing newline) — a CLI-set secret can smuggle a "\n" that
     // makes Twilio report a From/account "mismatch" even when the account owns it.
     // Sending number must be owned by the configured Twilio account (ACbf53…).
-    // The branded 727-202-5996 lives in a different account we can't reach; using an
-    // owned number here. Swap back once that number is moved into this account.
+    // +17279999846 (727-999-9846) is THE public business number as of 2026-07-31 —
+    // owned by this account, on the approved A2P Messaging Service below, and also
+    // Mack's Retell voice+SMS line. The old 727-202-5996 was RETIRED (it lived on a
+    // separate legacy account). Do not "swap back" — 999-9846 is permanent.
     "TWILIO_FROM_NUMBER": "+17279999846",
     // A2P 10DLC: send via the approved Messaging Service (campaign-linked). The
     // adapter prefers this over TWILIO_FROM_NUMBER. The From number must be attached
