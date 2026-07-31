@@ -204,10 +204,9 @@ const DEMO_SAMPLE = "/demo/sample/";
   .cr-dw-replay:hover { color: var(--color-ink, #0A1628); }
 
   @media (max-width: 640px) {
-    .cr-dw-tab { display: none; }
-    .cr-dw-pill { display: inline-flex; align-items: center; gap: 7px; position: fixed; left: 14px; bottom: 84px; z-index: 60;
-      padding: 10px 15px; border: 0; cursor: pointer; border-radius: 999px; background: var(--dw-navy); color: #fff;
-      font: 700 13px var(--font-sans, system-ui); box-shadow: 0 8px 22px rgba(10,22,40,.3); }
+    /* Both launchers hidden on mobile — the sticky bottom bar already carries "Demo",
+       so the floating pill was a duplicate. */
+    .cr-dw-tab, .cr-dw-pill { display: none; }
   }
 
   @media (prefers-reduced-motion: reduce) {
