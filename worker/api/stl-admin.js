@@ -10,7 +10,7 @@ import { createLead } from "../_lib/stl/classifier.js";
 import { scheduleLead, tick, revoke, maybeTextbackOnNoAnswer, parkRepMatchingPhone } from "../_lib/stl/runner.js";
 import { linkLeadToCrm } from "../_lib/stl/crm-bridge.js";
 import { toE164 } from "../_lib/phone.js";
-import { provisionRuby, listRetellNumbers } from "../_lib/stl/retell-setup.js";
+import { provisionRuby, listRetellNumbers, provisionKnowledgeBase } from "../_lib/stl/retell-setup.js";
 import { twilioStatus, sendTestSms, listTwilioNumbers, findNumberOwner, messageStatus, listMessagingServices, attachNumberToService, setupCascadeNumber, createSipTrunk, addSipOrigination } from "../_lib/stl/twilio.js";
 
 // Which integrations are wired? Booleans only — never leak secret values.
@@ -200,6 +200,10 @@ export async function onRequestPost({ request, env }) {
     }
     if (action === "retell_numbers") {
       return json(await listRetellNumbers(env), {}, cors);
+    }
+    if (action === "retell_kb") {
+      const origin = env.STL_PUBLIC_ORIGIN || new URL(request.url).origin;
+      return json(await provisionKnowledgeBase(env, origin), {}, cors);
     }
     if (action === "twilio_status") return json(await twilioStatus(env), {}, cors);
     if (action === "twilio_numbers") return json(await listTwilioNumbers(env), {}, cors);

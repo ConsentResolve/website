@@ -57,25 +57,27 @@ Voicemail (18s): "${first(ctx.lead)}, ${repName(ctx)} with Consent Resolve. We h
   /* ---------- Sequence B (fully consented): 24-hour cadence ---------- */
   B1_retell: (ctx) => ({
     script:
-`"Hey — this is Ruby, the AI assistant at Consent Resolve. And yes, an actual AI, calling you about forty seconds after you hit submit. That's sort of the entire point of the company. Do you have thirty seconds, or should I just grab a human?"
+`"Hey — this is Mack, the AI assistant at Consent Resolve. Real AI, not a person. You hit submit about forty seconds ago, so here I am. That's kind of the whole point of what we do. Got thirty seconds, or should I just grab you a human?"
 
-Priority: (1) warm-transfer to any available rep within 30s; (2) pull the meeting forward — "I've got ${repName(ctx)} free in ten minutes — want it now instead of ${when(ctx)}?"; (3) confirm the existing slot. Do NOT pitch or qualify beyond trade + company size.`,
+Lead with the offer: your first 50 leads are on us, then a flat $7 a lead, cancel anytime. Priority: (1) warm-transfer to any available rep within 30s; (2) pull the meeting forward — "I've got ${repName(ctx)} free in ten minutes — want it now instead of ${when(ctx)}?"; (3) confirm the existing slot. Do NOT pitch or qualify beyond trade + company size.`,
     disclosure_required: true,
   }),
   B2_sms_answered: (ctx) => ({
     text:
-`Ruby here — good talking to you. You're set for ${when(ctx)}: ${link(ctx)}. Reply here anytime, a human reads these. Text STOP to opt out.`,
+`Mack here — good talking to you. You're set for ${when(ctx)}: ${link(ctx)}. Your first 50 leads are on us, then a flat $7 a lead. Reply here anytime, a human reads these. Text STOP to opt out.`,
   }),
   B2_sms: (ctx) => ({
     text:
-`Hey ${first(ctx.lead)} — Ruby from Consent Resolve. That was me calling forty seconds after you hit submit. Screening unknown numbers is correct behavior and I respect it. You're on the books for ${when(ctx)}. Reply if you'd rather move it up. Text STOP to opt out.`,
+`Hey ${first(ctx.lead)} — Mack from Consent Resolve. That was me calling forty seconds after you hit submit. Screening unknown numbers is correct behavior and I respect it. Quick reason I called: your first 50 leads are on us, then a flat $7 a lead — no card to claim the 50. You're on the books for ${when(ctx)}. Reply if you'd rather move it up. Text STOP to opt out.`,
   }),
   B3_email: (ctx) => ({
-    subject: `your consent receipt (this is the fun part)`,
+    subject: `your first 50 leads are on us (+ your consent receipt)`,
     text:
 `${first(ctx.lead)} —
 
-At ${new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: ctx.lead.timezone || "America/Chicago" }).format(new Date(ctx.lead.created_at))} today you told us we could reach you by:
+First, the offer that's waiting on you: your first 50 leads are on us — then a flat $7 a lead, cancel anytime. No card to claim the 50. That's real, consented leads you own outright, so you can see the quality before you pay a dime.
+
+Now the fun part. At ${new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: ctx.lead.timezone || "America/Chicago" }).format(new Date(ctx.lead.created_at))} today you told us we could reach you by:
 
 ✅ Email  ✅ SMS  ✅ Phone (human)  ✅ Phone (AI)
 
@@ -90,7 +92,7 @@ ${when(ctx)}. Talk then.`,
   }),
   B4_dial: (ctx) => ({
     script:
-`"Hey ${first(ctx.lead)} — ${repName(ctx)} with Consent Resolve, the human. Ruby said you two talked. Two minutes before I hop on a call myself — ${when(ctx)} still good? And one thing: what made you click?"`,
+`"Hey ${first(ctx.lead)} — ${repName(ctx)} with Consent Resolve, the human. Mack said you two talked. Two minutes before I hop on a call myself — ${when(ctx)} still good? Quick reminder, your first 50 leads are on us. And one thing: what made you click?"`,
   }),
   B5_sms: (ctx) => ({
     text:

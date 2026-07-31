@@ -86,7 +86,8 @@ details{border:1px solid var(--ln);border-radius:9px;margin:6px 0;background:var
   <div id=readiness class="grid g4"></div>
   <div id=twilioDebug class="note mono" style="margin-top:8px"></div>
   <div class=row style="margin-top:14px;gap:10px">
-    <button onclick=provisionRetell()>⚡ Provision Ruby (Retell)</button>
+    <button onclick=provisionRetell()>⚡ Provision Mack (Retell)</button>
+    <button onclick=provisionKb()>📚 Set up / update knowledge base</button>
     <button class=ghost onclick=listNumbers()>List Retell numbers</button>
     <a href="/speed-demo" target="_blank"><button class=ghost type=button>Open test demo form ↗</button></a>
   </div>
@@ -263,7 +264,8 @@ function renderReadiness(r){
   const dbg=document.getElementById('twilioDebug');
   if(dbg) dbg.textContent='Twilio env → From='+JSON.stringify(d.from_value)+' (len '+d.from_len+') · SID='+(d.sid||'—')+' (len '+d.sid_len+') · auth_token len '+d.auth_token_len+' · MsgService='+(d.messaging_service||'—');
 }
-async function provisionRetell(){ $('#intgOut').textContent='provisioning Ruby…'; const d=await api('POST',{action:'retell_setup'}); $('#intgOut').textContent=JSON.stringify(d); await load(); }
+async function provisionRetell(){ $('#intgOut').textContent='provisioning Mack…'; const d=await api('POST',{action:'retell_setup'}); $('#intgOut').textContent=JSON.stringify(d); await load(); }
+async function provisionKb(){ $('#intgOut').textContent='creating + attaching knowledge base…'; const d=await api('POST',{action:'retell_kb'}); $('#intgOut').textContent=JSON.stringify(d); }
 async function listNumbers(){ $('#intgOut').textContent='fetching numbers…'; const d=await api('POST',{action:'retell_numbers'}); $('#intgOut').textContent=JSON.stringify(d); }
 async function sendTestEmail(){ const to=$('#testEmail').value.trim(); if(!to){$('#intgOut').textContent='enter a to-address';return;} $('#intgOut').textContent='sending…'; const d=await api('POST',{action:'test_email',to}); $('#intgOut').textContent=JSON.stringify(d); }
 async function verifyTwilio(){ $('#intgOut').textContent='checking Twilio…'; const d=await api('POST',{action:'twilio_status'}); $('#intgOut').textContent=JSON.stringify(d); }

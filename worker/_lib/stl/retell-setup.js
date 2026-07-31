@@ -176,6 +176,98 @@ export async function provisionRuby(env, origin) {
     next: "Set RETELL_AGENT_ID=" + agent.json.agent_id + ", buy/import a number in Retell, then set RETELL_FROM_NUMBER." };
 }
 
+// ── Knowledge base ──────────────────────────────────────────────────────────
+// Mack is prompt-sufficient, but a KB gives him a retrieval fallback for off-script
+// questions. It is kept STRICTLY consistent with the prompt: same facts, same offer,
+// and it never introduces a number Mack isn't allowed to say ($7, first 50 on us,
+// ~10 min). Competitors are described qualitatively — no dollar figures — so the KB
+// can never contradict the prompt's "don't quote numbers that aren't in this prompt."
+export const MACK_KB_NAME = "Consent Resolve — Mack";
+export const MACK_KB_TITLE = "Mack call facts";
+export const MACK_KB_TEXT =
+`# What Consent Resolve does
+We turn the anonymous visitors already on a contractor's own website into named, consented leads. A homeowner lands on the site, accepts the consent banner, and the contractor gets their name and email — a lead they own outright, never resold. It's one line of code and it's live in about ten minutes.
+
+# The offer (say this early)
+Right now a contractor's first 50 leads are on us. After that it's a flat $7 a lead, cancel anytime. No card to claim the 50. Call it "on us" or "no charge" — never "free." The 50 are leads, not booked jobs; never promise results.
+
+# Pricing
+First 50 leads on us, then a flat $7 a lead. No setup fee, no minimum, no contract. A card is only needed once they go past the first 50. Billed weekly for the leads delivered that week.
+
+# What a lead is
+An identified, consented contact — a verified email tied to a real person, with what they were shopping for, plus name and location where available. Never anonymous traffic, never a homeowner's phone number. It's an email, name, and location.
+
+# Who calls whom
+Consent Resolve does not call the homeowner. The homeowner comes back through the contractor's own funnel and calls the contractor. It's warm inbound — the contractor is not cold-calling anyone.
+
+# Consent and compliance
+Everything runs on explicit consent — that's the name of the company. Nobody is identified unless they accept the banner, and every reveal is timestamped and signed. If a contractor asks about the legal side, hand them to a human for the details. Never guarantee a legal outcome.
+
+# Where we fit
+We sit on top of the channels a contractor already runs — Google, Local Service Ads, their own ads and SEO. Those are how the homeowner found them in the first place. We recover the visitors who would have left with no name. Never frame those channels as competitors.
+
+# Versus shared-lead sellers (say it qualitatively, no dollar figures)
+The lead sellers hand the same lead to several pros at once and bill the contractor whether the homeowner answers or not. A Consent Resolve lead is exclusive — the contractor's alone, never resold.
+
+# Why we call so fast
+Most homeowners hire the first pro who responds, and the odds of connecting drop fast after the first few minutes. That's why Mack calls about forty seconds after the form is submitted.
+
+# Company details
+Consent Resolve · (727) 202-5996 · hello@consentresolve.com · 1907 Gulf Way #1, St Pete Beach, FL 33706.`;
+
+// Create/refresh Mack's Retell knowledge base and attach it to his LLM.
+// Idempotent: deletes any prior KB of the same name, then recreates and re-attaches.
+// Returns the raw Retell outcome so the operator can see exactly what happened.
+export async function provisionKnowledgeBase(env, _origin) {
+  if (!env.RETELL_API_KEY) return { ok: false, error: "missing RETELL_API_KEY" };
+  const name = MACK_KB_NAME;
+
+  // 1. Remove any existing KB of this name so re-runs don't stack duplicates.
+  const list = await rt(env, "GET", "/list-knowledge-bases");
+  const kbs = Array.isArray(list.json) ? list.json : ((list.json && list.json.knowledge_bases) || []);
+  const prior = kbs.filter((k) => (k.knowledge_base_name || k.name || "") === name);
+  for (const k of prior) {
+    const id = k.knowledge_base_id || k.id;
+    if (id) await rt(env, "DELETE", `/delete-knowledge-base/${id}`);
+  }
+
+  // 2. Create the KB. Retell's create-knowledge-base takes multipart/form-data; the
+  //    text sources go in as a JSON-encoded field. Let fetch set the boundary.
+  const fd = new FormData();
+  fd.append("knowledge_base_name", name);
+  fd.append("knowledge_base_texts", JSON.stringify([{ title: MACK_KB_TITLE, text: MACK_KB_TEXT }]));
+  const cRes = await fetch(BASE + "/create-knowledge-base", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${env.RETELL_API_KEY}` },
+    body: fd,
+  });
+  const cText = await cRes.text().catch(() => "");
+  let cJson = null; try { cJson = cText ? JSON.parse(cText) : null; } catch (_) {}
+  const kbId = cJson && (cJson.knowledge_base_id || cJson.id);
+  if (!cRes.ok || !kbId) {
+    return { ok: false, error: "create-knowledge-base failed", status: cRes.status, removed_old: prior.length, detail: cText.slice(0, 500) };
+  }
+
+  // 3. Attach the KB to Mack's LLM so retrieval is live on his calls.
+  const agentName = String(env.STL_AGENT_NAME || "Mack").trim();
+  const agents = ((await rt(env, "GET", "/list-agents")).json) || [];
+  const agent =
+    (env.RETELL_AGENT_ID && agents.find((a) => a.agent_id === env.RETELL_AGENT_ID)) ||
+    agents.find((a) => (a.agent_name || "").toLowerCase() === agentName.toLowerCase()) ||
+    agents.find((a) => (a.agent_name || "").toLowerCase() === "ruby") || null;
+  let attach = { ok: false, text: "agent not found" };
+  if (agent) {
+    let llmId = agent.response_engine && agent.response_engine.llm_id;
+    if (!llmId) { const ga = await rt(env, "GET", `/get-agent/${agent.agent_id}`); llmId = ga.json && ga.json.response_engine && ga.json.response_engine.llm_id; }
+    if (llmId) attach = await rt(env, "PATCH", `/update-retell-llm/${llmId}`, { knowledge_base_ids: [kbId] });
+  }
+  return {
+    ok: !!kbId, knowledge_base_id: kbId, removed_old: prior.length,
+    attached: !!attach.ok, agent_id: agent ? agent.agent_id : null,
+    detail: attach.ok ? `KB created + attached to ${agentName}` : `KB created; attach failed: ${attach.text || attach.status}`,
+  };
+}
+
 // List numbers so the operator can grab one for RETELL_FROM_NUMBER.
 export async function listRetellNumbers(env) {
   if (!env.RETELL_API_KEY) return { ok: false, error: "missing RETELL_API_KEY" };
