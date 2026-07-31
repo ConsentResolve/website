@@ -8,9 +8,14 @@ import { alert } from "../_lib/stl/adapters.js";
 import { verifyHmac } from "../_lib/stl/verify.js";
 import { json } from "../_lib/http.js";
 
-// Ruby must identify as an AI. Any transcript missing this is a P1.
+// The agent must identify as an AI AND by name. Any transcript missing either is a P1.
+// The name is read from env (STL_AGENT_NAME, default "Mack") so renaming the agent never
+// silently fails the disclosure check.
 const DISCLOSURE_RE = /\b(a[n]?\s+)?(ai|artificial intelligence)\b/i;
-const RUBY_RE = /\bruby\b/i;
+const agentNameRe = (env) => {
+  const n = String((env && env.STL_AGENT_NAME) || "Mack").trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`\\b${n}\\b`, "i");
+};
 
 export async function onRequestPost({ request, env }) {
   await ensureStlSchema(env);
@@ -30,7 +35,7 @@ export async function onRequestPost({ request, env }) {
     ? call.transcript_object.map((t) => `${t.role}: ${t.content}`).join("\n") : "") || "";
   const answered = ["ended", "call_ended", "call_analyzed", "ongoing"].includes(eventName) && call.disconnection_reason !== "dial_no_answer" ? 1 : 0;
   const durationS = call.duration_ms ? Math.round(call.duration_ms / 1000) : (call.call_length_seconds || null);
-  const disclosureOk = transcript ? (DISCLOSURE_RE.test(transcript) && RUBY_RE.test(transcript) ? 1 : 0) : null;
+  const disclosureOk = transcript ? (DISCLOSURE_RE.test(transcript) && agentNameRe(env).test(transcript) ? 1 : 0) : null;
 
   await env.DB.prepare(
     `UPDATE stl_calls SET provider_call_id=COALESCE(?, provider_call_id), answered=?, disclosure_ok=COALESCE(?, disclosure_ok) WHERE touchpoint_id=?`

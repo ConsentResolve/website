@@ -99,6 +99,9 @@
     // Voice webhook (/api/stl/twilio/voice-cascade) rings Primary → Backup1 → Backup2
     // with no-answer failover. Run the console's "Set up voice cascade" once to point
     // this number's VoiceUrl at the cascade endpoint.
-    "STL_TRANSFER_NUMBER": "+17279999864"
+    "STL_TRANSFER_NUMBER": "+17279999864",
+    // AI agent's name (renamed Ruby -> Mack). Drives the disclosure-verification check
+    // (transcript must contain this name + an AI phrase) and Retell provisioning.
+    "STL_AGENT_NAME": "Mack"
   }
 }
