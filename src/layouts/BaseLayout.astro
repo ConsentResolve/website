@@ -238,7 +238,15 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         +'textarea,input[type="text"]{font-family:inherit!important;font-size:14.5px!important;color:#0a1628!important;outline:none!important;border:none!important;box-shadow:none!important}'
         +'[class*="_sendButton"]{background:#00e5a0!important;color:#04231a!important;transition:background .16s ease,transform .12s var(--eo)!important}[class*="_sendButton"]:hover{background:#00c489!important}[class*="_sendButton"]:active{transform:scale(.9)!important}'
         // Launcher: rounded rectangle (not a circle), press feedback, hover gated to fine pointers.
-        +'[class*="_fabChat"]{background:#00e5a0!important;color:#0a1628!important;width:60px!important;height:60px!important;min-width:0!important;padding:0!important;border-radius:19px!important;border:none!important;box-shadow:0 12px 28px -6px rgba(0,229,160,.5),0 6px 16px -8px rgba(10,22,40,.4)!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;transition:transform .2s var(--eo),box-shadow .2s ease!important}[class*="_fabChat"] > *{display:none!important}[class*="_fabChat"]::after{content:"";width:28px;height:28px;background:#0a1628;-webkit-mask:'+_ic+' center/contain no-repeat;mask:'+_ic+' center/contain no-repeat}[class*="_fabChat"]:active{transform:scale(.94)!important}@media (hover:hover) and (pointer:fine){[class*="_fabChat"]:hover{transform:translateY(-2px) scale(1.05)!important}}'
+        // Launcher: rounded rectangle, ~25% bigger, WHITE icon, Intercom-style unread badge
+        // (shown only while closed). overflow:visible so the badge isn't clipped.
+        +'[class*="_fabWrap"]{overflow:visible!important}'
+        +'[class*="_fabChat"]{background:#00e5a0!important;color:#0a1628!important;width:75px!important;height:75px!important;min-width:0!important;padding:0!important;border-radius:23px!important;border:none!important;box-shadow:0 14px 32px -6px rgba(0,229,160,.5),0 6px 18px -8px rgba(10,22,40,.4)!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:visible!important;position:relative!important;transition:transform .2s var(--eo),box-shadow .2s ease!important}[class*="_fabChat"] > *{display:none!important}[class*="_fabChat"]::after{content:"";width:34px;height:34px;background:#ffffff;-webkit-mask:'+_ic+' center/contain no-repeat;mask:'+_ic+' center/contain no-repeat}[class*="_fabChat"]:active{transform:scale(.94)!important}@media (hover:hover) and (pointer:fine){[class*="_fabChat"]:hover{transform:translateY(-2px) scale(1.05)!important}}'
+        +'@keyframes crBadge{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}[class*="_container_"]:not(:has([class*="_windowOpen_"])) [class*="_fabChat"]::before{content:"1";position:absolute;top:-4px;right:-4px;min-width:23px;height:23px;padding:0 6px;border-radius:12px;background:#ff4d4f;color:#fff;font-family:\'Hanken Grotesk\',sans-serif;font-weight:700;font-size:12.5px;line-height:23px;text-align:center;box-shadow:0 3px 8px rgba(10,22,40,.4),0 0 0 3px #fff;animation:crBadge .3s var(--eo) both;z-index:2}'
+        // Typing hold: while cr-holding, hide the newest agent bubble (the dots bubble is
+        // kept as the last child, so the reply is :nth-last-child(2)) — so every reply is
+        // preceded by an animated "…" for a minimum beat instead of popping in instantly.
+        +':host(.cr-holding) [class*="_messages_"] > [class*="_agentGroup_"]:nth-last-child(2){display:none!important}'
         // Mobile: full-screen panel that slides up from the bottom, with safe-area insets;
         // hide the launcher while the window is open so it doesn't float over the input.
         +'@media (max-width:640px){@keyframes crPop{from{opacity:.5;transform:translateY(100%)}to{opacity:1;transform:none}}[class*="_window_"]{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;border-radius:0!important;transform-origin:bottom!important;animation:crPop .3s cubic-bezier(0.32,0.72,0,1) both!important}[class*="_header_"]{padding-top:calc(14px + env(safe-area-inset-top))!important;border-radius:0!important}[class*="_inputRow_"]{padding-bottom:calc(14px + env(safe-area-inset-bottom))!important}[class*="_container_"]:has([class*="_windowOpen_"]) [class*="_fabChat"]{display:none!important}}'
@@ -258,9 +266,18 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         // Mid-conversation typing: Retell shows none, so we add dots after the user sends
         // and remove them the instant Mack's reply lands.
         function convo(){var m=sr.querySelector('[class*="_messages_"]');if(!m||m.__crWired)return;m.__crWired=1;
-          var show=function(){if(host.classList.contains("cr-firstopen"))return;if(!m.querySelector(".cr-convo")){var t=document.createElement("div");t.className="cr-typing cr-convo";t.innerHTML="<i></i><i></i><i></i>";m.appendChild(t);m.scrollTop=m.scrollHeight;}};
-          var hide=function(){var t=m.querySelector(".cr-convo");if(t)t.remove();};
-          var mo=new MutationObserver(function(muts){muts.forEach(function(x){[].forEach.call(x.addedNodes,function(n){if(n.nodeType!==1)return;var c=((n.className&&n.className.baseVal)||n.className||"").toString();if(/_user_/.test(c))show();else if(/_agentGroup_|_agent_/.test(c))hide();});});});mo.observe(m,{childList:true});}
+          var MIN=1500,pA=m.querySelectorAll('[class*="_agentGroup_"]').length,pU=m.querySelectorAll('[class*="_user_"]').length,sendAt=0,timer=null;
+          function dots(){var t=m.querySelector(".cr-convo");if(!t){t=document.createElement("div");t.className="cr-typing cr-convo";t.innerHTML="<i></i><i></i><i></i>";}m.appendChild(t);m.scrollTop=m.scrollHeight;}
+          function rm(){var t=m.querySelector(".cr-convo");if(t)t.remove();}
+          var mo=new MutationObserver(function(){
+            if(host.classList.contains("cr-firstopen"))return;
+            var a=m.querySelectorAll('[class*="_agentGroup_"]').length,u=m.querySelectorAll('[class*="_user_"]').length;
+            if(u>pU){sendAt=Date.now();host.classList.add("cr-holding");dots();}                 // user sent -> dots
+            if(a>pA){dots();if(!timer){var w=Math.max(500,MIN-(Date.now()-sendAt));timer=setTimeout(function(){timer=null;host.classList.remove("cr-holding");rm();m.scrollTop=m.scrollHeight;},w);}} // reply held for a min beat
+            pA=a;pU=u;
+            if(host.classList.contains("cr-holding")){var t=m.querySelector(".cr-convo");if(t&&m.lastElementChild!==t)m.appendChild(t);} // keep dots last so the reply is :nth-last-child(2)
+          });
+          mo.observe(m,{childList:true,subtree:true});}
         ident();firstTyping();convo();
         if(!host.__crObs){host.__crObs=new MutationObserver(function(){ident();firstTyping();convo();});host.__crObs.observe(sr,{childList:true,subtree:true});}
         return true;
