@@ -251,14 +251,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         // Chat-to-phone bridge: a phone button in the header opens an inline consent form
         // overlaying the window; submitting fires an immediate Retell call (/api/chat-call).
         +'.cr-callbtn{background:transparent;border:none;width:30px;height:30px;border-radius:9px;color:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;transition:background .16s,color .16s,transform .12s var(--eo)}.cr-callbtn::after{content:"";width:18px;height:18px;background:currentColor;-webkit-mask:'+_ipn+' center/contain no-repeat;mask:'+_ipn+' center/contain no-repeat}.cr-callbtn:hover{background:rgba(255,255,255,.14);color:#fff}.cr-callbtn:active{transform:scale(.9)}'
-        // Inline "call or text" card — injected INTO the conversation (an agent-style
-        // message), not a modal. Phone + consent + Call me / Text me.
-        +'.cr-cmsg{flex:0 0 auto;margin:0 14px 12px;background:#f6f8fb;border:1px solid #e5eaf1;border-radius:14px;padding:14px 15px;box-shadow:0 8px 20px -10px rgba(10,22,40,.22);animation:crIn .22s var(--eo) both}'
-        +'.cr-cmsg-t{font-size:14px;color:#0a1628;line-height:1.45;margin-bottom:11px}'
-        +'.cr-cmsg-phone{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #dbe2ea;border-radius:11px;background:#fff;font-family:inherit;font-size:15px;color:#0a1628;outline:none;transition:border-color .16s,box-shadow .16s}.cr-cmsg-phone:focus{border-color:#00e5a0;box-shadow:0 0 0 3px rgba(0,229,160,.18)}'
-        +'.cr-cmsg-ck{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;color:#475569;margin:10px 0 12px;line-height:1.4;cursor:pointer}.cr-cmsg-ck input{width:16px;height:16px;margin-top:1px;accent-color:#00e5a0;flex:0 0 auto}'
-        +'.cr-cmsg-actions{display:flex;gap:8px}.cr-cmsg-go,.cr-cmsg-go2{flex:1;padding:11px 8px;border-radius:11px;font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;transition:background .16s,border-color .16s,transform .12s var(--eo)}.cr-cmsg-go{border:none;background:#00e5a0;color:#04231a}.cr-cmsg-go:hover{background:#00c489}.cr-cmsg-go2{border:1.5px solid #cbd5e1;background:#fff;color:#0a1628}.cr-cmsg-go2:hover{border-color:#00e5a0;background:#f6fefb}.cr-cmsg-go:active,.cr-cmsg-go2:active{transform:scale(.97)}'
-        +'.cr-cmsg-status{font-size:12.5px;margin-top:9px;color:#475569;line-height:1.4}.cr-cmsg-status.err{color:#d1495b}.cr-cmsg-done{font-size:14px;color:#0a1628;line-height:1.45}'
+        // (The header call+text button now just sends a chat message — no inline form.)
         // Mobile: full-screen panel that slides up from the bottom, with safe-area insets;
         // hide the launcher while the window is open so it doesn't float over the input.
         +'@media (max-width:640px){@keyframes crPop{from{opacity:.5;transform:translateY(100%)}to{opacity:1;transform:none}}[class*="_window_"]{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:auto!important;width:100vw!important;height:var(--cr-vh,100dvh)!important;max-width:none!important;max-height:none!important;border-radius:0!important;transform-origin:bottom!important;animation:crPop .3s cubic-bezier(0.32,0.72,0,1) both!important}[class*="_header_"]{padding-top:calc(14px + env(safe-area-inset-top))!important;border-radius:0!important}[class*="_inputRow_"]{padding-bottom:calc(14px + env(safe-area-inset-bottom))!important}[class*="_fabChat"],[class*="_fabWrap"]{display:none!important}}'
@@ -296,28 +289,13 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         function lock(){var de=document.documentElement;var open=!!sr.querySelector('[class*="_windowOpen_"]');de.classList.toggle("cr-chat-open",open);
           if(open){if(!window.__crVV&&window.visualViewport){window.__crVV=function(){de.style.setProperty("--cr-vh",window.visualViewport.height+"px");};window.visualViewport.addEventListener("resize",window.__crVV);window.visualViewport.addEventListener("scroll",window.__crVV);window.__crVV();}}
           else{if(window.__crVV&&window.visualViewport){window.visualViewport.removeEventListener("resize",window.__crVV);window.visualViewport.removeEventListener("scroll",window.__crVV);window.__crVV=null;}de.style.removeProperty("--cr-vh");}}
-        // Chat-to-phone/SMS bridge: a call+text button in the header drops an inline card
-        // INTO the conversation (no modal) asking for a number + call/text -> /api/chat-call.
-        function callUI(){var h=sr.querySelector('[class*="_header_"]'),cp=sr.querySelector('[class*="_conversationPanel_"]');if(!h||!cp)return;
-          if(!h.querySelector(".cr-callbtn")){var b=document.createElement("button");b.type="button";b.className="cr-callbtn";b.title="Get a call or text";b.setAttribute("aria-label","Get a call or text");b.onclick=function(){dropCard();};var cx=h.querySelector('[class*="_closeButton_"]');if(cx)h.insertBefore(b,cx);else h.appendChild(b);}
-          function dropCard(){
-            var ex=cp.querySelector(".cr-cmsg:not(.cr-cmsg-sent)");
-            if(ex){var pf=ex.querySelector(".cr-cmsg-phone");if(pf)pf.focus();return;}
-            var c=document.createElement("div");c.className="cr-cmsg";
-            c.innerHTML='<div class="cr-cmsg-t">Want a call or text? Drop your number and Mack reaches out in seconds — then connects you to the team.</div><input class="cr-cmsg-phone" inputmode="tel" autocomplete="tel" placeholder="(555) 123-4567"><label class="cr-cmsg-ck"><input type="checkbox"> You can call or text me about Consent Resolve. Msg/data rates may apply.</label><div class="cr-cmsg-actions"><button class="cr-cmsg-go" type="button">📞 Call me</button><button class="cr-cmsg-go2" type="button">💬 Text me</button></div><div class="cr-cmsg-status" aria-live="polite"></div>';
-            // Dock it between the message list and the input so it's always visible (the
-            // widget locks its scroll, so a card at the end of a long thread can't scroll in).
-            var ir=cp.querySelector('[class*="_inputRow_"]');if(ir)cp.insertBefore(c,ir);else cp.appendChild(c);
-            var i0=c.querySelector(".cr-cmsg-phone");if(i0)i0.focus();
-            var go=function(mode){var ph=c.querySelector(".cr-cmsg-phone").value.trim(),ck=c.querySelector(".cr-cmsg-ck input").checked,st=c.querySelector(".cr-cmsg-status");
-              if(ph.replace(/[^0-9]/g,"").length<10){st.textContent="Add a real 10-digit number.";st.className="cr-cmsg-status err";return;}
-              if(!ck){st.textContent="Please tick the box so we can reach you.";st.className="cr-cmsg-status err";return;}
-              st.textContent=mode==="text"?"Texting you now…":"Calling you now…";st.className="cr-cmsg-status";
-              fetch("/api/chat-call",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:ph,consent:true,mode:mode,landing_page:location.pathname})}).then(function(r){return r.json();}).then(function(d){if(d&&d.ok){c.className="cr-cmsg cr-cmsg-sent";c.innerHTML='<div class="cr-cmsg-done">'+(mode==="text"?"💬 ":"📞 ")+(d.message||"On its way — keep your phone handy.")+'</div>';setTimeout(function(){if(c.parentNode)c.parentNode.removeChild(c);},5000);}else{st.textContent=(d&&d.message)||"Could not start that — try again.";st.className="cr-cmsg-status err";}}).catch(function(){st.textContent="Network error — try again.";st.className="cr-cmsg-status err";});};
-            c.querySelector(".cr-cmsg-go").onclick=function(){go("call");};
-            c.querySelector(".cr-cmsg-go2").onclick=function(){go("text");};
-            c.querySelector(".cr-cmsg-phone").addEventListener("keydown",function(e){if(e.key==="Enter")go("call");});
-          }}
+        // Chat-to-phone/SMS bridge: the header call+text button just SENDS a chat message —
+        // Mack then asks for the number + call/text in conversation and fires request_contact.
+        function callUI(){var h=sr.querySelector('[class*="_header_"]');if(!h)return;
+          if(!h.querySelector(".cr-callbtn")){var b=document.createElement("button");b.type="button";b.className="cr-callbtn";b.title="Ask for a call or text";b.setAttribute("aria-label","Ask for a call or text");
+            b.onclick=function(){var ta=sr.querySelector('textarea,input[type="text"]');if(!ta)return;var proto=ta.tagName==="TEXTAREA"?window.HTMLTextAreaElement.prototype:window.HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,"value").set.call(ta,"Can you call or text me?");ta.dispatchEvent(new Event("input",{bubbles:true}));var snd=sr.querySelector('[class*="_sendButton"]');if(snd)snd.click();else ta.dispatchEvent(new KeyboardEvent("keydown",{bubbles:true,key:"Enter",code:"Enter",keyCode:13,which:13}));};
+            var cx=h.querySelector('[class*="_closeButton_"]');if(cx)h.insertBefore(b,cx);else h.appendChild(b);}
+        }
         ident();firstTyping();convo();lock();callUI();
         if(!host.__crObs){host.__crObs=new MutationObserver(function(){ident();firstTyping();convo();lock();callUI();});host.__crObs.observe(sr,{childList:true,subtree:true});}
         return true;
