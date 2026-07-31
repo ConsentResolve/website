@@ -268,6 +268,99 @@ export async function provisionKnowledgeBase(env, _origin) {
   };
 }
 
+// ── Chat agent (website widget) ─────────────────────────────────────────────
+// Mack for text chat: no phone disclosure / transfer / voicemail. Same brand voice,
+// same offer, same allowed numbers. Goal = answer crisply, then capture an email or
+// a booking. Kept consistent with the voice prompt + KB so the story never diverges.
+export const MACK_CHAT_PROMPT =
+`# Identity
+You are Mack, the assistant at Consent Resolve, chatting with a visitor on consentresolve.com. You are an AI — if asked, say so plainly.
+
+# The offer you lead with
+The visitor's first 50 leads are on us — then a flat $7 a lead, cancel anytime. No card to claim the 50. Bring it up early and naturally. Call it "on us" or "no charge" — never "free." Never promise jobs or results; the 50 are leads, not booked work.
+
+# Your job
+Answer questions in a sentence or two, then move them to a next step: book a quick demo, or leave an email so the team follows up. Ask for the email once it's natural — "What's the best email? I'll make sure your first fifty are set up." Pick up trade and company if they come up; don't interrogate.
+
+# How you sound
+- 6th–7th grade reading level. Most sentences under 15 words. One idea per sentence.
+- Second person — "you" and "your shop." Active voice. Contractions always.
+- Confident, not loud. Concrete over abstract. Never hype, never talk down.
+- Lead with opportunity, not fear. You are the guide; the contractor is the hero.
+
+# Answers (short, then nudge to book or leave an email)
+"What is this?" — "We turn the anonymous visitors on your own site into leads you actually own — and your first fifty are on us. Want me to set you up?"
+"What does it do?" — "One line of code on your site. When a homeowner accepts your consent banner, you get their name and email. Yours alone, never resold. Live in about ten minutes."
+"How much?" — "Your first fifty leads are on us — no card to claim them. After that it's a flat seven dollars a lead, cancel anytime."
+"What's the catch on the fifty?" — "No catch. First fifty on us so you see real leads before you pay a dime."
+"Do you call the homeowner?" — "No. They come back through your funnel and call you. Warm inbound — you're not cold-calling anyone."
+"Is this legal?" — "It's consent-first — nobody's identified unless they accept your banner, and every reveal is timestamped and signed. Happy to have someone walk you through the details."
+
+# Never say
+- "phone number" / "mobile number" or anything implying you deliver a homeowner's phone. You deliver a consented email, with name and location where available.
+- "we track every visitor." Only after the homeowner consents.
+- "free," "free trial," "no card to start," "no credit card." The 50 are "on us."
+- "instant," "zero setup." It's live in about ten minutes.
+- Any guarantee of legality or promise of jobs/results.
+- The name of any data vendor.
+- Banned words: leverage, solution(s), seamless, robust, empower, synergy, cutting-edge, best-in-class, revolutionize, game-changer, disrupt, ecosystem, holistic, streamline, supercharge, next-level, world-class, elevate, frictionless.
+
+# Hard rules
+- Don't pitch or over-explain. Don't quote numbers that aren't here: first 50 on us, $7 a lead, live in about 10 minutes.
+- Never frame Google LSA, their ads, or their SEO as a competitor — we sit on top of what they already run.
+- If they want to stop, respect it. For anything you're unsure of, offer to have a human follow up by email.
+
+# Details
+Consent Resolve · (727) 202-5996 · hello@consentresolve.com`;
+
+const MACK_CHAT_GREETING =
+"Hey — Mack here, the AI assistant at Consent Resolve. Quick heads up: your first 50 leads are on us right now. What can I help you figure out?";
+
+// Create Mack's chat agent for the website widget. Returns the chat agent id (+ raw
+// diagnostics). Reuses the existing knowledge base by name. Idempotent-ish: if a chat
+// agent named "Mack (chat)" already exists, its LLM is updated in place.
+export async function provisionChatAgent(env) {
+  if (!env.RETELL_API_KEY) return { ok: false, error: "missing RETELL_API_KEY" };
+  const chatName = String(env.STL_CHAT_AGENT_NAME || "Mack (chat)").trim();
+
+  // Look up the KB id (attach it to the chat brain too).
+  let kbId = null;
+  const kbList = await rt(env, "GET", "/list-knowledge-bases");
+  const kbs = Array.isArray(kbList.json) ? kbList.json : ((kbList.json && kbList.json.knowledge_bases) || []);
+  const kb = kbs.find((k) => (k.knowledge_base_name || k.name || "") === MACK_KB_NAME);
+  if (kb) kbId = kb.knowledge_base_id || kb.id;
+
+  // Is there already a chat agent by this name? (list-chat-agents; tolerate absence.)
+  const listCA = await rt(env, "GET", "/list-chat-agents");
+  const chatAgents = Array.isArray(listCA.json) ? listCA.json : ((listCA.json && listCA.json.chat_agents) || []);
+  const existing = chatAgents.find((a) => (a.agent_name || a.chat_agent_name || "").toLowerCase() === chatName.toLowerCase()) || null;
+
+  // Build the LLM body (attach KB when found).
+  const llmBody = { general_prompt: MACK_CHAT_PROMPT, begin_message: MACK_CHAT_GREETING };
+  if (kbId) llmBody.knowledge_base_ids = [kbId];
+
+  if (existing) {
+    const agentId = existing.agent_id || existing.chat_agent_id;
+    let llmId = existing.response_engine && existing.response_engine.llm_id;
+    if (llmId) await rt(env, "PATCH", `/update-retell-llm/${llmId}`, llmBody);
+    return { ok: true, updated: true, chat_agent_id: agentId, knowledge_base_attached: !!kbId, detail: `updated ${chatName}` };
+  }
+
+  // Fresh: create the chat brain, then the chat agent bound to it.
+  const llm = await rt(env, "POST", "/create-retell-llm", llmBody);
+  if (!llm.ok || !llm.json || !llm.json.llm_id) return { ok: false, error: "create-retell-llm (chat) failed", detail: llm.text || llm.status };
+  const agent = await rt(env, "POST", "/create-chat-agent", {
+    response_engine: { type: "retell-llm", llm_id: llm.json.llm_id },
+    agent_name: chatName,
+  });
+  const agentId = agent.json && (agent.json.agent_id || agent.json.chat_agent_id);
+  if (!agent.ok || !agentId) return { ok: false, error: "create-chat-agent failed", status: agent.status, detail: agent.text || agent.status, llm_id: llm.json.llm_id };
+  return {
+    ok: true, created: true, chat_agent_id: agentId, llm_id: llm.json.llm_id, knowledge_base_attached: !!kbId,
+    next: "Grab your PUBLIC key from Retell → Public Keys, then paste it + this chat_agent_id to wire the website widget.",
+  };
+}
+
 // List numbers so the operator can grab one for RETELL_FROM_NUMBER.
 export async function listRetellNumbers(env) {
   if (!env.RETELL_API_KEY) return { ok: false, error: "missing RETELL_API_KEY" };

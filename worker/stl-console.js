@@ -88,6 +88,7 @@ details{border:1px solid var(--ln);border-radius:9px;margin:6px 0;background:var
   <div class=row style="margin-top:14px;gap:10px">
     <button onclick=provisionRetell()>⚡ Provision Mack (Retell)</button>
     <button onclick=provisionKb()>📚 Set up / update knowledge base</button>
+    <button onclick=provisionChat()>💬 Create chat agent (website widget)</button>
     <button class=ghost onclick=listNumbers()>List Retell numbers</button>
     <a href="/speed-demo" target="_blank"><button class=ghost type=button>Open test demo form ↗</button></a>
   </div>
@@ -266,6 +267,7 @@ function renderReadiness(r){
 }
 async function provisionRetell(){ $('#intgOut').textContent='provisioning Mack…'; const d=await api('POST',{action:'retell_setup'}); $('#intgOut').textContent=JSON.stringify(d); await load(); }
 async function provisionKb(){ $('#intgOut').textContent='creating + attaching knowledge base…'; const d=await api('POST',{action:'retell_kb'}); $('#intgOut').textContent=JSON.stringify(d); }
+async function provisionChat(){ $('#intgOut').textContent='creating chat agent…'; const d=await api('POST',{action:'retell_chat_agent'}); $('#intgOut').textContent=JSON.stringify(d); }
 async function listNumbers(){ $('#intgOut').textContent='fetching numbers…'; const d=await api('POST',{action:'retell_numbers'}); $('#intgOut').textContent=JSON.stringify(d); }
 async function sendTestEmail(){ const to=$('#testEmail').value.trim(); if(!to){$('#intgOut').textContent='enter a to-address';return;} $('#intgOut').textContent='sending…'; const d=await api('POST',{action:'test_email',to}); $('#intgOut').textContent=JSON.stringify(d); }
 async function verifyTwilio(){ $('#intgOut').textContent='checking Twilio…'; const d=await api('POST',{action:'twilio_status'}); $('#intgOut').textContent=JSON.stringify(d); }
