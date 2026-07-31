@@ -135,7 +135,7 @@ details{border:1px solid var(--ln);border-radius:9px;margin:6px 0;background:var
   <div class=card>
     <b>Run the engine</b>
     <p class=note>The cron ticks every minute in production. Here you can fire it on demand to dispatch every due touchpoint through the consent gate.</p>
-    <div class=row><button onclick=runTick()>▶ Run tick now</button></div>
+    <div class=row><button onclick=runTick()>▶ Run Now</button></div>
     <div style="margin-top:12px"><b>Reps</b> <span class=note>— Ruby warm-transfers to an available rep. Add yourself so a B1 call can bridge to you.</span></div>
     <div class=row style="margin-top:6px">
       <input id=repName placeholder="Rep name" style="max-width:120px">

@@ -48,6 +48,16 @@ async function pickRep(env) {
   ).bind(now, now).first().catch(() => null);
 }
 
+// True if we've already sent an SMS to this lead within `withinMs` — used to collapse
+// colliding text paths (scheduled confirmation vs missed-call text-back) into one.
+async function recentlySentSms(env, leadId, withinMs) {
+  const cutoff = Date.now() - withinMs;
+  const r = await env.DB.prepare(
+    "SELECT 1 x FROM stl_touchpoints WHERE lead_id=? AND channel='sms' AND status='sent' AND completed_at>=? LIMIT 1"
+  ).bind(leadId, cutoff).first().catch(() => null);
+  return !!r;
+}
+
 async function latestMeeting(env, leadId) {
   return await env.DB.prepare(
     "SELECT * FROM stl_meetings WHERE lead_id=? ORDER BY created_at DESC LIMIT 1"
@@ -92,6 +102,15 @@ export async function tick(env, limit = 50) {
     if (stepDef && stepDef.windowed && !t.is_demo && !inWindow(now, t.trade, t.timezone)) {
       const next = nextWindowOpen(now, t.trade, t.timezone);
       await env.DB.prepare("UPDATE stl_touchpoints SET scheduled_for=? WHERE id=?").bind(next, t.id).run();
+      summary.deferred++; continue;
+    }
+
+    // SMS de-dupe: never send two texts to the same lead inside 90s, no matter the
+    // source (a scheduled B2 + a missed-call text-back can otherwise collide when a
+    // backlog drains or the Retell webhook races the tick). Defer, don't drop — the
+    // later text still goes out once the window clears (unless it's since canceled).
+    if (t.channel === "sms" && (await recentlySentSms(env, t.lead_id, 90 * 1000))) {
+      await env.DB.prepare("UPDATE stl_touchpoints SET scheduled_for=? WHERE id=?").bind(now + 90 * 1000, t.id).run();
       summary.deferred++; continue;
     }
 
