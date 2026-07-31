@@ -28,20 +28,21 @@ export async function createLead(env, payload) {
   const leadId = crypto.randomUUID();
   const population = classifyPopulation(payload);
   const isTest = b(payload.is_test);
+  const isDemo = b(payload.is_demo);
 
   await env.DB.prepare(
     `INSERT INTO stl_leads
        (id, created_at, population, status, first_name, last_name, company, trade,
         email, phone, phone_type, timezone, state, ad_source, campaign_id,
-        landing_page, session_id, is_test, updated_at)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+        landing_page, session_id, is_test, is_demo, updated_at)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
   ).bind(
     leadId, now, population, "active",
     payload.first_name || null, payload.last_name || null, payload.company || null,
     (payload.trade || "other"), payload.email || null, payload.phone || null,
     payload.phone_type || null, payload.timezone || "America/Chicago", payload.state || null,
     payload.ad_source || null, payload.campaign_id || null, payload.landing_page || null,
-    payload.session_id || null, isTest, now
+    payload.session_id || null, isTest, isDemo, now
   ).run();
 
   const revokeToken = await addConsentEvent(env, leadId, payload, now);

@@ -120,6 +120,8 @@ const STATEMENTS = [
   `ALTER TABLE stl_reps ADD COLUMN priority INTEGER DEFAULT 100`,
   // Link to the CRM contact this lead was mirrored to (system of record = CRM v2).
   `ALTER TABLE stl_leads ADD COLUMN crm_contact_id TEXT`,
+  // Demo/walk-through leads (compressed ~15-min cadence, windows bypassed).
+  `ALTER TABLE stl_leads ADD COLUMN is_demo INTEGER DEFAULT 0`,
 ];
 
 export async function ensureStlSchema(env) {
