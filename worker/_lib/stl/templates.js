@@ -98,6 +98,11 @@ ${when(ctx)}. Talk then.`,
     text:
 `${first(ctx.lead)} — we're on in an hour: ${link(ctx)}. If you'd rather I just call your cell, say the word.`,
   }),
+  // Chat-to-SMS bridge: visitor asked (in the web chat) for a text instead of a call.
+  CHAT_sms: (ctx) => ({
+    text:
+`Hey ${first(ctx.lead)} — Mack from Consent Resolve, picking up from our chat. Your first 50 leads are on us, then a flat $7 a lead. Reply right here with any questions — a human reads these. Text STOP to opt out.`,
+  }),
 };
 
 function seasonWord() {

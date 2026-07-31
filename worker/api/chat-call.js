@@ -36,12 +36,15 @@ export async function onRequestPost({ request, env, waitUntil }) {
   // called (they typed the request + number into the chat). Record it either way.
   const consented = fromTool ? true : !!(body.consent === true || body.consent === "true");
   if (!consented) {
-    return json({ ok: false, error: "need_consent", message: "I can call you once you okay it above." }, { status: 200 }, cors);
+    return json({ ok: false, error: "need_consent", message: "I can reach out once you okay it above." }, { status: 200 }, cors);
   }
 
+  // call (default) rings them + warm-transfers; text sends an immediate SMS thread.
+  const mode = String(src.mode || body.mode || "call").toLowerCase() === "text" ? "text" : "call";
+  const verb = mode === "text" ? "text" : "call";
   const exact = fromTool
-    ? "Visitor asked Mack (web chat) to call this number and provided it in the conversation."
-    : "Visitor requested a call from the website chat and ticked the call-consent box.";
+    ? `Visitor asked Mack (web chat) to ${verb} this number and provided it in the conversation.`
+    : `Visitor requested a ${verb} from the website chat and ticked the contact-consent box.`;
 
   const payload = {
     kind: "form_submit",
@@ -51,9 +54,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
     phone,
     trade: src.trade || body.trade || "other",
     landing_page: body.landing_page || "/chat",
-    ad_source: "chat", campaign_id: "chat-to-phone",
-    // Regulated-channel consent → Population B; AI voice + human phone + SMS follow-up.
-    consent: { email: !!(src.email || body.email), sms: true, phone_human: true, phone_ai: true, grade: "written", exact_language: exact },
+    ad_source: "chat", campaign_id: mode === "text" ? "chat-to-sms" : "chat-to-phone",
+    // Regulated-channel consent → Population B. SMS always; voice/human only for a call.
+    consent: { email: !!(src.email || body.email), sms: true, phone_human: mode === "call", phone_ai: mode === "call", grade: "written", exact_language: exact },
     // Server-captured provenance wins.
     ip: clientIp(request) || null,
     user_agent: request.headers.get("user-agent") || null,
@@ -65,22 +68,28 @@ export async function onRequestPost({ request, env, waitUntil }) {
     const { leadId, revokeToken } = await createLead(env, payload);
     const lead = await env.DB.prepare("SELECT * FROM stl_leads WHERE id=?").bind(leadId).first();
 
-    // Immediate AI voice call now, plus a human-dial fallback ~3 min later if unanswered.
-    // B1_retell is not window-gated, so a chat-requested call rings right away, any hour.
-    await scheduleLead(env, lead, [
-      { step: "B1_retell", offset: 0,     channel: "call_ai",    actor: "ai",    template: "B1_retell" },
-      { step: "B4_dial",   offset: 3 * 60, channel: "call_human", actor: "human", template: "B4_dial", windowed: true, skipIfTransferred: true },
-    ]);
-    if (lead && lead.phone) await parkRepMatchingPhone(env, lead.phone).catch(() => {});
+    // text: one immediate SMS (replies flow into the CRM Inbox).
+    // call: immediate AI voice call + a human-dial fallback ~3 min later if unanswered.
+    // Neither step is window-gated, so a chat-requested touch fires right away, any hour.
+    const steps = mode === "text"
+      ? [{ step: "CHAT_sms", offset: 0, channel: "sms", actor: "system", template: "CHAT_sms" }]
+      : [
+          { step: "B1_retell", offset: 0,      channel: "call_ai",    actor: "ai",    template: "B1_retell" },
+          { step: "B4_dial",   offset: 3 * 60,  channel: "call_human", actor: "human", template: "B4_dial", windowed: true, skipIfTransferred: true },
+        ];
+    await scheduleLead(env, lead, steps);
+    if (mode === "call" && lead && lead.phone) await parkRepMatchingPhone(env, lead.phone).catch(() => {});
 
-    // Mirror to the CRM (system of record) + fire the tick so the call starts in seconds.
+    // Mirror to the CRM (system of record) + fire the tick so the touch goes out in seconds.
     const jobs = Promise.allSettled([linkLeadToCrm(env, lead), tick(env)]);
     if (waitUntil) waitUntil(jobs); else await jobs;
 
     const origin = env.STL_PUBLIC_ORIGIN || new URL(request.url).origin;
     return json({
-      ok: true, lead_id: leadId, status: "calling",
-      message: "You're all set — Mack is calling you now. Keep your phone handy.",
+      ok: true, lead_id: leadId, mode, status: mode === "text" ? "texting" : "calling",
+      message: mode === "text"
+        ? "Sent — check your phone for a text from Mack. Reply anytime, a human reads them."
+        : "You're all set — Mack is calling you now. Keep your phone handy.",
       revoke_url: revokeToken ? `${origin}/consent/revoke?t=${revokeToken}` : undefined,
     }, {}, cors);
   } catch (e) {

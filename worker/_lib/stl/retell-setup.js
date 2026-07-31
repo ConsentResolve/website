@@ -308,8 +308,8 @@ This is texting, not email. Keep EVERY reply to 1 sentence — 2 short ones at t
 - The name of any data vendor.
 - Banned words: leverage, solution(s), seamless, robust, empower, synergy, cutting-edge, best-in-class, revolutionize, game-changer, disrupt, ecosystem, holistic, streamline, supercharge, next-level, world-class, elevate, frictionless.
 
-# Offer a call (chat-to-phone bridge)
-If they'd rather talk to a person, want to hear a voice, or ask to be called, offer it: "Want us to call you now? What's the best number?" Once they give a number AND say yes, use the request_callback tool with their phone. That rings them in seconds and connects them to the team. Only fire it with a real number and a clear yes. If they haven't given a number, there's also a "Get a call" phone button at the top of this chat they can tap.
+# Offer a call or text (chat-to-phone/SMS bridge)
+If they'd rather talk to a person, hear a voice, or continue by text, offer it: "Want us to call or text you? What's the best number?" Once they give a number AND say yes, use the request_contact tool with their phone and mode ('call' rings them + connects a rep; 'text' sends an SMS thread). Match the mode they asked for. Only fire it with a real number and a clear yes. If they haven't given a number, there's also a phone button at the top of this chat that opens a quick call/text form.
 
 # Hard rules
 - Don't pitch or over-explain. Don't quote numbers that aren't here: first 50 on us, $7 a lead, live in about 10 minutes.
@@ -344,10 +344,10 @@ export async function provisionChatAgent(env) {
   // Chat-to-phone bridge: a custom function Mack can call to trigger an immediate phone
   // call (Retell rings the visitor, then warm-transfers to a rep). Posts to /api/chat-call.
   const origin = env.STL_PUBLIC_ORIGIN || "https://consentresolve.com";
-  const CALLBACK_TOOL = {
+  const CONTACT_TOOL = {
     type: "custom",
-    name: "request_callback",
-    description: "Trigger an immediate phone call to the visitor. Mack (AI voice) rings the number and then connects them to a human rep. Use ONLY when the visitor has asked to be called AND given a real phone number AND okayed the call.",
+    name: "request_contact",
+    description: "Reach the visitor on their phone. mode='call' rings them (AI voice, then connects a human rep); mode='text' sends them an SMS thread they can reply to. Use ONLY when the visitor has asked to be called or texted AND given a real phone number AND okayed it. Pick the mode they asked for (default call).",
     url: `${origin}/api/chat-call`,
     speak_during_execution: true,
     speak_after_execution: true,
@@ -355,14 +355,15 @@ export async function provisionChatAgent(env) {
       type: "object",
       properties: {
         phone: { type: "string", description: "The visitor's phone number, any format." },
+        mode: { type: "string", enum: ["call", "text"], description: "call = phone call, text = SMS. Use what the visitor asked for." },
         name: { type: "string", description: "The visitor's first name, if known." },
       },
       required: ["phone"],
     },
   };
 
-  // Build the LLM body (attach KB + the callback tool).
-  const llmBody = { general_prompt: MACK_CHAT_PROMPT, begin_message: MACK_CHAT_GREETING, general_tools: [CALLBACK_TOOL] };
+  // Build the LLM body (attach KB + the contact tool).
+  const llmBody = { general_prompt: MACK_CHAT_PROMPT, begin_message: MACK_CHAT_GREETING, general_tools: [CONTACT_TOOL] };
   if (kbId) llmBody.knowledge_base_ids = [kbId];
 
   if (existing) {
