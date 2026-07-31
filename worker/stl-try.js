@@ -42,7 +42,7 @@ button{margin-top:16px;width:100%;background:var(--ac);color:#04120b;border:0;bo
   </div>
   <div class=row2>
     <div><label>Email (real)</label><input id=email type=email placeholder="you@company.com"></div>
-    <div><label>Mobile (real, E.164)</label><input id=phone placeholder="+17135551234"></div>
+    <div><label>Mobile (real, any format)</label><input id=phone inputmode="tel" placeholder="(713) 555-1234"></div>
   </div>
   <div class=row2>
     <div><label>Trade</label><select id=trade><option>roofing</option><option>plumbing</option><option>hvac</option><option>electrical</option><option>other</option></select></div>
@@ -69,7 +69,7 @@ button{margin-top:16px;width:100%;background:var(--ac);color:#04120b;border:0;bo
 function go(e){e.preventDefault();
   var g=function(id){return document.getElementById(id);};
   var out=g('out'), phone=g('phone').value.trim();
-  if(!/^\\+?[0-9]{10,15}$/.test(phone.replace(/[^0-9+]/g,''))){ out.className='out err'; out.textContent='Add a real mobile in E.164 format (e.g. +17135551234) so Ruby can call you.'; return false; }
+  if(phone.replace(/[^0-9]/g,'').length<10){ out.className='out err'; out.textContent='Add a real 10-digit mobile so Ruby can call you.'; return false; }
   var q=new URLSearchParams(location.search);
   var consent={email:g('c_email').checked,sms:g('c_sms').checked,phone_human:g('c_hum').checked,phone_ai:g('c_ai').checked,grade:'written',exact_language:'Team walk-through demo — email/SMS/call/AI consents.'};
   var body={kind:'form_submit',is_demo:true,first_name:g('first').value||'Demo',company:g('company').value,email:g('email').value,phone:phone,trade:g('trade').value,state:g('state').value,landing_page:'/try',ad_source:q.get('utm_source')||'demo',utm_campaign:q.get('utm_campaign')||'team-walkthrough',consent:consent};

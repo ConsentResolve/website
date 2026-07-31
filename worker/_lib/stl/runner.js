@@ -12,6 +12,7 @@ import { renderTemplate } from "./templates.js";
 import { addConsentEvent, classifyPopulation, logEvent } from "./classifier.js";
 import { getSettings } from "./settings.js";
 import { mirrorTouchpoint } from "./crm-bridge.js";
+import { toE164 } from "../phone.js";
 
 const uid = () => crypto.randomUUID();
 
@@ -164,6 +165,25 @@ async function setStatus(env, tpId, status, fields = {}) {
   for (const [k, v] of Object.entries(fields)) { cols.push(`${k}=?`); vals.push(v); }
   vals.push(tpId);
   await env.DB.prepare(`UPDATE stl_touchpoints SET ${cols.join(", ")} WHERE id=?`).bind(...vals).run();
+}
+
+// Testing safety valve: if a lead's phone matches a rep's, that rep is almost certainly
+// the person running the test — park them OFFLINE for 30 min so Ruby's transfer doesn't
+// dial the same phone that's already on the call. Auto-returns after 30 min.
+export async function parkRepMatchingPhone(env, phone) {
+  try {
+    const p = toE164(phone) || phone;
+    if (!p) return null;
+    const rep = await env.DB.prepare("SELECT id, name FROM stl_reps WHERE phone=?").bind(p).first().catch(() => null);
+    if (!rep) return null;
+    const now = Date.now();
+    await env.DB.prepare("DELETE FROM stl_rep_availability WHERE rep_id=?").bind(rep.id).run().catch(() => {});
+    // Available again 30 min from now → effectively away for the next 30 minutes.
+    await env.DB.prepare("INSERT INTO stl_rep_availability (id, rep_id, starts_at, ends_at, state) VALUES (?,?,?,?, 'available')")
+      .bind(uid(), rep.id, now + 30 * 60 * 1000, now + 365 * 86400000).run().catch(() => {});
+    await logEvent(env, null, "rep_parked_for_test", { rep: rep.name, phone: p });
+    return { parked: rep.name };
+  } catch (_) { return null; }
 }
 
 // Missed-dial text-back: when a call goes unanswered, text the lead from our number.

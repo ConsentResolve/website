@@ -3,9 +3,10 @@
 // down the sequence. Nothing is dispatched here; the cron tick executes the cadence.
 import { json, corsHeaders, clientIp } from "../_lib/http.js";
 import { createLead } from "../_lib/stl/classifier.js";
-import { scheduleLead } from "../_lib/stl/runner.js";
+import { scheduleLead, parkRepMatchingPhone } from "../_lib/stl/runner.js";
 import { backfillPhoneType } from "../_lib/stl/twilio.js";
 import { linkLeadToCrm } from "../_lib/stl/crm-bridge.js";
+import { toE164 } from "../_lib/phone.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -24,11 +25,15 @@ export async function onRequestPost({ request, env, waitUntil }) {
   // UTM / source attribution → ad_source + campaign_id (feeds by-source ROAS).
   if (!body.ad_source && body.utm_source) body.ad_source = String(body.utm_source).slice(0, 40);
   if (!body.campaign_id && body.utm_campaign) body.campaign_id = String(body.utm_campaign).slice(0, 80);
+  // Normalize any human-entered phone to E.164 (accepts any format).
+  if (body.phone) body.phone = toE164(body.phone) || body.phone;
 
   try {
     const { leadId, population, revokeToken } = await createLead(env, body);
     const lead = await env.DB.prepare("SELECT * FROM stl_leads WHERE id=?").bind(leadId).first();
     await scheduleLead(env, lead);
+    // If this phone belongs to a rep (they're testing on themselves), park them 30 min.
+    if (lead && lead.phone) await parkRepMatchingPhone(env, lead.phone).catch(() => {});
     // Mirror into the CRM (system of record): contact/company + Inbox conversation.
     const crmJob = linkLeadToCrm(env, lead).catch(() => {});
     if (waitUntil) waitUntil(crmJob); else await crmJob;

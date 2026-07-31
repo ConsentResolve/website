@@ -7,8 +7,9 @@ import { crmAuthed } from "../_lib/crm.js";
 import { ensureStlSchema } from "../_lib/stl/schema.js";
 import { getSettings, setSetting, DEFAULTS } from "../_lib/stl/settings.js";
 import { createLead } from "../_lib/stl/classifier.js";
-import { scheduleLead, tick, revoke, maybeTextbackOnNoAnswer } from "../_lib/stl/runner.js";
+import { scheduleLead, tick, revoke, maybeTextbackOnNoAnswer, parkRepMatchingPhone } from "../_lib/stl/runner.js";
 import { linkLeadToCrm } from "../_lib/stl/crm-bridge.js";
+import { toE164 } from "../_lib/phone.js";
 import { provisionRuby, listRetellNumbers } from "../_lib/stl/retell-setup.js";
 import { twilioStatus, sendTestSms, listTwilioNumbers, findNumberOwner, messageStatus, listMessagingServices, attachNumberToService, setupCascadeNumber, createSipTrunk, addSipOrigination } from "../_lib/stl/twilio.js";
 
@@ -125,11 +126,13 @@ export async function onRequestPost({ request, env }) {
     if (action === "inject") {
       // Build a test lead payload. Population B if consent.* set, else A.
       const p = { ...(body.lead || {}), is_test: true };
+      if (p.phone) p.phone = toE164(p.phone) || p.phone;
       if (body.population === "B" && !p.consent) p.consent = { email: true, sms: true, phone_human: true, phone_ai: true, grade: "written" };
       p.kind = p.kind || (body.population === "B" ? "form_submit" : "cookie_banner");
       const { leadId, population, revokeToken } = await createLead(env, p);
       const lead = await env.DB.prepare("SELECT * FROM stl_leads WHERE id=?").bind(leadId).first();
       await scheduleLead(env, lead);
+      if (lead && lead.phone) await parkRepMatchingPhone(env, lead.phone).catch(() => {});
       await linkLeadToCrm(env, lead).catch(() => {});
       return json({ ok: true, lead_id: leadId, population, revoke_token: revokeToken }, {}, cors);
     }
