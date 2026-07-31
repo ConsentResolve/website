@@ -186,29 +186,13 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       })(window, document, "clarity", "script", "vgfli9rxb5");
     </script>
 
-    <!-- Crisp live chat — CONSENT-GATED via ConsentResolve/Usercentrics autoblocker:
-         type=text/plain keeps it inert until the user consents to the "Crisp Chat" service.
-         data-usercentrics MUST match the EXACT service name in the CMP/Termageddon
-         ("Crisp Chat"), or the chat stays blocked forever. Consistent with consent-first. -->
-    <script is:inline type="text/plain" data-usercentrics="Crisp Chat">window.$crisp=[];window.CRISP_WEBSITE_ID="0f8e9b05-1b94-4781-904d-2abef252374d";
-      /* Debug panel (append ?crispdebug=1) — surfaces each pre-fill step on-screen + console. */
-      var _DBG=/[?&]crispdebug=1/.test(location.search);
-      function _dbg(m){if(!_DBG)return;try{console.log("[crispdebug]",m);var el=document.getElementById("__crispdbg");if(!el&&document.body){el=document.createElement("div");el.id="__crispdbg";el.style.cssText="position:fixed;z-index:2147483647;left:8px;bottom:8px;max-width:380px;background:#0b1220;color:#5cff9d;font:12px/1.4 monospace;padding:10px;border-radius:8px;white-space:pre-wrap;box-shadow:0 8px 30px rgba(0,0,0,.4)";document.body.appendChild(el);}if(el)el.textContent+=m+"\n";}catch(_){}}
-      /* Crisp loader — deferred so any identity is set BEFORE the chatbox boots (Crisp only pre-fills from user:email if set before load). */
-      /* No default launcher bubble — chat is opened only from our own "Chat with us" controls (window.crOpenChat). Hide on load, and re-hide whenever the visitor closes the box. */
-      window.$crisp.push(["do","chat:hide"]);
-      if(!window.__crHideWired){window.__crHideWired=1;window.$crisp.push(["on","chat:closed",function(){window.$crisp.push(["do","chat:hide"]);}]);}
-      function _loadCrisp(){if(window.__crispLoaded)return;window.__crispLoaded=1;_dbg("loadCrisp()");var d=document,s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);if(_DBG)setTimeout(function(){try{_dbg("after 1.6s: $crisp.get(user:email)="+(window.$crisp.get?JSON.stringify(window.$crisp.get("user:email")):"no get()"));}catch(e){_dbg("get err "+e);}},1600);}
-      _dbg("block ran (post-consent)");
-      /* Pre-fill from a prior first-party identity (cr_id), set synchronously before load. Consent-gated: this whole block only runs post-consent. */
-      var _raw=(document.cookie.match(/(?:^|;\s*)cr_id=([^;]+)/)||[])[1];
-      try{if(_raw){var _d=JSON.parse(decodeURIComponent(_raw));if(_d&&_d.e)window.$crisp.push(["set","user:email",[_d.e]]);if(_d&&_d.n)window.$crisp.push(["set","user:nickname",[_d.n]]);}}catch(e){}
-      /* On email entry: remember it (pre-fill next time) + stitch cr_vid -> contact. */
-      window.$crisp.push(["on","user:email",function(em){try{var nm="";try{nm=window.$crisp.get("user:nickname")||"";}catch(_){}document.cookie="cr_id="+encodeURIComponent(JSON.stringify({n:nm,e:em}))+"; Path=/; Max-Age=15552000; SameSite=Lax";var vid=(document.cookie.match(/(?:^|;\s*)cr_vid=([^;]+)/)||[])[1]||"";if(vid){var s=JSON.stringify({vid:vid,email:em,name:nm});if(navigator.sendBeacon){navigator.sendBeacon("/api/identify",new Blob([s],{type:"application/json"}));}else{fetch("/api/identify",{method:"POST",headers:{"Content-Type":"application/json"},body:s,keepalive:true});}}}catch(e){}}]);
-      /* Cold-email link carried an opaque token (?ld=): resolve it server-side (email NEVER in the URL), set the email, THEN load Crisp so the pre-chat form is pre-filled. Fallback loads the chat anyway if the lookup is slow/fails. */
-      var _ld=(location.search.match(/[?&]ld=([^&]+)/)||[])[1];
-      _dbg("cr_id="+(_raw?"present":"none")+" | ld="+(_ld||"none"));
-      if(_ld&&!_raw){var _done=false,_go=function(t){if(_done)return;_done=true;_dbg("boot via "+t);_loadCrisp();};fetch("/api/lead-prefill?ld="+encodeURIComponent(_ld)).then(function(r){_dbg("resolve http "+r.status);return r.json();}).then(function(d){_dbg("resolve ok="+(d&&d.ok)+" e="+(d&&d.e));if(d&&d.ok&&d.e){window.$crisp.push(["set","user:email",[d.e]]);if(d.n)window.$crisp.push(["set","user:nickname",[d.n]]);document.cookie="cr_id="+encodeURIComponent(JSON.stringify({n:d.n||"",e:d.e}))+"; Path=/; Max-Age=15552000; SameSite=Lax";_dbg("pushed user:email="+d.e);}_go("resolve");}).catch(function(e){_dbg("fetch err "+e);_go("catch");});setTimeout(function(){_go("timeout")},2500);}else{_dbg("no-ld path -> load now");_loadCrisp();}</script>
+    <!-- Retell AI chat (Mack) — CONSENT-GATED via ConsentResolve/Usercentrics autoblocker:
+         type=text/plain keeps it inert until the visitor consents to the "Retell Chat"
+         service. data-usercentrics MUST match the EXACT service name configured in the CMP
+         ("Retell Chat"), or the chat stays blocked forever — same requirement Crisp had.
+         On consent, the autoblocker executes this inline script, which injects the widget
+         (public + chat-agent keys are publishable, safe in the client). -->
+    <script is:inline type="text/plain" data-usercentrics="Retell Chat">(function(){try{if(window.__retellChatLoaded)return;window.__retellChatLoaded=1;var s=document.createElement("script");s.id="retell-widget";s.type="module";s.src="https://dashboard.retellai.com/retell-widget-v2.js";s.setAttribute("data-public-key","public_key_c635ded46e18e33c6b219");s.setAttribute("data-agent-id","agent_53dfb7733266901d4989695004");if(window.__retellOpenOnLoad)s.setAttribute("data-auto-open","true");(document.head||document.getElementsByTagName("head")[0]).appendChild(s);}catch(e){}})();</script>
 
     <!-- Conversion tracking helper. ONE call site for every ad-measurable action so
          campaigns have something to optimize toward besides PageView (which was all
@@ -231,12 +215,12 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       })();
     </script>
 
-    <!-- Non-gated Crisp opener used by our own "Chat with us" controls.
-         Clicking a chat button is explicit, user-initiated intent, so we boot
-         Crisp on demand if the consent-gated passive load hasn't already. Then
-         show + open the chatbox. The launcher bubble stays suppressed (re-hidden
-         on close). mailto is only a last-resort fallback if injection throws. -->
-    <script is:inline>window.crOpenChat=function(){try{if(!window.$crisp){window.$crisp=[];window.CRISP_WEBSITE_ID="0f8e9b05-1b94-4781-904d-2abef252374d";}if(!window.__crHideWired){window.__crHideWired=1;window.$crisp.push(["on","chat:closed",function(){window.$crisp.push(["do","chat:hide"]);}]);}if(!window.__crispLoaded){window.__crispLoaded=1;var d=document,s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;(d.head||d.getElementsByTagName("head")[0]).appendChild(s);}window.$crisp.push(["do","chat:show"]);window.$crisp.push(["do","chat:open"]);}catch(e){try{window.location.href="mailto:hello@consentresolve.com";}catch(_){}}};</script>
+    <!-- Chat opener used by our own "Chat with us" / "Chat with Tyler" controls.
+         Clicking is explicit intent: prompt the CMP so the consent-gated loader boots
+         Mack (Retell) and auto-opens; if Mack is already booted, open his launcher.
+         After ~5s with no CMP response, boot on the explicit intent. mailto is the
+         last-resort fallback. -->
+    <script is:inline>window.crOpenChat=function(){try{var PK="public_key_c635ded46e18e33c6b219",AID="agent_53dfb7733266901d4989695004";function clickFab(){var b=document.querySelector('#retell-widget-fab,[class*="retell"] [class*="fab"],[class*="retell"] button');if(b){b.click();return true;}return false;}function boot(open){if(window.__retellChatLoaded)return;window.__retellChatLoaded=1;var s=document.createElement("script");s.id="retell-widget";s.type="module";s.src="https://dashboard.retellai.com/retell-widget-v2.js";s.setAttribute("data-public-key",PK);s.setAttribute("data-agent-id",AID);if(open)s.setAttribute("data-auto-open","true");(document.head||document.getElementsByTagName("head")[0]).appendChild(s);}if(window.__retellChatLoaded){var n=0,iv=setInterval(function(){if(clickFab()||++n>24)clearInterval(iv);},250);return;}window.__retellOpenOnLoad=true;try{if(window.ConsentResolve&&ConsentResolve.showBanner)ConsentResolve.showBanner();else if(window.UC_UI&&UC_UI.showFirstLayer)UC_UI.showFirstLayer();}catch(e){}var t=0,ivb=setInterval(function(){if(window.__retellChatLoaded){clearInterval(ivb);var m=0,iv2=setInterval(function(){if(clickFab()||++m>24)clearInterval(iv2);},250);return;}if(++t>10){clearInterval(ivb);boot(true);}},500);}catch(e){try{window.location.href="mailto:hello@consentresolve.com";}catch(_){}}};</script>
   </head>
   <body class="bg-[color:var(--color-bg)] text-[color:var(--color-ink)]">
     <a href="#main" class="skip-link">Skip to content</a>

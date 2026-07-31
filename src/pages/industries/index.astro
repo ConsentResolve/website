@@ -433,24 +433,9 @@ const demoSlug = "water-heater-replacement";
   })();
 </script>
 
-<!-- Chat with Tyler: opens Crisp if consent is given; if the visitor previously declined the
-     cookie/consent banner (so Crisp never loaded), it re-prompts the banner and opens the chat
-     once they accept. -->
-<script is:inline>
-  function crOpenChat() {
-    if (window.$crisp) { try { window.$crisp.push(["do", "chat:open"]); return; } catch (e) {} }
-    try {
-      if (window.ConsentResolve && ConsentResolve.showBanner) ConsentResolve.showBanner();
-      else if (window.UC_UI && UC_UI.showFirstLayer) UC_UI.showFirstLayer();
-    } catch (e) {}
-    var tries = 0;
-    var iv = setInterval(function () {
-      tries++;
-      if (window.$crisp) { try { window.$crisp.push(["do", "chat:open"]); } catch (e) {} clearInterval(iv); }
-      else if (tries > 30) clearInterval(iv);
-    }, 500);
-  }
-</script>
+<!-- "Chat with Tyler" uses the global window.crOpenChat (Retell/Mack) from BaseLayout,
+     which prompts the CMP and opens the consent-gated chat. No page-local override. -->
+
 
 <style>
   /* Big flashing arrow that "slams in" over the trade selector, then keeps flashing. */

@@ -493,25 +493,9 @@ const HERO_ANGLES: Record<string, string> = {
       document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeM(); });
     })();
   </script>
-  <!-- Chat with Tyler: open Crisp if consent is given; otherwise re-present the consent
-       banner, then open the chat once the user accepts and Crisp loads. -->
-  <script is:inline>
-    function crOpenChat() {
-      if (window.$crisp) { try { window.$crisp.push(["do", "chat:open"]); return; } catch (e) {} }
-      // Crisp is consent-gated and not loaded → re-show the consent banner.
-      try {
-        if (window.ConsentResolve && ConsentResolve.showBanner) ConsentResolve.showBanner();
-        else if (window.UC_UI && UC_UI.showFirstLayer) UC_UI.showFirstLayer();
-      } catch (e) {}
-      // If they accept, Crisp loads shortly after — open the chat once it's ready (~15s max).
-      var tries = 0;
-      var iv = setInterval(function () {
-        tries++;
-        if (window.$crisp) { try { window.$crisp.push(["do", "chat:open"]); } catch (e) {} clearInterval(iv); }
-        else if (tries > 30) clearInterval(iv);
-      }, 500);
-    }
-  </script>
+  <!-- "Chat with Tyler" uses the global window.crOpenChat (Retell/Mack) from BaseLayout,
+       which prompts the CMP and opens the consent-gated chat. No page-local override. -->
+
 </BaseLayout>
 
 <!-- Message match + Instantly named personalization. Reads the ad/email link params:
