@@ -195,7 +195,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
          (crRetellReady), so clicking a chat control never flashes Retell's default icon.
          On mobile, neutralize any filter on the root — filter creates a containing block
          that would otherwise stop the full-screen window from pinning to the viewport. -->
-    <style is:inline>#retell-widget-root{opacity:0}#retell-widget-root.cr-ready{opacity:1;transition:opacity .16s ease}@media (max-width:640px){#retell-widget-root{filter:none!important}#retell-widget-root:not(.cr-ready){bottom:76px!important}}</style>
+    <style is:inline>#retell-widget-root{opacity:0}#retell-widget-root.cr-ready{opacity:1;transition:opacity .16s ease}@media (max-width:640px){#retell-widget-root{filter:none!important}#retell-widget-root:not(.cr-ready){bottom:76px!important}html.cr-chat-open,html.cr-chat-open body{overflow:hidden!important;height:100%!important;overscroll-behavior:none!important}}</style>
     <!-- Shared Retell config + boot helper (NOT gated — only defines functions, loads
          nothing). Branded: navy panel, mint accents, "Mack" avatar. data-white-label is
          omitted — add it here once Retell issues a token to hide "Powered by Retell". -->
@@ -249,7 +249,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         +':host(.cr-holding) [class*="_messages_"] > [class*="_agentGroup_"]:nth-last-child(2){display:none!important}'
         // Mobile: full-screen panel that slides up from the bottom, with safe-area insets;
         // hide the launcher while the window is open so it doesn't float over the input.
-        +'@media (max-width:640px){@keyframes crPop{from{opacity:.5;transform:translateY(100%)}to{opacity:1;transform:none}}[class*="_window_"]{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;border-radius:0!important;transform-origin:bottom!important;animation:crPop .3s cubic-bezier(0.32,0.72,0,1) both!important}[class*="_header_"]{padding-top:calc(14px + env(safe-area-inset-top))!important;border-radius:0!important}[class*="_inputRow_"]{padding-bottom:calc(14px + env(safe-area-inset-bottom))!important}[class*="_fabChat"],[class*="_fabWrap"]{display:none!important}}'
+        +'@media (max-width:640px){@keyframes crPop{from{opacity:.5;transform:translateY(100%)}to{opacity:1;transform:none}}[class*="_window_"]{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:auto!important;width:100vw!important;height:var(--cr-vh,100dvh)!important;max-width:none!important;max-height:none!important;border-radius:0!important;transform-origin:bottom!important;animation:crPop .3s cubic-bezier(0.32,0.72,0,1) both!important}[class*="_header_"]{padding-top:calc(14px + env(safe-area-inset-top))!important;border-radius:0!important}[class*="_inputRow_"]{padding-bottom:calc(14px + env(safe-area-inset-bottom))!important}[class*="_fabChat"],[class*="_fabWrap"]{display:none!important}}'
         +'@media (prefers-reduced-motion:reduce){[class*="_window_"],[class*="_message_"],.cr-typing{animation:none!important}.cr-typing i{animation:none!important}[class*="_fabChat"],[class*="_closeButton_"],[class*="_sendButton"]{transition:none!important}[class*="_fabChat"]:active,[class*="_closeButton_"]:active,[class*="_sendButton"]:active{transform:none!important}}';
       // Restyle + inject Mack's identity header + a "typing…" beat before the first greeting.
       // Runs against the OPEN shadow root; hides the greeting via a class on the light-DOM
@@ -278,8 +278,14 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
             if(host.classList.contains("cr-holding")){var t=m.querySelector(".cr-convo");if(t&&m.lastElementChild!==t)m.appendChild(t);} // keep dots last so the reply is :nth-last-child(2)
           });
           mo.observe(m,{childList:true,subtree:true});}
-        ident();firstTyping();convo();
-        if(!host.__crObs){host.__crObs=new MutationObserver(function(){ident();firstTyping();convo();});host.__crObs.observe(sr,{childList:true,subtree:true});}
+        // While the mobile full-screen chat is open, lock the page (no background scroll/
+        // slide) and size the window to the VISUAL viewport so the keyboard never covers
+        // the input. Toggled off on close.
+        function lock(){var de=document.documentElement;var open=!!sr.querySelector('[class*="_windowOpen_"]');de.classList.toggle("cr-chat-open",open);
+          if(open){if(!window.__crVV&&window.visualViewport){window.__crVV=function(){de.style.setProperty("--cr-vh",window.visualViewport.height+"px");};window.visualViewport.addEventListener("resize",window.__crVV);window.visualViewport.addEventListener("scroll",window.__crVV);window.__crVV();}}
+          else{if(window.__crVV&&window.visualViewport){window.visualViewport.removeEventListener("resize",window.__crVV);window.visualViewport.removeEventListener("scroll",window.__crVV);window.__crVV=null;}de.style.removeProperty("--cr-vh");}}
+        ident();firstTyping();convo();lock();
+        if(!host.__crObs){host.__crObs=new MutationObserver(function(){ident();firstTyping();convo();lock();});host.__crObs.observe(sr,{childList:true,subtree:true});}
         return true;
       }catch(e){return false;}};
       window.__retellBoot=function(open){try{if(window.__retellChatLoaded)return;window.__retellChatLoaded=1;var s=document.createElement("script");s.id="retell-widget";s.type="module";s.src="https://dashboard.retellai.com/retell-widget-v2.js";var A=window.__retellCfg;for(var k in A)s.setAttribute(k,A[k]);if(open)s.setAttribute("data-auto-open","true");(document.head||document.getElementsByTagName("head")[0]).appendChild(s);var p=0,pi=setInterval(function(){if(window.__retellEnhance()||++p>100)clearInterval(pi);},120);setTimeout(function(){var r=document.getElementById("retell-widget-root");if(r)r.classList.add("cr-ready");},2500);}catch(e){}};
