@@ -202,7 +202,13 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         "data-title":"Chat with Mack","data-bot-name":"Mack","data-fab-text":"Chat with us",
         "data-theme-color":"#0e1c2e","data-component-color":"#00e5a0",
         "data-logo-url":"https://consentresolve.com/apple-touch-icon.png"};
-      window.__retellBoot=function(open){try{if(window.__retellChatLoaded)return;window.__retellChatLoaded=1;var s=document.createElement("script");s.id="retell-widget";s.type="module";s.src="https://dashboard.retellai.com/retell-widget-v2.js";var A=window.__retellCfg;for(var k in A)s.setAttribute(k,A[k]);if(open)s.setAttribute("data-auto-open","true");(document.head||document.getElementsByTagName("head")[0]).appendChild(s);}catch(e){}};
+      // Injected into the widget's OPEN shadow root to override styles Retell's data-attrs
+      // can't reach. Class hashes can change on Retell updates, so target stable prefixes.
+      window.__retellCSS=":host{--font-family:'Inter',-apple-system,system-ui,sans-serif}"
+        +'[class*="_window_"]{max-height:min(640px,calc(100dvh - 104px))!important;height:auto!important}'
+        +'[class*="_conversationPanel_"]{overflow-y:auto!important}';
+      window.__retellStyle=function(){try{var host=null;document.querySelectorAll("*").forEach(function(el){if(!host&&el.shadowRoot&&el.shadowRoot.querySelector('[class*="_fab"],button[aria-label*="Assistant" i]'))host=el;});if(!host)return false;var sr=host.shadowRoot;if(sr.getElementById("cr-retell-style"))return true;var st=document.createElement("style");st.id="cr-retell-style";st.textContent=window.__retellCSS;sr.appendChild(st);return true;}catch(e){return false;}};
+      window.__retellBoot=function(open){try{if(window.__retellChatLoaded)return;window.__retellChatLoaded=1;var s=document.createElement("script");s.id="retell-widget";s.type="module";s.src="https://dashboard.retellai.com/retell-widget-v2.js";var A=window.__retellCfg;for(var k in A)s.setAttribute(k,A[k]);if(open)s.setAttribute("data-auto-open","true");(document.head||document.getElementsByTagName("head")[0]).appendChild(s);var p=0,pi=setInterval(function(){if(window.__retellStyle()||++p>60)clearInterval(pi);},250);}catch(e){}};
       // Open Mack's launcher — his FAB lives in an OPEN shadow root (verified), so we can
       // click it. If he isn't booted yet, an explicit click is intent to chat: boot + open.
       window.crRetellOpen=function(){var f=null;try{document.querySelectorAll("*").forEach(function(el){if(!f&&el.shadowRoot){var b=el.shadowRoot.querySelector('button[aria-label="Open Assistant"],button[aria-label*="Assistant" i]');if(b)f=b;}});}catch(e){}if(f){f.click();return true;}return false;};
