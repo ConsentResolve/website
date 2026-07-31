@@ -149,3 +149,61 @@ export async function mirrorInboundCall(env, call, eventName) {
     return { ok: true, contactId, conversationId: convId, logged_new: !ins.existed };
   } catch (e) { return { ok: false, error: String(e).slice(0, 140) }; }
 }
+
+// Inbound SMS answered by Retell's chat/SMS agent → CRM. When "Add an inbound webhook" is
+// enabled on the Inbound SMS agent, Retell posts a chat_* event to the same webhook. The
+// payload carries a `chat` object (not `call`), and Retell can label the customer's number
+// a few different ways for SMS, so parse defensively. One CRM message per chat session
+// (deduped on chat_id), updated as the thread continues. Returns the matched phone/text so
+// the webhook layer can honor STOP.
+export async function mirrorInboundSmsRetell(env, ev) {
+  try {
+    await ensureCrmV2Schema(env); await ensureRebuildSchema(env);
+    const chat = ev.chat || ev.data || ev || {};
+    const chatId = chat.chat_id || chat.id || ev.chat_id || null;
+    const fromRaw = chat.customer_number || chat.from_number || chat.phone_number || chat.from
+      || (chat.metadata && (chat.metadata.from_number || chat.metadata.phone)) || ev.from_number || "";
+    const np = normPhone(fromRaw);
+    if (np.length < 10) return { ok: false, skipped: "no_from" };
+
+    // Assemble a readable transcript + the latest inbound (customer) line.
+    const msgs = chat.message_with_tool_calls || chat.messages || chat.transcript_object || [];
+    let transcript = typeof chat.transcript === "string" ? chat.transcript : "";
+    let lastUser = "";
+    if (Array.isArray(msgs) && msgs.length) {
+      const norm = msgs.map((m) => ({ role: String(m.role || m.author || "").toLowerCase(), content: m.content || m.message || m.text || "" })).filter((m) => m.content);
+      if (!transcript) transcript = norm.map((m) => `${/agent|assistant|bot/.test(m.role) ? "Mack" : "Them"}: ${m.content}`).join("\n");
+      const users = norm.filter((m) => /user|customer|human/.test(m.role));
+      if (users.length) lastUser = users[users.length - 1].content;
+    }
+    const summary = (chat.chat_analysis || {}).chat_summary || "";
+    if (!transcript && !lastUser && !summary) return { ok: true, skipped: "no_content", from: fromRaw || np };
+
+    let contactId = null;
+    const idr = await env.DB.prepare("SELECT contact_id FROM contact_identifiers WHERE type='phone' AND value=?").bind(np).first().catch(() => null);
+    if (idr) contactId = idr.contact_id;
+    else contactId = await findOrCreateContactByIdentifier(env, "phone", np, { source: "inbound_sms" });
+    if (!contactId) return { ok: false, error: "no_contact" };
+    const c = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first().catch(() => null);
+    const companyId = c ? c.company_id : null;
+
+    const now = nowIso();
+    const convId = await upsertConversationByThread(env, {
+      channel: "sms", externalThreadId: "sms:" + np, contactId, companyId,
+      subject: "💬 SMS — " + (fromRaw || np), incoming: true, lastAt: now,
+      preview: "💬 " + String(lastUser || summary || transcript || "SMS").slice(0, 90),
+    });
+
+    const lines = ["💬 Inbound SMS — Mack (AI) is replying", `From ${fromRaw || np}`];
+    if (summary) lines.push("", summary);
+    if (transcript) lines.push("", transcript);
+    else if (lastUser) lines.push("", "Them: " + lastUser);
+    const bodyText = lines.join("\n");
+
+    const extId = "retell-sms:" + (chatId || np + ":session");
+    const ins = await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: "sms", externalMessageId: extId, bodyText, sentAt: now });
+    if (ins.existed) await env.DB.prepare("UPDATE messages SET body_text=? WHERE external_message_id=?").bind(bodyText, extId).run().catch(() => {});
+    await logEvent(env, { type: "replied", contactId, companyId, conversationId: convId, channel: "sms", source: "inbound_sms", meta: { chat_id: chatId, from: fromRaw || np, via: "retell_sms" } });
+    return { ok: true, contactId, conversationId: convId, from: fromRaw || np, text: lastUser };
+  } catch (e) { return { ok: false, error: String(e).slice(0, 140) }; }
+}

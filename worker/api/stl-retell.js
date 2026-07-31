@@ -6,13 +6,16 @@ import { ensureStlSchema } from "../_lib/stl/schema.js";
 import { logEvent } from "../_lib/stl/classifier.js";
 import { alert } from "../_lib/stl/adapters.js";
 import { verifyHmac } from "../_lib/stl/verify.js";
-import { mirrorInboundCall } from "../_lib/stl/crm-bridge.js";
+import { mirrorInboundCall, mirrorInboundSmsRetell } from "../_lib/stl/crm-bridge.js";
+import { revoke } from "../_lib/stl/runner.js";
 import { json } from "../_lib/http.js";
 
 // The agent must identify as an AI AND by name. Any transcript missing either is a P1.
 // The name is read from env (STL_AGENT_NAME, default "Mack") so renaming the agent never
 // silently fails the disclosure check.
 const DISCLOSURE_RE = /\b(a[n]?\s+)?(ai|artificial intelligence)\b/i;
+// STOP-equivalents — mirror of the set the Twilio inbound handler honors.
+const STOP_RE = /\b(stop|stopall|unsubscribe|cancel|end|quit|remove me|opt ?out|don'?t (text|call|contact)( me)?)\b/i;
 const agentNameRe = (env) => {
   const n = String((env && env.STL_AGENT_NAME) || "Mack").trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return new RegExp(`\\b${n}\\b`, "i");
@@ -26,6 +29,20 @@ export async function onRequestPost({ request, env }) {
   }
   let ev = {};
   try { ev = raw ? JSON.parse(raw) : {}; } catch (_) { return json({ ok: false }, { status: 400 }); }
+
+  // Retell's chat/SMS agent posts chat_* events to this same webhook. Mirror inbound SMS
+  // into the CRM (separate payload shape from calls — a `chat` object, not `call`).
+  if (ev.chat || /chat|sms/i.test(String(ev.event || ev.event_type || ""))) {
+    const r = await mirrorInboundSmsRetell(env, ev).catch((e) => ({ ok: false, error: String(e).slice(0, 140) }));
+    // Honor STOP-equivalents even though the text was handled by Retell, so our engine
+    // also marks the lead opted-out (Twilio's Messaging Service opt-out blocks sends too).
+    if (r && r.text && STOP_RE.test(String(r.text))) {
+      const lead = await env.DB.prepare("SELECT id FROM stl_leads WHERE phone=? ORDER BY created_at DESC LIMIT 1").bind(String(r.from || "")).first().catch(() => null);
+      if (lead) await revoke(env, { leadId: lead.id, via: "sms_stop" }).catch(() => {});
+    }
+    return json({ ok: true, sms: true, ...r });
+  }
+
   const call = ev.call || ev.data || ev;
   const meta = call.metadata || {};
   const tpId = meta.touchpoint_id;
