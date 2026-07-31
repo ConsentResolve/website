@@ -104,4 +104,4 @@ Today the ask is simple: **[come see us on Product Hunt](https://www.producthunt
 
 We didn't build this to win a badge. We built it because watching pros pay for traffic and then lose 98% of it — while shared-lead resellers charge them a fortune for scraps — never sat right. Product Hunt is just the day we get to say it out loud. Thanks for being here for it.
 
-*Questions? We're at [hello@consentresolve.com](mailto:hello@consentresolve.com) or (727) 202-5996.*
+*Questions? We're at [hello@consentresolve.com](mailto:hello@consentresolve.com) or (727) 999-9846.*

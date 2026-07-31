@@ -213,7 +213,7 @@ The lead sellers hand the same lead to several pros at once and bill the contrac
 Most homeowners hire the first pro who responds, and the odds of connecting drop fast after the first few minutes. That's why Mack calls about forty seconds after the form is submitted.
 
 # Company details
-Consent Resolve · (727) 202-5996 · hello@consentresolve.com · 1907 Gulf Way #1, St Pete Beach, FL 33706.`;
+Consent Resolve · (727) 999-9846 · hello@consentresolve.com · 1907 Gulf Way #1, St Pete Beach, FL 33706.`;
 
 // Create/refresh Mack's Retell knowledge base and attach it to his LLM.
 // Idempotent: deletes any prior KB of the same name, then recreates and re-attaches.
@@ -317,7 +317,7 @@ If they'd rather talk to a person, hear a voice, or continue by text, offer it: 
 - If they want to stop, respect it. For anything you're unsure of, offer to have a human follow up by email.
 
 # Details
-Consent Resolve · (727) 202-5996 · hello@consentresolve.com`;
+Consent Resolve · (727) 999-9846 · hello@consentresolve.com`;
 
 const MACK_CHAT_GREETING =
 "Hey — Mack here, the AI assistant at Consent Resolve. Quick heads up: your first 50 leads are on us right now. What can I help you figure out?";

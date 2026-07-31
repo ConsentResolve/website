@@ -60,7 +60,7 @@ export const organizationSchema = {
   },
   numberOfEmployees: { "@type": "QuantitativeValue", value: 5 },
   email: "hello@consentresolve.com",
-  telephone: "+1-727-202-5996",
+  telephone: "+1-727-999-9846",
   address: {
     "@type": "PostalAddress",
     streetAddress: "1907 Gulf Way #1",
@@ -70,8 +70,8 @@ export const organizationSchema = {
     addressCountry: "US",
   },
   contactPoint: [
-    { "@type": "ContactPoint", telephone: "+1-727-202-5996", email: "hello@consentresolve.com", contactType: "sales", areaServed: "US", availableLanguage: "English" },
-    { "@type": "ContactPoint", telephone: "+1-727-202-5996", email: "hello@consentresolve.com", contactType: "customer support", areaServed: "US", availableLanguage: "English" },
+    { "@type": "ContactPoint", telephone: "+1-727-999-9846", email: "hello@consentresolve.com", contactType: "sales", areaServed: "US", availableLanguage: "English" },
+    { "@type": "ContactPoint", telephone: "+1-727-999-9846", email: "hello@consentresolve.com", contactType: "customer support", areaServed: "US", availableLanguage: "English" },
   ],
   areaServed: { "@type": "Country", name: "United States" },
   makesOffer: [

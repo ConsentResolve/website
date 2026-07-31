@@ -67,7 +67,7 @@ export async function sendTestSms(env, to, body) {
 
 // Find which account (this one or any of its subaccounts) owns a given number.
 // Twilio has no global reverse-owner lookup, but the parent creds can list all
-// subaccounts and search each. Answers "which Account SID owns +17272025996?".
+// subaccounts and search each. Answers "which Account SID owns +17279999846?".
 export async function findNumberOwner(env, number) {
   if (!hasCreds(env)) return { ok: false, error: "missing_twilio_creds" };
   const num = (number || env.TWILIO_FROM_NUMBER || "").trim();
