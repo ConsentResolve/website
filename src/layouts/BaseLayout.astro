@@ -204,9 +204,17 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         "data-logo-url":"https://consentresolve.com/apple-touch-icon.png"};
       // Injected into the widget's OPEN shadow root to override styles Retell's data-attrs
       // can't reach. Class hashes can change on Retell updates, so target stable prefixes.
-      window.__retellCSS=":host{--font-family:'Inter',-apple-system,system-ui,sans-serif}"
-        +'[class*="_window_"]{max-height:min(640px,calc(100dvh - 104px))!important;height:auto!important}'
-        +'[class*="_conversationPanel_"]{overflow-y:auto!important}';
+      var _ic="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3C6.48 3 2 6.58 2 11c0 2.2 1.12 4.19 2.95 5.62L4 21l4.5-2.02c1.1.34 2.28.52 3.5.52 5.52 0 10-3.58 10-8s-4.48-8-10-8z'/%3E%3C/svg%3E\")";
+      window.__retellCSS=":host{--font-family:'Inter',-apple-system,system-ui,sans-serif;--border-radius:14px;--color-primary:#00e5a0;--color-primary-hover:#00c98d;--color-theme:#ffffff;--color-component:#00e5a0;--color-component-hover:#00c98d;--color-bg-primary:#ffffff;--color-bg-secondary:#f6f8fb;--color-bg-tertiary:#eef2f7;--color-text-primary:#0e1c2e;--color-text-secondary:#4a5769;--color-text-tertiary:#75839a;--color-text-placeholder:#9aa7b8;--color-border:#e6ebf1;--color-border-light:#eef2f7;--color-user-message:#00e5a0;--color-agent-message:#eef2f7}"
+        +'[class*="_window_"]{max-height:min(640px,calc(100dvh - 104px))!important;height:auto!important;border-radius:18px!important;box-shadow:0 24px 60px -18px rgba(14,28,46,.35)!important;border:1px solid #e6ebf1!important}'
+        +'[class*="_conversationPanel_"]{overflow-y:auto!important}'
+        +'[class*="_header_"]{background:#ffffff!important;color:#0e1c2e!important;border-bottom:1px solid #eef2f7!important}'
+        +'[class*="_user_"]{background:#00e5a0!important;color:#04231a!important}'
+        +'[class*="_agent_"]{background:#eef2f7!important;color:#0e1c2e!important}'
+        +'[class*="_fabChat"]{background:#00e5a0!important;color:#0e1c2e!important;width:60px!important;height:60px!important;min-width:0!important;padding:0!important;border-radius:50%!important;border:none!important;box-shadow:0 14px 30px -6px rgba(0,229,160,.55),0 6px 16px -6px rgba(14,28,46,.4)!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;transition:transform .18s ease,box-shadow .18s ease!important}'
+        +'[class*="_fabChat"]:hover{transform:translateY(-2px) scale(1.05)!important}'
+        +'[class*="_fabChat"] > *{display:none!important}'
+        +'[class*="_fabChat"]::after{content:"";width:28px;height:28px;background:#0e1c2e;-webkit-mask:'+_ic+' center/contain no-repeat;mask:'+_ic+' center/contain no-repeat}';
       window.__retellStyle=function(){try{var host=null;document.querySelectorAll("*").forEach(function(el){if(!host&&el.shadowRoot&&el.shadowRoot.querySelector('[class*="_fab"],button[aria-label*="Assistant" i]'))host=el;});if(!host)return false;var sr=host.shadowRoot;if(sr.getElementById("cr-retell-style"))return true;var st=document.createElement("style");st.id="cr-retell-style";st.textContent=window.__retellCSS;sr.appendChild(st);return true;}catch(e){return false;}};
       window.__retellBoot=function(open){try{if(window.__retellChatLoaded)return;window.__retellChatLoaded=1;var s=document.createElement("script");s.id="retell-widget";s.type="module";s.src="https://dashboard.retellai.com/retell-widget-v2.js";var A=window.__retellCfg;for(var k in A)s.setAttribute(k,A[k]);if(open)s.setAttribute("data-auto-open","true");(document.head||document.getElementsByTagName("head")[0]).appendChild(s);var p=0,pi=setInterval(function(){if(window.__retellStyle()||++p>60)clearInterval(pi);},250);}catch(e){}};
       // Open Mack's launcher — his FAB lives in an OPEN shadow root (verified), so we can
