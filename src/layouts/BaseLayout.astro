@@ -186,13 +186,32 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       })(window, document, "clarity", "script", "vgfli9rxb5");
     </script>
 
-    <!-- Retell AI chat (Mack) — CONSENT-GATED via ConsentResolve/Usercentrics autoblocker:
+    <!-- Retell AI chat (Mack). Speeds up the handshake (widget JS + chat API host). -->
+    <link rel="preconnect" href="https://dashboard.retellai.com" crossorigin />
+    <link rel="preconnect" href="https://api.retellai.com" crossorigin />
+    <!-- Retell FAB polish: a mint edge + drop shadow so the navy launcher pops on BOTH
+         light and dark sections; nudge it up on mobile so it clears the sticky CTA bar. -->
+    <style is:inline>#retell-widget-root{filter:drop-shadow(0 0 1px rgba(0,229,160,.9)) drop-shadow(0 8px 22px rgba(0,0,0,.42))}@media (max-width:640px){#retell-widget-root{bottom:76px!important}}</style>
+    <!-- Shared Retell config + boot helper (NOT gated — only defines functions, loads
+         nothing). Branded: navy panel, mint accents, "Mack" avatar. data-white-label is
+         omitted — add it here once Retell issues a token to hide "Powered by Retell". -->
+    <script is:inline>
+      window.__retellCfg={
+        "data-public-key":"public_key_c635ded46e18e33c6b219",
+        "data-agent-id":"agent_53dfb7733266901d4989695004",
+        "data-title":"Chat with Mack","data-bot-name":"Mack","data-fab-text":"Chat with us",
+        "data-theme-color":"#0e1c2e","data-component-color":"#00e5a0",
+        "data-logo-url":"https://consentresolve.com/apple-touch-icon.png"};
+      window.__retellBoot=function(open){try{if(window.__retellChatLoaded)return;window.__retellChatLoaded=1;var s=document.createElement("script");s.id="retell-widget";s.type="module";s.src="https://dashboard.retellai.com/retell-widget-v2.js";var A=window.__retellCfg;for(var k in A)s.setAttribute(k,A[k]);if(open)s.setAttribute("data-auto-open","true");(document.head||document.getElementsByTagName("head")[0]).appendChild(s);}catch(e){}};
+      // Open Mack's launcher — his FAB lives in an OPEN shadow root (verified), so we can
+      // click it. If he isn't booted yet, an explicit click is intent to chat: boot + open.
+      window.crRetellOpen=function(){var f=null;try{document.querySelectorAll("*").forEach(function(el){if(!f&&el.shadowRoot){var b=el.shadowRoot.querySelector('button[aria-label="Open Assistant"],button[aria-label*="Assistant" i]');if(b)f=b;}});}catch(e){}if(f){f.click();return true;}return false;};
+    </script>
+    <!-- CONSENT-GATED passive load via ConsentResolve/Usercentrics autoblocker:
          type=text/plain keeps it inert until the visitor consents to the "Retell Chat"
-         service. data-usercentrics MUST match the EXACT service name configured in the CMP
-         ("Retell Chat"), or the chat stays blocked forever — same requirement Crisp had.
-         On consent, the autoblocker executes this inline script, which injects the widget
-         (public + chat-agent keys are publishable, safe in the client). -->
-    <script is:inline type="text/plain" data-usercentrics="Retell Chat">(function(){try{if(window.__retellChatLoaded)return;window.__retellChatLoaded=1;var s=document.createElement("script");s.id="retell-widget";s.type="module";s.src="https://dashboard.retellai.com/retell-widget-v2.js";s.setAttribute("data-public-key","public_key_c635ded46e18e33c6b219");s.setAttribute("data-agent-id","agent_53dfb7733266901d4989695004");if(window.__retellOpenOnLoad)s.setAttribute("data-auto-open","true");(document.head||document.getElementsByTagName("head")[0]).appendChild(s);}catch(e){}})();</script>
+         service. data-usercentrics MUST match the EXACT service name configured in the CMP,
+         or the passive FAB stays blocked — same requirement every other pixel here has. -->
+    <script is:inline type="text/plain" data-usercentrics="Retell Chat">window.__retellBoot(!!window.__retellOpenOnLoad);</script>
 
     <!-- Conversion tracking helper. ONE call site for every ad-measurable action so
          campaigns have something to optimize toward besides PageView (which was all
@@ -215,12 +234,11 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       })();
     </script>
 
-    <!-- Chat opener used by our own "Chat with us" / "Chat with Tyler" controls.
-         Clicking is explicit intent: prompt the CMP so the consent-gated loader boots
-         Mack (Retell) and auto-opens; if Mack is already booted, open his launcher.
-         After ~5s with no CMP response, boot on the explicit intent. mailto is the
-         last-resort fallback. -->
-    <script is:inline>window.crOpenChat=function(){try{var PK="public_key_c635ded46e18e33c6b219",AID="agent_53dfb7733266901d4989695004";function clickFab(){var b=document.querySelector('#retell-widget-fab,[class*="retell"] [class*="fab"],[class*="retell"] button');if(b){b.click();return true;}return false;}function boot(open){if(window.__retellChatLoaded)return;window.__retellChatLoaded=1;var s=document.createElement("script");s.id="retell-widget";s.type="module";s.src="https://dashboard.retellai.com/retell-widget-v2.js";s.setAttribute("data-public-key",PK);s.setAttribute("data-agent-id",AID);if(open)s.setAttribute("data-auto-open","true");(document.head||document.getElementsByTagName("head")[0]).appendChild(s);}if(window.__retellChatLoaded){var n=0,iv=setInterval(function(){if(clickFab()||++n>24)clearInterval(iv);},250);return;}window.__retellOpenOnLoad=true;try{if(window.ConsentResolve&&ConsentResolve.showBanner)ConsentResolve.showBanner();else if(window.UC_UI&&UC_UI.showFirstLayer)UC_UI.showFirstLayer();}catch(e){}var t=0,ivb=setInterval(function(){if(window.__retellChatLoaded){clearInterval(ivb);var m=0,iv2=setInterval(function(){if(clickFab()||++m>24)clearInterval(iv2);},250);return;}if(++t>10){clearInterval(ivb);boot(true);}},500);}catch(e){try{window.location.href="mailto:hello@consentresolve.com";}catch(_){}}};</script>
+    <!-- Chat opener for our own "Chat with us" / "Chat with Tyler" controls. If Mack is
+         already booted (consented visitor), open his launcher. Otherwise an explicit click
+         is intent to chat — same stance the prior chat opener took — so boot + auto-open,
+         then click the FAB once it mounts. mailto is the last-resort fallback. -->
+    <script is:inline>window.crOpenChat=function(){try{if(window.crRetellOpen&&window.crRetellOpen())return;window.__retellBoot(true);var n=0,iv=setInterval(function(){if((window.crRetellOpen&&window.crRetellOpen())||++n>28)clearInterval(iv);},250);}catch(e){try{window.location.href="mailto:hello@consentresolve.com";}catch(_){}}};</script>
   </head>
   <body class="bg-[color:var(--color-bg)] text-[color:var(--color-ink)]">
     <a href="#main" class="skip-link">Skip to content</a>
