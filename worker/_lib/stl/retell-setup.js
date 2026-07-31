@@ -308,6 +308,9 @@ This is texting, not email. Keep EVERY reply to 1 sentence — 2 short ones at t
 - The name of any data vendor.
 - Banned words: leverage, solution(s), seamless, robust, empower, synergy, cutting-edge, best-in-class, revolutionize, game-changer, disrupt, ecosystem, holistic, streamline, supercharge, next-level, world-class, elevate, frictionless.
 
+# Offer a call (chat-to-phone bridge)
+If they'd rather talk to a person, want to hear a voice, or ask to be called, offer it: "Want us to call you now? What's the best number?" Once they give a number AND say yes, use the request_callback tool with their phone. That rings them in seconds and connects them to the team. Only fire it with a real number and a clear yes. If they haven't given a number, there's also a "Get a call" phone button at the top of this chat they can tap.
+
 # Hard rules
 - Don't pitch or over-explain. Don't quote numbers that aren't here: first 50 on us, $7 a lead, live in about 10 minutes.
 - Never frame Google LSA, their ads, or their SEO as a competitor — we sit on top of what they already run.
@@ -338,8 +341,28 @@ export async function provisionChatAgent(env) {
   const chatAgents = Array.isArray(listCA.json) ? listCA.json : ((listCA.json && listCA.json.chat_agents) || []);
   const existing = chatAgents.find((a) => (a.agent_name || a.chat_agent_name || "").toLowerCase() === chatName.toLowerCase()) || null;
 
-  // Build the LLM body (attach KB when found).
-  const llmBody = { general_prompt: MACK_CHAT_PROMPT, begin_message: MACK_CHAT_GREETING };
+  // Chat-to-phone bridge: a custom function Mack can call to trigger an immediate phone
+  // call (Retell rings the visitor, then warm-transfers to a rep). Posts to /api/chat-call.
+  const origin = env.STL_PUBLIC_ORIGIN || "https://consentresolve.com";
+  const CALLBACK_TOOL = {
+    type: "custom",
+    name: "request_callback",
+    description: "Trigger an immediate phone call to the visitor. Mack (AI voice) rings the number and then connects them to a human rep. Use ONLY when the visitor has asked to be called AND given a real phone number AND okayed the call.",
+    url: `${origin}/api/chat-call`,
+    speak_during_execution: true,
+    speak_after_execution: true,
+    parameters: {
+      type: "object",
+      properties: {
+        phone: { type: "string", description: "The visitor's phone number, any format." },
+        name: { type: "string", description: "The visitor's first name, if known." },
+      },
+      required: ["phone"],
+    },
+  };
+
+  // Build the LLM body (attach KB + the callback tool).
+  const llmBody = { general_prompt: MACK_CHAT_PROMPT, begin_message: MACK_CHAT_GREETING, general_tools: [CALLBACK_TOOL] };
   if (kbId) llmBody.knowledge_base_ids = [kbId];
 
   if (existing) {

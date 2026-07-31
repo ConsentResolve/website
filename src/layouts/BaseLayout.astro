@@ -210,6 +210,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       // can't reach. Class hashes can change on Retell updates, so target stable prefixes.
       // Product-grade chat: navy identity header, tailed bubbles, Hanken Grotesk, motion.
       var _ic="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3C6.48 3 2 6.58 2 11c0 2.2 1.12 4.19 2.95 5.62L4 21l4.5-2.02c1.1.34 2.28.52 3.5.52 5.52 0 10-3.58 10-8s-4.48-8-10-8z'/%3E%3C/svg%3E\")";
+      var _ipn="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.3 1z'/%3E%3C/svg%3E\")";
       window.__retellCSS=":host{--font-family:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--eo:cubic-bezier(0.23,1,0.32,1)}"
         +"@keyframes crPop{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}@keyframes crIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes crBounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}"
         // Window: no border (soft floating shadow only), origin-aware punchy entrance, flex column so the header/input stay pinned and only the message list scrolls.
@@ -247,6 +248,17 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         // kept as the last child, so the reply is :nth-last-child(2)) — so every reply is
         // preceded by an animated "…" for a minimum beat instead of popping in instantly.
         +':host(.cr-holding) [class*="_messages_"] > [class*="_agentGroup_"]:nth-last-child(2){display:none!important}'
+        // Chat-to-phone bridge: a phone button in the header opens an inline consent form
+        // overlaying the window; submitting fires an immediate Retell call (/api/chat-call).
+        +'.cr-callbtn{background:transparent;border:none;width:30px;height:30px;border-radius:9px;color:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;transition:background .16s,color .16s,transform .12s var(--eo)}.cr-callbtn::after{content:"";width:18px;height:18px;background:currentColor;-webkit-mask:'+_ipn+' center/contain no-repeat;mask:'+_ipn+' center/contain no-repeat}.cr-callbtn:hover{background:rgba(255,255,255,.14);color:#fff}.cr-callbtn:active{transform:scale(.9)}'
+        +'.cr-call{position:absolute;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(10,22,40,.34);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:crIn .2s var(--eo) both}.cr-call[hidden]{display:none!important}'
+        +'.cr-call-card{width:100%;max-width:320px;box-sizing:border-box;background:#fff;border-radius:18px;box-shadow:0 24px 60px -18px rgba(10,22,40,.5);padding:20px 18px;position:relative;animation:crPop .24s var(--eo) both}'
+        +'.cr-call-x{position:absolute;top:9px;right:11px;border:none;background:transparent;font-size:22px;line-height:1;color:#94a3b8;cursor:pointer;padding:0}.cr-call-x:hover{color:#0a1628}'
+        +'.cr-call-h{font-weight:800;font-size:17px;color:#0a1628;font-family:inherit}.cr-call-sub{font-size:13px;color:#475569;margin:5px 0 14px;line-height:1.45}'
+        +'.cr-call-phone{width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid #e2e8f0;border-radius:12px;font-family:inherit;font-size:15px;color:#0a1628;outline:none;transition:border-color .16s,box-shadow .16s}.cr-call-phone:focus{border-color:#00e5a0;box-shadow:0 0 0 3px rgba(0,229,160,.18)}'
+        +'.cr-call-consent{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;color:#475569;margin:11px 0 14px;line-height:1.4;cursor:pointer}.cr-call-consent input{width:16px;height:16px;margin-top:1px;accent-color:#00e5a0;flex:0 0 auto}'
+        +'.cr-call-go{width:100%;padding:12px;border:none;border-radius:12px;background:#00e5a0;color:#04231a;font-family:inherit;font-weight:800;font-size:15px;cursor:pointer;transition:background .16s,transform .12s var(--eo)}.cr-call-go:hover{background:#00c489}.cr-call-go:active{transform:scale(.98)}'
+        +'.cr-call-status{font-size:12.5px;margin-top:10px;min-height:16px;color:#475569;line-height:1.4}.cr-call-status.ok{color:#0a7f5a;font-weight:600}.cr-call-status.err{color:#d1495b}'
         // Mobile: full-screen panel that slides up from the bottom, with safe-area insets;
         // hide the launcher while the window is open so it doesn't float over the input.
         +'@media (max-width:640px){@keyframes crPop{from{opacity:.5;transform:translateY(100%)}to{opacity:1;transform:none}}[class*="_window_"]{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:auto!important;width:100vw!important;height:var(--cr-vh,100dvh)!important;max-width:none!important;max-height:none!important;border-radius:0!important;transform-origin:bottom!important;animation:crPop .3s cubic-bezier(0.32,0.72,0,1) both!important}[class*="_header_"]{padding-top:calc(14px + env(safe-area-inset-top))!important;border-radius:0!important}[class*="_inputRow_"]{padding-bottom:calc(14px + env(safe-area-inset-bottom))!important}[class*="_fabChat"],[class*="_fabWrap"]{display:none!important}}'
@@ -284,8 +296,23 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         function lock(){var de=document.documentElement;var open=!!sr.querySelector('[class*="_windowOpen_"]');de.classList.toggle("cr-chat-open",open);
           if(open){if(!window.__crVV&&window.visualViewport){window.__crVV=function(){de.style.setProperty("--cr-vh",window.visualViewport.height+"px");};window.visualViewport.addEventListener("resize",window.__crVV);window.visualViewport.addEventListener("scroll",window.__crVV);window.__crVV();}}
           else{if(window.__crVV&&window.visualViewport){window.visualViewport.removeEventListener("resize",window.__crVV);window.visualViewport.removeEventListener("scroll",window.__crVV);window.__crVV=null;}de.style.removeProperty("--cr-vh");}}
-        ident();firstTyping();convo();lock();
-        if(!host.__crObs){host.__crObs=new MutationObserver(function(){ident();firstTyping();convo();lock();});host.__crObs.observe(sr,{childList:true,subtree:true});}
+        // Chat-to-phone bridge: header phone button + inline consent form -> /api/chat-call.
+        function callUI(){var h=sr.querySelector('[class*="_header_"]'),w=sr.querySelector('[class*="_window_"]');if(!h||!w)return;
+          if(!h.querySelector(".cr-callbtn")){var b=document.createElement("button");b.type="button";b.className="cr-callbtn";b.title="Get a call now";b.setAttribute("aria-label","Get a call now");b.onclick=function(){var p=w.querySelector(".cr-call");if(p){p.hidden=!p.hidden;if(!p.hidden){var i=p.querySelector(".cr-call-phone");if(i)i.focus();}}};var cx=h.querySelector('[class*="_closeButton_"]');if(cx)h.insertBefore(b,cx);else h.appendChild(b);}
+          if(!w.querySelector(".cr-call")){var p=document.createElement("div");p.className="cr-call";p.hidden=true;
+            p.innerHTML='<div class="cr-call-card"><button class="cr-call-x" type="button" aria-label="Close">&times;</button><div class="cr-call-h">Prefer a call?</div><div class="cr-call-sub">Drop your number and Mack rings you in seconds — then connects you to the team.</div><input class="cr-call-phone" inputmode="tel" autocomplete="tel" placeholder="(555) 123-4567"><label class="cr-call-consent"><input type="checkbox" class="cr-call-ck"> You can call me about Consent Resolve. Msg/data rates may apply.</label><button class="cr-call-go" type="button">Call me now</button><div class="cr-call-status" aria-live="polite"></div></div>';
+            w.appendChild(p);
+            p.querySelector(".cr-call-x").onclick=function(){p.hidden=true;};
+            var go=function(){var ph=p.querySelector(".cr-call-phone").value.trim(),ck=p.querySelector(".cr-call-ck").checked,st=p.querySelector(".cr-call-status");
+              if(ph.replace(/[^0-9]/g,"").length<10){st.textContent="Add a real 10-digit number.";st.className="cr-call-status err";return;}
+              if(!ck){st.textContent="Please tick the box so we can call you.";st.className="cr-call-status err";return;}
+              st.textContent="Calling you now…";st.className="cr-call-status";
+              fetch("/api/chat-call",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:ph,consent:true,landing_page:location.pathname})}).then(function(r){return r.json();}).then(function(d){if(d&&d.ok){st.textContent="📞 "+(d.message||"Calling you now — keep your phone handy.");st.className="cr-call-status ok";setTimeout(function(){p.hidden=true;},4500);}else{st.textContent=(d&&d.message)||"Could not start the call.";st.className="cr-call-status err";}}).catch(function(){st.textContent="Network error — try again.";st.className="cr-call-status err";});};
+            p.querySelector(".cr-call-go").onclick=go;
+            p.querySelector(".cr-call-phone").addEventListener("keydown",function(e){if(e.key==="Enter")go();});
+          }}
+        ident();firstTyping();convo();lock();callUI();
+        if(!host.__crObs){host.__crObs=new MutationObserver(function(){ident();firstTyping();convo();lock();callUI();});host.__crObs.observe(sr,{childList:true,subtree:true});}
         return true;
       }catch(e){return false;}};
       window.__retellBoot=function(open){try{if(window.__retellChatLoaded)return;window.__retellChatLoaded=1;var s=document.createElement("script");s.id="retell-widget";s.type="module";s.src="https://dashboard.retellai.com/retell-widget-v2.js";var A=window.__retellCfg;for(var k in A)s.setAttribute(k,A[k]);if(open)s.setAttribute("data-auto-open","true");(document.head||document.getElementsByTagName("head")[0]).appendChild(s);var p=0,pi=setInterval(function(){if(window.__retellEnhance()||++p>100)clearInterval(pi);},120);setTimeout(function(){var r=document.getElementById("retell-widget-root");if(r)r.classList.add("cr-ready");},2500);}catch(e){}};
