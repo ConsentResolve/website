@@ -83,7 +83,7 @@
       "deal": null,
       "messages": [
         { "dir": "out", "channel": "sms", "body": "Hi Gloria, Andy here — saw you were checking us out. Quick question when you have a sec. (STOP to opt out)", "ts": "35 min ago", "meta": "delivered" },
-        { "dir": "out", "channel": "ai_call", "body": "AI call placed (23s). AMD: voicemail. VM left: “Hi Gloria, this is the Consent Resolve team — this is an AI assistant — call or text us at (727) 202-5996.”", "ts": "18 min ago", "meta": "voicemail" }
+        { "dir": "out", "channel": "ai_call", "body": "AI call placed (23s). AMD: voicemail. VM left: “Hi Gloria, this is the Consent Resolve team — this is an AI assistant — call or text us at (727) 999-9846.”", "ts": "18 min ago", "meta": "voicemail" }
       ]
     },
     {
