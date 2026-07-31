@@ -78,3 +78,74 @@ export async function mirrorInboundSms(env, lead, body, sid) {
     await logEvent(env, { type: "replied", contactId: lead.crm_contact_id, companyId: conv.company_id, conversationId: conv.id, channel: "sms", source: lead.ad_source || "site", meta: { via: "sms" } });
   } catch (_) {}
 }
+
+function fmtDur(s) {
+  if (!s || s < 1) return "0s";
+  const m = Math.floor(s / 60), r = s % 60;
+  return m ? `${m}m ${r}s` : `${r}s`;
+}
+
+// Inbound phone call to our number (answered by Mack in Retell) → CRM. Called from the
+// Retell webhook for events with NO touchpoint_id (i.e. not an engine-dispatched outbound
+// call). Matches the caller to an existing contact by phone so a known lead's call lands
+// on their record; otherwise opens a provisional contact. Deduped on the Retell call_id
+// so call_ended + call_analyzed don't double-log — the analyzed event enriches the same
+// message with the summary + transcript.
+export async function mirrorInboundCall(env, call, eventName) {
+  try {
+    await ensureCrmV2Schema(env); await ensureRebuildSchema(env);
+    const fromRaw = call.from_number || call.from || "";
+    const np = normPhone(fromRaw);
+    if (np.length < 10) return { ok: false, skipped: "no_from" };
+    const to = call.to_number || call.to || "";
+
+    const analysis = call.call_analysis || {};
+    const summary = analysis.call_summary || "";
+    const sentiment = analysis.user_sentiment || null;
+    const voicemail = analysis.in_voicemail === true;
+    const durS = call.duration_ms ? Math.round(call.duration_ms / 1000)
+      : (call.end_timestamp && call.start_timestamp ? Math.round((call.end_timestamp - call.start_timestamp) / 1000)
+        : (call.call_length_seconds || null));
+    const noAnswer = call.disconnection_reason === "dial_no_answer";
+    const transcript = (call.transcript || (Array.isArray(call.transcript_object)
+      ? call.transcript_object.map((t) => `${t.role}: ${t.content}`).join("\n") : "") || "").slice(0, 6000);
+    const recording = call.recording_url || "";
+
+    // Identity: a known lead's number resolves to their contact; a stranger gets a
+    // provisional one keyed on the phone identifier.
+    let contactId = null;
+    const idr = await env.DB.prepare("SELECT contact_id FROM contact_identifiers WHERE type='phone' AND value=?").bind(np).first().catch(() => null);
+    if (idr) contactId = idr.contact_id;
+    else contactId = await findOrCreateContactByIdentifier(env, "phone", np, { source: "inbound_call" });
+    if (!contactId) return { ok: false, error: "no_contact" };
+    const c = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first().catch(() => null);
+    const companyId = c ? c.company_id : null;
+
+    const label = voicemail ? "📞 Inbound voicemail" : noAnswer ? "📞 Missed call" : "📞 Inbound call";
+    const now = nowIso();
+    const convId = await upsertConversationByThread(env, {
+      channel: "voice", externalThreadId: "voice:" + np, contactId, companyId,
+      subject: "📞 Calls — " + (fromRaw || np), incoming: true, lastAt: now,
+      preview: label + (durS ? " · " + fmtDur(durS) : "") + (summary ? " · " + summary.slice(0, 80) : ""),
+    });
+
+    const lines = [
+      `${label}${durS ? " — " + fmtDur(durS) : ""}`,
+      `From ${fromRaw || np}${to ? " → " + to : ""} · answered by Mack (AI)`,
+    ];
+    if (summary) lines.push("", summary);
+    if (sentiment) lines.push("Caller sentiment: " + sentiment);
+    if (recording) lines.push("Recording: " + recording);
+    if (transcript) lines.push("", "Transcript:", transcript);
+    const bodyText = lines.join("\n");
+
+    const extId = "retell-call:" + (call.call_id || np + ":" + now);
+    const ins = await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: "voice", externalMessageId: extId, bodyText, sentAt: now });
+    // call_analyzed usually lands after call_ended — enrich the row we already inserted.
+    if (ins.existed && eventName && /analy/i.test(eventName)) {
+      await env.DB.prepare("UPDATE messages SET body_text=? WHERE external_message_id=?").bind(bodyText, extId).run().catch(() => {});
+    }
+    await logEvent(env, { type: "inbound_call", contactId, companyId, conversationId: convId, channel: "voice", source: "inbound_call", meta: { call_id: call.call_id || null, duration_s: durS, voicemail, missed: noAnswer, sentiment, from: fromRaw || np } });
+    return { ok: true, contactId, conversationId: convId, logged_new: !ins.existed };
+  } catch (e) { return { ok: false, error: String(e).slice(0, 140) }; }
+}

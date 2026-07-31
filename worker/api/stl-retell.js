@@ -6,6 +6,7 @@ import { ensureStlSchema } from "../_lib/stl/schema.js";
 import { logEvent } from "../_lib/stl/classifier.js";
 import { alert } from "../_lib/stl/adapters.js";
 import { verifyHmac } from "../_lib/stl/verify.js";
+import { mirrorInboundCall } from "../_lib/stl/crm-bridge.js";
 import { json } from "../_lib/http.js";
 
 // The agent must identify as an AI AND by name. Any transcript missing either is a P1.
@@ -29,7 +30,18 @@ export async function onRequestPost({ request, env }) {
   const meta = call.metadata || {};
   const tpId = meta.touchpoint_id;
   const eventName = ev.event || ev.event_type || call.call_status;
-  if (!tpId) return json({ ok: true, note: "no touchpoint_id" });
+  // No touchpoint_id → not an engine-dispatched outbound call. If it's an INBOUND call
+  // (someone dialing our number, answered by Mack), mirror it into the CRM Inbox so the
+  // team sees it alongside every other channel. Only on a final event (has transcript).
+  if (!tpId) {
+    const inbound = call.direction === "inbound" || (!call.direction && call.from_number && call.to_number);
+    const finalEv = ["call_ended", "ended", "call_analyzed"].includes(eventName);
+    if (inbound && finalEv) {
+      const r = await mirrorInboundCall(env, call, eventName).catch((e) => ({ ok: false, error: String(e).slice(0, 140) }));
+      return json({ ok: true, inbound: true, ...r });
+    }
+    return json({ ok: true, note: "no touchpoint_id" });
+  }
 
   const transcript = call.transcript || (Array.isArray(call.transcript_object)
     ? call.transcript_object.map((t) => `${t.role}: ${t.content}`).join("\n") : "") || "";
