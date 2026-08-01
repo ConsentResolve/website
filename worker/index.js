@@ -52,6 +52,7 @@ import * as crmVisitor from "./api/crm-visitor.js";
 // Speed-to-Lead engine
 import * as stlLead from "./api/stl-lead.js";
 import * as chatCall from "./api/chat-call.js";
+import * as partnerApply from "./api/partner-apply.js";
 import * as stlRevoke from "./api/stl-revoke.js";
 import * as stlTwilio from "./api/stl-twilio.js";
 import * as stlRetell from "./api/stl-retell.js";
@@ -210,6 +211,7 @@ const ROUTES = {
   // ── Speed-to-Lead engine ──────────────────────────────────────────────────
   "/api/lead": stlLead,
   "/api/chat-call": chatCall,
+  "/api/partner-apply": partnerApply,
   "/consent/revoke": stlRevoke,
   "/api/stl/twilio/inbound": stlTwilio,
   "/api/stl/twilio/status": stlTwilio,

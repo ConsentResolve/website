@@ -19,7 +19,7 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 
 const APPLY =
-  "mailto:hello@consentresolve.com?subject=Founding%20Partner%20Application";
+  "#apply";
 ---
 
 <BaseLayout
@@ -278,6 +278,50 @@ const APPLY =
       </div>
     </section>
 
+    <!-- ================= APPLICATION FORM ================= -->
+    <style is:inline>
+      #apply .pform{display:flex;flex-direction:column;gap:16px;margin-top:8px}
+      #apply .pf-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+      @media(max-width:560px){#apply .pf-row{grid-template-columns:1fr}}
+      #apply label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--color-ink,#0a1628)}
+      #apply .pf-opt{font-weight:400;color:var(--color-ink-2,#475569)}
+      #apply input,#apply select,#apply textarea{font:inherit;font-size:15px;font-weight:400;color:var(--color-ink,#0a1628);background:#fff;border:1px solid var(--color-rule,#e2e8f0);border-radius:12px;padding:12px 14px;width:100%;transition:border-color .15s,box-shadow .15s}
+      #apply input:focus,#apply select:focus,#apply textarea:focus{outline:none;border-color:var(--color-brand,#00b37e);box-shadow:0 0 0 3px rgba(0,179,126,.15)}
+      #apply textarea{resize:vertical;min-height:76px}
+      #apply .pf-note{text-align:center;font-size:12.5px;color:var(--color-ink-2,#475569);margin:2px 0 0}
+      #apply .pf-note.err{color:#dc2626;font-weight:600}
+      #apply .pform.done{align-items:center;text-align:center;padding:20px 0}
+      #apply .pform.done .pf-ok{font-size:17px;font-weight:800;color:var(--color-ink,#0a1628)}
+    </style>
+    <section id="apply">
+      <div class="wrap" style="max-width:640px">
+        <span class="eyebrow" style="display:block;text-align:center">Apply for a founding seat</span>
+        <h2 class="sec" style="text-align:center">Claim your trade's seat</h2>
+        <p class="kicker" style="text-align:center;margin:0 auto 26px">Two minutes now, a 15-minute fit call next — we confirm your trade's open, then you prove it on one client site. No contract, cancel anytime.</p>
+        <form id="partnerForm" class="pform" novalidate>
+          <div class="pf-row">
+            <label>Your name<input name="name" type="text" autocomplete="name" required /></label>
+            <label>Work email<input name="email" type="email" autocomplete="email" required /></label>
+          </div>
+          <div class="pf-row">
+            <label>Agency / company<input name="agency" type="text" autocomplete="organization" /></label>
+            <label>Primary trade you serve<input name="trade" type="text" placeholder="HVAC, roofing, plumbing…" /></label>
+          </div>
+          <label>Home-service clients you manage
+            <select name="clients">
+              <option value="">Select…</option>
+              <option>1–3</option><option>4–10</option><option>11–25</option><option>25+</option>
+            </select>
+          </label>
+          <label>Anything we should know? <span class="pf-opt">(optional)</span>
+            <textarea name="message" rows="3" placeholder="Clients, current lead sources, questions…"></textarea>
+          </label>
+          <button type="submit" class="btn btn-primary btn-block" id="pfBtn">Apply for a founding seat →</button>
+          <p class="pf-note" id="pfMsg">One application per agency. We review in the order received.</p>
+        </form>
+      </div>
+    </section>
+
     <!-- ================= FINAL CTA ================= -->
     <section class="dband" style="padding-bottom:48px">
       <div class="wrap">
@@ -323,6 +367,53 @@ const APPLY =
     }
     [clients, leads, margin].forEach((el) => el && el.addEventListener("input", calc));
     calc();
+
+    // Partner application → /api/partner-apply (creates a partner conversation in the CRM).
+    const pform = document.getElementById("partnerForm") as HTMLFormElement | null;
+    const pfBtn = document.getElementById("pfBtn") as HTMLButtonElement | null;
+    const pfMsg = document.getElementById("pfMsg") as HTMLParagraphElement | null;
+    if (pform) {
+      pform.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!pfBtn || !pfMsg) return;
+        const data = Object.fromEntries(new FormData(pform).entries());
+        if (!data.email || !String(data.email).includes("@")) {
+          pfMsg.textContent = "Please enter a valid work email.";
+          pfMsg.className = "pf-note err";
+          return;
+        }
+        pfBtn.disabled = true;
+        const label = pfBtn.textContent;
+        pfBtn.textContent = "Sending…";
+        pfMsg.className = "pf-note";
+        pfMsg.textContent = "";
+        try {
+          const r = await fetch("/api/partner-apply", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+          const j = await r.json();
+          if (j && j.ok) {
+            pform.className = "pform done";
+            pform.innerHTML =
+              '<p class="pf-ok">🤝 Application received.</p><p class="pf-note">' +
+              (j.message || "We'll be in touch within one business day.") +
+              "</p>";
+          } else {
+            pfBtn.disabled = false;
+            pfBtn.textContent = label;
+            pfMsg.className = "pf-note err";
+            pfMsg.textContent = (j && j.message) || "Something went wrong — email hello@consentresolve.com.";
+          }
+        } catch (_) {
+          pfBtn.disabled = false;
+          pfBtn.textContent = label;
+          pfMsg.className = "pf-note err";
+          pfMsg.textContent = "Network error — please try again, or email hello@consentresolve.com.";
+        }
+      });
+    }
   </script>
 </BaseLayout>
 
