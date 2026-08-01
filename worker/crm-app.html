@@ -611,6 +611,11 @@ html,body{height:100%}
   .rcollapse.nocon{flex-direction:column;align-items:stretch;gap:0;padding:0}
   .rcollapse.nocon .banner{border-top:none}
   .rcollapse.nocon .rc-actbar{margin:0;padding:10px 16px;justify-content:flex-end;border-top:1px solid var(--line)}
+  /* Live-chat "Watch" toggle in the thread header. */
+  .watchbtn{border:1px solid var(--line);background:var(--surface-1);color:var(--tx-1);font:inherit;font-size:12px;font-weight:700;border-radius:var(--r-full);padding:6px 12px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
+  .watchbtn:hover{background:var(--hover)}
+  .watchbtn.on{background:rgba(0,229,160,.14);border-color:rgba(0,229,160,.5);color:#0b8f68}
+  .watchbtn:disabled{opacity:.6;cursor:default}
   .rc-act{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:6px 12px;font:inherit;font-size:var(--t-12);font-weight:600;color:var(--tx-1);cursor:pointer;white-space:nowrap}
   .rc-act:hover{border-color:var(--line-2);background:var(--surface-3)}
   .rc-act.danger{color:var(--bad)}
@@ -3246,8 +3251,8 @@ window.switchTab = switchTab;
 /* Near-real-time live chat: while a website-chat conversation is open, poll Retell's
    transcript every ~3s and re-render the thread. (Retell has no per-message push, and it
    can't expose pre-send typing — this is as live as it gets.) */
-let _chatPoll=null;
-function stopChatPoll(){ if(_chatPoll){ clearInterval(_chatPoll); _chatPoll=null; } }
+let _chatPoll=null, _watching=null, _watchCount=-1;
+function stopChatPoll(){ if(_chatPoll){ clearInterval(_chatPoll); _chatPoll=null; } _watching=null; _watchCount=-1; }
 function parseTranscript(t){
   const out=[];
   (t||"").split("\n").forEach(function(line){
@@ -3257,24 +3262,37 @@ function parseTranscript(t){
   });
   return out;
 }
-function startChatPoll(c){
-  stopChatPoll();
-  if(!c || !c.chat_id) return;
-  const cid=c.id, chatId=c.chat_id;
+// Watch toggle: polling only runs when a rep clicks "Watch" — no one watching, no polling.
+// The full transcript still lands in the background via the 1-min cron sweep.
+function toggleWatch(id){
+  const btn=document.getElementById('watchBtn');
+  if(_watching===id){ stopChatPoll(); if(btn){ btn.classList.remove('on'); btn.innerHTML='🟢 Watch live'; } return; }
+  const c=DATA.conversations.find(x=>x.id===id); if(!c||!c.chat_id) return;
+  stopChatPoll(); _watching=id; _watchCount=(c.messages||[]).length;
+  if(btn){ btn.classList.add('on'); btn.innerHTML='⏸ Watching…'; }
   const poll=function(){
-    fetch('/api/crm/chat-live?chat_id='+encodeURIComponent(chatId),{credentials:'same-origin'})
+    fetch('/api/crm/chat-live?chat_id='+encodeURIComponent(c.chat_id),{credentials:'same-origin'})
       .then(function(r){ return r.ok?r.json():null; })
       .then(function(d){
-        if(sel!==cid){ stopChatPoll(); return; }        // moved on
+        if(_watching!==id || sel!==id){ stopChatPoll(); return; }
         if(!d || !d.ok) return;
-        const cc=DATA.conversations.find(x=>x.id===cid); if(!cc) return;
+        const cc=DATA.conversations.find(x=>x.id===id); if(!cc) return;
         const msgs=parseTranscript(d.transcript);
-        if(msgs.length){ cc.messages=msgs; if(curTab==='reply') renderTab(cc); }
-        if(d.ended){ cc.live=false; stopChatPoll(); }
+        // Only touch the DOM when a new message actually arrived → no flicker/scroll jump.
+        if(msgs.length && msgs.length!==_watchCount){
+          _watchCount=msgs.length; cc.messages=msgs;
+          if(curTab==='reply'){
+            const host=document.querySelector('#tabbody .msgs');
+            if(host){ host.outerHTML=bubbleThread(cc); const nm=document.querySelector('#tabbody .msgs'); if(nm) nm.scrollTop=nm.scrollHeight; }
+            else renderTab(cc);
+          }
+        }
+        if(d.ended){ cc.live=false; stopChatPoll(); const b=document.getElementById('watchBtn'); if(b){ b.classList.remove('on'); b.innerHTML='● Chat ended'; b.disabled=true; } }
       }).catch(function(){});
   };
   poll(); _chatPoll=setInterval(poll, 3000);
 }
+window.toggleWatch=toggleWatch;
 function select(id){
   sel=id; replyOpen=false; ATTACH=[]; curTab="reply";
   stopChatPoll();
@@ -3305,7 +3323,7 @@ function select(id){
             <span class="sep">·</span>${phoneCm}
           </div>
         </div>
-        <div class="hdr-right">${autoControl(c)}</div>
+        <div class="hdr-right">${(c.chat_id && c.live)?`<button class="watchbtn" id="watchBtn" onclick="toggleWatch('${c.id}')">🟢 Watch live</button>`:''}${autoControl(c)}</div>
       </div>
       <div class="stagebar ${stageMeta.c}"><span class="sb-ic">${stageMeta.ic}</span><span class="sb-lab">Stage</span><span class="sb-val">${esc(c.lifecycle)}</span></div>
       <div class="tabs">
@@ -3319,7 +3337,6 @@ function select(id){
     <div class="tabbody" id="tabbody"></div>
   `;
   renderTab(c);
-  startChatPoll(c);
 }
 window.select = select;
 
