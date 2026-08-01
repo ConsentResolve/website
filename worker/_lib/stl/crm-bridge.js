@@ -166,9 +166,9 @@ export async function mirrorInboundSmsRetell(env, ev) {
     const fromRaw = chat.customer_number || chat.from_number || chat.phone_number || chat.from
       || (chat.metadata && (chat.metadata.from_number || chat.metadata.phone)) || ev.from_number || "";
     const np = normPhone(fromRaw);
-    if (np.length < 10) return { ok: false, skipped: "no_from" };
+    const isSms = np.length >= 10;
 
-    // Assemble a readable transcript + the latest inbound (customer) line.
+    // Full transcript (Them / Mack lines) + the latest inbound line.
     const msgs = chat.message_with_tool_calls || chat.messages || chat.transcript_object || [];
     let transcript = typeof chat.transcript === "string" ? chat.transcript : "";
     let lastUser = "";
@@ -178,36 +178,50 @@ export async function mirrorInboundSmsRetell(env, ev) {
       const users = norm.filter((m) => /user|customer|human/.test(m.role));
       if (users.length) lastUser = users[users.length - 1].content;
     }
-    const summary = (chat.chat_analysis || {}).chat_summary || "";
+    const analysis = chat.chat_analysis || {};
+    const summary = analysis.chat_summary || "";
+    const cad = analysis.custom_analysis_data || {};
+    const email = String(cad.email || chat.email || (chat.metadata && chat.metadata.email) || "").trim().toLowerCase();
     if (!transcript && !lastUser && !summary) return { ok: true, skipped: "no_content", from: fromRaw || np };
 
-    let contactId = null;
-    const idr = await env.DB.prepare("SELECT contact_id FROM contact_identifiers WHERE type='phone' AND value=?").bind(np).first().catch(() => null);
-    if (idr) contactId = idr.contact_id;
-    else contactId = await findOrCreateContactByIdentifier(env, "phone", np, { source: "inbound_sms" });
+    // Identity + thread. SMS keys on phone (unified with inbound calls). A website chat has
+    // no phone → key on the captured email (unified with the capture_email entry) or, failing
+    // that, the chat session id (a provisional contact) so we never drop the transcript.
+    let contactId = null, channel, threadId, subject;
+    if (isSms) {
+      channel = "phone"; threadId = "phone:" + np; subject = "📞 " + (fromRaw || np);
+      const idr = await env.DB.prepare("SELECT contact_id FROM contact_identifiers WHERE type='phone' AND value=?").bind(np).first().catch(() => null);
+      contactId = idr ? idr.contact_id : await findOrCreateContactByIdentifier(env, "phone", np, { source: "inbound_sms" });
+    } else if (email && /.+@.+\..+/.test(email)) {
+      channel = "email"; threadId = "chat-email:" + email; subject = "💬 Chat — " + email;
+      contactId = await findOrCreateContactByEmail(env, email, { source: "chat" });
+    } else {
+      channel = "chat"; threadId = "chat:" + (chatId || Date.now()); subject = "💬 Website chat";
+      contactId = await findOrCreateContactByIdentifier(env, "chat_session", chatId || String(Date.now()), { source: "chat" });
+    }
     if (!contactId) return { ok: false, error: "no_contact" };
     const c = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first().catch(() => null);
     const companyId = c ? c.company_id : null;
 
     const now = nowIso();
-    // Same "phone:"+np thread as inbound calls, so texts and calls from one number share
-    // a single conversation. Message channel stays "sms".
     const convId = await upsertConversationByThread(env, {
-      channel: "phone", externalThreadId: "phone:" + np, contactId, companyId,
-      subject: "📞 " + (fromRaw || np), incoming: true, lastAt: now,
-      preview: "💬 " + String(lastUser || summary || transcript || "SMS").slice(0, 90),
+      channel, externalThreadId: threadId, contactId, companyId, sourceDetail: "mack_chat",
+      subject, incoming: true, lastAt: now,
+      preview: "💬 " + String(lastUser || summary || transcript || "chat").slice(0, 90),
     });
 
-    const lines = ["💬 Inbound SMS — Mack (AI) is replying", `From ${fromRaw || np}`];
-    if (summary) lines.push("", summary);
+    const lines = [isSms ? "💬 Inbound SMS — Mack (AI)" : "💬 Website chat — Mack (AI)"];
+    if (isSms) lines.push("From " + (fromRaw || np));
+    else if (email) lines.push("Email: " + email);
+    if (summary) lines.push("", "Summary: " + summary);
     if (transcript) lines.push("", transcript);
     else if (lastUser) lines.push("", "Them: " + lastUser);
     const bodyText = lines.join("\n");
 
-    const extId = "retell-sms:" + (chatId || np + ":session");
-    const ins = await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: "sms", externalMessageId: extId, bodyText, sentAt: now });
+    const extId = "retell-chat:" + (chatId || (isSms ? np : email || Date.now()) + ":session");
+    const ins = await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: isSms ? "sms" : "chat", externalMessageId: extId, bodyText, sentAt: now });
     if (ins.existed) await env.DB.prepare("UPDATE messages SET body_text=? WHERE external_message_id=?").bind(bodyText, extId).run().catch(() => {});
-    await logEvent(env, { type: "replied", contactId, companyId, conversationId: convId, channel: "sms", source: "inbound_sms", meta: { chat_id: chatId, from: fromRaw || np, via: "retell_sms" } });
-    return { ok: true, contactId, conversationId: convId, from: fromRaw || np, text: lastUser };
+    await logEvent(env, { type: "replied", contactId, companyId, conversationId: convId, channel: isSms ? "sms" : "chat", source: isSms ? "inbound_sms" : "chat", meta: { chat_id: chatId, from: fromRaw || np || null, email: email || null, via: "retell_chat" } });
+    return { ok: true, contactId, conversationId: convId, from: fromRaw || np, email: email || null, text: lastUser };
   } catch (e) { return { ok: false, error: String(e).slice(0, 140) }; }
 }

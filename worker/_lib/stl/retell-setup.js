@@ -393,11 +393,16 @@ export async function provisionChatAgent(env) {
   const llmBody = { general_prompt: MACK_CHAT_PROMPT, begin_message: MACK_CHAT_GREETING, general_tools: [CONTACT_TOOL, CAPTURE_EMAIL_TOOL] };
   if (kbId) llmBody.knowledge_base_ids = [kbId];
 
+  // Webhook so Retell posts chat_ended/chat_analyzed (with the transcript) to our handler —
+  // for BOTH the website widget and inbound SMS. Without it, website chats never reach the CRM.
+  const chatWebhook = `${origin}/api/stl/retell/webhook`;
+
   if (existing) {
     const agentId = existing.agent_id || existing.chat_agent_id;
     let llmId = existing.response_engine && existing.response_engine.llm_id;
     if (llmId) await rt(env, "PATCH", `/update-retell-llm/${llmId}`, llmBody);
-    return { ok: true, updated: true, chat_agent_id: agentId, knowledge_base_attached: !!kbId, detail: `updated ${chatName}` };
+    const wh = await rt(env, "PATCH", `/update-chat-agent/${agentId}`, { webhook_url: chatWebhook });
+    return { ok: true, updated: true, chat_agent_id: agentId, knowledge_base_attached: !!kbId, webhook_set: !!wh.ok, detail: `updated ${chatName}` };
   }
 
   // Fresh: create the chat brain, then the chat agent bound to it.
@@ -406,6 +411,7 @@ export async function provisionChatAgent(env) {
   const agent = await rt(env, "POST", "/create-chat-agent", {
     response_engine: { type: "retell-llm", llm_id: llm.json.llm_id },
     agent_name: chatName,
+    webhook_url: chatWebhook,
   });
   const agentId = agent.json && (agent.json.agent_id || agent.json.chat_agent_id);
   if (!agent.ok || !agentId) return { ok: false, error: "create-chat-agent failed", status: agent.status, detail: agent.text || agent.status, llm_id: llm.json.llm_id };
