@@ -288,7 +288,7 @@ async function resetTests(){if(!confirm('Delete ALL test leads and their data?')
 function renderReadiness(r){
   const chip=(ok,label,note)=>'<div class="kpi '+(ok?'good':'')+'"><div class=v style="font-size:15px">'+(ok?'● ready':'○ not set')+'</div><div class=l>'+label+(note?' <span class=muted>'+note+'</span>':'')+'</div></div>';
   document.getElementById('readiness').innerHTML=
-    chip(r.email_resend,'Email (Resend)')+
+    chip(r.email_gmail,'Email (Gmail: '+(r.email_gmail||'—')+')')+
     chip(r.retell_key,'Retell key')+
     chip(r.retell_agent&&r.retell_from,'Retell agent + number')+
     chip(r.twilio&&r.twilio_from,'Twilio (SMS)','partner')+

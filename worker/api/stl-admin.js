@@ -10,14 +10,18 @@ import { createLead } from "../_lib/stl/classifier.js";
 import { scheduleLead, tick, revoke, maybeTextbackOnNoAnswer, parkRepMatchingPhone } from "../_lib/stl/runner.js";
 import { linkLeadToCrm } from "../_lib/stl/crm-bridge.js";
 import { toE164 } from "../_lib/phone.js";
-import { sendEmail as gmailSend } from "../_lib/gmail.js";
+import { sendEmail as gmailSend, gAccessToken } from "../_lib/gmail.js";
 import { provisionRuby, listRetellNumbers, provisionKnowledgeBase, provisionChatAgent } from "../_lib/stl/retell-setup.js";
 import { twilioStatus, sendTestSms, listTwilioNumbers, findNumberOwner, messageStatus, listMessagingServices, attachNumberToService, setupCascadeNumber, createSipTrunk, addSipOrigination } from "../_lib/stl/twilio.js";
 
 // Which integrations are wired? Booleans only — never leak secret values.
-function readiness(env) {
+async function readiness(env) {
+  // Truthfully reflect whether the sending mailbox actually has a connected Gmail token,
+  // not just that a default string exists (a real outage should show "not set").
+  const acct = String(env.STL_EMAIL_ACCOUNT || env.CRM_INBOX_EMAILS || "hello@consentresolve.com").split(/[,\s]+/)[0].trim().toLowerCase();
+  const emailGmail = (await gAccessToken(env, acct).catch(() => null)) ? acct : "";
   return {
-    email_gmail: "hello@consentresolve.com",
+    email_gmail: emailGmail,
     twilio: !!(env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN),
     twilio_from: !!(env.TWILIO_FROM_NUMBER || env.TWILIO_MESSAGING_SERVICE_SID),
     retell_key: !!env.RETELL_API_KEY,
@@ -108,7 +112,7 @@ export async function onRequestGet({ request, env }) {
   // Recent event log — send_failed / sms_delivery_failed / disclosure_fail etc.
   const events = await all(env, "SELECT id, lead_id, at, kind, detail FROM stl_events ORDER BY at DESC LIMIT 40");
   const errors = await all(env, "SELECT id, lead_id, at, kind, detail FROM stl_events WHERE kind LIKE '%fail%' ORDER BY at DESC LIMIT 40");
-  return json({ ok: true, settings, defaults: DEFAULTS, readiness: readiness(env), metrics: await metrics(env), leads, touchpoints: tps, violations, reps, events, errors }, {}, cors);
+  return json({ ok: true, settings, defaults: DEFAULTS, readiness: await readiness(env), metrics: await metrics(env), leads, touchpoints: tps, violations, reps, events, errors }, {}, cors);
 }
 
 export async function onRequestPost({ request, env }) {

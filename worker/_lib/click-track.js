@@ -57,8 +57,26 @@ export async function recordClick(env, { dest, email, campaign, label }) {
     try { await logEvent(env, { type: "link_clicked", channel: "email", source: src, meta: { url: dest, label, campaign, anonymous: true } }); } catch (_) {}
     return { contactId: null };
   }
-  let contactId = null;
-  try { contactId = await findOrCreateContactByEmail(env, em, { source: src }); } catch (_) {}
+  // The `e` param is public and forgeable, so NEVER create a brand-new CRM contact from it.
+  // Only attribute to a contact that ALREADY exists, or to an email we actually mailed
+  // (an outreach_sends row). Anything else logs an anonymous counter and stops — that
+  // closes the "inject arbitrary contacts / flip a real prospect's lead flag" vector.
+  let contactId = null, row = null;
+  try {
+    const idr = await env.DB.prepare("SELECT contact_id FROM contact_identifiers WHERE type='email' AND value=?").bind(em).first();
+    if (idr) contactId = idr.contact_id;
+  } catch (_) {}
+  try { row = await env.DB.prepare("SELECT id, name, company, lead_created FROM outreach_sends WHERE lower(email)=?").bind(em).first(); } catch (_) {}
+  // A mailed-but-not-yet-in-CRM address: create the contact WITH its name/company so the
+  // click doesn't land as "Unknown" (this is the contact's first appearance).
+  if (!contactId && row) {
+    try { contactId = await findOrCreateContactByEmail(env, em, { source: src, name: row.name || "", company: row.company || "" }); } catch (_) {}
+  }
+  if (!contactId) {
+    // Unknown/forged email — record the anonymous click counter only, create nothing.
+    try { await logEvent(env, { type: "link_clicked", channel: "email", source: src, meta: { url: dest, label, campaign, unattributed: true } }); } catch (_) {}
+    return { contactId: null };
+  }
   try { await logEvent(env, { type: "link_clicked", contactId, channel: "email", source: src, meta: { url: dest, label, campaign } }); } catch (_) {}
   try {
     await addActivityV2(env, {
@@ -69,10 +87,7 @@ export async function recordClick(env, { dest, email, campaign, label }) {
   } catch (_) {}
   // Outreach attribution + restore click→lead (the behavior Resend's webhook used to give us).
   try {
-    const row = await env.DB.prepare("SELECT id, lead_created FROM outreach_sends WHERE lower(email)=?").bind(em).first();
-    if (row) {
-      await env.DB.prepare("UPDATE outreach_sends SET clicks=clicks+1" + (row.lead_created ? "" : ", lead_created=1") + " WHERE id=?").bind(row.id).run();
-    }
+    if (row) await env.DB.prepare("UPDATE outreach_sends SET clicks=clicks+1" + (row.lead_created ? "" : ", lead_created=1") + " WHERE id=?").bind(row.id).run();
   } catch (_) {}
   return { contactId };
 }

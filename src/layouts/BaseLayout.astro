@@ -482,16 +482,22 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       function fmtPhone(p){var d=String(p||'').replace(/\D/g,'');if(d.length===11&&d[0]==='1')d=d.slice(1);
         return d.length===10?'('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6):p;}
 
-      // Hide Retell's own FAB so our orb is the ONLY launcher — never both. The :host(.cr-hidefab)
-      // rule is baked into the base Retell CSS (present from the first shadow injection, so there's
-      // no race), and __retellEnhance re-tags the host every cycle. We also tag any host that already
-      // exists and keep sweeping briefly, in case Retell mounted before this ran.
+      // Hide Retell's own FAB so our orb is the ONLY launcher — never both. The hide rule
+      // (:host(.cr-hidefab) …) lives in __retellCSS, which is a SHADOW-DOM stylesheet, so it can
+      // only take effect once it's injected into Retell's shadow root. __retellEnhance normally
+      // does that (#cr-tune) and re-tags the host each cycle. To avoid a double-FAB if enhance's
+      // host-detection ever drifts, this sweep independently (a) finds any Retell shadow host,
+      // (b) injects the #cr-tune stylesheet itself if missing, and (c) tags .cr-hidefab — so the
+      // hide does not depend on the rest of enhance succeeding.
       function hideRetellFab(){
         window.__crHideFab=true;
         var n=0,iv=setInterval(function(){
           var got=false;
           try{document.querySelectorAll('*').forEach(function(el){
-            if(el.shadowRoot&&el.shadowRoot.querySelector('[class*="_fab"],[class*="_window_"]')){el.classList.add('cr-hidefab');got=true;}
+            var sr=el.shadowRoot; if(!sr||!sr.querySelector('[class*="_fab"],[class*="_window_"]'))return;
+            el.classList.add('cr-hidefab');
+            if(!sr.getElementById('cr-tune')&&window.__retellCSS){var st=document.createElement('style');st.id='cr-tune';st.textContent=window.__retellCSS;sr.appendChild(st);}
+            got=true;
           });}catch(e){}
           if(got||++n>60)clearInterval(iv);
         },200);

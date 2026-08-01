@@ -114,14 +114,23 @@ export async function sendMessage(env, account, to, subject, body, threadId, opt
   // Strip CR/LF from any value interpolated into the header block — `to` can come
   // from unvalidated lead data, so a crafted address must not inject headers.
   const noCrlf = (v) => String(v == null ? "" : v).replace(/[\r\n]+/g, " ").trim();
+  // Address headers can carry a non-ASCII display name (e.g. "José's HVAC <hello@…>"). RFC 2047
+  // encode the display-name phrase while leaving the <addr> ASCII, so accents don't ship as raw
+  // UTF-8 (a spam signal). Non-address headers pass through noCrlf unchanged.
+  const ADDR = new Set(["to", "from", "reply-to", "cc", "bcc"]);
+  const encodeAddr = (v) => String(v == null ? "" : v).split(",").map((a) => {
+    a = noCrlf(a);
+    const m = /^(.*?)\s*<([^>]+)>$/.exec(a);
+    return (m && m[1]) ? encodeHeader(m[1]) + " <" + m[2].trim() + ">" : a;
+  }).join(", ");
   const hdrs = { ...(opts.headers || {}) };
   if (opts.from) hdrs.From = opts.from;
   if (opts.replyTo || opts.reply_to) hdrs["Reply-To"] = opts.replyTo || opts.reply_to;
   // Bcc header is honored by the Gmail API and stripped from the delivered message.
   if (opts.bcc) hdrs.Bcc = Array.isArray(opts.bcc) ? opts.bcc.join(", ") : opts.bcc;
   if (opts.cc) hdrs.Cc = Array.isArray(opts.cc) ? opts.cc.join(", ") : opts.cc;
-  const extra = Object.keys(hdrs).map((k) => noCrlf(k) + ": " + noCrlf(hdrs[k]) + "\r\n").join("");
-  const head = "To: " + noCrlf(to) + "\r\nSubject: " + encodeHeader(subject) + "\r\n" + extra + "MIME-Version: 1.0\r\n";
+  const extra = Object.keys(hdrs).map((k) => noCrlf(k) + ": " + (ADDR.has(k.toLowerCase()) ? encodeAddr(hdrs[k]) : noCrlf(hdrs[k])) + "\r\n").join("");
+  const head = "To: " + encodeAddr(to) + "\r\nSubject: " + encodeHeader(subject) + "\r\n" + extra + "MIME-Version: 1.0\r\n";
 
   let mime;
   if (opts.html) {
