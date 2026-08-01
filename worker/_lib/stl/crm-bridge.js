@@ -192,12 +192,13 @@ export async function mirrorInboundSmsRetell(env, ev) {
       channel = "phone"; threadId = "phone:" + np; subject = "📞 " + (fromRaw || np);
       const idr = await env.DB.prepare("SELECT contact_id FROM contact_identifiers WHERE type='phone' AND value=?").bind(np).first().catch(() => null);
       contactId = idr ? idr.contact_id : await findOrCreateContactByIdentifier(env, "phone", np, { source: "inbound_sms" });
-    } else if (email && /.+@.+\..+/.test(email)) {
-      channel = "email"; threadId = "chat-email:" + email; subject = "💬 Chat — " + email;
-      contactId = await findOrCreateContactByEmail(env, email, { source: "chat" });
     } else {
-      channel = "chat"; threadId = "chat:" + (chatId || Date.now()); subject = "💬 Website chat";
-      contactId = await findOrCreateContactByIdentifier(env, "chat_session", chatId || String(Date.now()), { source: "chat" });
+      // Website chat: thread by the Retell chat-session id so chat_started, live polls, and
+      // chat_ended all land on ONE conversation. Contact = captured email if known, else a
+      // provisional chat-session contact.
+      channel = "chat"; threadId = "chat:" + (chatId || Date.now());
+      if (email && /.+@.+\..+/.test(email)) { contactId = await findOrCreateContactByEmail(env, email, { source: "chat" }); subject = "💬 Chat — " + email; }
+      else { contactId = await findOrCreateContactByIdentifier(env, "chat_session", chatId || String(Date.now()), { source: "chat" }); subject = "💬 Website chat"; }
     }
     if (!contactId) return { ok: false, error: "no_contact" };
     const c = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first().catch(() => null);
@@ -209,6 +210,9 @@ export async function mirrorInboundSmsRetell(env, ev) {
       subject, incoming: true, lastAt: now,
       preview: "💬 " + String(lastUser || summary || transcript || "chat").slice(0, 90),
     });
+    // A chat that opened as provisional (chat_started, no email yet) → attach the now-known
+    // email contact so the finished thread lands on the real person.
+    if (!isSms && email && contactId) await env.DB.prepare("UPDATE conversations SET contact_id=? WHERE id=?").bind(contactId, convId).run().catch(() => {});
 
     const lines = [isSms ? "💬 Inbound SMS — Mack (AI)" : "💬 Website chat — Mack (AI)"];
     if (isSms) lines.push("From " + (fromRaw || np));
@@ -223,5 +227,30 @@ export async function mirrorInboundSmsRetell(env, ev) {
     if (ins.existed) await env.DB.prepare("UPDATE messages SET body_text=? WHERE external_message_id=?").bind(bodyText, extId).run().catch(() => {});
     await logEvent(env, { type: "replied", contactId, companyId, conversationId: convId, channel: isSms ? "sms" : "chat", source: isSms ? "inbound_sms" : "chat", meta: { chat_id: chatId, from: fromRaw || np || null, email: email || null, via: "retell_chat" } });
     return { ok: true, contactId, conversationId: convId, from: fromRaw || np, email: email || null, text: lastUser };
+  } catch (e) { return { ok: false, error: String(e).slice(0, 140) }; }
+}
+
+// chat_started → open the CRM conversation immediately (keyed by the chat-session id) with a
+// "live" placeholder, so the team sees it the moment a chat begins and can poll it. The
+// chat_ended handler above updates this same conversation (same thread + message id) with
+// the full transcript. Returns the chat_id so the poller knows what to fetch.
+export async function openLiveChat(env, ev) {
+  try {
+    await ensureCrmV2Schema(env); await ensureRebuildSchema(env);
+    const chat = ev.chat || ev.data || ev || {};
+    const chatId = chat.chat_id || chat.id || null;
+    if (!chatId) return { ok: false, skipped: "no_chat_id" };
+    const contactId = await findOrCreateContactByIdentifier(env, "chat_session", chatId, { source: "chat" });
+    if (!contactId) return { ok: false, error: "no_contact" };
+    const c = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first().catch(() => null);
+    const now = nowIso();
+    const convId = await upsertConversationByThread(env, {
+      channel: "chat", externalThreadId: "chat:" + chatId, contactId, companyId: c ? c.company_id : null,
+      subject: "💬 Website chat", incoming: true, lastAt: now, sourceDetail: "mack_chat",
+      preview: "🟢 Live — chat in progress…",
+    });
+    await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: "chat", externalMessageId: "retell-chat:" + chatId, bodyText: "🟢 Website chat — Mack (AI) — in progress…\n(live; the transcript fills in as they talk)", sentAt: now });
+    await logEvent(env, { type: "replied", contactId, companyId: c ? c.company_id : null, conversationId: convId, channel: "chat", source: "chat", meta: { chat_id: chatId, live: true } });
+    return { ok: true, conversationId: convId, contactId, chat_id: chatId };
   } catch (e) { return { ok: false, error: String(e).slice(0, 140) }; }
 }

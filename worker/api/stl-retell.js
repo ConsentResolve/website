@@ -6,7 +6,7 @@ import { ensureStlSchema } from "../_lib/stl/schema.js";
 import { logEvent } from "../_lib/stl/classifier.js";
 import { alert } from "../_lib/stl/adapters.js";
 import { verifyHmac } from "../_lib/stl/verify.js";
-import { mirrorInboundCall, mirrorInboundSmsRetell } from "../_lib/stl/crm-bridge.js";
+import { mirrorInboundCall, mirrorInboundSmsRetell, openLiveChat } from "../_lib/stl/crm-bridge.js";
 import { revoke } from "../_lib/stl/runner.js";
 import { json } from "../_lib/http.js";
 
@@ -33,6 +33,11 @@ export async function onRequestPost({ request, env }) {
   // Retell's chat/SMS agent posts chat_* events to this same webhook. Mirror inbound SMS
   // into the CRM (separate payload shape from calls — a `chat` object, not `call`).
   if (ev.chat || /chat|sms/i.test(String(ev.event || ev.event_type || ""))) {
+    // chat_started → open the conversation immediately (live), so the team can watch it.
+    if (/chat_started|chat_ongoing/i.test(String(ev.event || ev.event_type || ""))) {
+      const r = await openLiveChat(env, ev).catch((e) => ({ ok: false, error: String(e).slice(0, 140) }));
+      return json({ ok: true, chat_started: true, ...r });
+    }
     const r = await mirrorInboundSmsRetell(env, ev).catch((e) => ({ ok: false, error: String(e).slice(0, 140) }));
     // Honor STOP-equivalents even though the text was handled by Retell, so our engine
     // also marks the lead opted-out (Twilio's Messaging Service opt-out blocks sends too).
