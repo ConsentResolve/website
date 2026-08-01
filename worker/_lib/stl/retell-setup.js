@@ -311,6 +311,9 @@ This is texting, not email. Keep EVERY reply to 1 sentence — 2 short ones at t
 - The name of any data vendor.
 - Banned words: leverage, solution(s), seamless, robust, empower, synergy, cutting-edge, best-in-class, revolutionize, game-changer, disrupt, ecosystem, holistic, streamline, supercharge, next-level, world-class, elevate, frictionless.
 
+# Context — where they are (don't read these out loud)
+The visitor is on the page "{{page}}" ({{path}}). If {{utm_source}} is set, they arrived from that source/campaign ({{utm_campaign}}). Use this quietly to be relevant — e.g. if they're on a specific trade's leads page, assume that trade; if they came from an ad, they already have some intent. Never recite the variables back to them, and never mention UTMs or tracking.
+
 # Get their details — gently (capture_email tool)
 Over a helpful conversation, try to learn who you're talking to: their name, their website, their trade, the best email, and a phone if it comes up. Weave it in one thing at a time, only when it fits the flow — never a form, never pushy, and never hold up actually helping them to collect it. Natural openings: "Who am I chatting with?" · "What's your site? I can take a quick look." · "What's the best email for your first-50 details?" The MOMENT you learn any of these, call the capture_email tool with whatever you have so far (email, name, company, website, trade, phone) — you can call it again as you learn more. Don't ask permission to save it; they told you. If they'd rather not share, let it go and keep helping.
 
@@ -399,11 +402,23 @@ export async function provisionChatAgent(env) {
   // for BOTH the website widget and inbound SMS. Without it, website chats never reach the CRM.
   const chatWebhook = `${origin}/api/stl/retell/webhook`;
 
+  // Post-chat extraction: Retell pulls these structured fields out of the conversation at
+  // the end and returns them in chat_analysis.custom_analysis_data — the webhook stores them.
+  const POST_CHAT_ANALYSIS = [
+    { type: "string", name: "email", description: "The visitor's email address, if they shared one. Empty if not." },
+    { type: "string", name: "name", description: "The visitor's name, if given." },
+    { type: "string", name: "website", description: "The visitor's website URL, if given." },
+    { type: "string", name: "phone", description: "The visitor's phone number, if given." },
+    { type: "string", name: "trade", description: "The visitor's trade (roofing, hvac, plumbing, electrical, etc.), if identifiable. Empty if unknown." },
+    { type: "enum", name: "intent", description: "What the visitor mainly wanted.", choices: ["buy_leads", "pricing", "support", "just_browsing", "partner", "other"] },
+    { type: "boolean", name: "wants_callback", description: "True only if the visitor asked to be called or texted by a human." },
+  ];
+
   if (existing) {
     const agentId = existing.agent_id || existing.chat_agent_id;
     let llmId = existing.response_engine && existing.response_engine.llm_id;
     if (llmId) await rt(env, "PATCH", `/update-retell-llm/${llmId}`, llmBody);
-    const wh = await rt(env, "PATCH", `/update-chat-agent/${agentId}`, { webhook_url: chatWebhook });
+    const wh = await rt(env, "PATCH", `/update-chat-agent/${agentId}`, { webhook_url: chatWebhook, post_call_analysis_data: POST_CHAT_ANALYSIS });
     return { ok: true, updated: true, chat_agent_id: agentId, knowledge_base_attached: !!kbId, webhook_set: !!wh.ok, detail: `updated ${chatName}` };
   }
 
@@ -414,6 +429,7 @@ export async function provisionChatAgent(env) {
     response_engine: { type: "retell-llm", llm_id: llm.json.llm_id },
     agent_name: chatName,
     webhook_url: chatWebhook,
+    post_call_analysis_data: POST_CHAT_ANALYSIS,
   });
   const agentId = agent.json && (agent.json.agent_id || agent.json.chat_agent_id);
   if (!agent.ok || !agentId) return { ok: false, error: "create-chat-agent failed", status: agent.status, detail: agent.text || agent.status, llm_id: llm.json.llm_id };

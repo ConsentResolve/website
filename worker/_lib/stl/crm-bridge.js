@@ -182,6 +182,8 @@ export async function mirrorInboundSmsRetell(env, ev) {
     const summary = analysis.chat_summary || "";
     const cad = analysis.custom_analysis_data || {};
     const email = String(cad.email || chat.email || (chat.metadata && chat.metadata.email) || "").trim().toLowerCase();
+    const xTrade = String(cad.trade || "").trim(), xIntent = String(cad.intent || "").trim(), xWebsite = String(cad.website || "").trim(), xName = String(cad.name || "").trim();
+    const xWantsCb = cad.wants_callback === true || cad.wants_callback === "true";
     if (!transcript && !lastUser && !summary) return { ok: true, skipped: "no_content", from: fromRaw || np };
 
     // Thread by the Retell chat SESSION (both SMS + website) so chat_started, live polls,
@@ -216,9 +218,14 @@ export async function mirrorInboundSmsRetell(env, ev) {
     if (isSms) lines.push("From " + (fromRaw || np));
     else if (email) lines.push("Email: " + email);
     if (summary) lines.push("", "Summary: " + summary);
+    // Post-chat extraction fields (Retell pulled these out of the conversation).
+    const intel = [xName && ("name: " + xName), xTrade && ("trade: " + xTrade), xIntent && ("intent: " + xIntent), xWebsite && ("website: " + xWebsite), xWantsCb && "⚑ wants a callback"].filter(Boolean);
+    if (intel.length) lines.push("Extracted — " + intel.join(" · "));
     if (transcript) lines.push("", transcript);
     else if (lastUser) lines.push("", "Them: " + lastUser);
     const bodyText = lines.join("\n");
+    // Fill the contact's name/trade from extraction when we have them.
+    if (xName || xTrade) await env.DB.prepare("UPDATE contacts SET full_name=COALESCE(NULLIF(full_name,''), ?), lifecycle_stage=lifecycle_stage WHERE id=?").bind(xName || null, contactId).run().catch(() => {});
 
     const extId = "retell-chat:" + (chatId || (isSms ? np : email || Date.now()) + ":session");
     const ins = await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: isSms ? "sms" : "chat", externalMessageId: extId, bodyText, sentAt: now });
