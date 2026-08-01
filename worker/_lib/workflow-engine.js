@@ -14,6 +14,7 @@ import {
   ulid, nowIso, ensureRebuildSchema, logEvent, canSend, isSuppressed, consentState,
 } from "./crm-rebuild.js";
 import { sendEmail as gmailSend } from "./gmail.js";
+import { trackedUrl } from "./click-track.js";
 import { ensureCrmV2Schema } from "./crm-v2.js";
 
 const enabled = (env) => env.WORKFLOW_ENGINE_ENABLED === "true";
@@ -81,9 +82,10 @@ async function seedWorkflows(env) {
 
 // ---- Message templates (compliant copy) ----------------------------------
 const BRAND = "Consent Resolve";
-const PREF_CENTER = "https://consentresolve.com/get-started/";
-function tpl(id, c) {
+function tpl(env, id, c) {
   const first = (c.full_name || "there").split(" ")[0];
+  // Pref-center CTA routed through the tracked redirect so nurture clicks land in the CRM.
+  const PREF_CENTER = trackedUrl(env, { dest: "/get-started/", email: c.email, campaign: "nurture", label: id });
   const t = {
     stl_sms1: () => ({ text: `Hi ${first}, ${c.owner || "Andy"} at ${BRAND} — we turn your website visitors into exclusive $7 leads. Want the 2-min version? Reply STOP to opt out.` }),
     stl_sms2: () => ({ text: `${first}, still happy to show you how ${BRAND} recovers the 98% of site visitors who leave without filling a form. Reply YES for a quick look. STOP to opt out.` }),
@@ -282,7 +284,7 @@ async function stepRun(env, run, out, dry) {
 }
 
 async function executeStep(env, run, c, step, idx, out, dry) {
-  const t = tpl(step.template, c);
+  const t = tpl(env, step.template, c);
   let res, type, cost = 0;
   if (step.action === "send_email") {
     if (!c.email) { await logStep(env, run, idx, "email", step.action, "skipped", "no_email"); out.skipped++; return; }

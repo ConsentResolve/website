@@ -2239,10 +2239,17 @@ function activityCard(c){
   const L=c.last, N=c.next;
   const nextClass = N.kind==="you" ? (N.tone==="urgent"?"urgent":"act") : (N.tone||"info");
   const nextLabel = N.kind==="you" ? "You — next step" : N.kind==="auto" ? "Next (automatic)" : N.kind==="snoozed" ? "Snoozed" : "Next";
+  // Real intent feed — email clicks + site visits, newest first (see crm-app-data actByCt).
+  const feed = (c.activity||[]).map(a=>{
+    const tone = a.kind==='link_clicked' ? 'good' : 'info';
+    const lbl  = a.kind==='link_clicked' ? 'Email click' : 'Site visit';
+    return `<div class="actrow ${tone}"><span class="adot"></span><div><label>${lbl}</label><b>${esc(a.label)}</b><time>${esc(a.ts)}</time></div></div>`;
+  }).join('');
   return `<div class="card"><h4>Activity</h4>
     <div class="act">
       <div class="actrow ${L.tone}"><span class="adot"></span><div><label>What happened</label><b>${esc(L.label)}</b><time>${esc(L.ts)}</time></div></div>
       <div class="actrow ${nextClass}"><span class="adot"></span><div><label>${nextLabel}</label><b>${esc(N.label)}</b><time>${esc(N.when)}</time></div></div>
+      ${feed}
     </div>
   </div>`;
 }

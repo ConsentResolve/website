@@ -183,7 +183,7 @@ export async function onRequestGet({ request, env }) {
     ).bind(...convIds).all()).results || [];
     for (const m of msgs) { const a = msgsByConv.get(m.conversation_id) || []; a.push(m); msgsByConv.set(m.conversation_id, a); }
   }
-  const consentByCt = new Map(), dealByCt = new Map(), runByCt = new Map(), geoByCt = new Map(), phoneByCt = new Map();
+  const consentByCt = new Map(), dealByCt = new Map(), runByCt = new Map(), geoByCt = new Map(), phoneByCt = new Map(), actByCt = new Map();
   if (contactIds.length) {
     // Phone identifier per contact → used as the display name for nameless (provisional)
     // contacts (e.g. inbound callers/texters) instead of a bare "Unknown".
@@ -203,6 +203,19 @@ export async function onRequestGet({ request, env }) {
     try {
       for (const g of (await env.DB.prepare(`SELECT vl.contact_id, p.ip, p.city, p.region, p.country FROM visitor_links vl JOIN presence p ON p.vid=vl.vid WHERE vl.contact_id IN ${ph(contactIds)} ORDER BY p.last_seen DESC`).bind(...contactIds).all()).results || []) {
         if (!geoByCt.has(g.contact_id)) geoByCt.set(g.contact_id, g);
+      }
+    } catch (_) {}
+    // Recent intent events per contact (email clicks + site visits) → the Activity tab feed.
+    try {
+      for (const a of (await env.DB.prepare(`SELECT contact_id, type, meta, occurred_at FROM crm_events WHERE contact_id IN ${ph(contactIds)} AND type IN ('link_clicked','site_visit') ORDER BY occurred_at DESC LIMIT 300`).bind(...contactIds).all()).results || []) {
+        const list = actByCt.get(a.contact_id) || [];
+        if (list.length >= 6) continue;
+        let m = {}; try { m = JSON.parse(a.meta || "{}"); } catch (_) {}
+        const label = a.type === "link_clicked"
+          ? "Clicked: " + (m.label || "a link")
+          : "Visited " + (m.path || "the site");
+        list.push({ kind: a.type, label, ts: humanTime(a.occurred_at) || "—" });
+        actByCt.set(a.contact_id, list);
       }
     } catch (_) {}
   }
@@ -238,6 +251,7 @@ export async function onRequestGet({ request, env }) {
       snooze_note: r.snooze_note || null,                                 // optional reminder note
       email_subject: channel === "email" ? (r.subject || "") : undefined,
       task: unread ? { tag: "do", text: "New message — reply.", cta: "Reply" } : { tag: "auto", text: "No action needed right now.", cta: "" },
+      activity: actByCt.get(r.contact_id) || [],
       last: { label: r.last_message_preview || "Activity on this conversation", ts: humanTime(r.last_message_at) || "—", tone: "info" },
       next: unread ? { kind: "you", label: "Reply", when: "now", tone: "act" } : { kind: "auto", label: "Waiting on them", when: "—", tone: "muted" },
       consent,

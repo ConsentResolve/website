@@ -73,7 +73,7 @@ export async function onRequestPost({ request, env }) {
     if (await isSuppressed(env, { email: to.toLowerCase(), channel: "email" })) return json({ ok: false, error: "suppressed", note: "this address opted out" }, {}, cors);
     const template = String(body.testEmail.template || "earn_1"); // earn_1|earn_2|earn_3|stl_email
     const c = { id: "test", full_name: body.testEmail.name || "there", email: to, owner: "Andy" };
-    const t = tpl(template, c);
+    const t = tpl(env, template, c);
     const result = await sendResend(env, { to, subject: t.subject, html: t.html, text: t.text, unsubUrl: "https://consentresolve.com/api/unsubscribe?c=test" });
     return json({ ok: result.ok === true, template, subject: t.subject, result }, {}, cors);
   }
@@ -83,7 +83,7 @@ export async function onRequestPost({ request, env }) {
   if (body.testCall?.to) {
     const to = String(body.testCall.to).trim();
     if (await isSuppressed(env, { phone: to, channel: "voice" })) return json({ ok: false, error: "suppressed" }, {}, cors);
-    const script = body.testCall.script || tpl("stl_call", { full_name: body.testCall.name || "there", owner: "Andy" }).script;
+    const script = body.testCall.script || tpl(env, "stl_call", { full_name: body.testCall.name || "there", owner: "Andy" }).script;
     const result = await placeRetellCall(env, { to, script });
     return json({ ok: result.ok === true, script, result, note: result.hold ? "Retell not configured yet — set RETELL_API_KEY + RETELL_AGENT_ID + RETELL_FROM_NUMBER" : undefined }, {}, cors);
   }

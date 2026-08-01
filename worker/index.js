@@ -20,6 +20,7 @@ import * as unsubscribe from "./api/unsubscribe.js";
 import * as socialQueue from "./api/social-queue.js";
 import * as feedback from "./api/feedback.js";
 import * as outreach from "./api/outreach.js";
+import * as click from "./api/click.js";
 import * as queue from "./api/queue.js";
 import * as hit from "./api/hit.js";
 import * as ping from "./api/ping.js";
@@ -127,6 +128,7 @@ const ROUTES = {
   "/api/outreach": outreach,
   "/api/outreach/run": outreach,
   "/api/outreach/webhook": outreach,
+  "/r": click,
   "/api/queue": queue,
   "/api/hit": hit,
   "/api/ping": ping,

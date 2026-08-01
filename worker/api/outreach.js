@@ -31,6 +31,7 @@ const BCC_LIMIT = 25;
 const SITE = "https://consentresolve.com";
 
 import { sendEmail as gmailSend, gAccessToken } from "../_lib/gmail.js";
+import { trackedUrl } from "../_lib/click-track.js";
 const fromAddr = (env) => (env.STL_EMAIL_ACCOUNT || env.CRM_INBOX_EMAILS || "hello@consentresolve.com").split(/[,\s]+/)[0].trim().toLowerCase();
 
 const json = (o, init = {}) => new Response(JSON.stringify(o), {
@@ -57,8 +58,13 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 
 // Transparent by design: lead with HOW we got their address. That honesty is the entire
 // demo — if we obscured it we'd be doing the thing we sell against.
-function buildEmail(p) {
-  const u = (path, c) => `${SITE}${path}?utm_source=consent_outreach&utm_medium=email&utm_campaign=identified_visitors&utm_content=${c}`;
+function buildEmail(env, p) {
+  // Each CTA is routed through the tracked redirect (/r) so a click lands in the CRM as a
+  // link_clicked event + activity, and (re)creates the lead — keyed to this recipient's email.
+  const u = (path, c) => trackedUrl(env, {
+    dest: `${path}?utm_source=consent_outreach&utm_medium=email&utm_campaign=identified_visitors&utm_content=${c}`,
+    email: p.email, campaign: "identified_visitors", label: c,
+  });
   const unsub = `${SITE}/api/unsubscribe?e=${encodeURIComponent(p.email)}`;
   const text = `Hi ${firstName(p.name)},
 
@@ -278,7 +284,7 @@ export async function onRequestPost({ request, env }) {
   // recipient still gets their first-touch email later.
   if (testTo) {
     const src = rows.length ? normalize(rows[0]) : { email: "sample@example.com", name: "Sam", company: "", domain: "" };
-    const mail = buildEmail(src);
+    const mail = buildEmail(env, src);
     const g = await gmailSend(env, {
       account: fromAddr(env), to: testTo, from: FROM, replyTo: REPLY_TO(env),
       subject: mail.subject, html: mail.html, text: mail.text,
@@ -315,13 +321,13 @@ export async function onRequestPost({ request, env }) {
       dry_run: true, api_returned: rows.length, already_mailed: alreadySent,
       api_field_shape: shape,
       would_send: queue.length, bcc_on_first: Math.max(0, BCC_LIMIT - alreadySent),
-      sample: queue.slice(0, 10), preview: buildEmail(queue[0] || { email: "sample@example.com", name: "Sam" }),
+      sample: queue.slice(0, 10), preview: buildEmail(env, queue[0] || { email: "sample@example.com", name: "Sam" }),
     });
   }
   const results = [];
   let n = alreadySent;
   for (const p of queue) {
-    const mail = buildEmail(p);
+    const mail = buildEmail(env, p);
     const withBcc = n < BCC_LIMIT;
     const g = await gmailSend(env, {
       account: fromAddr(env), to: p.email, from: FROM, replyTo: REPLY_TO(env),

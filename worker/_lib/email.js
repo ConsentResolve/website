@@ -4,6 +4,7 @@
 
 import { tradeProfile } from "./trades.js";
 import { sendEmail as gmailSend } from "./gmail.js";
+import { trackedUrl } from "./click-track.js";
 
 const NAVY = "#0a1628";
 const MINT = "#00e5a0";
@@ -58,7 +59,7 @@ function ownerHtml(p, env, baseUrl) {
         <strong>Notice anything?</strong> This lead is <em>you</em>. You just did exactly what your customers do — and this is what hits your inbox every time someone consents on YOUR ${esc(t.label)} site. It's a real name and a consented email, yours alone, never resold.
       </div>
       <div style="margin-top:26px;text-align:center">
-        <a href="https://consentresolve.com/pricing/" style="display:inline-block;background:${MINT};color:${NAVY};padding:14px 26px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">Get Started</a>
+        <a href="${trackedUrl(env, { dest: "/pricing/", email: p.email, campaign: "demo", label: "pricing" })}" style="display:inline-block;background:${MINT};color:${NAVY};padding:14px 26px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">Get Started</a>
       </div>
       <p style="margin:22px 0 0;font-size:12px;color:#94a3b8;line-height:1.5">Consent captured ${esc(p.consented_at)} · consent text version ${esc(env.CONSENT_TEXT_VERSION || "v1")}. This is a demo: the only "lead" here is you.</p>
     </td></tr>
@@ -75,7 +76,7 @@ function promoHtml(p, env, baseUrl) {
   const BLUE = "#1d4ed8";
   const tel = "tel:" + String(t.phone || "").replace(/[^0-9+]/g, "");
   const base = (baseUrl || env.BASE_URL || "https://consentresolve.com").replace(/\/$/, "");
-  const quoteUrl = `${base}/demo/sample/get-quote/?dt=${encodeURIComponent(p.id || "")}`;
+  const quoteUrl = trackedUrl(env, { dest: `/demo/sample/get-quote/?dt=${encodeURIComponent(p.id || "")}`, email: p.email, campaign: "demo", label: "quote" });
   const first = firstName(p);
   return `<!doctype html><html><body style="margin:0;padding:24px;background:#f1f5f9;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#0f172a">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto">
@@ -110,7 +111,7 @@ function customerHtml(p, env, baseUrl) {
       <p style="font-size:15px;line-height:1.55">Here's the privacy-respecting experience your customers see: a clear ask, no surprise tracking, and a timestamped record of exactly what they agreed to.</p>
       <p style="font-size:13px;color:#94a3b8">Consent captured ${esc(p.consented_at)} · version ${esc(env.CONSENT_TEXT_VERSION || "v1")}</p>
       <div style="margin-top:24px;text-align:center">
-        <a href="https://consentresolve.com/how-it-works/" style="display:inline-block;background:${MINT};color:${NAVY};padding:14px 26px;border-radius:8px;text-decoration:none;font-weight:700">See how it works →</a>
+        <a href="${trackedUrl(env, { dest: "/how-it-works/", email: p.email, campaign: "demo", label: "how-it-works" })}" style="display:inline-block;background:${MINT};color:${NAVY};padding:14px 26px;border-radius:8px;text-decoration:none;font-weight:700">See how it works →</a>
       </div>
     </td></tr>
   </table>${unsubFooter(p, env, baseUrl)}</body></html>`;
