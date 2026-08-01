@@ -5,6 +5,7 @@
 // number. build step 5–7.
 import { decideDispatch } from "./settings.js";
 import { logEvent } from "./classifier.js";
+import { sendMessage as gmailSend } from "../gmail.js";
 
 // Returns { act, outcome, providerRef, detail }
 export async function dispatch(env, settings, channel, ctx, rendered) {
@@ -37,20 +38,28 @@ function simulatedOutcome(channel) {
 }
 
 async function sendEmail(env, lead, r) {
-  if (!env.RESEND_API_KEY) return { act: "live", outcome: "failed", detail: "missing_resend_key" };
-  const from = env.STL_FROM_EMAIL || env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>";
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from, to: [lead.email], reply_to: env.REPLY_TO || undefined,
-      subject: r.subject || "Consent Resolve",
-      text: r.text || "",
-    }),
-  });
-  const j = await res.json().catch(() => ({}));
-  if (!res.ok) return { act: "live", outcome: "failed", detail: `resend_${res.status}: ${String(j.message || j.error || "").slice(0, 180)}` };
-  return { act: "live", outcome: "delivered", providerRef: j.id || null };
+  const subject = r.subject || "Consent Resolve";
+  const text = r.text || "";
+  // Primary: send through the connected Google Workspace mailbox (hello@consentresolve.com) —
+  // no separate sending domain to verify, great deliverability, and replies thread straight
+  // into the real inbox. The account is the first CRM inbox (default hello@).
+  const account = String(env.STL_EMAIL_ACCOUNT || env.CRM_INBOX_EMAILS || "hello@consentresolve.com").split(/[,\s]+/)[0].trim().toLowerCase();
+  const g = await gmailSend(env, account, lead.email, subject, text, null, {}).catch((e) => ({ error: String(e).slice(0, 120) }));
+  if (g && g.ok) return { act: "live", outcome: "delivered", providerRef: g.id || null, detail: "gmail" };
+
+  // Fallback: Resend, only if a key is configured — keeps sends alive if the Gmail token lapses.
+  if (env.RESEND_API_KEY) {
+    const from = env.STL_FROM_EMAIL || env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>";
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from, to: [lead.email], reply_to: env.REPLY_TO || undefined, subject, text }),
+    });
+    const j = await res.json().catch(() => ({}));
+    if (res.ok) return { act: "live", outcome: "delivered", providerRef: j.id || null, detail: "resend_fallback" };
+    return { act: "live", outcome: "failed", detail: `gmail_fail(${(g && g.error) || "?"}); resend_${res.status}: ${String(j.message || j.error || "").slice(0, 120)}` };
+  }
+  return { act: "live", outcome: "failed", detail: "gmail_" + String((g && g.error) || "failed").slice(0, 140) };
 }
 
 async function sendSms(env, lead, r) {
