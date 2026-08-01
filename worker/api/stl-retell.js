@@ -51,13 +51,16 @@ export async function onRequestPost({ request, env }) {
   // (someone dialing our number, answered by Mack), mirror it into the CRM Inbox so the
   // team sees it alongside every other channel. Only on a final event (has transcript).
   if (!tpId) {
-    const inbound = call.direction === "inbound" || (!call.direction && call.from_number && call.to_number);
+    // No engine touchpoint → outbound engine calls always carry a touchpoint_id, so any
+    // final call event that reaches here with a caller number is an inbound call. Don't
+    // depend on an exact direction string (Retell's field varies) — just exclude outbound.
     const finalEv = ["call_ended", "ended", "call_analyzed"].includes(eventName);
-    if (inbound && finalEv) {
+    const looksInbound = call.direction !== "outbound" && (call.from_number || call.from);
+    if (finalEv && looksInbound) {
       const r = await mirrorInboundCall(env, call, eventName).catch((e) => ({ ok: false, error: String(e).slice(0, 140) }));
       return json({ ok: true, inbound: true, ...r });
     }
-    return json({ ok: true, note: "no touchpoint_id" });
+    return json({ ok: true, note: "no touchpoint_id", event: eventName || null, dir: call.direction || null });
   }
 
   const transcript = call.transcript || (Array.isArray(call.transcript_object)
