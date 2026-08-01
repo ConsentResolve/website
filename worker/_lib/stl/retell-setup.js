@@ -156,7 +156,9 @@ export async function provisionRuby(env, origin) {
     if (!llmId) { const ga = await rt(env, "GET", `/get-agent/${existing.agent_id}`); llmId = ga.json && ga.json.response_engine && ga.json.response_engine.llm_id; }
     let llmUpd = { ok: true };
     if (llmId) llmUpd = await rt(env, "PATCH", `/update-retell-llm/${llmId}`, { general_prompt: MACK_PROMPT, general_tools: [TRANSFER_TOOL] });
-    const upd = await rt(env, "PATCH", `/update-agent/${existing.agent_id}`, { webhook_url: webhookUrl, voice_id: voiceId, agent_name: agentName });
+    // reminder_trigger_ms: if the caller goes silent, Mack re-engages ("Still there?")
+    // instead of dead air. 2s per request; capped so it doesn't loop forever.
+    const upd = await rt(env, "PATCH", `/update-agent/${existing.agent_id}`, { webhook_url: webhookUrl, voice_id: voiceId, agent_name: agentName, reminder_trigger_ms: 2000, reminder_max_count: 3 });
     return {
       ok: upd.ok && llmUpd.ok, agent_id: existing.agent_id, llm_id: llmId || null, updated: true,
       transfer_tool_added: !!(llmId && llmUpd.ok), webhook_url: webhookUrl,
@@ -170,6 +172,7 @@ export async function provisionRuby(env, origin) {
   const agent = await rt(env, "POST", "/create-agent", {
     response_engine: { type: "retell-llm", llm_id: llm.json.llm_id },
     voice_id: voiceId, agent_name: agentName, webhook_url: webhookUrl,
+    reminder_trigger_ms: 2000, reminder_max_count: 3, // nudge after 2s of silence
   });
   if (!agent.ok || !agent.json || !agent.json.agent_id) return { ok: false, error: "create-agent failed", detail: agent.text || agent.status, llm_id: llm.json.llm_id };
   return { ok: true, created: true, llm_id: llm.json.llm_id, agent_id: agent.json.agent_id, webhook_url: webhookUrl, voice_id: voiceId,

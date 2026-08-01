@@ -59,7 +59,7 @@ export async function mirrorTouchpoint(env, lead, tp, res) {
     if (!conv) return;
     const mode = res.act === "simulate" ? " (simulated)" : "";
     let text = null, ev = "contacted", dir = "out", ch = tp.channel;
-    if (tp.channel === "call_ai") text = "📞 Ruby (AI) call — " + (res.outcome || "") + mode;
+    if (tp.channel === "call_ai") text = "📞 Mack (AI) call — " + (res.outcome || "") + mode;
     else if (tp.channel === "call_human") text = "📞 Human dial — " + (res.outcome || "") + mode;
     else if (tp.channel === "sms") text = "💬 SMS sent" + mode + (res.detail && res.act !== "live" ? " — " + res.detail : "");
     else if (tp.channel === "email") text = "✉️ Email sent" + mode;

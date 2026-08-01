@@ -1,6 +1,6 @@
 // Speed-to-Lead — shareable team walk-through form at /try (public, noindex).
 // A teammate fills this and watches the WHOLE engine run on themselves in ~15 min:
-// Ruby calls in ~30s → text in ~2m → consent-receipt email in ~4m, and every step
+// Mack calls in ~30s → text in ~2m → consent-receipt email in ~4m, and every step
 // lands in the CRM Inbox. Submits to /api/lead with is_demo=true (compressed timing).
 export async function handle() {
   return new Response(PAGE, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" } });
@@ -35,7 +35,7 @@ button{margin-top:16px;width:100%;background:var(--ac);color:#04120b;border:0;bo
 <form class=card id=f onsubmit="return go(event)">
   <span class=tag>Live walk-through · watch it happen to you</span>
   <h1>See our Speed-to-Lead engine run — on you, in real time.</h1>
-  <p class=sub>Put in your <b>real</b> phone + email. In about <b>30 seconds</b> Ruby (our AI) calls you, then a text, then a consent-receipt email — and every step shows up in the CRM. The whole flow finishes in ~15 minutes.</p>
+  <p class=sub>Put in your <b>real</b> phone + email. In about <b>30 seconds</b> Mack (our AI) calls you, then a text, then a consent-receipt email — and every step shows up in the CRM. The whole flow finishes in ~15 minutes.</p>
   <div class=row2>
     <div><label>First name</label><input id=first value=""></div>
     <div><label>Company</label><input id=company placeholder="Your shop"></div>
@@ -52,15 +52,15 @@ button{margin-top:16px;width:100%;background:var(--ac);color:#04120b;border:0;bo
     <label class=ck><input type=checkbox id=c_email checked> I agree Consent Resolve may email me.</label>
     <label class=ck><input type=checkbox id=c_sms checked> I agree Consent Resolve may text me, including automated messages. Reply STOP to opt out.</label>
     <label class=ck><input type=checkbox id=c_hum checked> I agree a rep may call me.</label>
-    <label class=ck><input type=checkbox id=c_ai checked> I agree Consent Resolve may call me with an AI assistant ("Ruby"), which identifies itself as AI.</label>
+    <label class=ck><input type=checkbox id=c_ai checked> I agree Consent Resolve may call me with an AI assistant ("Mack"), which identifies itself as AI.</label>
   </div>
   <button type=submit>▶ Start the demo — call me now</button>
   <div class=out id=out></div>
   <div class="steps" id=steps>
-    <div class=step><span class=when>~30 sec</span><span>📞 <b>Ruby calls you.</b> She discloses she's AI, offers to connect you to a rep, and can transfer live.</span></div>
+    <div class=step><span class=when>~30 sec</span><span>📞 <b>Mack calls you.</b> Mack discloses it's AI, offers to connect you to a rep, and can transfer live.</span></div>
     <div class=step><span class=when>~2 min</span><span>💬 <b>Text message</b> from the same number.</span></div>
     <div class=step><span class=when>~4 min</span><span>✉️ <b>Consent-receipt email</b> — the "here's exactly what you agreed to" proof.</span></div>
-    <div class=step><span class=when>~8 min</span><span>📞 <b>Human dial</b> step (if Ruby didn't transfer).</span></div>
+    <div class=step><span class=when>~8 min</span><span>📞 <b>Human dial</b> step (if Mack didn't transfer).</span></div>
     <div class=step><span class=when>live</span><span>🗂️ Watch all of it appear in the CRM Inbox at <b>/crm/app</b> as it happens.</span></div>
   </div>
   <div class=note>This is a demo — you consented above and can reply STOP or revoke anytime.</div>
@@ -69,14 +69,14 @@ button{margin-top:16px;width:100%;background:var(--ac);color:#04120b;border:0;bo
 function go(e){e.preventDefault();
   var g=function(id){return document.getElementById(id);};
   var out=g('out'), phone=g('phone').value.trim();
-  if(phone.replace(/[^0-9]/g,'').length<10){ out.className='out err'; out.textContent='Add a real 10-digit mobile so Ruby can call you.'; return false; }
+  if(phone.replace(/[^0-9]/g,'').length<10){ out.className='out err'; out.textContent='Add a real 10-digit mobile so Mack can call you.'; return false; }
   var q=new URLSearchParams(location.search);
   var consent={email:g('c_email').checked,sms:g('c_sms').checked,phone_human:g('c_hum').checked,phone_ai:g('c_ai').checked,grade:'written',exact_language:'Team walk-through demo — email/SMS/call/AI consents.'};
   var body={kind:'form_submit',is_demo:true,first_name:g('first').value||'Demo',company:g('company').value,email:g('email').value,phone:phone,trade:g('trade').value,state:g('state').value,landing_page:'/try',ad_source:q.get('utm_source')||'demo',utm_campaign:q.get('utm_campaign')||'team-walkthrough',consent:consent};
-  out.className='out'; out.textContent='Starting… Ruby will call in ~30 seconds.'; out.style.display='block';
+  out.className='out'; out.textContent='Starting… Mack will call in ~30 seconds.'; out.style.display='block';
   fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
     .then(function(r){return r.json();}).then(function(d){
-      if(d&&d.ok){ out.className='out ok'; out.innerHTML='✓ You\\'re in the engine — <b>Population '+d.population+'</b>. Keep your phone handy; Ruby calls in ~30 seconds. Revoke anytime: <a href="'+d.revoke_url+'" style="color:#00e5a0">one-click</a>.'; g('steps').className='steps on'; document.querySelector('button').style.display='none'; }
+      if(d&&d.ok){ out.className='out ok'; out.innerHTML='✓ You\\'re in the engine — <b>Population '+d.population+'</b>. Keep your phone handy; Mack calls in ~30 seconds. Revoke anytime: <a href="'+d.revoke_url+'" style="color:#00e5a0">one-click</a>.'; g('steps').className='steps on'; document.querySelector('button').style.display='none'; }
       else { out.className='out err'; out.textContent='Error: '+((d&&d.error)||'unknown'); }
     }).catch(function(){ out.className='out err'; out.textContent='Network error.'; });
   return false;

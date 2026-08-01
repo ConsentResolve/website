@@ -49,7 +49,7 @@ button{margin-top:16px;width:100%;background:var(--ac);color:#04120b;border:0;bo
     <label class=ck><input type=checkbox id=c_email checked> I agree Consent Resolve may <b>email</b> me. I can unsubscribe anytime.</label>
     <label class=ck><input type=checkbox id=c_sms> I agree Consent Resolve may <b>text</b> me at the number above, including automated messages. Msg &amp; data rates may apply. Reply STOP to opt out.</label>
     <label class=ck><input type=checkbox id=c_hum> I agree a Consent Resolve <b>rep may call</b> me at this number.</label>
-    <label class=ck><input type=checkbox id=c_ai> I agree Consent Resolve may call me using an <b>AI voice assistant</b> ("Ruby"), which will identify itself as AI.</label>
+    <label class=ck><input type=checkbox id=c_ai> I agree Consent Resolve may call me using an <b>AI voice assistant</b> ("Mack"), which will identify itself as AI.</label>
   </div>
   <button type=submit>Submit — start the sequence</button>
   <div class=out id=out></div>
