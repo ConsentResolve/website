@@ -376,7 +376,7 @@ export async function provisionChatAgent(env) {
     description: "Save the visitor's email to the CRM the moment they share it, so we can follow up. Call this as soon as you have a valid email address — you do NOT need permission first (they gave it to you). Include name/company/trade if you know them.",
     url: `${origin}/api/chat-capture`,
     speak_during_execution: false,
-    speak_after_execution: false,
+    speak_after_execution: true, // Mack must acknowledge after saving, or the chat looks hung
     parameters: {
       type: "object",
       properties: {
