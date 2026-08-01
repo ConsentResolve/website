@@ -32,8 +32,10 @@ export async function onRequestPost({ request, env }) {
     const companyId = c ? c.company_id : null;
 
     const now = new Date().toISOString();
+    // Channel 'email' so the team can reply from the Inbox (reply routing supports email);
+    // the partner origin is carried by source='partner' + the "partner:"+email thread key.
     const convId = await upsertConversationByThread(env, {
-      channel: "partner", externalThreadId: "partner:" + email, contactId, companyId,
+      channel: "email", externalThreadId: "partner:" + email, contactId, companyId,
       subject: "🤝 Partner application — " + (name || agency || email),
       sourceDetail: "agency-partners", incoming: true, lastAt: now,
       preview: "🤝 " + ([agency, trade, clients ? clients + " clients" : ""].filter(Boolean).join(" · ") || "Founding-partner application").slice(0, 100),
@@ -47,7 +49,7 @@ export async function onRequestPost({ request, env }) {
       "Client count: " + (clients || "—"),
       note ? "\nNote: " + note : "",
     ].filter(Boolean).join("\n");
-    await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: "partner", externalMessageId: "partner-apply:" + email + ":" + now, bodyText: body, sentAt: now });
+    await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: "email", externalMessageId: "partner-apply:" + email + ":" + now, bodyText: body, sentAt: now });
     await logEvent(env, { type: "lead_created", contactId, companyId, conversationId: convId, channel: "partner", source: "partner", meta: { agency, trade, clients } });
 
     return json({ ok: true, message: "Got it — we'll reach out within one business day to book your 15-minute fit call." }, {}, cors);

@@ -206,9 +206,9 @@ export async function onRequestGet({ request, env }) {
       }
     } catch (_) {}
   }
-  const srcMap = { meta: "meta", instantly: "instantly", crisp: "chatwoot", chatwoot: "chatwoot", site: "site", demo: "demo", claim50: "demo", cal: "demo", apollo: "apollo", manual: "manual" };
+  const srcMap = { meta: "meta", instantly: "instantly", crisp: "chatwoot", chatwoot: "chatwoot", site: "site", demo: "demo", claim50: "demo", cal: "demo", apollo: "apollo", partner: "partner", manual: "manual" };
   const lifeMap = { lead: "Lead", mql: "MQL", sql: "SQL", meeting_booked: "Meeting Booked", opportunity: "Opportunity", customer: "Customer" };
-  const srcLabelMap = { meta: "Meta · Lead form", instantly: "Instantly · cold email", chatwoot: "Chatwoot · site chat", site: "Site · demo signup", demo: "Demo signup", apollo: "Apollo · identified", manual: "Manual" };
+  const srcLabelMap = { meta: "Meta · Lead form", instantly: "Instantly · cold email", chatwoot: "Chatwoot · site chat", site: "Site · demo signup", demo: "Demo signup", apollo: "Apollo · identified", partner: "🤝 Agency partner", manual: "Manual" };
   const stripHtml = (h) => (h || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   const inits = (n) => (n ? n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase() : "?");
   const fmtPhone = (v) => { const d = String(v || "").replace(/\D/g, ""); if (d.length === 10) return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`; return v ? "+" + d : null; };
