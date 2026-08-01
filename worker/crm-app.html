@@ -607,6 +607,10 @@ html,body{height:100%}
   .composer-wrap{flex:0 0 auto}
   .rcollapse{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface-1)}
   .rc-actbar{margin-left:auto;display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+  /* No-reply states (no consent / opted-out / blocked): banner on top, actions below. */
+  .rcollapse.nocon{flex-direction:column;align-items:stretch;gap:0;padding:0}
+  .rcollapse.nocon .banner{border-top:none}
+  .rcollapse.nocon .rc-actbar{margin:0;padding:10px 16px;justify-content:flex-end;border-top:1px solid var(--line)}
   .rc-act{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:6px 12px;font:inherit;font-size:var(--t-12);font-weight:600;color:var(--tx-1);cursor:pointer;white-space:nowrap}
   .rc-act:hover{border-color:var(--line-2);background:var(--surface-3)}
   .rc-act.danger{color:var(--bad)}
@@ -1659,11 +1663,25 @@ window.setReplyCh=setReplyCh;
 /* Gmail-style reply: hidden behind a Reply button, expands into a WYSIWYG editor
    with a formatting toolbar + attachments. */
 let replyOpen=false, ATTACH=[];
+/* Action bar (Remind / Assign / Delete) — always available, even when there's no channel
+   to reply on. Keeps delete/snooze/assign working on no-consent + opted-out + blocked leads. */
+function actBar(c){
+  const o=ownerOf(c);
+  const asg = o ? '👤 '+esc(o.name.split(' ')[0]) : '＋ Assign';
+  return `<span class="rc-actbar">
+    <button class="rc-act" onclick="openRemind('${c.id}')" title="Set a reminder / callback">⏰ Remind</button>
+    <button class="rc-act" onclick="assignConv('${c.id}',event)" title="Assign a rep">${asg}</button>
+    <button class="rc-act danger" onclick="deleteConv('${c.id}')" title="Delete conversation">🗑 Delete</button>
+  </span>`;
+}
+/* No reply channel yet, but the team still needs delete/remind/assign — show the notice
+   AND the action bar (this is the "restore functionality on no-consent leads" fix). */
+function noReplyBox(c, banner){ return `<div class="rcollapse nocon">${banner}${actBar(c)}</div>`; }
 function composer(c){
-  if(c.sequence.status==='opted_out') return `<div class="banner stop">⛔ Contact opted out of SMS/voice. Only email is permitted. Revocation is on the consent ledger.</div>`;
-  if(c.sequence.status==='blocked') return `<div class="banner block">⛓ Identified visitor (no consent to contact). Outreach is disabled — retargeting + context only.</div>`;
+  if(c.sequence.status==='opted_out') return noReplyBox(c, `<div class="banner stop">⛔ Contact opted out of SMS/voice. Only email is permitted. Revocation is on the consent ledger.</div>`);
+  if(c.sequence.status==='blocked') return noReplyBox(c, `<div class="banner block">⛓ Identified visitor (no consent to contact). Outreach is disabled — retargeting + context only.</div>`);
   const avail=replyChannels(c), cur=replyChOf(c);
-  if(!cur) return `<div class="banner block">No consented channel to reply on yet — earn consent first (email preference center).</div>`;
+  if(!cur) return noReplyBox(c, `<div class="banner block">No consented channel to reply on yet — earn consent first (email preference center).</div>`);
   const chToggle = avail.length>1
     ? `<div class="chswitch">${avail.map(ch=>`<button class="chseg ${ch===cur?'on':''}" onclick="event.stopPropagation();setReplyCh('${c.id}','${ch}')"><span class="ci">${CHICON[ch]}</span>${CHWORD[ch]}</button>`).join('')}</div>`
     : `<span class="rvia-chip"><span class="ci">${CHICON[cur]}</span>${CHWORD[cur]}</span>`;
