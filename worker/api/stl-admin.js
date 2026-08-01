@@ -230,7 +230,7 @@ export async function onRequestPost({ request, env }) {
           subject: "Speed-to-Lead test email ✓", text: "This is a live test send from the Speed-to-Lead engine. If you got this, email dispatch works." }),
       });
       const j = await res.json().catch(() => ({}));
-      return json({ ok: res.ok, id: j.id || null, detail: res.ok ? "sent" : `resend_${res.status}` }, {}, cors);
+      return json({ ok: res.ok, id: j.id || null, from, detail: res.ok ? "sent" : `resend_${res.status}: ${String(j.message || j.error || j.name || "").slice(0, 220)}` }, {}, cors);
     }
     if (action === "reset_tests") {
       // Delete only test leads and their children.
