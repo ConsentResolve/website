@@ -253,6 +253,49 @@ export async function openLiveChat(env, ev) {
   } catch (e) { return { ok: false, error: String(e).slice(0, 140) }; }
 }
 
+// Cron sweep: mirror inbound + outbound SMS straight from Twilio into the CRM. Retell
+// handles the AI reply but does NOT reliably fire chat webhooks for SMS, so we read the
+// messages from Twilio (the source of truth) and thread them by phone — a number's texts
+// and calls land on one contact. Deduped on the Twilio MessageSid.
+export async function sweepTwilioSms(env) {
+  const sid = env.TWILIO_ACCOUNT_SID, tok = env.TWILIO_AUTH_TOKEN, num = env.TWILIO_FROM_NUMBER;
+  if (!sid || !tok || !num) return { ok: false, skipped: "no_twilio" };
+  try {
+    await ensureCrmV2Schema(env); await ensureRebuildSchema(env);
+    const auth = "Basic " + btoa(sid + ":" + tok);
+    const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json?PageSize=40`, { headers: { Authorization: auth } });
+    if (!res.ok) return { ok: false, status: res.status };
+    const j = await res.json().catch(() => ({}));
+    const rows = (j.messages || []).filter((m) => m.from === num || m.to === num);
+    let mirrored = 0;
+    for (const m of rows) {
+      const sent = m.date_sent ? Date.parse(m.date_sent) : Date.now();
+      if (Date.now() - sent > 30 * 60000) continue; // only recent
+      const inbound = m.to === num;                  // to our number → from the visitor
+      const other = inbound ? m.from : m.to;
+      const np = normPhone(other);
+      if (np.length < 10) continue;
+      const extId = "twilio-sms:" + m.sid;
+      const seen = await env.DB.prepare("SELECT 1 x FROM messages WHERE external_message_id=?").bind(extId).first().catch(() => null);
+      if (seen) continue;
+      const idr = await env.DB.prepare("SELECT contact_id FROM contact_identifiers WHERE type='phone' AND value=?").bind(np).first().catch(() => null);
+      const contactId = idr ? idr.contact_id : await findOrCreateContactByIdentifier(env, "phone", np, { source: "sms" });
+      if (!contactId) continue;
+      const cc = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first().catch(() => null);
+      const iso = new Date(sent).toISOString();
+      const convId = await upsertConversationByThread(env, {
+        channel: "chat", externalThreadId: "phone:" + np, contactId, companyId: cc ? cc.company_id : null, sourceDetail: "sms",
+        subject: "💬 SMS — " + other, incoming: inbound, lastAt: iso,
+        preview: (inbound ? "💬 " : "↩ ") + String(m.body || "").slice(0, 90),
+      });
+      await insertMessageOnce(env, { conversationId: convId, direction: inbound ? "in" : "out", channel: "sms", externalMessageId: extId, bodyText: m.body || "", sentAt: iso });
+      if (inbound) await reconcileChatFromTranscript(env, convId, m.body || "").catch(() => {}); // catch an email/phone they text in
+      mirrored++;
+    }
+    return { ok: true, mirrored };
+  } catch (e) { return { ok: false, error: String(e).slice(0, 140) }; }
+}
+
 // Scan a chat/SMS transcript for intel (email, phone) and reconcile the conversation's
 // identity — so an "Unknown" chat becomes the real person the moment they drop an email or
 // number in the message box, WITHOUT relying on Mack to call the capture tool. Returns the

@@ -65,7 +65,7 @@ import * as stlConsole from "./stl-console.js";
 import * as stlDemo from "./stl-demo.js";
 import * as stlTry from "./stl-try.js";
 import { tick as stlTick } from "./_lib/stl/runner.js";
-import { sweepLiveChats } from "./_lib/stl/crm-bridge.js";
+import { sweepLiveChats, sweepTwilioSms } from "./_lib/stl/crm-bridge.js";
 import * as instantlyVisitors from "./api/instantly-visitors.js";
 import * as leadfeeder from "./api/leadfeeder.js";
 import * as rb2bEmail from "./api/rb2b-email.js";
@@ -385,6 +385,9 @@ export default {
       // (chat_ended is unreliable for widget chats). Cheap: only recent open chats.
       try { const lc = await sweepLiveChats(env); if (lc && lc.updated) console.log(`[chat] live sweep: ${JSON.stringify(lc)}`); }
       catch (e) { console.log(`[chat] live sweep error: ${String(e).slice(0, 160)}`); }
+      // Mirror SMS straight from Twilio (Retell doesn't reliably webhook SMS to us).
+      try { const sm = await sweepTwilioSms(env); if (sm && sm.mirrored) console.log(`[sms] twilio sweep: ${JSON.stringify(sm)}`); }
+      catch (e) { console.log(`[sms] twilio sweep error: ${String(e).slice(0, 160)}`); }
       return;
     }
     // Apollo visitor sync — frequent cron. Incremental (only new emails), so it's
