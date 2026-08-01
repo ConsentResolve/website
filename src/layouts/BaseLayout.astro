@@ -337,6 +337,86 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
          is intent to chat — same stance the prior chat opener took — so boot + auto-open,
          then click the FAB once it mounts. mailto is the last-resort fallback. -->
     <script is:inline>window.crOpenChat=function(){try{if(window.crRetellOpen&&window.crRetellOpen())return;window.__retellBoot(true);var n=0,iv=setInterval(function(){if((window.crRetellOpen&&window.crRetellOpen())||++n>28)clearInterval(iv);},250);}catch(e){try{window.location.href="mailto:hello@consentresolve.com";}catch(_){}}};</script>
+
+    <!-- ============================================================
+         CUSTOM CHAT LAUNCHER — the orb + teaser + nudge that front Mack.
+         Desktop only (>=1024px) where Retell's own FAB lives; on smaller
+         screens the MobileStickyCTA stays the launcher (Retell FAB already
+         hidden there). Timing/on-off is served from /api/chat-launcher and
+         editable in the /crm/speed console. Pure UI — clicking boots Retell.
+         ============================================================ -->
+    <style is:inline>
+      .cw,.cw *{box-sizing:border-box}
+      .cw{
+        --cr-navy:#0A1628;--cr-mint:#00E5A0;--cr-slate:#1E293B;--cr-white:#F8FAFC;
+        --cr-font:var(--font-sans,ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif);
+        --cr-page:#0A1628;--cr-spring:cubic-bezier(.34,1.56,.64,1);--cr-ease:cubic-bezier(.22,.61,.36,1);
+        position:fixed;z-index:50;right:26px;bottom:calc(26px + env(safe-area-inset-bottom,0px));
+        display:none;flex-direction:column;align-items:flex-end;gap:13px;font-family:var(--cr-font);
+      }
+      @media(min-width:1024px){.cw.cw-live{display:flex}}
+      html.cr-chat-open .cw{opacity:0!important;pointer-events:none!important;visibility:hidden!important;transition:opacity .18s ease}
+      .cw-teaser{position:relative;width:min(300px,calc(100vw - 46px));color:var(--cr-navy);
+        background:linear-gradient(152deg,rgba(0,229,160,.16) 0%,rgba(0,229,160,.04) 38%,rgba(0,229,160,0) 62%),var(--cr-white);
+        border-radius:16px 16px 5px 16px;padding:13px 15px 14px;
+        box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 16px 40px -12px rgba(0,0,0,.7),0 0 30px -14px rgba(0,229,160,.5);
+        transform:translateY(14px) scale(.95);opacity:0;pointer-events:none;transform-origin:100% 100%;
+        transition:transform .44s var(--cr-spring),opacity .28s var(--cr-ease)}
+      .cw.teaser-on .cw-teaser{transform:none;opacity:1;pointer-events:auto}
+      .cw-teaser::after{content:"";position:absolute;right:13px;bottom:-6px;width:15px;height:15px;background:var(--cr-white);border-radius:0 0 4px 0;transform:rotate(45deg) skew(6deg,6deg)}
+      .cw-head{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+      .cw-av{width:38px;height:38px;border-radius:50%;flex:none;overflow:hidden;position:relative;background:var(--cr-mint);color:#04231a;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 0 2px var(--cr-white),0 0 0 3.5px rgba(0,229,160,.45)}
+      .cw-av img{width:100%;height:100%;display:block;object-fit:cover}
+      .cw-name{font-size:13px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+      .cw-sub{font-size:10px;color:rgba(10,22,40,.52);margin-top:2px;display:flex;align-items:center;gap:5px}
+      .cw-sub i{width:5px;height:5px;border-radius:50%;background:var(--cr-mint);flex:none}
+      .cw-x{margin-left:auto;align-self:flex-start;background:none;border:0;cursor:pointer;color:rgba(10,22,40,.35);font-size:17px;line-height:1;padding:1px 2px 4px 8px;border-radius:5px}
+      .cw-x:hover{color:var(--cr-navy)}
+      .cw-x:focus-visible{outline:2px solid var(--cr-navy);outline-offset:2px}
+      .cw-typing{display:flex;gap:4px;padding:4px 0 3px}
+      .cw-typing i{width:6px;height:6px;border-radius:50%;background:rgba(10,22,40,.28);animation:cw-type 1.25s ease-in-out infinite}
+      .cw-typing i:nth-child(2){animation-delay:.16s}
+      .cw-typing i:nth-child(3){animation-delay:.32s}
+      .cw-typing[hidden]{display:none}
+      .cw-msg{margin:0;font-size:13.5px;line-height:1.45;opacity:0;transform:translateY(5px);transition:.32s var(--cr-ease)}
+      .cw-msg.on{opacity:1;transform:none}
+      .cw-chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+      .cw-chip{font:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;background:var(--cr-navy);color:var(--cr-white);border:0;border-radius:99px;padding:7px 13px;opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s var(--cr-spring),background .15s}
+      .cw-chip:hover{background:var(--cr-slate)}
+      .cw-chip:focus-visible{outline:2px solid var(--cr-navy);outline-offset:2px}
+      .cw-chip.on{opacity:1;transform:none}
+      .cw-call{display:block;margin-top:9px;font-size:11px;font-weight:600;text-decoration:none;color:rgba(10,22,40,.55);opacity:0;transition:opacity .3s,color .15s}
+      .cw-call b{color:var(--cr-navy)}
+      .cw-call:hover{color:var(--cr-navy)}
+      .cw-call.on{opacity:1}
+      .cw-magnet{position:relative;transform:translate(var(--mx,0),var(--my,0));transition:transform .3s var(--cr-ease)}
+      .cw-btn{position:relative;z-index:2;width:66px;height:66px;border-radius:50%;border:1px solid rgba(0,229,160,.28);cursor:pointer;padding:0;overflow:hidden;background:radial-gradient(120% 100% at 50% 0%,var(--cr-slate) 0%,var(--cr-navy) 64%);display:grid;place-items:center;box-shadow:0 1px 0 rgba(0,229,160,.22) inset,0 -18px 30px -18px rgba(0,229,160,.75) inset,0 14px 30px -8px rgba(0,0,0,.65),0 0 34px -8px rgba(0,229,160,.4);transform:scale(.5);opacity:0;transition:transform .42s var(--cr-spring),box-shadow .3s var(--cr-ease),opacity .26s;-webkit-tap-highlight-color:transparent}
+      .cw.in .cw-btn{transform:scale(1);opacity:1}
+      .cw.in .cw-btn:hover{transform:translateY(-4px) scale(1.06);box-shadow:0 1px 0 rgba(0,229,160,.38) inset,0 -22px 34px -16px rgba(0,229,160,1) inset,0 20px 38px -10px rgba(0,0,0,.7),0 0 44px -6px rgba(0,229,160,.6)}
+      .cw.in .cw-btn:active{transform:translateY(-1px) scale(.95);transition-duration:.09s}
+      .cw-btn:focus-visible{outline:3px solid var(--cr-mint);outline-offset:4px}
+      .cw-filament{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 50% 120%,rgba(0,229,160,.85) 0%,rgba(0,229,160,.32) 28%,rgba(0,229,160,0) 60%);opacity:.6;animation:cw-breathe 4.6s ease-in-out infinite}
+      .cw-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(0,229,160,.5);opacity:0;pointer-events:none;animation:cw-ring 4.4s cubic-bezier(.16,.7,.3,1) infinite}
+      .cw-ring:nth-of-type(2){animation-delay:2.2s}
+      .cw-icon{position:absolute;display:grid;place-items:center}
+      .cw-ripple{position:absolute;border-radius:50%;pointer-events:none;z-index:3;background:radial-gradient(circle,rgba(0,229,160,.5),rgba(0,229,160,0) 70%);transform:translate(-50%,-50%) scale(0);animation:cw-ripple .6s var(--cr-ease) forwards}
+      .cw-badge{position:absolute;top:-3px;right:-3px;z-index:5;min-width:22px;height:22px;padding:0 6px;border-radius:99px;display:grid;place-items:center;pointer-events:none;background:var(--cr-mint);color:var(--cr-navy);font-size:11.5px;font-weight:800;border:2.5px solid var(--cr-page);transform:scale(0);transition:transform .38s var(--cr-spring)}
+      .cw.badge-on .cw-badge{transform:scale(1)}
+      @keyframes cw-breathe{0%,100%{opacity:.52;transform:scale(1)}50%{opacity:.85;transform:scale(1.05)}}
+      @keyframes cw-ring{0%{opacity:0;transform:scale(.85)}14%{opacity:.5}100%{opacity:0;transform:scale(1.75)}}
+      @keyframes cw-type{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-4px);opacity:1}}
+      @keyframes cw-ripple{to{transform:translate(-50%,-50%) scale(3.2);opacity:0}}
+      @keyframes cw-nudge{0%{transform:scale(1) translateY(0)}18%{transform:scale(1.08,.94) translateY(0)}42%{transform:scale(.98,1.04) translateY(-10px)}68%{transform:scale(1.02,.99) translateY(0)}84%{transform:translateY(-3px)}100%{transform:scale(1) translateY(0)}}
+      .cw.nudging .cw-btn{animation:cw-nudge .9s var(--cr-ease)}
+      @media(prefers-reduced-motion:reduce){
+        .cw *{transition-duration:.01ms !important}
+        .cw-filament,.cw-ring,.cw-typing i{animation:none !important}
+        .cw-ring{display:none}
+        .cw.nudging .cw-btn{animation:none}
+        .cw-magnet{transition:none}
+        .cw.in .cw-btn:hover{transform:none}
+      }
+    </style>
   </head>
   <body class="bg-[color:var(--color-bg)] text-[color:var(--color-ink)]">
     <a href="#main" class="skip-link">Skip to content</a>
@@ -348,5 +428,166 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <MobileStickyCTA />
     <MobileProductStory />
     {showDemoWidget && <DemoWidget />}
+
+    <!-- Custom chat launcher (desktop). Hidden until JS confirms it's enabled in config. -->
+    <div class="cw" id="cw" aria-hidden="true">
+      <div class="cw-teaser" role="status" aria-live="polite">
+        <div class="cw-head">
+          <div class="cw-av" id="cwAv" aria-hidden="true">M</div>
+          <div>
+            <div class="cw-name" id="cwName">Mack</div>
+            <div class="cw-sub"><i></i> <span id="cwStatus">AI assistant · a human when you ask</span></div>
+          </div>
+          <button class="cw-x" id="cwX" aria-label="Dismiss message">&times;</button>
+        </div>
+        <div class="cw-typing" id="cwTyping" aria-hidden="true"><i></i><i></i><i></i></div>
+        <p class="cw-msg" id="cwMsg">Hey — I'm at my desk right now. Want a price, or a time slot?</p>
+        <div class="cw-chips" id="cwChips">
+          <button class="cw-chip" data-q="price">Get a price</button>
+          <button class="cw-chip" data-q="time">Book a time</button>
+        </div>
+        <a class="cw-call" id="cwCall" href="tel:+17279999846">Rather talk? Call <b>(727) 999-9846</b></a>
+      </div>
+      <div class="cw-magnet" id="cwMagnet">
+        <span class="cw-ring" aria-hidden="true"></span>
+        <span class="cw-ring" aria-hidden="true"></span>
+        <button class="cw-btn" id="cwBtn" aria-label="Open chat" aria-expanded="false">
+          <span class="cw-filament" aria-hidden="true"></span>
+          <span class="cw-icon" aria-hidden="true">
+            <svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="#F8FAFC" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.9 9.9 0 0 1-2.9-.4L4 21l1.4-3.6A8.2 8.2 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5Z"/>
+              <path d="M8.6 11.6l2.2 2.2 4.4-4.4" stroke="#00E5A0" stroke-width="2.3"/>
+            </svg>
+          </span>
+        </button>
+        <span class="cw-badge" id="cwBadge" aria-hidden="true">1</span>
+      </div>
+    </div>
+
+    <script is:inline>
+    (function(){
+      var DEF={enabled:true,agentName:"Mack",status:"AI assistant · a human when you ask",
+        greeting:"Hey — I'm at my desk right now. Want a price, or a time slot?",phone:"+17279999846",
+        entranceDelay:700,teaser:{enabled:true,delay:8000,scroll:0.45,exitIntent:true},
+        nudge:{enabled:true,every:16000,max:3},badge:"honest"};
+      var cw=document.getElementById('cw');
+      if(!cw) return;
+      var calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Format a +1XXXXXXXXXX number as (XXX) XXX-XXXX for the display line.
+      function fmtPhone(p){var d=String(p||'').replace(/\D/g,'');if(d.length===11&&d[0]==='1')d=d.slice(1);
+        return d.length===10?'('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6):p;}
+
+      // Hide Retell's own FAB (shadow DOM) so our orb is the only launcher. Appends to the
+      // shared Retell CSS before boot; also patches the injected style if already mounted.
+      function hideRetellFab(){
+        try{
+          var rule='[class*="_fabChat"],[class*="_fabWrap"]{display:none!important}';
+          if(window.__retellCSS && window.__retellCSS.indexOf('_fabChat"],[class*="_fabWrap"]{display:none')===-1)
+            window.__retellCSS+=rule;
+          document.querySelectorAll('*').forEach(function(el){
+            if(el.shadowRoot){var t=el.shadowRoot.getElementById('cr-tune');
+              if(t&&t.textContent.indexOf('_fabWrap"]{display:none')===-1)t.textContent=window.__retellCSS;}
+          });
+        }catch(e){}
+      }
+
+      function start(cfg){
+        var C=Object.assign({},DEF,cfg||{});
+        C.teaser=Object.assign({},DEF.teaser,(cfg&&cfg.teaser)||{});
+        C.nudge=Object.assign({},DEF.nudge,(cfg&&cfg.nudge)||{});
+        if(C.enabled===false) return;                 // disabled → leave Retell's own bubble
+
+        // Fill copy from config.
+        var byId=function(id){return document.getElementById(id);};
+        if(C.agentName){byId('cwName').textContent=C.agentName;byId('cwAv').textContent=(C.agentName[0]||'M').toUpperCase();}
+        if(C.status)byId('cwStatus').textContent=C.status;
+        if(C.greeting)byId('cwMsg').textContent=C.greeting;
+        if(C.phone){var call=byId('cwCall');call.href='tel:'+String(C.phone).replace(/[^\d+]/g,'');
+          call.innerHTML='Rather talk? Call <b>'+fmtPhone(C.phone)+'</b>';}
+
+        hideRetellFab();
+        cw.classList.add('cw-live');cw.setAttribute('aria-hidden','false');
+
+        var btn=byId('cwBtn'),magnet=byId('cwMagnet'),typing=byId('cwTyping'),
+            msg=byId('cwMsg'),chips=byId('cwChips'),call=byId('cwCall');
+        var shown=false,dismissed=false,nudges=0,timer,open=false;
+
+        setTimeout(function(){cw.classList.add('in');if(C.badge==='always')cw.classList.add('badge-on');},C.entranceDelay);
+
+        function showTeaser(){
+          if(!C.teaser.enabled||shown||dismissed||open) return; shown=true;
+          cw.classList.add('teaser-on');
+          typing.hidden=false;msg.classList.remove('on');call.classList.remove('on');
+          [].forEach.call(chips.children,function(c){c.classList.remove('on');});
+          setTimeout(function(){
+            typing.hidden=true;msg.classList.add('on');
+            if(C.badge!=='off')cw.classList.add('badge-on');
+            [].forEach.call(chips.children,function(c,i){setTimeout(function(){c.classList.add('on');},80+i*70);});
+            setTimeout(function(){call.classList.add('on');},240);
+          },calm?0:1600);
+        }
+        if(C.teaser.enabled){
+          if(C.teaser.delay>0) setTimeout(showTeaser,C.teaser.delay);
+          if(C.teaser.scroll>0) addEventListener('scroll',function(){
+            if(scrollY/Math.max(1,document.body.scrollHeight-innerHeight)>C.teaser.scroll)showTeaser();
+          },{passive:true});
+          if(C.teaser.exitIntent) document.addEventListener('mouseout',function(e){if(!e.relatedTarget&&e.clientY<12)showTeaser();});
+        }
+
+        byId('cwX').addEventListener('click',function(){dismissed=true;cw.classList.remove('teaser-on');clearInterval(timer);});
+        chips.addEventListener('click',function(e){var c=e.target.closest('.cw-chip');if(!c)return;
+          cw.classList.remove('teaser-on');openChat(c.dataset.q);});
+
+        btn.addEventListener('pointerdown',function(e){
+          if(calm)return;var r=btn.getBoundingClientRect(),s=document.createElement('span');
+          s.className='cw-ripple';s.style.cssText='left:'+(e.clientX-r.left)+'px;top:'+(e.clientY-r.top)+'px;width:58px;height:58px';
+          btn.appendChild(s);setTimeout(function(){s.remove();},620);
+        });
+        btn.addEventListener('click',function(){openChat('');});
+
+        // Open Mack (boot + open Retell), optionally seeding a first message for the chip.
+        function openChat(q){
+          open=true;cw.classList.remove('teaser-on','badge-on');clearInterval(timer);
+          if(navigator.vibrate)try{navigator.vibrate(8);}catch(_){}
+          try{ if(window.crOpenChat) window.crOpenChat(); }catch(e){}
+          var seed=q==='price'?"I'd like a price.":q==='time'?"I'd like to book a time.":"";
+          if(seed) seedMessage(seed);
+        }
+        // Best-effort: drop the chip's intent into Retell's input + send, once it mounts.
+        function seedMessage(text){
+          var tries=0,iv=setInterval(function(){
+            if(++tries>40)return clearInterval(iv);
+            var host=null;document.querySelectorAll('*').forEach(function(el){if(!host&&el.shadowRoot&&el.shadowRoot.querySelector('textarea,input[type="text"]'))host=el;});
+            if(!host)return;var sr=host.shadowRoot,ta=sr.querySelector('textarea,input[type="text"]');if(!ta)return;
+            clearInterval(iv);
+            try{var proto=ta.tagName==='TEXTAREA'?window.HTMLTextAreaElement.prototype:window.HTMLInputElement.prototype;
+              Object.getOwnPropertyDescriptor(proto,'value').set.call(ta,text);
+              ta.dispatchEvent(new Event('input',{bubbles:true}));
+              var snd=sr.querySelector('[class*="_sendButton"]');
+              if(snd)snd.click();else ta.dispatchEvent(new KeyboardEvent('keydown',{bubbles:true,key:'Enter',code:'Enter',keyCode:13,which:13}));
+            }catch(e){}
+          },160);
+        }
+
+        // Periodic nudge.
+        function nudge(){if(open||dismissed||calm)return;cw.classList.add('nudging');setTimeout(function(){cw.classList.remove('nudging');},920);}
+        if(C.nudge.enabled&&C.nudge.every>0&&C.nudge.max>0&&!calm)
+          timer=setInterval(function(){if(++nudges>C.nudge.max)return clearInterval(timer);nudge();},C.nudge.every);
+
+        // Cursor magnet (desktop pointers only).
+        if(!calm&&matchMedia('(pointer:fine)').matches){
+          addEventListener('mousemove',function(e){
+            var r=btn.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),d=Math.hypot(dx,dy);
+            if(d<140){var f=(1-d/140)*9;magnet.style.setProperty('--mx',(dx/d*f).toFixed(2)+'px');magnet.style.setProperty('--my',(dy/d*f).toFixed(2)+'px');}
+            else{magnet.style.setProperty('--mx','0px');magnet.style.setProperty('--my','0px');}
+          },{passive:true});
+        }
+      }
+
+      // Pull config, then start. Falls back to defaults if the endpoint is unreachable.
+      fetch('/api/chat-launcher').then(function(r){return r.json();}).then(start).catch(function(){start(DEF);});
+    })();
+    </script>
   </body>
 </html>

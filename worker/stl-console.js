@@ -118,6 +118,41 @@ details{border:1px solid var(--ln);border-radius:9px;margin:6px 0;background:var
   <div id=intgOut class="note mono" style="margin-top:10px"></div>
 </div>
 
+<h2>Chat launcher <span class=note>— the orb + teaser + nudge that front Mack on the website. Saves live, no redeploy.</span></h2>
+<div class=card>
+  <div class=row>
+    <div class=sw><input type=checkbox id=cl_enabled><label for=cl_enabled style="margin:0"><b>Launcher on</b> (uncheck = use Retell's plain bubble)</label></div>
+    <div class=sw><label style="margin:0">Badge</label>
+      <select id=cl_badge style="max-width:150px"><option value=honest>Honest (on teaser)</option><option value=always>Always</option><option value=off>Off</option></select></div>
+  </div>
+  <div class="grid g2" style="margin-top:10px">
+    <div><label>Agent name</label><input id=cl_agentName placeholder="Mack"></div>
+    <div><label>Status line</label><input id=cl_status placeholder="AI assistant · a human when you ask"></div>
+    <div><label>Phone (E.164 — powers the “call” link)</label><input id=cl_phone placeholder="+17279999846"></div>
+    <div><label>Orb entrance delay (seconds)</label><input id=cl_entrance type=number step=.1 min=0 max=60></div>
+    <div style="grid-column:1/-1"><label>Teaser greeting</label><input id=cl_greeting placeholder="Hey — I'm at my desk right now. Want a price, or a time slot?"></div>
+  </div>
+
+  <div style="margin-top:14px"><b>Teaser</b> <span class=note>— the little message card that slides up</span></div>
+  <div class=row style="margin-top:6px"><div class=sw><input type=checkbox id=cl_teaser_enabled><label for=cl_teaser_enabled style="margin:0">Show teaser</label></div>
+    <div class=sw><input type=checkbox id=cl_teaser_exit><label for=cl_teaser_exit style="margin:0">Exit-intent trigger (desktop)</label></div></div>
+  <div class="grid g2" style="margin-top:6px">
+    <div><label>Show after (seconds) — 0 disables the time trigger</label><input id=cl_teaser_delay type=number step=.5 min=0 max=600></div>
+    <div><label>…or after scrolling (% of page) — 0 disables</label><input id=cl_teaser_scroll type=number step=1 min=0 max=100></div>
+  </div>
+
+  <div style="margin-top:14px"><b>Nudge</b> <span class=note>— the orb’s periodic wiggle</span></div>
+  <div class=row style="margin-top:6px"><div class=sw><input type=checkbox id=cl_nudge_enabled><label for=cl_nudge_enabled style="margin:0">Enable nudge</label></div></div>
+  <div class="grid g2" style="margin-top:6px">
+    <div><label>Wiggle every (seconds)</label><input id=cl_nudge_every type=number step=1 min=0 max=600></div>
+    <div><label>Stop after (times)</label><input id=cl_nudge_max type=number step=1 min=0 max=50></div>
+  </div>
+
+  <div class=row style="margin-top:14px"><button onclick=saveLauncher()>Save launcher</button>
+    <a href="/" target="_blank"><button class=ghost type=button>Preview on site ↗</button></a>
+    <span id=clMsg class=muted></span></div>
+</div>
+
 <h2>Test drive</h2>
 <div class="grid g2">
   <div class=card>
@@ -283,5 +318,59 @@ async function checkSms(){ const sid=$('#msgSid').value.trim(); if(!sid){$('#int
 async function revokeLead(id){const d=await api('POST',{action:'revoke',lead_id:id});await load();}
 async function markTransfer(id){const d=await api('POST',{action:'mark_transfer',lead_id:id});await load();}
 async function setDisposition(tpId,outcome){ if(!outcome)return; const d=await api('POST',{action:'set_disposition',touchpoint_id:tpId,outcome}); if(d&&d.textback)$('#tickOut').textContent='outcome saved — missed-dial text-back queued'; await load(); }
-load();setInterval(load,15000);
+
+/* ---- Chat launcher config (public GET, gated POST → /api/chat-launcher) ---- */
+/* UI is in seconds / percent; stored config is ms / 0-1, converted here. */
+async function loadLauncher(){
+  try{
+    const c=await (await fetch('/api/chat-launcher',{credentials:'same-origin'})).json();
+    $('#cl_enabled').checked=c.enabled!==false;
+    $('#cl_badge').value=c.badge||'honest';
+    $('#cl_agentName').value=c.agentName||'';
+    $('#cl_status').value=c.status||'';
+    $('#cl_phone').value=c.phone||'';
+    $('#cl_greeting').value=c.greeting||'';
+    $('#cl_entrance').value=((c.entranceDelay||0)/1000);
+    const t=c.teaser||{}, n=c.nudge||{};
+    $('#cl_teaser_enabled').checked=t.enabled!==false;
+    $('#cl_teaser_exit').checked=t.exitIntent!==false;
+    $('#cl_teaser_delay').value=((t.delay||0)/1000);
+    $('#cl_teaser_scroll').value=Math.round((t.scroll||0)*100);
+    $('#cl_nudge_enabled').checked=n.enabled!==false;
+    $('#cl_nudge_every').value=((n.every||0)/1000);
+    $('#cl_nudge_max').value=(n.max==null?3:n.max);
+  }catch(e){ $('#clMsg').textContent='load failed'; }
+}
+async function saveLauncher(){
+  const num=(id)=>{const v=parseFloat($('#'+id).value);return isFinite(v)?v:0;};
+  const config={
+    enabled:$('#cl_enabled').checked,
+    badge:$('#cl_badge').value,
+    agentName:$('#cl_agentName').value.trim(),
+    status:$('#cl_status').value.trim(),
+    phone:$('#cl_phone').value.trim(),
+    greeting:$('#cl_greeting').value.trim(),
+    entranceDelay:Math.round(num('cl_entrance')*1000),
+    teaser:{
+      enabled:$('#cl_teaser_enabled').checked,
+      exitIntent:$('#cl_teaser_exit').checked,
+      delay:Math.round(num('cl_teaser_delay')*1000),
+      scroll:Math.min(1,Math.max(0,num('cl_teaser_scroll')/100)),
+    },
+    nudge:{
+      enabled:$('#cl_nudge_enabled').checked,
+      every:Math.round(num('cl_nudge_every')*1000),
+      max:Math.round(num('cl_nudge_max')),
+    },
+  };
+  $('#clMsg').textContent='saving…';
+  try{
+    const r=await fetch('/api/chat-launcher',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({config})});
+    const d=await r.json();
+    $('#clMsg').textContent=d.ok?'saved ✓ — live within ~1 min (60s cache)':('error: '+(d.error||r.status));
+    if(d.ok) loadLauncher();
+  }catch(e){ $('#clMsg').textContent='error'; }
+}
+
+load();loadLauncher();setInterval(load,15000);
 </script></div></body></html>`;
