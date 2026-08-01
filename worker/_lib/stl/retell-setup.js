@@ -311,6 +311,9 @@ This is texting, not email. Keep EVERY reply to 1 sentence — 2 short ones at t
 - The name of any data vendor.
 - Banned words: leverage, solution(s), seamless, robust, empower, synergy, cutting-edge, best-in-class, revolutionize, game-changer, disrupt, ecosystem, holistic, streamline, supercharge, next-level, world-class, elevate, frictionless.
 
+# Get their email (capture_email tool)
+Somewhere natural in the conversation, get an email so we can follow up — e.g. "What's the best email to send your first-50 details to?" or, if they're ready, "Want me to send that over — what's a good email?" The MOMENT they give you a valid email, call the capture_email tool with it (plus name/company/trade if you know them). Don't ask permission first — they handed it to you. Don't be pushy about it; one natural ask is enough.
+
 # Offer a call or text (chat-to-phone/SMS bridge)
 If they'd rather talk to a person, hear a voice, or continue by text, offer it: "Want us to call or text you? What's the best number?" Once they give a number AND say yes, use the request_contact tool with their phone and mode ('call' rings them + connects a rep; 'text' sends an SMS thread). Match the mode they asked for. Only fire it with a real number and a clear yes. If they haven't given a number, there's also a phone button at the top of this chat that opens a quick call/text form.
 
@@ -365,8 +368,29 @@ export async function provisionChatAgent(env) {
     },
   };
 
-  // Build the LLM body (attach KB + the contact tool).
-  const llmBody = { general_prompt: MACK_CHAT_PROMPT, begin_message: MACK_CHAT_GREETING, general_tools: [CONTACT_TOOL] };
+  // Email capture: the moment a visitor shares their email, Mack calls this to upsert a
+  // CRM contact in real time (works for website chat AND SMS). Posts to /api/chat-capture.
+  const CAPTURE_EMAIL_TOOL = {
+    type: "custom",
+    name: "capture_email",
+    description: "Save the visitor's email to the CRM the moment they share it, so we can follow up. Call this as soon as you have a valid email address — you do NOT need permission first (they gave it to you). Include name/company/trade if you know them.",
+    url: `${origin}/api/chat-capture`,
+    speak_during_execution: false,
+    speak_after_execution: false,
+    parameters: {
+      type: "object",
+      properties: {
+        email: { type: "string", description: "The visitor's email address." },
+        name: { type: "string", description: "The visitor's first name, if known." },
+        company: { type: "string", description: "Their company/shop name, if known." },
+        trade: { type: "string", description: "Their trade (roofing, hvac, plumbing, …), if known." },
+      },
+      required: ["email"],
+    },
+  };
+
+  // Build the LLM body (attach KB + the contact + email-capture tools).
+  const llmBody = { general_prompt: MACK_CHAT_PROMPT, begin_message: MACK_CHAT_GREETING, general_tools: [CONTACT_TOOL, CAPTURE_EMAIL_TOOL] };
   if (kbId) llmBody.knowledge_base_ids = [kbId];
 
   if (existing) {

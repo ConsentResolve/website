@@ -53,6 +53,7 @@ import * as crmVisitor from "./api/crm-visitor.js";
 import * as stlLead from "./api/stl-lead.js";
 import * as chatCall from "./api/chat-call.js";
 import * as partnerApply from "./api/partner-apply.js";
+import * as chatCapture from "./api/chat-capture.js";
 import * as stlRevoke from "./api/stl-revoke.js";
 import * as stlTwilio from "./api/stl-twilio.js";
 import * as stlRetell from "./api/stl-retell.js";
@@ -212,6 +213,7 @@ const ROUTES = {
   "/api/lead": stlLead,
   "/api/chat-call": chatCall,
   "/api/partner-apply": partnerApply,
+  "/api/chat-capture": chatCapture,
   "/consent/revoke": stlRevoke,
   "/api/stl/twilio/inbound": stlTwilio,
   "/api/stl/twilio/status": stlTwilio,
