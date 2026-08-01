@@ -254,3 +254,39 @@ export async function openLiveChat(env, ev) {
     return { ok: true, conversationId: convId, contactId, chat_id: chatId };
   } catch (e) { return { ok: false, error: String(e).slice(0, 140) }; }
 }
+
+// Cron sweep (every minute): for each recently-opened website chat, pull the current
+// transcript from Retell and refresh the stored copy. This is what actually makes
+// website-chat transcripts appear near-real-time — Retell fires chat_ended late or only on
+// timeout, so we can't rely on that event alone to populate the thread.
+export async function sweepLiveChats(env) {
+  if (!env.RETELL_API_KEY) return { ok: false, skipped: "no_retell_key" };
+  try {
+    await ensureCrmV2Schema(env);
+    const cutoff = new Date(Date.now() - 30 * 60000).toISOString(); // active in last 30 min
+    const rows = (await env.DB.prepare(
+      "SELECT id, external_thread_id FROM conversations WHERE channel='chat' AND external_thread_id LIKE 'chat:%' AND status='open' AND COALESCE(last_message_at, updated_at) > ? ORDER BY COALESCE(last_message_at, updated_at) DESC LIMIT 15"
+    ).bind(cutoff).all()).results || [];
+    let updated = 0;
+    for (const row of rows) {
+      const chatId = String(row.external_thread_id || "").slice("chat:".length);
+      if (!chatId) continue;
+      const r = await fetch(`https://api.retellai.com/get-chat/${encodeURIComponent(chatId)}`, { headers: { Authorization: `Bearer ${env.RETELL_API_KEY}` } });
+      if (!r.ok) continue;
+      const j = await r.json().catch(() => ({}));
+      const msgs = j.message_with_tool_calls || j.messages || j.transcript_object || [];
+      let transcript = typeof j.transcript === "string" ? j.transcript : "";
+      if (!transcript && Array.isArray(msgs)) {
+        transcript = msgs.map((m) => `${/agent|assistant|bot/.test(String(m.role || "").toLowerCase()) ? "Mack" : "Them"}: ${m.content || m.message || m.text || ""}`).filter((l) => l.trim().length > 5).join("\n");
+      }
+      if (!transcript) continue;
+      const ended = /end/i.test(String(j.chat_status || j.status || ""));
+      const body = "🟢 Website chat — Mack (AI)" + (ended ? " (ended)" : " — live") + "\n\n" + transcript;
+      await env.DB.prepare("UPDATE messages SET body_text=? WHERE external_message_id=?").bind(body, "retell-chat:" + chatId).run().catch(() => {});
+      const last = transcript.split("\n").filter(Boolean).slice(-1)[0] || "chat";
+      await env.DB.prepare("UPDATE conversations SET last_message_preview=?, unread=1, updated_at=datetime('now') WHERE id=?").bind((ended ? "💬 " : "🟢 ") + last.slice(0, 90), row.id).run().catch(() => {});
+      updated++;
+    }
+    return { ok: true, swept: rows.length, updated };
+  } catch (e) { return { ok: false, error: String(e).slice(0, 140) }; }
+}
