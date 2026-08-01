@@ -44,7 +44,15 @@ async function sendEmail(env, lead, r) {
   // Send through the connected Google Workspace mailbox (hello@consentresolve.com) — no
   // sending-domain DNS to verify, great deliverability, and replies thread into the real inbox.
   const account = String(env.STL_EMAIL_ACCOUNT || env.CRM_INBOX_EMAILS || "hello@consentresolve.com").split(/[,\s]+/)[0].trim().toLowerCase();
-  const g = await gmailSend(env, { account, to: lead.email, subject, text, from, replyTo: env.REPLY_TO || undefined }).catch((e) => ({ error: String(e).slice(0, 140) }));
+  // List-Unsubscribe (one-click when we have a revoke token, mailto fallback otherwise). Gmail
+  // and Yahoo now REQUIRE this header on bulk mail — without it these nurture sends land in spam.
+  const origin = env.STL_PUBLIC_ORIGIN || "https://consentresolve.com";
+  const revoke = lead.revoke_token || lead.revokeToken;
+  const headers = revoke
+    ? { "List-Unsubscribe": `<${origin}/consent/revoke?t=${revoke}>, <mailto:hello@consentresolve.com?subject=unsubscribe>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" }
+    : { "List-Unsubscribe": "<mailto:hello@consentresolve.com?subject=unsubscribe>" };
+  const g = await gmailSend(env, { account, to: lead.email, subject, text, from, replyTo: env.REPLY_TO || undefined, headers }).catch((e) => ({ error: String(e).slice(0, 140) }));
   if (g && g.ok) return { act: "live", outcome: "delivered", providerRef: g.id || null, detail: "gmail" };
   return { act: "live", outcome: "failed", detail: "gmail_" + String((g && g.error) || "failed").slice(0, 140) };
 }

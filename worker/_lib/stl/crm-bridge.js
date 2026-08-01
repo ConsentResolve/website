@@ -358,9 +358,18 @@ export async function sweepLiveChats(env) {
       if (!transcript) continue;
       const ended = /end/i.test(String(j.chat_status || j.status || ""));
       const body = "🟢 Website chat — Mack (AI)" + (ended ? " (ended)" : " — live") + "\n\n" + transcript;
+      // Only mark the conversation unread / bump last_message_at when the transcript actually
+      // GREW. Otherwise a chat you've already read gets re-flagged unread every minute (the
+      // sweep re-fetches the same transcript) and can never be cleared.
+      const prev = await env.DB.prepare("SELECT body_text FROM messages WHERE external_message_id=?").bind("retell-chat:" + chatId).first().catch(() => null);
+      const changed = !prev || prev.body_text !== body;
       await env.DB.prepare("UPDATE messages SET body_text=? WHERE external_message_id=?").bind(body, "retell-chat:" + chatId).run().catch(() => {});
       const last = transcript.split("\n").filter(Boolean).slice(-1)[0] || "chat";
-      await env.DB.prepare("UPDATE conversations SET last_message_preview=?, unread=1, updated_at=datetime('now') WHERE id=?").bind((ended ? "💬 " : "🟢 ") + last.slice(0, 90), row.id).run().catch(() => {});
+      if (changed) {
+        await env.DB.prepare("UPDATE conversations SET last_message_preview=?, last_message_at=datetime('now'), unread=1, updated_at=datetime('now') WHERE id=?").bind((ended ? "💬 " : "🟢 ") + last.slice(0, 90), row.id).run().catch(() => {});
+      } else {
+        await env.DB.prepare("UPDATE conversations SET last_message_preview=?, updated_at=datetime('now') WHERE id=?").bind((ended ? "💬 " : "🟢 ") + last.slice(0, 90), row.id).run().catch(() => {});
+      }
       await reconcileChatFromTranscript(env, row.id, transcript).catch(() => {}); // identify from any email/phone in the chat
       updated++;
     }

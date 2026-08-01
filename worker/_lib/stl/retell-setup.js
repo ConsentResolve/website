@@ -296,10 +296,29 @@ export async function provisionKnowledgeBase(env, _origin) {
     if (!llmId) { const ga = await rt(env, "GET", `/get-agent/${agent.agent_id}`); llmId = ga.json && ga.json.response_engine && ga.json.response_engine.llm_id; }
     if (llmId) attach = await rt(env, "PATCH", `/update-retell-llm/${llmId}`, { knowledge_base_ids: [kbId] });
   }
+
+  // 4. ALSO attach the KB to Mack's CHAT agent (website widget). Re-provisioning the KB
+  // mints a new knowledge_base_id; without this the chat agent keeps pointing at the old,
+  // now-deleted KB and silently loses retrieval. Best-effort — chat agent may not exist yet.
+  let chatAttach = { ok: false, text: "chat agent not found" };
+  try {
+    const chatName = String(env.STL_CHAT_AGENT_NAME || "Mack (chat)").trim();
+    const listCA = await rt(env, "GET", "/list-chat-agents");
+    const chatAgents = Array.isArray(listCA.json) ? listCA.json : ((listCA.json && listCA.json.chat_agents) || []);
+    const chatAgent = chatAgents.find((a) => (a.agent_name || a.chat_agent_name || "").toLowerCase() === chatName.toLowerCase()) || null;
+    if (chatAgent) {
+      const caId = chatAgent.agent_id || chatAgent.chat_agent_id;
+      let cLlmId = chatAgent.response_engine && chatAgent.response_engine.llm_id;
+      if (!cLlmId && caId) { const gca = await rt(env, "GET", `/get-chat-agent/${caId}`); cLlmId = gca.json && gca.json.response_engine && gca.json.response_engine.llm_id; }
+      if (cLlmId) chatAttach = await rt(env, "PATCH", `/update-retell-llm/${cLlmId}`, { knowledge_base_ids: [kbId] });
+    }
+  } catch (_) {}
+
   return {
     ok: !!kbId, knowledge_base_id: kbId, removed_old: prior.length,
-    attached: !!attach.ok, agent_id: agent ? agent.agent_id : null,
-    detail: attach.ok ? `KB created + attached to ${agentName}` : `KB created; attach failed: ${attach.text || attach.status}`,
+    attached: !!attach.ok, chat_attached: !!chatAttach.ok, agent_id: agent ? agent.agent_id : null,
+    detail: (attach.ok ? `KB created + attached to ${agentName}` : `KB created; voice attach failed: ${attach.text || attach.status}`)
+      + (chatAttach.ok ? " + chat agent" : `; chat attach: ${chatAttach.text || chatAttach.status}`),
   };
 }
 
@@ -414,11 +433,15 @@ export async function provisionChatAgent(env) {
   // Chat-to-phone bridge: a custom function Mack can call to trigger an immediate phone
   // call (Retell rings the visitor, then warm-transfers to a rep). Posts to /api/chat-call.
   const origin = env.STL_PUBLIC_ORIGIN || "https://consentresolve.com";
+  // Shared secret appended to the tool webhook URLs so a random POST to /api/chat-capture
+  // (or /api/chat-call) can't forge/poison CRM contacts. Only enforced when STL_TOOL_SECRET
+  // is set, and provisioning must be re-run after setting it so the live tools carry it.
+  const toolQ = env.STL_TOOL_SECRET ? `?k=${encodeURIComponent(env.STL_TOOL_SECRET)}` : "";
   const CONTACT_TOOL = {
     type: "custom",
     name: "request_contact",
     description: "Reach the visitor on their phone. mode='call' rings them (AI voice, then connects a human rep); mode='text' sends them an SMS thread they can reply to. Use ONLY when the visitor has asked to be called or texted AND given a real phone number AND okayed it. Pick the mode they asked for (default call).",
-    url: `${origin}/api/chat-call`,
+    url: `${origin}/api/chat-call${toolQ}`,
     speak_during_execution: true,
     speak_after_execution: true,
     parameters: {
@@ -438,7 +461,7 @@ export async function provisionChatAgent(env) {
     type: "custom",
     name: "capture_email",
     description: "Save the visitor's email to the CRM the moment they share it, so we can follow up. Call this as soon as you have a valid email address — you do NOT need permission first (they gave it to you). Include name/company/trade if you know them.",
-    url: `${origin}/api/chat-capture`,
+    url: `${origin}/api/chat-capture${toolQ}`,
     speak_during_execution: false,
     speak_after_execution: true, // Mack must acknowledge after saving, or the chat looks hung
     parameters: {
@@ -477,10 +500,14 @@ export async function provisionChatAgent(env) {
 
   if (existing) {
     const agentId = existing.agent_id || existing.chat_agent_id;
+    // The list-chat-agents payload doesn't always inline response_engine — without the
+    // get-chat-agent fallback, llmId is undefined and the prompt PATCH silently no-ops,
+    // so re-provisioning appears to succeed while the chat brain never actually updates.
     let llmId = existing.response_engine && existing.response_engine.llm_id;
-    if (llmId) await rt(env, "PATCH", `/update-retell-llm/${llmId}`, llmBody);
+    if (!llmId && agentId) { const gca = await rt(env, "GET", `/get-chat-agent/${agentId}`); llmId = gca.json && gca.json.response_engine && gca.json.response_engine.llm_id; }
+    const llmUpd = llmId ? await rt(env, "PATCH", `/update-retell-llm/${llmId}`, llmBody) : { ok: false, text: "no llm_id" };
     const wh = await rt(env, "PATCH", `/update-chat-agent/${agentId}`, { webhook_url: chatWebhook, post_call_analysis_data: POST_CHAT_ANALYSIS });
-    return { ok: true, updated: true, chat_agent_id: agentId, knowledge_base_attached: !!kbId, webhook_set: !!wh.ok, detail: `updated ${chatName}` };
+    return { ok: !!llmUpd.ok, updated: true, chat_agent_id: agentId, llm_id: llmId || null, llm_updated: !!llmUpd.ok, knowledge_base_attached: !!kbId, webhook_set: !!wh.ok, detail: llmUpd.ok ? `updated ${chatName}` : `webhook set but LLM update failed: ${llmUpd.text || llmUpd.status}` };
   }
 
   // Fresh: create the chat brain, then the chat agent bound to it.

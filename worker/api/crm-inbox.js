@@ -8,6 +8,7 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { gAccessToken, sendMessage } from "../_lib/gmail.js";
 import { sendInstantlyReply } from "./crm-instantly.js";
+import { sendTestSms as sendSms } from "../_lib/stl/twilio.js";
 import { sendCrispMessage, getCrispTranscript } from "./crm-crisp.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2, isAdmin } from "../_lib/crm-v2.js";
 import { getByEmail } from "../_lib/db.js";
@@ -352,8 +353,23 @@ export async function onRequestPost({ request, env }) {
       const res = await sendCrispMessage(env, conv.external_thread_id, body);
       if (res.error) return json({ error: res.error, message: res.message }, { status: 400 }, cors);
       externalId = res.id;
+    } else if (conv.channel === "sms" || conv.channel === "phone" || conv.channel === "voice" || conv.channel === "speed_to_lead") {
+      // Reply by SMS to the number on the thread ("phone:<E164>"). Covers inbound texts, calls,
+      // and speed-to-lead conversations that arrived with a phone number.
+      const raw = String(conv.external_thread_id || "");
+      const np = raw.startsWith("phone:") ? raw.slice(6) : "";
+      const to = np ? (np.startsWith("+") ? np : "+" + np) : null;
+      if (!to) return json({ error: "no_phone", message: "No phone number on this conversation to text." }, { status: 400 }, cors);
+      const res = await sendSms(env, to, body);
+      if (!res.ok) return json({ error: res.error || "sms_failed" }, { status: 400 }, cors);
+      externalId = res.sid; sentVia = "sms";
     } else {
-      return json({ error: "unsupported_channel", channel: conv.channel }, { status: 400 }, cors);
+      return json({
+        error: "unsupported_channel", channel: conv.channel,
+        message: conv.channel === "chat"
+          ? "This was a live website chat — replies aren't supported once the session ends. If you have their email or number, reach out that way."
+          : "Replies aren't supported for this channel yet.",
+      }, { status: 400 }, cors);
     }
 
     const now = new Date().toISOString();
@@ -361,6 +377,13 @@ export async function onRequestPost({ request, env }) {
     await env.DB.prepare("UPDATE conversations SET last_message_at=?, last_message_preview=?, unread=0, updated_at=datetime('now') WHERE id=?").bind(now, body.slice(0, 160), conv.id).run();
     await addActivityV2(env, { actorId: authorId, entityType: "conversation", entityId: conv.id, action: "replied", meta: { channel: conv.channel, via: sentVia } });
     return json({ ok: true, sent: sentVia }, {}, cors);
+  }
+
+  // Mark a conversation read — the inbox's select() fires this so the unread dot/badge
+  // clears in the DB (not just client-side) and doesn't re-appear on the next data refresh.
+  if (b.mark_read) {
+    await env.DB.prepare("UPDATE conversations SET unread=0 WHERE id=?").bind(b.id).run().catch(() => {});
+    return json({ ok: true, read: b.id }, {}, cors);
   }
 
   // Delete a conversation for good (persistent) — the inbox's deleteConv calls this.
@@ -397,7 +420,10 @@ export async function onRequestPost({ request, env }) {
       "SELECT cv.id, cv.subject, cv.last_message_preview, cv.contact_id, ct.full_name, ct.primary_email FROM conversations cv LEFT JOIN contacts ct ON ct.id=cv.contact_id"
     ).all()).results || [];
     const TEST_EMAIL = /(@ham\.com|@help\.com|@mad\.com|@brokenfoot\.net|@dfads\.com|@hey\.com|@kickass\.net|@fadsdsf\.com|@ouch\.com|@angry\.net)$|((test|e2e|selftest|webhook|pipeline|crisp)[^@]*@consentresolve\.com)/i;
-    const TEST_NAME = /^(CRM E2E Test|CRM Test Two|Webhook (SecretCheck|Self-Test)|Brenda Stubbed Her Toe|Dennis Madly|`?dsafjlka|Bob|Mike (Help|Ham)|Hank|Bon|HVAC Jack|Jock Lock|CR Pipeline Test|Crisp Test|request_contact|Help)$/i;
+    // ONLY unmistakable junk names. Bare common first names (Bob/Hank/Mike/…) were removed —
+    // a real prospect named "Bob" must never be swept. Those ambiguous rows are still caught
+    // when a junk EMAIL or junk TEXT (+1555…, DIAGNOSTIC PROBE, "safe to delete") co-occurs.
+    const TEST_NAME = /^(CRM E2E Test|CRM Test Two|Webhook (SecretCheck|Self-Test)|Brenda Stubbed Her Toe|Dennis Madly|`?dsafjlka|CR Pipeline Test|Crisp Test|request_contact)$/i;
     const TEST_TEXT = /(\+1555000000|\+1555000000?2|DIAGNOSTIC PROBE|PROBE 2|safe to delete|📞 Calls — \+1555)/i;
     const hits = rows.filter((r) => {
       const em = r.primary_email || "", nm = r.full_name || "", tx = (r.subject || "") + " " + (r.last_message_preview || "");

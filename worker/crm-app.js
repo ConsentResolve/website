@@ -55,12 +55,14 @@ window.CRM_LIVE_PENDING = true; // set before restoreView runs → data views sh
   try {
     if (d.CONSENT_LEDGER) window.CONSENT_LEDGER = d.CONSENT_LEDGER;
     if (d.CONSENT_STATS)  window.CONSENT_STATS = d.CONSENT_STATS;
-    if (d.SEQUENCES && d.SEQUENCES.length) window.SEQUENCES = d.SEQUENCES;
+    // Assign whenever the server RETURNS the key (even empty) so live-but-empty tables replace
+    // the inline demo fixtures with honest empty states — never show fabricated leads/visitors.
+    if (d.SEQUENCES) window.SEQUENCES = d.SEQUENCES;
     if (d.SITE_SOURCES) window.SITE_SOURCES = d.SITE_SOURCES;
-    if (d.SITESPY && d.SITESPY.visitors && d.SITESPY.visitors.length) window.SITESPY = d.SITESPY;
+    if (d.SITESPY) window.SITESPY = d.SITESPY;
     if (d.SPY_LEADS) window.SPY_LEADS = d.SPY_LEADS;
-    if (d.NURTURE && d.NURTURE.pool && d.NURTURE.pool.length) window.NURTURE = d.NURTURE;
-    if (d.PIPELINE && d.PIPELINE.length) window.PIPELINE = d.PIPELINE;
+    if (d.NURTURE) window.NURTURE = d.NURTURE;
+    if (d.PIPELINE) window.PIPELINE = d.PIPELINE;
     if (d.ANALYTICS && d.ANALYTICS.kpis) window.ANALYTICS = d.ANALYTICS;
     if (d.me && window.DATA) { window.DATA.me = d.me; if (window.applyMe) window.applyMe(); }
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.DATA) {
@@ -71,7 +73,7 @@ window.CRM_LIVE_PENDING = true; // set before restoreView runs → data views sh
     if (window.renderSequences) window.renderSequences();
     if ((d.SITE_SOURCES || d.SITESPY || d.SPY_LEADS) && window.renderSiteSpy) window.renderSiteSpy();
     if (d.NURTURE && window.renderNurture) window.renderNurture();
-    if (d.PIPELINE && d.PIPELINE.length && window.renderPipeline) window.renderPipeline();
+    if (d.PIPELINE && window.renderPipeline) window.renderPipeline();
     if (d.ANALYTICS && d.ANALYTICS.kpis && window.renderAnalytics) window.renderAnalytics();
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.renderList) {
       window.renderList('open');

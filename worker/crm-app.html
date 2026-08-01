@@ -1525,7 +1525,7 @@ window.SITESPY = {
    live in the right rail. */
 const SRC = {meta:"Meta",instantly:"Instantly",chatwoot:"Chatwoot",site:"Site",demo:"Demo",apollo:"Apollo",manual:"Manual"};
 const SRC_COLOR = {meta:"var(--src-meta)",instantly:"var(--src-instantly)",chatwoot:"var(--src-chatwoot)",site:"var(--src-site)",demo:"var(--src-site)",apollo:"var(--src-apollo)",manual:"var(--src-manual)"};
-const CH  = {email:"✉ Email",sms:"💬 SMS",ai_call:"📞 AI call",chatwoot:"💬 Chat",demo_form:"✉ Demo",identified:"⛓ Identified"};
+const CH  = {email:"✉ Email",sms:"💬 SMS",phone:"📞 Phone",voice:"📞 Phone",ai_call:"📞 AI call",chatwoot:"💬 Chat",demo_form:"✉ Demo",identified:"⛓ Identified"};
 const SEQ_ICON = {active:"●",earn_consent:"✉",replied:"✓",booked:"🎉",opted_out:"⛔",failed:"⚠",voicemail:"📞",blocked:"⛓",onboarding:"⚙",none:"—"};
 const SEQ_LBL = s => ({active:"In sequence",earn_consent:"Earn consent",replied:"Replied",booked:"Booked",opted_out:"Opted out",failed:"Send failed",voicemail:"Voicemail → email",blocked:"No outreach",onboarding:"Onboarding",none:"New"}[s.status]||"");
 /* inline SVG line-icon set — inherits currentColor from the parent */
@@ -1750,15 +1750,26 @@ function insertTemplate(k){insertText(RTMPL[k]||'');}
 function onAttach(files){for(const f of files)ATTACH.push({name:f.name,size:f.size}); renderAttachChips();}
 function removeAttach(i){ATTACH.splice(i,1); renderAttachChips();}
 function renderAttachChips(){const el=document.getElementById('attachChips'); if(!el)return; el.innerHTML=ATTACH.map((a,i)=>`<span class="achip">📎 ${esc(a.name)}<span class="ax" onclick="removeAttach(${i})">✕</span></span>`).join('');}
-function sendReply(){
+async function sendReply(){
   const c=DATA.conversations.find(x=>x.id===sel), ed=document.getElementById('rte');
   const text=ed?ed.innerText.trim():'';
-  if(!text && !ATTACH.length){closeReply(); return;}
-  const ch=replyChOf(c), n=ATTACH.length;
-  c.messages.push({dir:'out',channel:ch,body:text||'(attachment sent)',ts:'just now',meta:n?`sent · ${n} file${n>1?'s':''}`:'sent'});
-  replyOpen=false; ATTACH=[];
-  renderTab(c);
-  const sc=document.querySelector('#tabbody .msgs, #tabbody .gmail'); if(sc)sc.scrollTop=sc.scrollHeight;
+  // The reply endpoint sends `body` only — attachments aren't wired through the backend yet.
+  if(!text){ alert(ATTACH.length ? 'Type a message to send (attachments aren’t sent yet).' : ''); if(!ATTACH.length) closeReply(); return; }
+  const ch=replyChOf(c);
+  const btn=document.querySelector('.rte-send'); const oldLabel=btn?btn.textContent:'';
+  if(btn){ btn.disabled=true; btn.textContent='Sending…'; }
+  try{
+    const r=await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:sel,reply:text})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||d.error){ alert('Could not send: '+(d.message||d.error||('HTTP '+r.status))); return; }
+    // Only reflect the message in the thread AFTER the send actually succeeded.
+    c.messages.push({dir:'out',channel:d.sent||ch,body:text,ts:'just now',meta:'sent'});
+    if(typeof c.unread!=='undefined') c.unread=false;
+    replyOpen=false; ATTACH=[];
+    renderTab(c);
+    const sc=document.querySelector('#tabbody .msgs, #tabbody .gmail'); if(sc)sc.scrollTop=sc.scrollHeight;
+  }catch(e){ alert('Could not send: network error.'); }
+  finally{ if(btn){ btn.disabled=false; btn.textContent=oldLabel; } }
 }
 window.openReply=openReply; window.closeReply=closeReply; window.fmt=fmt; window.rteLink=rteLink;
 window.insertText=insertText; window.insertTemplate=insertTemplate; window.onAttach=onAttach; window.removeAttach=removeAttach; window.sendReply=sendReply;
@@ -2429,6 +2440,9 @@ function updatePipe(){
 
 /* ---- view switching (Inbox ⇄ Pipeline) ---- */
 function showView(v){
+  // Leaving the inbox must stop any live "Watch" poll — otherwise the 3s Retell poll keeps
+  // running on other screens forever (rate-limit + battery drain).
+  if(v!=='inbox' && typeof stopChatPoll==='function') stopChatPoll();
   document.querySelectorAll('.rail a[data-view]').forEach(a=>a.classList.toggle('on', a.dataset.view===v));
   const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview'};
   window.__crmView=v;
@@ -3313,6 +3327,12 @@ function select(id){
   sel=id; replyOpen=false; ATTACH=[]; curTab="reply";
   stopChatPoll();
   const c=DATA.conversations.find(x=>x.id===id);
+  // Opening a conversation marks it read: clear the dot locally, and persist so it stays
+  // read after the next data refresh (fire-and-forget; a stubbed/demo row just no-ops).
+  if(c && c.unread){
+    c.unread=false;
+    if(!String(id).startsWith('c0')) fetch('/api/crm/inbox',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,mark_read:true})}).catch(()=>{});
+  }
   renderList(document.querySelector(".filters .on").dataset.f);
   const useGmail = c.channel==="email";
   const phone = PHONES[c.id];

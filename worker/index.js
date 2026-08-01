@@ -128,7 +128,6 @@ const ROUTES = {
   "/api/feedback": feedback,
   "/api/outreach": outreach,
   "/api/outreach/run": outreach,
-  "/api/outreach/webhook": outreach,
   "/api/chat-launcher": chatLauncher,
   "/r": click,
   "/api/queue": queue,

@@ -227,7 +227,12 @@ export async function onRequestGet({ request, env }) {
   const fmtPhone = (v) => { const d = String(v || "").replace(/\D/g, ""); if (d.length === 10) return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`; return v ? "+" + d : null; };
   const DATA_CONVERSATIONS = convRows.map((r) => {
     const src = srcMap[r.source] || "manual";
-    const channel = (r.channel === "crisp" || r.channel === "chat") ? "chatwoot" : "email";
+    // Preserve the real channel so the inbox shows the right composer/label.
+    // Chat variants collapse to chatwoot; phone/voice → phone; sms → sms; everything else → email.
+    const channel = (r.channel === "crisp" || r.channel === "chat") ? "chatwoot"
+      : (r.channel === "phone" || r.channel === "voice" || r.channel === "speed_to_lead") ? "phone"
+      : (r.channel === "sms") ? "sms"
+      : "email";
     const cst = consentByCt.get(r.contact_id) || {};
     const consent = { email: cst.email || "none", sms: cst.sms || "none", voice: cst.voice || "none" };
     const run = runByCt.get(r.contact_id), deal = dealByCt.get(r.contact_id);

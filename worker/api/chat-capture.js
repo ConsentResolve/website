@@ -18,6 +18,15 @@ export async function onRequestOptions({ request, env }) {
 
 export async function onRequestPost({ request, env }) {
   const cors = corsHeaders(request, env);
+  // Shared-secret gate: this endpoint upserts CRM contacts, so an open POST could poison the
+  // CRM. Enforced only when STL_TOOL_SECRET is set (soft rollout — set the secret, re-run
+  // provisionChatAgent so the tool URL carries ?k=, then it's locked). Accept the secret from
+  // the query (?k=) or an x-tool-secret header.
+  if (env.STL_TOOL_SECRET) {
+    const u = new URL(request.url);
+    const got = u.searchParams.get("k") || request.headers.get("x-tool-secret") || "";
+    if (got !== env.STL_TOOL_SECRET) return json({ ok: false, error: "unauthorized" }, { status: 401 }, cors);
+  }
   let body = {};
   try { body = await request.json(); } catch (_) { return json({ ok: false, error: "bad_json" }, { status: 400 }, cors); }
   const src = body.args || body.arguments || body;

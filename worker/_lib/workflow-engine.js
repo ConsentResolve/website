@@ -273,6 +273,20 @@ async function stepRun(env, run, out, dry) {
     // Execute the action.
     const res = await executeStep(env, run, c, step, idx, out, dry);
     if (res === "exit") return;
+    if (res === "retry") {
+      // A genuine send failure (provider error, not an unconfigured-provider hold and not a
+      // skip). DON'T advance the drip — that would silently drop this touch. Reschedule the
+      // SAME step with exponential backoff, bounded so a permanently-failing step eventually
+      // gives up instead of looping forever.
+      const attempts = await failedAttempts(env, run.id, idx);
+      if (attempts >= 4) {
+        await logStep(env, run, idx, ch, step.action, "skipped", "gave_up_after_retries");
+        out.skipped++; idx++; continue; // move on so the run isn't stuck
+      }
+      const backoffMin = Math.min(240, 15 * Math.pow(2, attempts)); // 15m,30m,60m,120m…
+      await scheduleAt(env, run, idx, new Date(sendableAt(Date.now() + backoffMin * 60000, ch, env)).toISOString());
+      out.deferred++; return;
+    }
     // schedule the NEXT step (if any) after its delay; else complete.
     const next = steps[idx + 1];
     if (!next) { await completeRun(env, run, "completed"); out.completed++; return; }
@@ -311,10 +325,23 @@ async function executeStep(env, run, c, step, idx, out, dry) {
     await logEvent(env, { type: "sequence_step_completed", contactId: run.contact_id, workflowRunId: run.id, channel: step.channel, meta: { step: idx, status: "hold", reason: res.error } });
     out.skipped++;
   } else {
+    // Genuine provider failure (e.g. Gmail 429, network). Log it and signal a retry so the
+    // caller reschedules THIS step instead of advancing past a touch that never landed.
     await logStep(env, run, idx, step.channel, step.action, "failed", res.error);
     await logEvent(env, { type: step.channel === "sms" ? "sms_failed" : "sequence_step_completed", contactId: run.contact_id, workflowRunId: run.id, channel: step.channel, meta: { step: idx, status: "failed", error: res.error } });
-    out.skipped++;
+    out.failed = (out.failed || 0) + 1;
+    return dry ? undefined : "retry";
   }
+}
+
+// How many times step `idx` of this run has already failed — bounds the retry backoff.
+async function failedAttempts(env, runId, idx) {
+  try {
+    const r = await env.DB.prepare(
+      "SELECT COUNT(*) n FROM workflow_steps WHERE run_id=? AND step_index=? AND status='failed'"
+    ).bind(runId, idx).first();
+    return (r && r.n) || 0;
+  } catch (_) { return 0; }
 }
 
 // Mirror an outbound automation email into the inbox conversation so the team sees it.
