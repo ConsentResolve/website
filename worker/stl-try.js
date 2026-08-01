@@ -26,7 +26,11 @@ button{margin-top:16px;width:100%;background:var(--ac);color:#04120b;border:0;bo
 .steps.on{display:block}
 .step{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--ln);font-size:14px}
 .step:first-child{border-top:0}
-.step .when{flex:0 0 74px;font-family:ui-monospace,monospace;font-size:12px;font-weight:800;color:var(--ac)}
+.step .when{flex:0 0 86px;font-family:ui-monospace,monospace;font-size:12px;font-weight:800;color:var(--ac);font-variant-numeric:tabular-nums}
+.step .when.due{color:var(--ok);animation:tryPulse 1.1s ease-in-out infinite}
+.step.firing{background:rgba(0,229,160,.06);border-radius:8px}
+@keyframes tryPulse{0%,100%{opacity:1}50%{opacity:.42}}
+@media(prefers-reduced-motion:reduce){.step .when.due{animation:none}}
 .out{margin-top:14px;font-size:14px;padding:12px 14px;border-radius:11px;display:none}
 .out.ok{display:block;background:rgba(57,217,138,.12);color:var(--ok)}
 .out.err{display:block;background:rgba(255,107,107,.14);color:#ff9b9b}
@@ -57,10 +61,10 @@ button{margin-top:16px;width:100%;background:var(--ac);color:#04120b;border:0;bo
   <button type=submit>▶ Start the demo — call me now</button>
   <div class=out id=out></div>
   <div class="steps" id=steps>
-    <div class=step><span class=when>~30 sec</span><span>📞 <b>Mack calls you.</b> Mack discloses it's AI, offers to connect you to a rep, and can transfer live.</span></div>
-    <div class=step><span class=when>~2 min</span><span>💬 <b>Text message</b> from the same number.</span></div>
-    <div class=step><span class=when>~4 min</span><span>✉️ <b>Consent-receipt email</b> — the "here's exactly what you agreed to" proof.</span></div>
-    <div class=step><span class=when>~8 min</span><span>📞 <b>Human dial</b> step (if Mack didn't transfer).</span></div>
+    <div class=step data-off="30"><span class=when>~30 sec</span><span>📞 <b>Mack calls you.</b> Mack discloses it's AI, offers to connect you to a rep, and can transfer live.</span></div>
+    <div class=step data-off="120"><span class=when>~2 min</span><span>💬 <b>Text message</b> from the same number.</span></div>
+    <div class=step data-off="240"><span class=when>~4 min</span><span>✉️ <b>Consent-receipt email</b> — the "here's exactly what you agreed to" proof.</span></div>
+    <div class=step data-off="480"><span class=when>~8 min</span><span>📞 <b>Human dial</b> step (if Mack didn't transfer).</span></div>
     <div class=step><span class=when>live</span><span>🗂️ Watch all of it appear in the CRM Inbox at <b>/crm/app</b> as it happens.</span></div>
   </div>
   <div class=note>This is a demo — you consented above and can reply STOP or revoke anytime.</div>
@@ -76,9 +80,27 @@ function go(e){e.preventDefault();
   out.className='out'; out.textContent='Starting… Mack will call in ~30 seconds.'; out.style.display='block';
   fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
     .then(function(r){return r.json();}).then(function(d){
-      if(d&&d.ok){ out.className='out ok'; out.innerHTML='✓ You\\'re in the engine — <b>Population '+d.population+'</b>. Keep your phone handy; Mack calls in ~30 seconds. Revoke anytime: <a href="'+d.revoke_url+'" style="color:#00e5a0">one-click</a>.'; g('steps').className='steps on'; document.querySelector('button').style.display='none'; }
+      if(d&&d.ok){ out.className='out ok'; out.innerHTML='✓ You\\'re in the engine — <b>Population '+d.population+'</b>. Keep your phone handy; Mack calls in ~30 seconds. Revoke anytime: <a href="'+d.revoke_url+'" style="color:#00e5a0">one-click</a>.'; g('steps').className='steps on'; document.querySelector('button').style.display='none'; startCountdown(); }
       else { out.className='out err'; out.textContent='Error: '+((d&&d.error)||'unknown'); }
     }).catch(function(){ out.className='out err'; out.textContent='Network error.'; });
   return false;
+}
+// Live per-event countdowns: once the engine is running, each step ticks down to its
+// expected fire time, then flips to "now". Timings match the demo cadence (approximate —
+// the tick fires on a schedule, so treat these as "expect it around now").
+function startCountdown(){
+  var start=Date.now();
+  var steps=[].slice.call(document.querySelectorAll('#steps .step[data-off]'));
+  function fmt(s){s=Math.max(0,Math.round(s));var m=Math.floor(s/60),ss=s%60;return m+':'+(ss<10?'0':'')+ss;}
+  function tick(){
+    var el=(Date.now()-start)/1000;
+    steps.forEach(function(st){
+      var off=+st.getAttribute('data-off'),w=st.querySelector('.when');
+      if(el>=off){ if(!w.classList.contains('due')){w.textContent='now';w.classList.add('due');st.classList.add('firing');} }
+      else { w.textContent='in '+fmt(off-el); }
+    });
+    if(el>600){ clearInterval(window.__tryTimer); steps.forEach(function(st){st.querySelector('.when').textContent='✓ sent';}); }
+  }
+  tick(); window.__tryTimer=setInterval(tick,1000);
 }
 </script></body></html>`;
