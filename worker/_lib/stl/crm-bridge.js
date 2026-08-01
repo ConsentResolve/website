@@ -3,7 +3,7 @@
 // mirrors into the CRM so the team sees one unified record and reporting rolls up.
 // Identity is deduped by email (then phone) via the existing contact_identifiers, so
 // /api/claim-50 and /api/lead converge on ONE contact.
-import { ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIdentifier, upsertConversationByThread, insertMessageOnce, normPhone } from "../crm-v2.js";
+import { ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIdentifier, upsertConversationByThread, insertMessageOnce, normPhone, linkIdentifier } from "../crm-v2.js";
 import { ensureRebuildSchema, logEvent } from "../crm-rebuild.js";
 
 const STL_CHANNEL = "speed_to_lead";
@@ -255,6 +255,34 @@ export async function openLiveChat(env, ev) {
   } catch (e) { return { ok: false, error: String(e).slice(0, 140) }; }
 }
 
+// Scan a chat/SMS transcript for intel (email, phone) and reconcile the conversation's
+// identity — so an "Unknown" chat becomes the real person the moment they drop an email or
+// number in the message box, WITHOUT relying on Mack to call the capture tool. Returns the
+// resolved email so callers can surface it live. Idempotent + safe to call every poll.
+const EMAIL_RE = /[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/i;
+export async function reconcileChatFromTranscript(env, convId, transcript) {
+  try {
+    const text = String(transcript || "");
+    const em = text.match(EMAIL_RE);
+    const email = em ? em[0].toLowerCase().replace(/[.,;:)]+$/, "") : "";
+    const phoneM = text.replace(new RegExp(EMAIL_RE.source, "gi"), "").match(/\+?1?[\s.\-]?\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4}/);
+    const phone = phoneM ? phoneM[0] : "";
+    if (!email && !phone) return { ok: true, none: true };
+    const conv = await env.DB.prepare("SELECT contact_id FROM conversations WHERE id=?").bind(convId).first().catch(() => null);
+    if (!conv) return { ok: false };
+    let contactId = conv.contact_id;
+    if (email) {
+      const ec = await findOrCreateContactByEmail(env, email, { source: "chat" });
+      if (ec) {
+        contactId = ec;
+        await env.DB.prepare("UPDATE conversations SET contact_id=?, subject=? , updated_at=datetime('now') WHERE id=?").bind(ec, "💬 Chat — " + email, convId).run().catch(() => {});
+      }
+    }
+    if (phone && contactId) { const np = normPhone(phone); if (np.length >= 10) await linkIdentifier(env, contactId, "phone", np); }
+    return { ok: true, email: email || null, phone: phone || null, contactId };
+  } catch (e) { return { ok: false, error: String(e).slice(0, 120) }; }
+}
+
 // Cron sweep (every minute): for each recently-opened website chat, pull the current
 // transcript from Retell and refresh the stored copy. This is what actually makes
 // website-chat transcripts appear near-real-time — Retell fires chat_ended late or only on
@@ -285,6 +313,7 @@ export async function sweepLiveChats(env) {
       await env.DB.prepare("UPDATE messages SET body_text=? WHERE external_message_id=?").bind(body, "retell-chat:" + chatId).run().catch(() => {});
       const last = transcript.split("\n").filter(Boolean).slice(-1)[0] || "chat";
       await env.DB.prepare("UPDATE conversations SET last_message_preview=?, unread=1, updated_at=datetime('now') WHERE id=?").bind((ended ? "💬 " : "🟢 ") + last.slice(0, 90), row.id).run().catch(() => {});
+      await reconcileChatFromTranscript(env, row.id, transcript).catch(() => {}); // identify from any email/phone in the chat
       updated++;
     }
     return { ok: true, swept: rows.length, updated };

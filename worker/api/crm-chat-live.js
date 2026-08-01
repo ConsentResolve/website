@@ -5,6 +5,7 @@
 // so this poll is how "watch it live" works.
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
+import { reconcileChatFromTranscript } from "../_lib/stl/crm-bridge.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -38,7 +39,22 @@ export async function onRequestGet({ request, env }) {
     const body = "🟢 Website chat — Mack (AI)" + (ended ? " (ended)" : " — live") + (transcript ? "\n\n" + transcript : "\n\n(waiting for the first message…)");
     await env.DB.prepare("UPDATE messages SET body_text=? WHERE external_message_id=?").bind(body, "retell-chat:" + chatId).run().catch(() => {});
 
-    return json({ ok: true, chat_id: chatId, status, ended, transcript }, {}, cors);
+    // Identify the conversation from any email/phone dropped in the chat, and return the
+    // resolved identity so the CRM header updates live (no more "Unknown").
+    let email = null, name = null;
+    try {
+      const conv = await env.DB.prepare("SELECT id FROM conversations WHERE channel='chat' AND external_thread_id=?").bind("chat:" + chatId).first();
+      if (conv) {
+        const rec = await reconcileChatFromTranscript(env, conv.id, transcript);
+        if (rec && rec.email) email = rec.email;
+        if (rec && rec.contactId) {
+          const ct = await env.DB.prepare("SELECT full_name, primary_email FROM contacts WHERE id=?").bind(rec.contactId).first().catch(() => null);
+          if (ct) { name = ct.full_name || name; email = email || ct.primary_email; }
+        }
+      }
+    } catch (_) {}
+
+    return json({ ok: true, chat_id: chatId, status, ended, transcript, email, name }, {}, cors);
   } catch (e) {
     return json({ ok: false, error: String(e).slice(0, 160) }, { status: 200 }, cors);
   }

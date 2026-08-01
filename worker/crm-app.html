@@ -3287,6 +3287,13 @@ function toggleWatch(id){
             else renderTab(cc);
           }
         }
+        // Identity dropped in the chat (email/phone) → update the open conversation live.
+        if(d.email && cc.contact_email!==d.email){
+          cc.contact_email=d.email;
+          if(d.name) cc.name=d.name; else if(!cc.name||cc.name==='Unknown'||/^[(+]/.test(cc.name)) cc.name=d.email;
+          const h=document.querySelector('#thread .who h2'); if(h) h.textContent=cc.name;
+          renderList(curFilter());
+        }
         if(d.ended){ cc.live=false; stopChatPoll(); const b=document.getElementById('watchBtn'); if(b){ b.classList.remove('on'); b.innerHTML='● Chat ended'; b.disabled=true; } }
       }).catch(function(){});
   };
