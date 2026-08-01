@@ -363,6 +363,59 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, sent: sentVia }, {}, cors);
   }
 
+  // Delete a conversation for good (persistent) — the inbox's deleteConv calls this.
+  // Removes the conversation + its messages/notes; if the contact was provisional and is
+  // now orphaned (no other conversations), removes it and its identifiers too.
+  if (b.del || b.delete_conversation) {
+    const id = b.id || b.del;
+    const conv = await env.DB.prepare("SELECT id, contact_id FROM conversations WHERE id=?").bind(id).first();
+    if (!conv) return json({ ok: true, already_gone: true }, {}, cors);
+    await env.DB.prepare("DELETE FROM messages WHERE conversation_id=?").bind(id).run().catch(() => {});
+    await env.DB.prepare("DELETE FROM notes WHERE conversation_id=?").bind(id).run().catch(() => {});
+    await env.DB.prepare("DELETE FROM conversations WHERE id=?").bind(id).run();
+    if (conv.contact_id) {
+      const other = await env.DB.prepare("SELECT 1 x FROM conversations WHERE contact_id=? LIMIT 1").bind(conv.contact_id).first().catch(() => null);
+      if (!other) {
+        const ct = await env.DB.prepare("SELECT is_provisional FROM contacts WHERE id=?").bind(conv.contact_id).first().catch(() => null);
+        if (ct && ct.is_provisional) {
+          await env.DB.prepare("DELETE FROM contact_identifiers WHERE contact_id=?").bind(conv.contact_id).run().catch(() => {});
+          await env.DB.prepare("DELETE FROM contacts WHERE id=?").bind(conv.contact_id).run().catch(() => {});
+        }
+      }
+    }
+    const me = await currentUser(request, env);
+    await addActivityV2(env, { actorId: me ? me.id : null, entityType: "conversation", entityId: id, action: "deleted" }).catch(() => {});
+    return json({ ok: true, deleted: id }, {}, cors);
+  }
+
+  // Bulk purge obvious test/demo conversations. DRY-RUN BY DEFAULT — returns the match
+  // list; pass {purge_test:true, confirm:true} to actually delete. Conservative matchers
+  // (unmistakable junk domains + the diagnostic probe numbers + "safe to delete" markers)
+  // so real prospects are never swept.
+  if (b.purge_test) {
+    const rows = (await env.DB.prepare(
+      "SELECT cv.id, cv.subject, cv.last_message_preview, cv.contact_id, ct.full_name, ct.primary_email FROM conversations cv LEFT JOIN contacts ct ON ct.id=cv.contact_id"
+    ).all()).results || [];
+    const TEST_EMAIL = /(@ham\.com|@help\.com|@mad\.com|@brokenfoot\.net|@dfads\.com|@hey\.com|@kickass\.net|@fadsdsf\.com|@ouch\.com|@angry\.net)$|((test|e2e|selftest|webhook|pipeline|crisp)[^@]*@consentresolve\.com)/i;
+    const TEST_NAME = /^(CRM E2E Test|CRM Test Two|Webhook (SecretCheck|Self-Test)|Brenda Stubbed Her Toe|Dennis Madly|`?dsafjlka|Bob|Mike (Help|Ham)|Hank|Bon|HVAC Jack|Jock Lock|CR Pipeline Test|Crisp Test|request_contact|Help)$/i;
+    const TEST_TEXT = /(\+1555000000|\+1555000000?2|DIAGNOSTIC PROBE|PROBE 2|safe to delete|📞 Calls — \+1555)/i;
+    const hits = rows.filter((r) => {
+      const em = r.primary_email || "", nm = r.full_name || "", tx = (r.subject || "") + " " + (r.last_message_preview || "");
+      return (em && TEST_EMAIL.test(em)) || TEST_NAME.test(nm) || TEST_TEXT.test(tx);
+    });
+    if (!b.confirm) {
+      return json({ ok: true, dry_run: true, count: hits.length, note: "pass confirm:true to delete", matches: hits.map((h) => ({ id: h.id, name: h.full_name, email: h.primary_email, subject: h.subject })) }, {}, cors);
+    }
+    let n = 0;
+    for (const h of hits) {
+      await env.DB.prepare("DELETE FROM messages WHERE conversation_id=?").bind(h.id).run().catch(() => {});
+      await env.DB.prepare("DELETE FROM notes WHERE conversation_id=?").bind(h.id).run().catch(() => {});
+      await env.DB.prepare("DELETE FROM conversations WHERE id=?").bind(h.id).run().catch(() => {});
+      n++;
+    }
+    return json({ ok: true, purged: n }, {}, cors);
+  }
+
   // Assign a conversation to a rep (A — inbox assignment, spec §7).
   if (b.assignee_id !== undefined) {
     const aid = b.assignee_id || null;

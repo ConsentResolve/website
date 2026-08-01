@@ -117,6 +117,10 @@ html,body{height:100%}
   .row.fix .do{color:var(--bad);font-weight:600}
   .row .l1{display:flex;align-items:center;gap:7px;margin-bottom:2px}
   .row .nm{font-weight:700;font-size:var(--t-14);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* Bold until read/assigned; once read, the row lightens so unread pops. */
+  .row.unrow .nm{font-weight:800}
+  .row.readrow .nm{font-weight:500;color:var(--tx-2)}
+  .row.readrow .conm,.row.readrow .ts{opacity:.75}
   .row .unread{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:0 0 auto}
   .row .ts{margin-left:auto;color:var(--tx-3);font-size:11px;white-space:nowrap;font-family:var(--font-mono)}
   .row .co{display:flex;align-items:center;gap:8px;color:var(--tx-2);font-size:var(--t-12);margin-bottom:6px}
@@ -1603,7 +1607,7 @@ function renderList(filter){
     const tp=taskProgress(c.id);
     const dstg=dstate(c.id).stage;
     const stagePill = dstg!=='new' ? `<span class="rstage ${dstg}" title="Deal stage">${dstg}</span>` : '';
-    return `<button class="row ${c.id===sel?'sel':''} ${needsFix?'fix':''} ${c.bucket==='suppressed'?'dim':''}" onclick="select('${c.id}')">
+    return `<button class="row ${c.id===sel?'sel':''} ${needsFix?'fix':''} ${c.unread?'unrow':'readrow'} ${c.bucket==='suppressed'?'dim':''}" onclick="select('${c.id}')">
       <div class="row-main">
         <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="clk calm" data-ts="${c.age_ts||''}" data-base="${AGE[c.id]||0}" data-rel="${esc(c.ts||'')}" data-wait="${(c.unread && c.bucket==='open')?'1':'0'}">⏱ …</span></div>
         <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${stagePill}${c.snooze_until?`<span class="rmchip ${remOverdue(c.snooze_until)?'due':''}" title="${c.snooze_note?esc(c.snooze_note):'Reminder'}">⏰ ${fmtRemWhen(c.snooze_until)}</span>`:''}<span class="trollup ${tp.done===tp.total?'done':''}" title="Research & engagement tasks done">🗒 ${tp.done}/${tp.total}</span></div>
@@ -1880,6 +1884,8 @@ document.body.insertAdjacentHTML('beforeend', `
 document.getElementById('remindmodal').addEventListener('click',e=>{ if(e.target.id==='remindmodal') closeRemind(); });
 function deleteConv(id){
   const i=DATA.conversations.findIndex(x=>x.id===id); if(i<0)return;
+  /* Persist the delete so it survives refresh (was in-memory only — the "can't delete" bug). */
+  try{ fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({del:id})}); }catch(_){}
   DATA.conversations.splice(i,1); recount();
   const f=curFilter();
   if(sel===id){ const nx=DATA.conversations.find(c=> f==='all'?true:c.bucket===f)||DATA.conversations[0];

@@ -183,8 +183,13 @@ export async function onRequestGet({ request, env }) {
     ).bind(...convIds).all()).results || [];
     for (const m of msgs) { const a = msgsByConv.get(m.conversation_id) || []; a.push(m); msgsByConv.set(m.conversation_id, a); }
   }
-  const consentByCt = new Map(), dealByCt = new Map(), runByCt = new Map(), geoByCt = new Map();
+  const consentByCt = new Map(), dealByCt = new Map(), runByCt = new Map(), geoByCt = new Map(), phoneByCt = new Map();
   if (contactIds.length) {
+    // Phone identifier per contact → used as the display name for nameless (provisional)
+    // contacts (e.g. inbound callers/texters) instead of a bare "Unknown".
+    for (const p of (await env.DB.prepare(`SELECT contact_id, value FROM contact_identifiers WHERE type='phone' AND contact_id IN ${ph(contactIds)}`).bind(...contactIds).all()).results || []) {
+      if (!phoneByCt.has(p.contact_id)) phoneByCt.set(p.contact_id, p.value);
+    }
     for (const cr of (await env.DB.prepare(`SELECT contact_id, channel, action FROM consent_records WHERE contact_id IN ${ph(contactIds)} ORDER BY occurred_at ASC`).bind(...contactIds).all()).results || []) {
       const s = consentByCt.get(cr.contact_id) || {}; s[cr.channel] = cr.action; consentByCt.set(cr.contact_id, s);
     }
@@ -206,6 +211,7 @@ export async function onRequestGet({ request, env }) {
   const srcLabelMap = { meta: "Meta · Lead form", instantly: "Instantly · cold email", chatwoot: "Chatwoot · site chat", site: "Site · demo signup", demo: "Demo signup", apollo: "Apollo · identified", manual: "Manual" };
   const stripHtml = (h) => (h || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   const inits = (n) => (n ? n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase() : "?");
+  const fmtPhone = (v) => { const d = String(v || "").replace(/\D/g, ""); if (d.length === 10) return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`; return v ? "+" + d : null; };
   const DATA_CONVERSATIONS = convRows.map((r) => {
     const src = srcMap[r.source] || "manual";
     const channel = r.channel === "crisp" ? "chatwoot" : "email";
@@ -222,8 +228,8 @@ export async function onRequestGet({ request, env }) {
     const seqTotal = run && /earn/i.test(run.name || "") ? 3 : 4;
     return {
       id: r.id, bucket, source: src, channel,
-      name: r.full_name || "Unknown", company: r.company || null, contact_email: r.primary_email || null,
-      initials: inits(r.full_name), lifecycle: lifeMap[r.lifecycle_stage] || "Lead",
+      name: r.full_name || fmtPhone(phoneByCt.get(r.contact_id)) || "Unknown", company: r.company || null, contact_email: r.primary_email || null,
+      initials: inits(r.full_name) === "?" && phoneByCt.get(r.contact_id) ? "📞" : inits(r.full_name), lifecycle: lifeMap[r.lifecycle_stage] || "Lead",
       hot: false, unread, ts: humanTime(r.last_message_at) || "—",
       age_ts: r.last_message_at ? Date.parse(r.last_message_at) : null,   // real arrival epoch → timer survives refresh
       snooze_until: r.snooze_until || null,                               // reminder due time (ISO) when snoozed
@@ -413,6 +419,7 @@ function humanTime(iso) {
   if (!iso) return "";
   const t = Date.parse(iso); if (isNaN(t)) return iso;
   const mins = Math.floor((Date.now() - t) / 60000);
+  if (mins < 0) return new Date(t).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); // future (e.g. a meeting time) — never "just now"
   if (mins < 1) return "just now";
   if (mins < 60) return `${mins} min ago`;
   const hrs = Math.floor(mins / 60);

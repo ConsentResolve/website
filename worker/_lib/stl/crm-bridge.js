@@ -123,9 +123,11 @@ export async function mirrorInboundCall(env, call, eventName) {
 
     const label = voicemail ? "📞 Inbound voicemail" : noAnswer ? "📞 Missed call" : "📞 Inbound call";
     const now = nowIso();
+    // One conversation per phone number ("phone:"+np) so calls AND texts from the same
+    // number thread together. The individual messages keep their own channel (voice/sms).
     const convId = await upsertConversationByThread(env, {
-      channel: "voice", externalThreadId: "voice:" + np, contactId, companyId,
-      subject: "📞 Calls — " + (fromRaw || np), incoming: true, lastAt: now,
+      channel: "phone", externalThreadId: "phone:" + np, contactId, companyId,
+      subject: "📞 " + (fromRaw || np), incoming: true, lastAt: now,
       preview: label + (durS ? " · " + fmtDur(durS) : "") + (summary ? " · " + summary.slice(0, 80) : ""),
     });
 
@@ -188,9 +190,11 @@ export async function mirrorInboundSmsRetell(env, ev) {
     const companyId = c ? c.company_id : null;
 
     const now = nowIso();
+    // Same "phone:"+np thread as inbound calls, so texts and calls from one number share
+    // a single conversation. Message channel stays "sms".
     const convId = await upsertConversationByThread(env, {
-      channel: "sms", externalThreadId: "sms:" + np, contactId, companyId,
-      subject: "💬 SMS — " + (fromRaw || np), incoming: true, lastAt: now,
+      channel: "phone", externalThreadId: "phone:" + np, contactId, companyId,
+      subject: "📞 " + (fromRaw || np), incoming: true, lastAt: now,
       preview: "💬 " + String(lastUser || summary || transcript || "SMS").slice(0, 90),
     });
 
