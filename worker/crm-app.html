@@ -1601,6 +1601,9 @@ let sel="c05";
 /* LIST — clean rows: source dot + name + time, company, one action/summary line */
 function renderList(filter){
   const rows=document.getElementById("rows");
+  if(window.CRM_LIVE_PENDING && !DATA.conversations.length){
+    rows.innerHTML=`<div style="padding:36px;text-align:center;color:var(--tx-3)">Loading live data…</div>`; return;
+  }
   const items=DATA.conversations.filter(c=> filter==="all" ? true : c.bucket===filter);
   rows.innerHTML = items.map(c=>{
     const col=SRC_COLOR[c.source]||"var(--tx-3)";
@@ -2434,6 +2437,7 @@ function showView(v){
     else if(v==='sequences')renderSequences();
     else if(v==='analytics')renderAnalytics();
     else if(v==='consent')renderConsent();
+    else if(v==='inbox' && window.renderList)renderList(curFilter());
   }catch(e){
     if(window.console) console.warn('view render failed: '+v, e);
     const host=document.getElementById(views[v]);
@@ -3289,7 +3293,12 @@ document.querySelectorAll(".filters button").forEach(b=>b.onclick=()=>{document.
 document.querySelectorAll(".toggle button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".toggle button").forEach(x=>x.classList.remove("on"));b.classList.add("on");document.documentElement.setAttribute("data-theme",b.dataset.th);});
 
 document.documentElement.setAttribute("data-theme","light");
+// Never flash the demo conversations (e.g. "Tomas Lang") on load: start the inbox empty
+// and pending. crm-app.js swaps in the real data a beat later; on a failed fetch you get
+// an empty inbox, not fake records.
+window.CRM_LIVE_PENDING = true;
+window.DATA.conversations = [];
+window.DATA.counts = { open:0, auto:0, snoozed:0, all:0 };
 renderList("open");
-select(sel);
 setInterval(tickClocks,1000);
 </script>
