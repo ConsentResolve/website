@@ -1645,7 +1645,8 @@ function tracker(seq,isAuto){
 function bubbleThread(c){
   return `<div class="msgs">${c.messages.map(m=>{
     if(m.dir==="system") return `<div class="msg system">${esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
-    return `<div class="msg ${m.dir}"><div class="mh">${m.dir==='in'?'▸ ':''}${(CH[m.channel]||m.channel||'').replace(/^[^ ]+ /,'')} ${m.meta?'· '+esc(m.meta):''}</div>${esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
+    const who = m.who ? esc(m.who) : (m.dir==='in'?'▸ ':'')+(CH[m.channel]||m.channel||'').replace(/^[^ ]+ /,'');
+    return `<div class="msg ${m.dir}"><div class="mh">${who}${m.meta?' · '+esc(m.meta):''}</div>${esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
   }).join("")}</div>`;
 }
 
@@ -3253,11 +3254,11 @@ window.switchTab = switchTab;
    can't expose pre-send typing — this is as live as it gets.) */
 let _chatPoll=null, _watching=null, _watchCount=-1;
 function stopChatPoll(){ if(_chatPoll){ clearInterval(_chatPoll); _chatPoll=null; } _watching=null; _watchCount=-1; }
-function parseTranscript(t){
-  const out=[];
+function parseTranscript(t, visitorLabel){
+  const out=[]; const vlab=visitorLabel||"Website Visitor";
   (t||"").split("\n").forEach(function(line){
-    const m=line.match(/^(Them|User|Mack|Agent|Assistant):\s*(.*)$/i);
-    if(m){ out.push({ dir: /them|user/i.test(m[1])?"in":"out", channel:"chat", body:m[2], ts:"" }); }
+    const m=line.match(/^(Website Visitor|Them|User|Mack|Agent|Assistant):\s*(.*)$/i);
+    if(m){ const isMack=/mack|agent|assistant/i.test(m[1]); out.push({ dir:isMack?"out":"in", channel:"chat", who:isMack?"Mack":vlab, body:m[2], ts:"" }); }
     else if(out.length && line.trim()){ out[out.length-1].body += "\n"+line; }
   });
   return out;
@@ -3277,7 +3278,8 @@ function toggleWatch(id){
         if(_watching!==id || sel!==id){ stopChatPoll(); return; }
         if(!d || !d.ok) return;
         const cc=DATA.conversations.find(x=>x.id===id); if(!cc) return;
-        const msgs=parseTranscript(d.transcript);
+        const vlab=d.name||d.email||"Website Visitor";
+        const msgs=parseTranscript(d.transcript, vlab);
         // Only touch the DOM when a new message actually arrived → no flicker/scroll jump.
         if(msgs.length && msgs.length!==_watchCount){
           _watchCount=msgs.length; cc.messages=msgs;

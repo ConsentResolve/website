@@ -28,7 +28,7 @@ export async function onRequestGet({ request, env }) {
     let transcript = typeof j.transcript === "string" ? j.transcript : "";
     if (!transcript && Array.isArray(msgs)) {
       transcript = msgs
-        .map((m) => `${/agent|assistant|bot/.test(String(m.role || "").toLowerCase()) ? "Mack" : "Them"}: ${m.content || m.message || m.text || ""}`)
+        .map((m) => `${/agent|assistant|bot/.test(String(m.role || "").toLowerCase()) ? "Mack" : "Website Visitor"}: ${m.content || m.message || m.text || ""}`)
         .filter((l) => l.trim().length > 5)
         .join("\n");
     }

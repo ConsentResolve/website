@@ -174,7 +174,7 @@ export async function mirrorInboundSmsRetell(env, ev) {
     let lastUser = "";
     if (Array.isArray(msgs) && msgs.length) {
       const norm = msgs.map((m) => ({ role: String(m.role || m.author || "").toLowerCase(), content: m.content || m.message || m.text || "" })).filter((m) => m.content);
-      if (!transcript) transcript = norm.map((m) => `${/agent|assistant|bot/.test(m.role) ? "Mack" : "Them"}: ${m.content}`).join("\n");
+      if (!transcript) transcript = norm.map((m) => `${/agent|assistant|bot/.test(m.role) ? "Mack" : (isSms ? "Them" : "Website Visitor")}: ${m.content}`).join("\n");
       const users = norm.filter((m) => /user|customer|human/.test(m.role));
       if (users.length) lastUser = users[users.length - 1].content;
     }
@@ -305,7 +305,7 @@ export async function sweepLiveChats(env) {
       const msgs = j.message_with_tool_calls || j.messages || j.transcript_object || [];
       let transcript = typeof j.transcript === "string" ? j.transcript : "";
       if (!transcript && Array.isArray(msgs)) {
-        transcript = msgs.map((m) => `${/agent|assistant|bot/.test(String(m.role || "").toLowerCase()) ? "Mack" : "Them"}: ${m.content || m.message || m.text || ""}`).filter((l) => l.trim().length > 5).join("\n");
+        transcript = msgs.map((m) => `${/agent|assistant|bot/.test(String(m.role || "").toLowerCase()) ? "Mack" : "Website Visitor"}: ${m.content || m.message || m.text || ""}`).filter((l) => l.trim().length > 5).join("\n");
       }
       if (!transcript) continue;
       const ended = /end/i.test(String(j.chat_status || j.status || ""));

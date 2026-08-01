@@ -31,32 +31,22 @@ export async function onRequestPost({ request, env }) {
   const np = normPhone(phoneRaw);
   const trade = String(src.trade || "").trim();
   const company = String(src.company || "").trim();
+  const website = String(src.website || "").trim();
   const note = String(src.note || "").trim();
   // The live chat session id — Retell passes the chat context alongside the tool args.
   const chatId = String((body.chat && (body.chat.chat_id || body.chat.id)) || (body.call && body.call.chat_id) || body.chat_id || src.chat_id || "").trim();
 
   const hasEmail = email && /.+@.+\..+/.test(email);
   const hasPhone = np.length >= 10;
-  if (!hasEmail && !hasPhone) {
-    return json({ ok: false, error: "need_contact", message: "That didn't look like a valid email or number — mind repeating it?" }, { status: 200 }, cors);
+  // Accept ANY intel — name/website/trade too — and attach it to the live chat record.
+  if (!hasEmail && !hasPhone && !name && !website && !company && !trade) {
+    return json({ ok: true, note: "no_intel" }, { status: 200 }, cors);
   }
 
   try {
     await ensureCrmV2Schema(env); await ensureRebuildSchema(env);
 
-    // One contact for the person: email is the strongest key, else phone.
-    let contactId = hasEmail
-      ? await findOrCreateContactByEmail(env, email, { name: name || null, company: company || null, source: "chat" })
-      : await findOrCreateContactByIdentifier(env, "phone", np, { name: name || null, company: company || null, source: "chat" });
-    if (!contactId) return json({ ok: false, error: "no_contact", message: "Got it — I'll have a teammate follow up." }, { status: 200 }, cors);
-    if (hasEmail && hasPhone) await linkIdentifier(env, contactId, "phone", np);
-    const c = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first().catch(() => null);
-    const companyId = c ? c.company_id : null;
-    const now = new Date().toISOString();
-
-    // Find the live chat conversation to update: exact chat id, else the most-recent open
-    // website chat (a visitor captures details DURING their chat, so it's almost certainly
-    // theirs). Only fall back to a fresh record if there's no live chat at all.
+    // Find the live chat first, so soft intel (name/website only) can attach to it.
     let live = chatId
       ? await env.DB.prepare("SELECT id, contact_id FROM conversations WHERE channel='chat' AND external_thread_id=?").bind("chat:" + chatId).first().catch(() => null)
       : null;
@@ -67,13 +57,26 @@ export async function onRequestPost({ request, env }) {
       ).bind(cutoff).first().catch(() => null);
     }
 
+    // Strongest contact: email, else phone, else the live chat's existing (provisional) one.
+    let contactId = hasEmail
+      ? await findOrCreateContactByEmail(env, email, { name: name || null, company: company || null, source: "chat" })
+      : hasPhone
+      ? await findOrCreateContactByIdentifier(env, "phone", np, { name: name || null, company: company || null, source: "chat" })
+      : (live ? live.contact_id : null);
+    if (!contactId) return json({ ok: true, note: "no_target" }, { status: 200 }, cors);
+    if (hasEmail && hasPhone) await linkIdentifier(env, contactId, "phone", np);
+    // Fill the name if we learned it and the contact has none yet.
+    if (name) await env.DB.prepare("UPDATE contacts SET full_name=? WHERE id=? AND (full_name IS NULL OR full_name='')").bind(name, contactId).run().catch(() => {});
+    const c = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first().catch(() => null);
+    const companyId = c ? c.company_id : null;
+    const now = new Date().toISOString();
+
     let convId;
     if (live) {
       convId = live.id;
-      // Retie the live chat to the now-identified contact + refresh its header/preview.
       await env.DB.prepare(
         "UPDATE conversations SET contact_id=?, company_id=COALESCE(company_id, ?), subject=?, last_message_preview=?, updated_at=datetime('now') WHERE id=?"
-      ).bind(contactId, companyId, "💬 Chat — " + (name || email || phoneRaw), "📇 " + (email || phoneRaw), convId).run().catch(() => {});
+      ).bind(contactId, companyId, "💬 Chat — " + (name || email || phoneRaw || "visitor"), "📇 " + (email || phoneRaw || name || website), convId).run().catch(() => {});
     } else {
       // No live chat (plain form / SMS with no session) → open a chat record keyed by identity.
       const tk = hasEmail ? "chat-email:" + email : "chat-phone:" + np;
@@ -90,6 +93,7 @@ export async function onRequestPost({ request, env }) {
     if (hasPhone) parts.push("Phone: " + phoneRaw);
     if (name) parts.push("Name: " + name);
     if (company) parts.push("Company: " + company);
+    if (website) parts.push("Website: " + website);
     if (trade) parts.push("Trade: " + trade);
     if (note) parts.push("Note: " + note);
     await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: "chat", externalMessageId: "chat-capture:" + (chatId || email || np) + ":" + now, bodyText: parts.join("\n"), sentAt: now });
