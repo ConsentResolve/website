@@ -165,7 +165,7 @@ export async function onRequestGet({ request, env }) {
   // ---- Inbox conversations (DATA.conversations shape) ----
   try { await env.DB.prepare("ALTER TABLE conversations ADD COLUMN snooze_note TEXT").run(); } catch (_) {} // ensure column exists before selecting it
   const convRows = (await env.DB.prepare(
-    `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until, cv.snooze_note,
+    `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until, cv.snooze_note, cv.external_thread_id,
             ct.id contact_id, ct.full_name, ct.primary_email, ct.source, ct.lifecycle_stage, co.name company
        FROM conversations cv
        LEFT JOIN contacts ct ON ct.id = cv.contact_id
@@ -228,6 +228,8 @@ export async function onRequestGet({ request, env }) {
     const seqTotal = run && /earn/i.test(run.name || "") ? 3 : 4;
     return {
       id: r.id, bucket, source: src, channel,
+      chat_id: String(r.external_thread_id || "").startsWith("chat:") ? String(r.external_thread_id).slice(5) : null,
+      live: r.channel === "chat" && r.status === "open",
       name: r.full_name || fmtPhone(phoneByCt.get(r.contact_id)) || "Unknown", company: r.company || null, contact_email: r.primary_email || null,
       initials: inits(r.full_name) === "?" && phoneByCt.get(r.contact_id) ? "📞" : inits(r.full_name), lifecycle: lifeMap[r.lifecycle_stage] || "Lead",
       hot: false, unread, ts: humanTime(r.last_message_at) || "—",

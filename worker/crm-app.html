@@ -3243,8 +3243,41 @@ function switchTab(t){
 }
 window.switchTab = switchTab;
 
+/* Near-real-time live chat: while a website-chat conversation is open, poll Retell's
+   transcript every ~3s and re-render the thread. (Retell has no per-message push, and it
+   can't expose pre-send typing — this is as live as it gets.) */
+let _chatPoll=null;
+function stopChatPoll(){ if(_chatPoll){ clearInterval(_chatPoll); _chatPoll=null; } }
+function parseTranscript(t){
+  const out=[];
+  (t||"").split("\n").forEach(function(line){
+    const m=line.match(/^(Them|User|Mack|Agent|Assistant):\s*(.*)$/i);
+    if(m){ out.push({ dir: /them|user/i.test(m[1])?"in":"out", channel:"chat", body:m[2], ts:"" }); }
+    else if(out.length && line.trim()){ out[out.length-1].body += "\n"+line; }
+  });
+  return out;
+}
+function startChatPoll(c){
+  stopChatPoll();
+  if(!c || !c.chat_id) return;
+  const cid=c.id, chatId=c.chat_id;
+  const poll=function(){
+    fetch('/api/crm/chat-live?chat_id='+encodeURIComponent(chatId),{credentials:'same-origin'})
+      .then(function(r){ return r.ok?r.json():null; })
+      .then(function(d){
+        if(sel!==cid){ stopChatPoll(); return; }        // moved on
+        if(!d || !d.ok) return;
+        const cc=DATA.conversations.find(x=>x.id===cid); if(!cc) return;
+        const msgs=parseTranscript(d.transcript);
+        if(msgs.length){ cc.messages=msgs; if(curTab==='reply') renderTab(cc); }
+        if(d.ended){ cc.live=false; stopChatPoll(); }
+      }).catch(function(){});
+  };
+  poll(); _chatPoll=setInterval(poll, 3000);
+}
 function select(id){
   sel=id; replyOpen=false; ATTACH=[]; curTab="reply";
+  stopChatPoll();
   const c=DATA.conversations.find(x=>x.id===id);
   renderList(document.querySelector(".filters .on").dataset.f);
   const useGmail = c.channel==="email";
@@ -3286,6 +3319,7 @@ function select(id){
     <div class="tabbody" id="tabbody"></div>
   `;
   renderTab(c);
+  startChatPoll(c);
 }
 window.select = select;
 
