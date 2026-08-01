@@ -184,21 +184,19 @@ export async function mirrorInboundSmsRetell(env, ev) {
     const email = String(cad.email || chat.email || (chat.metadata && chat.metadata.email) || "").trim().toLowerCase();
     if (!transcript && !lastUser && !summary) return { ok: true, skipped: "no_content", from: fromRaw || np };
 
-    // Identity + thread. SMS keys on phone (unified with inbound calls). A website chat has
-    // no phone → key on the captured email (unified with the capture_email entry) or, failing
-    // that, the chat session id (a provisional contact) so we never drop the transcript.
-    let contactId = null, channel, threadId, subject;
+    // Thread by the Retell chat SESSION (both SMS + website) so chat_started, live polls,
+    // capture_email, and chat_ended all land on ONE conversation — SMS now behaves exactly
+    // like website chat (watchable, sweepable, unified). Identity: SMS→phone, web→email; the
+    // phone/email is still linked to the contact so a number's history stays together.
+    let contactId = null, channel = "chat", threadId = "chat:" + (chatId || (isSms ? np : Date.now())), subject;
     if (isSms) {
-      channel = "phone"; threadId = "phone:" + np; subject = "📞 " + (fromRaw || np);
+      subject = "💬 SMS — " + (fromRaw || np);
       const idr = await env.DB.prepare("SELECT contact_id FROM contact_identifiers WHERE type='phone' AND value=?").bind(np).first().catch(() => null);
       contactId = idr ? idr.contact_id : await findOrCreateContactByIdentifier(env, "phone", np, { source: "inbound_sms" });
+    } else if (email && /.+@.+\..+/.test(email)) {
+      contactId = await findOrCreateContactByEmail(env, email, { source: "chat" }); subject = "💬 Chat — " + email;
     } else {
-      // Website chat: thread by the Retell chat-session id so chat_started, live polls, and
-      // chat_ended all land on ONE conversation. Contact = captured email if known, else a
-      // provisional chat-session contact.
-      channel = "chat"; threadId = "chat:" + (chatId || Date.now());
-      if (email && /.+@.+\..+/.test(email)) { contactId = await findOrCreateContactByEmail(env, email, { source: "chat" }); subject = "💬 Chat — " + email; }
-      else { contactId = await findOrCreateContactByIdentifier(env, "chat_session", chatId || String(Date.now()), { source: "chat" }); subject = "💬 Website chat"; }
+      contactId = await findOrCreateContactByIdentifier(env, "chat_session", chatId || String(Date.now()), { source: "chat" }); subject = "💬 Website chat";
     }
     if (!contactId) return { ok: false, error: "no_contact" };
     const c = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first().catch(() => null);
@@ -212,7 +210,7 @@ export async function mirrorInboundSmsRetell(env, ev) {
     });
     // A chat that opened as provisional (chat_started, no email yet) → attach the now-known
     // email contact so the finished thread lands on the real person.
-    if (!isSms && email && contactId) await env.DB.prepare("UPDATE conversations SET contact_id=? WHERE id=?").bind(contactId, convId).run().catch(() => {});
+    if (contactId) await env.DB.prepare("UPDATE conversations SET contact_id=? WHERE id=?").bind(contactId, convId).run().catch(() => {}); // attach the identified (phone/email) contact over the provisional one
 
     const lines = [isSms ? "💬 Inbound SMS — Mack (AI)" : "💬 Website chat — Mack (AI)"];
     if (isSms) lines.push("From " + (fromRaw || np));
