@@ -255,7 +255,10 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         // Mobile: full-screen panel that slides up from the bottom, with safe-area insets;
         // hide the launcher while the window is open so it doesn't float over the input.
         +'@media (max-width:640px){@keyframes crPop{from{opacity:.5;transform:translateY(100%)}to{opacity:1;transform:none}}[class*="_window_"]{position:fixed!important;top:var(--cr-top,0)!important;left:0!important;right:0!important;bottom:auto!important;width:100vw!important;height:var(--cr-vh,100dvh)!important;max-width:none!important;max-height:none!important;border-radius:0!important;transform-origin:bottom!important;animation:crPop .3s cubic-bezier(0.32,0.72,0,1) both!important}[class*="_header_"]{padding-top:calc(14px + env(safe-area-inset-top))!important;border-radius:0!important}[class*="_inputRow_"]{padding-bottom:calc(14px + env(safe-area-inset-bottom))!important}[class*="_fabChat"],[class*="_fabWrap"]{display:none!important}}'
-        +'@media (prefers-reduced-motion:reduce){[class*="_window_"],[class*="_message_"],.cr-typing{animation:none!important}.cr-typing i{animation:none!important}[class*="_fabChat"],[class*="_closeButton_"],[class*="_sendButton"]{transition:none!important}[class*="_fabChat"]:active,[class*="_closeButton_"]:active,[class*="_sendButton"]:active{transform:none!important}}';
+        +'@media (prefers-reduced-motion:reduce){[class*="_window_"],[class*="_message_"],.cr-typing{animation:none!important}.cr-typing i{animation:none!important}[class*="_fabChat"],[class*="_closeButton_"],[class*="_sendButton"]{transition:none!important}[class*="_fabChat"]:active,[class*="_closeButton_"]:active,[class*="_sendButton"]:active{transform:none!important}}'
+        // When the custom launcher owns the bubble, hide Retell's own FAB entirely. Toggled
+        // by adding class "cr-hidefab" to the widget host (see __retellEnhance + the launcher).
+        +':host(.cr-hidefab) [class*="_fabChat"],:host(.cr-hidefab) [class*="_fabWrap"]{display:none!important}';
       // Restyle + inject Mack's identity header + a "typing…" beat before the first greeting.
       // Runs against the OPEN shadow root; hides the greeting via a class on the light-DOM
       // host (:host(.cr-firstopen)) so React can't undo it, and keeps the typing bubble alive
@@ -264,6 +267,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         var host=null;document.querySelectorAll("*").forEach(function(el){if(!host&&el.shadowRoot&&el.shadowRoot.querySelector('[class*="_fab"],button[aria-label*="Assistant" i]'))host=el;});
         if(!host)return false;var sr=host.shadowRoot;
         if(!sr.getElementById("cr-tune")){var st=document.createElement("style");st.id="cr-tune";st.textContent=window.__retellCSS;sr.appendChild(st);}
+        if(window.__crHideFab)host.classList.add("cr-hidefab"); // custom launcher owns the bubble → kill Retell's FAB
         try{var _root=document.getElementById("retell-widget-root");if(_root)_root.classList.add("cr-ready");}catch(e){} // reveal once styled (kills the default-icon flash)
         function ident(){var h=sr.querySelector('[class*="_header_"]');if(h&&!h.querySelector(".cr-ident")){var d=document.createElement("div");d.className="cr-ident";d.innerHTML='<span class="cr-av">M</span><span class="cr-idtext"><b>Mack</b><i><span class="cr-dot"></span>Online · replies instantly</i></span>';h.insertBefore(d,h.firstChild);}}
         // First-open "Mack is typing…" beat before the greeting (once per session).
@@ -478,18 +482,19 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       function fmtPhone(p){var d=String(p||'').replace(/\D/g,'');if(d.length===11&&d[0]==='1')d=d.slice(1);
         return d.length===10?'('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6):p;}
 
-      // Hide Retell's own FAB (shadow DOM) so our orb is the only launcher. Appends to the
-      // shared Retell CSS before boot; also patches the injected style if already mounted.
+      // Hide Retell's own FAB so our orb is the ONLY launcher — never both. The :host(.cr-hidefab)
+      // rule is baked into the base Retell CSS (present from the first shadow injection, so there's
+      // no race), and __retellEnhance re-tags the host every cycle. We also tag any host that already
+      // exists and keep sweeping briefly, in case Retell mounted before this ran.
       function hideRetellFab(){
-        try{
-          var rule='[class*="_fabChat"],[class*="_fabWrap"]{display:none!important}';
-          if(window.__retellCSS && window.__retellCSS.indexOf('_fabChat"],[class*="_fabWrap"]{display:none')===-1)
-            window.__retellCSS+=rule;
-          document.querySelectorAll('*').forEach(function(el){
-            if(el.shadowRoot){var t=el.shadowRoot.getElementById('cr-tune');
-              if(t&&t.textContent.indexOf('_fabWrap"]{display:none')===-1)t.textContent=window.__retellCSS;}
-          });
-        }catch(e){}
+        window.__crHideFab=true;
+        var n=0,iv=setInterval(function(){
+          var got=false;
+          try{document.querySelectorAll('*').forEach(function(el){
+            if(el.shadowRoot&&el.shadowRoot.querySelector('[class*="_fab"],[class*="_window_"]')){el.classList.add('cr-hidefab');got=true;}
+          });}catch(e){}
+          if(got||++n>60)clearInterval(iv);
+        },200);
       }
 
       function start(cfg){
