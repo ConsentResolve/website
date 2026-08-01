@@ -13,6 +13,7 @@
 import {
   ulid, nowIso, ensureRebuildSchema, logEvent, canSend, isSuppressed, consentState,
 } from "./crm-rebuild.js";
+import { sendEmail as gmailSend } from "./gmail.js";
 import { ensureCrmV2Schema } from "./crm-v2.js";
 
 const enabled = (env) => env.WORKFLOW_ENGINE_ENABLED === "true";
@@ -117,21 +118,16 @@ function emailShell(greeting, body, c) {
 }
 
 // ---- Providers ------------------------------------------------------------
+// Sends through the connected Google Workspace mailbox (hello@consentresolve.com) —
+// no sending-domain DNS to verify. Name kept for call-site stability.
 async function sendResend(env, { to, subject, html, text, unsubUrl }, dry) {
   if (dry) return { ok: true, id: "dry-preview", dry: true, preview: { to, subject } };
-  if (!env.RESEND_API_KEY) return { ok: false, error: "missing_resend_key" };
   const from = env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>";
-  const payload = { from, to, subject, html, text, reply_to: env.REPLY_TO || "hello@consentresolve.com" };
   // RFC 8058 one-click unsubscribe → required by Gmail/Yahoo for bulk senders + boosts deliverability.
-  if (unsubUrl) payload.headers = { "List-Unsubscribe": `<${unsubUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" };
-  const r = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  if (!r.ok) return { ok: false, error: `resend_${r.status}` };
-  const j = await r.json().catch(() => ({}));
-  return { ok: true, id: j.id };
+  const headers = unsubUrl ? { "List-Unsubscribe": `<${unsubUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } : undefined;
+  const g = await gmailSend(env, { to, subject, html, text, from, replyTo: env.REPLY_TO || "hello@consentresolve.com", headers });
+  if (!g.ok) return { ok: false, error: `gmail_${g.error || "failed"}` };
+  return { ok: true, id: g.id };
 }
 // HOLD-FOR-MORNING: Telnyx SMS. Coded; inert until TELNYX_API_KEY + 10DLC approval.
 async function sendTelnyxSms(env, { to, text }, dry) {

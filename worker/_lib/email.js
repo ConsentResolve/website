@@ -3,6 +3,7 @@
 // (we deliver a consented email — never a phone number to cold-call).
 
 import { tradeProfile } from "./trades.js";
+import { sendEmail as gmailSend } from "./gmail.js";
 
 const NAVY = "#0a1628";
 const MINT = "#00e5a0";
@@ -165,66 +166,37 @@ function notifyLeadHtml(p, t, meta) {
 }
 
 export async function sendLeadNotification(env, p, meta = {}) {
-  if (!env.RESEND_API_KEY) return { ok: false, error: "missing_resend_key" };
   const to = env.LEADS_NOTIFY_EMAIL || "hello@consentresolve.com";
   const t = tradeProfile(p.trade);
   const prog = meta.progress ? ` · ${meta.progress.short}` : "";
   const subject = `New demo signup${meta.repeat ? " (returning)" : ""}: ${p.name || "Unknown"}${p.trade ? " — " + (t.label || p.trade) : ""}${prog}`;
-  // "From the prospect," done the deliverable way: the display NAME is the person who
-  // submitted (the actual send address must be a domain we've verified), and reply-to is
-  // their email — so it reads as them in the inbox and a reply goes straight to them.
+  // Reads as "from the prospect" in the inbox: display NAME is who submitted, the send
+  // address is our own mailbox, and Reply-To is their email so a reply goes to them.
   const fromAddr = env.FROM_EMAIL || "hello@consentresolve.com";
   const fromName = String(p.name || "Demo signup").replace(/["<>\r\n,]/g, " ").trim().slice(0, 60) || "Demo signup";
-
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: `${fromName} <${fromAddr}>`,
-      to: [to],
-      reply_to: p.email || undefined,
-      subject,
-      html: notifyLeadHtml(p, t, meta),
-    }),
+  const g = await gmailSend(env, {
+    to, subject, html: notifyLeadHtml(p, t, meta),
+    from: `${fromName} <${fromAddr.replace(/^.*<|>.*$/g, "")}>`,
+    replyTo: p.email || undefined,
   });
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    return { ok: false, error: `resend_${res.status}`, detail: text.slice(0, 400) };
-  }
-  return { ok: true, data: await res.json().catch(() => ({})) };
+  if (!g.ok) return { ok: false, error: `gmail_${g.error || "failed"}` };
+  return { ok: true, data: { id: g.id } };
 }
 
 export async function sendRevealEmail(env, p, baseUrl) {
-  if (!env.RESEND_API_KEY) return { ok: false, error: "missing_resend_key" };
-
   const { subject, html } = renderEmail(env, p, baseUrl);
   const base = (baseUrl || env.BASE_URL || "https://consentresolve.com").replace(/\/$/, "");
   const unsub = `${base}/api/unsubscribe?dt=${encodeURIComponent(p.id || "")}`;
-
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
+  const g = await gmailSend(env, {
+    to: p.email, subject, html,
+    from: env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>",
+    // demo@ does not exist, so this resolves to hello@ and replies land.
+    replyTo: env.REPLY_TO_DEMO || env.REPLY_TO || "hello@consentresolve.com",
     headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
+      "List-Unsubscribe": `<${unsub}>, <mailto:unsubscribe@consentresolve.com?subject=unsubscribe>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
     },
-    body: JSON.stringify({
-      from: env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>",
-      to: [p.email],
-      // Purpose-specific reply-to, but every alias must be a mailbox that actually
-      // receives — demo@ does not exist, so this resolves to hello@ and replies land.
-      reply_to: env.REPLY_TO_DEMO || env.REPLY_TO || "hello@consentresolve.com",
-      subject,
-      html,
-      headers: {
-        "List-Unsubscribe": `<${unsub}>, <mailto:unsubscribe@consentresolve.com?subject=unsubscribe>`,
-        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-      },
-    }),
   });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    return { ok: false, error: `resend_${res.status}`, detail: text.slice(0, 400) };
-  }
-  return { ok: true, data: await res.json().catch(() => ({})) };
+  if (!g.ok) return { ok: false, error: `gmail_${g.error || "failed"}` };
+  return { ok: true, data: { id: g.id } };
 }

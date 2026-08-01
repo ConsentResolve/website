@@ -40,7 +40,7 @@ export async function onRequestGet({ request, env }) {
     note: enabled(env) ? "engine is LIVE" : "engine is DORMANT — set WORKFLOW_ENGINE_ENABLED=true to activate",
     workflows, runs_by_status: byStatus, due_now: dueNow, steps: recentSteps,
     providers: {
-      email: env.RESEND_API_KEY ? "configured" : "missing_resend_key",
+      email: "gmail (hello@consentresolve.com)",
       sms: env.TELNYX_API_KEY ? "configured" : "HOLD: TELNYX_API_KEY + 10DLC",
       voice: env.RETELL_API_KEY ? "configured" : "HOLD: RETELL_API_KEY",
     },

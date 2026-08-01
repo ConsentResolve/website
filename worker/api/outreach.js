@@ -30,6 +30,9 @@ const BCC = ["tyler@consentresolve.com", "aaron@consentresolve.com", "jason@cons
 const BCC_LIMIT = 25;
 const SITE = "https://consentresolve.com";
 
+import { sendEmail as gmailSend, gAccessToken } from "../_lib/gmail.js";
+const fromAddr = (env) => (env.STL_EMAIL_ACCOUNT || env.CRM_INBOX_EMAILS || "hello@consentresolve.com").split(/[,\s]+/)[0].trim().toLowerCase();
+
 const json = (o, init = {}) => new Response(JSON.stringify(o), {
   ...init, headers: { "Content-Type": "application/json", ...(init.headers || {}) },
 });
@@ -236,14 +239,13 @@ export async function onRequestPost({ request, env }) {
   // ?probe=1 — discover what this key can actually see. The CMP siteId used in
   // ConsentResolve.init() is not necessarily the same identifier the public API
   // expects in /sites/{siteId}, so list what the key is scoped to.
-  // ?probe=resend — which sending domains are verified? A 403 "domain is not verified"
-  // on send is a DNS/Resend-account issue, not a code issue.
-  if (u.searchParams.get("probe") === "resend") {
-    const r = await fetch("https://api.resend.com/domains", {
-      headers: { Authorization: `Bearer ${String(env.RESEND_API_KEY || "").trim()}` },
-    });
-    const b = await r.text();
-    return json({ resend_domains_status: r.status, body: b.slice(0, 900) });
+  // ?probe=email — is the sending mailbox connected? Sends now go through the connected
+  // Google Workspace mailbox (hello@consentresolve.com), so a failure here is an OAuth
+  // token issue, not a Resend/DNS one.
+  if (u.searchParams.get("probe") === "email" || u.searchParams.get("probe") === "resend") {
+    const acct = fromAddr(env);
+    const tok = await gAccessToken(env, acct).catch(() => null);
+    return json({ provider: "gmail", account: acct, connected: !!tok });
   }
 
   if (u.searchParams.get("probe") === "1") {
@@ -275,24 +277,18 @@ export async function onRequestPost({ request, env }) {
   // no outreach_sends row, no CRM lead, nothing marked as contacted — so the real
   // recipient still gets their first-touch email later.
   if (testTo) {
-    if (!env.RESEND_API_KEY) return json({ error: "RESEND_API_KEY not set" }, { status: 500 });
     const src = rows.length ? normalize(rows[0]) : { email: "sample@example.com", name: "Sam", company: "", domain: "" };
     const mail = buildEmail(src);
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: FROM, to: [testTo], reply_to: REPLY_TO(env),
-        subject: mail.subject, html: mail.html, text: mail.text,
-      }),
+    const g = await gmailSend(env, {
+      account: fromAddr(env), to: testTo, from: FROM, replyTo: REPLY_TO(env),
+      subject: mail.subject, html: mail.html, text: mail.text,
     });
-    const out = await res.json().catch(() => ({}));
     return json({
-      preview_send: true, to: testTo, ok: res.ok && !!out.id, resend_id: out.id || null,
+      preview_send: true, to: testTo, ok: !!g.ok, message_id: g.id || null,
       rendered_for: { name: src.name, company: src.company, domain: src.domain },
       api_contacts_available: rows.length, api_field_shape: shape,
       note: "Nothing recorded. This recipient has NOT been marked as contacted.",
-      error: res.ok ? null : JSON.stringify(out).slice(0, 240),
+      error: g.ok ? null : String(g.error || "gmail_failed").slice(0, 240),
     });
   }
 
@@ -322,34 +318,26 @@ export async function onRequestPost({ request, env }) {
       sample: queue.slice(0, 10), preview: buildEmail(queue[0] || { email: "sample@example.com", name: "Sam" }),
     });
   }
-  if (!env.RESEND_API_KEY) return json({ error: "RESEND_API_KEY not set" }, { status: 500 });
-
   const results = [];
   let n = alreadySent;
   for (const p of queue) {
     const mail = buildEmail(p);
     const withBcc = n < BCC_LIMIT;
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: FROM, to: [p.email], ...(withBcc ? { bcc: BCC } : {}),
-        reply_to: REPLY_TO(env),
-        subject: mail.subject, html: mail.html, text: mail.text,
-        headers: { "List-Unsubscribe": `<${mail.unsub}>, <mailto:hello@consentresolve.com?subject=unsubscribe>`,
-                   "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
-        tags: [{ name: "campaign", value: "identified_visitors" }],
-      }),
+    const g = await gmailSend(env, {
+      account: fromAddr(env), to: p.email, from: FROM, replyTo: REPLY_TO(env),
+      ...(withBcc ? { bcc: BCC } : {}),
+      subject: mail.subject, html: mail.html, text: mail.text,
+      headers: { "List-Unsubscribe": `<${mail.unsub}>, <mailto:hello@consentresolve.com?subject=unsubscribe>`,
+                 "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
     });
-    const out = await res.json().catch(() => ({}));
-    const ok = res.ok && out.id;
+    const ok = !!g.ok;
     if (ok) {
       await env.DB.prepare(`INSERT OR IGNORE INTO outreach_sends (email,name,company,domain,visitor_id,resend_id,sent_at,bcc)
         VALUES (?,?,?,?,?,?,datetime('now'),?)`)
-        .bind(p.email, p.name, p.company, p.domain, p.visitor_id, out.id, withBcc ? 1 : 0).run();
+        .bind(p.email, p.name, p.company, p.domain, p.visitor_id, g.id, withBcc ? 1 : 0).run();
       n++;
     }
-    results.push({ email: p.email, ok, id: out.id || null, bcc: withBcc, error: ok ? null : JSON.stringify(out).slice(0, 160) });
+    results.push({ email: p.email, ok, id: g.id || null, bcc: withBcc, error: ok ? null : String(g.error || "gmail_failed").slice(0, 160) });
   }
   return json({ sent: results.filter((r) => r.ok).length, failed: results.filter((r) => !r.ok).length, bcc_remaining: Math.max(0, BCC_LIMIT - n), results });
 }

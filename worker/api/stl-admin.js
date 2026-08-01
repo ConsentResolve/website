@@ -10,14 +10,14 @@ import { createLead } from "../_lib/stl/classifier.js";
 import { scheduleLead, tick, revoke, maybeTextbackOnNoAnswer, parkRepMatchingPhone } from "../_lib/stl/runner.js";
 import { linkLeadToCrm } from "../_lib/stl/crm-bridge.js";
 import { toE164 } from "../_lib/phone.js";
-import { sendMessage as gmailSend } from "../_lib/gmail.js";
+import { sendEmail as gmailSend } from "../_lib/gmail.js";
 import { provisionRuby, listRetellNumbers, provisionKnowledgeBase, provisionChatAgent } from "../_lib/stl/retell-setup.js";
 import { twilioStatus, sendTestSms, listTwilioNumbers, findNumberOwner, messageStatus, listMessagingServices, attachNumberToService, setupCascadeNumber, createSipTrunk, addSipOrigination } from "../_lib/stl/twilio.js";
 
 // Which integrations are wired? Booleans only — never leak secret values.
 function readiness(env) {
   return {
-    email_resend: !!env.RESEND_API_KEY,
+    email_gmail: "hello@consentresolve.com",
     twilio: !!(env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN),
     twilio_from: !!(env.TWILIO_FROM_NUMBER || env.TWILIO_MESSAGING_SERVICE_SID),
     retell_key: !!env.RETELL_API_KEY,
@@ -224,20 +224,10 @@ export async function onRequestPost({ request, env }) {
       if (!to) return json({ ok: false, error: "need a 'to' address" }, {}, cors);
       const subject = "Speed-to-Lead test email ✓";
       const text = "This is a live test send from the Speed-to-Lead engine. If you got this, email dispatch works.";
-      // Test the real go-live path: Gmail (hello@consentresolve.com) primary, Resend fallback.
+      // Sends through the connected Google Workspace mailbox (hello@consentresolve.com).
       const account = String(env.STL_EMAIL_ACCOUNT || env.CRM_INBOX_EMAILS || "hello@consentresolve.com").split(/[,\s]+/)[0].trim().toLowerCase();
-      const g = await gmailSend(env, account, to, subject, text, null, {}).catch((e) => ({ error: String(e).slice(0, 160) }));
+      const g = await gmailSend(env, { account, to, subject, text, from: env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>" }).catch((e) => ({ error: String(e).slice(0, 160) }));
       if (g && g.ok) return json({ ok: true, id: g.id || null, from: account, detail: "sent via gmail" }, {}, cors);
-      if (env.RESEND_API_KEY) {
-        const from = env.STL_FROM_EMAIL || env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>";
-        const res = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ from, to: [to], reply_to: env.REPLY_TO || undefined, subject, text }),
-        });
-        const j = await res.json().catch(() => ({}));
-        return json({ ok: res.ok, id: j.id || null, from, detail: res.ok ? "sent via resend (gmail failed)" : `gmail_fail(${(g && g.error) || "?"}); resend_${res.status}: ${String(j.message || j.error || j.name || "").slice(0, 180)}` }, {}, cors);
-      }
       return json({ ok: false, id: null, from: account, detail: "gmail_" + String((g && g.error) || "failed").slice(0, 200) }, {}, cors);
     }
     if (action === "reset_tests") {
