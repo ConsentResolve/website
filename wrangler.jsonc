@@ -65,7 +65,7 @@
     // status=failed, so it cannot send yet. Sending from the verified
     // tryconsentresolve.com meanwhile; replies still go to hello@consentresolve.com.
     // Flip this back the moment resend.com/domains shows consentresolve.com verified.
-    "FROM_EMAIL": "Consent Resolve <hello@tryconsentresolve.com>",
+    "FROM_EMAIL": "Consent Resolve <hello@consentresolve.com>",
     "REPLY_TO": "hello@consentresolve.com",
     "REPLY_TO_DEMO": "hello@consentresolve.com",
     "REPLY_TO_OUTREACH": "hello@consentresolve.com",

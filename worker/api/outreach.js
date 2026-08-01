@@ -20,9 +20,9 @@
 import { ensureCrmV2Schema, findOrCreateContactByEmail, addActivityV2, adminUserId } from "../_lib/crm-v2.js";
 
 const API_BASE = "https://api.consentresolve.com/api/v1/public";
-// TEMPORARY sending domain — see wrangler.jsonc FROM_EMAIL. Reply-to stays on
+// Sending domain: consentresolve.com (verified in Resend). Reply-to stays on
 // hello@consentresolve.com so conversations land in the real inbox.
-const FROM = "Tyler at Consent Resolve <hello@tryconsentresolve.com>";
+const FROM = "Tyler at Consent Resolve <hello@consentresolve.com>";
 // Reply-to is purpose-specific so replies to this campaign are distinguishable from
 // product/demo mail in the shared inbox.
 const REPLY_TO = (env) => env.REPLY_TO_OUTREACH || env.REPLY_TO || "hello@consentresolve.com";
