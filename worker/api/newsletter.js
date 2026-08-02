@@ -7,7 +7,7 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { isAdmin } from "../_lib/crm-v2.js";
 import { ensureNewsletterSchema, enrollRepermission, runRepermission, handleOptin, resendSend, decideSend, nlConfig, setNlSettings, handlePoll, sendIssue, runReengagement } from "../_lib/newsletter.js";
-import { ISSUES } from "../_lib/newsletter-issues.js";
+import { loadIssues, loadIssue, saveIssue } from "../_lib/newsletter-issues.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -91,7 +91,19 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, ...(await runRepermission(env, {})) }, {}, cors);
   }
   if (action === "issues") {
-    return json({ ok: true, issues: ISSUES.map((i) => ({ id: i.id, month: i.month, cep: i.cep, subject: i.subjects[0], has_poll: !!i.poll })) }, {}, cors);
+    const issues = await loadIssues(env);
+    // Per-issue send stats (how many opted-in readers already got it).
+    const sentCounts = Object.fromEntries(((await env.DB.prepare("SELECT issue_id, COUNT(*) n FROM newsletter_issue_log GROUP BY issue_id").all().catch(() => ({ results: [] }))).results || []).map((r) => [r.issue_id, r.n]));
+    return json({ ok: true, issues: issues.map((i) => ({ id: i.id, month: i.month, cep: i.cep, subject: (i.subjects || [])[0] || "", has_poll: !!i.poll, sent: sentCounts[i.id] || 0 })) }, {}, cors);
+  }
+  if (action === "get_issue") {
+    const issue = await loadIssue(env, String(b.issue || b.issue_id || "").padStart(2, "0"));
+    return issue ? json({ ok: true, issue }, {}, cors) : json({ error: "unknown_issue" }, { status: 404 }, cors);
+  }
+  if (action === "save_issue") {
+    const id = String(b.issue || b.issue_id || "").padStart(2, "0");
+    const fields = b.fields || {};
+    return json(await saveIssue(env, id, fields), {}, cors);
   }
   // Hold-for-approval: preview (dry) shows recipients + rendered HTML; confirm:true actually sends.
   if (action === "send_issue" || action === "preview_issue") {

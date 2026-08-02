@@ -254,9 +254,8 @@ export async function handlePoll(env, { contactId, field, value, issue, token })
 // issue, gated by nlConfig, throttled), and scores nothing until they click/reply.
 export async function sendIssue(env, { issueId, confirm = false, limit = 2000 }) {
   await ensureNewsletterSchema(env);
-  const { issueById } = await import("./newsletter-issues.js");
-  const { renderIssue } = await import("./newsletter-issues.js");
-  const issue = issueById(issueId);
+  const { loadIssue, renderIssue } = await import("./newsletter-issues.js");
+  const issue = await loadIssue(env, issueId); // D1 copy (edited in the CRM) wins
   if (!issue) return { ok: false, error: "unknown_issue" };
   const origin = env.STL_PUBLIC_ORIGIN || "https://consentresolve.com";
   const cfg = await nlConfig(env);

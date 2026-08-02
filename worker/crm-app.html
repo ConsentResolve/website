@@ -1050,6 +1050,7 @@ html,body{height:100%}
       <a data-view="sitespy" tabindex="0" onclick="showView('sitespy')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg><span class="lbl">Site Spy</span></a>
       <a data-view="analytics" tabindex="0" onclick="showView('analytics')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M6 20v-6"/><path d="M12 20V6"/><path d="M18 20v-9"/></svg><span class="lbl">Analytics</span></a>
       <a data-view="sequences" tabindex="0" onclick="showView('sequences')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span class="lbl">Sequences</span></a>
+      <a data-view="newsletter" tabindex="0" onclick="showView('newsletter')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span class="lbl">Newsletter</span></a>
       <a data-view="consent" tabindex="0" onclick="showView('consent')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><span class="lbl">Consent</span></a>
       <span class="sp"></span>
       <a tabindex="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="lbl">Settings</span></a>
@@ -1077,6 +1078,7 @@ html,body{height:100%}
     <section class="seqview" id="sequencesview" hidden></section>
     <section class="anview" id="analyticsview" hidden></section>
     <section class="cnview" id="consentview" hidden></section>
+    <section class="nurtureview" id="newsletterview" hidden></section>
   </div>
 <script>
 /* Inbox fixture — bucket-classified (open/auto/snoozed/suppressed), with explicit
@@ -2518,7 +2520,7 @@ function showView(v){
   // running on other screens forever (rate-limit + battery drain).
   if(v!=='inbox' && typeof stopChatPoll==='function') stopChatPoll();
   document.querySelectorAll('.rail a[data-view]').forEach(a=>a.classList.toggle('on', a.dataset.view===v));
-  const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview'};
+  const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview',newsletter:'newsletterview'};
   window.__crmView=v;
   Object.entries(views).forEach(([k,id])=>{const el=document.getElementById(id); if(el) el.hidden=k!==v;});
   // Render the active view defensively — a single view throwing must never blank the app.
@@ -2538,6 +2540,7 @@ function showView(v){
     else if(v==='sequences')renderSequences();
     else if(v==='analytics')renderAnalytics();
     else if(v==='consent')renderConsent();
+    else if(v==='newsletter')renderNewsletter();
     else if(v==='inbox' && window.renderList)renderList(curFilter());
   }catch(e){
     if(window.console) console.warn('view render failed: '+v, e);
@@ -2549,6 +2552,115 @@ function showView(v){
   if(location.hash.slice(1)!==v){ try{ history.replaceState(null,'','#'+v); }catch(e){ location.hash=v; } }
 }
 window.showView=showView;
+
+/* ---- Newsletter: view + edit the 12 issues, preview, send (hold-for-approval) ---- */
+const NL_FIELDS=['seg_ticket','seg_channel','seg_trucks','seg_crm'];
+async function nlPost(action,body){ const r=await fetch('/api/newsletter',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...(body||{})})}); return r.json(); }
+async function renderNewsletter(){
+  const host=document.getElementById('newsletterview'); if(!host) return;
+  host.innerHTML='<div style="padding:48px;text-align:center;color:var(--tx-3)">Loading newsletter…</div>';
+  let status={}, list={};
+  try{ status=await (await fetch('/api/newsletter')).json(); }catch(e){}
+  try{ list=await nlPost('issues'); }catch(e){}
+  const issues=(list&&list.issues)||[];
+  const live = status && status.sending==='LIVE';
+  const chip = live ? '<span style="color:var(--good);font-weight:800">● LIVE</span>' : '<span style="color:var(--tx-3);font-weight:800">○ Simulate</span>';
+  host.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div><h2 style="margin:0;font-size:19px">Newsletter</h2><div style="color:var(--tx-3);font-size:13px">12-issue calendar · sends ${chip} · from ${esc((status&&status.from)||'—')}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start">
+      <div class="nl-list">${issues.map(i=>`
+        <button class="nl-item" onclick="nlSelectIssue('${i.id}')" style="display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface-1);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer">
+          <div style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:13px">Issue ${i.id}</b><span style="color:var(--tx-3);font-size:11px">${esc(i.month||'')}</span></div>
+          <div style="font-size:13px;font-weight:600;margin-top:2px">${esc(i.subject||'')}</div>
+          <div style="color:var(--tx-3);font-size:11.5px;margin-top:2px">CEP: ${esc(i.cep||'')}</div>
+          ${i.sent?`<div style="color:var(--good);font-size:11px;margin-top:3px">✓ sent to ${i.sent}</div>`:''}
+        </button>`).join('')}</div>
+      <div id="nlEditor" style="border:1px solid var(--line);border-radius:12px;padding:18px;background:var(--surface-1);min-height:300px;color:var(--tx-3)">Pick an issue on the left to view or edit it.</div>
+    </div>`;
+}
+window.renderNewsletter=renderNewsletter;
+
+async function nlSelectIssue(id){
+  const ed=document.getElementById('nlEditor'); if(ed) ed.innerHTML='<div style="color:var(--tx-3)">Loading…</div>';
+  const d=await nlPost('get_issue',{issue:id}); const i=d&&d.issue; if(!i){ if(ed)ed.innerHTML='Could not load issue.'; return; }
+  window.__nl={id};
+  const poll=i.poll||{};
+  const optLines=(poll.options||[]).map(o=>`${o.l} | ${o.v}`).join('\n');
+  const fld=(label,el)=>`<label style="display:block;font-size:12px;font-weight:700;color:var(--tx-2);margin:12px 0 4px">${label}</label>${el}`;
+  const inp=(id,val)=>`<input id="${id}" value="${esc(val||'')}" style="width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;background:var(--surface-0);color:var(--tx-1);font:inherit;font-size:14px;padding:8px 10px">`;
+  const ta=(id,val,rows)=>`<textarea id="${id}" rows="${rows||4}" style="width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;background:var(--surface-0);color:var(--tx-1);font:inherit;font-size:14px;padding:8px 10px;resize:vertical">${esc(val||'')}</textarea>`;
+  ed.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+      <h3 style="margin:0;font-size:16px;color:var(--tx-1)">Issue ${i.id} <span style="color:var(--tx-3);font-weight:500;font-size:13px">· editing</span></h3>
+      <div style="display:flex;gap:8px">
+        <button onclick="nlPreview()" style="border:1px solid var(--line);background:var(--surface-2);color:var(--tx-1);font-weight:700;font-size:13px;padding:7px 13px;border-radius:8px;cursor:pointer">Preview</button>
+        <button onclick="nlSave()" class="nl-save" style="border:1px solid var(--line);background:var(--surface-2);color:var(--tx-1);font-weight:700;font-size:13px;padding:7px 13px;border-radius:8px;cursor:pointer">Save</button>
+        <button onclick="nlSend()" style="border:0;background:var(--accent);color:#04120b;font-weight:800;font-size:13px;padding:7px 15px;border-radius:8px;cursor:pointer">Send…</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>${fld('Month (YYYY-MM)',inp('nl_month',i.month))}</div>
+      <div>${fld('Category Entry Point',inp('nl_cep',i.cep))}</div>
+    </div>
+    ${fld('Subject lines (one per line — first is used)',ta('nl_subjects',(i.subjects||[]).join('\n'),3))}
+    ${fld('The one thing (150–200 words)',ta('nl_one',i.one_thing,7))}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>${fld('CTA heading',inp('nl_rh',i.run.heading))}</div>
+      <div>${fld('CTA button label',inp('nl_rl',i.run.label))}</div>
+    </div>
+    ${fld('CTA body',ta('nl_rb',i.run.body,3))}
+    ${fld('CTA destination (path on consentresolve.com)',inp('nl_rd',i.run.dest))}
+    <div style="border-top:1px solid var(--line);margin:16px 0 4px"></div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--tx-2)"><input type="checkbox" id="nl_haspoll" ${i.poll?'checked':''}> Include a segmentation poll</label>
+    ${fld('Poll question',inp('nl_pq',poll.q))}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>${fld('Stores answer in',`<select id="nl_pf" style="width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;background:var(--surface-0);color:var(--tx-1);font:inherit;font-size:14px;padding:8px 10px">${NL_FIELDS.map(f=>`<option ${poll.field===f?'selected':''}>${f}</option>`).join('')}</select>`)}</div>
+      <div>${fld('Note under the poll (optional)',inp('nl_pn',poll.note))}</div>
+    </div>
+    ${fld('Poll options (one per line — "Label | value")',ta('nl_po',optLines,4))}
+    <div style="border-top:1px solid var(--line);margin:16px 0 4px"></div>
+    ${fld('Reply ask (optional — for issues that invite a reply instead of a poll)',ta('nl_reply',i.reply_ask,2))}
+    ${fld('P.S.',ta('nl_ps',i.ps,3))}
+    <div class="nl-msg" id="nlMsg" style="margin-top:10px;font-size:13px;color:var(--tx-3)"></div>`;
+  document.querySelectorAll('.nl-item').forEach(b=>b.style.outline='none');
+}
+window.nlSelectIssue=nlSelectIssue;
+
+function nlGather(){
+  const v=id=>{const e=document.getElementById(id);return e?e.value:'';};
+  const hasPoll=document.getElementById('nl_haspoll')&&document.getElementById('nl_haspoll').checked;
+  const options=v('nl_po').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const p=l.split('|');return{l:(p[0]||'').trim(),v:(p[1]||p[0]||'').trim()};});
+  const poll = hasPoll && v('nl_pq') ? {q:v('nl_pq'),field:v('nl_pf'),options,note:v('nl_pn')} : null;
+  return { month:v('nl_month'), cep:v('nl_cep'), subjects:v('nl_subjects').split('\n').map(s=>s.trim()).filter(Boolean),
+    one_thing:v('nl_one'), run:{heading:v('nl_rh'),body:v('nl_rb'),dest:v('nl_rd'),label:v('nl_rl')},
+    poll, reply_ask:v('nl_reply')||null, ps:v('nl_ps') };
+}
+async function nlSave(){
+  const msg=document.getElementById('nlMsg'); if(msg)msg.textContent='Saving…';
+  const d=await nlPost('save_issue',{issue:window.__nl.id,fields:nlGather()});
+  if(msg)msg.innerHTML=d&&d.ok?'<span style="color:var(--good)">✓ Saved.</span>':'<span style="color:var(--bad)">Save failed: '+esc((d&&d.error)||'')+'</span>';
+}
+window.nlSave=nlSave;
+async function nlPreview(){
+  const msg=document.getElementById('nlMsg'); if(msg)msg.textContent='Rendering preview…';
+  await nlPost('save_issue',{issue:window.__nl.id,fields:nlGather()}); // preview reflects unsaved edits
+  const d=await nlPost('preview_issue',{issue:window.__nl.id});
+  if(!d||!d.preview_html){ if(msg)msg.textContent='Preview failed.'; return; }
+  if(msg)msg.innerHTML=`Subject: <b>${esc(d.subject)}</b> · would send to <b>${d.recipients}</b> opted-in reader(s) · ${d.sending}`;
+  const w=window.open('','_blank'); if(w){ w.document.write(d.preview_html); w.document.close(); }
+}
+window.nlPreview=nlPreview;
+async function nlSend(){
+  const d0=await nlPost('preview_issue',{issue:window.__nl.id});
+  const n=(d0&&d0.recipients)||0, live=(d0&&d0.sending==='LIVE');
+  if(!confirm(`Send Issue ${window.__nl.id} to ${n} opted-in reader(s)?\n\nMode: ${live?'LIVE — real emails go out':'SIMULATE — nothing actually sends'}\n\nThis can't be undone.`)) return;
+  const msg=document.getElementById('nlMsg'); if(msg)msg.textContent='Sending…';
+  const d=await nlPost('send_issue',{issue:window.__nl.id,confirm:true});
+  if(msg)msg.innerHTML=d&&d.ok?`<span style="color:var(--good)">✓ Sent ${d.sent}, simulated ${d.simulated||0}, failed ${d.failed||0}.</span>`:'<span style="color:var(--bad)">Send failed.</span>';
+}
+window.nlSend=nlSend;
 // Restore the last view on load (hash wins for shareable links, else localStorage).
 // DEFERRED to a macrotask so every render helper (const/fn defined later in this
 // script) is initialized first — otherwise restoring #sitespy hit a TDZ error and

@@ -113,6 +113,58 @@ export const ISSUES = [
 export function issueById(id) { return ISSUES.find((i) => i.id === String(id).padStart(2, "0")); }
 export function currentIssue(ym) { return ISSUES.find((i) => i.month === ym) || null; }
 
+// ---- D1-backed, editable issues -------------------------------------------
+// The code ISSUES above are the DEFAULTS/seed. Once seeded into D1, the newsletter is edited
+// in the CRM and the DB copy wins. Falls back to the code default for anything not in D1.
+const J = (o) => (o == null ? null : JSON.stringify(o));
+const P = (s, d) => { try { return s == null ? d : JSON.parse(s); } catch (_) { return d; } };
+
+export async function ensureIssuesSchema(env) {
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS newsletter_issues (
+    id TEXT PRIMARY KEY, month TEXT, cep TEXT, subjects TEXT, one_thing TEXT,
+    run_heading TEXT, run_body TEXT, run_dest TEXT, run_label TEXT,
+    poll TEXT, reply_ask TEXT, ps TEXT, updated_at TEXT)`).run().catch(() => {});
+  // Seed any issue id that isn't in D1 yet (idempotent — never overwrites an edited row).
+  for (const i of ISSUES) {
+    await env.DB.prepare(
+      `INSERT OR IGNORE INTO newsletter_issues (id,month,cep,subjects,one_thing,run_heading,run_body,run_dest,run_label,poll,reply_ask,ps,updated_at)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))`
+    ).bind(i.id, i.month, i.cep, J(i.subjects), i.one_thing, i.run.heading, i.run.body, i.run.dest, i.run.label, J(i.poll || null), i.reply_ask || null, i.ps).run().catch(() => {});
+  }
+}
+
+function rowToIssue(r) {
+  return {
+    id: r.id, month: r.month, cep: r.cep, subjects: P(r.subjects, []),
+    one_thing: r.one_thing || "", run: { heading: r.run_heading || "", body: r.run_body || "", dest: r.run_dest || "/", label: r.run_label || "Learn more" },
+    poll: P(r.poll, null), reply_ask: r.reply_ask || null, ps: r.ps || "",
+  };
+}
+
+export async function loadIssues(env) {
+  await ensureIssuesSchema(env);
+  const rows = (await env.DB.prepare("SELECT * FROM newsletter_issues ORDER BY id").all()).results || [];
+  return rows.map(rowToIssue);
+}
+export async function loadIssue(env, id) {
+  await ensureIssuesSchema(env);
+  const r = await env.DB.prepare("SELECT * FROM newsletter_issues WHERE id=?").bind(String(id).padStart(2, "0")).first();
+  return r ? rowToIssue(r) : null;
+}
+// Save editable fields for an issue. `patch` may include: month, cep, subjects[], one_thing,
+// run{heading,body,dest,label}, poll{...}|null, reply_ask, ps.
+export async function saveIssue(env, id, patch) {
+  await ensureIssuesSchema(env);
+  const cur = await loadIssue(env, id);
+  if (!cur) return { ok: false, error: "unknown_issue" };
+  const m = { ...cur, ...patch };
+  if (patch.run) m.run = { ...cur.run, ...patch.run };
+  await env.DB.prepare(
+    `UPDATE newsletter_issues SET month=?,cep=?,subjects=?,one_thing=?,run_heading=?,run_body=?,run_dest=?,run_label=?,poll=?,reply_ask=?,ps=?,updated_at=datetime('now') WHERE id=?`
+  ).bind(m.month, m.cep, J(m.subjects), m.one_thing, m.run.heading, m.run.body, m.run.dest, m.run.label, J(m.poll || null), m.reply_ask || null, m.ps, cur.id).run();
+  return { ok: true, issue: m };
+}
+
 // Render an issue for a contact → { subject, html, text }. Tracked links score clicks; poll
 // links capture a segmentation field + score a poll_response.
 export async function renderIssue(env, c, issue, { unsubUrl }) {
