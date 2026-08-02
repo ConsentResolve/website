@@ -343,6 +343,7 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
     <div class="bt" id="bt">
       <span class="bt-eye">Better together</span>
       <p class="bt-line">Here's the loop: you drive the visits — from your ads, your signs, your name getting around. We turn the ones who say yes into exclusive $7 leads. And as those leads stack up, you cross milestones that mail you more signs, more hangers, more magnets — which put your name in front of more people, who send more visits. Watch it run.</p>
+      <p class="bt-why">Offline and online were never two budgets — they're one flywheel. Your signs work the street, our code works the site, and each one makes the other worth more. The milestone signs, hangers, and magnets ship to you at no extra charge — <strong>the only thing you ever pay for is the $7 leads.</strong></p>
 
       <div class="bt-nums">
         <div class="bt-num">
@@ -710,7 +711,10 @@ h3{font-size:1.1rem;font-weight:700}
 .bt>*{position:relative}
 .bt-eye{font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.2em;
   text-transform:uppercase;color:var(--mint);display:block;margin-bottom:12px}
-.bt-line{color:#9fb2cb;font-size:1.06rem;margin:0 0 34px;max-width:52ch}
+.bt-line{color:#c9d7ea;font-size:1.14rem;line-height:1.55;margin:0 0 16px;max-width:none;text-wrap:pretty}
+.bt-why{color:#9fb2cb;font-size:1.02rem;line-height:1.6;margin:0 0 34px;max-width:none;
+  padding-top:16px;border-top:1px solid rgba(0,229,160,.16);text-wrap:pretty}
+.bt-why strong{color:var(--mint);font-weight:600}
 
 .bt-nums{display:grid;grid-template-columns:1fr auto 1fr;gap:26px;align-items:center;
   margin-bottom:30px}
