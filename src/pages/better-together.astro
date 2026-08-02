@@ -190,16 +190,22 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
   </div>
 </section>
 
-<!-- GALLERY: YARD SIGNS -->
-<section class="galstrip" aria-label="Yard sign examples">
+<!-- GALLERY: YARD SIGNS (signs on wooden stakes, planted in grass) -->
+<section class="galstrip grass" aria-label="Yard sign examples">
   <div class="gal" data-gal>
     <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
     <div class="gal-track">
       {Array.from({ length: 10 }).map((_, i) => {
         const n = String(i + 1).padStart(2, "0");
         return (
-          <figure class="gal-item"><div class="gal-ph">
-            <img src={`/better-together/yard-signs/yard-sign-${n}.webp`} alt={`Custom Consent Resolve yard sign design ${i + 1}`} loading="lazy" width="640" height="480" />
+          <figure class="gal-item"><div class="ys">
+            <img class="ys-sign" src={`/better-together/yard-signs/yard-sign-${n}.webp`} alt={`Custom Consent Resolve yard sign design ${i + 1}`} loading="lazy" width="640" height="480" />
+            <svg class="ys-stake" viewBox="0 0 24 68" aria-hidden="true">
+              <path d="M9 0 L15 0 L13.6 58 L12 67 L10.4 58 Z" fill="#8a5a2c"/>
+              <path d="M9 0 L11 0 L10.2 58 L9.8 58 Z" fill="#a97a3a"/>
+              <path d="M12.7 5 L12.1 57" stroke="#6a4620" stroke-width="0.7" opacity="0.45"/>
+              <path d="M10.7 9 L10.3 52" stroke="#6a4620" stroke-width="0.5" opacity="0.3"/>
+            </svg>
           </div></figure>
         );
       })}
@@ -918,6 +924,20 @@ h3{font-size:1.1rem;font-weight:700}
   .gal-nav{display:none}
 }
 @media (prefers-reduced-motion:reduce){.gal-item:hover .gal-ph{transform:none}}
+/* Yard-signs variant: signs on wooden stakes, planted in a grass lawn. */
+.galstrip.grass{position:relative;overflow:hidden;border-top-color:#26551f;border-bottom-color:#26551f;
+  background:linear-gradient(180deg,#5aa851 0%,#3d863a 58%,#2f7330 100%);padding:26px 0 0}
+.galstrip.grass .gal-track{padding-bottom:40px}
+.galstrip.grass .gal-item{width:210px}
+.ys{display:flex;flex-direction:column;align-items:center;width:100%}
+.ys-sign{width:100%;height:auto;display:block;border-radius:5px;
+  box-shadow:0 8px 16px -6px rgba(0,0,0,.45),0 2px 4px rgba(0,0,0,.3)}
+.ys-stake{width:16px;height:auto;margin-top:-2px;
+  filter:drop-shadow(0 3px 3px rgba(0,0,0,.28))}
+/* the lawn: a static grass fringe across the bottom — signs slide across it */
+.galstrip.grass::after{content:"";position:absolute;left:0;right:0;bottom:0;height:42px;z-index:2;
+  pointer-events:none;background:url(/better-together/grass-fringe.svg) repeat-x bottom/auto 42px}
+.galstrip.grass .gal{position:relative;z-index:1}
 .oblob{position:relative;width:100%;aspect-ratio:1/1;display:grid;place-items:center;margin:6px 0 24px}
 .oblob::before{content:"";position:absolute;width:88%;aspect-ratio:1/1;border-radius:50%;
   background:var(--ink)}
