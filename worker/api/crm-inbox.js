@@ -13,6 +13,46 @@ import { sendCrispMessage, getCrispTranscript } from "./crm-crisp.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2, isAdmin } from "../_lib/crm-v2.js";
 import { getByEmail } from "../_lib/db.js";
 import { progressFor } from "../_lib/demo-notify.js";
+import { addSuppression, logEvent } from "../_lib/crm-rebuild.js";
+
+// Recognize a delivery-failure (DSN / bounce) email so we can suppress the dead address
+// instead of ingesting the mailer-daemon notice as a normal inbound conversation.
+function isBounce(fromEmail, subject, payload) {
+  const f = String(fromEmail || "").toLowerCase();
+  if (/mailer-daemon@|postmaster@/.test(f)) return true;
+  if (/(delivery status notification|undeliverable|mail delivery (failed|subsystem)|returned mail|failure notice)/i.test(subject || "")) return true;
+  // multipart/report; report-type=delivery-status is the RFC-3464 tell.
+  const ct = String((payload && payload.mimeType) || "");
+  if (/multipart\/report/i.test(ct)) return true;
+  const hasDsnPart = (function walk(p) {
+    if (!p) return false;
+    if (/message\/delivery-status/i.test(p.mimeType || "")) return true;
+    return (p.parts || []).some(walk);
+  })(payload);
+  return hasDsnPart;
+}
+
+// Pull the address that actually failed out of the DSN body. Prefers the RFC-3464
+// "Final-Recipient:" field; falls back to an SMTP 5xx line, then any address near "failed".
+function failedRecipient(text, html, ourAccount) {
+  const body = (text || "") + "\n" + String(html || "").replace(/<[^>]+>/g, " ");
+  let m = /Final-Recipient:\s*(?:rfc822;)?\s*([^\s<>]+@[^\s<>]+)/i.exec(body)
+       || /Original-Recipient:\s*(?:rfc822;)?\s*([^\s<>]+@[^\s<>]+)/i.exec(body)
+       || /(?:5\.\d\.\d|55\d)[\s\S]{0,80}?([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/i.exec(body)
+       || /<([^>]+@[^>]+)>[\s\S]{0,60}?(?:failed|not found|does not exist|undeliverable|rejected)/i.exec(body);
+  const addr = m ? String(m[1]).trim().toLowerCase() : "";
+  // Never suppress our own mailbox (bounces are From our address in some layouts).
+  if (!addr || addr === String(ourAccount || "").toLowerCase()) return "";
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(addr) ? addr : "";
+}
+
+// Whether a DSN is a HARD (permanent) failure vs a transient one, so we only suppress the
+// permanently-dead addresses and don't kill a mailbox that was merely full for an hour.
+function isHardBounce(text, html) {
+  const body = (text || "") + "\n" + String(html || "");
+  if (/(4\.\d\.\d|\b4[25]\d\b|temporar|greylist|try again|rate limit|deferred|mailbox full|quota exceeded|over quota)/i.test(body)) return false;
+  return /(5\.\d\.\d|\b55\d\b|does not exist|no such user|user unknown|address (not found|rejected)|recipient (not found|rejected)|permanent|mailbox unavailable)/i.test(body);
+}
 
 function inboxAccounts(env) {
   return (env.CRM_INBOX_EMAILS || "hello@consentresolve.com").split(/[,\s]+/).map((s) => s.trim().toLowerCase()).filter(Boolean);
@@ -35,6 +75,24 @@ function extractBody(payload) {
   return { text: text.trim(), html: html.trim() };
 }
 
+// Suppress a hard-bounced address on email + record it on the contact. Idempotent: returns
+// true only the first time an address is newly suppressed (so the cron log is meaningful).
+async function markBounced(env, email) {
+  try {
+    const already = await env.DB.prepare("SELECT 1 FROM suppressions WHERE email=? AND channel IN ('email','all') LIMIT 1").bind(email).first();
+    if (already) return false;
+    await addSuppression(env, { email, channel: "email", reason: "hard_bounce", source: "gmail_dsn" });
+    // Mirror into the legacy table the inbox intel panel reads, so the bounce shows up there too.
+    try { await env.DB.prepare("INSERT INTO crm_suppressions (email, reason, source, created_at) VALUES (?,?,?,datetime('now')) ON CONFLICT(email) DO UPDATE SET reason=excluded.reason, source=excluded.source").bind(email, "bounced", "gmail_dsn").run(); } catch (_) {}
+    // Attribute to the contact if we know them (activity feed + funnel event).
+    let contactId = null;
+    try { const row = await env.DB.prepare("SELECT contact_id FROM contact_identifiers WHERE type='email' AND value=? LIMIT 1").bind(email).first(); contactId = row && row.contact_id; } catch (_) {}
+    await logEvent(env, { type: "email_bounced", contactId: contactId || undefined, channel: "email", meta: { email, kind: "hard" } }).catch(() => {});
+    if (contactId) await addActivityV2(env, { entityType: "contact", entityId: contactId, action: "email_bounced", meta: { email } }).catch(() => {});
+    return true;
+  } catch (_) { return false; }
+}
+
 // Ingest recent inbox mail for one connected account into conversations/messages.
 export async function pollEmailInbox(env, account) {
   const tok = await gAccessToken(env, account);
@@ -43,7 +101,7 @@ export async function pollEmailInbox(env, account) {
   const lr = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=40&q=" + q, { headers: { Authorization: "Bearer " + tok } });
   const lj = await lr.json();
   if (lj.error) return { account, error: (lj.error && lj.error.message) || "list_failed" };
-  let ingested = 0, seen = 0;
+  let ingested = 0, seen = 0, bounced = 0;
   for (const ref of (lj.messages || [])) {
     seen++;
     const mr = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/" + ref.id + "?format=full", { headers: { Authorization: "Bearer " + tok } });
@@ -61,6 +119,14 @@ export async function pollEmailInbox(env, account) {
     if (!other) continue;
     const sentAt = m.internalDate ? new Date(Number(m.internalDate)).toISOString() : (dateHdr || null);
     const { text, html } = extractBody(m.payload);
+
+    // Delivery-failure notice → suppress the dead address on email (hard bounces only) and
+    // record it on the contact, instead of ingesting the mailer-daemon notice as a "reply".
+    if (isBounce(fromEmail, subject, m.payload)) {
+      const dead = failedRecipient(text, html, account);
+      if (dead && isHardBounce(text, html) && (await markBounced(env, dead))) bounced++;
+      continue; // never file a DSN as an inbound conversation
+    }
     const contactId = await findOrCreateContactByEmail(env, other, { name: outbound ? "" : nameOf(hdr(headers, "from")), source: "email" });
     const convId = await upsertConversationByThread(env, {
       channel: "email", externalThreadId: m.threadId, contactId, subject,
@@ -72,7 +138,7 @@ export async function pollEmailInbox(env, account) {
     });
     if (!r.existed) ingested++;
   }
-  return { account, seen, ingested };
+  return { account, seen, ingested, bounced };
 }
 
 export async function pollAllInboxes(env) {

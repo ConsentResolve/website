@@ -426,7 +426,7 @@ export default {
       // CRM_INBOX_EMAILS account (default hello@) is Gmail-OAuth connected.
       try {
         const polled = await crmInbox.pollAllInboxes(env);
-        for (const p of polled) if (p && p.ingested) console.log(`[inbox] ${p.account}: +${p.ingested} of ${p.seen}`);
+        for (const p of polled) if (p && (p.ingested || p.bounced)) console.log(`[inbox] ${p.account}: +${p.ingested} of ${p.seen}${p.bounced ? `, ${p.bounced} bounced→suppressed` : ""}`);
       } catch (err) {
         console.log(`[inbox] poll error: ${String(err).slice(0, 160)}`);
       }

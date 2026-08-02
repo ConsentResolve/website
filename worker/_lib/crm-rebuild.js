@@ -146,7 +146,17 @@ async function isSuppressed(env, { contactId, email, phone, channel }) {
         AND ( (? IS NOT NULL AND email = ?) OR (? IS NOT NULL AND phone = ?) OR (? IS NOT NULL AND contact_id = ?) )
       LIMIT 1`
   ).bind(channel || "all", email || null, email || null, phone || null, phone || null, contactId || null, contactId || null).first();
-  return !!row;
+  if (row) return true;
+  // ALSO honor the legacy email-only crm_suppressions table (Instantly opt-outs/bounces land
+  // there). Without this, someone who unsubscribed via the cold-email tool could still be
+  // enrolled in a CRM drip, because the two suppression stores were never unified.
+  if (email && (channel === "email" || channel === "all" || !channel)) {
+    try {
+      const legacy = await env.DB.prepare("SELECT 1 FROM crm_suppressions WHERE email=? LIMIT 1").bind(email).first();
+      if (legacy) return true;
+    } catch (_) { /* table may not exist yet */ }
+  }
+  return false;
 }
 
 // Latest consent action per channel for a contact/email → { email:'granted', sms:'revoked', voice:null }
