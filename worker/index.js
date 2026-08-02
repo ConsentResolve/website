@@ -82,6 +82,8 @@ import * as crmImportLegacy from "./api/crm-import-legacy.js";
 import * as crmFixDates from "./api/crm-fix-dates.js";
 import { fixConversationDates } from "./api/crm-fix-dates.js";
 import { nurtureTick } from "./_lib/nurture-sweep.js";
+import * as newsletter from "./api/newsletter.js";
+import { runRepermission } from "./_lib/newsletter.js";
 import * as crmInbox from "./api/crm-inbox.js";
 import * as crmInstantly from "./api/crm-instantly.js";
 import * as crmInstantlyCampaign from "./api/crm-instantly-campaign.js";
@@ -182,6 +184,8 @@ const ROUTES = {
   "/api/crm/migrate": crmMigrate,
   "/api/crm/import-legacy": crmImportLegacy,
   "/api/crm/fix-dates": crmFixDates,
+  "/api/newsletter": newsletter,
+  "/api/newsletter/optin": newsletter,
   "/api/crm/inbox": crmInbox,
   "/api/crm/instantly": crmInstantly,
   "/api/crm/instantly/campaign": crmInstantlyCampaign,
@@ -457,6 +461,14 @@ export default {
         if (nt && (nt.warmed_to_open || nt.cooled_to_nurture || nt.promoted)) console.log(`[nurture] ${JSON.stringify(nt)}`);
       } catch (err) {
         console.log(`[nurture] error: ${String(err).slice(0, 160)}`);
+      }
+      // Re-permission sequence runner (Part 5). Inert until NEWSLETTER_ENABLED=true (and honors
+      // the NEWSLETTER_TEST_EMAILS allowlist) — advances/consumes nothing while simulating.
+      try {
+        const rp = await runRepermission(env, {});
+        if (rp && (rp.sent || rp.suppressed)) console.log(`[repermission] ${JSON.stringify(rp)}`);
+      } catch (err) {
+        console.log(`[repermission] error: ${String(err).slice(0, 160)}`);
       }
       // Crisp backfill: poll recent chats via REST and ingest any the webhook missed. Self-heals
       // against a rotated CRM key silently disabling the Crisp webhook. No-op until creds are set.
