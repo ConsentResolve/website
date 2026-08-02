@@ -81,6 +81,7 @@ import * as crmMigrate from "./api/crm-migrate.js";
 import * as crmImportLegacy from "./api/crm-import-legacy.js";
 import * as crmFixDates from "./api/crm-fix-dates.js";
 import { fixConversationDates } from "./api/crm-fix-dates.js";
+import { nurtureTick } from "./_lib/nurture-sweep.js";
 import * as crmInbox from "./api/crm-inbox.js";
 import * as crmInstantly from "./api/crm-instantly.js";
 import * as crmInstantlyCampaign from "./api/crm-instantly-campaign.js";
@@ -448,6 +449,14 @@ export default {
         }
       } catch (err) {
         console.log(`[dates] backfill error: ${String(err).slice(0, 160)}`);
+      }
+      // Lead scoring + cold→nurture→warm lifecycle mover (playbook Part 3). Rescores changed
+      // contacts, promotes Warm/Hot or repliers back to Open, cools 30-day-silent leads to Nurture.
+      try {
+        const nt = await nurtureTick(env);
+        if (nt && (nt.warmed_to_open || nt.cooled_to_nurture || nt.promoted)) console.log(`[nurture] ${JSON.stringify(nt)}`);
+      } catch (err) {
+        console.log(`[nurture] error: ${String(err).slice(0, 160)}`);
       }
       // Crisp backfill: poll recent chats via REST and ingest any the webhook missed. Self-heals
       // against a rotated CRM key silently disabling the Crisp webhook. No-op until creds are set.

@@ -126,6 +126,11 @@ html,body{height:100%}
   .row .co{display:flex;align-items:center;gap:8px;color:var(--tx-2);font-size:var(--t-12);margin-bottom:6px}
   .row .conm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .trollup{flex:0 0 auto;font-size:10px;font-weight:700;font-family:var(--font-mono);color:var(--tx-3);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:1px 7px;white-space:nowrap}
+  /* Behavior-score tier chips */
+  .tier{flex:0 0 auto;font-size:10.5px;font-weight:800;border-radius:var(--r-full);padding:1px 8px;white-space:nowrap;letter-spacing:.01em}
+  .tier.ti-int{color:var(--src-apollo);background:var(--src-apollo-soft)}
+  .tier.ti-warm{color:#b25a00;background:rgba(255,150,0,.14)}
+  .tier.ti-hot{color:var(--bad);background:var(--bad-soft)}
   .trollup.done{color:var(--good);border-color:var(--good);background:var(--good-soft)}
   .rstage{flex:0 0 auto;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:var(--r-full);white-space:nowrap}
   .rstage.trial{background:var(--warn-soft);color:var(--warn)}
@@ -1056,6 +1061,7 @@ html,body{height:100%}
       <div class="filters">
         <button class="on" data-f="open">Open <span class="n">6</span></button>
         <button data-f="auto">Auto <span class="n">5</span></button>
+        <button data-f="nurture" title="Cold leads on ongoing newsletter touchpoints">Nurture <span class="n">0</span></button>
         <button data-f="snoozed">Snoozed <span class="n">1</span></button>
         <button data-f="all">All <span class="n">14</span></button>
       </div>
@@ -1619,6 +1625,16 @@ function tickClocks(){}
 
 let sel="c05";
 
+/* Behavior-score tier chip (playbook Part 3). Cold shows nothing; Interested/Warm/Hot
+   escalate in colour. Title shows the raw score + SLA so a rep knows how fast to move. */
+function tierChip(c){
+  const t=c.tier||'cold';
+  if(t==='cold') return '';
+  const M={interested:{l:'Interested',c:'ti-int'},warm:{l:'🔥 Warm',c:'ti-warm'},hot:{l:'🔥 Hot',c:'ti-hot'}}[t];
+  if(!M) return '';
+  const sla=c.sla_min?(c.sla_min>=60?`${Math.round(c.sla_min/60)}h`:`${c.sla_min}m`):'';
+  return `<span class="tier ${M.c}" title="Behavior score ${c.score||0}${sla?` · respond within ${sla}`:''}">${M.l}</span>`;
+}
 /* LIST — clean rows: source dot + name + time, company, one action/summary line */
 function renderList(filter){
   const rows=document.getElementById("rows");
@@ -1647,7 +1663,7 @@ function renderList(filter){
     return `<button class="row ${c.id===sel?'sel':''} ${needsFix?'fix':''} ${c.unread?'unrow':'readrow'} ${c.bucket==='suppressed'?'dim':''}" onclick="select('${c.id}')">
       <div class="row-main">
         <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="rdate" title="When this lead came in">${dateStamp(c.arrived_ts||c.age_ts)}</span></div>
-        <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${stagePill}${c.snooze_until?`<span class="rmchip ${remOverdue(c.snooze_until)?'due':''}" title="${c.snooze_note?esc(c.snooze_note):'Reminder'}">⏰ ${fmtRemWhen(c.snooze_until)}</span>`:''}</div>
+        <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${tierChip(c)}${stagePill}${c.snooze_until?`<span class="rmchip ${remOverdue(c.snooze_until)?'due':''}" title="${c.snooze_note?esc(c.snooze_note):'Reminder'}">⏰ ${fmtRemWhen(c.snooze_until)}</span>`:''}</div>
       </div>
     </button>`;
   }).join("") || `<div style="padding:30px;text-align:center;color:var(--tx-3)">${q?`No matches for “${esc(q)}”.`:'Nothing here. 🎉'}</div>`;
@@ -1857,11 +1873,12 @@ const ANOTE = {
   off:   `<b>Automation off.</b> Outreach isn't permitted for this contact.`
 };
 function recount(){
-  const n={open:0,auto:0,snoozed:0};
+  const n={open:0,auto:0,snoozed:0,nurture:0};
   DATA.conversations.forEach(c=>{ if(c.bucket in n) n[c.bucket]++; });
-  DATA.counts.open=n.open; DATA.counts.auto=n.auto; DATA.counts.snoozed=n.snoozed;
+  DATA.counts.open=n.open; DATA.counts.auto=n.auto; DATA.counts.snoozed=n.snoozed; DATA.counts.nurture=n.nurture;
   document.querySelector('.filters [data-f=open] .n').textContent=n.open;
   document.querySelector('.filters [data-f=auto] .n').textContent=n.auto;
+  const nu=document.querySelector('.filters [data-f=nurture] .n'); if(nu) nu.textContent=n.nurture;
   document.querySelector('.filters [data-f=snoozed] .n').textContent=n.snoozed;
   document.querySelector('.filters [data-f=all] .n').textContent=DATA.conversations.length;
 }

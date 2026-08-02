@@ -10,6 +10,7 @@ import { currentUser } from "../_lib/crm-v2.js";
 import { crmSessionEmail } from "../_lib/auth.js";
 import { getUserSettings } from "../_lib/user-settings.js";
 import { ensureRebuildSchema } from "../_lib/crm-rebuild.js";
+import { ensureScoringSchema, TIER_SLA_MIN } from "../_lib/lead-scoring.js";
 import { computeSources } from "../_lib/sitespy.js";
 import { listSpyLeads } from "./crm-spy.js";
 import { buildAnalytics } from "../_lib/analytics.js";
@@ -22,6 +23,7 @@ export async function onRequestGet({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
   await ensureRebuildSchema(env);
+  await ensureScoringSchema(env); // guarantees contacts.tier / lead_score exist before we SELECT them
   const me = await currentUser(request, env).catch(() => null);
   // Always resolve who's signed in — fall back to the Google session email even when
   // there's no users-table row, so the header chip never shows a stale demo name.
@@ -166,7 +168,7 @@ export async function onRequestGet({ request, env }) {
   try { await env.DB.prepare("ALTER TABLE conversations ADD COLUMN snooze_note TEXT").run(); } catch (_) {} // ensure column exists before selecting it
   const convRows = (await env.DB.prepare(
     `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until, cv.snooze_note, cv.external_thread_id, cv.created_at,
-            ct.id contact_id, ct.full_name, ct.primary_email, ct.source, ct.lifecycle_stage, co.name company
+            ct.id contact_id, ct.full_name, ct.primary_email, ct.source, ct.lifecycle_stage, ct.lead_score, ct.tier, ct.newsletter_status, co.name company
        FROM conversations cv
        LEFT JOIN contacts ct ON ct.id = cv.contact_id
        LEFT JOIN companies co ON co.id = ct.company_id
@@ -257,7 +259,10 @@ export async function onRequestGet({ request, env }) {
     const run = runByCt.get(r.contact_id), deal = dealByCt.get(r.contact_id);
     const unread = !!r.unread;
     const mins = r.last_message_at ? Math.max(0, Math.round((Date.now() - Date.parse(r.last_message_at)) / 60000)) : 0;
-    const bucket = run && run.status === "active" ? "auto" : r.status === "archived" ? "suppressed" : r.status === "snoozed" ? "snoozed" : "open";
+    const bucket = r.status === "nurture" ? "nurture" : run && run.status === "active" ? "auto" : r.status === "archived" ? "suppressed" : r.status === "snoozed" ? "snoozed" : "open";
+    const tier = r.tier || "cold";
+    // SLA clock (minutes remaining) for Interested/Warm/Hot leads awaiting a human touch.
+    const slaMin = TIER_SLA_MIN[tier] || null;
     const cmsgs = (msgsByConv.get(r.id) || []).map((m) => ({
       dir: m.direction === "in" ? "in" : "out", channel: m.channel === "crisp" ? "chatwoot" : m.channel,
       body: m.body_text || stripHtml(m.body_html) || "", ts: humanTime(m.sent_at), meta: "",
@@ -269,7 +274,8 @@ export async function onRequestGet({ request, env }) {
       live: r.channel === "chat" && r.status === "open",
       name: r.full_name || fmtPhone(phoneByCt.get(r.contact_id)) || "Unknown", company: r.company || null, contact_email: r.primary_email || null,
       initials: inits(r.full_name) === "?" && phoneByCt.get(r.contact_id) ? "📞" : inits(r.full_name), lifecycle: lifeMap[r.lifecycle_stage] || "Lead",
-      hot: false, unread, ts: humanTime(r.last_message_at) || "—",
+      tier, score: r.lead_score || 0, sla_min: slaMin, newsletter: r.newsletter_status || "pending",
+      hot: tier === "hot", unread, ts: humanTime(r.last_message_at) || "—",
       age_ts: r.last_message_at ? Date.parse(r.last_message_at) : null,   // last-activity epoch → urgency timer
       arrived_ts: (r.created_at ? Date.parse(r.created_at) : (r.last_message_at ? Date.parse(r.last_message_at) : null)),  // when the lead came in → Gmail-style date
       snooze_until: r.snooze_until || null,                               // reminder due time (ISO) when snoozed
@@ -296,6 +302,7 @@ export async function onRequestGet({ request, env }) {
     open: DATA_CONVERSATIONS.filter((c) => c.bucket === "open").length,
     auto: DATA_CONVERSATIONS.filter((c) => c.bucket === "auto").length,
     snoozed: DATA_CONVERSATIONS.filter((c) => c.bucket === "snoozed").length,
+    nurture: DATA_CONVERSATIONS.filter((c) => c.bucket === "nurture").length,
     all: DATA_CONVERSATIONS.length,
   };
 
