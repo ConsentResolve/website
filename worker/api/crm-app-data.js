@@ -165,7 +165,7 @@ export async function onRequestGet({ request, env }) {
   // ---- Inbox conversations (DATA.conversations shape) ----
   try { await env.DB.prepare("ALTER TABLE conversations ADD COLUMN snooze_note TEXT").run(); } catch (_) {} // ensure column exists before selecting it
   const convRows = (await env.DB.prepare(
-    `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until, cv.snooze_note, cv.external_thread_id,
+    `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until, cv.snooze_note, cv.external_thread_id, cv.created_at,
             ct.id contact_id, ct.full_name, ct.primary_email, ct.source, ct.lifecycle_stage, co.name company
        FROM conversations cv
        LEFT JOIN contacts ct ON ct.id = cv.contact_id
@@ -259,7 +259,8 @@ export async function onRequestGet({ request, env }) {
       name: r.full_name || fmtPhone(phoneByCt.get(r.contact_id)) || "Unknown", company: r.company || null, contact_email: r.primary_email || null,
       initials: inits(r.full_name) === "?" && phoneByCt.get(r.contact_id) ? "📞" : inits(r.full_name), lifecycle: lifeMap[r.lifecycle_stage] || "Lead",
       hot: false, unread, ts: humanTime(r.last_message_at) || "—",
-      age_ts: r.last_message_at ? Date.parse(r.last_message_at) : null,   // real arrival epoch → timer survives refresh
+      age_ts: r.last_message_at ? Date.parse(r.last_message_at) : null,   // last-activity epoch → urgency timer
+      arrived_ts: (r.created_at ? Date.parse(r.created_at) : (r.last_message_at ? Date.parse(r.last_message_at) : null)),  // when the lead came in → Gmail-style date
       snooze_until: r.snooze_until || null,                               // reminder due time (ISO) when snoozed
       snooze_note: r.snooze_note || null,                                 // optional reminder note
       email_subject: channel === "email" ? (r.subject || "") : undefined,

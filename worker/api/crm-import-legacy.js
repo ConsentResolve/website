@@ -61,17 +61,22 @@ async function run({ request, env }) {
   // ---- DRY RUN: count only, no writes ----
   if (dry) {
     const samples = [];
+    const distinctDates = new Set();
     for (const l of leads) {
       const email = (l.email || "").trim().toLowerCase();
       if (!email) { counts.no_email++; continue; }
       const la = actsByLead.get(l.id) || [];
       for (const a of la) { if (isNoteType(a.type)) counts.notes_imported++; else if ((a.body || "").trim()) counts.messages_imported++; }
-      if (samples.length < 8) samples.push({ email, name: l.name || null, status: l.status || null, activities: la.length });
+      const stamps = [l.created_at, ...la.map((a) => a.at)].filter(Boolean).map((s) => Date.parse(s)).filter((n) => !isNaN(n));
+      const arrivedAt = stamps.length ? new Date(Math.min(...stamps)).toISOString() : null;
+      if (arrivedAt) distinctDates.add(arrivedAt.slice(0, 10)); // YYYY-MM-DD
+      if (samples.length < 8) samples.push({ email, name: l.name || null, status: l.status || null, activities: la.length, arrived: arrivedAt || "(no date in old data)" });
     }
     counts.conversations_created = leads.length - counts.no_email; // upper bound (some may reuse an existing convo)
     counts.unarchived = unarchive ? archivedCount : 0;
     return json({ ok: true, dry: true, would: counts, sample: samples,
-      note: "preview only — append ?run=1 to import. Every lead becomes an OPEN conversation; notes+replies attach to it; archived convos flip to Open." }, {}, cors);
+      distinct_arrival_days: distinctDates.size, // if this is 1, the old CRM never stored per-lead dates
+      note: "preview only — append ?run=1 to import. Dates come from the lead's earliest known timestamp. If distinct_arrival_days is 1, the old data has no real per-lead dates to recover." }, {}, cors);
   }
 
   // ---- EXECUTE ----
@@ -104,6 +109,13 @@ async function run({ request, env }) {
     ).bind("mig-deal-" + l.id, companyId, contactId, adminId, l.company || l.name || email,
            Math.round((Number(l.value_usd) || 0) * 100), mapStatus(l.status)).run().catch(() => {});
 
+    // Arrival date = when the lead actually came in: the earliest real timestamp we have
+    // (lead.created_at or its first logged activity). This is what the inbox date should show —
+    // NOT the import moment (which would make every row read the same date).
+    const la = actsByLead.get(l.id) || [];
+    const stamps = [l.created_at, ...la.map((a) => a.at)].filter(Boolean).map((s) => Date.parse(s)).filter((n) => !isNaN(n));
+    const arrivedAt = stamps.length ? new Date(Math.min(...stamps)).toISOString() : null;
+
     // 3) Conversation — reuse the contact's existing thread if any, else create an OPEN one.
     let convId = (await env.DB.prepare("SELECT id, status FROM conversations WHERE contact_id=? ORDER BY COALESCE(last_message_at, created_at) ASC LIMIT 1").bind(contactId).first())?.id || null;
     if (convId) {
@@ -115,12 +127,11 @@ async function run({ request, env }) {
         `INSERT OR IGNORE INTO conversations (id, contact_id, company_id, channel, source_detail, status, unread, subject, created_at)
          VALUES (?,?,?,?,?, 'open', 0, ?, ?)`
       ).bind(convId, contactId, companyId, srcChannel(l.source), (l.source ? "imported:" + l.source : "imported"),
-             (l.company || l.name || email), l.created_at || new Date().toISOString()).run();
+             (l.company || l.name || email), arrivedAt || new Date().toISOString()).run();
       counts.conversations_created++;
     }
 
     // 4) Notes + replies for this lead.
-    const la = actsByLead.get(l.id) || [];
     let lastAt = l.created_at || null, lastPreview = "";
     for (const a of la) {
       const body = (a.body || "").trim();
@@ -155,10 +166,12 @@ async function run({ request, env }) {
       lastPreview = lastPreview || "Imported from old CRM";
     }
 
-    // 5) Keep it in Open + refresh the row's ordering/preview.
+    // 5) Keep it in Open + set the arrival date + refresh ordering/preview. Setting created_at
+    // here (not just on insert) means a RE-RUN fixes any conversation whose date was previously
+    // stamped with the import moment.
     await env.DB.prepare(
-      "UPDATE conversations SET status='open', last_message_at=COALESCE(?, last_message_at), last_message_preview=COALESCE(NULLIF(?, ''), last_message_preview, ?) WHERE id=?"
-    ).bind(lastAt, lastPreview, "Imported from old CRM", convId).run().catch(() => {});
+      "UPDATE conversations SET status='open', created_at=COALESCE(?, created_at), last_message_at=COALESCE(?, last_message_at, ?), last_message_preview=COALESCE(NULLIF(?, ''), last_message_preview, ?) WHERE id=?"
+    ).bind(arrivedAt, lastAt, arrivedAt, lastPreview, "Imported from old CRM", convId).run().catch(() => {});
   }
 
   // 6) Flip anything else that was archived back into Open (so "see everything in Open").

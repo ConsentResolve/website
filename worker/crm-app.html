@@ -662,7 +662,18 @@ html,body{height:100%}
   .clk.warm{background:var(--src-apollo-soft);color:var(--src-apollo)}                       /* 5–15 min — getting late */
   .clk.hot{background:var(--bad-soft);color:var(--bad);animation:clkpulse 1.3s ease-in-out infinite}  /* 15 min–24 h — respond now */
   .clk.stale{background:var(--bad-soft);color:var(--bad);opacity:.8}                                   /* > 24 h — missed, no strobe */
+  /* Gmail-style arrival date — plain, no pill, easy-to-read black bold. Used for every row
+     that isn't a fresh lead still awaiting a fast reply. */
+  .clk.date{background:none;padding:3px 0;color:var(--tx-1);font-family:inherit;font-weight:700;letter-spacing:0;font-size:12.5px}
   @keyframes clkpulse{0%{box-shadow:0 0 0 0 var(--bad-soft)}70%{box-shadow:0 0 0 6px rgba(0,0,0,0)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}}
+  /* Activity-tab note composer */
+  .notecomp{margin-bottom:12px}
+  .notebox{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;background:var(--surface-1);color:var(--tx-1);font:inherit;font-size:13px;padding:9px 11px;resize:vertical;min-height:44px}
+  .notebox:focus{outline:none;border-color:var(--accent)}
+  .noterow{display:flex;justify-content:flex-end;margin-top:6px}
+  .notebtn{border:1px solid var(--line);background:var(--surface-2);color:var(--tx-1);font:inherit;font-size:12.5px;font-weight:700;padding:6px 13px;border-radius:8px;cursor:pointer}
+  .notebtn:hover{background:var(--surface-3)}
+  .notebtn:disabled{opacity:.6;cursor:default}
   .row .oav-sm{width:19px;height:19px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:8.5px;font-weight:800;flex:0 0 auto}
 
   /* Status panel — light card, reworked for legibility */
@@ -1588,17 +1599,29 @@ function fmtAge(sec){sec=Math.max(0,Math.floor(sec));const d=Math.floor(sec/8640
   if(sec<3600)return `${m}m ${String(s).padStart(2,'0')}s`;
   if(sec<86400)return `${h}h ${String(m).padStart(2,'0')}m`;
   return `${d}d ${h}h`;}
+/* Gmail-style date: today → "3:42 PM", this year → "Aug 1", older → "8/1/24". */
+function gmailDate(ts){
+  if(!ts) return '';
+  const d=new Date(ts), now=new Date();
+  if(isNaN(d.getTime())) return '';
+  if(d.toDateString()===now.toDateString()) return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  if(d.getFullYear()===now.getFullYear()) return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  return d.toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'});
+}
 function tickClocks(){const now=Date.now();document.querySelectorAll('.clk[data-base]').forEach(n=>{
-  const ts=+n.dataset.ts, base=+n.dataset.base;
-  let sec;
-  if(ts){ sec=(now-ts)/1000; }                       // real arrival epoch → live age, survives refresh
-  else if(base>0){ sec=base+(now-T0)/1000; }          // demo fixtures only
-  else { n.textContent=n.dataset.rel||'—'; if(n.className!=='clk calm')n.className='clk calm'; return; }  // no timestamp → show the date, not a fake 0-timer
-  n.textContent='⏱ '+fmtAge(sec);
-  // urgency tier — only rows awaiting a human reply escalate; others stay calm
-  let tier='calm';
-  if(n.dataset.wait==='1'){ tier = sec<300 ? 'fresh' : sec<900 ? 'warm' : sec<86400 ? 'hot' : 'stale'; }
-  const cls='clk '+tier; if(n.className!==cls) n.className=cls;   // avoid restarting the pulse each tick
+  const ts=+n.dataset.ts, base=+n.dataset.base, arr=+n.dataset.arrived;
+  const wait=n.dataset.wait==='1';
+  let sec = ts ? (now-ts)/1000 : base>0 ? base+(now-T0)/1000 : -1;
+  // Only a FRESH lead still awaiting a fast human reply (<24h) shows the live urgency timer.
+  // Everything else shows a plain, readable Gmail-style ARRIVAL date in black bold.
+  if(wait && sec>=0 && sec<86400){
+    n.textContent='⏱ '+fmtAge(sec);
+    const tier = sec<300 ? 'fresh' : sec<900 ? 'warm' : 'hot';
+    const cls='clk '+tier; if(n.className!==cls) n.className=cls;
+  } else {
+    n.textContent = gmailDate(arr||ts) || n.dataset.rel || '—';
+    if(n.className!=='clk date') n.className='clk date';
+  }
 });}
 
 let sel="c05";
@@ -1621,7 +1644,7 @@ function renderList(filter){
     const stagePill = dstg!=='new' ? `<span class="rstage ${dstg}" title="Deal stage">${dstg}</span>` : '';
     return `<button class="row ${c.id===sel?'sel':''} ${needsFix?'fix':''} ${c.unread?'unrow':'readrow'} ${c.bucket==='suppressed'?'dim':''}" onclick="select('${c.id}')">
       <div class="row-main">
-        <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="clk calm" data-ts="${c.age_ts||''}" data-base="${AGE[c.id]||0}" data-rel="${esc(c.ts||'')}" data-wait="${(c.unread && c.bucket==='open')?'1':'0'}">⏱ …</span></div>
+        <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="clk calm" data-ts="${c.age_ts||''}" data-arrived="${c.arrived_ts||''}" data-base="${AGE[c.id]||0}" data-rel="${esc(c.ts||'')}" data-wait="${(c.unread && c.bucket==='open')?'1':'0'}">⏱ …</span></div>
         <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${stagePill}${c.snooze_until?`<span class="rmchip ${remOverdue(c.snooze_until)?'due':''}" title="${c.snooze_note?esc(c.snooze_note):'Reminder'}">⏰ ${fmtRemWhen(c.snooze_until)}</span>`:''}<span class="trollup ${tp.done===tp.total?'done':''}" title="Research & engagement tasks done">🗒 ${tp.done}/${tp.total}</span></div>
       </div>
     </button>`;
@@ -2259,6 +2282,10 @@ function activityCard(c){
     return `<div class="actrow ${tone}"><span class="adot"></span><div><label>${lbl}</label><b>${body}</b><time>${esc(a.ts)}</time></div></div>`;
   }).join('');
   return `<div class="card"><h4>Activity</h4>
+    <div class="notecomp">
+      <textarea id="notebox" class="notebox" placeholder="Add a private note about ${esc((c.name||'this lead').split(' ')[0])}… (only your team sees this)" rows="2"></textarea>
+      <div class="noterow"><button class="notebtn" onclick="addNote('${c.id}')">📝 Add note</button></div>
+    </div>
     <div class="act">
       <div class="actrow ${L.tone}"><span class="adot"></span><div><label>What happened</label><b>${esc(L.label)}</b><time>${esc(L.ts)}</time></div></div>
       <div class="actrow ${nextClass}"><span class="adot"></span><div><label>${nextLabel}</label><b>${esc(N.label)}</b><time>${esc(N.when)}</time></div></div>
@@ -2266,6 +2293,20 @@ function activityCard(c){
     </div>
   </div>`;
 }
+async function addNote(id){
+  const box=document.getElementById('notebox'); if(!box) return;
+  const text=(box.value||'').trim(); if(!text) return;
+  const btn=document.querySelector('.notebtn'); if(btn){btn.disabled=true;btn.textContent='Saving…';}
+  try{
+    const r=await fetch('/api/crm/inbox',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,note:text})});
+    const d=await r.json();
+    if(!r.ok||!d.ok){ alert('Could not save note: '+((d&&d.error)||r.status)); return; }
+    const c=DATA.conversations.find(x=>x.id===id);
+    if(c){ c.activity=[{kind:'note',label:text,ts:'just now'},...(c.activity||[])]; if(curTab==='activity'&&sel===id) renderTab(c); }
+  }catch(e){ alert('Could not save note: '+e.message); }
+  finally{ if(btn){btn.disabled=false;btn.textContent='📝 Add note';} }
+}
+window.addNote=addNote;
 
 /* ---- auto-verified prospect intel (Fit & site) ---- */
 function fmtK(n){return n>=1000?(n/1000).toFixed(1).replace(/\.0$/,'')+'k':String(n);}

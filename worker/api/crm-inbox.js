@@ -452,6 +452,23 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, read: b.id }, {}, cors);
   }
 
+  // Add an internal note to a conversation (Activity tab composer). Notes are private —
+  // never sent to the contact; they show in the Activity feed, newest first.
+  if (b.note !== undefined) {
+    const body = String(b.note || "").trim();
+    if (!body) return json({ error: "empty_note" }, { status: 400 }, cors);
+    const conv = await env.DB.prepare("SELECT id, contact_id FROM conversations WHERE id=?").bind(b.id).first();
+    if (!conv) return json({ error: "not_found" }, { status: 404 }, cors);
+    const me = await currentUser(request, env);
+    const id = ulid();
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      "INSERT INTO notes (id, author_id, conversation_id, contact_id, body, created_at) VALUES (?,?,?,?,?,?)"
+    ).bind(id, me ? me.id : null, conv.id, conv.contact_id, body, now).run();
+    await addActivityV2(env, { actorId: me ? me.id : null, entityType: "conversation", entityId: conv.id, action: "note_added" }).catch(() => {});
+    return json({ ok: true, note: { id, body, author: me ? me.name : null } }, {}, cors);
+  }
+
   // Delete a conversation for good (persistent) — the inbox's deleteConv calls this.
   // Removes the conversation + its messages/notes; if the contact was provisional and is
   // now orphaned (no other conversations), removes it and its identifiers too.
