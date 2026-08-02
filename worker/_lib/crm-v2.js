@@ -222,11 +222,14 @@ export async function upsertConversationByThread(env, c) {
     return ex.id;
   }
   const id = ulid();
+  // created_at should reflect when the lead actually came in — i.e. the first message's
+  // timestamp — NOT the ingest moment. Falls back to the DB default (now) only when the
+  // caller has no message time to offer.
   await env.DB.prepare(
-    "INSERT INTO conversations (id, contact_id, company_id, channel, source_detail, channel_account_id, external_thread_id, subject, status, unread, last_message_at, last_message_preview) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open', ?, ?, ?)"
+    "INSERT INTO conversations (id, contact_id, company_id, channel, source_detail, channel_account_id, external_thread_id, subject, status, unread, last_message_at, last_message_preview, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open', ?, ?, ?, COALESCE(?, datetime('now')))"
   ).bind(id, c.contactId || null, c.companyId || null, c.channel, c.sourceDetail || null,
          c.channelAccountId || null, c.externalThreadId || null, c.subject || null,
-         c.incoming ? 1 : 0, c.lastAt || null, c.preview || null).run();
+         c.incoming ? 1 : 0, c.lastAt || null, c.preview || null, c.lastAt || null).run();
   return id;
 }
 
