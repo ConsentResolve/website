@@ -474,6 +474,20 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         greeting:"Hey — I'm at my desk right now. Want a price, or a time slot?",phone:"+17279999846",
         entranceDelay:700,teaser:{enabled:true,delay:8000,scroll:0.45,exitIntent:true},
         nudge:{enabled:true,every:16000,max:3},badge:"honest"};
+      // Per-path TEST override. Only pages whose pathname starts with a key get this merged on
+      // top of the API/DEF config — the rest of the live site keeps calm Mack untouched.
+      // /better-together = the field-kit test bed: eager, gear-forward, pops fast, nudges hard.
+      var PATHCFG={
+        "/better-together":{
+          agentName:"Mack",status:"Closer on the clock · here to get you booked",
+          greeting:"Signs bring 'em in — I turn the yeses into $7 leads, and the gear ships to you as they stack. Want in?",
+          entranceDelay:400,
+          teaser:{enabled:true,delay:2500,scroll:0.12,exitIntent:true},
+          nudge:{enabled:true,every:9000,max:5},badge:"always",
+          chips:[{q:"gear",label:"Show me the gear",seed:"Show me how the milestone gear works."},
+                 {q:"start",label:"Start my $7 leads",seed:"I want to start getting $7 leads."}]
+        }
+      };
       var cw=document.getElementById('cw');
       if(!cw) return;
       var calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -507,6 +521,10 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         var C=Object.assign({},DEF,cfg||{});
         C.teaser=Object.assign({},DEF.teaser,(cfg&&cfg.teaser)||{});
         C.nudge=Object.assign({},DEF.nudge,(cfg&&cfg.nudge)||{});
+        // Merge any per-path test override on top (nested teaser/nudge kept intact).
+        var ov=null;for(var _p in PATHCFG){if(location.pathname.indexOf(_p)===0){ov=PATHCFG[_p];break;}}
+        if(ov){var _t=Object.assign({},C.teaser,ov.teaser||{}),_n=Object.assign({},C.nudge,ov.nudge||{});
+          C=Object.assign({},C,ov);C.teaser=_t;C.nudge=_n;}
         if(C.enabled===false) return;                 // disabled → leave Retell's own bubble
 
         // Fill copy from config.
@@ -523,6 +541,10 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         var btn=byId('cwBtn'),magnet=byId('cwMagnet'),typing=byId('cwTyping'),
             msg=byId('cwMsg'),chips=byId('cwChips'),call=byId('cwCall');
         var shown=false,dismissed=false,nudges=0,timer,open=false;
+
+        // Config-driven chips (label + intent seed). Falls back to the HTML default (price/time).
+        if(C.chips&&C.chips.length){chips.innerHTML='';C.chips.forEach(function(ch){
+          var b=document.createElement('button');b.className='cw-chip';b.setAttribute('data-q',ch.q);b.textContent=ch.label;chips.appendChild(b);});}
 
         setTimeout(function(){cw.classList.add('in');if(C.badge==='always')cw.classList.add('badge-on');},C.entranceDelay);
 
@@ -562,7 +584,9 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
           open=true;cw.classList.remove('teaser-on','badge-on');clearInterval(timer);
           if(navigator.vibrate)try{navigator.vibrate(8);}catch(_){}
           try{ if(window.crOpenChat) window.crOpenChat(); }catch(e){}
-          var seed=q==='price'?"I'd like a price.":q==='time'?"I'd like to book a time.":"";
+          var SEED={price:"I'd like a price.",time:"I'd like to book a time."};
+          (C.chips||[]).forEach(function(ch){if(ch.seed)SEED[ch.q]=ch.seed;});
+          var seed=SEED[q]||"";
           if(seed) seedMessage(seed);
         }
         // Best-effort: drop the chip's intent into Retell's input + send, once it mounts.
