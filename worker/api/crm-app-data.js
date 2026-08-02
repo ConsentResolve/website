@@ -176,12 +176,20 @@ export async function onRequestGet({ request, env }) {
   const contactIds = [...new Set(convRows.map((r) => r.contact_id).filter(Boolean))];
   const ph = (arr) => (arr.length ? `(${arr.map(() => "?").join(",")})` : "(NULL)");
   const msgsByConv = new Map();
+  const notesByConv = new Map();
   if (convIds.length) {
     const msgs = (await env.DB.prepare(
       `SELECT conversation_id, direction, channel, body_text, body_html, sent_at
          FROM messages WHERE conversation_id IN ${ph(convIds)} ORDER BY sent_at ASC`
     ).bind(...convIds).all()).results || [];
     for (const m of msgs) { const a = msgsByConv.get(m.conversation_id) || []; a.push(m); msgsByConv.set(m.conversation_id, a); }
+    // Notes (incl. legacy-imported ones) → shown in the Activity tab. Newest first.
+    try {
+      const notes = (await env.DB.prepare(
+        `SELECT conversation_id, body, created_at FROM notes WHERE conversation_id IN ${ph(convIds)} ORDER BY created_at DESC`
+      ).bind(...convIds).all()).results || [];
+      for (const n of notes) { const a = notesByConv.get(n.conversation_id) || []; a.push(n); notesByConv.set(n.conversation_id, a); }
+    } catch (_) {}
   }
   const consentByCt = new Map(), dealByCt = new Map(), runByCt = new Map(), geoByCt = new Map(), phoneByCt = new Map(), actByCt = new Map();
   if (contactIds.length) {
@@ -256,7 +264,10 @@ export async function onRequestGet({ request, env }) {
       snooze_note: r.snooze_note || null,                                 // optional reminder note
       email_subject: channel === "email" ? (r.subject || "") : undefined,
       task: unread ? { tag: "do", text: "New message — reply.", cta: "Reply" } : { tag: "auto", text: "No action needed right now.", cta: "" },
-      activity: actByCt.get(r.contact_id) || [],
+      activity: [
+        ...((notesByConv.get(r.id) || []).map((n) => ({ kind: "note", label: n.body || "", ts: humanTime(n.created_at) || "—" }))),
+        ...(actByCt.get(r.contact_id) || []),
+      ],
       last: { label: r.last_message_preview || "Activity on this conversation", ts: humanTime(r.last_message_at) || "—", tone: "info" },
       next: unread ? { kind: "you", label: "Reply", when: "now", tone: "act" } : { kind: "auto", label: "Waiting on them", when: "—", tone: "muted" },
       consent,
