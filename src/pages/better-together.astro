@@ -169,7 +169,6 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
       <div class="ocard">
         <span class="obadge">1,000 leads</span>
         <h3>Truck Wrap</h3>
-        <span class="onote">$1,500 credit</span>
         <div class="oblob">
           <svg viewBox="0 0 120 120" role="img" aria-label="A work truck with a wrap.">
             <rect x="10" y="38" width="62" height="40" rx="5" fill="#dcfbef"/>
@@ -183,6 +182,7 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
             <circle cx="88" cy="84" r="11" fill="#0a1628" stroke="#dcfbef" stroke-width="4"/>
           </svg>
         </div>
+        <span class="onote onote-credit">$1,500 credit</span>
       </div>
 
     </div>
@@ -457,7 +457,7 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 
 <!-- GALLERY: TRUCK WRAPS (cinematic van mockups — immersive dark band) -->
 <section class="galstrip photo" aria-label="Truck wrap examples">
-  <div class="gal-badge-wrap"><span class="gal-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Unlocks at 1,000 leads</span></div>
+  <div class="gal-badge-wrap"><span class="gal-badge gal-badge-top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Unlocks at 1,000 leads</span></div>
   <div class="gal" data-gal>
     <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
     <div class="gal-track">
@@ -892,7 +892,7 @@ h3{font-size:1.1rem;font-weight:700}
 .fq details[open] summary::after{content:"\2013"}
 .fq summary:hover{color:var(--mint-deep)}
 .fq summary:focus-visible{outline:3px solid var(--mint);outline-offset:-3px}
-.fq p{padding:0 28px 24px;margin:0;color:var(--muted);font-size:1.02rem;max-width:62ch}
+.fq p{padding:0 28px 24px;margin:0;color:var(--muted);font-size:1.02rem;max-width:none}
 @media (max-width:560px){.fq summary{padding:20px 20px;font-size:1rem}.fq p{padding:0 20px 20px}}
 
 /* ---------- OFFER CARDS ---------- */
@@ -906,6 +906,8 @@ h3{font-size:1.1rem;font-weight:700}
 .onote{display:block;font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;
   text-transform:uppercase;color:var(--mint-deep);margin-top:6px}
 .sec-dark .onote{color:var(--mint)}
+/* $1,500 credit sits below the truck-wrap image, bold */
+.onote-credit{margin-top:14px;font-weight:700;font-size:.82rem}
 
 /* ---------- CAROUSEL GALLERIES (all three identical) ---------- */
 /* Full-bleed image strip with a distinctive rule top + bottom. Ready for 3:2 photos. */
@@ -919,6 +921,8 @@ h3{font-size:1.1rem;font-weight:700}
   font-family:var(--font-mono);font-size:.72rem;font-weight:600;letter-spacing:.04em;
   box-shadow:0 10px 24px -12px rgba(10,22,40,.7);border:1px solid rgba(255,255,255,.08)}
 .gal-badge svg{width:16px;height:16px;color:var(--color-mint-400);flex:0 0 auto}
+/* top-tier (1,000-lead truck wrap): the whole badge label in brand green */
+.gal-badge.gal-badge-top{color:var(--color-mint-400)}
 /* on the grass band, lift the badge off the green with a mint hairline */
 .galstrip.grass .gal-badge{border-color:rgba(0,229,160,.35);box-shadow:0 10px 24px -10px rgba(0,0,0,.45)}
 .gal-track{display:flex;gap:14px;overflow-x:auto;

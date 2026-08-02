@@ -202,7 +202,8 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <script is:inline>
       window.__retellCfg={
         "data-public-key":"public_key_c635ded46e18e33c6b219",
-        "data-agent-id":"agent_53dfb7733266901d4989695004",
+        // /better-together runs the "Mack on Crack" test agent; the rest of the site keeps calm Mack.
+        "data-agent-id":(location.pathname.indexOf("/better-together")===0?"agent_b72f522eb738e65345f061d0ab":"agent_53dfb7733266901d4989695004"),
         "data-title":"Chat with Mack","data-bot-name":"Mack","data-fab-text":"Chat with us",
         "data-theme-color":"#0e1c2e","data-component-color":"#00e5a0",
         "data-logo-url":"https://consentresolve.com/apple-touch-icon.png"};
