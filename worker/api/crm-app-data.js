@@ -174,20 +174,31 @@ export async function onRequestGet({ request, env }) {
   ).all()).results || [];
   const convIds = convRows.map((r) => r.id);
   const contactIds = [...new Set(convRows.map((r) => r.contact_id).filter(Boolean))];
-  const ph = (arr) => (arr.length ? `(${arr.map(() => "?").join(",")})` : "(NULL)");
+  // D1 caps bound parameters per statement (~100). With up to 500 conversations loaded, any
+  // `... IN (ids)` dependency query would exceed that and throw (which blanked the whole inbox).
+  // selectIn runs the query in ≤90-id chunks and concatenates. Each entity's rows live in one
+  // chunk (we chunk by the id list), so per-entity ordering is preserved.
+  const selectIn = async (ids, tmpl) => {
+    const out = [];
+    for (let i = 0; i < ids.length; i += 90) {
+      const chunk = ids.slice(i, i + 90);
+      const sql = tmpl.replace("__IN__", `(${chunk.map(() => "?").join(",")})`);
+      const rows = (await env.DB.prepare(sql).bind(...chunk).all()).results || [];
+      out.push(...rows);
+    }
+    return out;
+  };
   const msgsByConv = new Map();
   const notesByConv = new Map();
   if (convIds.length) {
-    const msgs = (await env.DB.prepare(
+    const msgs = await selectIn(convIds,
       `SELECT conversation_id, direction, channel, body_text, body_html, sent_at
-         FROM messages WHERE conversation_id IN ${ph(convIds)} ORDER BY sent_at ASC`
-    ).bind(...convIds).all()).results || [];
+         FROM messages WHERE conversation_id IN __IN__ ORDER BY sent_at ASC`);
     for (const m of msgs) { const a = msgsByConv.get(m.conversation_id) || []; a.push(m); msgsByConv.set(m.conversation_id, a); }
     // Notes (incl. legacy-imported ones) → shown in the Activity tab. Newest first.
     try {
-      const notes = (await env.DB.prepare(
-        `SELECT conversation_id, body, created_at FROM notes WHERE conversation_id IN ${ph(convIds)} ORDER BY created_at DESC`
-      ).bind(...convIds).all()).results || [];
+      const notes = await selectIn(convIds,
+        `SELECT conversation_id, body, created_at FROM notes WHERE conversation_id IN __IN__ ORDER BY created_at DESC`);
       for (const n of notes) { const a = notesByConv.get(n.conversation_id) || []; a.push(n); notesByConv.set(n.conversation_id, a); }
     } catch (_) {}
   }
@@ -195,27 +206,27 @@ export async function onRequestGet({ request, env }) {
   if (contactIds.length) {
     // Phone identifier per contact → used as the display name for nameless (provisional)
     // contacts (e.g. inbound callers/texters) instead of a bare "Unknown".
-    for (const p of (await env.DB.prepare(`SELECT contact_id, value FROM contact_identifiers WHERE type='phone' AND contact_id IN ${ph(contactIds)}`).bind(...contactIds).all()).results || []) {
+    for (const p of await selectIn(contactIds, `SELECT contact_id, value FROM contact_identifiers WHERE type='phone' AND contact_id IN __IN__`)) {
       if (!phoneByCt.has(p.contact_id)) phoneByCt.set(p.contact_id, p.value);
     }
-    for (const cr of (await env.DB.prepare(`SELECT contact_id, channel, action FROM consent_records WHERE contact_id IN ${ph(contactIds)} ORDER BY occurred_at ASC`).bind(...contactIds).all()).results || []) {
+    for (const cr of await selectIn(contactIds, `SELECT contact_id, channel, action FROM consent_records WHERE contact_id IN __IN__ ORDER BY occurred_at ASC`)) {
       const s = consentByCt.get(cr.contact_id) || {}; s[cr.channel] = cr.action; consentByCt.set(cr.contact_id, s);
     }
-    for (const d of (await env.DB.prepare(`SELECT primary_contact_id, title, value_cents, close_probability FROM deals WHERE primary_contact_id IN ${ph(contactIds)}`).bind(...contactIds).all()).results || []) {
+    for (const d of await selectIn(contactIds, `SELECT primary_contact_id, title, value_cents, close_probability FROM deals WHERE primary_contact_id IN __IN__`)) {
       if (!dealByCt.has(d.primary_contact_id)) dealByCt.set(d.primary_contact_id, d);
     }
-    for (const r of (await env.DB.prepare(`SELECT r.contact_id, r.status, r.current_step, r.exit_reason, w.name FROM workflow_runs r JOIN workflows w ON w.id=r.workflow_id WHERE r.contact_id IN ${ph(contactIds)}`).bind(...contactIds).all()).results || []) {
+    for (const r of await selectIn(contactIds, `SELECT r.contact_id, r.status, r.current_step, r.exit_reason, w.name FROM workflow_runs r JOIN workflows w ON w.id=r.workflow_id WHERE r.contact_id IN __IN__`)) {
       if (!runByCt.has(r.contact_id)) runByCt.set(r.contact_id, r);
     }
     // Last-known IP + geo per contact (from the presence heartbeat, via visitor_links).
     try {
-      for (const g of (await env.DB.prepare(`SELECT vl.contact_id, p.ip, p.city, p.region, p.country FROM visitor_links vl JOIN presence p ON p.vid=vl.vid WHERE vl.contact_id IN ${ph(contactIds)} ORDER BY p.last_seen DESC`).bind(...contactIds).all()).results || []) {
+      for (const g of await selectIn(contactIds, `SELECT vl.contact_id, p.ip, p.city, p.region, p.country FROM visitor_links vl JOIN presence p ON p.vid=vl.vid WHERE vl.contact_id IN __IN__ ORDER BY p.last_seen DESC`)) {
         if (!geoByCt.has(g.contact_id)) geoByCt.set(g.contact_id, g);
       }
     } catch (_) {}
     // Recent intent events per contact (email clicks + site visits) → the Activity tab feed.
     try {
-      for (const a of (await env.DB.prepare(`SELECT contact_id, type, meta, occurred_at FROM crm_events WHERE contact_id IN ${ph(contactIds)} AND type IN ('link_clicked','site_visit') ORDER BY occurred_at DESC LIMIT 300`).bind(...contactIds).all()).results || []) {
+      for (const a of await selectIn(contactIds, `SELECT contact_id, type, meta, occurred_at FROM crm_events WHERE contact_id IN __IN__ AND type IN ('link_clicked','site_visit') ORDER BY occurred_at DESC LIMIT 300`)) {
         const list = actByCt.get(a.contact_id) || [];
         if (list.length >= 6) continue;
         let m = {}; try { m = JSON.parse(a.meta || "{}"); } catch (_) {}
@@ -310,9 +321,9 @@ export async function onRequestGet({ request, env }) {
       }
       const svIds = [...byCt.keys()];
       const engConv = new Set(), engRun = new Map(), engSupp = new Set();
-      for (const x of (await env.DB.prepare(`SELECT DISTINCT contact_id FROM conversations WHERE status='open' AND contact_id IN ${ph(svIds)}`).bind(...svIds).all()).results || []) engConv.add(x.contact_id);
-      for (const x of (await env.DB.prepare(`SELECT r.contact_id, w.name FROM workflow_runs r JOIN workflows w ON w.id=r.workflow_id WHERE r.status='active' AND r.contact_id IN ${ph(svIds)}`).bind(...svIds).all()).results || []) engRun.set(x.contact_id, x.name);
-      for (const x of (await env.DB.prepare(`SELECT DISTINCT contact_id FROM suppressions WHERE contact_id IN ${ph(svIds)}`).bind(...svIds).all()).results || []) engSupp.add(x.contact_id);
+      for (const x of await selectIn(svIds, `SELECT DISTINCT contact_id FROM conversations WHERE status='open' AND contact_id IN __IN__`)) engConv.add(x.contact_id);
+      for (const x of await selectIn(svIds, `SELECT r.contact_id, w.name FROM workflow_runs r JOIN workflows w ON w.id=r.workflow_id WHERE r.status='active' AND r.contact_id IN __IN__`)) engRun.set(x.contact_id, x.name);
+      for (const x of await selectIn(svIds, `SELECT DISTINCT contact_id FROM suppressions WHERE contact_id IN __IN__`)) engSupp.add(x.contact_id);
       const now = Date.now(); const todayStart = new Date(); todayStart.setUTCHours(0, 0, 0, 0);
       const visitors = [...byCt.values()].map((g) => {
         const latest = g.visits[0];
