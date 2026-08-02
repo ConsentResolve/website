@@ -191,11 +191,8 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 </section>
 
 <!-- GALLERY: YARD SIGNS -->
-<section class="sec sec-warm">
-  <div class="wrap" style="text-align:center">
-    <span class="tag badge">Yard signs</span>
-    <h2>Signs the neighbors actually stop for.</h2>
-    <p class="big" style="margin:18px auto 0">Your logo, your number, your code — printed sharp and staked right where the work is.</p>
+<section class="gal-band">
+  <div class="wrap">
     <div class="gal" data-gal>
       <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
       <div class="gal-track">
@@ -208,7 +205,6 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
       </div>
       <button class="gal-nav next" type="button" aria-label="Next">&rsaquo;</button>
     </div>
-    <p class="gal-hint">Drag, swipe, or use the arrows — real examples dropping in soon.</p>
   </div>
 </section>
 
@@ -317,11 +313,8 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
     </svg>
     <p class="cyclabel">and it starts over</p>
 
-    <!-- GALLERY: DOOR HANGERS -->
-    <div style="margin-top:52px">
-      <span class="tag badge">Door hangers</span>
-      <h2>Left on the door. Impossible to miss.</h2>
-      <p class="big" style="margin:18px auto 0">Every finished job leaves one on the neighbor's door. Your best salesman never says a word.</p>
+    <!-- GALLERY: DOOR HANGERS (light band inside the dark section) -->
+    <div class="gal-band-lite">
       <div class="gal" data-gal>
         <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
         <div class="gal-track">
@@ -334,7 +327,6 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
         </div>
         <button class="gal-nav next" type="button" aria-label="Next">&rsaquo;</button>
       </div>
-      <p class="gal-hint">Drag, swipe, or use the arrows — real examples dropping in soon.</p>
     </div>
 
     <!-- BETTER TOGETHER CONSOLE -->
@@ -452,11 +444,8 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 </section>
 
 <!-- GALLERY: TRUCK WRAPS -->
-<section class="sec">
-  <div class="wrap" style="text-align:center">
-    <span class="tag badge">Truck wraps</span>
-    <h2>A billboard that parks in every driveway.</h2>
-    <p class="big" style="margin:18px auto 0">Ten thousand impressions a week, and it drives itself. This is what 1,000 leads earns you.</p>
+<section class="gal-band">
+  <div class="wrap">
     <div class="gal wide" data-gal>
       <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
       <div class="gal-track">
@@ -469,7 +458,6 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
       </div>
       <button class="gal-nav next" type="button" aria-label="Next">&rsaquo;</button>
     </div>
-    <p class="gal-hint">Drag, swipe, or use the arrows — real examples dropping in soon.</p>
   </div>
 </section>
 
@@ -904,6 +892,12 @@ h3{font-size:1.1rem;font-weight:700}
 .sec-dark .onote{color:var(--mint)}
 
 /* ---------- CAROUSEL GALLERIES ---------- */
+/* Text-free interstitial image bands that flow between sections. */
+.gal-band{padding:44px 0}
+.gal-band .gal{margin-top:0}
+/* Door-hangers: a LIGHT panel dropped inside the dark How-it-works section. */
+.gal-band-lite{background:var(--paper);border-radius:22px;padding:34px 26px;margin-top:52px}
+.gal-band-lite .gal{margin-top:0}
 .gal{position:relative;margin-top:38px}
 .gal-track{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;
   padding:6px 2px 14px;scroll-behavior:smooth;scrollbar-width:none;cursor:grab}
@@ -920,18 +914,12 @@ h3{font-size:1.1rem;font-weight:700}
 .gal-ph svg{width:46px;height:auto;opacity:.85}
 .gal-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .gal-cap{font-family:var(--mono);font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;opacity:.7}
-.sec-dark .gal-ph{background:linear-gradient(160deg,#12241d,#0e1c30);border-color:#233248;color:var(--mint)}
 .gal-nav{position:absolute;top:calc(50% - 8px);transform:translateY(-50%);z-index:3;
   width:46px;height:46px;border-radius:50%;border:1px solid var(--rule);background:var(--paper);
   color:var(--text);font-size:1.5rem;line-height:1;display:grid;place-items:center;cursor:pointer;
   box-shadow:0 8px 24px -10px rgba(10,22,40,.35);transition:background .15s ease,transform .15s ease}
 .gal-nav:hover{background:var(--mint-soft);transform:translateY(-50%) scale(1.06)}
 .gal-nav.prev{left:-10px} .gal-nav.next{right:-10px}
-.sec-dark .gal-nav{background:#12241d;border-color:#233248;color:#fff}
-.sec-dark .gal-nav:hover{background:#183042}
-.gal-hint{margin:14px 0 0;font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--muted)}
-.sec-dark .gal-hint{color:#93a6c0}
 @media (max-width:640px){
   .gal-item{width:78vw} .gal.wide .gal-item{width:88vw}
   .gal-nav{display:none}
