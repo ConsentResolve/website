@@ -190,21 +190,19 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
   </div>
 </section>
 
-<!-- GALLERY: YARD SIGNS (dark — leads into the dark How-it-works section) -->
-<section class="gal-band sec-dark">
-  <div class="wrap">
-    <div class="gal" data-gal>
-      <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
-      <div class="gal-track">
-        {Array.from({ length: 9 }).map((_, i) => (
-          <figure class="gal-item"><div class="gal-ph">
-            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="8" width="28" height="20" rx="3"/><path d="M24 28 V42"/><path d="M14 44 Q24 40 34 44"/></svg>
-            <span class="gal-cap">Yard sign · {String(i + 1).padStart(2, "0")}</span>
-          </div></figure>
-        ))}
-      </div>
-      <button class="gal-nav next" type="button" aria-label="Next">&rsaquo;</button>
+<!-- GALLERY: YARD SIGNS -->
+<section class="galstrip" aria-label="Yard sign examples">
+  <div class="gal" data-gal>
+    <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
+    <div class="gal-track">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <figure class="gal-item"><div class="gal-ph">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="8" width="28" height="20" rx="3"/><path d="M24 28 V42"/><path d="M14 44 Q24 40 34 44"/></svg>
+          <span class="gal-cap">Yard sign · {String(i + 1).padStart(2, "0")}</span>
+        </div></figure>
+      ))}
     </div>
+    <button class="gal-nav next" type="button" aria-label="Next">&rsaquo;</button>
   </div>
 </section>
 
@@ -313,8 +311,8 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
     </svg>
     <p class="cyclabel">and it starts over</p>
 
-    <!-- GALLERY: DOOR HANGERS (light band inside the dark section) -->
-    <div class="gal-band-lite">
+    <!-- GALLERY: DOOR HANGERS -->
+    <div class="galstrip" aria-label="Door hanger examples">
       <div class="gal" data-gal>
         <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
         <div class="gal-track">
@@ -443,21 +441,19 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
   </div>
 </section>
 
-<!-- GALLERY: TRUCK WRAPS (dark — leads into the dark FAQ section) -->
-<section class="gal-band sec-dark">
-  <div class="wrap">
-    <div class="gal wide" data-gal>
-      <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
-      <div class="gal-track">
-        {Array.from({ length: 9 }).map((_, i) => (
-          <figure class="gal-item"><div class="gal-ph">
-            <svg viewBox="0 0 64 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="12" width="30" height="18" rx="2"/><path d="M36 16 H48 L56 24 V30 H36 Z"/><circle cx="18" cy="32" r="4"/><circle cx="48" cy="32" r="4"/></svg>
-            <span class="gal-cap">Truck wrap · {String(i + 1).padStart(2, "0")}</span>
-          </div></figure>
-        ))}
-      </div>
-      <button class="gal-nav next" type="button" aria-label="Next">&rsaquo;</button>
+<!-- GALLERY: TRUCK WRAPS -->
+<section class="galstrip" aria-label="Truck wrap examples">
+  <div class="gal" data-gal>
+    <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
+    <div class="gal-track">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <figure class="gal-item"><div class="gal-ph">
+          <svg viewBox="0 0 64 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="12" width="30" height="18" rx="2"/><path d="M36 16 H48 L56 24 V30 H36 Z"/><circle cx="18" cy="32" r="4"/><circle cx="48" cy="32" r="4"/></svg>
+          <span class="gal-cap">Truck wrap · {String(i + 1).padStart(2, "0")}</span>
+        </div></figure>
+      ))}
     </div>
+    <button class="gal-nav next" type="button" aria-label="Next">&rsaquo;</button>
   </div>
 </section>
 
@@ -891,45 +887,32 @@ h3{font-size:1.1rem;font-weight:700}
   text-transform:uppercase;color:var(--mint-deep);margin-top:6px}
 .sec-dark .onote{color:var(--mint)}
 
-/* ---------- CAROUSEL GALLERIES ---------- */
-/* Text-free interstitial image bands that flow between sections. */
-.gal-band{padding:44px 0}
-.gal-band .gal{margin-top:0}
-/* Door-hangers: a LIGHT panel dropped inside the dark How-it-works section. */
-.gal-band-lite{background:var(--paper);border-radius:22px;padding:34px 26px;margin-top:52px}
-.gal-band-lite .gal{margin-top:0}
-.gal{position:relative;margin-top:38px}
-.gal-track{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;
-  padding:6px 2px 14px;scroll-behavior:smooth;scrollbar-width:none;cursor:grab}
+/* ---------- CAROUSEL GALLERIES (all three identical) ---------- */
+/* Full-bleed image strip with a distinctive rule top + bottom. Ready for 3:2 photos. */
+.galstrip{width:100vw;margin-left:calc(50% - 50vw);background:var(--warm);
+  border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);padding:20px 0}
+.galstrip .gal{position:relative;margin:0}
+.gal-track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;
+  padding:2px clamp(16px,4vw,44px) 4px;scroll-behavior:smooth;scrollbar-width:none;cursor:grab}
 .gal-track::-webkit-scrollbar{display:none}
 .gal-track:active{cursor:grabbing}
-.gal-item{flex:0 0 auto;width:256px;scroll-snap-align:center;margin:0}
-.gal.wide .gal-item{width:440px}
-.gal-ph{position:relative;width:100%;aspect-ratio:3/4;border-radius:16px;display:grid;
-  place-content:center;justify-items:center;gap:12px;color:var(--mint-deep);overflow:hidden;
+.gal-item{flex:0 0 auto;width:200px;scroll-snap-align:center;margin:0}
+.gal-ph{position:relative;width:100%;aspect-ratio:3/2;border-radius:12px;display:grid;
+  place-content:center;justify-items:center;gap:10px;color:var(--mint-deep);overflow:hidden;
   background:linear-gradient(160deg,var(--mint-soft),#fff);border:1px solid var(--mint-line);
-  box-shadow:0 18px 40px -26px rgba(10,22,40,.4);transition:transform .35s ease,box-shadow .35s ease}
-.gal.wide .gal-ph{aspect-ratio:16/9}
-.gal-item:hover .gal-ph{transform:translateY(-5px);box-shadow:0 26px 52px -26px rgba(10,22,40,.5)}
-.gal-ph svg{width:46px;height:auto;opacity:.85}
+  box-shadow:0 14px 30px -22px rgba(10,22,40,.4);transition:transform .35s ease,box-shadow .35s ease}
+.gal-item:hover .gal-ph{transform:translateY(-4px);box-shadow:0 22px 44px -24px rgba(10,22,40,.5)}
+.gal-ph svg{width:40px;height:auto;opacity:.85}
 .gal-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.gal-cap{font-family:var(--mono);font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;opacity:.7}
-/* Dark-band placeholders (yard signs, truck wraps) */
-.sec-dark .gal-ph{background:linear-gradient(160deg,#12241d,#0e1c30);border-color:#233248;color:var(--mint)}
-/* Door-hangers stays light even though it lives inside the dark section */
-.gal-band-lite .gal-ph{background:linear-gradient(160deg,var(--mint-soft),#fff);border-color:var(--mint-line);color:var(--mint-deep)}
-.gal-nav{position:absolute;top:calc(50% - 8px);transform:translateY(-50%);z-index:3;
-  width:46px;height:46px;border-radius:50%;border:1px solid var(--rule);background:var(--paper);
+.gal-cap{font-family:var(--mono);font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;opacity:.7}
+.gal-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;
+  width:44px;height:44px;border-radius:50%;border:1px solid var(--rule);background:var(--paper);
   color:var(--text);font-size:1.5rem;line-height:1;display:grid;place-items:center;cursor:pointer;
   box-shadow:0 8px 24px -10px rgba(10,22,40,.35);transition:background .15s ease,transform .15s ease}
 .gal-nav:hover{background:var(--mint-soft);transform:translateY(-50%) scale(1.06)}
-.gal-nav.prev{left:-10px} .gal-nav.next{right:-10px}
-.sec-dark .gal-nav{background:#12241d;border-color:#233248;color:#fff}
-.sec-dark .gal-nav:hover{background:#183042}
-.gal-band-lite .gal-nav{background:var(--paper);border-color:var(--rule);color:var(--text)}
-.gal-band-lite .gal-nav:hover{background:var(--mint-soft)}
+.gal-nav.prev{left:14px} .gal-nav.next{right:14px}
 @media (max-width:640px){
-  .gal-item{width:78vw} .gal.wide .gal-item{width:88vw}
+  .gal-item{width:70vw}
   .gal-nav{display:none}
 }
 @media (prefers-reduced-motion:reduce){.gal-item:hover .gal-ph{transform:none}}
