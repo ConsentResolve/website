@@ -91,17 +91,18 @@ const DEMO_SAMPLE = "/demo/sample/";
 
   /* ---- Launchers ---- */
   .cr-dw-tab {
-    position: fixed; right: 0; top: 50%; transform: translateY(-50%);
+    position: fixed; left: 0; right: auto; top: 50%; transform: translateY(-50%);
     z-index: 60; display: inline-flex; align-items: center; gap: 14px;
     padding: 26px 18px; border: 0; cursor: pointer;
     background: var(--dw-navy); color: #fff;
-    border-radius: 18px 0 0 18px; box-shadow: -8px 10px 32px rgba(10,22,40,.34);
+    border-radius: 0 18px 18px 0; box-shadow: 8px 10px 32px rgba(10,22,40,.34);
     writing-mode: vertical-rl; text-orientation: mixed;
     font: 700 20px/1 var(--font-sans, system-ui); letter-spacing: .01em;
     transition: transform .25s cubic-bezier(.22,1,.36,1), background .2s;
   }
-  .cr-dw-tab:hover { background: #12233d; transform: translateY(-50%) translateX(-3px); }
-  .cr-dw-tab-label { rotate: 180deg; }
+  .cr-dw-tab:hover { background: #12233d; transform: translateY(-50%) translateX(3px); }
+  /* Left-edge tab reads top-to-bottom (no 180° flip). */
+  .cr-dw-tab-label { rotate: 0deg; }
   .cr-dw-pill { display: none; }
 
   .cr-dw-dot, .cr-dw-livedot {
