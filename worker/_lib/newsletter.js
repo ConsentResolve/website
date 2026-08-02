@@ -8,6 +8,7 @@
 // anyone not on the NEWSLETTER_TEST_EMAILS allowlist while it's set) the send is SIMULATED —
 // logged, never dispatched — so the sequence can be exercised safely (go-live-to-ourselves).
 import { logEvent, addSuppression, recordConsent, ensureRebuildSchema } from "./crm-rebuild.js";
+import { sendEmail as gmailSend } from "./gmail.js";
 
 // ---- schema ---------------------------------------------------------------
 let _nlReady = false;
@@ -17,8 +18,11 @@ export async function ensureNewsletterSchema(env) {
     "ALTER TABLE contacts ADD COLUMN repermission_step INTEGER DEFAULT 0",
     "ALTER TABLE contacts ADD COLUMN repermission_next_at TEXT",
     "ALTER TABLE contacts ADD COLUMN repermission_started_at TEXT",
+    "ALTER TABLE contacts ADD COLUMN reengaged_at TEXT",     // last Interested-tier personal re-engagement
   ];
   for (const sql of cols) { try { await env.DB.prepare(sql).run(); } catch (_) {} }
+  // Per-(contact,issue) send log so an issue is never sent twice to the same reader.
+  try { await env.DB.prepare("CREATE TABLE IF NOT EXISTS newsletter_issue_log (contact_id TEXT, issue_id TEXT, sent_at TEXT, PRIMARY KEY (contact_id, issue_id))").run(); } catch (_) {}
   // D1-backed live/test toggle so it survives CI deploys (dashboard plain vars get wiped).
   try { await env.DB.prepare("CREATE TABLE IF NOT EXISTS newsletter_settings (k TEXT PRIMARY KEY, v TEXT)").run(); } catch (_) {}
   _nlReady = true;
@@ -231,4 +235,95 @@ export async function handleOptin(env, contactId, answer, token) {
   await env.DB.prepare("UPDATE contacts SET newsletter_status='suppressed', repermission_step=0, repermission_next_at=NULL WHERE id=?").bind(contactId).run().catch(() => {});
   await addSuppression(env, { contactId, email: c.primary_email, channel: "email", reason: "declined_newsletter", source: "newsletter" }).catch(() => {});
   return { ok: true, status: "declined" };
+}
+
+// ---- Poll tap: capture the segmentation field + score it -------------------
+const SEG_FIELDS = new Set(["seg_ticket", "seg_channel", "seg_trucks", "seg_crm"]);
+export async function handlePoll(env, { contactId, field, value, issue, token }) {
+  await ensureNewsletterSchema(env);
+  if (!SEG_FIELDS.has(field)) return { ok: false, error: "bad_field" };
+  if (!token || token !== await optinToken(env, contactId)) return { ok: false, error: "bad_token" };
+  await env.DB.prepare(`UPDATE contacts SET ${field}=? WHERE id=?`).bind(String(value).slice(0, 40), contactId).run().catch(() => {});
+  await logEvent(env, { type: "poll_response", contactId, channel: "email", meta: { field, value, issue } }).catch(() => {});
+  return { ok: true };
+}
+
+// ---- Monthly issue send (HOLD-FOR-APPROVAL) --------------------------------
+// Without confirm:true this is a DRY RUN — returns the recipient count + a rendered preview so
+// the issue can be reviewed. With confirm:true it sends to every opted-in reader (deduped per
+// issue, gated by nlConfig, throttled), and scores nothing until they click/reply.
+export async function sendIssue(env, { issueId, confirm = false, limit = 2000 }) {
+  await ensureNewsletterSchema(env);
+  const { issueById } = await import("./newsletter-issues.js");
+  const { renderIssue } = await import("./newsletter-issues.js");
+  const issue = issueById(issueId);
+  if (!issue) return { ok: false, error: "unknown_issue" };
+  const origin = env.STL_PUBLIC_ORIGIN || "https://consentresolve.com";
+  const cfg = await nlConfig(env);
+
+  // Opted-in, not suppressed, has an email, not already sent this issue.
+  const recips = (await env.DB.prepare(
+    `SELECT ct.id, ct.full_name, ct.primary_email FROM contacts ct
+      WHERE ct.newsletter_status='opted_in' AND ct.primary_email IS NOT NULL
+        AND ct.id NOT IN (SELECT contact_id FROM suppressions WHERE channel IN ('all','email') AND contact_id IS NOT NULL)
+        AND ct.id NOT IN (SELECT contact_id FROM newsletter_issue_log WHERE issue_id=?)
+      LIMIT ?`
+  ).bind(issue.id, limit).all()).results || [];
+
+  if (!confirm) {
+    const sample = recips[0] || { id: "sample", full_name: "Sam", primary_email: "sample@example.com" };
+    const preview = await renderIssue(env, sample, issue, { unsubUrl: `${origin}/api/unsubscribe?c=${sample.id}` });
+    return { ok: true, dry: true, issue: issue.id, cep: issue.cep, subject: preview.subject, recipients: recips.length, sending: cfg.enabled ? "LIVE" : "simulate", preview_html: preview.html };
+  }
+
+  let sent = 0, simulated = 0, failed = 0;
+  const throttleMs = Math.max(0, parseInt(env.NEWSLETTER_THROTTLE_MS || "250", 10) || 250);
+  for (let i = 0; i < recips.length; i++) {
+    const c = recips[i];
+    const mail = await renderIssue(env, c, issue, { unsubUrl: `${origin}/api/unsubscribe?c=${encodeURIComponent(c.id)}` });
+    const res = await resendSend(env, { to: c.primary_email, subject: mail.subject, html: mail.html, text: mail.text,
+      headers: { "List-Unsubscribe": `<${origin}/api/unsubscribe?c=${encodeURIComponent(c.id)}>, <mailto:hello@consentresolve.com?subject=unsubscribe>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } });
+    if (res.act === "simulate") { simulated++; continue; }   // don't log a send that didn't happen
+    if (!res.ok) { failed++; continue; }
+    await env.DB.prepare("INSERT OR IGNORE INTO newsletter_issue_log (contact_id, issue_id, sent_at) VALUES (?,?,datetime('now'))").bind(c.id, issue.id).run().catch(() => {});
+    await logEvent(env, { type: "newsletter_sent", contactId: c.id, channel: "email", meta: { issue: issue.id, id: res.id } }).catch(() => {});
+    sent++;
+    if (throttleMs && i < recips.length - 1) await new Promise((r) => setTimeout(r, throttleMs));
+  }
+  return { ok: true, issue: issue.id, sent, simulated, failed, eligible: recips.length };
+}
+
+// ---- Interested-tier personal re-engagement (playbook Part 3) --------------
+// When a lead clicks and crosses into Interested, send ONE genuine 1:1 email from a human
+// (via Gmail hello@, so it lands in Primary and replies thread into the CRM), referencing the
+// specific thing they clicked. Once per contact. Gated by nlConfig.
+export async function runReengagement(env, { limit = 50 } = {}) {
+  await ensureNewsletterSchema(env);
+  const cfg = await nlConfig(env);
+  if (!cfg.enabled) return { sent: 0, skipped: "not_enabled" };
+  const rows = (await env.DB.prepare(
+    `SELECT id, full_name, primary_email FROM contacts
+      WHERE tier='interested' AND reengaged_at IS NULL AND primary_email IS NOT NULL
+        AND id NOT IN (SELECT contact_id FROM suppressions WHERE channel IN ('all','email') AND contact_id IS NOT NULL)
+        AND id IN (SELECT DISTINCT contact_id FROM crm_events WHERE type='link_clicked' AND occurred_at > datetime('now','-7 day') AND contact_id IS NOT NULL)
+      LIMIT ?`
+  ).bind(limit).all()).results || [];
+  let sent = 0;
+  const account = String(env.CRM_INBOX_EMAILS || "hello@consentresolve.com").split(/[,\s]+/)[0].trim().toLowerCase();
+  for (const c of rows) {
+    if (decideSend(cfg, c.primary_email) === "simulate") continue; // honor the test allowlist
+    const first = (c.full_name || "there").split(" ")[0];
+    // What did they last click? Personalize off it.
+    let clicked = "";
+    try { const ev = await env.DB.prepare("SELECT meta FROM crm_events WHERE contact_id=? AND type='link_clicked' ORDER BY occurred_at DESC LIMIT 1").bind(c.id).first(); const m = JSON.parse(ev?.meta || "{}"); clicked = m.label || ""; } catch (_) {}
+    const ref = clicked ? ` I saw you took a look at “${clicked}” —` : "";
+    const text = `Hi ${first},\n\nAaron here from Consent Resolve.${ref} figured I'd reach out personally rather than let the newsletter do all the talking.\n\nIf it'd help, I'm happy to pull the actual numbers for your site and show you what recovered visitors would look like — no pitch, just the math. Want me to?\n\n— Aaron`;
+    const res = await gmailSend(env, { account, to: c.primary_email, subject: `${first}, quick one from Aaron at Consent Resolve`, text, from: env.FROM_EMAIL || "Aaron Phillips <hello@consentresolve.com>", replyTo: "hello@consentresolve.com" }).catch(() => ({ ok: false }));
+    if (res && res.ok) {
+      await env.DB.prepare("UPDATE contacts SET reengaged_at=datetime('now') WHERE id=?").bind(c.id).run().catch(() => {});
+      await logEvent(env, { type: "reengagement_sent", contactId: c.id, channel: "email", meta: { clicked } }).catch(() => {});
+      sent++;
+    }
+  }
+  return { sent, eligible: rows.length };
 }

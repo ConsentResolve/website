@@ -83,7 +83,7 @@ import * as crmFixDates from "./api/crm-fix-dates.js";
 import { fixConversationDates } from "./api/crm-fix-dates.js";
 import { nurtureTick } from "./_lib/nurture-sweep.js";
 import * as newsletter from "./api/newsletter.js";
-import { runRepermission } from "./_lib/newsletter.js";
+import { runRepermission, runReengagement } from "./_lib/newsletter.js";
 import * as crmInbox from "./api/crm-inbox.js";
 import * as crmInstantly from "./api/crm-instantly.js";
 import * as crmInstantlyCampaign from "./api/crm-instantly-campaign.js";
@@ -469,6 +469,13 @@ export default {
         if (rp && (rp.sent || rp.suppressed)) console.log(`[repermission] ${JSON.stringify(rp)}`);
       } catch (err) {
         console.log(`[repermission] error: ${String(err).slice(0, 160)}`);
+      }
+      // Interested-tier personal re-engagement (playbook Part 3). Inert until newsletter is live.
+      try {
+        const re = await runReengagement(env, {});
+        if (re && re.sent) console.log(`[reengage] ${JSON.stringify(re)}`);
+      } catch (err) {
+        console.log(`[reengage] error: ${String(err).slice(0, 160)}`);
       }
       // Crisp backfill: poll recent chats via REST and ingest any the webhook missed. Self-heals
       // against a rotated CRM key silently disabling the Crisp webhook. No-op until creds are set.

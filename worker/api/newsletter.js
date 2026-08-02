@@ -6,7 +6,8 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { isAdmin } from "../_lib/crm-v2.js";
-import { ensureNewsletterSchema, enrollRepermission, runRepermission, handleOptin, resendSend, decideSend, nlConfig, setNlSettings } from "../_lib/newsletter.js";
+import { ensureNewsletterSchema, enrollRepermission, runRepermission, handleOptin, resendSend, decideSend, nlConfig, setNlSettings, handlePoll, sendIssue, runReengagement } from "../_lib/newsletter.js";
+import { ISSUES } from "../_lib/newsletter-issues.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -34,6 +35,16 @@ export async function onRequestGet({ request, env }) {
     if (!res.ok) return page("Link expired", `<p style="color:#9fb3c6">That link isn't valid anymore. No problem — just reply to any of our emails and we'll sort it out.</p>`);
     if (res.status === "opted_in") return page("You're on the list.", `<p style="color:#9fb3c6">Thanks — you'll get one useful issue a month, and nothing else. First one's on its way.</p>`);
     return page("All set — you're off the list.", `<p style="color:#9fb3c6">We won't email you the newsletter. No hard feelings. The door's always open if you change your mind.</p>`);
+  }
+
+  // Public poll tap (from a newsletter segmentation question). Captures + scores, then thanks.
+  if (url.pathname.endsWith("/poll")) {
+    const res = await handlePoll(env, {
+      contactId: url.searchParams.get("c") || "", field: url.searchParams.get("f") || "",
+      value: url.searchParams.get("v") || "", issue: url.searchParams.get("i") || "", token: url.searchParams.get("t") || "",
+    });
+    if (!res.ok) return page("Got it", `<p style="color:#9fb3c6">Thanks for the tap.</p>`);
+    return page("Thanks — noted.", `<p style="color:#9fb3c6">That one tap changes what we send you next. Talk soon.</p>`);
   }
 
   // Admin status summary.
@@ -78,6 +89,18 @@ export async function onRequestPost({ request, env }) {
   }
   if (action === "run") {
     return json({ ok: true, ...(await runRepermission(env, {})) }, {}, cors);
+  }
+  if (action === "issues") {
+    return json({ ok: true, issues: ISSUES.map((i) => ({ id: i.id, month: i.month, cep: i.cep, subject: i.subjects[0], has_poll: !!i.poll })) }, {}, cors);
+  }
+  // Hold-for-approval: preview (dry) shows recipients + rendered HTML; confirm:true actually sends.
+  if (action === "send_issue" || action === "preview_issue") {
+    const issueId = String(b.issue || b.issue_id || "").padStart(2, "0");
+    const confirm = action === "send_issue" && b.confirm === true;
+    return json(await sendIssue(env, { issueId, confirm }), {}, cors);
+  }
+  if (action === "reengage_run") {
+    return json({ ok: true, ...(await runReengagement(env, {})) }, {}, cors);
   }
   if (action === "send_test") {
     const to = String(b.to || "").trim();
