@@ -319,17 +319,19 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
     </svg>
     <p class="cyclabel">and it starts over</p>
 
-    <!-- GALLERY: DOOR HANGERS -->
-    <div class="galstrip" aria-label="Door hanger examples">
+    <!-- GALLERY: DOOR HANGERS (mockups shot on a door — immersive dark band) -->
+    <div class="galstrip doors" aria-label="Door hanger examples">
       <div class="gal" data-gal>
         <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
         <div class="gal-track">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <figure class="gal-item"><div class="gal-ph">
-              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="16" y="6" width="16" height="36" rx="5"/><circle cx="24" cy="14" r="3.5"/></svg>
-              <span class="gal-cap">Door hanger · {String(i + 1).padStart(2, "0")}</span>
-            </div></figure>
-          ))}
+          {Array.from({ length: 10 }).map((_, i) => {
+            const n = String(i + 1).padStart(2, "0");
+            return (
+              <figure class="gal-item"><div class="gal-ph">
+                <img src={`/better-together/door-hangers/door-hanger-${n}.webp`} alt={`Custom Consent Resolve door hanger design ${i + 1} on a door`} loading="lazy" width="760" height="507" />
+              </div></figure>
+            );
+          })}
         </div>
         <button class="gal-nav next" type="button" aria-label="Next">&rsaquo;</button>
       </div>
@@ -938,6 +940,19 @@ h3{font-size:1.1rem;font-weight:700}
 .galstrip.grass::after{content:"";position:absolute;left:0;right:0;bottom:0;height:42px;z-index:2;
   pointer-events:none;background:url(/better-together/grass-fringe.svg) repeat-x bottom/auto 42px}
 .galstrip.grass .gal{position:relative;z-index:1}
+/* Door-hangers variant: finished mockups already shot on a black door — set them on a
+   dark "door" band so they read as one continuous wall. No card frame; photos fill the
+   3:2 frame edge-to-edge (they're already 3:2). */
+.galstrip.doors{border-top-color:#05070c;border-bottom-color:#05070c;
+  background:linear-gradient(180deg,#12161d 0%,#0a0c11 100%)}
+.galstrip.doors .gal-track{gap:10px}
+.galstrip.doors .gal-item{width:190px}
+.galstrip.doors .gal-ph{background:none;border:0;border-radius:8px;
+  box-shadow:0 16px 34px -16px rgba(0,0,0,.7)}
+.galstrip.doors .gal-ph img{object-fit:cover}
+.galstrip.doors .gal-item:hover .gal-ph{transform:translateY(-4px);box-shadow:0 24px 48px -18px rgba(0,0,0,.8)}
+.galstrip.doors .gal-nav{background:#12161d;border-color:#2a2f38;color:#fff}
+.galstrip.doors .gal-nav:hover{background:#1c222c}
 .oblob{position:relative;width:100%;aspect-ratio:1/1;display:grid;place-items:center;margin:6px 0 24px}
 .oblob::before{content:"";position:absolute;width:88%;aspect-ratio:1/1;border-radius:50%;
   background:var(--ink)}
