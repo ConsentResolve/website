@@ -12,7 +12,9 @@
 //   GET  /api/crm/fix-dates            -> dry-run: distribution + before/after sample, NO writes
 //   GET  /api/crm/fix-dates?run=1      -> apply (idempotent, re-runnable)
 //
-// Admin-gated (cr_crm session + users.role='admin').
+// Admin-gated (cr_crm session + users.role='admin'). Also runs ONCE automatically from the
+// cron on first deploy (see fixConversationDates + the scheduler guard) so no manual trigger
+// is needed.
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { ensureCrmV2Schema, isAdmin } from "../_lib/crm-v2.js";
@@ -29,73 +31,67 @@ const earliest = (...vals) => {
   return ts.length ? new Date(Math.min(...ts)).toISOString() : null;
 };
 
-async function run({ request, env }) {
-  const cors = corsHeaders(request, env);
-  if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
-  if (!(await isAdmin(request, env))) return json({ error: "forbidden", message: "Admin role required." }, { status: 403 }, cors);
+// Core: compute the correct arrival date for every conversation. Returns the planned
+// updates + stats. No writes. Shared by the HTTP handler and the cron auto-run.
+export async function computeDateFixes(env) {
   await ensureCrmV2Schema(env);
-  const dry = new URL(request.url).searchParams.get("run") !== "1";
-
   const convs = (await env.DB.prepare(
     "SELECT cv.id, cv.contact_id, cv.created_at, cv.last_message_at, ct.full_name, ct.primary_email FROM conversations cv LEFT JOIN contacts ct ON ct.id=cv.contact_id"
   ).all()).results || [];
 
-  // Earliest + latest message per conversation (the strongest arrival signal).
   const msgMin = new Map(), msgMax = new Map();
   for (const m of ((await env.DB.prepare("SELECT conversation_id, MIN(sent_at) mn, MAX(sent_at) mx FROM messages WHERE sent_at IS NOT NULL GROUP BY conversation_id").all()).results || [])) {
     msgMin.set(m.conversation_id, m.mn); msgMax.set(m.conversation_id, m.mx);
   }
-  // Earliest event per contact (lead_created / first touch), as a fallback when a
-  // conversation has no messages (e.g. a form lead).
   const evtMin = new Map();
   try {
     for (const e of ((await env.DB.prepare("SELECT contact_id, MIN(occurred_at) mn FROM crm_events WHERE contact_id IS NOT NULL AND occurred_at IS NOT NULL GROUP BY contact_id").all()).results || [])) {
       evtMin.set(e.contact_id, e.mn);
     }
   } catch (_) {}
-  // Contact created_at, as a last-resort fallback.
   const ctMin = new Map();
   for (const c of ((await env.DB.prepare("SELECT id, created_at FROM contacts WHERE created_at IS NOT NULL").all()).results || [])) {
     ctMin.set(c.id, c.created_at);
   }
 
   let changed = 0, unchanged = 0, noSignal = 0;
-  const updates = [];
-  const sample = [];
+  const updates = [], sample = [];
   for (const cv of convs) {
-    // The true arrival = earliest of every signal we have (including the current created_at,
-    // so the result is never LATER than what's already stored).
-    const arrival = earliest(
-      msgMin.get(cv.id),
-      evtMin.get(cv.contact_id),
-      ctMin.get(cv.contact_id),
-      cv.created_at
-    );
-    // Also make last_message_at reflect the newest message so sort order is right.
+    const arrival = earliest(msgMin.get(cv.id), evtMin.get(cv.contact_id), ctMin.get(cv.contact_id), cv.created_at);
     const lastAt = msgMax.get(cv.id) || cv.last_message_at || arrival;
-
     if (!arrival) { noSignal++; continue; }
-    const moves = ms(arrival) != null && ms(cv.created_at) != null && ms(arrival) < ms(cv.created_at) - 1000; // >1s earlier
+    const moves = ms(arrival) != null && ms(cv.created_at) != null && ms(arrival) < ms(cv.created_at) - 1000;
     const lastMoves = lastAt && lastAt !== cv.last_message_at;
     if (!moves && !lastMoves) { unchanged++; continue; }
     if (moves) changed++;
     if (sample.length < 20) sample.push({ who: cv.full_name || cv.primary_email || cv.id, was: cv.created_at, now: arrival, from: msgMin.get(cv.id) ? "first message" : evtMin.get(cv.contact_id) ? "first event" : "contact created" });
     updates.push({ id: cv.id, created_at: arrival, last_message_at: lastAt });
   }
+  return { total: convs.length, changed, unchanged, noSignal, sample, updates };
+}
 
-  if (dry) {
-    return json({ ok: true, dry: true, conversations: convs.length,
-      would_fix_arrival: changed, already_correct: unchanged, no_signal: noSignal,
-      sample, note: "preview only — append ?run=1 to apply. Dates only ever move EARLIER, to the first real message/event we have." }, {}, cors);
-  }
-
-  // Apply in chunks.
-  let applied = 0;
-  for (let i = 0; i < updates.length; i += 40) {
-    await env.DB.batch(updates.slice(i, i + 40).map((u) =>
+// Apply the computed fixes (idempotent).
+export async function fixConversationDates(env) {
+  const plan = await computeDateFixes(env);
+  for (let i = 0; i < plan.updates.length; i += 40) {
+    await env.DB.batch(plan.updates.slice(i, i + 40).map((u) =>
       env.DB.prepare("UPDATE conversations SET created_at=?, last_message_at=COALESCE(?, last_message_at) WHERE id=?").bind(u.created_at, u.last_message_at || null, u.id)
     ));
-    applied += Math.min(40, updates.length - i);
   }
-  return json({ ok: true, dry: false, conversations: convs.length, updated: applied, no_signal: noSignal, sample }, {}, cors);
+  return { total: plan.total, updated: plan.updates.length, changed: plan.changed, noSignal: plan.noSignal, sample: plan.sample };
+}
+
+async function run({ request, env }) {
+  const cors = corsHeaders(request, env);
+  if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
+  if (!(await isAdmin(request, env))) return json({ error: "forbidden", message: "Admin role required." }, { status: 403 }, cors);
+  const dry = new URL(request.url).searchParams.get("run") !== "1";
+  if (dry) {
+    const plan = await computeDateFixes(env);
+    return json({ ok: true, dry: true, conversations: plan.total, would_fix_arrival: plan.changed,
+      already_correct: plan.unchanged, no_signal: plan.noSignal, sample: plan.sample,
+      note: "preview only — append ?run=1 to apply. Dates only ever move EARLIER, to the first real message/event we have." }, {}, cors);
+  }
+  const res = await fixConversationDates(env);
+  return json({ ok: true, dry: false, ...res }, {}, cors);
 }

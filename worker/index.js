@@ -80,6 +80,7 @@ import * as crmAuth from "./api/crm-auth.js";
 import * as crmMigrate from "./api/crm-migrate.js";
 import * as crmImportLegacy from "./api/crm-import-legacy.js";
 import * as crmFixDates from "./api/crm-fix-dates.js";
+import { fixConversationDates } from "./api/crm-fix-dates.js";
 import * as crmInbox from "./api/crm-inbox.js";
 import * as crmInstantly from "./api/crm-instantly.js";
 import * as crmInstantlyCampaign from "./api/crm-instantly-campaign.js";
@@ -433,6 +434,20 @@ export default {
         for (const p of polled) if (p && (p.ingested || p.bounced)) console.log(`[inbox] ${p.account}: +${p.ingested} of ${p.seen}${p.bounced ? `, ${p.bounced} bounced→suppressed` : ""}`);
       } catch (err) {
         console.log(`[inbox] poll error: ${String(err).slice(0, 160)}`);
+      }
+      // ONE-TIME: correct historical conversation arrival dates (created_at was defaulting to
+      // the ingest moment, not when the lead came in). Runs once, marks a flag, never repeats.
+      try {
+        await env.DB.prepare("CREATE TABLE IF NOT EXISTS crm_flags (k TEXT PRIMARY KEY, v TEXT, at TEXT)").run();
+        const done = await env.DB.prepare("SELECT 1 x FROM crm_flags WHERE k='dates_backfilled_v1'").first().catch(() => null);
+        if (!done) {
+          const r = await fixConversationDates(env);
+          await env.DB.prepare("INSERT OR IGNORE INTO crm_flags (k,v,at) VALUES ('dates_backfilled_v1',?,datetime('now'))")
+            .bind(JSON.stringify({ updated: r.updated, total: r.total, noSignal: r.noSignal })).run();
+          console.log(`[dates] one-time backfill: corrected ${r.updated}/${r.total} conversations (${r.noSignal} had no signal)`);
+        }
+      } catch (err) {
+        console.log(`[dates] backfill error: ${String(err).slice(0, 160)}`);
       }
       // Crisp backfill: poll recent chats via REST and ingest any the webhook missed. Self-heals
       // against a rotated CRM key silently disabling the Crisp webhook. No-op until creds are set.
