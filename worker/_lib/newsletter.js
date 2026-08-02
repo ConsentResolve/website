@@ -19,7 +19,26 @@ export async function ensureNewsletterSchema(env) {
     "ALTER TABLE contacts ADD COLUMN repermission_started_at TEXT",
   ];
   for (const sql of cols) { try { await env.DB.prepare(sql).run(); } catch (_) {} }
+  // D1-backed live/test toggle so it survives CI deploys (dashboard plain vars get wiped).
+  try { await env.DB.prepare("CREATE TABLE IF NOT EXISTS newsletter_settings (k TEXT PRIMARY KEY, v TEXT)").run(); } catch (_) {}
   _nlReady = true;
+}
+
+// Resolved config: env vars OR the D1 settings row (either can turn it live).
+async function getNlSettings(env) {
+  try { const rows = (await env.DB.prepare("SELECT k,v FROM newsletter_settings").all()).results || []; const o = {}; for (const r of rows) o[r.k] = r.v; return o; } catch (_) { return {}; }
+}
+export async function setNlSettings(env, obj) {
+  await ensureNewsletterSchema(env);
+  for (const [k, v] of Object.entries(obj)) {
+    await env.DB.prepare("INSERT INTO newsletter_settings (k,v) VALUES (?,?) ON CONFLICT(k) DO UPDATE SET v=excluded.v").bind(k, String(v)).run().catch(() => {});
+  }
+}
+export async function nlConfig(env) {
+  const s = await getNlSettings(env);
+  const enabled = env.NEWSLETTER_ENABLED === "true" || s.enabled === "1";
+  const allow = [...new Set([...csv(env.NEWSLETTER_TEST_EMAILS), ...csv(s.test_emails)])];
+  return { enabled, allow };
 }
 
 // ---- sending identity + gate ---------------------------------------------
@@ -28,16 +47,16 @@ const REPLY_TO = (env) => env.NEWSLETTER_REPLY_TO || "hello@consentresolve.com";
 const csv = (s) => String(s || "").split(/[,\s]+/).map((x) => x.trim().toLowerCase()).filter(Boolean);
 
 // live | simulate — a real send only when enabled AND (no allowlist, or recipient on it).
-export function decideSend(env, to) {
-  if (env.NEWSLETTER_ENABLED !== "true") return "simulate";
-  const allow = csv(env.NEWSLETTER_TEST_EMAILS);
-  if (allow.length && !allow.includes(String(to || "").trim().toLowerCase())) return "simulate";
+// Takes the RESOLVED config (env + D1) from nlConfig(env).
+export function decideSend(cfg, to) {
+  if (!cfg || !cfg.enabled) return "simulate";
+  if (cfg.allow.length && !cfg.allow.includes(String(to || "").trim().toLowerCase())) return "simulate";
   return "live";
 }
 
 // Send one email through Resend. Returns { ok, id, act }. Never throws.
 export async function resendSend(env, { to, subject, html, text, headers }) {
-  const act = decideSend(env, to);
+  const act = decideSend(await nlConfig(env), to);
   if (act === "simulate") return { ok: true, act, id: "sim-" + Date.now() };
   const key = env.NEWSLETTER_RESEND_KEY;
   if (!key) return { ok: false, act, error: "no_resend_key" };
@@ -160,10 +179,11 @@ export async function runRepermission(env, { limit = 100 } = {}) {
         AND repermission_next_at IS NOT NULL AND repermission_next_at <= datetime('now')
         AND primary_email IS NOT NULL LIMIT ?`
   ).bind(limit).all()).results || [];
+  const cfg = await nlConfig(env);
   let sent = 0, suppressed = 0, simulated = 0;
   for (const c of due) {
     const to = c.primary_email;
-    if (decideSend(env, to) === "simulate") { simulated++; continue; } // leave it pending; nothing consumed
+    if (decideSend(cfg, to) === "simulate") { simulated++; continue; } // leave it pending; nothing consumed
     const step = c.repermission_step;
     const mail = await repermissionEmail(env, c, step);
     const res = await resendSend(env, { to, subject: mail.subject, html: mail.html, text: mail.text,

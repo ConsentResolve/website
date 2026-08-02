@@ -6,7 +6,7 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { isAdmin } from "../_lib/crm-v2.js";
-import { ensureNewsletterSchema, enrollRepermission, runRepermission, handleOptin, resendSend, decideSend } from "../_lib/newsletter.js";
+import { ensureNewsletterSchema, enrollRepermission, runRepermission, handleOptin, resendSend, decideSend, nlConfig, setNlSettings } from "../_lib/newsletter.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -45,13 +45,15 @@ export async function onRequestGet({ request, env }) {
   ).all()).results || [];
   const byStatus = Object.fromEntries(s.map((r) => [r.st, r.n]));
   const inSeq = (await env.DB.prepare("SELECT COUNT(*) n FROM contacts WHERE repermission_step BETWEEN 1 AND 4").first())?.n || 0;
+  const cfg = await nlConfig(env);
   return json({
     ok: true,
-    sending: env.NEWSLETTER_ENABLED === "true" ? "LIVE" : "simulate (set NEWSLETTER_ENABLED=true to send)",
+    sending: cfg.enabled ? "LIVE" : "simulate",
+    how_to_go_live: cfg.enabled ? undefined : "POST {action:'set_settings', enabled:true, test_emails:'you@…'} — survives deploys (D1-backed)",
     from: env.NEWSLETTER_FROM || "Aaron Phillips <aaron@tryconsentresolve.com>",
     reply_to: env.NEWSLETTER_REPLY_TO || "hello@consentresolve.com",
     resend_key_set: !!env.NEWSLETTER_RESEND_KEY,
-    test_allowlist: (env.NEWSLETTER_TEST_EMAILS || "").split(/[,\s]+/).filter(Boolean),
+    test_allowlist: cfg.allow,
     contacts_by_newsletter_status: byStatus, in_repermission_sequence: inSeq,
   }, {}, cors);
 }
@@ -64,6 +66,13 @@ export async function onRequestPost({ request, env }) {
   let b = {}; try { b = await request.json(); } catch (_) {}
   const action = b.action || "";
 
+  if (action === "set_settings") {
+    const patch = {};
+    if (b.enabled !== undefined) patch.enabled = b.enabled === true || b.enabled === "true" || b.enabled === "1" ? "1" : "0";
+    if (b.test_emails !== undefined) patch.test_emails = String(b.test_emails || "");
+    await setNlSettings(env, patch);
+    return json({ ok: true, config: await nlConfig(env) }, {}, cors);
+  }
   if (action === "enroll_repermission") {
     return json({ ok: true, ...(await enrollRepermission(env, { contactIds: b.contact_ids })) }, {}, cors);
   }
@@ -74,7 +83,7 @@ export async function onRequestPost({ request, env }) {
     const to = String(b.to || "").trim();
     if (!to) return json({ error: "need 'to'" }, { status: 400 }, cors);
     const res = await resendSend(env, { to, subject: "Test — Consent Resolve newsletter path", html: "<p>If you got this, the Resend / tryconsentresolve.com path works. Reply-To is hello@consentresolve.com.</p>", text: "Resend path works. Reply-To is hello@consentresolve.com." });
-    return json({ ok: res.ok, act: res.act, id: res.id || null, decide: decideSend(env, to), error: res.error || null }, {}, cors);
+    return json({ ok: res.ok, act: res.act, id: res.id || null, decide: decideSend(await nlConfig(env), to), error: res.error || null }, {}, cors);
   }
   return json({ error: "unknown_action", actions: ["enroll_repermission", "run", "send_test"] }, { status: 400 }, cors);
 }
