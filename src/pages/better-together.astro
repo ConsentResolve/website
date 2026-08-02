@@ -195,12 +195,14 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
   <div class="gal" data-gal>
     <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
     <div class="gal-track">
-      {Array.from({ length: 9 }).map((_, i) => (
-        <figure class="gal-item"><div class="gal-ph">
-          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="8" width="28" height="20" rx="3"/><path d="M24 28 V42"/><path d="M14 44 Q24 40 34 44"/></svg>
-          <span class="gal-cap">Yard sign · {String(i + 1).padStart(2, "0")}</span>
-        </div></figure>
-      ))}
+      {Array.from({ length: 10 }).map((_, i) => {
+        const n = String(i + 1).padStart(2, "0");
+        return (
+          <figure class="gal-item"><div class="gal-ph">
+            <img src={`/better-together/yard-signs/yard-sign-${n}.webp`} alt={`Custom Consent Resolve yard sign design ${i + 1}`} loading="lazy" width="640" height="480" />
+          </div></figure>
+        );
+      })}
     </div>
     <button class="gal-nav next" type="button" aria-label="Next">&rsaquo;</button>
   </div>
