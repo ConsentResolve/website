@@ -19,10 +19,48 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
     <!-- OFFLINE -->
     <div class="panel" id="p-sign">
       <span class="cap">Offline</span>
-      <div class="rot" role="img" aria-label="Your name out in the world — yard signs, door hangers, and a wrapped truck.">
-        <img class="rot-i" src="/better-together/yard-signs/yard-sign-01.webp" alt="" loading="lazy" decoding="async" />
-        <img class="rot-i" src="/better-together/door-hangers/door-hanger-01.webp" alt="" loading="lazy" decoding="async" />
-        <img class="rot-i" src="/better-together/truck-wraps/truck-wrap-01.webp" alt="" loading="lazy" decoding="async" />
+      <div class="rot" role="img" aria-label="Your name out in the world — a yard sign, a door hanger, and a wrapped van.">
+        <!-- yard sign -->
+        <svg class="rot-i" viewBox="0 0 200 168" aria-hidden="true">
+          <rect x="26" y="14" width="148" height="98" rx="7" fill="#dcfbef" stroke="#00e5a0" stroke-width="3"/>
+          <rect x="42" y="30" width="76" height="10" rx="5" fill="#00a86e"/>
+          <rect x="42" y="48" width="54" height="7" rx="3.5" fill="#7f93ae"/>
+          <rect x="42" y="62" width="64" height="7" rx="3.5" fill="#7f93ae"/>
+          <rect x="42" y="82" width="48" height="14" rx="7" fill="#00e5a0"/>
+          <g fill="#00a86e">
+            <rect x="126" y="60" width="34" height="34" rx="4" fill="none" stroke="#00a86e" stroke-width="3"/>
+            <rect x="132" y="66" width="8" height="8"/><rect x="146" y="66" width="8" height="8"/>
+            <rect x="132" y="80" width="8" height="8"/><rect x="146" y="80" width="4" height="4"/>
+            <rect x="154" y="84" width="4" height="4"/>
+          </g>
+          <path d="M100 112 L100 148" stroke="#00e5a0" stroke-width="4" stroke-linecap="round"/>
+          <path d="M56 150 Q100 140 144 150" stroke="#233248" stroke-width="4" fill="none" stroke-linecap="round"/>
+        </svg>
+        <!-- door hanger -->
+        <svg class="rot-i" viewBox="0 0 200 168" aria-hidden="true">
+          <rect x="18" y="8" width="164" height="152" rx="7" fill="#0e1c30" stroke="#233248" stroke-width="2"/>
+          <path d="M18 8 H70 V160 H18 Z" fill="#0a1628"/>
+          <circle cx="70" cy="86" r="9" fill="#7f93ae"/><circle cx="70" cy="86" r="3.5" fill="#0a1628"/>
+          <rect x="70" y="24" width="70" height="120" rx="13" fill="#dcfbef" stroke="#00e5a0" stroke-width="3"/>
+          <circle cx="105" cy="44" r="11" fill="#0e1c30"/>
+          <rect x="101" y="26" width="8" height="20" rx="4" fill="#0e1c30"/>
+          <rect x="84" y="66" width="42" height="9" rx="4.5" fill="#00a86e"/>
+          <rect x="84" y="84" width="30" height="6" rx="3" fill="#7f93ae"/>
+          <rect x="84" y="96" width="38" height="6" rx="3" fill="#7f93ae"/>
+          <rect x="84" y="116" width="34" height="14" rx="7" fill="#00e5a0"/>
+        </svg>
+        <!-- wrapped van -->
+        <svg class="rot-i" viewBox="0 0 200 168" aria-hidden="true">
+          <path d="M16 132 H184" stroke="#233248" stroke-width="4" stroke-linecap="round"/>
+          <rect x="22" y="52" width="120" height="66" rx="7" fill="#dcfbef" stroke="#00e5a0" stroke-width="3"/>
+          <path d="M142 68 h16 l16 16 v34 h-32 z" fill="#dcfbef" stroke="#00e5a0" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M146 71 h11 l12 12 h-23 z" fill="#0e1c30"/>
+          <rect x="40" y="70" width="72" height="13" rx="6.5" fill="#00a86e"/>
+          <rect x="40" y="90" width="50" height="7" rx="3.5" fill="#7f93ae"/>
+          <rect x="40" y="102" width="36" height="10" rx="5" fill="#00e5a0"/>
+          <circle cx="54" cy="124" r="13" fill="#0a1628" stroke="#dcfbef" stroke-width="4"/>
+          <circle cx="150" cy="124" r="13" fill="#0a1628" stroke="#dcfbef" stroke-width="4"/>
+        </svg>
       </div>
     </div>
 
@@ -695,8 +733,8 @@ h3{font-size:1.1rem;font-weight:700}
 @keyframes capC{0%,66%{opacity:0}71%,94%{opacity:1}100%{opacity:0}}
 
 /* Offline panel: cross-fading rotator through the real signage photos */
-.rot{position:relative;aspect-ratio:3/2;border-radius:10px;overflow:hidden;background:#0a1628}
-.rot-i{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0}
+.rot{position:relative;aspect-ratio:200/168}
+.rot-i{position:absolute;inset:0;width:100%;height:100%;opacity:0}
 .rot-i:nth-child(1){animation:rotA 13.5s infinite}
 .rot-i:nth-child(2){animation:rotB 13.5s infinite}
 .rot-i:nth-child(3){animation:rotC 13.5s infinite}
@@ -709,7 +747,7 @@ h3{font-size:1.1rem;font-weight:700}
   .ph-anon,.ph-yes,.cap-stack .c1,.cap-stack .c2{display:none}
   .ph-named,.cap-stack .c3{animation:none;opacity:1}
   .rot-i{animation:none;opacity:0}
-  .rot-i:nth-child(3){opacity:1}
+  .rot-i:nth-child(1){opacity:1}
 }
 
 
