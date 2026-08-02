@@ -190,8 +190,8 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
   </div>
 </section>
 
-<!-- GALLERY: YARD SIGNS -->
-<section class="gal-band">
+<!-- GALLERY: YARD SIGNS (dark — leads into the dark How-it-works section) -->
+<section class="gal-band sec-dark">
   <div class="wrap">
     <div class="gal" data-gal>
       <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
@@ -443,8 +443,8 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
   </div>
 </section>
 
-<!-- GALLERY: TRUCK WRAPS -->
-<section class="gal-band">
+<!-- GALLERY: TRUCK WRAPS (dark — leads into the dark FAQ section) -->
+<section class="gal-band sec-dark">
   <div class="wrap">
     <div class="gal wide" data-gal>
       <button class="gal-nav prev" type="button" aria-label="Previous">&lsaquo;</button>
@@ -914,12 +914,20 @@ h3{font-size:1.1rem;font-weight:700}
 .gal-ph svg{width:46px;height:auto;opacity:.85}
 .gal-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .gal-cap{font-family:var(--mono);font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;opacity:.7}
+/* Dark-band placeholders (yard signs, truck wraps) */
+.sec-dark .gal-ph{background:linear-gradient(160deg,#12241d,#0e1c30);border-color:#233248;color:var(--mint)}
+/* Door-hangers stays light even though it lives inside the dark section */
+.gal-band-lite .gal-ph{background:linear-gradient(160deg,var(--mint-soft),#fff);border-color:var(--mint-line);color:var(--mint-deep)}
 .gal-nav{position:absolute;top:calc(50% - 8px);transform:translateY(-50%);z-index:3;
   width:46px;height:46px;border-radius:50%;border:1px solid var(--rule);background:var(--paper);
   color:var(--text);font-size:1.5rem;line-height:1;display:grid;place-items:center;cursor:pointer;
   box-shadow:0 8px 24px -10px rgba(10,22,40,.35);transition:background .15s ease,transform .15s ease}
 .gal-nav:hover{background:var(--mint-soft);transform:translateY(-50%) scale(1.06)}
 .gal-nav.prev{left:-10px} .gal-nav.next{right:-10px}
+.sec-dark .gal-nav{background:#12241d;border-color:#233248;color:#fff}
+.sec-dark .gal-nav:hover{background:#183042}
+.gal-band-lite .gal-nav{background:var(--paper);border-color:var(--rule);color:var(--text)}
+.gal-band-lite .gal-nav:hover{background:var(--mint-soft)}
 @media (max-width:640px){
   .gal-item{width:78vw} .gal.wide .gal-item{width:88vw}
   .gal-nav{display:none}
