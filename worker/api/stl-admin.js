@@ -95,6 +95,14 @@ export async function onRequestGet({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
   await ensureStlSchema(env);
+  // Self-heal: normalize any rep phone that isn't already E.164 (older rows), so the display
+  // and the self-dial guard both use a consistent +1XXXXXXXXXX form. Only writes on a change.
+  try {
+    for (const r of ((await env.DB.prepare("SELECT id, phone FROM stl_reps WHERE phone IS NOT NULL AND phone<>''").all()).results || [])) {
+      const norm = toE164(r.phone);
+      if (norm && norm !== r.phone) await env.DB.prepare("UPDATE stl_reps SET phone=? WHERE id=?").bind(norm, r.id).run().catch(() => {});
+    }
+  } catch (_) {}
   const settings = await getSettings(env);
   const leads = await all(env,
     `SELECT id, created_at, population, status, first_name, last_name, company, trade, email, phone, is_test
@@ -148,8 +156,11 @@ export async function onRequestPost({ request, env }) {
     if (action === "seed_rep") {
       const id = crypto.randomUUID();
       const priority = parseInt(body.priority, 10) || 100;
+      // Store the rep phone in E.164 (+1XXXXXXXXXX) so the "don't dial a rep who's the test
+      // lead" match (parkRepMatchingPhone) works regardless of how it was typed in.
+      const phone = toE164(body.phone) || (body.phone || "");
       await env.DB.prepare("INSERT INTO stl_reps (id, name, phone, email, active, priority) VALUES (?,?,?,?,1,?)")
-        .bind(id, body.name || "Rep", body.phone || "", body.email || null, priority).run();
+        .bind(id, body.name || "Rep", phone, body.email || null, priority).run();
       const now = Date.now();
       await env.DB.prepare("INSERT INTO stl_rep_availability (id, rep_id, starts_at, ends_at, state) VALUES (?,?,?,?, 'available')")
         .bind(crypto.randomUUID(), id, now - 3600000, now + 365 * 86400000).run();

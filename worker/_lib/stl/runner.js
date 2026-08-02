@@ -193,7 +193,13 @@ export async function parkRepMatchingPhone(env, phone) {
   try {
     const p = toE164(phone) || phone;
     if (!p) return null;
-    const rep = await env.DB.prepare("SELECT id, name FROM stl_reps WHERE phone=?").bind(p).first().catch(() => null);
+    // Match on the NORMALIZED phone so a rep saved as "713-555-1234" still matches a lead
+    // that arrived as "+17135551234" (older rows may predate E.164-on-write).
+    let rep = await env.DB.prepare("SELECT id, name FROM stl_reps WHERE phone=?").bind(p).first().catch(() => null);
+    if (!rep) {
+      const reps = (await env.DB.prepare("SELECT id, name, phone FROM stl_reps WHERE phone IS NOT NULL AND phone<>''").all()).results || [];
+      rep = reps.find((r) => (toE164(r.phone) || r.phone) === p) || null;
+    }
     if (!rep) return null;
     const now = Date.now();
     await env.DB.prepare("DELETE FROM stl_rep_availability WHERE rep_id=?").bind(rep.id).run().catch(() => {});
