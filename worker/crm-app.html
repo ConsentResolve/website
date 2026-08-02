@@ -735,7 +735,10 @@ html,body{height:100%}
   .ract svg{width:13px;height:13px}
   .rc-icon svg{width:17px;height:17px}
   .rbtn-reply svg{width:15px;height:15px}
-  .search svg{width:15px;height:15px;color:var(--tx-3)}
+  .search svg{width:15px;height:15px;color:var(--tx-3);flex:0 0 auto}
+  .searchin{flex:1;min-width:0;border:0;background:none;outline:none;color:var(--tx-1);font-size:var(--t-13);font-family:inherit}
+  .searchin::placeholder{color:var(--tx-3)}
+  .searchin::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
   .pipe svg,.pipe-total svg{width:15px;height:15px;color:var(--src-site);vertical-align:-2px;margin-right:1px}
   /* keyboard focus — visible only for keyboard users, never on mouse */
   :focus{outline:none}
@@ -1008,7 +1011,7 @@ html,body{height:100%}
 <body>
   <div class="top">
     <div class="brand"><span class="mk">✓</span>Consent Resolve <small>CRM</small></div>
-    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> Search contacts, companies, conversations… <kbd>⌘K</kbd></div>
+    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="crmsearch" class="searchin" type="search" autocomplete="off" placeholder="Search name, company, email, message…" oninput="onSearch(this.value)"><kbd>⌘K</kbd></div>
     <div class="profile">
       <button class="pfbtn" onclick="toggleProfile(event)" title="Account & settings">
         <span class="pfav" id="pfav">AM</span>
@@ -1622,7 +1625,17 @@ function renderList(filter){
   if(window.CRM_LIVE_PENDING && !DATA.conversations.length){
     rows.innerHTML=`<div style="padding:36px;text-align:center;color:var(--tx-3)">Loading live data…</div>`; return;
   }
-  const items=DATA.conversations.filter(c=> filter==="all" ? true : c.bucket===filter);
+  const q=(window.__q||"").trim().toLowerCase();
+  const items=DATA.conversations.filter(c=>{
+    // When searching, look across ALL folders (find any lead); otherwise honor the bucket filter.
+    if(q){
+      const hay=[c.name,c.company,c.contact_email,c.lifecycle,c.last&&c.last.label,
+        ...((c.messages||[]).map(m=>m&&m.body)),
+        ...((c.activity||[]).map(a=>a&&a.label))].filter(Boolean).join('  ').toLowerCase();
+      return hay.includes(q);
+    }
+    return filter==="all" ? true : c.bucket===filter;
+  });
   rows.innerHTML = items.map(c=>{
     const col=SRC_COLOR[c.source]||"var(--tx-3)";
     const dot=`<span class="srcdot" style="border-color:${col};${c.unread?'background:'+col:''}"></span>`;
@@ -1637,10 +1650,22 @@ function renderList(filter){
         <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${stagePill}${c.snooze_until?`<span class="rmchip ${remOverdue(c.snooze_until)?'due':''}" title="${c.snooze_note?esc(c.snooze_note):'Reminder'}">⏰ ${fmtRemWhen(c.snooze_until)}</span>`:''}</div>
       </div>
     </button>`;
-  }).join("") || `<div style="padding:30px;text-align:center;color:var(--tx-3)">Nothing here. 🎉</div>`;
+  }).join("") || `<div style="padding:30px;text-align:center;color:var(--tx-3)">${q?`No matches for “${esc(q)}”.`:'Nothing here. 🎉'}</div>`;
   tickClocks();
   updatePipe();
 }
+/* Live search across every folder — name, company, email, lifecycle, message + note text. */
+function onSearch(v){
+  window.__q=v;
+  const active=document.querySelector(".filters .on");
+  renderList(active?active.dataset.f:'open');
+}
+window.onSearch=onSearch;
+/* ⌘K / Ctrl-K focuses search; Esc clears it. */
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&(e.key==='k'||e.key==='K')){ e.preventDefault(); const s=document.getElementById('crmsearch'); if(s){s.focus();s.select();} }
+  else if(e.key==='Escape' && document.activeElement===document.getElementById('crmsearch')){ const s=document.getElementById('crmsearch'); s.value=''; onSearch(''); s.blur(); }
+});
 
 function tracker(seq,isAuto){
   if(!seq.total) return "";

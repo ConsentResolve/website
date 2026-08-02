@@ -170,7 +170,7 @@ export async function onRequestGet({ request, env }) {
        FROM conversations cv
        LEFT JOIN contacts ct ON ct.id = cv.contact_id
        LEFT JOIN companies co ON co.id = ct.company_id
-      ORDER BY cv.last_message_at DESC LIMIT 60`
+      ORDER BY COALESCE(cv.last_message_at, cv.created_at) DESC LIMIT 500`
   ).all()).results || [];
   const convIds = convRows.map((r) => r.id);
   const contactIds = [...new Set(convRows.map((r) => r.contact_id).filter(Boolean))];
