@@ -1,5 +1,5 @@
 ---
-// Field Kit — "Better Together" rewards landing. NON-PUBLIC: noindex + excluded from the
+// "Better Together" rewards / field-kit landing. NON-PUBLIC: noindex + excluded from the
 // sitemap (see astro.config) + not linked from nav/footer. Direct-URL only.
 // Re-themed onto the CR design system (navy + mint, Bricolage/Hanken/JetBrains) and wrapped
 // in BaseLayout so it carries the real site header, footer, chat, and demo widget.
@@ -96,7 +96,7 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 <!-- OFFER LADDER -->
 <section class="sec">
   <div class="wrap" style="text-align:center">
-    <span class="tag">Rewards</span>
+    <span class="tag badge">Rewards</span>
     <h2>The more leads you get, the more we mail you.</h2>
     <p class="big" style="margin:18px auto 0">You pay $7 a lead. The rest just shows up.</p>
 
@@ -120,7 +120,6 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
             <path d="M14 98 Q60 88 106 98" stroke="#3a4f6f" stroke-width="4" fill="none" stroke-linecap="round"/>
           </svg>
         </div>
-        <a class="obtn" href="/get-started/">Get Started</a>
       </div>
 
       <!-- 100 LEADS -->
@@ -142,7 +141,6 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
             <rect x="76" y="76" width="16" height="4" rx="2" fill="#0a1628" opacity=".6"/>
           </svg>
         </div>
-        <a class="obtn" href="/get-started/">Get Started</a>
       </div>
 
       <!-- 250 LEADS -->
@@ -164,7 +162,6 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
             <rect x="52" y="86" width="24" height="5" rx="2.5" fill="#0a1628" opacity=".6"/>
           </svg>
         </div>
-        <a class="obtn" href="/get-started/">Get Started</a>
       </div>
 
       <!-- 1,000 LEADS -->
@@ -184,10 +181,11 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
             <circle cx="88" cy="84" r="11" fill="#0a1628" stroke="#dcfbef" stroke-width="4"/>
           </svg>
         </div>
-        <a class="obtn" href="/get-started/">Get Started</a>
       </div>
 
     </div>
+    <a class="btn" href="/get-started/" style="margin-top:44px">Get Started — $7 a lead →</a>
+    <span class="under">Live in about 10 minutes</span>
   </div>
 </section>
 
@@ -474,6 +472,9 @@ h3{font-size:1.1rem;font-weight:700}
 .tag{display:inline-block;font-family:var(--mono);font-size:.7rem;font-weight:600;
   letter-spacing:.16em;text-transform:uppercase;color:var(--mint-deep);margin-bottom:18px}
 .sec-dark .tag{color:var(--mint)}
+.tag.badge{background:var(--mint-soft);border:1px solid var(--mint-line);
+  border-radius:99px;padding:8px 18px;margin-bottom:22px}
+.sec-dark .tag.badge{background:rgba(0,229,160,.12);border-color:rgba(0,229,160,.35);color:var(--mint)}
 .big{font-size:1.28rem;max-width:34ch}
 .big b{font-weight:600}
 .sec-dark .big{color:#9fb2cb}
