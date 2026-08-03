@@ -332,6 +332,12 @@ html,body{height:100%}
   .webinput{border:1px solid var(--line);border-radius:6px;background:var(--surface-0);color:var(--tx-1);font:inherit;font-size:12.5px;padding:4px 8px;width:150px}
   .webset{border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);font:inherit;font-size:12px;font-weight:700;padding:4px 9px;border-radius:6px;cursor:pointer;margin-left:6px}
   .webedit{border:0;background:transparent;color:var(--tx-3);cursor:pointer;font-size:12px;padding:0 4px}
+  .ilook-btn.paid{border-color:var(--warn);background:var(--warn-soft,rgba(245,158,11,.14));color:var(--warn)}
+  .lk-tag{font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-left:6px;padding:1px 5px;border-radius:4px;background:var(--good-soft,rgba(0,168,110,.16));color:var(--good)}
+  .lk-tag.paid{background:var(--warn-soft,rgba(245,158,11,.16));color:var(--warn)}
+  .idash-signals{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 2px}
+  .sig{font-size:12px;font-weight:600;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:4px 11px}
+  .sig.hot{background:var(--bad-soft,rgba(239,68,68,.12));color:var(--bad);border-color:var(--bad);font-weight:800}
   .idash-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:12px;margin:18px 0}
   .itile{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:14px 16px}
   .itile .iv{font-family:var(--font-mono);font-size:var(--t-24);font-weight:800;color:var(--tx-1);line-height:1}
@@ -3574,26 +3580,44 @@ function setIntelWebsite(id){ const inp=document.getElementById('webinput-'+id);
 function setWebsiteAndLookup(id,domain){
   const dom=domain.replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/[/?#].*$/,'').trim();
   window.ENRICH=window.ENRICH||{}; const en=window.ENRICH[id]||{}; en.website=Object.assign({},en.website||{},{domain:dom}); window.ENRICH[id]=en;
-  runLookup(id);   // persists the domain (company.domain) + enrichment, shows cost
+  runLookup(id,'claude');   // free lookup: persists the domain + gathers intel, shows cost
+}
+/* The most-important intel, distilled into a strip at the top of the dashboard. */
+function signalsCard(e){
+  const S=(e&&e._signals)||{}; const chips=[];
+  if(S.has_form===false) chips.push(`<span class="sig hot">⚡ No lead-capture form — paying for traffic, catching none</span>`);
+  else if(S.has_form===true) chips.push(`<span class="sig">Has a lead form</span>`);
+  if(S.trade) chips.push(`<span class="sig">🔧 ${esc(S.trade)}</span>`);
+  if(S.traffic_month!=null) chips.push(`<span class="sig">📈 ${(+S.traffic_month).toLocaleString()} visits/mo</span>`);
+  if(S.ad_spend_low!=null) chips.push(`<span class="sig">💸 ~$${(+S.ad_spend_low).toLocaleString()}–${(+S.ad_spend_high).toLocaleString()}/mo ads</span>`);
+  if(S.chat===false) chips.push(`<span class="sig">💬 No live chat</span>`);
+  if(S.rating!=null) chips.push(`<span class="sig">⭐ ${S.rating}${S.reviews?` (${S.reviews})`:''}</span>`);
+  if(S.phone) chips.push(`<span class="sig">📞 ${esc(S.phone)}</span>`);
+  if(!chips.length) return '';
+  return `<div class="idash-signals">${chips.join('')}</div>`;
 }
 window.editIntelWebsite=editIntelWebsite;window.setIntelWebsite=setIntelWebsite;window.setWebsiteAndLookup=setWebsiteAndLookup;
 /* On-demand intel lookup — gathers from the live website (+ Apollo/Claude if keyed), shows cost. */
-async function runLookup(id, ev){
+async function runLookup(id, mode, ev){
   if(ev) ev.stopPropagation();
+  mode = mode || 'all';
   const e=(window.ENRICH||{})[id]||{};
   let site=(e.website&&e.website.domain)||'';
   if(!site){ site=(prompt('Website to look up (e.g. acmehvac.com):','')||'').trim(); if(!site) return; }
-  const note=document.getElementById('ilook-note-'+id); if(note) note.textContent='Looking up '+site+'…';
-  if(window.crmToast) crmToast('Looking up '+site+'…');
-  const r=await fetch('/api/crm/lookup',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact_id:id, website:site})}).then(x=>x.json()).catch(()=>null);
+  const label = mode==='dataforseo'?'DataForSEO':'Claude lookup';
+  const note=document.getElementById('ilook-note-'+id); if(note) note.textContent=label+': looking up '+site+'…';
+  if(window.crmToast) crmToast(label+': '+site+'…');
+  const r=await fetch('/api/crm/lookup',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact_id:id, website:site, mode:mode})}).then(x=>x.json()).catch(()=>null);
   if(!r||!r.ok){ const msg=(r&&(r.message||r.error))||'lookup failed'; if(note) note.textContent=msg; if(window.crmToast) crmToast('Lookup failed: '+msg); return; }
   window.ENRICH=window.ENRICH||{}; window.DIRECTORY=window.DIRECTORY||{}; window.INTEL=window.INTEL||{};
-  window.ENRICH[id]=Object.assign({}, window.ENRICH[id]||{}, r.enrich||{}, {_last_cost:r.cost_usd});
+  window.ENRICH[id]=Object.assign({}, window.ENRICH[id]||{}, r.enrich||{}, {_last_cost:r.cost_usd, _signals:r.signals});
   window.DIRECTORY[id]=Object.assign({}, window.DIRECTORY[id]||{}, r.directory||{});
   window.INTEL[id]=Object.assign({}, window.INTEL[id]||{}, r.intel||{});
   const c=DATA.conversations.find(x=>x.id===id); if(c && curTab==='intel') renderTab(c);
-  const breakdown=(r.breakdown||[]).filter(x=>x.cost>0).map(x=>x.source+' $'+(+x.cost).toFixed(4)).join(' · ');
-  if(window.crmToast) crmToast('Looked up '+r.domain+' · cost $'+(+r.cost_usd).toFixed(4)+(breakdown?' ('+breakdown+')':' — free'));
+  const paid=(r.breakdown||[]).filter(x=>x.cost>0);
+  const costStr = r.cost_usd>0 ? '$'+(+r.cost_usd).toFixed(4) : 'free';
+  const misses=(r.breakdown||[]).filter(x=>x.ok===false && x.note).map(x=>x.note);
+  if(window.crmToast) crmToast('Looked up '+r.domain+' · '+costStr+(misses.length?' — note: '+misses[0]:''));
 }
 window.runLookup=runLookup;
 function intelDashboard(c){
@@ -3652,15 +3676,19 @@ function intelDashboard(c){
       <div class="idh-title">${fit}${esc(c.company||c.name||'Unknown')}<span class="idh-trade">${[x.trade,city].filter(Boolean).join(' · ')}</span></div>
       <p class="idh-brief">${esc(x.brief||it.signal||'')}</p>
       <div class="idh-src">
-        <button class="ilook-btn" onclick="runLookup('${c.id}',event)">🔎 Look up website</button>
-        <span class="ilook-note" id="ilook-note-${c.id}">${e._last_cost!=null?`Last lookup: $${(+e._last_cost).toFixed(4)}`:'Gathers intel from the live site — cost shown per run'}</span>
+        ${(e.website&&e.website.domain)
+          ? `<button class="ilook-btn free" onclick="runLookup('${c.id}','claude',event)">🔎 Claude Lookup<span class="lk-tag free">Free</span></button>
+             <button class="ilook-btn paid" onclick="runLookup('${c.id}','dataforseo',event)">📊 DataForSEO Lookup<span class="lk-tag paid">Paid</span></button>`
+          : `<span class="ilook-note">Add a website (Website row below, or the Task tab) to enable lookups.</span>`}
+        <span class="ilook-note" id="ilook-note-${c.id}">${e._last_cost!=null?`Last lookup: $${(+e._last_cost).toFixed(4)}`:''}</span>
       </div>
     </div>
+    ${signalsCard(e)}
     <div class="idash-tiles">${tiles}</div>
     <div class="idash-grid">
-      ${icardD('Digital footprint','Search + BuiltWith', `<div class="presence">${foot}</div>`)}
-      ${icardD('Advertising','Meta Ad Library', adBody)}
-      ${icardD('Website tech','BuiltWith', `<div class="techchips">${techChips}</div>${gapFlags}`)}
+      ${icardD('Digital footprint','Search', `<div class="presence">${foot}</div>`)}
+      ${icardD('Advertising','DataForSEO', adBody)}
+      ${icardD('Website tech','Detected on-site', `<div class="techchips">${techChips}</div>${gapFlags}`)}
       ${icardD('Reputation','Google Business', rep)}
       ${icardD('On-site engagement','First-party', eng)}
       ${icardD('Contact &amp; location','CRM + directories', `<div class="presence">${contact||'<div class="idash-empty">—</div>'}</div>${spyGeoLine(it)}`)}

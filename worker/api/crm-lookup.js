@@ -48,7 +48,7 @@ const grab = (re, html) => { const m = html.match(re); return m ? m[1] : null; }
 function parseSite(domain, html) {
   const low = html.toLowerCase();
   const has = (re) => re.test(html);
-  const capture = /<form[\s\S]{0,4000}?(type=["'](email|tel)["']|name=["'][^"']*(e-?mail|phone|tel)[^"']*["'])/i.test(html);
+  const capture = /<form[\s>][\s\S]{0,8000}?<(input|textarea)[\s>]/i.test(html);   // a form with any input = lead capture
   const chatVendor = (low.match(/crisp\.chat|intercom|drift\.com|tawk\.to|retellai|chatwoot|tidio|livechatinc|podium|gorgias/) || [null])[0];
   const pixels = [];
   if (/fbq\(|connect\.facebook\.net\/[^"']*fbevents/.test(html)) pixels.push("Meta Pixel");
@@ -75,7 +75,7 @@ function parseSite(domain, html) {
   const metaDesc = grab(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']{10,300})["']/i, html);
   // free trade guess from visible text
   const text = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<[^>]+>/g, " ").toLowerCase();
-  const TRADES = [["hvac", /hvac|air condition|furnace|heating & cooling|a\/c repair/], ["plumbing", /plumb|drain|water heater|repipe/], ["roofing", /roof/], ["electrical", /electric/], ["landscaping/lawn", /lawn|landscap/], ["garage door", /garage door/], ["pest control", /pest control|exterminat/], ["cleaning", /house cleaning|maid|janitor/], ["painting", /painting|painter/], ["locksmith", /locksmith/], ["tree service", /tree service|tree removal|arborist/]];
+  const TRADES = [["hvac", /hvac|air condition|furnace|heating & cooling|a\/c repair/], ["plumbing", /plumb|drain|water heater|repipe/], ["roofing", /roof/], ["windows & doors", /window|patio door|entry door|sliding door/], ["electrical", /electric/], ["landscaping/lawn", /lawn|landscap/], ["garage door", /garage door/], ["fencing", /\bfenc/], ["concrete/masonry", /concrete|masonry|paver|hardscap/], ["flooring", /flooring|hardwood floor|tile install/], ["remodeling", /remodel|renovation|kitchen & bath/], ["solar", /solar panel|solar install/], ["gutters", /gutter/], ["siding", /siding/], ["deck & patio", /\bdeck\b|patio cover|pergola/], ["pool service", /pool (service|cleaning|repair|resurfac)/], ["pest control", /pest control|exterminat/], ["cleaning", /house cleaning|maid|janitor/], ["painting", /painting|painter/], ["locksmith", /locksmith/], ["tree service", /tree service|tree removal|arborist/], ["general contractor", /general contractor|home improvement/], ["handyman", /handyman/], ["appliance repair", /appliance repair/], ["foundation", /foundation repair/]];
   let trade = null; for (const [name, re] of TRADES) if (re.test(text)) { trade = name; break; }
   return {
     enrich: { website: { domain, capture }, gmb, pixels, facebook: facebook ? { handle: facebook, ads_live: 0, followers: 0 } : null },
@@ -149,68 +149,95 @@ export async function onRequestPost({ request, env }) {
   // Persist the domain so we always "have somewhere to look".
   if (co && !normDomain(co.domain)) await env.DB.prepare("UPDATE companies SET domain=?, updated_at=datetime('now') WHERE id=?").bind(domain, co.id).run().catch(() => {});
 
-  const breakdown = [];
-  const site = await fetchSite(domain);
-  let parsed = { enrich: { website: { domain, capture: false } }, directory: {}, intel: {} };
-  if (site.ok && site.html) parsed = parseSite(domain, site.html);
-  breakdown.push({ source: "Website fetch + parse", cost: 0, ok: site.ok });
+  const mode = b.mode || "all"; // 'claude' (free: site parse + Claude) | 'dataforseo' (paid) | 'all'
 
-  // Claude summary (optional) — merges trade/brief/services + cost.
-  const text = (site.html || "").replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
-  const cl = await claudeSummary(env, domain, text);
-  if (cl.used) {
-    breakdown.push({ source: "Claude summary", cost: cl.cost, ok: !cl.error });
-    if (cl.data) {
-      if (cl.data.trade) parsed.intel.trade = parsed.intel.trade || cl.data.trade;
+  // Start from cached enrichment so each button AUGMENTS the other's data instead of wiping it.
+  let prev = {}; try { prev = co && co.enrichment ? JSON.parse(co.enrichment) : {}; } catch (_) {}
+  const { _directory: pDir, _intel: pInt, _looked_up_at: _plu, _last_cost: _plc, ...pEnr } = prev;
+  const parsed = { enrich: { ...pEnr, website: { ...(pEnr.website || {}), domain } }, directory: { ...(pDir || {}) }, intel: { ...(pInt || {}) } };
+  const breakdown = [];
+
+  // ── Claude / free: fetch the live site, parse it, and (if keyed) summarize with Claude ──
+  if (mode === "claude" || mode === "all") {
+    const site = await fetchSite(domain);
+    if (site.ok && site.html) {
+      const p = parseSite(domain, site.html);
+      Object.assign(parsed.enrich, p.enrich);
+      Object.assign(parsed.directory, p.directory);
+      Object.assign(parsed.intel, p.intel);
+    }
+    breakdown.push({ source: "Website parse", cost: 0, ok: site.ok, note: site.ok ? null : "site fetch failed (" + (site.status || site.error || "?") + ")" });
+    const text = (site.html || "").replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+    const cl = await claudeSummary(env, domain, text);
+    if (cl.used && cl.data) {
+      breakdown.push({ source: "Claude summary", cost: cl.cost, ok: !cl.error });
+      if (cl.data.trade) parsed.intel.trade = cl.data.trade;
       if (cl.data.brief) parsed.intel.brief = cl.data.brief;
       if (Array.isArray(cl.data.services)) parsed.intel.services = cl.data.services.slice(0, 8);
       if (typeof cl.data.runs_ads === "boolean") parsed.intel.runs_ads = cl.data.runs_ads;
-    }
-  }
-
-  // Apollo firmographics (optional) — employees / years / industry, if the email matches.
-  if (env.APOLLO_API_KEY && ct && ct.primary_email) {
-    const me0 = await currentUser(request, env).catch(() => null);
-    const ar = await enrichContactById(env, b.contact_id, { actorId: me0 ? me0.id : await adminUserId(env) }).catch(() => ({}));
-    const org = ar && (ar.org || (ar.person && ar.person.organization));
-    if (org) {
-      parsed.enrich.employees = org.estimated_num_employees || parsed.enrich.employees;
-      if (org.founded_year) parsed.enrich.years = Math.max(0, new Date().getFullYear() - org.founded_year);
-      breakdown.push({ source: "Apollo firmographics", cost: APOLLO_COST(env), ok: true });
     } else {
-      breakdown.push({ source: "Apollo firmographics", cost: 0, ok: false, note: "no match" });
+      breakdown.push({ source: "Claude summary", cost: 0, ok: false, note: env.ANTHROPIC_API_KEY ? (cl.error || "no result") : "ANTHROPIC_API_KEY not set — using page parse only" });
+    }
+    if (env.APOLLO_API_KEY && ct && ct.primary_email) {
+      const me0 = await currentUser(request, env).catch(() => null);
+      const ar = await enrichContactById(env, b.contact_id, { actorId: me0 ? me0.id : await adminUserId(env) }).catch(() => ({}));
+      const org = ar && (ar.org || (ar.person && ar.person.organization));
+      if (org) {
+        parsed.enrich.employees = org.estimated_num_employees || parsed.enrich.employees;
+        if (org.founded_year) parsed.enrich.years = Math.max(0, new Date().getFullYear() - org.founded_year);
+        breakdown.push({ source: "Apollo firmographics", cost: APOLLO_COST(env), ok: true });
+      }
     }
   }
 
-  // DataForSEO — the stuff we can't parse: monthly traffic + estimated ad spend.
-  if (env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD) {
-    const dfs = await dataforseoLookup(env, domain);
-    if (dfs.used) {
-      breakdown.push({ source: "DataForSEO (traffic + ad spend)", cost: dfs.cost, ok: !dfs.error });
-      const dd = dfs.data || {};
-      if (dd.traffic_month != null) parsed.enrich.traffic_month = dd.traffic_month;   // → real "Recoverable leads / mo"
-      if (dd.ad_spend != null && dd.ad_spend > 0) {
-        parsed.enrich.spend_low = Math.round(dd.ad_spend * 0.8);
-        parsed.enrich.spend_high = Math.round(dd.ad_spend * 1.2);
-        parsed.enrich.spend_channels = ["Google Ads"];
+  // ── DataForSEO / paid: monthly traffic + estimated ad spend ──
+  if (mode === "dataforseo" || mode === "all") {
+    if (env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD) {
+      const dfs = await dataforseoLookup(env, domain);
+      if (dfs.used && !dfs.error) {
+        breakdown.push({ source: "DataForSEO (traffic + ad spend)", cost: dfs.cost, ok: true });
+        const dd = dfs.data || {};
+        if (dd.traffic_month != null) parsed.enrich.traffic_month = dd.traffic_month;
+        if (dd.ad_spend != null && dd.ad_spend > 0) { parsed.enrich.spend_low = Math.round(dd.ad_spend * 0.8); parsed.enrich.spend_high = Math.round(dd.ad_spend * 1.2); parsed.enrich.spend_channels = ["Google Ads"]; }
+        if (dd.paid_keywords != null) parsed.enrich.ads = { ...(parsed.enrich.ads || {}), google: dd.paid_keywords > 0 };
+        if (dd.organic_keywords != null) parsed.enrich.organic_keywords = dd.organic_keywords;
+      } else {
+        breakdown.push({ source: "DataForSEO", cost: dfs.cost || 0, ok: false, note: dfs.error || "no data returned for this domain" });
       }
-      if (dd.paid_keywords != null) parsed.enrich.ads = { ...(parsed.enrich.ads || {}), google: dd.paid_keywords > 0 };
+    } else {
+      breakdown.push({ source: "DataForSEO", cost: 0, ok: false, note: "DATAFORSEO_LOGIN / DATAFORSEO_PASSWORD not set" });
     }
   }
 
   const cost_usd = Math.round(breakdown.reduce((a, x) => a + (x.cost || 0), 0) * 10000) / 10000;
 
-  // Cache the merged enrichment on the company (so it survives reloads).
+  // The most-important intel, distilled for the dashboard header.
+  const en = parsed.enrich, di = parsed.directory, it = parsed.intel;
+  const signals = {
+    trade: it.trade || null,
+    has_form: en.website && typeof en.website.capture === "boolean" ? en.website.capture : null,
+    chat: it.chat != null ? !!it.chat : null,
+    phone: di.phone || null,
+    tech: it.tech || [],
+    pixels: en.pixels || [],
+    traffic_month: en.traffic_month != null ? en.traffic_month : null,
+    ad_spend_low: en.spend_low != null ? en.spend_low : null,
+    ad_spend_high: en.spend_high != null ? en.spend_high : null,
+    rating: en.gmb ? en.gmb.rating : null,
+    reviews: en.gmb ? en.gmb.reviews : null,
+    brief: it.brief || null,
+  };
+
+  // Cache the merged enrichment on the company (parsed already includes prev).
   if (co) {
-    let prev = {}; try { prev = co.enrichment ? JSON.parse(co.enrichment) : {}; } catch (_) {}
-    const merged = { ...prev, ...parsed.enrich, _directory: { ...(prev._directory || {}), ...parsed.directory }, _intel: { ...(prev._intel || {}), ...parsed.intel }, _looked_up_at: new Date().toISOString(), _last_cost: cost_usd };
+    const merged = { ...parsed.enrich, _directory: parsed.directory, _intel: parsed.intel, _looked_up_at: new Date().toISOString(), _last_cost: cost_usd, _signals: signals };
     await env.DB.prepare("UPDATE companies SET enrichment=?, updated_at=datetime('now') WHERE id=?").bind(JSON.stringify(merged), co.id).run().catch(() => {});
   }
 
   const me = await currentUser(request, env).catch(() => null);
   await env.DB.prepare("INSERT INTO lookup_log (id, contact_id, company_id, domain, cost_usd, sources, actor, created_at) VALUES (?,?,?,?,?,?,?,datetime('now'))")
     .bind(rid(), b.contact_id, co ? co.id : null, domain, cost_usd, JSON.stringify(breakdown.map((x) => x.source)), me ? me.id : null).run().catch(() => {});
-  await addActivityV2(env, { actorId: me ? me.id : null, entityType: "contact", entityId: b.contact_id, action: "intel_lookup", meta: { domain, cost_usd } }).catch(() => {});
+  await addActivityV2(env, { actorId: me ? me.id : null, entityType: "contact", entityId: b.contact_id, action: "intel_lookup", meta: { domain, cost_usd, mode } }).catch(() => {});
 
-  return json({ ok: true, domain, cost_usd, breakdown, enrich: parsed.enrich, directory: parsed.directory, intel: parsed.intel, claude_on: !!env.ANTHROPIC_API_KEY }, {}, cors);
+  return json({ ok: true, domain, mode, cost_usd, breakdown, enrich: parsed.enrich, directory: parsed.directory, intel: parsed.intel, signals, claude_on: !!env.ANTHROPIC_API_KEY, dataforseo_on: !!(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD) }, {}, cors);
 }
