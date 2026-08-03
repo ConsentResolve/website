@@ -1891,6 +1891,7 @@ function actBar(c){
   return `<span class="rc-actbar">
     <button class="rc-act" onclick="openRemind('${c.id}')" title="Set a reminder / callback">⏰ Remind</button>
     <button class="rc-act" onclick="assignConv('${c.id}',event)" title="Assign a rep">${asg}</button>
+    <button class="rc-act" onclick="autoMenu('${c.id}',event)" title="Put on autopilot — sequence or newsletter">🤖 Auto</button>
     <button class="rc-act danger" onclick="deleteConv('${c.id}')" title="Delete conversation">🗑 Delete</button>
   </span>`;
 }
@@ -2156,9 +2157,16 @@ async function ensureUsers(){
   return window._crmUsers;
 }
 function placeMenu(menu, ev){
-  const btn=ev&&ev.currentTarget; const r=btn?btn.getBoundingClientRect():{left:innerWidth/2,top:innerHeight-120};
-  menu.style.left=Math.max(8,Math.min(r.left, innerWidth-menu.offsetWidth-8))+'px';
-  menu.style.top=Math.max(8,(r.top-menu.offsetHeight-6))+'px';   // open upward (bar is at the bottom)
+  const btn=ev&&ev.currentTarget; const r=btn?btn.getBoundingClientRect():{left:innerWidth/2,top:innerHeight-120,bottom:innerHeight-90};
+  // Never let the menu run past the viewport — if it did, an item (e.g. the newsletter
+  // option) would be clipped off-screen. Cap its height and flip up/down for the best fit.
+  menu.style.maxHeight=(innerHeight-16)+'px'; menu.style.overflowY='auto';
+  const mh=Math.min(menu.offsetHeight, innerHeight-16), mw=menu.offsetWidth;
+  const left=Math.max(8, Math.min(r.left, innerWidth-mw-8));
+  let top=r.top-mh-6;                                   // prefer opening upward (bar is at the bottom)
+  if(top<8) top=Math.min(r.bottom+6, innerHeight-mh-8); // not enough room above → open below, clamped
+  if(top<8) top=8;
+  menu.style.left=left+'px'; menu.style.top=top+'px';
 }
 function closeOnOutside(menu){ setTimeout(()=>document.addEventListener('click',function off(){ menu.remove(); document.removeEventListener('click',off); }),0); }
 function crmToast(msg){

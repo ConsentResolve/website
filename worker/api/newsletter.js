@@ -72,10 +72,13 @@ export async function onRequestGet({ request, env }) {
 export async function onRequestPost({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
-  if (!(await isAdmin(request, env))) return json({ error: "forbidden" }, { status: 403 }, cors);
   await ensureNewsletterSchema(env);
   let b = {}; try { b = await request.json(); } catch (_) {}
   const action = b.action || "";
+  // Admin-only = the sensitive, org-wide actions (settings, editing/sending issues, bulk run).
+  // Enrolling a single lead in the newsletter is an everyday sales action any CRM user can do.
+  const ADMIN_ONLY = new Set(["set_settings", "run", "save_issue", "send_issue"]);
+  if (ADMIN_ONLY.has(action) && !(await isAdmin(request, env))) return json({ error: "forbidden" }, { status: 403 }, cors);
 
   if (action === "set_settings") {
     const patch = {};
