@@ -293,6 +293,10 @@ html,body{height:100%}
   .dstage.on.trial{background:#d98a0b}
   .dstage.on.active{background:#0a9d5f}
   .dstage.on.lost{background:#d0463d}
+  .dstage.dq{color:var(--bad)}
+  .dstage.dq:hover{background:var(--bad-soft)}
+  .dstage.on.disqualified{background:var(--bad);color:#fff}
+  .dq-why{margin-top:8px;font-size:12.5px;color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:6px 10px}
   .dchk{display:flex;align-items:center;gap:11px;font-size:var(--t-14);font-weight:700;color:var(--tx-1);cursor:pointer}
   .dchk .dsub{color:var(--tx-3);font-weight:500;font-size:var(--t-12)}
   .duser{margin-top:14px}
@@ -2707,6 +2711,28 @@ const DEALSTATE={};
 function initStage(id){const c=DATA.conversations.find(x=>x.id===id);if(!c)return'new';const s=c.sequence.status;if(s==='booked')return'trial';if(s==='opted_out'||s==='blocked')return'lost';return'new';}
 function dstate(id){if(!DEALSTATE[id]){const e=(window.ENRICH||{})[id]||{},st=initStage(id);DEALSTATE[id]={stage:st,trial:st==='trial',username:'',visitors:e.traffic_month||1000};}return DEALSTATE[id];}
 function dealStage(id,stage){dstate(id).stage=stage;rerenderDeal(id);}
+/* Disqualify / requalify straight from the lead's Stage tab. Persists via /api/crm/deals
+   keyed by the CONVERSATION id (find-or-create the deal server-side) + runs the cascade. */
+async function dealTabDisqualify(id){
+  const reason=(prompt('Disqualify this lead — reason? (adds them to do-not-contact and archives the thread)','Not a fit')||'').trim();
+  if(reason===null) return;
+  const st=dstate(id); const prev={stage:st.stage,reason:st.disqualify_reason};
+  st.stage='disqualified'; st.disqualify_reason=reason||'(no reason given)'; rerenderDeal(id);
+  const r=await fetch('/api/crm/deals',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({disqualify_conversation:id,disqualify_reason:reason})}).then(x=>x.json()).catch(()=>null);
+  if(!r||!r.ok){ st.stage=prev.stage; st.disqualify_reason=prev.reason; rerenderDeal(id); if(window.crmToast)crmToast('Could not disqualify — reverted'); return; }
+  // keep the pipeline in sync if it's loaded
+  if(window.PIPELINE){ const dl=window.PIPELINE.find(x=>x.id===r.id); if(dl){dl.stage='disqualified';dl.status='disqualified';dl.disqualify_reason=reason;} }
+  if(window.crmToast)crmToast('Disqualified — archived & added to do-not-contact');
+}
+async function dealTabRequalify(id){
+  const st=dstate(id); const prev={stage:st.stage,reason:st.disqualify_reason};
+  st.stage='new'; st.disqualify_reason=null; rerenderDeal(id);
+  const r=await fetch('/api/crm/deals',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({requalify_conversation:id})}).then(x=>x.json()).catch(()=>null);
+  if(!r||!r.ok){ st.stage=prev.stage; st.disqualify_reason=prev.reason; rerenderDeal(id); if(window.crmToast)crmToast('Could not requalify — reverted'); return; }
+  if(window.PIPELINE){ const dl=window.PIPELINE.find(x=>x.id===r.id); if(dl){dl.stage='new';dl.status='active';dl.disqualify_reason=null;} }
+  if(window.crmToast)crmToast('Requalified — back in New. (Still on do-not-contact; clear it in Consent if needed.)');
+}
+window.dealTabDisqualify=dealTabDisqualify; window.dealTabRequalify=dealTabRequalify;
 function dealTrial(id,on){dstate(id).trial=(on===true||on==='true');rerenderDeal(id);}
 function dealUser(id,val){dstate(id).username=(val||'').trim();}
 function dealTraffic(id,pct){const v=snap(Math.round(100*Math.pow(1000,pct/100)));dstate(id).visitors=v;
@@ -3960,9 +3986,13 @@ window.dealStage=dealStage;window.dealTrial=dealTrial;window.dealUser=dealUser;w
 function dealTab(c){
   const d=dstate(c.id), v=d.visitors, pct=Math.max(0,Math.min(100,100*Math.log10(v/100)/3));
   const stages=[['new','New'],['trial','Trial'],['active','Active'],['lost','Lost']];
+  const dq=d.stage==='disqualified';
   return `<div class="dealtab">
     <div class="dblock"><h5>Stage</h5>
-      <div class="dstages">${stages.map(([k,l])=>`<button class="dstage ${d.stage===k?'on '+k:''}" onclick="dealStage('${c.id}','${k}')">${l}</button>`).join('')}</div>
+      <div class="dstages">${stages.map(([k,l])=>`<button class="dstage ${d.stage===k?'on '+k:''}" onclick="dealStage('${c.id}','${k}')">${l}</button>`).join('')}
+        <button class="dstage dq ${dq?'on disqualified':''}" onclick="${dq?`dealTabRequalify('${c.id}')`:`dealTabDisqualify('${c.id}')`}">${dq?'Requalify':'⛔ Disqualify'}</button>
+      </div>
+      ${dq&&d.disqualify_reason?`<div class="dq-why">Reason: ${esc(d.disqualify_reason)}</div>`:''}
     </div>
     <div class="dblock"><h5>Trial</h5>
       <div class="dchk"><span class="tcheck ${d.trial?'on':''}" onclick="dealTrial('${c.id}',${d.trial?'false':'true'})">${d.trial?'✓':''}</span>Signed up for a trial <span class="dsub">via console.consentresolve.com</span></div>
