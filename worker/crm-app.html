@@ -2594,7 +2594,8 @@ async function nlSelectIssue(id){
   ed.innerHTML=`
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
       <h3 style="margin:0;font-size:16px;color:var(--tx-1)">Issue ${i.id} <span style="color:var(--tx-3);font-weight:500;font-size:13px">· editing</span></h3>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:8px;align-items:center">
+        <a href="/founder-voice" target="_blank" title="Andy's voice intake — answers feed these issues" style="text-decoration:none;border:1px solid var(--line);background:var(--surface-2);color:var(--tx-2);font-weight:700;font-size:13px;padding:7px 13px;border-radius:8px">Interview Andy ↗</a>
         <button onclick="nlPreview()" style="border:1px solid var(--line);background:var(--surface-2);color:var(--tx-1);font-weight:700;font-size:13px;padding:7px 13px;border-radius:8px;cursor:pointer">Preview</button>
         <button onclick="nlSave()" class="nl-save" style="border:1px solid var(--line);background:var(--surface-2);color:var(--tx-1);font-weight:700;font-size:13px;padding:7px 13px;border-radius:8px;cursor:pointer">Save</button>
         <button onclick="nlSend()" style="border:0;background:var(--accent);color:#04120b;font-weight:800;font-size:13px;padding:7px 15px;border-radius:8px;cursor:pointer">Send…</button>
