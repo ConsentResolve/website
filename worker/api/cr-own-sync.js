@@ -144,7 +144,7 @@ export async function backfillV2(env, { openOnly = true, rows: pre } = {}) {
   // number of NEW Apollo credits spent per run so a big backlog drips over several ticks.
   const apolloBudget = env.APOLLO_API_KEY ? Number(env.APOLLO_ENRICH_PER_RUN || 12) : 0;
   let apolloSpent = 0, apolloMatched = 0;
-  let matched = 0, enriched = 0;
+  let matched = 0, enriched = 0, enrolled = 0;
   for (const r of leads) {
     const c = byEmail.get(r.email);
     if (!c) continue;
@@ -199,9 +199,15 @@ export async function backfillV2(env, { openOnly = true, rows: pre } = {}) {
     await env.DB.prepare("UPDATE companies SET enrichment=?, updated_at=datetime('now') WHERE id=?").bind(JSON.stringify(en), companyId).run().catch(() => {});
     if (c.phone && !r.phone) await env.DB.prepare("UPDATE contacts SET phone=?, updated_at=datetime('now') WHERE id=?").bind(c.phone, r.contact_id).run().catch(() => {});
     await addActivityV2(env, { actorId: actor, entityType: "contact", entityId: r.contact_id, action: "cr_visitor_enriched", meta: { visits: c.visits, page_views: c.page_views, last_seen: c.last_seen } }).catch(() => {});
+    // Enroll into the Identified Visitor Outreach sequence — moves the lead out of Open
+    // into Auto (an active run = 'auto' bucket). Idempotent; sends stay simulated until
+    // IV_LIVE is set (per-sequence live switch), so enrolling now sends nothing.
+    if (c.email) {
+      try { const { enrollContact } = await import("../_lib/workflow-engine.js"); const er = await enrollContact(env, { contactId: r.contact_id, conversationId: r.conv_id, source: "consentresolve", workflowId: "identified-visitor" }); if (er && er.runId && !er.skipped) enrolled++; } catch (_) {}
+    }
     enriched++;
   }
-  return { open_leads: leads.length, matched, enriched, apollo_matched: apolloMatched, apollo_spent: apolloSpent };
+  return { open_leads: leads.length, matched, enriched, apollo_matched: apolloMatched, apollo_spent: apolloSpent, enrolled };
 }
 
 export async function onRequestOptions({ request, env }) {

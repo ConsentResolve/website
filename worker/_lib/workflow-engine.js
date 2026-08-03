@@ -16,8 +16,15 @@ import {
 import { sendEmail as gmailSend } from "./gmail.js";
 import { trackedUrl } from "./click-track.js";
 import { ensureCrmV2Schema } from "./crm-v2.js";
+import { IV_WORKFLOW, renderIvTemplate, buildVars } from "./iv-sequence.js";
 
 const enabled = (env) => env.WORKFLOW_ENGINE_ENABLED === "true";
+// Per-sequence live switch for the Identified Visitor Outreach — lets that one sequence go
+// live WITHOUT flipping the global engine on (which would wake speed-to-lead / earn-consent).
+// IV_TEST_EMAILS (csv) restricts real sends to just those addresses; blank = all enrolled.
+const ivLive = (env) => env.IV_LIVE === "true";
+const ivAllow = (env) => String(env.IV_TEST_EMAILS || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+const isIvStep = (run, step) => run.workflow_id === "identified-visitor" || String(step && step.template || "").startsWith("iv_");
 
 // Conservative quiet-hours window that satisfies every jurisdiction we operate in
 // at once (TX 9am–9pm lower bound; FL/OK/WA 8am–8pm upper bound → intersect 9–20).
@@ -70,7 +77,7 @@ const EARN_CONSENT = {
 
 async function seedWorkflows(env) {
   await ensureRebuildSchema(env);
-  for (const w of [SPEED_TO_LEAD, EARN_CONSENT]) {
+  for (const w of [SPEED_TO_LEAD, EARN_CONSENT, IV_WORKFLOW]) {
     await env.DB.prepare(
       `INSERT INTO workflows (id,name,trigger,goal,definition,requires_consent,enabled)
        VALUES (?,?,?,?,?,?,1)
@@ -83,6 +90,13 @@ async function seedWorkflows(env) {
 // ---- Message templates (compliant copy) ----------------------------------
 const BRAND = "Consent Resolve";
 function tpl(env, id, c) {
+  // Identified Visitor Outreach templates are full personalized emails built from the
+  // contact + cached _visitor (CR site data) + _person (Apollo) enrichment.
+  if (String(id).startsWith("iv_")) {
+    const en = c._enrich || {};
+    const r = renderIvTemplate(id, buildVars(env, { contact: c, visitor: en._visitor, person: en._person }));
+    if (r) return r;
+  }
   const first = (c.full_name || "there").split(" ")[0];
   // Pref-center CTA routed through the tracked redirect so nurture clicks land in the CRM.
   const PREF_CENTER = trackedUrl(env, { dest: "/get-started/", email: c.email, campaign: "nurture", label: id });
@@ -158,17 +172,21 @@ async function placeRetellCall(env, { to, script }, dry) {
 
 // ---- Enrollment -----------------------------------------------------------
 async function loadContact(env, contactId) {
-  return env.DB.prepare(
-    `SELECT c.id, c.full_name, c.primary_email email, c.phone, c.source, u.name owner
+  const r = await env.DB.prepare(
+    `SELECT c.id, c.full_name, c.primary_email email, c.phone, c.source, u.name owner, co.enrichment
        FROM contacts c LEFT JOIN deals d ON d.primary_contact_id=c.id
-       LEFT JOIN users u ON u.id=d.owner_id WHERE c.id=? LIMIT 1`
+       LEFT JOIN users u ON u.id=d.owner_id
+       LEFT JOIN companies co ON co.id=c.company_id WHERE c.id=? LIMIT 1`
   ).bind(contactId).first();
+  if (r) { try { r._enrich = r.enrichment ? JSON.parse(r.enrichment) : null; } catch (_) { r._enrich = null; } }
+  return r;
 }
 
 // Enroll one contact. Routes speed-to-lead (has SMS PEWC) vs earn-consent. Idempotent
 // via uq_wfrun_contact_wf. Returns {runId, workflow} or {skipped}.
-async function enrollContact(env, { contactId, conversationId, dealId, source }) {
+async function enrollContact(env, { contactId, conversationId, dealId, source, workflowId: forceWorkflow }) {
   await ensureRebuildSchema(env); await ensureCrmV2Schema(env);
+  if (forceWorkflow) await seedWorkflows(env);   // ensure the target workflow row exists
   const c = await loadContact(env, contactId);
   if (!c) return { skipped: "no_contact" };
   // Note: the former source==='apollo' outreach block was removed 2026-07-29 at the
@@ -177,7 +195,7 @@ async function enrollContact(env, { contactId, conversationId, dealId, source })
   // suppression (opted-out) and already-enrolled checks below still apply.
   if (await isSuppressed(env, { contactId, email: c.email, channel: "all" })) return { skipped: "suppressed" };
   const st = await consentState(env, { contactId, email: c.email });
-  const workflowId = st.sms === "granted" ? "speed-to-lead" : "earn-consent";
+  const workflowId = forceWorkflow || (st.sms === "granted" ? "speed-to-lead" : "earn-consent");
   // already enrolled?
   const existing = await env.DB.prepare("SELECT id FROM workflow_runs WHERE workflow_id=? AND contact_id=?").bind(workflowId, contactId).first();
   if (existing) return { skipped: "already_enrolled", runId: existing.id };
@@ -219,7 +237,9 @@ async function handleGoalEvent(env, { contactId, goal }) {
 // ---- The cron tick --------------------------------------------------------
 // Process every run whose next step is due. Returns a summary.
 async function processDueRuns(env, { limit = 50, dry = false } = {}) {
-  if (!dry && !enabled(env)) return { skipped: "disabled" };
+  // Run when the global engine is on OR the Identified Visitor sequence is live (its own
+  // switch). Per-step gating in executeStep still decides what actually sends.
+  if (!dry && !enabled(env) && !ivLive(env)) return { skipped: "disabled" };
   await ensureRebuildSchema(env); await seedWorkflows(env);
   const now = nowIso();
   const due = (await env.DB.prepare(
@@ -248,6 +268,16 @@ async function stepRun(env, run, out, dry) {
     const ch = step.channel;
 
     if (step.action === "wait") { idx++; continue; }
+
+    // PARK an IV email step we can't actually send yet (sequence not live, or this
+    // recipient isn't on the test allowlist). Do NOT advance — otherwise a dormant run
+    // would silently "preview" past the real emails and complete, so flipping live later
+    // would send nothing. Reschedule the same step; it fires the moment it can send.
+    if (isIvStep(run, step) && step.action === "send_email" && !dry) {
+      const allow = ivAllow(env);
+      const canSendNow = ivLive(env) && (allow.length === 0 || allow.includes(String(c.email || "").toLowerCase()));
+      if (!canSendNow) { await scheduleAt(env, run, idx, new Date(Date.now() + 3600 * 1000).toISOString()); out.deferred = (out.deferred || 0) + 1; return; }
+    }
 
     // Consent gate before any message action.
     if (ch === "sms" || ch === "voice" || ch === "email") {
@@ -298,26 +328,47 @@ async function stepRun(env, run, out, dry) {
 }
 
 async function executeStep(env, run, c, step, idx, out, dry) {
+  // Terminal action: drop the lead onto the newsletter track (no send of its own — the
+  // re-permission runner handles that separately). Also nudges the thread to Nurture.
+  if (step.action === "subscribe_newsletter") {
+    try { const { enrollRepermission } = await import("./newsletter.js"); await enrollRepermission(env, { contactIds: [run.contact_id] }); } catch (_) {}
+    if (run.conversation_id) await env.DB.prepare("UPDATE conversations SET status='nurture', updated_at=datetime('now') WHERE id=?").bind(run.conversation_id).run().catch(() => {});
+    await logStep(env, run, idx, null, "subscribe_newsletter", "sent", "");
+    await logEvent(env, { type: "newsletter_subscribed", contactId: run.contact_id, workflowRunId: run.id, meta: { step: idx } });
+    return;
+  }
+  // Per-sequence live gating: IV emails send for real only when IV_LIVE is on AND (no test
+  // allowlist, or this recipient is on it). Every other workflow needs the global engine on.
+  // Otherwise we run the step as a preview (records intent, sends nothing).
+  let eff = dry;
+  if (!dry) {
+    if (isIvStep(run, step)) {
+      const allow = ivAllow(env);
+      eff = !(ivLive(env) && (allow.length === 0 || allow.includes(String(c.email || "").toLowerCase())));
+    } else {
+      eff = !enabled(env);
+    }
+  }
   const t = tpl(env, step.template, c);
   let res, type, cost = 0;
   if (step.action === "send_email") {
     if (!c.email) { await logStep(env, run, idx, "email", step.action, "skipped", "no_email"); out.skipped++; return; }
-    res = await sendResend(env, { to: c.email, subject: t.subject, html: t.html, text: t.text, unsubUrl: c.id ? "https://consentresolve.com/api/unsubscribe?c=" + encodeURIComponent(c.id) : undefined }, dry);
-    type = dry ? "email_preview" : "email_sent";
-    if (!dry) await maybeCreateMessage(env, run, c, "email", t.subject, t.html);
+    res = await sendResend(env, { to: c.email, subject: t.subject, html: t.html, text: t.text, unsubUrl: c.id ? "https://consentresolve.com/api/unsubscribe?c=" + encodeURIComponent(c.id) : undefined }, eff);
+    type = eff ? "email_preview" : "email_sent";
+    if (!eff) await maybeCreateMessage(env, run, c, "email", t.subject, t.html);
   } else if (step.action === "send_sms") {
     if (!c.phone) { await logStep(env, run, idx, "sms", step.action, "skipped", "no_phone"); out.skipped++; return; }
-    res = await sendTelnyxSms(env, { to: c.phone, text: t.text }, dry);
-    type = dry ? "sms_preview" : "sms_sent"; cost = dry ? 0 : 1; // ~$0.0085/seg → tracked in cents rounded to 1 for now
+    res = await sendTelnyxSms(env, { to: c.phone, text: t.text }, eff);
+    type = eff ? "sms_preview" : "sms_sent"; cost = eff ? 0 : 1; // ~$0.0085/seg → tracked in cents rounded to 1 for now
   } else if (step.action === "place_ai_call") {
     if (!c.phone) { await logStep(env, run, idx, "voice", step.action, "skipped", "no_phone"); out.skipped++; return; }
-    res = await placeRetellCall(env, { to: c.phone, script: t.script }, dry);
-    type = dry ? "call_preview" : "call_placed"; cost = dry ? 0 : 10;
+    res = await placeRetellCall(env, { to: c.phone, script: t.script }, eff);
+    type = eff ? "call_preview" : "call_placed"; cost = eff ? 0 : 10;
   } else { await logStep(env, run, idx, step.channel, step.action, "skipped", "unknown_action"); out.skipped++; return; }
 
   if (res.ok) {
-    await logStep(env, run, idx, step.channel, step.action, dry ? "preview" : "sent", res.id || "");
-    await logEvent(env, { type, contactId: run.contact_id, conversationId: run.conversation_id, workflowRunId: run.id, channel: step.channel, costCents: cost, meta: { step: idx, provider_id: res.id, template: step.template, dry: dry || undefined, preview: res.preview } });
+    await logStep(env, run, idx, step.channel, step.action, eff ? "preview" : "sent", res.id || "");
+    await logEvent(env, { type, contactId: run.contact_id, conversationId: run.conversation_id, workflowRunId: run.id, channel: step.channel, costCents: cost, meta: { step: idx, provider_id: res.id, template: step.template, dry: eff || undefined, preview: res.preview } });
     if (step.action === "send_email") out.emailed++;
   } else if (res.hold) {
     // Provider not configured yet (Telnyx/Retell) → treat as skipped, keep sequence moving.
@@ -330,7 +381,7 @@ async function executeStep(env, run, c, step, idx, out, dry) {
     await logStep(env, run, idx, step.channel, step.action, "failed", res.error);
     await logEvent(env, { type: step.channel === "sms" ? "sms_failed" : "sequence_step_completed", contactId: run.contact_id, workflowRunId: run.id, channel: step.channel, meta: { step: idx, status: "failed", error: res.error } });
     out.failed = (out.failed || 0) + 1;
-    return dry ? undefined : "retry";
+    return eff ? undefined : "retry";
   }
 }
 
@@ -398,8 +449,11 @@ async function autoEnrollSweep(env, { hours = 24, limit = 30 } = {}) {
 
 // Called from the */5 cron.
 async function tick(env) {
-  if (!enabled(env)) return { skipped: "disabled" };
-  const a = await autoEnrollSweep(env, {});
+  if (!enabled(env) && !ivLive(env)) return { skipped: "disabled" };
+  // The generic auto-enroll sweep (earn-consent / speed-to-lead) only runs when the GLOBAL
+  // engine is on — IV enrollment is handled by the CR visitor sync, so turning IV live
+  // doesn't sweep every inbound conversation into a sequence.
+  const a = enabled(env) ? await autoEnrollSweep(env, {}) : { skipped: "global_off" };
   const p = await processDueRuns(env, {});
   return { autoEnroll: a, process: p };
 }
