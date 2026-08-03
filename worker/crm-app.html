@@ -3707,11 +3707,15 @@ setInterval(tickClocks,1000);
     if(!log().childNodes.length){ idx=firstBlank(); addMsg('bot',"Hey Andy — I'm writing the field-kit newsletter in your voice, so I want the real you, not my impression of it. Eight quick questions; it saves as we go."); setTimeout(ask,420); }
     var t=document.getElementById('fvIn'); if(t) t.focus();
   }
-  window.fvOpen=openPanel;
-  // Auto-offer the pill on login when the intake isn't finished (and not dismissed this session).
+  window.fvOpen=function(){
+    if(!window._fvIsAndy){ if(window.crmToast) crmToast("The Founder Voice intake is Andy's — it appears when he's signed in."); return; }
+    openPanel();
+  };
+  // Auto-offer the pill on login when the intake isn't finished — ANDY ONLY (not the rest of the team).
   fetch('/founder-voice?json=1',{headers:{'Accept':'application/json'}}).then(function(r){ return r.ok?r.json():null; }).then(function(d){
     if(!d||!d.ok) return;                              // not authed / error → no bubble
-    answers=d.answers||{};
+    answers=d.answers||{}; window._fvIsAndy=!!d.is_andy;
+    if(!window._fvIsAndy) return;                      // only Andy sees the bubble
     if(firstBlank()>=Q.length) return;                 // already fully answered
     try{ if(sessionStorage.getItem('fvDismiss')) return; }catch(_){}
     build(); document.getElementById('fvPill').style.display='flex';

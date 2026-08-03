@@ -202,8 +202,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <script is:inline>
       window.__retellCfg={
         "data-public-key":"public_key_c635ded46e18e33c6b219",
-        // /better-together runs the "Mack on Crack" test agent; the rest of the site keeps calm Mack.
-        "data-agent-id":(location.pathname.indexOf("/better-together")===0?"agent_b72f522eb738e65345f061d0ab":"agent_53dfb7733266901d4989695004"),
+        "data-agent-id":"agent_53dfb7733266901d4989695004",
         "data-title":"Chat with Mack","data-bot-name":"Mack","data-fab-text":"Chat with us",
         "data-theme-color":"#0e1c2e","data-component-color":"#00e5a0",
         "data-logo-url":"https://consentresolve.com/apple-touch-icon.png"};
@@ -475,20 +474,9 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         greeting:"Hey — I'm at my desk right now. Want a price, or a time slot?",phone:"+17279999846",
         entranceDelay:700,teaser:{enabled:true,delay:8000,scroll:0.45,exitIntent:true},
         nudge:{enabled:true,every:16000,max:3},badge:"honest"};
-      // Per-path TEST override. Only pages whose pathname starts with a key get this merged on
-      // top of the API/DEF config — the rest of the live site keeps calm Mack untouched.
-      // /better-together = the field-kit test bed: eager, gear-forward, pops fast, nudges hard.
-      var PATHCFG={
-        "/better-together":{
-          agentName:"Mack",status:"Closer on the clock · here to get you booked",
-          greeting:"Signs bring 'em in — I turn the yeses into $7 leads, and the gear ships to you as they stack. Want in?",
-          entranceDelay:400,
-          teaser:{enabled:true,delay:2500,scroll:0.12,exitIntent:true},
-          nudge:{enabled:true,every:9000,max:5},badge:"always",
-          chips:[{q:"gear",label:"Show me the gear",seed:"Show me how the milestone gear works."},
-                 {q:"start",label:"Start my $7 leads",seed:"I want to start getting $7 leads."}]
-        }
-      };
+      // Per-path launcher overrides (merged on top of the API/DEF config). Empty = every page,
+      // including /better-together, uses the standard calm-Mack launcher.
+      var PATHCFG={};
       var cw=document.getElementById('cw');
       if(!cw) return;
       var calm=matchMedia('(prefers-reduced-motion: reduce)').matches;

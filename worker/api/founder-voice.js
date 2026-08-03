@@ -6,6 +6,14 @@
 // voice for the field-kit newsletter — 8 prompts, one editable D1 row (id='andy').
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed, crmKey } from "../_lib/crm.js";
+import { crmSessionEmail } from "../_lib/auth.js";
+
+// Only Andy fills this out. Match the signed-in CRM email against his (overridable via env).
+async function isAndy(request, env) {
+  const e = (await crmSessionEmail(request, env).catch(() => "")) || "";
+  const andy = (env.ANDY_EMAIL || "andy@consentresolve.com").toLowerCase();
+  return e.toLowerCase() === andy;
+}
 
 export const QUESTIONS = [
   { k: "why", q: "Why did you start Consent Resolve — the real reason, in your words?" },
@@ -40,7 +48,7 @@ export async function onRequestOptions({ request, env }) {
 
 export async function onRequestPost({ request, env }) {
   const cors = corsHeaders(request, env);
-  if (!(await gate(request, env))) return json({ ok: false, error: "unauthorized" }, { status: 403 }, cors);
+  if (!(await isAndy(request, env))) return json({ ok: false, error: "forbidden" }, { status: 403 }, cors);
   await ensureSchema(env);
   const body = await request.json().catch(() => ({}));
   const incoming = body.answers || {};
@@ -60,7 +68,7 @@ export async function onRequestGet({ request, env }) {
     return new Response(lockedPage(), { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex" } });
   }
   const { answers, updated_at } = await loadAnswers(env);
-  if (url.searchParams.get("json")) return json({ ok: true, answers, updated_at, questions: QUESTIONS }, {}, cors);
+  if (url.searchParams.get("json")) return json({ ok: true, answers, updated_at, questions: QUESTIONS, is_andy: await isAndy(request, env) }, {}, cors);
   return new Response(page(answers, updated_at, url.searchParams.get("key") || ""), {
     headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex" },
   });
