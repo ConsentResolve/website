@@ -585,7 +585,7 @@ html,body{height:100%}
   .cbadge.g{color:var(--good);background:var(--good-soft)} .cbadge.n{color:var(--tx-3);background:var(--surface-2)} .cbadge.r{color:var(--bad);background:var(--bad-soft)} .cbadge.na{color:var(--tx-3);background:var(--surface-2);opacity:.7}
 
   /* SMS / chat bubble thread */
-  .msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+  .msgs{flex:1;min-height:0;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
   .msg{max-width:74%;padding:10px 13px;border-radius:var(--r-3);font-size:var(--t-13);line-height:1.5;white-space:pre-wrap}
   .msg .mh{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;opacity:.7;display:flex;gap:8px;align-items:center}
   .msg.in{align-self:flex-start;background:var(--surface-2);border:1px solid var(--line);border-bottom-left-radius:4px}
@@ -594,7 +594,7 @@ html,body{height:100%}
   .msg .mt{color:var(--tx-3);font-size:10.5px;margin-top:5px;font-family:var(--font-mono)}
 
   /* Gmail-style email thread */
-  .gmail{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+  .gmail{flex:1;min-height:0;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
   .gm-subject{font-size:var(--t-19);font-weight:700;font-family:var(--font-display);color:var(--tx-1);display:flex;align-items:center;gap:8px}
   .gm-subject .gm-count{font-size:var(--t-13);color:var(--tx-3);font-weight:600;font-family:var(--font-sans)}
   .gm-msg{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-2);padding:13px 15px}
@@ -1125,7 +1125,7 @@ html,body{height:100%}
   .ag-count{font-size:12.5px;color:var(--tx-3);margin-bottom:12px;font-weight:600}
   .thrbadge{font-size:10.5px;font-weight:700;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:0 7px;margin-left:2px;flex:0 0 auto}
   /* ---- Site engagement panel (top of the conversation body) ---- */
-  .site-eng{margin:16px 18px 6px;border:1px solid var(--line);border-radius:12px;background:var(--surface-1);overflow:hidden}
+  .site-eng{flex:0 0 auto;margin:16px 18px 6px;border:1px solid var(--line);border-radius:12px;background:var(--surface-1);overflow:hidden}
   .site-eng .se-h{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--tx-2)}
   .site-eng .se-dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
   .site-eng .se-src{margin-left:auto;font-weight:600;text-transform:none;letter-spacing:0;font-size:11px;color:var(--tx-3)}
