@@ -85,6 +85,7 @@ import { nurtureTick } from "./_lib/nurture-sweep.js";
 import * as newsletter from "./api/newsletter.js";
 import * as founderVoice from "./api/founder-voice.js";
 import * as crmConsent from "./api/crm-consent.js";
+import * as crmLookup from "./api/crm-lookup.js";
 import { runRepermission, runReengagement } from "./_lib/newsletter.js";
 import * as crmInbox from "./api/crm-inbox.js";
 import * as crmInstantly from "./api/crm-instantly.js";
@@ -190,6 +191,7 @@ const ROUTES = {
   "/api/newsletter/optin": newsletter,
   "/founder-voice": founderVoice,
   "/api/crm/consent": crmConsent,
+  "/api/crm/lookup": crmLookup,
   "/api/crm/inbox": crmInbox,
   "/api/crm/instantly": crmInstantly,
   "/api/crm/instantly/campaign": crmInstantlyCampaign,

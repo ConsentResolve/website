@@ -63,6 +63,10 @@ window.CRM_LIVE_PENDING = true; // set before restoreView runs → data views sh
     if (d.SPY_LEADS) window.SPY_LEADS = d.SPY_LEADS;
     if (d.NURTURE) window.NURTURE = d.NURTURE;
     if (d.PIPELINE) window.PIPELINE = d.PIPELINE;
+    // Persisted intel lookups — merge over the demo maps so real, looked-up companies win.
+    if (d.ENRICH && Object.keys(d.ENRICH).length) window.ENRICH = Object.assign({}, window.ENRICH, d.ENRICH);
+    if (d.DIRECTORY && Object.keys(d.DIRECTORY).length) window.DIRECTORY = Object.assign({}, window.DIRECTORY, d.DIRECTORY);
+    if (d.INTEL && Object.keys(d.INTEL).length) window.INTEL = Object.assign({}, window.INTEL, d.INTEL);
     if (d.ANALYTICS && d.ANALYTICS.kpis) window.ANALYTICS = d.ANALYTICS;
     if (d.me && window.DATA) { window.DATA.me = d.me; if (window.applyMe) window.applyMe(); }
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.DATA) {

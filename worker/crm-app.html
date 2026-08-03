@@ -325,7 +325,10 @@ html,body{height:100%}
   .idash-hero .idh-title{font-family:var(--font-display);font-size:var(--t-24);font-weight:800;color:var(--tx-1);display:flex;align-items:center;gap:11px;flex-wrap:wrap}
   .idh-trade{font-size:var(--t-13);color:var(--tx-3);font-weight:600}
   .idh-brief{margin-top:11px;font-size:var(--t-14);line-height:1.65;color:var(--tx-2);max-width:900px}
-  .idh-src{margin-top:9px;font-size:11px;color:var(--tx-3)}
+  .idh-src{margin-top:11px;font-size:11px;color:var(--tx-3);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .ilook-btn{border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);font:inherit;font-size:12px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer}
+  .ilook-btn:hover{background:var(--accent);color:#04120b}
+  .ilook-note{font-size:11px;color:var(--tx-3)}
   .idash-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:12px;margin:18px 0}
   .itile{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:14px 16px}
   .itile .iv{font-family:var(--font-mono);font-size:var(--t-24);font-weight:800;color:var(--tx-1);line-height:1}
@@ -3542,6 +3545,25 @@ function idRow(status,label,value,link){
   return `<div class="prow"><span class="pst ${sc}">${s}</span><span class="pk">${label}</span><span class="pv">${val}</span></div>`;
 }
 function icardD(title,src,body){return `<div class="icard"><div class="icard-h"><h4>${title}</h4><span class="isrc">${src}</span></div>${body}</div>`;}
+/* On-demand intel lookup — gathers from the live website (+ Apollo/Claude if keyed), shows cost. */
+async function runLookup(id, ev){
+  if(ev) ev.stopPropagation();
+  const e=(window.ENRICH||{})[id]||{};
+  let site=(e.website&&e.website.domain)||'';
+  if(!site){ site=(prompt('Website to look up (e.g. acmehvac.com):','')||'').trim(); if(!site) return; }
+  const note=document.getElementById('ilook-note-'+id); if(note) note.textContent='Looking up '+site+'…';
+  if(window.crmToast) crmToast('Looking up '+site+'…');
+  const r=await fetch('/api/crm/lookup',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact_id:id, website:site})}).then(x=>x.json()).catch(()=>null);
+  if(!r||!r.ok){ const msg=(r&&(r.message||r.error))||'lookup failed'; if(note) note.textContent=msg; if(window.crmToast) crmToast('Lookup failed: '+msg); return; }
+  window.ENRICH=window.ENRICH||{}; window.DIRECTORY=window.DIRECTORY||{}; window.INTEL=window.INTEL||{};
+  window.ENRICH[id]=Object.assign({}, window.ENRICH[id]||{}, r.enrich||{}, {_last_cost:r.cost_usd});
+  window.DIRECTORY[id]=Object.assign({}, window.DIRECTORY[id]||{}, r.directory||{});
+  window.INTEL[id]=Object.assign({}, window.INTEL[id]||{}, r.intel||{});
+  const c=DATA.conversations.find(x=>x.id===id); if(c && curTab==='intel') renderTab(c);
+  const breakdown=(r.breakdown||[]).filter(x=>x.cost>0).map(x=>x.source+' $'+(+x.cost).toFixed(4)).join(' · ');
+  if(window.crmToast) crmToast('Looked up '+r.domain+' · cost $'+(+r.cost_usd).toFixed(4)+(breakdown?' ('+breakdown+')':' — free'));
+}
+window.runLookup=runLookup;
 function intelDashboard(c){
   const e=((window.ENRICH||{})[c.id]||{}), x=(window.INTEL||{})[c.id]||{}, d=(window.DIRECTORY||{})[c.id]||{}, it=c.intel, ph=PHONES[c.id];
   const fit=`<span class="fit ${it.fit}">${it.fit.toUpperCase()}</span>`;
@@ -3597,7 +3619,10 @@ function intelDashboard(c){
     <div class="idash-hero">
       <div class="idh-title">${fit}${esc(c.company||c.name||'Unknown')}<span class="idh-trade">${[x.trade,city].filter(Boolean).join(' · ')}</span></div>
       <p class="idh-brief">${esc(x.brief||it.signal||'')}</p>
-      <div class="idh-src">✨ AI-researched · enriched via BuiltWith, Meta Ad Library, Google Business &amp; traffic estimators</div>
+      <div class="idh-src">
+        <button class="ilook-btn" onclick="runLookup('${c.id}',event)">🔎 Look up website</button>
+        <span class="ilook-note" id="ilook-note-${c.id}">${e._last_cost!=null?`Last lookup: $${(+e._last_cost).toFixed(4)}`:'Gathers intel from the live site — cost shown per run'}</span>
+      </div>
     </div>
     <div class="idash-tiles">${tiles}</div>
     <div class="idash-grid">

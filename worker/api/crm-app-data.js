@@ -179,7 +179,7 @@ export async function onRequestGet({ request, env }) {
   try { await env.DB.prepare("ALTER TABLE conversations ADD COLUMN snooze_note TEXT").run(); } catch (_) {} // ensure column exists before selecting it
   const convRows = (await env.DB.prepare(
     `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until, cv.snooze_note, cv.external_thread_id, cv.created_at, cv.assignee_id,
-            ct.id contact_id, ct.full_name, ct.primary_email, ct.source, ct.lifecycle_stage, ct.lead_score, ct.tier, ct.newsletter_status, co.name company, au.name assignee_name
+            ct.id contact_id, ct.full_name, ct.primary_email, ct.source, ct.lifecycle_stage, ct.lead_score, ct.tier, ct.newsletter_status, co.name company, co.enrichment co_enrichment, au.name assignee_name
        FROM conversations cv
        LEFT JOIN contacts ct ON ct.id = cv.contact_id
        LEFT JOIN companies co ON co.id = ct.company_id
@@ -468,12 +468,25 @@ export async function onRequestGet({ request, env }) {
   let SPY_LEADS = [];
   try { SPY_LEADS = await listSpyLeads(env); } catch (_) {}
 
+  // Persisted intel lookups (companies.enrichment written by /api/crm/lookup) → per-conversation
+  // ENRICH/DIRECTORY/INTEL maps so a lookup survives a page reload.
+  const ENRICH = {}, DIRECTORY = {}, INTEL = {};
+  for (const r of convRows) {
+    let en = null; try { en = r.co_enrichment ? JSON.parse(r.co_enrichment) : null; } catch (_) {}
+    if (!en || (!en._directory && !en._intel && !en.website)) continue;
+    const { _directory, _intel, _last_cost, _looked_up_at, ...enr } = en;
+    ENRICH[r.id] = { ...enr, _last_cost: _last_cost != null ? _last_cost : undefined };
+    if (_directory) DIRECTORY[r.id] = _directory;
+    if (_intel) INTEL[r.id] = _intel;
+  }
+
   return json({
     ok: true,
     me: meOut,
     CONSENT_LEDGER, CONSENT_STATS, consentSummary,
     SEQUENCES,
     DATA_CONVERSATIONS, DATA_COUNTS,
+    ENRICH, DIRECTORY, INTEL,
     SITESPY, NURTURE, SITE_SOURCES, SPY_LEADS, PIPELINE, ANALYTICS,
     inbox: { buckets },
     funnel,
