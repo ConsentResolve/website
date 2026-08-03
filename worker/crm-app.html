@@ -1134,6 +1134,7 @@ html,body{height:100%}
   .site-eng .se-grid .se-row:nth-child(-n+2){border-top:0}
   .site-eng .se-k{color:var(--tx-3)}
   .site-eng .se-v{color:var(--tx-1);font-weight:600;text-align:right;min-width:0;overflow-wrap:anywhere}
+  .site-eng .se-nf{color:var(--tx-3);font-weight:500;font-style:italic}
   @media(max-width:640px){.site-eng .se-grid{grid-template-columns:1fr}.site-eng .se-grid .se-row:nth-child(2){border-top:1px solid var(--line)}}
   /* ---- Settings / Speed-to-Lead ---- */
   .set-wrap{max-width:1080px}
@@ -1861,10 +1862,22 @@ function tracker(seq,isAuto){
    (esp. for identified visitors with no messages yet). Reads companies.enrichment._visitor. */
 function siteEngagement(c){
   const e=(window.ENRICH||{})[c.id]||{}; const vis=e._visitor; if(!vis) return '';
-  const row=(k,v)=> (v!=null&&v!=='')?`<div class="se-row"><span class="se-k">${k}</span><span class="se-v">${esc(String(v))}</span></div>`:'';
+  // Epoch (s or ms) → readable; otherwise pass through.
+  const fmtT=v=>{ if(v==null||v==='')return null; if(/^\d+$/.test(String(v))){const n=Number(v),ms=String(v).length<=10?n*1000:n; try{return new Date(ms).toLocaleString();}catch(_){return String(v);}} return String(v); };
   const loc=[vis.city,vis.region,vis.country].filter(Boolean).join(', ');
-  const rows=[row('Last seen',vis.last_seen),row('Total visits',vis.visits),row('Page views',vis.page_views),row('Referrer',vis.referrer),row('Location',loc),row('First seen',vis.first_seen)].filter(Boolean).join('');
-  if(!rows) return '';
+  const NF='<span class="se-nf">not found</span>';
+  const row=(k,v)=>`<div class="se-row"><span class="se-k">${k}</span><span class="se-v">${(v!=null&&v!=='')?esc(String(v)):NF}</span></div>`;
+  const rows=[
+    row('Last seen', fmtT(vis.last_seen)),
+    row('First seen', fmtT(vis.first_seen)),
+    row('Total visits', vis.visits),
+    row('Page views', vis.page_views),
+    row('Referrer', vis.referrer),
+    row('Landing page', vis.source_url),
+    row('Location', loc),
+    row('Consent status', vis.consent_status),
+    row('Consent method', vis.consent_method),
+  ].join('');
   return `<div class="site-eng"><div class="se-h"><span class="se-dot"></span>Site engagement<span class="se-src">Consent Resolve</span></div><div class="se-grid">${rows}</div></div>`;
 }
 function bubbleThread(c){
