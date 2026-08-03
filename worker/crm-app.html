@@ -1858,11 +1858,18 @@ function bubbleThread(c){
 const REPLYCH={}, CHLABEL={sms:'💬 SMS',email:'✉ Email',chat:'💬 Chat'};
 const CHWORD={sms:'SMS',email:'Email',chat:'Chat'}, CHICON={sms:'💬',email:'✉',chat:'💬'};
 function replyChannels(c){
-  const out=[];
-  if(c.channel==='chatwoot') out.push('chat');
-  if(c.consent.sms==='granted') out.push('sms');
-  if(c.consent.email==='granted') out.push('email');
-  return out;
+  const out=new Set();
+  // You can ALWAYS reply on the channel the lead reached you on — an inbound email/text is
+  // implied consent to respond, and email replies are always permitted under CAN-SPAM. (The
+  // opted-out and identified-no-consent guards above this still block those cases first.)
+  const ch=c.channel;
+  if(ch==='chatwoot'||ch==='chat') out.add('chat');
+  else if(ch==='sms'||ch==='phone'||ch==='voice'||ch==='speed_to_lead') out.add('sms');
+  else if(ch==='email'||ch==='meta_lead'||ch==='demo_form'||ch==='instantly'||ch==='prospecting') out.add('email');
+  // Plus any channel with an explicit granted-consent record.
+  if(c.consent.sms==='granted') out.add('sms');
+  if(c.consent.email==='granted') out.add('email');
+  return [...out];
 }
 function replyChOf(c){
   const avail=replyChannels(c);
@@ -2208,8 +2215,18 @@ function autoMenu(id, ev){
     } else if(a==='newsletter'){
       crmToast('Sending the newsletter opt-in…');
       const r=await fetch('/api/newsletter',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'enroll_repermission', contact_ids:[c.contact_id]})}).then(r=>r.json()).catch(()=>null);
-      crmToast(r&&r.ok?'Newsletter opt-in sent.':'Could not subscribe — try again.');
-      if(r&&r.ok){ c.newsletter='pending'; rerenderComposer(); }
+      if(r&&r.ok){
+        // Move it out of Open onto the Nurture (long-game newsletter) track.
+        c.newsletter='pending'; c.bucket='nurture';
+        try{ await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:c.id,status:'nurture'})}); }catch(_){}
+        crmToast('Subscribed & moved to Nurture — cleared from Open.');
+        // Drop it from the current list; if this thread was open, close it.
+        const wasSel=sel===c.id; if(wasSel) sel=null;
+        const f=document.querySelector('.filters .on'); if(f) renderList(f.dataset.f);
+        if(wasSel){ const th=document.getElementById('thread'); if(th) th.innerHTML='<div class="emptytab" style="margin:auto"><div class="ei">✉</div><h3>Moved to Nurture</h3><p style="color:var(--tx-3)">On the newsletter track now — find it under the Nurture filter.</p></div>'; }
+      } else {
+        crmToast('Could not subscribe — try again.');
+      }
     }
   });
   closeOnOutside(menu);

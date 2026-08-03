@@ -569,7 +569,8 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, deal_id: dealId }, {}, cors);
   }
 
-  const status = ["open", "snoozed", "archived"].includes(b.status) ? b.status : "open";
+  // 'nurture' moves a lead onto the long-game newsletter track (out of Open, into the Nurture bucket).
+  const status = ["open", "snoozed", "archived", "nurture"].includes(b.status) ? b.status : "open";
   let snooze = null;
   if (status === "snoozed") {
     // Precise reminder time (ISO) preferred — e.g. "call back tomorrow 10am"; else fall back to N days.
