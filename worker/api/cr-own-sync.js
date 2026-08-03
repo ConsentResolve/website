@@ -12,6 +12,7 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed, upsertLead, addActivity, ensureCrmSchema } from "../_lib/crm.js";
 import { ensureCrmV2Schema, findOrCreateCompany, addActivityV2, adminUserId } from "../_lib/crm-v2.js";
+import { apolloMatch } from "../_lib/apollo.js";
 
 const API_BASE = "https://api.consentresolve.com/api/v1/public";
 // Site id the public API expects for consentresolve.com (verified 200 w/ live contacts
@@ -138,6 +139,11 @@ export async function backfillV2(env, { openOnly = true, rows: pre } = {}) {
   ).all().catch(() => ({ results: [] }))).results || [];
 
   const actor = await adminUserId(env).catch(() => null);
+  // Apollo auto-enrich budget for this run — each identified visitor is matched at most
+  // once (gated by _person / _person_nomatch on the company enrichment), and we cap the
+  // number of NEW Apollo credits spent per run so a big backlog drips over several ticks.
+  const apolloBudget = env.APOLLO_API_KEY ? Number(env.APOLLO_ENRICH_PER_RUN || 12) : 0;
+  let apolloSpent = 0, apolloMatched = 0;
   let matched = 0, enriched = 0;
   for (const r of leads) {
     const c = byEmail.get(r.email);
@@ -159,12 +165,40 @@ export async function backfillV2(env, { openOnly = true, rows: pre } = {}) {
       synced_at: new Date().toISOString(),
     };
     if (c.domain && !en.website) en.website = { domain: c.domain };
+
+    // Apollo auto-enrich: resolve the anonymous-looking email to a real person once.
+    if (apolloSpent < apolloBudget && !en._person && !en._person_nomatch) {
+      apolloSpent++;
+      const m = await apolloMatch(env, r.email).catch(() => ({ ok: false }));
+      const p = m && m.ok ? m.person : null;
+      if (p) {
+        const org = p.organization || {};
+        const phone = (p.phone_numbers && p.phone_numbers[0] && (p.phone_numbers[0].sanitized_number || p.phone_numbers[0].raw_number)) || null;
+        en._person = {
+          name: p.name || null, first_name: p.first_name || null, last_name: p.last_name || null,
+          title: p.title || null, headline: p.headline || null,
+          company: org.name || null, company_domain: org.primary_domain || null,
+          city: p.city || null, state: p.state || null, country: p.country || null,
+          linkedin: p.linkedin_url || null, photo: p.photo_url || null, phone,
+          apollo_id: p.id || null, at: new Date().toISOString(),
+        };
+        // Fill blanks on the contact so the header/name shows the resolved person.
+        await env.DB.prepare(
+          "UPDATE contacts SET full_name=COALESCE(NULLIF(full_name,''),?), title=COALESCE(NULLIF(title,''),?), phone=COALESCE(NULLIF(phone,''),?), apollo_person_id=COALESCE(apollo_person_id,?), updated_at=datetime('now') WHERE id=?"
+        ).bind(p.name || null, p.title || null, phone, p.id || null, r.contact_id).run().catch(() => {});
+        await addActivityV2(env, { actorId: actor, entityType: "contact", entityId: r.contact_id, action: "enriched", meta: { source: "apollo", name: p.name, title: p.title, company: org.name } }).catch(() => {});
+        apolloMatched++;
+      } else {
+        en._person_nomatch = true;   // don't re-spend a credit on this email
+      }
+    }
+
     await env.DB.prepare("UPDATE companies SET enrichment=?, updated_at=datetime('now') WHERE id=?").bind(JSON.stringify(en), companyId).run().catch(() => {});
     if (c.phone && !r.phone) await env.DB.prepare("UPDATE contacts SET phone=?, updated_at=datetime('now') WHERE id=?").bind(c.phone, r.contact_id).run().catch(() => {});
     await addActivityV2(env, { actorId: actor, entityType: "contact", entityId: r.contact_id, action: "cr_visitor_enriched", meta: { visits: c.visits, page_views: c.page_views, last_seen: c.last_seen } }).catch(() => {});
     enriched++;
   }
-  return { open_leads: leads.length, matched, enriched };
+  return { open_leads: leads.length, matched, enriched, apollo_matched: apolloMatched, apollo_spent: apolloSpent };
 }
 
 export async function onRequestOptions({ request, env }) {

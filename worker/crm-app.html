@@ -1135,6 +1135,10 @@ html,body{height:100%}
   .site-eng .se-k{color:var(--tx-3)}
   .site-eng .se-v{color:var(--tx-1);font-weight:600;text-align:right;min-width:0;overflow-wrap:anywhere}
   .site-eng .se-nf{color:var(--tx-3);font-weight:500;font-style:italic}
+  .site-eng .se-grid.one{grid-template-columns:1fr}
+  .site-eng .se-grid.one .se-row{border-top:1px solid var(--line)}
+  .site-eng .se-grid.one .se-row:first-child{border-top:0}
+  .person-eng .se-dot{background:#6f5bd6}
   @media(max-width:640px){.site-eng .se-grid{grid-template-columns:1fr}.site-eng .se-grid .se-row:nth-child(2){border-top:1px solid var(--line)}}
   /* ---- Settings / Speed-to-Lead ---- */
   .set-wrap{max-width:1080px}
@@ -1878,8 +1882,21 @@ function siteEngagement(c){
   ].join('');
   return `<div class="site-eng"><div class="se-h"><span class="se-dot"></span>Site engagement<span class="se-src">Consent Resolve</span></div><div class="se-grid">${rows}</div></div>`;
 }
+/* Apollo-resolved person for an identified visitor — who this email belongs to. */
+function personCard(c){
+  const e=(window.ENRICH||{})[c.id]||{}; const p=e._person; if(!p) return '';
+  const loc=[p.city,p.state,p.country].filter(Boolean).join(', ');
+  const rows=[
+    p.title?`<div class="se-row"><span class="se-k">Title</span><span class="se-v">${esc(p.title)}</span></div>`:'',
+    p.company?`<div class="se-row"><span class="se-k">Company</span><span class="se-v">${esc(p.company)}</span></div>`:'',
+    loc?`<div class="se-row"><span class="se-k">Location</span><span class="se-v">${esc(loc)}</span></div>`:'',
+    p.phone?`<div class="se-row"><span class="se-k">Phone</span><span class="se-v"><a href="${telHref(p.phone)}">${esc(p.phone)}</a></span></div>`:'',
+    p.linkedin?`<div class="se-row"><span class="se-k">LinkedIn</span><span class="se-v"><a href="${esc(p.linkedin)}" target="_blank" rel="noopener">profile ↗</a></span></div>`:''
+  ].filter(Boolean).join('');
+  return `<div class="site-eng person-eng"><div class="se-h"><span class="se-dot"></span>${esc(p.name||'Identified person')}<span class="se-src">Apollo</span></div><div class="se-grid one">${rows||'<div class="se-row"><span class="se-k">Matched</span><span class="se-v">name only</span></div>'}</div></div>`;
+}
 function bubbleThread(c){
-  return `${siteEngagement(c)}<div class="msgs">${c.messages.map(m=>{
+  return `${personCard(c)}${siteEngagement(c)}<div class="msgs">${c.messages.map(m=>{
     if(m.dir==="system") return `<div class="msg system">${esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
     const who = m.who ? esc(m.who) : (m.dir==='in'?'▸ ':'')+(CH[m.channel]||m.channel||'').replace(/^[^ ]+ /,'');
     return `<div class="msg ${m.dir}"><div class="mh">${who}${m.meta?' · '+esc(m.meta):''}</div>${esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
@@ -2040,6 +2057,7 @@ function gmailThread(c){
     </div>`;
   };
   return `<div class="gmail">
+    ${personCard(c)}
     ${siteEngagement(c)}
     <div class="gm-subject">${esc(subj)} <span class="gm-count">(${emails.length})</span></div>
     ${sys.map(m=>`<div class="gm-msg sys">${esc(m.body)} · ${esc(m.ts)}</div>`).join("")}
