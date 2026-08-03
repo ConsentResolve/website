@@ -179,7 +179,7 @@ export async function onRequestGet({ request, env }) {
   try { await env.DB.prepare("ALTER TABLE conversations ADD COLUMN snooze_note TEXT").run(); } catch (_) {} // ensure column exists before selecting it
   const convRows = (await env.DB.prepare(
     `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until, cv.snooze_note, cv.external_thread_id, cv.created_at, cv.assignee_id,
-            ct.id contact_id, ct.full_name, ct.primary_email, ct.source, ct.lifecycle_stage, ct.lead_score, ct.tier, ct.newsletter_status, co.name company, co.enrichment co_enrichment, au.name assignee_name
+            ct.id contact_id, ct.full_name, ct.primary_email, ct.source, ct.lifecycle_stage, ct.lead_score, ct.tier, ct.newsletter_status, co.name company, co.domain co_domain, co.enrichment co_enrichment, au.name assignee_name
        FROM conversations cv
        LEFT JOIN contacts ct ON ct.id = cv.contact_id
        LEFT JOIN companies co ON co.id = ct.company_id
@@ -473,9 +473,12 @@ export async function onRequestGet({ request, env }) {
   const ENRICH = {}, DIRECTORY = {}, INTEL = {};
   for (const r of convRows) {
     let en = null; try { en = r.co_enrichment ? JSON.parse(r.co_enrichment) : null; } catch (_) {}
-    if (!en || (!en._directory && !en._intel && !en.website)) continue;
-    const { _directory, _intel, _last_cost, _looked_up_at, ...enr } = en;
-    ENRICH[r.id] = { ...enr, _last_cost: _last_cost != null ? _last_cost : undefined };
+    const domain = r.co_domain || (en && en.website && en.website.domain) || null;
+    if (!en && !domain) continue;                 // nothing to show
+    const { _directory, _intel, _last_cost, _looked_up_at, ...enr } = en || {};
+    const base = { ...enr, _last_cost: _last_cost != null ? _last_cost : undefined };
+    if (domain) base.website = { ...(base.website || {}), domain };   // show the saved domain even before a lookup
+    ENRICH[r.id] = base;
     if (_directory) DIRECTORY[r.id] = _directory;
     if (_intel) INTEL[r.id] = _intel;
   }

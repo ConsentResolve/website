@@ -329,6 +329,9 @@ html,body{height:100%}
   .ilook-btn{border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);font:inherit;font-size:12px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer}
   .ilook-btn:hover{background:var(--accent);color:#04120b}
   .ilook-note{font-size:11px;color:var(--tx-3)}
+  .webinput{border:1px solid var(--line);border-radius:6px;background:var(--surface-0);color:var(--tx-1);font:inherit;font-size:12.5px;padding:4px 8px;width:150px}
+  .webset{border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);font:inherit;font-size:12px;font-weight:700;padding:4px 9px;border-radius:6px;cursor:pointer;margin-left:6px}
+  .webedit{border:0;background:transparent;color:var(--tx-3);cursor:pointer;font-size:12px;padding:0 4px}
   .idash-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:12px;margin:18px 0}
   .itile{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:14px 16px}
   .itile .iv{font-family:var(--font-mono);font-size:var(--t-24);font-weight:800;color:var(--tx-1);line-height:1}
@@ -3557,6 +3560,23 @@ function idRow(status,label,value,link){
   return `<div class="prow"><span class="pst ${sc}">${s}</span><span class="pk">${label}</span><span class="pv">${val}</span></div>`;
 }
 function icardD(title,src,body){return `<div class="icard"><div class="icard-h"><h4>${title}</h4><span class="isrc">${src}</span></div>${body}</div>`;}
+/* Editable Website row on Intel — add/change the site right here, then look it up. */
+function webRow(id, e){
+  const dom = e && e.website && e.website.domain ? e.website.domain : '';
+  const cap = e && e.website && typeof e.website.capture==='boolean' ? (e.website.capture?' · has a form':' · no form') : '';
+  if(dom){
+    return `<div class="prow"><span class="pst good">✓</span><span class="pk">Website</span><span class="pv"><a href="https://${esc(dom)}" target="_blank" rel="noopener">${esc(dom)} ↗</a>${cap} <button class="webedit" title="Change website" onclick="editIntelWebsite('${id}',event)">✎</button></span></div>`;
+  }
+  return `<div class="prow"><span class="pst mut">—</span><span class="pk">Website</span><span class="pv"><input class="webinput" id="webinput-${id}" placeholder="acmehvac.com" onkeydown="if(event.key==='Enter')setIntelWebsite('${id}')"><button class="webset" onclick="setIntelWebsite('${id}')">Add + look up</button></span></div>`;
+}
+function editIntelWebsite(id,ev){ if(ev)ev.stopPropagation(); const cur=((window.ENRICH||{})[id]||{}).website; const v=(prompt('Website:', (cur&&cur.domain)||'')||'').trim(); if(v) setWebsiteAndLookup(id,v); }
+function setIntelWebsite(id){ const inp=document.getElementById('webinput-'+id); const v=inp?inp.value.trim():''; if(v) setWebsiteAndLookup(id,v); }
+function setWebsiteAndLookup(id,domain){
+  const dom=domain.replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/[/?#].*$/,'').trim();
+  window.ENRICH=window.ENRICH||{}; const en=window.ENRICH[id]||{}; en.website=Object.assign({},en.website||{},{domain:dom}); window.ENRICH[id]=en;
+  runLookup(id);   // persists the domain (company.domain) + enrichment, shows cost
+}
+window.editIntelWebsite=editIntelWebsite;window.setIntelWebsite=setIntelWebsite;window.setWebsiteAndLookup=setWebsiteAndLookup;
 /* On-demand intel lookup — gathers from the live website (+ Apollo/Claude if keyed), shows cost. */
 async function runLookup(id, ev){
   if(ev) ev.stopPropagation();
@@ -3596,7 +3616,7 @@ function intelDashboard(c){
     recoverable!=null ? tileD(recoverable.toLocaleString(),'Recoverable leads / mo','opp') : tileD('—','Recoverable leads / mo','muted')
   ].join('');
   const foot=[
-    idRow(e.website?'ok':'no','Website', e.website?`${e.website.domain} · ${e.website.capture?'has a form':'no form'}`:'not found', e.website?'https://'+e.website.domain:null),
+    webRow(c.id, e),
     idRow(e.gmb?'ok':'no','Google Biz', e.gmb?`${e.gmb.rating}★ (${e.gmb.reviews}) · ${e.gmb.verified?'verified':'unclaimed'}`:'no listing', null),
     idRow(e.facebook?'ok':'no','Facebook', e.facebook?`@${e.facebook.handle}${e.facebook.ads_live>0?' · '+e.facebook.ads_live+' ads live':' · '+fmtK(e.facebook.followers)+' followers'}`:'not found', e.facebook?'https://facebook.com/'+e.facebook.handle:null),
     idRow(d.linkedin?'ok':'off','LinkedIn', d.linkedin||'not found', d.linkedin?'https://linkedin.com/company/'+d.linkedin:null),
