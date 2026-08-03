@@ -1,0 +1,31 @@
+name: Deploy to Cloudflare
+
+# A reliable deploy that runs on GitHub's own runners — independent of the Cloudflare
+# Workers Builds pipeline (which can stall when its monthly build-minute quota is spent).
+# Trigger it from the Actions tab → "Run workflow", or with `gh workflow run deploy.yml`.
+#
+# One-time setup: add a repo secret CLOUDFLARE_API_TOKEN (Settings → Secrets and variables →
+# Actions), a token scoped to the Consent Resolve account with Edit Workers + D1:Edit + R2:Edit.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - name: Build the Astro site
+        run: npm run build
+      - name: Deploy worker + assets
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 7caa0c227ac2d290437ecf6932b2806d

@@ -1,109 +1,117 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "consentresolve-website",
-  "compatibility_date": "2024-12-01",
-  // Worker entry handles /api/* (live demo). All other requests fall through to
-  // the static Astro build via the ASSETS binding (asset-first by default), so
-  // the marketing site is served exactly as before.
-  "main": "worker/index.js",
-  "assets": {
-    "directory": "./dist",
-    "not_found_handling": "404-page",
-    "binding": "ASSETS"
-  },
-  // ── Live demo D1 ──────────────────────────────────────────────────────────
-  // Make sure the schema is applied to this database before relying on the API:
-  //   worker/schema.sql  (or paste it into the dashboard D1 console).
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "consentresolve-demo",
-      "database_id": "4693a387-6144-4404-ac0e-c24fcc89d26a"
-    }
-  ],
-  // Media/asset bucket — large resource social variants (square/vertical) and
-  // trade videos live here instead of in the deploy, served same-origin at /cdn/*
-  // by the Worker (see worker/index.js). Keeps the Pages/Worker asset bundle small.
-  "r2_buckets": [
-    {
-      "binding": "MEDIA",
-      "bucket_name": "cr-social"
-    }
-  ],
-  // ── Social auto-posting cron ────────────────────────────────────────────────
-  // Daily at 15:00 UTC (~10am ET / 9am CT). scheduled() in worker/index.js drips
-  // one queued item per launch platform per run, gated by each platform's
-  // cadence (PLATFORM_CADENCE_DAYS: facebook daily, linkedin_company every 2d,
-  // linkedin_personal weekly). NO-OP until SOCIAL_AUTOPOST_ENABLED === "true"
-  // AND a platform's secrets are set (each
-  // adapter self-skips without its creds). Apply worker/social-queue.sql +
-  // worker/social-tokens.sql to D1 and seed the queue before enabling.
-  "triggers": {
-    // "0 15 * * *" + "0 23 * * *" → social drip runs twice daily (~10am & 6pm ET).
-    // Non-GBP platforms self-skip on the 2nd run via their cadence gate; GBP posts up
-    // to GBP_POSTS_PER_DAY (default 2) so the two runs give it spaced 2×/day posting.
-    // "*/5 * * * *" → Apollo visitor sync. scheduled() in worker/index.js branches on event.cron.
-    // "* * * * *" → Speed-to-Lead cadence ticker (gates + dispatches due touchpoints;
-    // safe no-op / simulate-only until the engine is switched to live at /crm/speed).
-    "crons": ["0 15 * * *", "0 23 * * *", "*/5 * * * *", "* * * * *"]
-  },
-  //
-  // Non-secret config. Secrets (set via `wrangler secret put` or the dashboard —
-  // never commit them):
-  //   RESEND_API_KEY, TURNSTILE_SECRET, SALES_WEBHOOK_URL, TEAM_NOTIFY_URL
-  //   CR_AUTOMATION_KEY    — gates /api/social-queue (X-CR-Automation-Key header)
-  //   ADMIN_PASSWORD       — login password for /admin
-  //   ADMIN_SESSION_SECRET — HMAC key for the /admin session cookie (long random)
-  //   Social publishing (per platform):
-  //     FACEBOOK_PAGE_ID, FACEBOOK_PAGE_ACCESS_TOKEN
-  //     LINKEDIN_COMPANY_ACCESS_TOKEN, LINKEDIN_COMPANY_URN  (urn:li:organization:#)
-  //     LINKEDIN_PERSONAL_ACCESS_TOKEN, LINKEDIN_PERSONAL_URN (urn:li:person:#)
-  //     X_CLIENT_ID, X_CLIENT_SECRET, X_REFRESH_TOKEN
-  //     GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, GBP_ACCOUNT_ID, GBP_LOCATION_ID
-  "vars": {
-    // TEMPORARY: consentresolve.com is added to Resend but DNS verification is
-    // status=failed, so it cannot send yet. Sending from the verified
-    // tryconsentresolve.com meanwhile; replies still go to hello@consentresolve.com.
-    // Flip this back the moment resend.com/domains shows consentresolve.com verified.
-    "FROM_EMAIL": "Consent Resolve <hello@consentresolve.com>",
-    "REPLY_TO": "hello@consentresolve.com",
-    "REPLY_TO_DEMO": "hello@consentresolve.com",
-    "REPLY_TO_OUTREACH": "hello@consentresolve.com",
-    "EMAIL_MODE": "promo",
-    "SAMPLE_PATH": "/demo/sample/",
-    "CONSENT_TEXT_VERSION": "v1-2026-06",
-    "ALLOWED_ORIGINS": "https://consentresolve.com,https://www.consentresolve.com",
-    "SOCIAL_AUTOPOST_ENABLED": "true",
-    "INDEXNOW_KEY": "0452ce57fb0d3bbfdcb0d12e1ee8b142",
-    // Speed-to-Lead — non-secret config kept here so it survives `wrangler deploy`
-    // (dashboard plain-text vars get wiped on each CI deploy; secrets persist).
-    // TWILIO_FROM_NUMBER is the public business line; the SID/AUTH_TOKEN stay secrets.
-    // Clean value (no trailing newline) — a CLI-set secret can smuggle a "\n" that
-    // makes Twilio report a From/account "mismatch" even when the account owns it.
-    // Sending number must be owned by the configured Twilio account (ACbf53…).
-    // +17279999846 (727-999-9846) is THE public business number as of 2026-07-31 —
-    // owned by this account, on the approved A2P Messaging Service below, and also
-    // Mack's Retell voice+SMS line. The old 727-202-5996 was RETIRED (it lived on a
-    // separate legacy account). Do not "swap back" — 999-9846 is permanent.
-    "TWILIO_FROM_NUMBER": "+17279999846",
-    // A2P 10DLC: send via the approved Messaging Service (campaign-linked). The
-    // adapter prefers this over TWILIO_FROM_NUMBER. The From number must be attached
-    // to this service — use the console's "Attach From # to Messaging Service".
-    "TWILIO_MESSAGING_SERVICE_SID": "MGf93d07d2f149ca488919ab529bc3df62",
-    "STL_PUBLIC_ORIGIN": "https://consentresolve.com",
-    // Retell "Ruby" agent (provisioned 2026-07-30). RETELL_API_KEY stays a secret;
-    // RETELL_FROM_NUMBER (a Retell/imported number) still needs to be set once bought.
-    "RETELL_AGENT_ID": "agent_f1d60fc460c72e08f581d7466a",
-    // Ruby dials FROM the SMS/engine number via the Twilio SIP trunk connected in Retell,
-    // so leads see one number for both SMS and AI voice. (Was the Retell-bought number.)
-    "RETELL_FROM_NUMBER": "+17279999846",
-    // Rep warm-transfer "hunt" number: Ruby transfers here, and this number's Twilio
-    // Voice webhook (/api/stl/twilio/voice-cascade) rings Primary → Backup1 → Backup2
-    // with no-answer failover. Run the console's "Set up voice cascade" once to point
-    // this number's VoiceUrl at the cascade endpoint.
-    "STL_TRANSFER_NUMBER": "+17279999864",
-    // AI agent's name (renamed Ruby -> Mack). Drives the disclosure-verification check
-    // (transcript must contain this name + an AI phrase) and Retell provisioning.
-    "STL_AGENT_NAME": "Mack"
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "consentresolve-website",
+	// Consent Resolve Cloudflare account — pinned so `wrangler deploy` never prompts / grabs the
+	// wrong account (the D1 + worker live here).
+	"account_id": "7caa0c227ac2d290437ecf6932b2806d",
+	"compatibility_date": "2024-12-01",
+	// Worker entry handles /api/* (live demo). All other requests fall through to
+	// the static Astro build via the ASSETS binding (asset-first by default), so
+	// the marketing site is served exactly as before.
+	"main": "worker/index.js",
+	"assets": {
+		"directory": "./dist",
+		"not_found_handling": "404-page",
+		"binding": "ASSETS"
+	},
+	// ── Live demo D1 ──────────────────────────────────────────────────────────
+	// Make sure the schema is applied to this database before relying on the API:
+	//   worker/schema.sql  (or paste it into the dashboard D1 console).
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "consentresolve-demo",
+			"database_id": "4693a387-6144-4404-ac0e-c24fcc89d26a"
+		}
+	],
+	// Media/asset bucket — large resource social variants (square/vertical) and
+	// trade videos live here instead of in the deploy, served same-origin at /cdn/*
+	// by the Worker (see worker/index.js). Keeps the Pages/Worker asset bundle small.
+	"r2_buckets": [
+		{
+			"binding": "MEDIA",
+			"bucket_name": "cr-social"
+		}
+	],
+	// ── Social auto-posting cron ────────────────────────────────────────────────
+	// Daily at 15:00 UTC (~10am ET / 9am CT). scheduled() in worker/index.js drips
+	// one queued item per launch platform per run, gated by each platform's
+	// cadence (PLATFORM_CADENCE_DAYS: facebook daily, linkedin_company every 2d,
+	// linkedin_personal weekly). NO-OP until SOCIAL_AUTOPOST_ENABLED === "true"
+	// AND a platform's secrets are set (each
+	// adapter self-skips without its creds). Apply worker/social-queue.sql +
+	// worker/social-tokens.sql to D1 and seed the queue before enabling.
+	"triggers": {
+		// "0 15 * * *" + "0 23 * * *" → social drip runs twice daily (~10am & 6pm ET).
+		// Non-GBP platforms self-skip on the 2nd run via their cadence gate; GBP posts up
+		// to GBP_POSTS_PER_DAY (default 2) so the two runs give it spaced 2×/day posting.
+		// "*/5 * * * *" → Apollo visitor sync. scheduled() in worker/index.js branches on event.cron.
+		// "* * * * *" → Speed-to-Lead cadence ticker (gates + dispatches due touchpoints;
+		// safe no-op / simulate-only until the engine is switched to live at /crm/speed).
+		"crons": [
+			"0 15 * * *",
+			"0 23 * * *",
+			"*/5 * * * *",
+			"* * * * *"
+		]
+	},
+	//
+	// Non-secret config. Secrets (set via `wrangler secret put` or the dashboard —
+	// never commit them):
+	//   RESEND_API_KEY, TURNSTILE_SECRET, SALES_WEBHOOK_URL, TEAM_NOTIFY_URL
+	//   CR_AUTOMATION_KEY    — gates /api/social-queue (X-CR-Automation-Key header)
+	//   ADMIN_PASSWORD       — login password for /admin
+	//   ADMIN_SESSION_SECRET — HMAC key for the /admin session cookie (long random)
+	//   Social publishing (per platform):
+	//     FACEBOOK_PAGE_ID, FACEBOOK_PAGE_ACCESS_TOKEN
+	//     LINKEDIN_COMPANY_ACCESS_TOKEN, LINKEDIN_COMPANY_URN  (urn:li:organization:#)
+	//     LINKEDIN_PERSONAL_ACCESS_TOKEN, LINKEDIN_PERSONAL_URN (urn:li:person:#)
+	//     X_CLIENT_ID, X_CLIENT_SECRET, X_REFRESH_TOKEN
+	//     GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, GBP_ACCOUNT_ID, GBP_LOCATION_ID
+	"vars": {
+		// TEMPORARY: consentresolve.com is added to Resend but DNS verification is
+		// status=failed, so it cannot send yet. Sending from the verified
+		// tryconsentresolve.com meanwhile; replies still go to hello@consentresolve.com.
+		// Flip this back the moment resend.com/domains shows consentresolve.com verified.
+		"FROM_EMAIL": "Consent Resolve <hello@consentresolve.com>",
+		"REPLY_TO": "hello@consentresolve.com",
+		"REPLY_TO_DEMO": "hello@consentresolve.com",
+		"REPLY_TO_OUTREACH": "hello@consentresolve.com",
+		"EMAIL_MODE": "promo",
+		"SAMPLE_PATH": "/demo/sample/",
+		"CONSENT_TEXT_VERSION": "v1-2026-06",
+		"ALLOWED_ORIGINS": "https://consentresolve.com,https://www.consentresolve.com",
+		"SOCIAL_AUTOPOST_ENABLED": "true",
+		"INDEXNOW_KEY": "0452ce57fb0d3bbfdcb0d12e1ee8b142",
+		// Speed-to-Lead — non-secret config kept here so it survives `wrangler deploy`
+		// (dashboard plain-text vars get wiped on each CI deploy; secrets persist).
+		// TWILIO_FROM_NUMBER is the public business line; the SID/AUTH_TOKEN stay secrets.
+		// Clean value (no trailing newline) — a CLI-set secret can smuggle a "\n" that
+		// makes Twilio report a From/account "mismatch" even when the account owns it.
+		// Sending number must be owned by the configured Twilio account (ACbf53…).
+		// +17279999846 (727-999-9846) is THE public business number as of 2026-07-31 —
+		// owned by this account, on the approved A2P Messaging Service below, and also
+		// Mack's Retell voice+SMS line. The old 727-202-5996 was RETIRED (it lived on a
+		// separate legacy account). Do not "swap back" — 999-9846 is permanent.
+		"TWILIO_FROM_NUMBER": "+17279999846",
+		// A2P 10DLC: send via the approved Messaging Service (campaign-linked). The
+		// adapter prefers this over TWILIO_FROM_NUMBER. The From number must be attached
+		// to this service — use the console's "Attach From # to Messaging Service".
+		"TWILIO_MESSAGING_SERVICE_SID": "MGf93d07d2f149ca488919ab529bc3df62",
+		"STL_PUBLIC_ORIGIN": "https://consentresolve.com",
+		// Retell "Ruby" agent (provisioned 2026-07-30). RETELL_API_KEY stays a secret;
+		// RETELL_FROM_NUMBER (a Retell/imported number) still needs to be set once bought.
+		"RETELL_AGENT_ID": "agent_f1d60fc460c72e08f581d7466a",
+		// Ruby dials FROM the SMS/engine number via the Twilio SIP trunk connected in Retell,
+		// so leads see one number for both SMS and AI voice. (Was the Retell-bought number.)
+		"RETELL_FROM_NUMBER": "+17279999846",
+		// Rep warm-transfer "hunt" number: Ruby transfers here, and this number's Twilio
+		// Voice webhook (/api/stl/twilio/voice-cascade) rings Primary → Backup1 → Backup2
+		// with no-answer failover. Run the console's "Set up voice cascade" once to point
+		// this number's VoiceUrl at the cascade endpoint.
+		"STL_TRANSFER_NUMBER": "+17279999864",
+		// AI agent's name (renamed Ruby -> Mack). Drives the disclosure-verification check
+		// (transcript must contain this name + an AI phrase) and Retell provisioning.
+		"STL_AGENT_NAME": "Mack"
+	}
 }
