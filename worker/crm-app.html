@@ -2574,7 +2574,7 @@ async function renderNewsletter(){
         <button class="nl-item" onclick="nlSelectIssue('${i.id}')" style="display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface-1);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer">
           <div style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:13px">Issue ${i.id}</b><span style="color:var(--tx-3);font-size:11px">${esc(i.month||'')}</span></div>
           <div style="font-size:13px;font-weight:600;margin-top:2px">${esc(i.subject||'')}</div>
-          <div style="color:var(--tx-3);font-size:11.5px;margin-top:2px">CEP: ${esc(i.cep||'')}</div>
+          <div style="color:var(--tx-3);font-size:11.5px;margin-top:2px">Theme: ${esc(i.cep||'')}</div>
           ${i.sent?`<div style="color:var(--good);font-size:11px;margin-top:3px">✓ sent to ${i.sent}</div>`:''}
         </button>`).join('')}</div>
       <div id="nlEditor" style="border:1px solid var(--line);border-radius:12px;padding:18px;background:var(--surface-1);min-height:300px;color:var(--tx-3)">Pick an issue on the left to view or edit it.</div>
@@ -2602,16 +2602,27 @@ async function nlSelectIssue(id){
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div>${fld('Month (YYYY-MM)',inp('nl_month',i.month))}</div>
-      <div>${fld('Category Entry Point',inp('nl_cep',i.cep))}</div>
+      <div>${fld('Theme (internal label)',inp('nl_cep',i.cep))}</div>
     </div>
     ${fld('Subject lines (one per line — first is used)',ta('nl_subjects',(i.subjects||[]).join('\n'),3))}
-    ${fld('The one thing (150–200 words)',ta('nl_one',i.one_thing,7))}
+    ${fld("From Andy's truck — the founder note",ta('nl_andy',i.andy_note,7))}
+    <div style="border-top:1px solid var(--line);margin:16px 0 4px"></div>
+    <div style="font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-3);margin-bottom:6px">The 30-minute lead (the organic tip)</div>
+    ${fld('Tip heading',inp('nl_th',i.tip.heading))}
+    ${fld('Tip body',ta('nl_tb',i.tip.body,4))}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div>${fld('CTA heading',inp('nl_rh',i.run.heading))}</div>
-      <div>${fld('CTA button label',inp('nl_rl',i.run.label))}</div>
+      <div>${fld('Tip button label (optional — leave blank for no button)',inp('nl_tl',i.tip.label))}</div>
+      <div>${fld('Tip button destination (optional)',inp('nl_td',i.tip.dest))}</div>
     </div>
-    ${fld('CTA body',ta('nl_rb',i.run.body,3))}
-    ${fld('CTA destination (path on consentresolve.com)',inp('nl_rd',i.run.dest))}
+    <div style="border-top:1px solid var(--line);margin:16px 0 4px"></div>
+    ${fld('A yard sign would never say — the meme line',ta('nl_meme',i.meme,2))}
+    <div style="border-top:1px solid var(--line);margin:16px 0 4px"></div>
+    <div style="font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-3);margin-bottom:6px">The pitch, plainly (the one field-kit CTA)</div>
+    ${fld('Pitch body',ta('nl_pb',i.pitch.body,3))}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>${fld('Pitch button label',inp('nl_pl',i.pitch.label))}</div>
+      <div>${fld('Pitch button destination',inp('nl_pd',i.pitch.dest))}</div>
+    </div>
     <div style="border-top:1px solid var(--line);margin:16px 0 4px"></div>
     <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--tx-2)"><input type="checkbox" id="nl_haspoll" ${i.poll?'checked':''}> Include a segmentation poll</label>
     ${fld('Poll question',inp('nl_pq',poll.q))}
@@ -2634,7 +2645,10 @@ function nlGather(){
   const options=v('nl_po').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const p=l.split('|');return{l:(p[0]||'').trim(),v:(p[1]||p[0]||'').trim()};});
   const poll = hasPoll && v('nl_pq') ? {q:v('nl_pq'),field:v('nl_pf'),options,note:v('nl_pn')} : null;
   return { month:v('nl_month'), cep:v('nl_cep'), subjects:v('nl_subjects').split('\n').map(s=>s.trim()).filter(Boolean),
-    one_thing:v('nl_one'), run:{heading:v('nl_rh'),body:v('nl_rb'),dest:v('nl_rd'),label:v('nl_rl')},
+    andy_note:v('nl_andy'),
+    tip:{heading:v('nl_th'),body:v('nl_tb'),dest:v('nl_td'),label:v('nl_tl')},
+    meme:v('nl_meme'),
+    pitch:{body:v('nl_pb'),dest:v('nl_pd'),label:v('nl_pl')},
     poll, reply_ask:v('nl_reply')||null, ps:v('nl_ps') };
 }
 async function nlSave(){
