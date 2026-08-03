@@ -167,11 +167,12 @@ export async function onRequestGet({ request, env }) {
   // ---- Inbox conversations (DATA.conversations shape) ----
   try { await env.DB.prepare("ALTER TABLE conversations ADD COLUMN snooze_note TEXT").run(); } catch (_) {} // ensure column exists before selecting it
   const convRows = (await env.DB.prepare(
-    `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until, cv.snooze_note, cv.external_thread_id, cv.created_at,
-            ct.id contact_id, ct.full_name, ct.primary_email, ct.source, ct.lifecycle_stage, ct.lead_score, ct.tier, ct.newsletter_status, co.name company
+    `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until, cv.snooze_note, cv.external_thread_id, cv.created_at, cv.assignee_id,
+            ct.id contact_id, ct.full_name, ct.primary_email, ct.source, ct.lifecycle_stage, ct.lead_score, ct.tier, ct.newsletter_status, co.name company, au.name assignee_name
        FROM conversations cv
        LEFT JOIN contacts ct ON ct.id = cv.contact_id
        LEFT JOIN companies co ON co.id = ct.company_id
+       LEFT JOIN users au ON au.id = cv.assignee_id
       ORDER BY COALESCE(cv.last_message_at, cv.created_at) DESC LIMIT 500`
   ).all()).results || [];
   const convIds = convRows.map((r) => r.id);
@@ -245,6 +246,8 @@ export async function onRequestGet({ request, env }) {
   const srcLabelMap = { meta: "Meta · Lead form", instantly: "Instantly · cold email", chatwoot: "Chatwoot · site chat", site: "Site · demo signup", demo: "Demo signup", apollo: "Apollo · identified", partner: "🤝 Agency partner", manual: "Manual" };
   const stripHtml = (h) => (h || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   const inits = (n) => (n ? n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase() : "?");
+  const AVCOL = ["#00b985", "#3b82f6", "#8b5cf6", "#f59e0b", "#ef4444", "#0ea5e9"];
+  const avColor = (s) => { let h = 0; for (let i = 0; i < String(s).length; i++) h = (h * 31 + String(s).charCodeAt(i)) | 0; return AVCOL[Math.abs(h) % AVCOL.length]; };
   const fmtPhone = (v) => { const d = String(v || "").replace(/\D/g, ""); if (d.length === 10) return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`; return v ? "+" + d : null; };
   const DATA_CONVERSATIONS = convRows.map((r) => {
     const src = srcMap[r.source] || "manual";
@@ -270,6 +273,9 @@ export async function onRequestGet({ request, env }) {
     const seqTotal = run && /earn/i.test(run.name || "") ? 3 : 4;
     return {
       id: r.id, bucket, source: src, channel,
+      contact_id: r.contact_id || null,
+      assignee_id: r.assignee_id || null,
+      assignee: r.assignee_name ? { id: r.assignee_id, name: r.assignee_name, init: inits(r.assignee_name), color: avColor(r.assignee_name) } : null,
       chat_id: String(r.external_thread_id || "").startsWith("chat:") ? String(r.external_thread_id).slice(5) : null,
       live: r.channel === "chat" && r.status === "open",
       name: r.full_name || fmtPhone(phoneByCt.get(r.contact_id)) || "Unknown", company: r.company || null, contact_email: r.primary_email || null,

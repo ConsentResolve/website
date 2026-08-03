@@ -629,6 +629,11 @@ html,body{height:100%}
   .rc-assign-menu button{display:flex;align-items:center;gap:9px;background:none;border:none;text-align:left;padding:8px 9px;border-radius:8px;cursor:pointer;font:inherit;font-size:var(--t-13);color:var(--tx-1)}
   .rc-assign-menu button:hover{background:var(--surface-2)}
   .rc-assign-menu .unassign{color:var(--tx-3);border-top:1px solid var(--line);margin-top:3px;border-radius:0 0 8px 8px}
+  .rc-menu-hd{padding:7px 10px 4px;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-3)}
+  .rc-auto-menu{min-width:250px}
+  .rc-auto-menu button{align-items:flex-start}
+  .rc-opt{display:flex;flex-direction:column;line-height:1.35}
+  .rc-opt small{color:var(--tx-3);font-size:11.5px;font-weight:500}
   .rbtn-reply{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-2);background:var(--surface-1);border-radius:var(--r-full);padding:9px 20px;font:inherit;font-weight:700;font-size:var(--t-13);color:var(--tx-1);cursor:pointer;box-shadow:0 1px 3px rgba(15,32,53,.07)}
   .rbtn-reply:hover{border-color:var(--accent);color:var(--accent)}
   .rcollapse .rvia{font-size:11px;color:var(--tx-3);font-weight:600}
@@ -1591,7 +1596,7 @@ const TEAM = {
   tyler:{name:"Tyler Reed",init:"TR",color:"#4c8dff"},
   jason:{name:"Jason Poe",init:"JP",color:"#a884ff"} };
 const OWNERS = {c05:"andy",c08:"andy",c03:"tyler",c13:"jason",c09:"tyler"};
-function ownerOf(c){return TEAM[OWNERS[c.id]]||null;}
+function ownerOf(c){return (c&&c.assignee)?c.assignee:(TEAM[OWNERS[c.id]]||null);}
 
 /* campaign a paid lead came from (prototype) */
 const CAMPAIGN = {c01:"Meta · Exclusive HVAC Leads",c05:"Meta · Roofing Leads Q3",
@@ -1758,6 +1763,7 @@ function composer(c){
       <span class="rc-actbar">
         <button class="rc-act" onclick="openRemind('${c.id}')" title="Set a reminder / callback">⏰ Remind</button>
         <button class="rc-act" onclick="assignConv('${c.id}',event)" title="Assign a rep">${asg}</button>
+        <button class="rc-act" onclick="autoMenu('${c.id}',event)" title="Put on autopilot — sequence or newsletter">🤖 Auto</button>
         <button class="rc-act danger" onclick="deleteConv('${c.id}')" title="Delete conversation">🗑 Delete</button>
       </span>
     </div>`;
@@ -1989,30 +1995,82 @@ function deleteConv(id){
 }
 window.deleteConv=deleteConv;
 
-/* Assign a rep to a conversation — lightweight picker (in-session; owner map). */
-function assignConv(id, ev){
-  if(ev){ ev.stopPropagation(); }
-  document.querySelectorAll('.rc-assign-menu').forEach(m=>m.remove());
-  const cur=OWNERS[id];
-  const menu=document.createElement('div');
-  menu.className='rc-assign-menu';
-  let html='';
-  for(const k in TEAM){ const t=TEAM[k]; html+=`<button data-k="${k}"><span class="oav-sm" style="background:${t.color}">${t.init}</span>${esc(t.name)}${k===cur?' &#10003;':''}</button>`; }
-  html+=`<button data-k="" class="unassign">Unassign</button>`;
-  menu.innerHTML=html;
-  document.body.appendChild(menu);
-  const btn=ev&&ev.currentTarget;
-  const r=btn?btn.getBoundingClientRect():{left:innerWidth/2,top:innerHeight-120};
+/* Real CRM users (id/name), fetched once and cached. */
+const AV_COLORS=['#00b985','#3b82f6','#8b5cf6','#f59e0b','#ef4444','#0ea5e9'];
+function uInit(n){return (n||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();}
+function uColor(n){let h=0;n=String(n||'');for(let i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))|0;return AV_COLORS[Math.abs(h)%AV_COLORS.length];}
+async function ensureUsers(){
+  if(window._crmUsers) return window._crmUsers;
+  try{ const j=await fetch('/api/crm/deals?include=all',{credentials:'same-origin'}).then(r=>r.json()); window._crmUsers=(j&&j.users)||[]; }catch(_){ window._crmUsers=[]; }
+  return window._crmUsers;
+}
+function placeMenu(menu, ev){
+  const btn=ev&&ev.currentTarget; const r=btn?btn.getBoundingClientRect():{left:innerWidth/2,top:innerHeight-120};
   menu.style.left=Math.max(8,Math.min(r.left, innerWidth-menu.offsetWidth-8))+'px';
   menu.style.top=Math.max(8,(r.top-menu.offsetHeight-6))+'px';   // open upward (bar is at the bottom)
-  menu.addEventListener('click',e=>{
+}
+function closeOnOutside(menu){ setTimeout(()=>document.addEventListener('click',function off(){ menu.remove(); document.removeEventListener('click',off); }),0); }
+function crmToast(msg){
+  var t=document.createElement('div'); t.textContent=msg;
+  t.style.cssText='position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:10000;background:#0a1628;color:#eaf2f8;font-size:13px;font-weight:600;padding:10px 16px;border-radius:10px;box-shadow:0 12px 30px -10px rgba(0,0,0,.5)';
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2600);
+}
+
+/* Assign a real CRM user to a conversation — persists to the backend (conversations.assignee_id). */
+async function assignConv(id, ev){
+  if(ev){ ev.stopPropagation(); }
+  document.querySelectorAll('.rc-assign-menu').forEach(m=>m.remove());
+  const c=DATA.conversations.find(x=>x.id===id); if(!c) return;
+  const users=await ensureUsers();
+  const cur=c.assignee_id||null;
+  const menu=document.createElement('div'); menu.className='rc-assign-menu';
+  let html='';
+  users.forEach(u=>{ html+=`<button data-k="${u.id}"><span class="oav-sm" style="background:${uColor(u.name)}">${uInit(u.name)}</span>${esc(u.name)}${u.id===cur?' &#10003;':''}</button>`; });
+  if(!users.length) html+='<div style="padding:9px 13px;color:var(--tx-3);font-size:12px">No team members yet.</div>';
+  html+='<button data-k="" class="unassign">Unassign</button>';
+  menu.innerHTML=html;
+  document.body.appendChild(menu); placeMenu(menu, ev);
+  menu.addEventListener('click', async e=>{
     const b=e.target.closest('button'); if(!b)return;
-    if(b.dataset.k){ OWNERS[id]=b.dataset.k; } else { delete OWNERS[id]; }
+    const uid=b.dataset.k||null;
+    c.assignee_id=uid;
+    if(uid){ const u=users.find(x=>x.id===uid); c.assignee=u?{id:uid,name:u.name,init:uInit(u.name),color:uColor(u.name)}:null; } else { c.assignee=null; }
     menu.remove(); rerenderComposer();
     const f=document.querySelector('.filters .on'); if(f) renderList(f.dataset.f);
+    try{ await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id, assignee_id:uid})}); }catch(_){}
   });
-  setTimeout(()=>document.addEventListener('click',function off(){ menu.remove(); document.removeEventListener('click',off); }),0);
+  closeOnOutside(menu);
 }
+
+/* Auto — put a lead on autopilot: enroll in a warm-up sequence, or subscribe to the newsletter. */
+function autoMenu(id, ev){
+  if(ev){ ev.stopPropagation(); }
+  document.querySelectorAll('.rc-assign-menu').forEach(m=>m.remove());
+  const c=DATA.conversations.find(x=>x.id===id); if(!c) return;
+  const menu=document.createElement('div'); menu.className='rc-assign-menu rc-auto-menu';
+  menu.innerHTML=`<div class="rc-menu-hd">Put on autopilot</div>
+    <button data-a="sequence"><span class="oav-sm" style="background:#00a86e">➜</span><span class="rc-opt"><b>Enroll in a sequence</b><small>Short-term warm-up + follow-up</small></span></button>
+    <button data-a="newsletter"><span class="oav-sm" style="background:#4c8dff">✉</span><span class="rc-opt"><b>Subscribe to the newsletter</b><small>Monthly follow-up, the long game</small></span></button>`;
+  document.body.appendChild(menu); placeMenu(menu, ev);
+  menu.addEventListener('click', async e=>{
+    const b=e.target.closest('button'); if(!b)return;
+    const a=b.dataset.a; menu.remove();
+    if(!c.contact_id){ crmToast('No contact linked to this conversation yet.'); return; }
+    if(a==='sequence'){
+      crmToast('Enrolling in the warm-up sequence…');
+      const r=await fetch('/api/crm/workflow',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({enroll:{contactId:c.contact_id, conversationId:c.id}})}).then(r=>r.json()).catch(()=>null);
+      crmToast(r&&r.ok?'Enrolled — sequence is running.':'Could not enroll — try again.');
+      if(r&&r.ok){ c.bucket='auto'; rerenderComposer(); const f=document.querySelector('.filters .on'); if(f) renderList(f.dataset.f); }
+    } else if(a==='newsletter'){
+      crmToast('Sending the newsletter opt-in…');
+      const r=await fetch('/api/newsletter',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'enroll_repermission', contact_ids:[c.contact_id]})}).then(r=>r.json()).catch(()=>null);
+      crmToast(r&&r.ok?'Newsletter opt-in sent.':'Could not subscribe — try again.');
+      if(r&&r.ok){ c.newsletter='pending'; rerenderComposer(); }
+    }
+  });
+  closeOnOutside(menu);
+}
+window.autoMenu=autoMenu;
 window.assignConv=assignConv;
 // Paused → apply immediately. Auto → gate behind an approval modal that previews the sequence.
 let _pendingAutoBtn = null;
