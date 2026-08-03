@@ -87,6 +87,8 @@ import * as founderVoice from "./api/founder-voice.js";
 import * as crmConsent from "./api/crm-consent.js";
 import * as crmLookup from "./api/crm-lookup.js";
 import * as crmTasks from "./api/crm-tasks.js";
+import * as crmProspecting from "./api/prospecting.js";
+import { processProspectRuns } from "./api/prospecting.js";
 import { runRepermission, runReengagement } from "./_lib/newsletter.js";
 import * as crmInbox from "./api/crm-inbox.js";
 import * as crmInstantly from "./api/crm-instantly.js";
@@ -194,6 +196,7 @@ const ROUTES = {
   "/api/crm/consent": crmConsent,
   "/api/crm/lookup": crmLookup,
   "/api/crm/tasks": crmTasks,
+  "/api/crm/prospecting": crmProspecting,
   "/api/crm/inbox": crmInbox,
   "/api/crm/instantly": crmInstantly,
   "/api/crm/instantly/campaign": crmInstantlyCampaign,
@@ -435,6 +438,16 @@ export default {
         if (out && out.ingested) console.log(`[rb2b] imported ${out.ingested} from ${out.processed} CSV email(s)`);
       } catch (err) {
         console.log(`[rb2b] gmail poll error: ${String(err).slice(0, 160)}`);
+      }
+      // Prospecting waterfall — advance any `running` sweep one bounded batch
+      // (tech → traffic → backlinks → score). Bounded per tick to respect the
+      // subrequest/time budget; a run pauses itself at its cost ceiling. No-op
+      // when no run is active or DataForSEO creds are unset.
+      try {
+        const out = await processProspectRuns(env, { maxDomains: 25 });
+        if (out && out.touched) console.log(`[prospecting] scored ${out.touched} domain-steps across ${out.runs.length} run(s)`);
+      } catch (err) {
+        console.log(`[prospecting] waterfall error: ${String(err).slice(0, 160)}`);
       }
       // Instantly Website Visitors ingest DISABLED (2026-07-29): the Instantly
       // "Website Visitors" list turned out to be the HVAC cold-campaign's

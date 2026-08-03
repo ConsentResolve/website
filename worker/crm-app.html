@@ -1038,6 +1038,64 @@ html,body{height:100%}
   .rm-acts button{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:6px 13px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--tx-1)}
   .rm-acts .done{color:var(--good);border-color:var(--good)}
   .rm-empty{padding:44px;text-align:center;color:var(--tx-3);font-size:14px}
+  /* ---- Prospecting view ---- */
+  .prospview{grid-column:2;grid-row:1;min-height:0;overflow:auto;background:var(--surface-0)}
+  .prosp{padding:22px 26px;max-width:1080px}
+  .phead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+  .pttl{font-size:20px;font-weight:800;color:var(--tx-1);margin:0}
+  .psub{font-size:13px;color:var(--tx-3);margin:4px 0 0;max-width:60ch;line-height:1.5}
+  .pref{border:1px solid var(--line);background:var(--surface-1);border-radius:9px;width:34px;height:34px;font-size:16px;cursor:pointer;color:var(--tx-2);flex:0 0 auto}
+  .pwarn{border:1px solid var(--bad);background:var(--bad-soft);color:var(--tx-1);border-radius:10px;padding:10px 14px;font-size:12.5px;margin-bottom:14px}
+  .pwarn code{font-family:var(--font-mono);font-size:11.5px;background:rgba(0,0,0,.18);padding:1px 5px;border-radius:4px}
+  .psweep{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface-1);margin-bottom:14px}
+  .pfield{display:flex;flex-direction:column;gap:5px;flex:1 1 130px}
+  .pfield.sm{flex:0 0 96px}
+  .pfield label{font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--tx-3);text-transform:uppercase}
+  .pfield input,.pfield select{border:1px solid var(--line);background:var(--surface-2);border-radius:9px;padding:9px 11px;font-size:13.5px;color:var(--tx-1);font-family:inherit}
+  .pfield input:focus,.pfield select:focus{outline:none;border-color:var(--accent)}
+  .pgo{border:none;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:13.5px;border-radius:10px;padding:10px 20px;cursor:pointer;flex:0 0 auto;height:38px}
+  .pgo:disabled{opacity:.6;cursor:default}
+  .prun-live{margin-bottom:12px}
+  .pruns{margin-bottom:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-1);padding:6px 12px}
+  .pruns summary{font-size:12.5px;font-weight:700;color:var(--tx-2);cursor:pointer;padding:6px 0}
+  .prun{padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-1);margin:8px 0}
+  .prun-live .prun{border-color:var(--accent);background:var(--accent-soft)}
+  .prun-t{font-size:13px;color:var(--tx-1)}
+  .prun-m{font-size:12px;color:var(--tx-3);margin-top:2px}
+  .pcost{font-family:var(--font-mono);font-weight:700;color:var(--tx-2)}
+  .pst{font-size:11px;font-weight:800;padding:1px 8px;border-radius:20px;margin-left:6px}
+  .pst.run{background:var(--accent-soft);color:var(--accent)}
+  .pst.pause{background:var(--warn-soft,rgba(240,180,40,.15));color:var(--warn,#e0a020)}
+  .pst.done{background:var(--good-soft,rgba(0,185,133,.12));color:var(--good)}
+  .ptiers{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .ptier{border:1px solid var(--line);background:var(--surface-1);border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--tx-2);display:inline-flex;align-items:center;gap:7px}
+  .ptier.on{border-color:var(--accent);color:var(--tx-1);background:var(--accent-soft)}
+  .ptier .pn{font-family:var(--font-mono);font-size:11.5px;background:var(--surface-2);border-radius:12px;padding:0 7px;color:var(--tx-3)}
+  .ptier.on .pn{background:var(--accent);color:var(--on-accent)}
+  .plist{display:flex;flex-direction:column;gap:9px}
+  .pcard{display:flex;align-items:center;gap:14px;padding:13px 15px;border:1px solid var(--line);border-radius:13px;background:var(--surface-1)}
+  .pcard.hot{border-color:var(--accent)}
+  .pscore{flex:0 0 46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:800;font-size:17px;background:var(--surface-2);color:var(--tx-3)}
+  .pscore.hot{background:var(--accent);color:var(--on-accent)}
+  .pscore.warm{background:var(--accent-soft);color:var(--accent)}
+  .pscore.cold{background:var(--surface-2);color:var(--tx-2)}
+  .pmain{flex:1;min-width:0}
+  .pnm{font-weight:700;font-size:14.5px;color:var(--tx-1);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .pmeta{font-size:12px;color:var(--tx-3);margin-top:3px}
+  .pdom{color:var(--accent);text-decoration:none}
+  .pdom.none{color:var(--tx-3)}
+  .pbadge{font-size:10.5px;font-weight:800;padding:1px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.03em}
+  .pbadge.hot{background:var(--accent);color:var(--on-accent)}
+  .pbadge.warm{background:var(--accent-soft);color:var(--accent)}
+  .pbadge.cold,.pbadge.dead,.pbadge.no_site,.pbadge.unscored{background:var(--surface-2);color:var(--tx-3)}
+  .pchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+  .pchip{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:8px;background:var(--surface-2);color:var(--tx-2);border:1px solid var(--line)}
+  .pchip.hot{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+  .pchip.soft{color:var(--tx-3);font-weight:600}
+  .pact{flex:0 0 auto;display:flex;align-items:center;gap:6px}
+  .ppromote{border:none;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:12.5px;border-radius:9px;padding:8px 14px;cursor:pointer}
+  .psupp{border:1px solid var(--line);background:var(--surface-2);color:var(--tx-3);border-radius:9px;width:30px;height:30px;cursor:pointer;font-size:13px}
+  .pdone{font-size:12px;font-weight:700;color:var(--good)}
 </style>
 </head>
 <body>
@@ -1075,6 +1133,7 @@ html,body{height:100%}
       <a data-view="pipeline" tabindex="0" onclick="showView('pipeline')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="5" height="16" rx="1.2"/><rect x="9.5" y="4" width="5" height="11" rx="1.2"/><rect x="15.5" y="4" width="5" height="6" rx="1.2"/></svg><span class="lbl">Pipeline</span></a>
       <a data-view="nurture" tabindex="0" onclick="showView('nurture')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V11"/><path d="M12 11C12 7 9.5 4.5 4.5 4.5c0 4 2.5 6.5 7.5 6.5z"/><path d="M12 9.5c0-3 2.2-5.5 6.5-5.5 0 3.2-2.3 5.5-6.5 5.5z"/></svg><span class="lbl">Nurture</span></a>
       <a data-view="sitespy" tabindex="0" onclick="showView('sitespy')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg><span class="lbl">Site Spy</span></a>
+      <a data-view="prospecting" tabindex="0" onclick="showView('prospecting')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6M8 11h6"/></svg><span class="lbl">Prospecting</span></a>
       <a data-view="analytics" tabindex="0" onclick="showView('analytics')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M6 20v-6"/><path d="M12 20V6"/><path d="M18 20v-9"/></svg><span class="lbl">Analytics</span></a>
       <a data-view="sequences" tabindex="0" onclick="showView('sequences')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span class="lbl">Sequences</span></a>
       <a data-view="newsletter" tabindex="0" onclick="showView('newsletter')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span class="lbl">Newsletter</span></a>
@@ -1106,6 +1165,7 @@ html,body{height:100%}
     <section class="anview" id="analyticsview" hidden></section>
     <section class="cnview" id="consentview" hidden></section>
     <section class="nurtureview" id="newsletterview" hidden></section>
+    <section class="prospview" id="prospectingview" hidden></section>
   </div>
 <script>
 /* Inbox fixture — bucket-classified (open/auto/snoozed/suppressed), with explicit
@@ -2612,7 +2672,7 @@ function showView(v){
   // running on other screens forever (rate-limit + battery drain).
   if(v!=='inbox' && typeof stopChatPoll==='function') stopChatPoll();
   document.querySelectorAll('.rail a[data-view]').forEach(a=>a.classList.toggle('on', a.dataset.view===v));
-  const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview',newsletter:'newsletterview'};
+  const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview',newsletter:'newsletterview',prospecting:'prospectingview'};
   window.__crmView=v;
   Object.entries(views).forEach(([k,id])=>{const el=document.getElementById(id); if(el) el.hidden=k!==v;});
   // Render the active view defensively — a single view throwing must never blank the app.
@@ -2633,6 +2693,7 @@ function showView(v){
     else if(v==='analytics')renderAnalytics();
     else if(v==='consent')renderConsent();
     else if(v==='newsletter')renderNewsletter();
+    else if(v==='prospecting')renderProspecting();
     else if(v==='inbox' && window.renderList)renderList(curFilter());
   }catch(e){
     if(window.console) console.warn('view render failed: '+v, e);
@@ -2644,6 +2705,120 @@ function showView(v){
   if(location.hash.slice(1)!==v){ try{ history.replaceState(null,'','#'+v); }catch(e){ location.hash=v; } }
 }
 window.showView=showView;
+
+/* ---- Prospecting: bulk city+trade sweep → DataForSEO waterfall → scored prospects ---- */
+let PROSP={prospects:[],runs:[],tierCounts:{},trades:[],dfs:false,tier:'all',loaded:false};
+let _prospPoll=null;
+const escP=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function prospGet(qs){ const r=await fetch('/api/crm/prospecting'+(qs||''),{headers:{'Accept':'application/json'}}); return r.json(); }
+async function prospPost(body){ const r=await fetch('/api/crm/prospecting',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); return r.json(); }
+
+async function renderProspecting(force){
+  const host=document.getElementById('prospectingview'); if(!host) return;
+  if(!PROSP.loaded||force){
+    host.innerHTML='<div style="padding:56px;text-align:center;color:var(--tx-3)">Loading prospects…</div>';
+    try{ const d=await prospGet('?tier='+encodeURIComponent(PROSP.tier)); Object.assign(PROSP,{prospects:d.prospects||[],runs:d.runs||[],tierCounts:d.tierCounts||{},trades:d.trades||[],dfs:!!d.dfs,loaded:true}); }
+    catch(e){ host.innerHTML='<div class="idash-empty" style="padding:40px">Couldn’t load prospecting.</div>'; return; }
+  }
+  paintProspecting();
+  maybePollRuns();
+}
+function paintProspecting(){
+  const host=document.getElementById('prospectingview'); if(!host) return;
+  const tc=PROSP.tierCounts||{};
+  const total=(tc.hot||0)+(tc.warm||0)+(tc.cold||0)+(tc.dead||0)+(tc.no_site||0)+(tc.unscored||0);
+  const pill=(k,lbl,cls)=>`<button class="ptier ${cls||''} ${PROSP.tier===k?'on':''}" onclick="prospSetTier('${k}')">${lbl}<span class="pn">${k==='all'?total:(tc[k]||0)}</span></button>`;
+  const trOpts=(PROSP.trades||[]).map(t=>`<option value="${escP(t)}">${escP(t)}</option>`).join('');
+  const running=(PROSP.runs||[]).filter(r=>r.status==='running');
+  const dfsWarn=PROSP.dfs?'':`<div class="pwarn">⚠ DataForSEO credentials aren’t set on the worker — sweeps will fail until <code>DATAFORSEO_LOGIN</code> / <code>DATAFORSEO_PASSWORD</code> are added as secrets.</div>`;
+  host.innerHTML=`
+  <div class="prosp">
+    <div class="phead">
+      <div><h2 class="pttl">Prospecting</h2><p class="psub">Sweep a city + trade → DataForSEO scores who’s already paying for leads. Review, then promote the best into the pipeline.</p></div>
+      <button class="pref" onclick="renderProspecting(true)" title="Refresh">↻</button>
+    </div>
+    ${dfsWarn}
+    <div class="psweep">
+      <div class="pfield"><label>Trade</label><input list="prosp-trades" id="pw-trade" placeholder="hvac" autocomplete="off"><datalist id="prosp-trades">${trOpts}</datalist></div>
+      <div class="pfield"><label>City</label><input id="pw-city" placeholder="Tampa" autocomplete="off"></div>
+      <div class="pfield"><label>State</label><input id="pw-region" placeholder="Florida" autocomplete="off"></div>
+      <div class="pfield sm"><label>Max results</label><input id="pw-limit" type="number" value="100" min="10" max="300"></div>
+      <div class="pfield sm"><label>Cost cap</label><select id="pw-cap"><option value="500">$5</option><option value="1000">$10</option><option value="2500">$25</option></select></div>
+      <button class="pgo" id="pw-go" onclick="prospSweep()">Run sweep</button>
+    </div>
+    ${running.length?`<div class="prun-live" id="prun-live">${running.map(runRow).join('')}</div>`:''}
+    ${(PROSP.runs||[]).length?`<details class="pruns"><summary>Recent sweeps (${PROSP.runs.length})</summary>${PROSP.runs.map(runRow).join('')}</details>`:''}
+    <div class="ptiers">${pill('all','All')}${pill('hot','🔥 Hot','hot')}${pill('warm','Warm','warm')}${pill('cold','Cold','cold')}${pill('no_site','No site','dead')}</div>
+    <div class="plist" id="plist">${prospList()}</div>
+  </div>`;
+}
+function runRow(r){
+  const c=r.counts||{}; const q=r.query||{};
+  const stat=r.status==='running'?'<span class="pst run">running…</span>':r.status==='paused'?'<span class="pst pause">paused</span>':r.status==='done'?'<span class="pst done">done</span>':`<span class="pst">${escP(r.status)}</span>`;
+  const bits=[`${c.found||0} found`,`${c.hot||0} hot`,`${c.warm||0} warm`,`${c.no_site||0} no-site`].join(' · ');
+  return `<div class="prun"><div class="prun-t"><b>${escP(q.trade||'')} · ${escP(q.city||'')}</b> ${stat}</div><div class="prun-m">${bits} · <span class="pcost">$${(r.cost||0).toFixed(2)}</span>${r.note?` · ${escP(r.note)}`:''}</div></div>`;
+}
+function prospList(){
+  let list=PROSP.prospects||[];
+  if(!list.length) return '<div class="idash-empty" style="padding:48px;text-align:center;color:var(--tx-3)">No prospects yet. Run a sweep above to build your list.</div>';
+  return list.map(prospCard).join('');
+}
+function tierBadge(t){ const m={hot:'🔥 Hot',warm:'Warm',cold:'Cold',dead:'Dead',no_site:'No site',unscored:'…'}; return `<span class="pbadge ${t}">${m[t]||t}</span>`; }
+function prospCard(p){
+  const s=p.signals||{}; const chips=[];
+  if((s.marketplaces||[]).length) chips.push(`<span class="pchip hot">💰 ${escP(s.marketplaces.join(', '))}</span>`);
+  if(s.competitor_id) chips.push(`<span class="pchip hot">⚠ ${escP(s.competitor_id)} — displace</span>`);
+  if(s.running_ads||(s.ad_spend>0)) chips.push(`<span class="pchip">🎯 Ads${s.ad_spend>0?` ~$${s.ad_spend}/mo`:''}</span>`);
+  if(s.call_tracking) chips.push(`<span class="pchip">📞 ${escP(s.call_tracking)}</span>`);
+  if(s.field_crm) chips.push(`<span class="pchip">🖥 ${escP(s.field_crm)}</span>`);
+  if(s.has_form===true) chips.push(`<span class="pchip">📝 form</span>`);
+  if(p.rating!=null) chips.push(`<span class="pchip soft">${p.rating}★ ${p.reviews||0}</span>`);
+  if(s.traffic_month!=null&&s.traffic_month>0) chips.push(`<span class="pchip soft">${s.traffic_month}/mo</span>`);
+  const promoted=p.status==='promoted';
+  const act=promoted?'<span class="pdone">✓ In pipeline</span>':`<button class="ppromote" onclick="prospPromote('${p.id}',event)">Promote →</button><button class="psupp" onclick="prospSuppress('${p.id}',event)" title="Hide">✕</button>`;
+  const site=p.domain?`<a href="https://${escP(p.domain)}" target="_blank" rel="noopener" class="pdom">${escP(p.domain)}</a>`:'<span class="pdom none">no website</span>';
+  return `<div class="pcard ${p.tier}" data-id="${p.id}">
+    <div class="pscore ${p.tier}">${p.tier==='no_site'?'—':p.score}</div>
+    <div class="pmain">
+      <div class="pnm">${escP(p.name||p.domain)} ${tierBadge(p.tier)}</div>
+      <div class="pmeta">${site}${p.city?` · ${escP(p.city)}`:''}${p.trade?` · ${escP(p.trade)}`:''}${p.phone?` · ${escP(p.phone)}`:''}</div>
+      ${chips.length?`<div class="pchips">${chips.join('')}</div>`:''}
+    </div>
+    <div class="pact">${act}</div>
+  </div>`;
+}
+function prospSetTier(t){ PROSP.tier=t; renderProspecting(true); }
+async function prospSweep(){
+  const trade=(document.getElementById('pw-trade').value||'').trim();
+  const city=(document.getElementById('pw-city').value||'').trim();
+  const region=(document.getElementById('pw-region').value||'').trim();
+  const limit=Number(document.getElementById('pw-limit').value||100);
+  const max_cost_cents=Number(document.getElementById('pw-cap').value||500);
+  if(!trade||!city){ crmToast&&crmToast('Enter a trade and a city'); return; }
+  const btn=document.getElementById('pw-go'); if(btn){btn.disabled=true;btn.textContent='Sweeping…';}
+  const r=await prospPost({action:'sweep',trade,city,region,limit,max_cost_cents});
+  if(btn){btn.disabled=false;btn.textContent='Run sweep';}
+  if(!r.ok){ crmToast&&crmToast(r.message||r.error||'Sweep failed'); return; }
+  crmToast&&crmToast(r.message||('Sweep started — '+(r.counts&&r.counts.found)+' found'));
+  await renderProspecting(true);
+}
+async function prospPromote(id,ev){ if(ev)ev.stopPropagation();
+  const r=await prospPost({action:'promote',id});
+  if(r.ok){ crmToast&&crmToast(r.already?'Already in pipeline':'Promoted to pipeline'); const p=(PROSP.prospects||[]).find(x=>x.id===id); if(p){p.status='promoted';p.promoted_contact_id=r.contact_id;} paintProspecting(); }
+  else crmToast&&crmToast(r.error||'Promote failed');
+}
+async function prospSuppress(id,ev){ if(ev)ev.stopPropagation();
+  const r=await prospPost({action:'suppress',id});
+  if(r.ok){ PROSP.prospects=(PROSP.prospects||[]).filter(x=>x.id!==id); paintProspecting(); }
+}
+function maybePollRuns(){
+  const running=(PROSP.runs||[]).some(r=>r.status==='running');
+  if(_prospPoll){ clearTimeout(_prospPoll); _prospPoll=null; }
+  if(running && window.__crmView==='prospecting'){
+    _prospPoll=setTimeout(async()=>{ if(window.__crmView!=='prospecting') return; await renderProspecting(true); }, 8000);
+  }
+}
+window.renderProspecting=renderProspecting;
 
 /* ---- Newsletter: view + edit the 12 issues, preview, send (hold-for-approval) ---- */
 const NL_FIELDS=['seg_ticket','seg_channel','seg_trucks','seg_crm'];
@@ -2774,7 +2949,7 @@ window.nlSend=nlSend;
 // blanked the app. Wrapped so any failure falls back to the default Inbox.
 function restoreView(){
   try{
-    var valid={inbox:1,reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1};
+    var valid={inbox:1,reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1,newsletter:1,prospecting:1};
     var v=decodeURIComponent(location.hash.slice(1)||'');
     if(!valid[v]){ try{ v=localStorage.getItem('crm_view')||''; }catch(e){ v=''; } }
     if(valid[v] && v!=='inbox') showView(v);

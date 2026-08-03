@@ -11,6 +11,9 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { ensureCrmV2Schema, currentUser, adminUserId, addActivityV2, findOrCreateCompany } from "../_lib/crm-v2.js";
 import { enrichContactById } from "../_lib/apollo.js";
+// DataForSEO calls live in a shared lib so the single-lead lookup and the bulk
+// Prospecting sweep use one implementation and can never drift (see worker/api/prospecting.js).
+import { normDomain, dataforseoLookup, dfsBacklinks, dfsTech, MARKETPLACES, TECH_BUCKETS } from "../_lib/dataforseo.js";
 
 const APOLLO_COST = (env) => Number(env.APOLLO_COST_PER_LOOKUP || 0.03);
 // Claude Haiku pricing (USD per token) — cheap extraction model.
@@ -26,11 +29,6 @@ async function ensure(env) {
     cost_usd REAL, sources TEXT, actor TEXT, created_at TEXT)`).run().catch(() => {});
 }
 
-function normDomain(s) {
-  let d = String(s || "").trim().toLowerCase();
-  d = d.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/[/?#].*$/, "").trim();
-  return /^[a-z0-9.-]+\.[a-z]{2,}$/.test(d) ? d : "";
-}
 const rid = () => "lk_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
 // ---- free, server-side site parsing ----------------------------------------
@@ -102,80 +100,6 @@ Only the JSON. Text:\n${text.slice(0, 6000)}`;
     let data = {};
     try { data = JSON.parse((j.content && j.content[0] && j.content[0].text || "{}").replace(/^```json\s*|\s*```$/g, "")); } catch (_) {}
     return { used: true, cost, data };
-  } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
-}
-
-// ---- DataForSEO: the stuff we can't parse (monthly traffic + ad spend) ------
-// Uses DataForSEO Labs "Domain Rank Overview". Auth = Basic base64(login:password); the API
-// returns the exact dollar `cost` of the request, which we surface as the lookup cost.
-async function dataforseoLookup(env, domain) {
-  const login = env.DATAFORSEO_LOGIN, pass = env.DATAFORSEO_PASSWORD;
-  if (!login || !pass) return { used: false, cost: 0 };
-  try {
-    const r = await fetch("https://api.dataforseo.com/v3/dataforseo_labs/google/domain_rank_overview/live", {
-      method: "POST",
-      headers: { Authorization: "Basic " + btoa(login + ":" + pass), "Content-Type": "application/json" },
-      body: JSON.stringify([{ target: domain, location_code: 2840, language_code: "en" }]),
-    });
-    const j = await r.json();
-    const cost = Number(j.cost || 0);
-    const item = j.tasks && j.tasks[0] && j.tasks[0].result && j.tasks[0].result[0] && j.tasks[0].result[0].items && j.tasks[0].result[0].items[0];
-    const m = (item && item.metrics) || {};
-    const org = m.organic || {}, paid = m.paid || {};
-    return { used: true, cost, data: {
-      traffic_month: org.etv != null ? Math.round(org.etv) : null,           // estimated monthly organic visits
-      ad_spend: paid.estimated_paid_traffic_cost != null ? Math.round(paid.estimated_paid_traffic_cost) : null,
-      organic_keywords: org.count != null ? org.count : null,
-      paid_keywords: paid.count != null ? paid.count : null,
-    } };
-  } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
-}
-
-// Lead marketplaces — a live backlink to one usually means they're buying shared leads ($60–300).
-const MARKETPLACES = ["angi.com", "homeadvisor.com", "thumbtack.com", "porch.com", "networx.com", "modernize.com", "houzz.com", "buildzoom.com", "bark.com", "yelp.com", "nextdoor.com"];
-function dfsAuth(env) { return "Basic " + btoa(env.DATAFORSEO_LOGIN + ":" + env.DATAFORSEO_PASSWORD); }
-
-// Backlinks → which lead marketplaces they link to. The #1 "raises hand for $7/lead" signal.
-async function dfsBacklinks(env, domain) {
-  try {
-    const r = await fetch("https://api.dataforseo.com/v3/backlinks/referring_domains/live", {
-      method: "POST", headers: { Authorization: dfsAuth(env), "Content-Type": "application/json" },
-      body: JSON.stringify([{ target: domain, limit: 1000, order_by: ["backlinks,desc"] }]),
-    });
-    const j = await r.json();
-    const cost = Number(j.cost || 0);
-    const items = (j.tasks && j.tasks[0] && j.tasks[0].result && j.tasks[0].result[0] && j.tasks[0].result[0].items) || [];
-    const refs = items.map((i) => String(i.domain || "").toLowerCase().replace(/^www\./, ""));
-    const marketplaces = MARKETPLACES.filter((m) => refs.some((d) => d === m || d.endsWith("." + m)));
-    return { used: true, cost, marketplaces };
-  } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
-}
-
-// Domain technologies → marketing-maturity signals (call tracking, pixels, field CRM, review tools,
-// and competitor identity pixels we'd be displacing).
-const TECH_BUCKETS = {
-  call_tracking: /callrail|calltrackingmetrics|whatconverts|marchex/i,
-  ad_pixels: /facebook pixel|meta pixel|google ads|gtag|doubleclick|google conversion/i,
-  field_crm: /servicetitan|jobber|housecall|service fusion|servicefusion|workiz/i,
-  review_tools: /podium|birdeye|nicejob|grade\.us|reviewsio/i,
-  competitor_id: /retention\.com|customers\.ai|rb2b|warmly|opensend|leadpost|vector/i,
-};
-async function dfsTech(env, domain) {
-  try {
-    const r = await fetch("https://api.dataforseo.com/v3/domain_analytics/technologies/domain_technologies/live", {
-      method: "POST", headers: { Authorization: dfsAuth(env), "Content-Type": "application/json" },
-      body: JSON.stringify([{ target: domain }]),
-    });
-    const j = await r.json();
-    const cost = Number(j.cost || 0);
-    const res = j.tasks && j.tasks[0] && j.tasks[0].result && j.tasks[0].result[0];
-    const names = [];
-    const groups = res && (res.technologies || res.items);
-    if (groups && !Array.isArray(groups)) for (const cat in groups) { const v = groups[cat]; if (Array.isArray(v)) names.push(...v); else if (v && typeof v === "object") for (const sub in v) if (Array.isArray(v[sub])) names.push(...v[sub]); }
-    else if (Array.isArray(groups)) for (const it of groups) { if (it.technology) names.push(it.technology); if (Array.isArray(it.technologies)) names.push(...it.technologies); }
-    const blob = names.join(" ");
-    const hits = {}; for (const k in TECH_BUCKETS) { const m = blob.match(TECH_BUCKETS[k]); if (m) hits[k] = m[0]; }
-    return { used: true, cost, all: names.slice(0, 40), hits };
   } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
 }
 
