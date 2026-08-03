@@ -420,10 +420,11 @@ export async function onRequestGet({ request, env }) {
   // ---- Pipeline (real deals -> kanban stages) ----
   let PIPELINE = null;
   try {
+    await env.DB.prepare("ALTER TABLE deals ADD COLUMN disqualify_reason TEXT").run().catch(() => {}); // idempotent
     const OWCOL = ["#00b985", "#3b82f6", "#8b5cf6", "#f59e0b", "#ef4444", "#0ea5e9"];
     const hashStr = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return h; };
     const rows = (await env.DB.prepare(
-      `SELECT d.id, d.title, d.value_cents, d.close_probability, d.lead_status, d.owner_id,
+      `SELECT d.id, d.title, d.value_cents, d.close_probability, d.lead_status, d.owner_id, d.disqualify_reason,
               ct.full_name, co.name AS company, u.name AS owner_name
        FROM deals d
        LEFT JOIN contacts ct ON ct.id = d.primary_contact_id
@@ -433,6 +434,7 @@ export async function onRequestGet({ request, env }) {
     ).all()).results || [];
     const stageOf = (r) => {
       const s = (r.lead_status || "").toLowerCase();
+      if (s === "disqualified") return "disqualified";
       if (s === "lost") return "lost";
       const p = r.close_probability == null ? 0 : Number(r.close_probability);
       if (s === "won" || p >= 75) return "active";
@@ -448,6 +450,7 @@ export async function onRequestGet({ request, env }) {
         prob: r.close_probability == null ? null : Number(r.close_probability),
         status: (r.lead_status || "active").toLowerCase(),
         stage: stageOf(r),
+        disqualify_reason: r.disqualify_reason || null,
         owner_id: r.owner_id || null,
         owner: ownNm ? { init: inits(ownNm), name: ownNm, color: OWCOL[Math.abs(hashStr(ownNm)) % OWCOL.length] } : null,
       };
