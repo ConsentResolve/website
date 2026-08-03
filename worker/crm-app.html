@@ -2595,7 +2595,7 @@ async function nlSelectIssue(id){
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
       <h3 style="margin:0;font-size:16px;color:var(--tx-1)">Issue ${i.id} <span style="color:var(--tx-3);font-weight:500;font-size:13px">· editing</span></h3>
       <div style="display:flex;gap:8px;align-items:center">
-        <a href="/founder-voice" target="_blank" title="Andy's voice intake — answers feed these issues" style="text-decoration:none;border:1px solid var(--line);background:var(--surface-2);color:var(--tx-2);font-weight:700;font-size:13px;padding:7px 13px;border-radius:8px">Interview Andy ↗</a>
+        <button type="button" onclick="window.fvOpen&&window.fvOpen()" title="Andy's voice intake — answers feed these issues" style="border:1px solid var(--line);background:var(--surface-2);color:var(--tx-2);font-weight:700;font-size:13px;padding:7px 13px;border-radius:8px;cursor:pointer">Interview Andy</button>
         <button onclick="nlPreview()" style="border:1px solid var(--line);background:var(--surface-2);color:var(--tx-1);font-weight:700;font-size:13px;padding:7px 13px;border-radius:8px;cursor:pointer">Preview</button>
         <button onclick="nlSave()" class="nl-save" style="border:1px solid var(--line);background:var(--surface-2);color:var(--tx-1);font-weight:700;font-size:13px;padding:7px 13px;border-radius:8px;cursor:pointer">Save</button>
         <button onclick="nlSend()" style="border:0;background:var(--accent);color:#04120b;font-weight:800;font-size:13px;padding:7px 15px;border-radius:8px;cursor:pointer">Send…</button>
@@ -2606,7 +2606,7 @@ async function nlSelectIssue(id){
       <div>${fld('Theme (internal label)',inp('nl_cep',i.cep))}</div>
     </div>
     ${fld('Subject lines (one per line — first is used)',ta('nl_subjects',(i.subjects||[]).join('\n'),3))}
-    ${fld("From Andy's truck — the founder note",ta('nl_andy',i.andy_note,7))}
+    ${fld("From Andy — the founder note",ta('nl_andy',i.andy_note,7))}
     <div style="border-top:1px solid var(--line);margin:16px 0 4px"></div>
     <div style="font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-3);margin-bottom:6px">The 30-minute lead (the organic tip)</div>
     ${fld('Tip heading',inp('nl_th',i.tip.heading))}
@@ -3589,4 +3589,74 @@ window.DATA.conversations = [];
 window.DATA.counts = { open:0, auto:0, snoozed:0, all:0 };
 renderList("open");
 setInterval(tickClocks,1000);
+</script>
+
+<!-- ── Founder Voice — in-CRM chat bubble (Andy answers on login; saves to /founder-voice) ── -->
+<style>
+#fvPill{position:fixed;right:20px;bottom:20px;z-index:9998;border:0;background:#0a1628;color:#eaf2f8;font:inherit;font-weight:700;font-size:14px;padding:12px 14px 12px 16px;border-radius:999px;box-shadow:0 14px 34px -12px rgba(0,0,0,.55);cursor:pointer;display:none;align-items:center;gap:9px}
+#fvPill .fvdot{width:8px;height:8px;border-radius:50%;background:#00e5a0;box-shadow:0 0 0 4px rgba(0,229,160,.25)}
+#fvPill .fvno{margin-left:4px;color:#7f93ae;font-size:17px;line-height:1;padding:0 2px}
+#fvPanel{position:fixed;right:20px;bottom:20px;z-index:9999;width:min(392px,94vw);height:min(580px,82vh);background:#fff;border:1px solid #d9e2ec;border-radius:16px;box-shadow:0 26px 64px -22px rgba(10,22,40,.55);display:none;flex-direction:column;overflow:hidden}
+#fvPanel .fvhd{background:linear-gradient(160deg,#0d1b2a,#0a1628);color:#eaf2f8;padding:13px 16px;display:flex;justify-content:space-between;align-items:center}
+#fvPanel .fvhd b{font-size:15px}
+#fvPanel .fvhd small{color:#9fb3c6;display:block;font-size:12px;font-weight:400}
+#fvPanel .fvx{background:transparent;border:0;color:#9fb3c6;font-size:22px;cursor:pointer;line-height:1}
+#fvLog{flex:1;overflow-y:auto;padding:16px;background:#f5f8fb;display:flex;flex-direction:column;gap:10px}
+.fvmsg{max-width:82%;padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.5;white-space:pre-wrap}
+.fvmsg.bot{background:#fff;border:1px solid #e2ebf3;color:#0a1628;align-self:flex-start;border-bottom-left-radius:4px}
+.fvmsg.me{background:#00a37a;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.fvprog{font-size:11px;color:#8a97a6;text-align:center;padding:2px 0}
+#fvFoot{border-top:1px solid #e2ebf3;padding:10px;display:flex;gap:8px;background:#fff}
+#fvFoot textarea{flex:1;border:1px solid #cfdae6;border-radius:10px;padding:9px 11px;font:inherit;font-size:14px;resize:none;max-height:130px}
+#fvFoot button{border:0;background:#00e5a0;color:#04120b;font-weight:800;border-radius:10px;padding:0 16px;cursor:pointer}
+</style>
+<script>
+(function(){
+  var Q=[
+    {k:"why",q:"Why did you start Consent Resolve — the real reason, in your words?"},
+    {k:"first_sign",q:"An early customer or moment that stuck with you."},
+    {k:"angry",q:"What about the shared-lead / reseller world actually makes you angry?"},
+    {k:"phrases",q:"Three phrases you catch yourself saying all the time."},
+    {k:"customer",q:"Describe your favorite kind of contractor customer."},
+    {k:"belief",q:"A belief about marketing most people in this space would disagree with."},
+    {k:"feel",q:"What do you want a contractor to FEEL reading your newsletter?"},
+    {k:"flywheel",q:"A story where the flywheel (signs → leads → more signs) clicked for someone."}
+  ];
+  var answers={}, idx=0, built=false;
+  function firstBlank(){for(var i=0;i<Q.length;i++){if(!(answers[Q[i].k]&&String(answers[Q[i].k]).trim()))return i;}return Q.length;}
+  function log(){return document.getElementById('fvLog');}
+  function addMsg(who,text){var d=document.createElement('div');d.className='fvmsg '+who;d.textContent=text;log().appendChild(d);log().scrollTop=log().scrollHeight;}
+  function prog(){var d=document.createElement('div');d.className='fvprog';d.textContent='Question '+Math.min(idx+1,Q.length)+' of '+Q.length;log().appendChild(d);}
+  function ask(){ if(idx>=Q.length){ addMsg('bot',"That's everything — thank you, Andy. This shapes every issue. You can reopen this anytime to change an answer."); return; } prog(); addMsg('bot',Q[idx].q); }
+  function save(){ return fetch('/founder-voice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers:answers})}).catch(function(){}); }
+  function send(){ var t=document.getElementById('fvIn'); var v=(t.value||'').trim(); if(!v)return; addMsg('me',v); answers[Q[idx].k]=v; t.value=''; idx++; save(); setTimeout(ask,340); }
+  function build(){
+    if(built)return; built=true;
+    var pill=document.createElement('button'); pill.id='fvPill';
+    pill.innerHTML='<span class="fvdot"></span>Andy — 15 min to nail your voice?<span class="fvno" title="Not now">×</span>';
+    var panel=document.createElement('div'); panel.id='fvPanel';
+    panel.innerHTML='<div class="fvhd"><div><b>Founder Voice</b><small>Andy Mentges · shapes the newsletter</small></div><button class="fvx" title="Later">×</button></div><div id="fvLog"></div><div id="fvFoot"><textarea id="fvIn" rows="1" placeholder="Type however you actually talk…"></textarea><button id="fvSend">Send</button></div>';
+    document.body.appendChild(pill); document.body.appendChild(panel);
+    pill.addEventListener('click',function(e){ if(e.target.classList.contains('fvno')){ e.stopPropagation(); try{sessionStorage.setItem('fvDismiss','1');}catch(_){}; pill.style.display='none'; return; } openPanel(); });
+    panel.querySelector('.fvx').onclick=function(){ panel.style.display='none'; pill.style.display='flex'; };
+    panel.querySelector('#fvSend').onclick=send;
+    panel.querySelector('#fvIn').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send(); } });
+  }
+  function openPanel(){
+    build();
+    document.getElementById('fvPill').style.display='none';
+    var p=document.getElementById('fvPanel'); p.style.display='flex';
+    if(!log().childNodes.length){ idx=firstBlank(); addMsg('bot',"Hey Andy — I'm writing the field-kit newsletter in your voice, so I want the real you, not my impression of it. Eight quick questions; it saves as we go."); setTimeout(ask,420); }
+    var t=document.getElementById('fvIn'); if(t) t.focus();
+  }
+  window.fvOpen=openPanel;
+  // Auto-offer the pill on login when the intake isn't finished (and not dismissed this session).
+  fetch('/founder-voice?json=1',{headers:{'Accept':'application/json'}}).then(function(r){ return r.ok?r.json():null; }).then(function(d){
+    if(!d||!d.ok) return;                              // not authed / error → no bubble
+    answers=d.answers||{};
+    if(firstBlank()>=Q.length) return;                 // already fully answered
+    try{ if(sessionStorage.getItem('fvDismiss')) return; }catch(_){}
+    build(); document.getElementById('fvPill').style.display='flex';
+  }).catch(function(){});
+})();
 </script>

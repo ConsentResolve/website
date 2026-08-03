@@ -1,7 +1,7 @@
 // worker/_lib/newsletter-issues.js
 // The 12-issue "Better Together" newsletter — field-kit only, in the voice of CEO Andy Mentges.
 // Every issue runs the same five beats:
-//   1) From Andy's truck  — a founder note (thought/feeling/story), stored in the `one_thing` col
+//   1) From Andy  — a founder note (thought/feeling/story), stored in the `one_thing` col
 //   2) The 30-minute lead — one organic, no-cost tactic a contractor can run in <30 min (run_* cols)
 //   3) A yard sign would never say — the fun/meme line (meme col)
 //   4) The pitch, plainly — the one promotional field-kit CTA (pitch_* cols)
@@ -243,9 +243,9 @@ export async function renderIssue(env, c, issue, { unsubUrl }) {
 
   let html = `<div style="font-family:-apple-system,system-ui,Segoe UI,Arial,sans-serif;font-size:16px;line-height:1.6;color:#111;max-width:560px">
 <p>Hey ${first},</p>
-${label("From Andy's truck")}${p(issue.andy_note)}
+${label("From Andy")}${p(issue.andy_note)}
 ${label("The 30-minute lead")}<p style="font-weight:700;margin:0 0 6px">${issue.tip.heading}</p>${p(issue.tip.body)}${tipHasBtn ? `<p>${btn(tipCta, issue.tip.label, "#25405d")}</p>` : ""}`;
-  let text = `Hey ${first},\n\nFROM ANDY'S TRUCK\n${issue.andy_note}\n\nTHE 30-MINUTE LEAD\n${issue.tip.heading}\n${issue.tip.body}\n${tipHasBtn ? issue.tip.label + ": " + tipCta + "\n" : ""}`;
+  let text = `Hey ${first},\n\nFROM ANDY\n${issue.andy_note}\n\nTHE 30-MINUTE LEAD\n${issue.tip.heading}\n${issue.tip.body}\n${tipHasBtn ? issue.tip.label + ": " + tipCta + "\n" : ""}`;
 
   if (issue.meme) {
     html += `${label("A yard sign would never say")}<p style="background:#f4f7f5;border-left:3px solid #00a37a;padding:12px 16px;border-radius:8px;font-style:italic;color:#25405d">${issue.meme}</p>`;
