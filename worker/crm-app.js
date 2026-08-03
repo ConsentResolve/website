@@ -82,9 +82,11 @@ window.CRM_LIVE_PENDING = true; // set before restoreView runs → data views sh
     if (d.PIPELINE && window.renderPipeline) window.renderPipeline();
     if (d.ANALYTICS && d.ANALYTICS.kpis && window.renderAnalytics) window.renderAnalytics();
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.renderList) {
-      window.renderList('open');
+      // Return to the last filter + open lead (survives refresh) instead of always
+      // resetting to Open + the first conversation.
+      if (window.restoreInbox) { window.restoreInbox(); }
+      else { window.renderList('open'); if (window.select && window.DATA.conversations[0]) window.select(window.DATA.conversations[0].id); }
       if (window.recount) window.recount();
-      if (window.select && window.DATA.conversations[0]) window.select(window.DATA.conversations[0].id);
     }
     if (window.__crmView) try { window.showView(window.__crmView); } catch (_) {}  // re-render active view with live data
   } catch (e) {

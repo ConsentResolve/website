@@ -4349,6 +4349,8 @@ function toggleWatch(id){
 window.toggleWatch=toggleWatch;
 function select(id){
   sel=id; replyOpen=false; ATTACH=[]; curTab="reply";
+  // Remember the open lead so a refresh returns to it (real ids only, not demo fixtures).
+  try{ if(!String(id).startsWith('c0')) localStorage.setItem('crm_sel', id); }catch(e){}
   stopChatPoll();
   const c=DATA.conversations.find(x=>x.id===id);
   // Opening a conversation marks it read: clear the dot locally, and persist so it stays
@@ -4400,7 +4402,24 @@ function select(id){
 }
 window.select = select;
 
-document.querySelectorAll(".filters button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filters button").forEach(x=>x.classList.remove("on"));b.classList.add("on");renderList(b.dataset.f);});
+// Restore the inbox to where you left off (filter + open lead + scroll) after a refresh.
+// Called by the live-data bootstrap once real conversations are in hand.
+function restoreInbox(){
+  var f='open', s=null;
+  try{ f=localStorage.getItem('crm_filter')||'open'; s=localStorage.getItem('crm_sel')||null; }catch(e){}
+  var btns=document.querySelectorAll('.filters button'), matched=false;
+  btns.forEach(function(b){ var on=b.dataset.f===f; b.classList.toggle('on',on); if(on)matched=true; });
+  if(!matched){ f='open'; btns.forEach(function(b){ b.classList.toggle('on',b.dataset.f==='open'); }); }
+  renderList(f);
+  var conv = s && DATA.conversations.find(function(x){return x.id===s;});
+  if(conv) select(conv.id);
+  else if(DATA.conversations[0]) select(DATA.conversations[0].id);
+  // Bring the reopened lead into view in the list.
+  try{ var row=document.querySelector('.row.sel'); if(row&&row.scrollIntoView) row.scrollIntoView({block:'center'}); }catch(e){}
+}
+window.restoreInbox=restoreInbox;
+
+document.querySelectorAll(".filters button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filters button").forEach(x=>x.classList.remove("on"));b.classList.add("on");try{localStorage.setItem('crm_filter',b.dataset.f);}catch(e){}renderList(b.dataset.f);});
 document.querySelectorAll(".toggle button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".toggle button").forEach(x=>x.classList.remove("on"));b.classList.add("on");document.documentElement.setAttribute("data-theme",b.dataset.th);});
 
 document.documentElement.setAttribute("data-theme","light");
