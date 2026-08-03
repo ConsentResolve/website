@@ -3550,7 +3550,8 @@ function intelDashboard(c){
       <p class="idh-brief">No public company profile matched yet — this lead came in without a company we can research (${esc(it.src_label)}). Add a name or company in the <b>Task</b> tab and we'll enrich it automatically.</p>${spyGeoLine(it)}</div></div>`;
   }
   const traffic=e.traffic_month||it.traffic_month||0;
-  const recoverable=predictLeads(traffic||1000), city=cityFrom(d.address);
+  const recoverable = traffic ? predictLeads(traffic) : null;   // only predict from REAL traffic — no fabricated default
+  const city=cityFrom(d.address);
   const k=n=>n?`$${(n/1000).toFixed(1).replace(/\.0$/,'')}`:'0';
   const tiles=[
     e.spend_high>0?tileD(`${k(e.spend_low)}–${k(e.spend_high)}k`,'Ad spend / mo','spend'):tileD('—','Not advertising','muted'),
@@ -3558,7 +3559,7 @@ function intelDashboard(c){
     tileD(e.gmb?e.gmb.rating+'★':'—', e.gmb?`Google · ${e.gmb.reviews} reviews`:'Rating'),
     tileD(e.employees||'—','Team size'),
     tileD((e.years||'—')+' yr','In business'),
-    tileD(recoverable.toLocaleString(),'Recoverable leads / mo','opp')
+    recoverable!=null ? tileD(recoverable.toLocaleString(),'Recoverable leads / mo','opp') : tileD('—','Recoverable leads / mo','muted')
   ].join('');
   const foot=[
     idRow(e.website?'ok':'no','Website', e.website?`${e.website.domain} · ${e.website.capture?'has a form':'no form'}`:'not found', e.website?'https://'+e.website.domain:null),
@@ -3607,7 +3608,7 @@ function intelDashboard(c){
       ${icardD('On-site engagement','First-party', eng)}
       ${icardD('Contact &amp; location','CRM + directories', `<div class="presence">${contact||'<div class="idash-empty">—</div>'}</div>${spyGeoLine(it)}`)}
     </div>
-    ${it.signal?`<div class="idash-opp">🔥 <div><b>Why they fit —</b> ${esc(it.signal)} <span class="opp-num">≈ ${recoverable.toLocaleString()} consented leads/mo</span> they're leaving on the table.</div></div>`:''}
+    ${it.signal?`<div class="idash-opp">🔥 <div><b>Why they fit —</b> ${esc(it.signal)}${recoverable!=null?` <span class="opp-num">≈ ${recoverable.toLocaleString()} consented leads/mo</span> they're leaving on the table`:''}.</div></div>`:''}
   </div>`;
 }
 
