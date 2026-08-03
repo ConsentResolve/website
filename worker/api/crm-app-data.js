@@ -46,7 +46,7 @@ export async function onRequestGet({ request, env }) {
   // { ts, name, co, ch[], action, basis, form, ip, proof }.
   const consentRows = (await env.DB.prepare(
     `SELECT cr.occurred_at, cr.channel, cr.action, cr.basis, cr.capture_method method,
-            cr.disclosure_text, cr.ip, cr.email, cr.contact_id,
+            cr.disclosure_text, cr.ip, cr.email, cr.phone, cr.contact_id,
             c.full_name name, co.name company
        FROM consent_records cr
        LEFT JOIN contacts c ON c.id = cr.contact_id
@@ -58,18 +58,26 @@ export async function onRequestGet({ request, env }) {
     const key = `${r.contact_id || r.email}|${r.occurred_at}|${r.action}|${r.method}`;
     let g = groups.get(key);
     if (!g) { g = { occurred_at: r.occurred_at, name: r.name || r.email || "—", co: r.company || "",
-                    action: r.action, method: r.method, ch: [], ip: r.ip || "", disclosure: r.disclosure_text || "" }; groups.set(key, g); }
+                    action: r.action, method: r.method, ch: [], ip: r.ip || "", disclosure: r.disclosure_text || "",
+                    contact_id: r.contact_id || null, email: r.email || "", phone: r.phone || "" }; groups.set(key, g); }
+    if (!g.phone && r.phone) g.phone = r.phone;
     if (!g.ch.includes(r.channel)) g.ch.push(r.channel);
     if (!g.ip && r.ip) g.ip = r.ip;
     if (!g.disclosure && r.disclosure_text) g.disclosure = r.disclosure_text;
   }
+  // Manual consent verifications (kept OUT of the immutable ledger). Keyed by a stable signature.
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS consent_verifications (vkey TEXT PRIMARY KEY, verified_by TEXT, verified_by_name TEXT, verified_at TEXT)`).run().catch(() => {});
+  const vmap = new Map((((await env.DB.prepare("SELECT vkey, verified_by_name, verified_at FROM consent_verifications").all().catch(() => ({ results: [] }))).results) || []).map((v) => [v.vkey, v]));
   const chOrder = { email: 0, sms: 1, voice: 2 };
   const CONSENT_LEDGER = [...groups.values()].slice(0, 120).map((g) => {
     const hasPewc = g.ch.includes("sms") || g.ch.includes("voice");
     const basis = consentBasis(g.method, hasPewc, g.action);
+    const vkey = `${g.contact_id || g.email}|${g.occurred_at}|${g.action}|${g.method}`;
+    const v = vmap.get(vkey);
     return {
       ts: humanTime(g.occurred_at),
       name: g.name, co: g.co,
+      contact_id: g.contact_id || null, email: g.email || "", phone: g.phone || "",
       ch: g.ch.sort((a, b) => (chOrder[a] ?? 9) - (chOrder[b] ?? 9)),
       action: g.action,
       basis,
@@ -79,6 +87,9 @@ export async function onRequestGet({ request, env }) {
       // hold just a version tag like "v1-2026-06" — fall back to the generated sentence).
       proof: (g.disclosure && g.disclosure.length > 24 && !/^v\d/i.test(g.disclosure))
         ? g.disclosure : consentProof(g.method, hasPewc, g.action),
+      vkey,
+      verified_by_name: v ? v.verified_by_name : null,
+      verified_at: v ? v.verified_at : null,
     };
   });
   // Real stats for the KPI row + channel summary (window.CONSENT_STATS).

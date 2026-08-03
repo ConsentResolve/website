@@ -3327,6 +3327,20 @@ window.setAnRange=setAnRange;
 const CONSENT_OPEN=new Set();
 function toggleProof(i){ CONSENT_OPEN.has(i)?CONSENT_OPEN.delete(i):CONSENT_OPEN.add(i); renderConsent(); }
 window.toggleProof=toggleProof;
+/* Manually verify a consent record — logs verified_by + verified_at to the backend. */
+async function verifyConsent(i, checked){
+  const e=window.CONSENT_LEDGER[i]; if(!e) return;
+  const prevAt=e.verified_at, prevBy=e.verified_by_name;
+  e.verified_at = checked ? (prevAt||new Date().toISOString()) : null;
+  e.verified_by_name = checked ? (prevBy||'…') : null;
+  CONSENT_OPEN.add(i); renderConsent();
+  const r=await fetch('/api/crm/consent',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'verify', vkey:e.vkey, verified:!!checked, contact_id:e.contact_id, email:e.email, name:e.name})}).then(x=>x.json()).catch(()=>null);
+  if(r&&r.ok){ e.verified_at=r.verified_at||null; e.verified_by_name=r.verified_by_name||null; }
+  else { e.verified_at=prevAt; e.verified_by_name=prevBy; }
+  renderConsent();
+  if(window.crmToast) crmToast(r&&r.ok?(checked?'Consent verified & logged.':'Verification removed.'):'Could not save — try again.');
+}
+window.verifyConsent=verifyConsent;
 function renderConsent(){
   const el=document.getElementById("consentview"); if(!el) return;
   const L=window.CONSENT_LEDGER;
@@ -3348,13 +3362,21 @@ function renderConsent(){
     const open=CONSENT_OPEN.has(i);
     const chs=e.ch.map(c=>`<span class="lch">${chLabel[c]}</span>`).join('');
     const badge=`<span class="lbadge ${actCls[e.action]}">${e.action}</span>`;
+    const vstate = e.verified_at ? `<span style="color:var(--good);font-weight:700;font-size:12px">✓ Verified by ${esc(e.verified_by_name||'CRM user')} · ${esc(new Date(e.verified_at).toLocaleDateString())}</span>` : '';
     const detail=open?`<tr class="proofrow"><td colspan="5"><div class="proof">
         <div class="proof-q">“${esc(e.proof)}”</div>
         <div class="proof-meta">
           <span><b>Basis</b> ${esc(e.basis)}</span>
           ${e.form?`<span><b>Source</b> ${esc(e.form)}</span>`:''}
+          ${e.email?`<span><b>Email</b> ${esc(e.email)}</span>`:''}
+          ${e.phone?`<span><b>Phone</b> ${esc(e.phone)}</span>`:''}
           ${e.ip?`<span><b>IP</b> ${esc(e.ip)}</span>`:''}
           <span><b>Logged</b> ${esc(e.ts)}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap">
+          <label style="display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:var(--tx-2);cursor:pointer">
+            <input type="checkbox" ${e.verified_at?'checked':''} onclick="event.stopPropagation()" onchange="verifyConsent(${i}, this.checked)"> Verify consent
+          </label>${vstate}
         </div>
         <div class="proof-foot">🛡️ This is the record we can produce if a send is ever challenged.</div>
       </div></td></tr>`:'';
