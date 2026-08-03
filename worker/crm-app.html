@@ -1124,6 +1124,17 @@ html,body{height:100%}
   .ag-rchip span{font-size:11px;color:var(--tx-3)}
   .ag-count{font-size:12.5px;color:var(--tx-3);margin-bottom:12px;font-weight:600}
   .thrbadge{font-size:10.5px;font-weight:700;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:0 7px;margin-left:2px;flex:0 0 auto}
+  /* ---- Site engagement panel (top of the conversation body) ---- */
+  .site-eng{margin:16px 18px 6px;border:1px solid var(--line);border-radius:12px;background:var(--surface-1);overflow:hidden}
+  .site-eng .se-h{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--tx-2)}
+  .site-eng .se-dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .site-eng .se-src{margin-left:auto;font-weight:600;text-transform:none;letter-spacing:0;font-size:11px;color:var(--tx-3)}
+  .site-eng .se-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .site-eng .se-row{display:flex;justify-content:space-between;gap:10px;padding:9px 14px;border-top:1px solid var(--line);font-size:13px}
+  .site-eng .se-grid .se-row:nth-child(-n+2){border-top:0}
+  .site-eng .se-k{color:var(--tx-3)}
+  .site-eng .se-v{color:var(--tx-1);font-weight:600;text-align:right;min-width:0;overflow-wrap:anywhere}
+  @media(max-width:640px){.site-eng .se-grid{grid-template-columns:1fr}.site-eng .se-grid .se-row:nth-child(2){border-top:1px solid var(--line)}}
   /* ---- Settings / Speed-to-Lead ---- */
   .set-wrap{max-width:1080px}
   .set-mode{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-weight:800;font-size:12px}
@@ -1846,8 +1857,18 @@ function tracker(seq,isAuto){
 }
 
 /* SMS / chat bubble thread */
+/* Consent Resolve site-engagement panel — shown at the top of the conversation body
+   (esp. for identified visitors with no messages yet). Reads companies.enrichment._visitor. */
+function siteEngagement(c){
+  const e=(window.ENRICH||{})[c.id]||{}; const vis=e._visitor; if(!vis) return '';
+  const row=(k,v)=> (v!=null&&v!=='')?`<div class="se-row"><span class="se-k">${k}</span><span class="se-v">${esc(String(v))}</span></div>`:'';
+  const loc=[vis.city,vis.region,vis.country].filter(Boolean).join(', ');
+  const rows=[row('Last seen',vis.last_seen),row('Total visits',vis.visits),row('Page views',vis.page_views),row('Referrer',vis.referrer),row('Location',loc),row('First seen',vis.first_seen)].filter(Boolean).join('');
+  if(!rows) return '';
+  return `<div class="site-eng"><div class="se-h"><span class="se-dot"></span>Site engagement<span class="se-src">Consent Resolve</span></div><div class="se-grid">${rows}</div></div>`;
+}
 function bubbleThread(c){
-  return `<div class="msgs">${c.messages.map(m=>{
+  return `${siteEngagement(c)}<div class="msgs">${c.messages.map(m=>{
     if(m.dir==="system") return `<div class="msg system">${esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
     const who = m.who ? esc(m.who) : (m.dir==='in'?'▸ ':'')+(CH[m.channel]||m.channel||'').replace(/^[^ ]+ /,'');
     return `<div class="msg ${m.dir}"><div class="mh">${who}${m.meta?' · '+esc(m.meta):''}</div>${esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
@@ -2008,6 +2029,7 @@ function gmailThread(c){
     </div>`;
   };
   return `<div class="gmail">
+    ${siteEngagement(c)}
     <div class="gm-subject">${esc(subj)} <span class="gm-count">(${emails.length})</span></div>
     ${sys.map(m=>`<div class="gm-msg sys">${esc(m.body)} · ${esc(m.ts)}</div>`).join("")}
     ${emails.map(card).join("")}
@@ -4259,14 +4281,6 @@ function intelDashboard(c){
       ${icardD('Website tech','Detected on-site', `<div class="techchips">${techChips}</div>${gapFlags}`)}
       ${icardD('Reputation','Google Business', rep)}
       ${icardD('On-site engagement','First-party', eng)}
-      ${(function(){var vis=e._visitor; if(!vis) return ''; var rows=[
-        vis.last_seen?idRow('ok','Last seen', esc(vis.last_seen), null):'',
-        vis.visits!=null?idRow('ok','Total visits', String(vis.visits), null):'',
-        vis.page_views!=null?idRow('ok','Page views', String(vis.page_views), null):'',
-        vis.referrer?idRow('ok','Referrer', esc(vis.referrer), null):'',
-        (vis.city||vis.region||vis.country)?idRow('ok','Location',[vis.city,vis.region,vis.country].filter(Boolean).join(', '),null):'',
-        vis.first_seen?idRow('off','First seen', esc(vis.first_seen), null):''
-      ].filter(Boolean).join(''); return icardD('Site engagement','Consent Resolve', '<div class="presence">'+(rows||'<div class="idash-empty">No visit data yet.</div>')+'</div>'); })()}
       ${icardD('People you can reach','Claude research', `<div class="presence">${peopleBody}</div>`)}
       ${icardD('Contact &amp; location','CRM + directories', `<div class="presence">${contact||'<div class="idash-empty">—</div>'}</div>${spyGeoLine(it)}${consentToggles(c)}${agencyEditor(c)}`)}
     </div>
