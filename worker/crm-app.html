@@ -1867,16 +1867,14 @@ function siteEngagement(c){
   const loc=[vis.city,vis.region,vis.country].filter(Boolean).join(', ');
   const NF='<span class="se-nf">not found</span>';
   const row=(k,v)=>`<div class="se-row"><span class="se-k">${k}</span><span class="se-v">${(v!=null&&v!=='')?esc(String(v)):NF}</span></div>`;
+  // Only the fields the Consent Resolve API actually carries (verified live 2026-08-03):
+  // referrer / landing-page / consent are not in the API, so they're not shown.
   const rows=[
     row('Last seen', fmtT(vis.last_seen)),
     row('First seen', fmtT(vis.first_seen)),
     row('Total visits', vis.visits),
     row('Page views', vis.page_views),
-    row('Referrer', vis.referrer),
-    row('Landing page', vis.source_url),
     row('Location', loc),
-    row('Consent status', vis.consent_status),
-    row('Consent method', vis.consent_method),
   ].join('');
   return `<div class="site-eng"><div class="se-h"><span class="se-dot"></span>Site engagement<span class="se-src">Consent Resolve</span></div><div class="se-grid">${rows}</div></div>`;
 }
