@@ -105,6 +105,32 @@ Only the JSON. Text:\n${text.slice(0, 6000)}`;
   } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
 }
 
+// ---- DataForSEO: the stuff we can't parse (monthly traffic + ad spend) ------
+// Uses DataForSEO Labs "Domain Rank Overview". Auth = Basic base64(login:password); the API
+// returns the exact dollar `cost` of the request, which we surface as the lookup cost.
+async function dataforseoLookup(env, domain) {
+  const login = env.DATAFORSEO_LOGIN, pass = env.DATAFORSEO_PASSWORD;
+  if (!login || !pass) return { used: false, cost: 0 };
+  try {
+    const r = await fetch("https://api.dataforseo.com/v3/dataforseo_labs/google/domain_rank_overview/live", {
+      method: "POST",
+      headers: { Authorization: "Basic " + btoa(login + ":" + pass), "Content-Type": "application/json" },
+      body: JSON.stringify([{ target: domain, location_code: 2840, language_code: "en" }]),
+    });
+    const j = await r.json();
+    const cost = Number(j.cost || 0);
+    const item = j.tasks && j.tasks[0] && j.tasks[0].result && j.tasks[0].result[0] && j.tasks[0].result[0].items && j.tasks[0].result[0].items[0];
+    const m = (item && item.metrics) || {};
+    const org = m.organic || {}, paid = m.paid || {};
+    return { used: true, cost, data: {
+      traffic_month: org.etv != null ? Math.round(org.etv) : null,           // estimated monthly organic visits
+      ad_spend: paid.estimated_paid_traffic_cost != null ? Math.round(paid.estimated_paid_traffic_cost) : null,
+      organic_keywords: org.count != null ? org.count : null,
+      paid_keywords: paid.count != null ? paid.count : null,
+    } };
+  } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
+}
+
 export async function onRequestPost({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ ok: false, error: "unauthorized" }, { status: 403 }, cors);
@@ -153,6 +179,22 @@ export async function onRequestPost({ request, env }) {
       breakdown.push({ source: "Apollo firmographics", cost: APOLLO_COST(env), ok: true });
     } else {
       breakdown.push({ source: "Apollo firmographics", cost: 0, ok: false, note: "no match" });
+    }
+  }
+
+  // DataForSEO — the stuff we can't parse: monthly traffic + estimated ad spend.
+  if (env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD) {
+    const dfs = await dataforseoLookup(env, domain);
+    if (dfs.used) {
+      breakdown.push({ source: "DataForSEO (traffic + ad spend)", cost: dfs.cost, ok: !dfs.error });
+      const dd = dfs.data || {};
+      if (dd.traffic_month != null) parsed.enrich.traffic_month = dd.traffic_month;   // → real "Recoverable leads / mo"
+      if (dd.ad_spend != null && dd.ad_spend > 0) {
+        parsed.enrich.spend_low = Math.round(dd.ad_spend * 0.8);
+        parsed.enrich.spend_high = Math.round(dd.ad_spend * 1.2);
+        parsed.enrich.spend_channels = ["Google Ads"];
+      }
+      if (dd.paid_keywords != null) parsed.enrich.ads = { ...(parsed.enrich.ads || {}), google: dd.paid_keywords > 0 };
     }
   }
 

@@ -2467,6 +2467,18 @@ function dealCard(c){return c.deal?`<div class="card dealcard"><h4>Deal</h4><div
 const DATA_FIELDS=['website','address','facebook','linkedin','instagram','tiktok'];
 const ACTION_KEYS=['fb_follow','fb_group','li_follow','li_group','li_connect','ig_follow','ig_like','tt_follow','tt_like'];
 const TASKSTATE={};
+window.TASKSTATE=TASKSTATE;
+var _tsaveTimers={};
+/* Persist Task-tab state so a refresh doesn't wipe it (debounced). */
+function saveTaskState(id){
+  clearTimeout(_tsaveTimers[id]);
+  _tsaveTimers[id]=setTimeout(function(){
+    var st=TASKSTATE[id]; if(!st) return;
+    var c=(window.DATA&&DATA.conversations||[]).find(function(x){return x.id===id;});
+    fetch('/api/crm/tasks',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id, contact_id:c?c.contact_id:null, found:st.found, done:Array.from(st.done)})}).catch(function(){});
+  },600);
+}
+window.saveTaskState=saveTaskState;
 function initialFound(id){const e=(window.ENRICH||{})[id]||{};const f={};if(e.website)f.website=e.website.domain;if(e.facebook)f.facebook='@'+e.facebook.handle;return f;}
 function tstate(id){if(!TASKSTATE[id])TASKSTATE[id]={found:initialFound(id),done:new Set()};return TASKSTATE[id];}
 function foundVal(id,f){const x=tstate(id).found[f];return x&&x!=='__none__'?x:null;}
@@ -2481,10 +2493,10 @@ function taskLookup(id,field){
   const val = field==='website'?(e.website&&e.website.domain)
     : field==='facebook'?(e.facebook&&'@'+e.facebook.handle) : d[field];
   st.found[field]= val || '__none__';
-  rerenderTasks(id);
+  rerenderTasks(id); saveTaskState(id);
 }
-function taskEnter(id,field,val){val=(val||'').trim();const st=tstate(id);if(val)st.found[field]=val;else delete st.found[field];rerenderTasks(id);}
-function taskToggle(id,key){const st=tstate(id);st.done.has(key)?st.done.delete(key):st.done.add(key);rerenderTasks(id);}
+function taskEnter(id,field,val){val=(val||'').trim();const st=tstate(id);if(val)st.found[field]=val;else delete st.found[field];rerenderTasks(id);saveTaskState(id);}
+function taskToggle(id,key){const st=tstate(id);st.done.has(key)?st.done.delete(key):st.done.add(key);rerenderTasks(id);saveTaskState(id);}
 function rerenderTasks(id){
   if(curTab==='task'&&sel===id)renderTab(DATA.conversations.find(x=>x.id===id));
   renderList(document.querySelector('.filters .on').dataset.f); // roll the count up to the lead row

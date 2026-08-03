@@ -86,6 +86,7 @@ import * as newsletter from "./api/newsletter.js";
 import * as founderVoice from "./api/founder-voice.js";
 import * as crmConsent from "./api/crm-consent.js";
 import * as crmLookup from "./api/crm-lookup.js";
+import * as crmTasks from "./api/crm-tasks.js";
 import { runRepermission, runReengagement } from "./_lib/newsletter.js";
 import * as crmInbox from "./api/crm-inbox.js";
 import * as crmInstantly from "./api/crm-instantly.js";
@@ -192,6 +193,7 @@ const ROUTES = {
   "/founder-voice": founderVoice,
   "/api/crm/consent": crmConsent,
   "/api/crm/lookup": crmLookup,
+  "/api/crm/tasks": crmTasks,
   "/api/crm/inbox": crmInbox,
   "/api/crm/instantly": crmInstantly,
   "/api/crm/instantly/campaign": crmInstantlyCampaign,

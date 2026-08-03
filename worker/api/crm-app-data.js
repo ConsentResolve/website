@@ -480,13 +480,26 @@ export async function onRequestGet({ request, env }) {
     if (_intel) INTEL[r.id] = _intel;
   }
 
+  // Persisted Task-tab state (crm_task_state) so a page refresh doesn't wipe it.
+  const TASKSTATE = {};
+  try {
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS crm_task_state (id TEXT PRIMARY KEY, contact_id TEXT, found TEXT, done TEXT, updated_at TEXT)`).run().catch(() => {});
+    const trows = (await env.DB.prepare("SELECT id, found, done FROM crm_task_state").all().catch(() => ({ results: [] }))).results || [];
+    for (const t of trows) {
+      let found = {}, done = [];
+      try { found = t.found ? JSON.parse(t.found) : {}; } catch (_) {}
+      try { done = t.done ? JSON.parse(t.done) : []; } catch (_) {}
+      TASKSTATE[t.id] = { found, done };
+    }
+  } catch (_) {}
+
   return json({
     ok: true,
     me: meOut,
     CONSENT_LEDGER, CONSENT_STATS, consentSummary,
     SEQUENCES,
     DATA_CONVERSATIONS, DATA_COUNTS,
-    ENRICH, DIRECTORY, INTEL,
+    ENRICH, DIRECTORY, INTEL, TASKSTATE,
     SITESPY, NURTURE, SITE_SOURCES, SPY_LEADS, PIPELINE, ANALYTICS,
     inbox: { buckets },
     funnel,

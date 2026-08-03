@@ -67,6 +67,8 @@ window.CRM_LIVE_PENDING = true; // set before restoreView runs → data views sh
     if (d.ENRICH && Object.keys(d.ENRICH).length) window.ENRICH = Object.assign({}, window.ENRICH, d.ENRICH);
     if (d.DIRECTORY && Object.keys(d.DIRECTORY).length) window.DIRECTORY = Object.assign({}, window.DIRECTORY, d.DIRECTORY);
     if (d.INTEL && Object.keys(d.INTEL).length) window.INTEL = Object.assign({}, window.INTEL, d.INTEL);
+    // Persisted Task-tab state — rehydrate found{} + done Set so a refresh keeps the work.
+    if (d.TASKSTATE && window.TASKSTATE) { for (const k in d.TASKSTATE) { const s = d.TASKSTATE[k] || {}; window.TASKSTATE[k] = { found: s.found || {}, done: new Set(s.done || []) }; } }
     if (d.ANALYTICS && d.ANALYTICS.kpis) window.ANALYTICS = d.ANALYTICS;
     if (d.me && window.DATA) { window.DATA.me = d.me; if (window.applyMe) window.applyMe(); }
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.DATA) {
