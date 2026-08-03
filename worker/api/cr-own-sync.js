@@ -42,14 +42,44 @@ async function fetchContacts(env, want) {
   return { rows };
 }
 
+// First non-empty scalar among the given key variants (the CR API uses several spellings —
+// mirrors CR_Visitor_Record::from_contact in the WordPress plugin, the canonical field map).
+function pick(v, ...keys) {
+  for (const k of keys) { const x = v[k]; if (x !== undefined && x !== null && x !== "" && typeof x !== "object") return x; }
+  return null;
+}
 function norm(v) {
-  const email = String(v.email || v.contact_email || v.primary_email || "").toLowerCase().trim();
-  const name =
-    v.name || v.full_name ||
-    [v.first_name, v.last_name].filter(Boolean).join(" ") || "";
-  const company = v.company_name || (v.company && v.company.name) || v.company || "";
-  const domain = v.domain || v.company_domain || v.website || "";
-  return { email, name, company: typeof company === "string" ? company : "", domain };
+  const email = String(pick(v, "email", "contact_email", "primary_email", "work_email") || "").toLowerCase().trim();
+  const name = v.name || v.full_name || [v.first_name, v.last_name].filter(Boolean).join(" ") || "";
+  const companyRaw = pick(v, "company_name", "organization") || (v.company && v.company.name) || v.company;
+  const company = typeof companyRaw === "string" ? companyRaw : "";
+  const source_url = pick(v, "source_url", "landing_page", "url") || "";
+  const referrer = pick(v, "referrer", "referrer_url", "referring_url", "referring_domain", "ref") || "";
+  let domain = pick(v, "domain", "company_domain", "website") || "";
+  if (!domain && source_url) { try { domain = new URL(source_url).hostname.replace(/^www\./, ""); } catch (_) {} }
+  return {
+    email, name, company, domain,
+    phone: pick(v, "phone", "phone_number") || null,
+    city: pick(v, "city") || "", region: pick(v, "region", "state") || "", country: pick(v, "country", "country_code", "ip_country") || "",
+    visits: pick(v, "total_visits", "visits", "visit_count", "sessions_count"),
+    page_views: pick(v, "page_views", "pageviews", "page_view_count", "page_views_count"),
+    first_seen: pick(v, "first_seen_at", "first_seen", "created_at") || "",
+    last_seen: pick(v, "last_seen_at", "last_seen", "updated_at") || "",
+    source_url, referrer,
+    consent_method: pick(v, "method", "consent_method") || "",
+    consent_status: pick(v, "status", "consent_status") || "",
+  };
+}
+// Human-readable engagement summary stored on the lead (Last Seen · Referrer · Visits · Page Views · …).
+function crNote(c) {
+  const bits = [];
+  if (c.company) bits.push(c.company);
+  const loc = [c.city, c.region, c.country].filter(Boolean).join(", "); if (loc) bits.push(loc);
+  if (c.visits != null) bits.push(c.visits + " visit" + (c.visits === 1 ? "" : "s"));
+  if (c.page_views != null) bits.push(c.page_views + " page view" + (c.page_views === 1 ? "" : "s"));
+  if (c.last_seen) bits.push("last seen " + c.last_seen);
+  if (c.referrer || c.source_url) bits.push("via " + (c.referrer || c.source_url));
+  return "Identified via Consent Resolve — " + (bits.join(" · ") || c.domain || "");
 }
 
 // Incremental: insert ONLY new emails, so a frequent cron adds no activity churn
@@ -69,10 +99,15 @@ export async function runScheduledSync(env) {
     if (existing) { skipped++; continue; }
     const id = await upsertLead(env, {
       source: "consentresolve", email: c.email, name: c.name || null,
-      company: c.company || null, domain: c.domain || null, consent_status: "identified",
-      notes: c.domain ? "Identified visitor · " + c.domain : null,
+      company: c.company || null, domain: c.domain || null, phone: c.phone || null,
+      consent_status: "identified", notes: crNote(c),
     });
-    await addActivity(env, id, "identified", "Identified via Consent Resolve" + (c.company ? " · " + c.company : ""), "consentresolve");
+    // Persist last-seen as the lead's activity time so the CRM sorts by real recency.
+    if (c.last_seen) {
+      const ls = /^\d+$/.test(String(c.last_seen)) ? new Date(Number(c.last_seen) * (String(c.last_seen).length <= 10 ? 1000 : 1)).toISOString() : c.last_seen;
+      await env.DB.prepare("UPDATE crm_leads SET last_activity=? WHERE id=?").bind(ls, id).run().catch(() => {});
+    }
+    await addActivity(env, id, "identified", crNote(c), "consentresolve");
     synced++;
   }
   return { synced, skipped, scanned: rows.length };
@@ -93,7 +128,13 @@ export async function onRequestGet({ request, env }) {
     const got = await fetchContacts(env, 3);
     if (got.error) return json({ ok: false, error: got.error }, {}, cors);
     const rows = got.rows || [];
-    return json({ ok: true, sample: rows.length, shape: rows[0] ? Object.keys(rows[0]) : [], message: "Consent Resolve API key works." }, {}, cors);
+    return json({
+      ok: true, sample: rows.length,
+      available_fields: rows[0] ? Object.keys(rows[0]) : [],   // EVERY field the live API returns
+      raw_contact: rows[0] || null,                             // the full first contact, verbatim
+      mapped: rows[0] ? norm(rows[0]) : null,                   // how we normalize it into the CRM
+      message: "Consent Resolve API key works.",
+    }, {}, cors);
   }
   if (u.searchParams.get("run")) {
     const out = await runScheduledSync(env);
