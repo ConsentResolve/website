@@ -11,6 +11,7 @@
 // Also runs on the */5 cron via runScheduledSync(). No-op until CR_API_KEY is set.
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed, upsertLead, addActivity, ensureCrmSchema } from "../_lib/crm.js";
+import { ensureCrmV2Schema, findOrCreateCompany, addActivityV2, adminUserId } from "../_lib/crm-v2.js";
 
 const API_BASE = "https://api.consentresolve.com/api/v1/public";
 // Site id the public API expects for consentresolve.com (verified 200 w/ live contacts
@@ -110,7 +111,60 @@ export async function runScheduledSync(env) {
     await addActivity(env, id, "identified", crNote(c), "consentresolve");
     synced++;
   }
-  return { synced, skipped, scanned: rows.length };
+  // Also push the visitor data onto the V2 /crm/app leads (reuse the fetched rows — no
+  // extra API calls). Enriches every non-archived matching lead, so the app stays current.
+  let v2 = null;
+  try { v2 = await backfillV2(env, { openOnly: false, rows }); } catch (_) {}
+  return { synced, skipped, scanned: rows.length, v2 };
+}
+
+// Enrich the V2 leads (the /crm/app inbox) with Consent Resolve visitor data. Matches
+// each Open conversation's contact to a CR contact by email, then writes a `_visitor`
+// block (Last Seen · Referrer · Total Visits · Page Views · location) onto the company's
+// enrichment — which flows straight to the lead's Intel panel. Idempotent.
+export async function backfillV2(env, { openOnly = true, rows: pre } = {}) {
+  if (!env.DB || !env.CR_API_KEY) return { skipped: "not_configured" };
+  await ensureCrmV2Schema(env);
+  let rows = pre;
+  if (!rows) { const got = await fetchContacts(env, 500); if (got.error) return { error: got.error }; rows = got.rows || []; }
+  const byEmail = new Map();
+  for (const v of rows) { const c = norm(v); if (c.email && c.email.includes("@")) byEmail.set(c.email, c); }
+  if (!byEmail.size) return { open_leads: 0, matched: 0, enriched: 0 };
+
+  const leads = (await env.DB.prepare(
+    `SELECT cv.id conv_id, ct.id contact_id, ct.company_id, ct.phone, lower(ct.primary_email) email
+       FROM conversations cv JOIN contacts ct ON ct.id = cv.contact_id
+      WHERE ${openOnly ? "cv.status='open'" : "cv.status != 'archived'"} AND ct.primary_email IS NOT NULL`
+  ).all().catch(() => ({ results: [] }))).results || [];
+
+  const actor = await adminUserId(env).catch(() => null);
+  let matched = 0, enriched = 0;
+  for (const r of leads) {
+    const c = byEmail.get(r.email);
+    if (!c) continue;
+    matched++;
+    let companyId = r.company_id;
+    if (!companyId) {
+      companyId = await findOrCreateCompany(env, { name: c.company || c.email, domain: c.domain || null }).catch(() => null);
+      if (companyId) await env.DB.prepare("UPDATE contacts SET company_id=?, updated_at=datetime('now') WHERE id=?").bind(companyId, r.contact_id).run().catch(() => {});
+    }
+    if (!companyId) continue;
+    const co = await env.DB.prepare("SELECT enrichment FROM companies WHERE id=?").bind(companyId).first().catch(() => null);
+    let en = {}; try { en = co && co.enrichment ? JSON.parse(co.enrichment) : {}; } catch (_) {}
+    en._visitor = {
+      visits: c.visits, page_views: c.page_views, last_seen: c.last_seen || null, first_seen: c.first_seen || null,
+      referrer: c.referrer || c.source_url || null, source_url: c.source_url || null,
+      city: c.city || null, region: c.region || null, country: c.country || null,
+      consent_status: c.consent_status || null, consent_method: c.consent_method || null,
+      synced_at: new Date().toISOString(),
+    };
+    if (c.domain && !en.website) en.website = { domain: c.domain };
+    await env.DB.prepare("UPDATE companies SET enrichment=?, updated_at=datetime('now') WHERE id=?").bind(JSON.stringify(en), companyId).run().catch(() => {});
+    if (c.phone && !r.phone) await env.DB.prepare("UPDATE contacts SET phone=?, updated_at=datetime('now') WHERE id=?").bind(c.phone, r.contact_id).run().catch(() => {});
+    await addActivityV2(env, { actorId: actor, entityType: "contact", entityId: r.contact_id, action: "cr_visitor_enriched", meta: { visits: c.visits, page_views: c.page_views, last_seen: c.last_seen } }).catch(() => {});
+    enriched++;
+  }
+  return { open_leads: leads.length, matched, enriched };
 }
 
 export async function onRequestOptions({ request, env }) {
@@ -140,5 +194,11 @@ export async function onRequestGet({ request, env }) {
     const out = await runScheduledSync(env);
     return json({ ok: !out.error, ...out }, out.error ? { status: 502 } : {}, cors);
   }
-  return json({ ok: true, usage: "?test=1 to verify the key, ?run=1 to import new identified visitors" }, {}, cors);
+  if (u.searchParams.get("backfill")) {
+    // Enrich the /crm/app leads with CR visitor data. ?all=1 covers every non-archived
+    // lead; default is Open only.
+    const out = await backfillV2(env, { openOnly: !u.searchParams.get("all") });
+    return json({ ok: !out.error, ...out }, out.error ? { status: 502 } : {}, cors);
+  }
+  return json({ ok: true, usage: "?test=1 verify key + see fields · ?run=1 import identified visitors · ?backfill=1 enrich /crm/app Open leads (&all=1 for all)" }, {}, cors);
 }

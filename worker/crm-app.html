@@ -4259,6 +4259,14 @@ function intelDashboard(c){
       ${icardD('Website tech','Detected on-site', `<div class="techchips">${techChips}</div>${gapFlags}`)}
       ${icardD('Reputation','Google Business', rep)}
       ${icardD('On-site engagement','First-party', eng)}
+      ${(function(){var vis=e._visitor; if(!vis) return ''; var rows=[
+        vis.last_seen?idRow('ok','Last seen', esc(vis.last_seen), null):'',
+        vis.visits!=null?idRow('ok','Total visits', String(vis.visits), null):'',
+        vis.page_views!=null?idRow('ok','Page views', String(vis.page_views), null):'',
+        vis.referrer?idRow('ok','Referrer', esc(vis.referrer), null):'',
+        (vis.city||vis.region||vis.country)?idRow('ok','Location',[vis.city,vis.region,vis.country].filter(Boolean).join(', '),null):'',
+        vis.first_seen?idRow('off','First seen', esc(vis.first_seen), null):''
+      ].filter(Boolean).join(''); return icardD('Site engagement','Consent Resolve', '<div class="presence">'+(rows||'<div class="idash-empty">No visit data yet.</div>')+'</div>'); })()}
       ${icardD('People you can reach','Claude research', `<div class="presence">${peopleBody}</div>`)}
       ${icardD('Contact &amp; location','CRM + directories', `<div class="presence">${contact||'<div class="idash-empty">—</div>'}</div>${spyGeoLine(it)}${consentToggles(c)}${agencyEditor(c)}`)}
     </div>
