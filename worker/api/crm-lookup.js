@@ -9,7 +9,7 @@
 //   • Claude summary ................ real token cost, only if ANTHROPIC_API_KEY is set
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
-import { ensureCrmV2Schema, currentUser, adminUserId, addActivityV2 } from "../_lib/crm-v2.js";
+import { ensureCrmV2Schema, currentUser, adminUserId, addActivityV2, findOrCreateCompany } from "../_lib/crm-v2.js";
 import { enrichContactById } from "../_lib/apollo.js";
 
 const APOLLO_COST = (env) => Number(env.APOLLO_COST_PER_LOOKUP || 0.03);
@@ -131,21 +131,78 @@ async function dataforseoLookup(env, domain) {
   } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
 }
 
+// Lead marketplaces — a live backlink to one usually means they're buying shared leads ($60–300).
+const MARKETPLACES = ["angi.com", "homeadvisor.com", "thumbtack.com", "porch.com", "networx.com", "modernize.com", "houzz.com", "buildzoom.com", "bark.com", "yelp.com", "nextdoor.com"];
+function dfsAuth(env) { return "Basic " + btoa(env.DATAFORSEO_LOGIN + ":" + env.DATAFORSEO_PASSWORD); }
+
+// Backlinks → which lead marketplaces they link to. The #1 "raises hand for $7/lead" signal.
+async function dfsBacklinks(env, domain) {
+  try {
+    const r = await fetch("https://api.dataforseo.com/v3/backlinks/referring_domains/live", {
+      method: "POST", headers: { Authorization: dfsAuth(env), "Content-Type": "application/json" },
+      body: JSON.stringify([{ target: domain, limit: 1000, order_by: ["backlinks,desc"] }]),
+    });
+    const j = await r.json();
+    const cost = Number(j.cost || 0);
+    const items = (j.tasks && j.tasks[0] && j.tasks[0].result && j.tasks[0].result[0] && j.tasks[0].result[0].items) || [];
+    const refs = items.map((i) => String(i.domain || "").toLowerCase().replace(/^www\./, ""));
+    const marketplaces = MARKETPLACES.filter((m) => refs.some((d) => d === m || d.endsWith("." + m)));
+    return { used: true, cost, marketplaces };
+  } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
+}
+
+// Domain technologies → marketing-maturity signals (call tracking, pixels, field CRM, review tools,
+// and competitor identity pixels we'd be displacing).
+const TECH_BUCKETS = {
+  call_tracking: /callrail|calltrackingmetrics|whatconverts|marchex/i,
+  ad_pixels: /facebook pixel|meta pixel|google ads|gtag|doubleclick|google conversion/i,
+  field_crm: /servicetitan|jobber|housecall|service fusion|servicefusion|workiz/i,
+  review_tools: /podium|birdeye|nicejob|grade\.us|reviewsio/i,
+  competitor_id: /retention\.com|customers\.ai|rb2b|warmly|opensend|leadpost|vector/i,
+};
+async function dfsTech(env, domain) {
+  try {
+    const r = await fetch("https://api.dataforseo.com/v3/domain_analytics/technologies/domain_technologies/live", {
+      method: "POST", headers: { Authorization: dfsAuth(env), "Content-Type": "application/json" },
+      body: JSON.stringify([{ target: domain }]),
+    });
+    const j = await r.json();
+    const cost = Number(j.cost || 0);
+    const res = j.tasks && j.tasks[0] && j.tasks[0].result && j.tasks[0].result[0];
+    const names = [];
+    const groups = res && (res.technologies || res.items);
+    if (groups && !Array.isArray(groups)) for (const cat in groups) { const v = groups[cat]; if (Array.isArray(v)) names.push(...v); else if (v && typeof v === "object") for (const sub in v) if (Array.isArray(v[sub])) names.push(...v[sub]); }
+    else if (Array.isArray(groups)) for (const it of groups) { if (it.technology) names.push(it.technology); if (Array.isArray(it.technologies)) names.push(...it.technologies); }
+    const blob = names.join(" ");
+    const hits = {}; for (const k in TECH_BUCKETS) { const m = blob.match(TECH_BUCKETS[k]); if (m) hits[k] = m[0]; }
+    return { used: true, cost, all: names.slice(0, 40), hits };
+  } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
+}
+
 export async function onRequestPost({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ ok: false, error: "unauthorized" }, { status: 403 }, cors);
   await ensureCrmV2Schema(env);
   await ensure(env);
   const b = await request.json().catch(() => ({}));
-  if (!b.contact_id) return json({ ok: false, error: "contact_id_required" }, { status: 400 }, cors);
+  if (!b.contact_id && !normDomain(b.website)) return json({ ok: false, error: "need_website", message: "No contact or website to look up." }, { status: 400 }, cors);
 
-  const ct = await env.DB.prepare("SELECT id, primary_email, company_id FROM contacts WHERE id=?").bind(b.contact_id).first().catch(() => null);
-  const co = ct && ct.company_id ? await env.DB.prepare("SELECT id, domain, enrichment FROM companies WHERE id=?").bind(ct.company_id).first().catch(() => null) : null;
+  const ct = b.contact_id ? await env.DB.prepare("SELECT id, full_name, primary_email, company_id FROM contacts WHERE id=?").bind(b.contact_id).first().catch(() => null) : null;
+  let co = ct && ct.company_id ? await env.DB.prepare("SELECT id, domain, enrichment FROM companies WHERE id=?").bind(ct.company_id).first().catch(() => null) : null;
   // Resolve the website: explicit param > saved company domain > business-email domain.
   let domain = normDomain(b.website) || normDomain(co && co.domain);
   if (!domain && ct && ct.primary_email && !/gmail|yahoo|hotmail|outlook|aol|icloud/.test(ct.primary_email)) domain = normDomain(ct.primary_email.split("@")[1]);
   if (!domain) return json({ ok: false, error: "need_website", message: "No website on file — pass one to look up." }, {}, cors);
 
+  // A lookup must PERSIST. If the contact has no company yet, create one from the domain and link
+  // it — otherwise there's nowhere to cache the enrichment and it vanishes on refresh.
+  if (ct && !co) {
+    const companyId = await findOrCreateCompany(env, { name: ct.full_name || domain, domain }).catch(() => null);
+    if (companyId) {
+      await env.DB.prepare("UPDATE contacts SET company_id=?, updated_at=datetime('now') WHERE id=?").bind(companyId, ct.id).run().catch(() => {});
+      co = await env.DB.prepare("SELECT id, domain, enrichment FROM companies WHERE id=?").bind(companyId).first().catch(() => null);
+    }
+  }
   // Persist the domain so we always "have somewhere to look".
   if (co && !normDomain(co.domain)) await env.DB.prepare("UPDATE companies SET domain=?, updated_at=datetime('now') WHERE id=?").bind(domain, co.id).run().catch(() => {});
 
@@ -199,11 +256,19 @@ export async function onRequestPost({ request, env }) {
         const dd = dfs.data || {};
         if (dd.traffic_month != null) parsed.enrich.traffic_month = dd.traffic_month;
         if (dd.ad_spend != null && dd.ad_spend > 0) { parsed.enrich.spend_low = Math.round(dd.ad_spend * 0.8); parsed.enrich.spend_high = Math.round(dd.ad_spend * 1.2); parsed.enrich.spend_channels = ["Google Ads"]; }
-        if (dd.paid_keywords != null) parsed.enrich.ads = { ...(parsed.enrich.ads || {}), google: dd.paid_keywords > 0 };
+        if (dd.paid_keywords != null) { parsed.enrich.ads = { ...(parsed.enrich.ads || {}), google: dd.paid_keywords > 0 }; parsed.enrich.running_ads = dd.paid_keywords > 0; }
         if (dd.organic_keywords != null) parsed.enrich.organic_keywords = dd.organic_keywords;
       } else {
         breakdown.push({ source: "DataForSEO", cost: dfs.cost || 0, ok: false, note: dfs.error || "no data returned for this domain" });
       }
+      // #1 highest-intent signal: lead-marketplace backlinks = already buying shared leads.
+      const bl = await dfsBacklinks(env, domain);
+      if (bl.used) { breakdown.push({ source: "DataForSEO backlinks", cost: bl.cost, ok: true }); parsed.enrich.marketplaces = bl.marketplaces; parsed.enrich.pays_per_lead = bl.marketplaces.length > 0; }
+      else breakdown.push({ source: "DataForSEO backlinks", cost: bl.cost || 0, ok: false, note: bl.error });
+      // Marketing-maturity tech stack (call tracking, pixels, field CRM, competitor identity pixels).
+      const tk = await dfsTech(env, domain);
+      if (tk.used) { breakdown.push({ source: "DataForSEO technologies", cost: tk.cost, ok: true }); parsed.intel.tech_hits = tk.hits; if (tk.all && tk.all.length) parsed.intel.tech = [...new Set([...(parsed.intel.tech || []), ...tk.all])].slice(0, 30); }
+      else breakdown.push({ source: "DataForSEO technologies", cost: tk.cost || 0, ok: false, note: tk.error });
     } else {
       breakdown.push({ source: "DataForSEO", cost: 0, ok: false, note: "DATAFORSEO_LOGIN / DATAFORSEO_PASSWORD not set" });
     }
@@ -213,7 +278,16 @@ export async function onRequestPost({ request, env }) {
 
   // The most-important intel, distilled for the dashboard header.
   const en = parsed.enrich, di = parsed.directory, it = parsed.intel;
+  const th = it.tech_hits || {};
   const signals = {
+    // #1 — already paying per lead (the money signal)
+    pays_per_lead: en.pays_per_lead != null ? en.pays_per_lead : null,
+    marketplaces: en.marketplaces || [],
+    running_ads: en.running_ads != null ? en.running_ads : (en.ads && en.ads.google != null ? en.ads.google : null),
+    call_tracking: th.call_tracking || null,
+    field_crm: th.field_crm || null,
+    competitor_id: th.competitor_id || null,
+    // fit / leak signals
     trade: it.trade || null,
     has_form: en.website && typeof en.website.capture === "boolean" ? en.website.capture : null,
     chat: it.chat != null ? !!it.chat : null,
@@ -237,7 +311,7 @@ export async function onRequestPost({ request, env }) {
   const me = await currentUser(request, env).catch(() => null);
   await env.DB.prepare("INSERT INTO lookup_log (id, contact_id, company_id, domain, cost_usd, sources, actor, created_at) VALUES (?,?,?,?,?,?,?,datetime('now'))")
     .bind(rid(), b.contact_id, co ? co.id : null, domain, cost_usd, JSON.stringify(breakdown.map((x) => x.source)), me ? me.id : null).run().catch(() => {});
-  await addActivityV2(env, { actorId: me ? me.id : null, entityType: "contact", entityId: b.contact_id, action: "intel_lookup", meta: { domain, cost_usd, mode } }).catch(() => {});
+  if (b.contact_id) await addActivityV2(env, { actorId: me ? me.id : null, entityType: "contact", entityId: b.contact_id, action: "intel_lookup", meta: { domain, cost_usd, mode } }).catch(() => {});
 
   return json({ ok: true, domain, mode, cost_usd, breakdown, enrich: parsed.enrich, directory: parsed.directory, intel: parsed.intel, signals, claude_on: !!env.ANTHROPIC_API_KEY, dataforseo_on: !!(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD) }, {}, cors);
 }

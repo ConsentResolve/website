@@ -3585,6 +3585,13 @@ function setWebsiteAndLookup(id,domain){
 /* The most-important intel, distilled into a strip at the top of the dashboard. */
 function signalsCard(e){
   const S=(e&&e._signals)||{}; const chips=[];
+  // #1 — already paying per lead (the money signals) go first + get the hot style
+  if(S.pays_per_lead===true) chips.push(`<span class="sig hot">💰 Already paying for leads${(S.marketplaces&&S.marketplaces.length)?' — '+S.marketplaces.map(m=>esc(m.replace(/\.com$/,''))).join(', '):''}</span>`);
+  if(S.competitor_id) chips.push(`<span class="sig hot">⚠ Running ${esc(S.competitor_id)} — displace</span>`);
+  if(S.running_ads===true) chips.push(`<span class="sig">🎯 Running Google Ads</span>`);
+  if(S.call_tracking) chips.push(`<span class="sig">📞 Call tracking (${esc(S.call_tracking)})</span>`);
+  if(S.field_crm) chips.push(`<span class="sig">🖥 ${esc(S.field_crm)}</span>`);
+  // fit / leak signals
   if(S.has_form===false) chips.push(`<span class="sig hot">⚡ No lead-capture form — paying for traffic, catching none</span>`);
   else if(S.has_form===true) chips.push(`<span class="sig">Has a lead form</span>`);
   if(S.trade) chips.push(`<span class="sig">🔧 ${esc(S.trade)}</span>`);
@@ -3607,7 +3614,9 @@ async function runLookup(id, mode, ev){
   const label = mode==='dataforseo'?'DataForSEO':'Claude lookup';
   const note=document.getElementById('ilook-note-'+id); if(note) note.textContent=label+': looking up '+site+'…';
   if(window.crmToast) crmToast(label+': '+site+'…');
-  const r=await fetch('/api/crm/lookup',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact_id:id, website:site, mode:mode})}).then(x=>x.json()).catch(()=>null);
+  const conv=DATA.conversations.find(x=>x.id===id);
+  const contactId=conv?conv.contact_id:null;   // the endpoint keys off the CONTACT, not the conversation
+  const r=await fetch('/api/crm/lookup',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact_id:contactId, website:site, mode:mode})}).then(x=>x.json()).catch(()=>null);
   if(!r||!r.ok){ const msg=(r&&(r.message||r.error))||'lookup failed'; if(note) note.textContent=msg; if(window.crmToast) crmToast('Lookup failed: '+msg); return; }
   window.ENRICH=window.ENRICH||{}; window.DIRECTORY=window.DIRECTORY||{}; window.INTEL=window.INTEL||{};
   window.ENRICH[id]=Object.assign({}, window.ENRICH[id]||{}, r.enrich||{}, {_last_cost:r.cost_usd, _signals:r.signals});
