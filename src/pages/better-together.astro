@@ -4,10 +4,53 @@
 // Re-themed onto the CR design system (navy + mint, Bricolage/Hanken/JetBrains) and wrapped
 // in BaseLayout so it carries the real site header, footer, chat, and demo widget.
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import faqs from "~/data/betterTogetherFaq.json";
+
+// JSON-LD prepared for SEO + AEO. Inert while the page is noindex, but ready to
+// go the moment it's indexable. Service+Offer carries the $7-lead / field-kit
+// story for search; FAQPage (built from the same copy the page renders) is the
+// answer-engine surface. Answers are stripped of inline tags for the schema.
+const strip = (s: string) => s.replace(/<[^>]+>/g, "");
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "Consent Resolve — Better Together field kit",
+    serviceType: "Consent-first lead generation for home-service contractors",
+    provider: { "@type": "Organization", name: "Consent Resolve", url: "https://consentresolve.com" },
+    areaServed: { "@type": "Country", name: "United States" },
+    description:
+      "Exclusive, consent-verified website leads at a flat $7 each — plus printed field marketing (yard signs, door hangers, truck magnets, and a truck wrap) mailed to you as you hit lead milestones. No setup fee, no monthly, no contract.",
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "USD",
+      price: "7.00",
+      priceSpecification: {
+        "@type": "UnitPriceSpecification",
+        price: "7.00",
+        priceCurrency: "USD",
+        unitText: "per lead",
+      },
+      availability: "https://schema.org/InStock",
+      url: "https://consentresolve.com/better-together/",
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: strip(f.a) },
+    })),
+  },
+];
 ---
 <BaseLayout
   title="Consent Resolve · Better Together — the field kit that pays you back"
   description="Your signs bring them in. Our code gets you their name. $7 a lead, and the marketing materials just show up."
+  ogImage="/og/better-together.png"
+  schema={schema}
   noindex
   demoWidget={false}
 >
@@ -508,38 +551,12 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
     <span class="tag badge">Straight answers</span>
     <h2>The questions we get.</h2>
     <div class="fq" style="text-align:left">
-      <details open>
-        <summary>Okay, let's be frank — why do you throw in all the signs and hangers?</summary>
-        <p>Because it's good business for both of us, and we'd rather just say so. You put a sign in a yard, that sign sends people to your website, and the ones who say yes on your site become $7 leads. More visits means more leads means more $7 in our pockets. So the more we can help you get your name out in the world, the more we both make. The signs and hangers aren't a gift — they're us investing in the thing that pays us both. When your marketing works, ours does too.</p>
-      </details>
-      <details>
-        <summary>What does all this actually cost me?</summary>
-        <p>Seven dollars per lead, and nothing else. No setup fee, no monthly, no charge for the signs, hangers, magnets, or the truck-wrap credit — those are earned by hitting lead milestones, not billed to you. The only line on your invoice is the leads you actually got. If a month is slow, the bill is small. If it's busy, you're making money on every one of those leads long before the $7 matters.</p>
-      </details>
-      <details>
-        <summary>When do the materials start showing up?</summary>
-        <p>The first batch — yard signs and stickers — unlocks at 25 leads. Most shops clear that in the first few weeks, and once you hit it the order goes to print that week. From there it's door hangers and review cards at 100, truck magnets at 250, and the truck-wrap credit at 1,000. Every tier is us handing you another way to be seen, because every place your name shows up sends more people to the site we're both counting on.</p>
-      </details>
-      <details>
-        <summary>Do I have to design or write anything?</summary>
-        <p>No. We take your logo, your phone number, and your tracking code and lay out the whole piece for you. You get a proof to look at, you say yes or ask for a change, and we print it. You're a contractor, not a graphic designer — the design work is on us so the only thing you have to do is put the pieces out.</p>
-      </details>
-      <details>
-        <summary>Are these the same shared leads Angi and Thumbtack sell?</summary>
-        <p>No, and this is the whole point. These people were already on <em>your</em> website — your ad, your search result, your sign. When one of them consents, you get their name and email, and no one else does. It's never resold, never split four ways, never a race to call first against three other shops. One person says yes, one shop — yours — gets the lead.</p>
-      </details>
-      <details>
-        <summary>What happens to the people who don't say yes?</summary>
-        <p>Nothing, and that's on purpose. If a visitor doesn't consent, you never get their name and you never get billed for them — you only ever pay for the ones who agreed to hear from you. That's what makes this different from the old playbook: nobody's identity gets sold behind their back, which is exactly why the leads you <em>do</em> get are the kind that actually pick up the phone.</p>
-      </details>
-      <details>
-        <summary>I already run yard signs. Why use yours?</summary>
-        <p>Keep the ones you have — put ours out right next to them. The difference is ours carry a tracking code, so for the first time you can actually see which signs and which neighborhoods send you traffic and leads, instead of guessing. Think of it as your same yard-sign habit, but now it's feeding the same system that turns those visits into named leads.</p>
-      </details>
-      <details>
-        <summary>Am I locked into a contract?</summary>
-        <p>No contract, no term, no cancellation dance. You can stop any time, and nobody's going to call to talk you out of it. We'd rather earn the next month by getting you leads than trap you into it — if the flywheel's working, you'll want to keep it running on your own.</p>
-      </details>
+      {faqs.map((f, i) => (
+        <details open={i === 0}>
+          <summary>{f.q}</summary>
+          <p set:html={f.a} />
+        </details>
+      ))}
     </div>
   </div>
 </section>
