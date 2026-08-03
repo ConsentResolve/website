@@ -1893,7 +1893,11 @@ function personCard(c){
     p.phone?`<div class="se-row"><span class="se-k">Phone</span><span class="se-v"><a href="${telHref(p.phone)}">${esc(p.phone)}</a></span></div>`:'',
     p.linkedin?`<div class="se-row"><span class="se-k">LinkedIn</span><span class="se-v"><a href="${esc(p.linkedin)}" target="_blank" rel="noopener">profile ↗</a></span></div>`:''
   ].filter(Boolean).join('');
-  return `<div class="site-eng person-eng"><div class="se-h"><span class="se-dot"></span>${esc(p.name||'Identified person')}<span class="se-src">Apollo</span></div><div class="se-grid one">${rows||'<div class="se-row"><span class="se-k">Matched</span><span class="se-v">name only</span></div>'}</div></div>`;
+  // Apollo can return a stub with no usable data — don't render an empty "Identified person" card.
+  if(!p.name && !rows) return '';
+  const title = p.name || p.company || 'Identified person';
+  const body = rows || (p.name?'<div class="se-row"><span class="se-k">Apollo</span><span class="se-v">name only — no title/company on file</span></div>':'');
+  return `<div class="site-eng person-eng"><div class="se-h"><span class="se-dot"></span>${esc(title)}<span class="se-src">Apollo</span></div>${body?`<div class="se-grid one">${body}</div>`:''}</div>`;
 }
 function bubbleThread(c){
   return `${personCard(c)}${siteEngagement(c)}<div class="msgs">${c.messages.map(m=>{

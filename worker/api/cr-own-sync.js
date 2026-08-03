@@ -171,7 +171,10 @@ export async function backfillV2(env, { openOnly = true, rows: pre } = {}) {
       apolloSpent++;
       const m = await apolloMatch(env, r.email).catch(() => ({ ok: false }));
       const p = m && m.ok ? m.person : null;
-      if (p) {
+      // Treat a stub (no name / title / company / LinkedIn) as a non-match so we don't
+      // store an empty _person that renders a blank "Identified person" card.
+      const usable = p && (p.name || p.title || (p.organization && p.organization.name) || p.linkedin_url);
+      if (usable) {
         const org = p.organization || {};
         const phone = (p.phone_numbers && p.phone_numbers[0] && (p.phone_numbers[0].sanitized_number || p.phone_numbers[0].raw_number)) || null;
         en._person = {
