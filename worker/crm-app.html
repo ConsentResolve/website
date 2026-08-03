@@ -1120,6 +1120,37 @@ html,body{height:100%}
   .ag-rchip span{font-size:11px;color:var(--tx-3)}
   .ag-count{font-size:12.5px;color:var(--tx-3);margin-bottom:12px;font-weight:600}
   .thrbadge{font-size:10.5px;font-weight:700;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:0 7px;margin-left:2px;flex:0 0 auto}
+  /* ---- Settings / Speed-to-Lead ---- */
+  .set-wrap{max-width:1080px}
+  .set-mode{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-weight:800;font-size:12px}
+  .set-mode.sim{background:var(--warn-soft,rgba(240,180,40,.15));color:var(--warn,#d99a10)}
+  .set-mode.live{background:var(--good-soft,rgba(0,185,133,.12));color:var(--good)}
+  .set-mode.paused{background:var(--bad-soft);color:var(--bad)}
+  .set-card{border:1px solid var(--line);border-radius:14px;background:var(--surface-1);padding:16px 18px;margin-bottom:14px}
+  .set-h{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--tx-2);margin:0 0 12px}
+  .set-note{font-weight:500;text-transform:none;letter-spacing:0;color:var(--tx-3)}
+  .set-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .set-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .set-grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:820px){.set-grid4{grid-template-columns:1fr 1fr}.set-grid2{grid-template-columns:1fr}}
+  .set-sw{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;font-size:13px;font-weight:600;color:var(--tx-1);cursor:pointer}
+  .set-sw input{width:auto;accent-color:var(--accent)}
+  .set-kpi{background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+  .set-kpi .v{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--tx-1)}
+  .set-kpi .l{font-size:11.5px;color:var(--tx-3);margin-top:2px}
+  .set-kpi.alarm .v{color:var(--bad)}.set-kpi.good .v{color:var(--good)}
+  .set-lbl{display:block;font-size:11.5px;font-weight:700;color:var(--tx-3);margin-bottom:4px}
+  .set-in{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:9px;padding:8px 10px;font-size:13px;color:var(--tx-1);font-family:inherit;box-sizing:border-box}
+  .set-in:focus{outline:none;border-color:var(--accent)}
+  .set-warn{margin-top:10px;border:1px solid var(--warn,#d99a10);background:var(--warn-soft,rgba(240,180,40,.1));color:var(--tx-1);border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:600}
+  .set-ghost{border:1px solid var(--line);background:var(--surface-2);color:var(--tx-1);border-radius:9px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer}
+  .set-danger{border:1px solid var(--bad);background:transparent;color:var(--bad);border-radius:9px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer}
+  .set-out{background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:11.5px;color:var(--tx-2);margin:10px 0 0;max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+  .set-out:empty{display:none}
+  .set-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .set-tbl th,.set-tbl td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);color:var(--tx-2)}
+  .set-tbl th{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--tx-3)}
+  .set-wrap .mono{font-family:var(--font-mono);font-size:11.5px}
 </style>
 </head>
 <body>
@@ -1164,7 +1195,7 @@ html,body{height:100%}
       <a data-view="newsletter" tabindex="0" onclick="showView('newsletter')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span class="lbl">Newsletter</span></a>
       <a data-view="consent" tabindex="0" onclick="showView('consent')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><span class="lbl">Consent</span></a>
       <span class="sp"></span>
-      <a tabindex="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="lbl">Settings</span></a>
+      <a data-view="settings" tabindex="0" onclick="showView('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="lbl">Settings</span></a>
     </nav>
 
     <div class="viewwrap" id="inboxview">
@@ -1192,6 +1223,7 @@ html,body{height:100%}
     <section class="nurtureview" id="newsletterview" hidden></section>
     <section class="prospview" id="prospectingview" hidden></section>
     <section class="prospview" id="agencyview" hidden></section>
+    <section class="prospview" id="settingsview" hidden></section>
   </div>
 <script>
 /* Inbox fixture — bucket-classified (open/auto/snoozed/suppressed), with explicit
@@ -2698,7 +2730,7 @@ function showView(v){
   // running on other screens forever (rate-limit + battery drain).
   if(v!=='inbox' && typeof stopChatPoll==='function') stopChatPoll();
   document.querySelectorAll('.rail a[data-view]').forEach(a=>a.classList.toggle('on', a.dataset.view===v));
-  const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview',newsletter:'newsletterview',prospecting:'prospectingview',agency:'agencyview'};
+  const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview',newsletter:'newsletterview',prospecting:'prospectingview',agency:'agencyview',settings:'settingsview'};
   window.__crmView=v;
   Object.entries(views).forEach(([k,id])=>{const el=document.getElementById(id); if(el) el.hidden=k!==v;});
   // Render the active view defensively — a single view throwing must never blank the app.
@@ -2721,6 +2753,7 @@ function showView(v){
     else if(v==='newsletter')renderNewsletter();
     else if(v==='prospecting')renderProspecting();
     else if(v==='agency')renderAgency();
+    else if(v==='settings')renderSettings();
     else if(v==='inbox' && window.renderList)renderList(curFilter());
   }catch(e){
     if(window.console) console.warn('view render failed: '+v, e);
@@ -2889,6 +2922,164 @@ function openLeadFromAgency(contactId){
 }
 window.renderAgency=renderAgency; window.openLeadFromAgency=openLeadFromAgency;
 
+/* ---- Settings: Speed-to-Lead engine controls (ported from /crm/speed, light theme) ---- */
+let STL=null;
+async function stlApi(method,body){ const r=await fetch('/api/stl/admin',{method,credentials:'same-origin',headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined}); return r.json(); }
+async function renderSettings(force){
+  const host=document.getElementById('settingsview'); if(!host) return;
+  host.innerHTML='<div style="padding:56px;text-align:center;color:var(--tx-3)">Loading settings…</div>';
+  let d=null, lc={};
+  try{ d=await stlApi('GET'); }catch(e){}
+  try{ lc=await (await fetch('/api/chat-launcher',{credentials:'same-origin'})).json(); }catch(e){}
+  if(!d||!d.ok){ host.innerHTML='<div class="prosp"><div class="phead"><h2 class="pttl">Settings</h2></div><div class="idash-empty" style="padding:40px">Couldn’t load the Speed-to-Lead engine.</div></div>'; return; }
+  STL=d;
+  paintSettings(d, lc||{});
+}
+function paintSettings(d, lc){
+  const host=document.getElementById('settingsview'); const s=d.settings||{}, m=d.metrics||{}, r=d.readiness||{};
+  const live=s.mode==='live', paused=s.paused==='1';
+  const modeBadge=`<span class="set-mode ${paused?'paused':live?'live':'sim'}">${paused?'⏸ PAUSED':live?'● LIVE':'◐ SIMULATE'}</span>`;
+  const sw=(id,lbl,on)=>`<label class="set-sw"><input type="checkbox" id="${id}" ${on?'checked':''}><span>${lbl}</span></label>`;
+  const K=(v,l,cls)=>`<div class="set-kpi ${cls||''}"><div class="v">${v==null?'—':v}</div><div class="l">${l}</div></div>`;
+  const kpis=[
+    K((m.leads_total||0)+' ('+(m.leads_A||0)+'A/'+(m.leads_B||0)+'B)','Leads'),
+    K(m.speed_to_first_ring_p95_s==null?'—':m.speed_to_first_ring_p95_s+'s','Speed to first ring p95', m.speed_to_first_ring_p95_s>60?'alarm':'good'),
+    K(m.sla_breach_rate_pct==null?'—':m.sla_breach_rate_pct+'%','SLA breach (>5m)'),
+    K(m.identified_contacted_60m_pct==null?'—':m.identified_contacted_60m_pct+'%','A contacted <60m'),
+    K(m.gate_violations||0,'Gate violations', (m.gate_violations>0)?'alarm':'good'),
+    K(m.cookie_leak_flags||0,'Cookie-banner leaks', (m.cookie_leak_flags>0)?'alarm':'good'),
+    K(m.transfer_accept_rate_pct==null?'—':m.transfer_accept_rate_pct+'%','Transfer accept rate'),
+    K((m.dispatch_by_mode&&(m.dispatch_by_mode.live||0))+' / '+(m.dispatch_by_mode&&(m.dispatch_by_mode.simulate||0)),'Live / simulated sends'),
+  ].join('');
+  const chip=(ok,label,note)=>`<div class="set-kpi ${ok?'good':''}"><div class="v" style="font-size:14px">${ok?'● ready':'○ not set'}</div><div class="l">${escP(label)}${note?` <span style="color:var(--tx-3)">${escP(note)}</span>`:''}</div></div>`;
+  const readiness=[
+    chip(r.email_gmail,'Email (Gmail: '+(r.email_gmail||'—')+')'),
+    chip(r.retell_key,'Retell key'),
+    chip(r.retell_agent&&r.retell_from,'Retell agent + number'),
+    chip(r.twilio&&r.twilio_from,'Twilio (SMS)'),
+    chip(r.calcom,'Cal.com secret'),
+    chip(r.alert_url,'Alerts / paging'),
+    chip(!!r.booking_link,'Booking link'),
+    chip(r.verify_webhooks,'Webhook signatures'),
+  ].join('');
+  const reps=d.reps||[];
+  const REP_RANK={1:'Primary',2:'Backup 1',3:'Backup 2'};
+  const repRows=reps.length?reps.map(rp=>{const rank=REP_RANK[rp.priority]||('P'+rp.priority);
+    return `<tr><td>${escP(rank)}</td><td>${escP(rp.name)}</td><td class="mono">${escP(rp.phone)}</td>
+      <td>${rp.available?'<span style="color:var(--good);font-weight:700">● available</span>':'<span style="color:var(--tx-3)">○ away</span>'} · <a href="#" onclick="stlRepState('${rp.id}','${rp.available?'away':'available'}');return false">${rp.available?'set away':'set available'}</a></td>
+      <td><a href="#" onclick="stlRemoveRep('${rp.id}');return false" style="color:var(--bad)">remove</a></td></tr>`;}).join('')
+    :'<tr><td colspan="5" style="color:var(--tx-3)">No reps yet — add your primary + backups so Mack can warm-transfer.</td></tr>';
+  const vio=(d.violations||[]);
+  const errs=(d.errors||[]);
+  const vTbl=vio.length?`<table class="set-tbl"><tr><th>When</th><th>Channel</th><th>Reason</th><th>Lead</th></tr>${vio.slice(0,20).map(v=>`<tr><td>${stlTs(v.attempted_at)}</td><td>${escP(v.channel)}</td><td style="color:var(--bad)">${escP(v.reason)}</td><td class="mono">${escP((v.lead_id||'').slice(0,8))}</td></tr>`).join('')}</table>`:'<span style="color:var(--tx-3)">none — clean ✓</span>';
+  const eTbl=errs.length?`<table class="set-tbl"><tr><th>When</th><th>Kind</th><th>Detail</th></tr>${errs.slice(0,20).map(e=>{let dt='';try{dt=e.detail?JSON.stringify(JSON.parse(e.detail)):''}catch(_){dt=e.detail||''}return `<tr><td>${stlTs(e.at)}</td><td style="color:var(--bad)">${escP(e.kind)}</td><td class="mono">${escP(String(dt).slice(0,120))}</td></tr>`;}).join('')}</table>`:'<span style="color:var(--tx-3)">none</span>';
+  const t=lc.teaser||{}, n=lc.nudge||{};
+  const testCount=(d.leads||[]).filter(l=>l.is_test).length;
+
+  host.innerHTML=`<div class="prosp set-wrap">
+    <div class="phead"><div><h2 class="pttl">Settings — Speed-to-Lead</h2><p class="psub">The real-time engine that works a lead the instant it lands. Flip channels live, provision the AI agent, tune the website chat launcher, and manage transfer reps.</p></div>
+      <div style="display:flex;align-items:center;gap:10px">${modeBadge}<button class="pref" onclick="renderSettings(true)" title="Refresh">↻</button></div></div>
+
+    <div class="set-card">
+      <h3 class="set-h">Dispatch mode</h3>
+      <div class="set-row">
+        <label class="set-sw"><input type="radio" name="stmode" id="st_sim" ${!live?'checked':''}><span>Simulate (records intended sends, dispatches nothing)</span></label>
+        <label class="set-sw"><input type="radio" name="stmode" id="st_live" ${live?'checked':''}><span>Live</span></label>
+        ${sw('st_paused','⛔ Pause all (kill switch)',paused)}
+      </div>
+      <div class="set-grid4" style="margin-top:10px">
+        ${sw('st_live_email','Live: Email',s.live_email==='1')}
+        ${sw('st_live_sms','Live: SMS',s.live_sms==='1')}
+        ${sw('st_live_call_ai','Live: AI voice',s.live_call_ai==='1')}
+        ${sw('st_live_call_human','Live: Human dial',s.live_call_human==='1')}
+      </div>
+      ${live&&!paused?'<div class="set-warn">⚠ Live mode is ON — channels toggled Live will send for real.</div>':''}
+      <div class="set-row" style="margin-top:12px"><button class="pgo" onclick="stlSaveMode()">Save mode</button><span id="st_msg" style="color:var(--tx-3);font-size:12.5px"></span></div>
+    </div>
+
+    <div class="set-card"><h3 class="set-h">Engine metrics</h3><div class="set-grid4">${kpis}</div></div>
+
+    <div class="set-card">
+      <h3 class="set-h">Integrations &amp; go-live</h3>
+      <div class="set-grid4">${readiness}</div>
+      <div class="set-row" style="margin-top:14px">
+        <button class="pgo" onclick="stlProvision('retell_setup',this)">⚡ Provision Mack (Retell)</button>
+        <button class="set-ghost" onclick="stlProvision('retell_kb',this)">📚 Knowledge base</button>
+        <button class="set-ghost" onclick="stlProvision('retell_chat_agent',this)">💬 Website chat agent</button>
+        <button class="set-ghost" onclick="stlProvision('retell_numbers',this)">List Retell numbers</button>
+      </div>
+      <pre id="st_intg" class="set-out"></pre>
+    </div>
+
+    <div class="set-card">
+      <h3 class="set-h">Website chat launcher <span class="set-note">— the orb + teaser that front Mack. Saves live, no redeploy.</span></h3>
+      <div class="set-row">
+        ${sw('cl_enabled','Launcher on',lc.enabled!==false)}
+        <label class="set-sw" style="gap:6px"><span>Badge</span><select id="cl_badge" class="set-in" style="width:auto"><option value="honest"${(lc.badge||'honest')==='honest'?' selected':''}>Honest</option><option value="always"${lc.badge==='always'?' selected':''}>Always</option><option value="off"${lc.badge==='off'?' selected':''}>Off</option></select></label>
+      </div>
+      <div class="set-grid2" style="margin-top:10px">
+        <div><label class="set-lbl">Agent name</label><input id="cl_agentName" class="set-in" value="${escP(lc.agentName||'')}" placeholder="Mack"></div>
+        <div><label class="set-lbl">Status line</label><input id="cl_status" class="set-in" value="${escP(lc.status||'')}" placeholder="AI assistant · a human when you ask"></div>
+        <div><label class="set-lbl">Phone (E.164)</label><input id="cl_phone" class="set-in" value="${escP(lc.phone||'')}" placeholder="+17279999846"></div>
+        <div><label class="set-lbl">Orb entrance delay (s)</label><input id="cl_entrance" class="set-in" type="number" step="0.1" min="0" max="60" value="${(lc.entranceDelay||0)/1000}"></div>
+        <div style="grid-column:1/-1"><label class="set-lbl">Teaser greeting</label><input id="cl_greeting" class="set-in" value="${escP(lc.greeting||'')}" placeholder="Hey — want a price, or a time slot?"></div>
+      </div>
+      <div class="set-grid4" style="margin-top:10px">
+        ${sw('cl_teaser_enabled','Show teaser',t.enabled!==false)}
+        ${sw('cl_teaser_exit','Exit-intent',t.exitIntent!==false)}
+        <div><label class="set-lbl">Teaser after (s)</label><input id="cl_teaser_delay" class="set-in" type="number" step="0.5" min="0" max="600" value="${(t.delay||0)/1000}"></div>
+        <div><label class="set-lbl">…or scroll (%)</label><input id="cl_teaser_scroll" class="set-in" type="number" step="1" min="0" max="100" value="${Math.round((t.scroll||0)*100)}"></div>
+      </div>
+      <div class="set-grid4" style="margin-top:10px">
+        ${sw('cl_nudge_enabled','Nudge wiggle',n.enabled!==false)}
+        <div><label class="set-lbl">Wiggle every (s)</label><input id="cl_nudge_every" class="set-in" type="number" step="1" min="0" max="600" value="${(n.every||0)/1000}"></div>
+        <div><label class="set-lbl">Stop after (times)</label><input id="cl_nudge_max" class="set-in" type="number" step="1" min="0" max="50" value="${n.max==null?3:n.max}"></div>
+      </div>
+      <div class="set-row" style="margin-top:12px"><button class="pgo" onclick="stlSaveLauncher()">Save launcher</button><a href="/" target="_blank" rel="noopener"><button class="set-ghost" type="button">Preview on site ↗</button></a><span id="cl_msg" style="color:var(--tx-3);font-size:12.5px"></span></div>
+    </div>
+
+    <div class="set-card">
+      <h3 class="set-h">Transfer reps <span class="set-note">— Mack warm-transfers a live call to the highest-rank rep who's on shift.</span></h3>
+      <table class="set-tbl" style="width:auto;min-width:420px"><tr><th>Rank</th><th>Rep</th><th>Phone</th><th>On shift</th><th></th></tr>${repRows}</table>
+      <div class="set-row" style="margin-top:10px">
+        <input id="st_repName" class="set-in" style="max-width:130px" placeholder="Rep name">
+        <input id="st_repPhone" class="set-in" style="max-width:170px" placeholder="+17135551234">
+        <select id="st_repPriority" class="set-in" style="max-width:130px"><option value="1">Primary</option><option value="2">Backup 1</option><option value="3">Backup 2</option></select>
+        <button class="set-ghost" onclick="stlAddRep()">+ Add rep</button><span id="st_repMsg" style="color:var(--tx-3);font-size:12.5px"></span>
+      </div>
+    </div>
+
+    <div class="set-grid2">
+      <div class="set-card"><h3 class="set-h">Gate violations <span class="set-note">— target: zero</span></h3>${vTbl}</div>
+      <div class="set-card"><h3 class="set-h">Recent send errors</h3>${eTbl}</div>
+    </div>
+
+    ${testCount?`<div class="set-card" style="border-color:var(--bad)"><h3 class="set-h">Maintenance</h3><p style="color:var(--tx-3);font-size:13px;margin:0 0 10px">${testCount} test lead${testCount===1?'':'s'} from bring-up are still in the engine. Purge them for a clean production start.</p><button class="set-danger" onclick="stlPurgeTests()">Delete ${testCount} test lead${testCount===1?'':'s'}</button> <span id="st_purge" style="color:var(--tx-3);font-size:12.5px"></span></div>`:''}
+  </div>`;
+}
+function stlTs(t){ return t?new Date(t).toLocaleString():'—'; }
+async function stlSaveMode(){
+  const settings={ mode:document.getElementById('st_live').checked?'live':'simulate', paused:document.getElementById('st_paused').checked?'1':'0' };
+  ['live_email','live_sms','live_call_ai','live_call_human'].forEach(k=>settings[k]=document.getElementById('st_'+k).checked?'1':'0');
+  const msg=document.getElementById('st_msg'); if(msg)msg.textContent='saving…';
+  const d=await stlApi('POST',{action:'set_settings',settings}); if(msg)msg.textContent=d.ok?'saved ✓':'error'; renderSettings(true);
+}
+async function stlProvision(action,btn){ const out=document.getElementById('st_intg'); if(out)out.textContent='working…'; if(btn)btn.disabled=true; const d=await stlApi('POST',{action}); if(out)out.textContent=JSON.stringify(d,null,2); if(btn)btn.disabled=false; }
+async function stlAddRep(){ const name=(document.getElementById('st_repName').value||'').trim()||'Rep', phone=(document.getElementById('st_repPhone').value||'').trim(), priority=document.getElementById('st_repPriority').value; const msg=document.getElementById('st_repMsg'); if(!phone){ if(msg)msg.textContent='enter the rep phone (E.164)'; return; } const d=await stlApi('POST',{action:'seed_rep',name,phone,priority}); if(d.ok) renderSettings(true); else if(msg)msg.textContent='error: '+(d.error||''); }
+async function stlRemoveRep(id){ await stlApi('POST',{action:'delete_rep',rep_id:id}); renderSettings(true); }
+async function stlRepState(id,state){ await stlApi('POST',{action:'set_rep_state',rep_id:id,state}); renderSettings(true); }
+async function stlPurgeTests(){ if(!confirm('Delete ALL test leads and their touchpoints from the engine?'))return; const p=document.getElementById('st_purge'); if(p)p.textContent='deleting…'; const d=await stlApi('POST',{action:'reset_tests'}); if(p)p.textContent=d.ok?('deleted '+(d.deleted||0)):'error'; renderSettings(true); }
+async function stlSaveLauncher(){
+  const num=(id)=>{const v=parseFloat((document.getElementById(id)||{}).value);return isFinite(v)?v:0;};
+  const g=id=>document.getElementById(id);
+  const config={ enabled:g('cl_enabled').checked, badge:g('cl_badge').value, agentName:g('cl_agentName').value.trim(), status:g('cl_status').value.trim(), phone:g('cl_phone').value.trim(), greeting:g('cl_greeting').value.trim(), entranceDelay:Math.round(num('cl_entrance')*1000),
+    teaser:{ enabled:g('cl_teaser_enabled').checked, exitIntent:g('cl_teaser_exit').checked, delay:Math.round(num('cl_teaser_delay')*1000), scroll:Math.min(1,Math.max(0,num('cl_teaser_scroll')/100)) },
+    nudge:{ enabled:g('cl_nudge_enabled').checked, every:Math.round(num('cl_nudge_every')*1000), max:Math.round(num('cl_nudge_max')) } };
+  const msg=g('cl_msg'); if(msg)msg.textContent='saving…';
+  try{ const r=await fetch('/api/chat-launcher',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({config})}); const d=await r.json(); if(msg)msg.textContent=d.ok?'saved ✓ — live within ~1 min':('error: '+(d.error||r.status)); }catch(e){ if(msg)msg.textContent='error'; }
+}
+window.renderSettings=renderSettings; window.stlSaveMode=stlSaveMode; window.stlProvision=stlProvision; window.stlAddRep=stlAddRep; window.stlRemoveRep=stlRemoveRep; window.stlRepState=stlRepState; window.stlPurgeTests=stlPurgeTests; window.stlSaveLauncher=stlSaveLauncher;
+
 /* ---- Newsletter: view + edit the 12 issues, preview, send (hold-for-approval) ---- */
 const NL_FIELDS=['seg_ticket','seg_channel','seg_trucks','seg_crm'];
 async function nlPost(action,body){ const r=await fetch('/api/newsletter',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...(body||{})})}); return r.json(); }
@@ -3018,7 +3209,7 @@ window.nlSend=nlSend;
 // blanked the app. Wrapped so any failure falls back to the default Inbox.
 function restoreView(){
   try{
-    var valid={inbox:1,reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1,newsletter:1,prospecting:1,agency:1};
+    var valid={inbox:1,reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1,newsletter:1,prospecting:1,agency:1,settings:1};
     var v=decodeURIComponent(location.hash.slice(1)||'');
     if(!valid[v]){ try{ v=localStorage.getItem('crm_view')||''; }catch(e){ v=''; } }
     if(valid[v] && v!=='inbox') showView(v);
