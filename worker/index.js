@@ -89,6 +89,7 @@ import * as crmLookup from "./api/crm-lookup.js";
 import * as crmTasks from "./api/crm-tasks.js";
 import * as crmProspecting from "./api/prospecting.js";
 import { processProspectRuns } from "./api/prospecting.js";
+import * as crmAgency from "./api/crm-agency.js";
 import { runRepermission, runReengagement } from "./_lib/newsletter.js";
 import * as crmInbox from "./api/crm-inbox.js";
 import * as crmInstantly from "./api/crm-instantly.js";
@@ -197,6 +198,7 @@ const ROUTES = {
   "/api/crm/lookup": crmLookup,
   "/api/crm/tasks": crmTasks,
   "/api/crm/prospecting": crmProspecting,
+  "/api/crm/agency": crmAgency,
   "/api/crm/inbox": crmInbox,
   "/api/crm/instantly": crmInstantly,
   "/api/crm/instantly/campaign": crmInstantlyCampaign,

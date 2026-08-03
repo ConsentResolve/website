@@ -1096,6 +1096,30 @@ html,body{height:100%}
   .ppromote{border:none;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:12.5px;border-radius:9px;padding:8px 14px;cursor:pointer}
   .psupp{border:1px solid var(--line);background:var(--surface-2);color:var(--tx-3);border-radius:9px;width:30px;height:30px;cursor:pointer;font-size:13px}
   .pdone{font-size:12px;font-weight:700;color:var(--good)}
+  /* ---- Consent toggles (Intel panel) ---- */
+  .cst-wrap{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+  .cst-h{font-size:11.5px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--tx-3);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .cst-hint{font-weight:500;text-transform:none;letter-spacing:0;color:var(--tx-3);opacity:.8}
+  .cst-row{display:flex;gap:8px;flex-wrap:wrap}
+  .cst-tog{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface-1);border-radius:20px;padding:6px 12px;font-size:12.5px;font-weight:700;color:var(--tx-2);cursor:pointer}
+  .cst-tog .cst-dot{width:8px;height:8px;border-radius:50%;background:var(--tx-3);opacity:.5}
+  .cst-tog .cst-state{font-size:11px;font-weight:600;color:var(--tx-3)}
+  .cst-tog.on{border-color:var(--good);background:var(--good-soft,rgba(0,185,133,.1));color:var(--tx-1)}
+  .cst-tog.on .cst-dot{background:var(--good);opacity:1}
+  .cst-tog.on .cst-state{color:var(--good)}
+  .cst-tog.rev{border-color:var(--bad);color:var(--tx-2)}
+  .cst-tog.rev .cst-dot{background:var(--bad);opacity:1}
+  .cst-tog.rev .cst-state{color:var(--bad)}
+  /* ---- Agency editor + tab ---- */
+  .ag-edit{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .ag-name{flex:1;min-width:140px;border:1px solid var(--line);background:var(--surface-2);border-radius:9px;padding:7px 10px;font-size:12.5px;color:var(--tx-1);font-family:inherit}
+  .ag-name:focus{outline:none;border-color:var(--accent)}
+  .ag-detect{font-weight:500;text-transform:none;letter-spacing:0;color:var(--accent);font-size:11px}
+  .ag-roster{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .ag-rchip{border:1px solid var(--line);background:var(--surface-1);border-radius:10px;padding:8px 12px;font-size:12.5px;color:var(--tx-1);display:flex;flex-direction:column;gap:2px}
+  .ag-rchip span{font-size:11px;color:var(--tx-3)}
+  .ag-count{font-size:12.5px;color:var(--tx-3);margin-bottom:12px;font-weight:600}
+  .thrbadge{font-size:10.5px;font-weight:700;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:0 7px;margin-left:2px;flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -1134,6 +1158,7 @@ html,body{height:100%}
       <a data-view="nurture" tabindex="0" onclick="showView('nurture')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V11"/><path d="M12 11C12 7 9.5 4.5 4.5 4.5c0 4 2.5 6.5 7.5 6.5z"/><path d="M12 9.5c0-3 2.2-5.5 6.5-5.5 0 3.2-2.3 5.5-6.5 5.5z"/></svg><span class="lbl">Nurture</span></a>
       <a data-view="sitespy" tabindex="0" onclick="showView('sitespy')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg><span class="lbl">Site Spy</span></a>
       <a data-view="prospecting" tabindex="0" onclick="showView('prospecting')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6M8 11h6"/></svg><span class="lbl">Prospecting</span></a>
+      <a data-view="agency" tabindex="0" onclick="showView('agency')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg><span class="lbl">Agency</span></a>
       <a data-view="analytics" tabindex="0" onclick="showView('analytics')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M6 20v-6"/><path d="M12 20V6"/><path d="M18 20v-9"/></svg><span class="lbl">Analytics</span></a>
       <a data-view="sequences" tabindex="0" onclick="showView('sequences')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span class="lbl">Sequences</span></a>
       <a data-view="newsletter" tabindex="0" onclick="showView('newsletter')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span class="lbl">Newsletter</span></a>
@@ -1166,6 +1191,7 @@ html,body{height:100%}
     <section class="cnview" id="consentview" hidden></section>
     <section class="nurtureview" id="newsletterview" hidden></section>
     <section class="prospview" id="prospectingview" hidden></section>
+    <section class="prospview" id="agencyview" hidden></section>
   </div>
 <script>
 /* Inbox fixture — bucket-classified (open/auto/snoozed/suppressed), with explicit
@@ -1751,7 +1777,7 @@ function renderList(filter){
     const stagePill = dstg!=='new' ? `<span class="rstage ${dstg}" title="Deal stage">${dstg}</span>` : '';
     return `<button class="row ${c.id===sel?'sel':''} ${needsFix?'fix':''} ${c.unread?'unrow':'readrow'} ${c.bucket==='suppressed'?'dim':''}" onclick="select('${c.id}')">
       <div class="row-main">
-        <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${ownerSm}<span class="rdate" title="When this lead came in">${dateStamp(c.arrived_ts||c.age_ts)}</span></div>
+        <div class="l1">${dot}<span class="nm">${esc(c.name||"Unknown")}</span>${c.thread_count>1?`<span class="thrbadge" title="${c.thread_count} conversations threaded together">🧵 ${c.thread_count}</span>`:''}${ownerSm}<span class="rdate" title="When this lead came in">${dateStamp(c.arrived_ts||c.age_ts)}</span></div>
         <div class="co"><span class="conm">${esc(c.company||"— no company —")}</span>${tierChip(c)}${stagePill}${c.snooze_until?`<span class="rmchip ${remOverdue(c.snooze_until)?'due':''}" title="${c.snooze_note?esc(c.snooze_note):'Reminder'}">⏰ ${fmtRemWhen(c.snooze_until)}</span>`:''}</div>
       </div>
     </button>`;
@@ -2672,7 +2698,7 @@ function showView(v){
   // running on other screens forever (rate-limit + battery drain).
   if(v!=='inbox' && typeof stopChatPoll==='function') stopChatPoll();
   document.querySelectorAll('.rail a[data-view]').forEach(a=>a.classList.toggle('on', a.dataset.view===v));
-  const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview',newsletter:'newsletterview',prospecting:'prospectingview'};
+  const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview',newsletter:'newsletterview',prospecting:'prospectingview',agency:'agencyview'};
   window.__crmView=v;
   Object.entries(views).forEach(([k,id])=>{const el=document.getElementById(id); if(el) el.hidden=k!==v;});
   // Render the active view defensively — a single view throwing must never blank the app.
@@ -2694,6 +2720,7 @@ function showView(v){
     else if(v==='consent')renderConsent();
     else if(v==='newsletter')renderNewsletter();
     else if(v==='prospecting')renderProspecting();
+    else if(v==='agency')renderAgency();
     else if(v==='inbox' && window.renderList)renderList(curFilter());
   }catch(e){
     if(window.console) console.warn('view render failed: '+v, e);
@@ -2819,6 +2846,48 @@ function maybePollRuns(){
   }
 }
 window.renderProspecting=renderProspecting;
+
+/* ---- Agency: contractors managed by a marketing/web agency (detected or manually flagged) ---- */
+let AGENCY={agencies:[],roster:[],loaded:false};
+async function renderAgency(force){
+  const host=document.getElementById('agencyview'); if(!host) return;
+  if(!AGENCY.loaded||force){
+    host.innerHTML='<div style="padding:56px;text-align:center;color:var(--tx-3)">Loading agencies…</div>';
+    try{ const d=await fetch('/api/crm/agency',{headers:{'Accept':'application/json'}}).then(x=>x.json()); AGENCY={agencies:d.agencies||[],roster:d.roster||[],loaded:true}; }
+    catch(e){ host.innerHTML='<div class="idash-empty" style="padding:40px">Couldn’t load agencies.</div>'; return; }
+  }
+  const roster=AGENCY.roster||[]; const list=AGENCY.agencies||[];
+  const managed=list.filter(a=>a.managed);
+  const rosterHtml=roster.length?`<div class="ag-roster">${roster.map(r=>`<div class="ag-rchip"><b>${escP(r.name)}</b><span>${r.clients} client${r.clients===1?'':'s'}</span></div>`).join('')}</div>`:'';
+  const rows=list.length?list.map(agRow).join(''):'<div class="idash-empty" style="padding:48px;text-align:center;color:var(--tx-3)">No agency-managed contractors yet. When a Claude lookup detects an agency, or you flag one from a lead’s Intel panel, it shows here.</div>';
+  host.innerHTML=`<div class="prosp">
+    <div class="phead"><div><h2 class="pttl">Agency-managed</h2><p class="psub">Contractors whose site/marketing is run by an agency — so you know you’re selling through the agency, or that the owner can’t change their own stack. Flag one from any lead’s <b>Intel</b> panel.</p></div>
+      <button class="pref" onclick="renderAgency(true)" title="Refresh">↻</button></div>
+    ${rosterHtml}
+    <div class="ag-count">${managed.length} managed · ${list.length} flagged</div>
+    <div class="plist">${rows}</div>
+  </div>`;
+}
+function agRow(a){
+  const openBtn=a.contact_id?`<button class="ppromote" onclick="openLeadFromAgency('${a.contact_id}')">Open lead →</button>`:'';
+  const src=a.source==='detected'?'<span class="pchip soft">🔎 detected</span>':'<span class="pchip soft">✍ manual</span>';
+  const dom=a.domain?`<a href="https://${escP(a.domain)}" target="_blank" rel="noopener" class="pdom">${escP(a.domain)}</a>`:'';
+  return `<div class="pcard ${a.managed?'hot':''}">
+    <div class="pscore ${a.managed?'hot':'cold'}" style="font-size:13px">${a.managed?'AGY':'—'}</div>
+    <div class="pmain">
+      <div class="pnm">${escP(a.company||a.contact_name||'Unknown')} ${a.agency_name?`<span class="pbadge warm">${escP(a.agency_name)}</span>`:''}</div>
+      <div class="pmeta">${dom}${dom&&(a.note||a.by)?' · ':''}${a.note?escP(a.note):(a.by?'flagged by '+escP(a.by):'')}</div>
+      <div class="pchips">${src}${a.managed?'<span class="pchip hot">managed by agency</span>':''}</div>
+    </div>
+    <div class="pact">${openBtn}</div>
+  </div>`;
+}
+function openLeadFromAgency(contactId){
+  const conv=DATA.conversations.find(x=>x.contact_id===contactId);
+  if(conv){ showView('inbox'); if(window.select) select(conv.id); }
+  else if(window.crmToast) crmToast('This lead isn’t in the current inbox view.');
+}
+window.renderAgency=renderAgency; window.openLeadFromAgency=openLeadFromAgency;
 
 /* ---- Newsletter: view + edit the 12 issues, preview, send (hold-for-approval) ---- */
 const NL_FIELDS=['seg_ticket','seg_channel','seg_trucks','seg_crm'];
@@ -2949,7 +3018,7 @@ window.nlSend=nlSend;
 // blanked the app. Wrapped so any failure falls back to the default Inbox.
 function restoreView(){
   try{
-    var valid={inbox:1,reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1,newsletter:1,prospecting:1};
+    var valid={inbox:1,reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1,newsletter:1,prospecting:1,agency:1};
     var v=decodeURIComponent(location.hash.slice(1)||'');
     if(!valid[v]){ try{ v=localStorage.getItem('crm_view')||''; }catch(e){ v=''; } }
     if(valid[v] && v!=='inbox') showView(v);
@@ -3409,10 +3478,12 @@ document.body.insertAdjacentHTML('beforeend', `
 document.getElementById('dealmodal').addEventListener('click',e=>{ if(e.target.id==='dealmodal') closeDeal(); });
 document.getElementById('dqmodal').addEventListener('click',e=>{ if(e.target.id==='dqmodal') closeDq(); });
 /* live-data pipeline: real deals grouped by stage (view-only; editing needs an endpoint) */
-function toggleDq(on){ window._showDq=!!on; try{localStorage.setItem('pipeShowDq',on?'1':'');}catch(_){} renderPipeline(); }
+function toggleDq(on){ window._showDq=!!on; try{localStorage.setItem('pipeHideDq',on?'':'1');}catch(_){} renderPipeline(); }
 window.toggleDq=toggleDq;
 function renderPipelineReal(el,P){
-  if(window._showDq===undefined){ try{window._showDq=localStorage.getItem('pipeShowDq')==='1';}catch(_){window._showDq=false;} }
+  // Disqualified is a real stage — show it by default. The toggle now only HIDES it
+  // (opt-out, persisted), so it's never silently missing when deals get disqualified.
+  if(window._showDq===undefined){ try{window._showDq=localStorage.getItem('pipeHideDq')!=='1';}catch(_){window._showDq=true;} }
   const showDq=!!window._showDq;
   const stages = showDq ? PSTAGES.concat([['disqualified','Disqualified']]) : PSTAGES;
   const col=([k,l])=>{
@@ -3797,13 +3868,67 @@ async function runLookup(id, mode, ev){
   window.ENRICH[id]=Object.assign({}, window.ENRICH[id]||{}, r.enrich||{}, {_last_cost:r.cost_usd, _signals:r.signals});
   window.DIRECTORY[id]=Object.assign({}, window.DIRECTORY[id]||{}, r.directory||{});
   window.INTEL[id]=Object.assign({}, window.INTEL[id]||{}, r.intel||{});
+  // #1 writeback — reflect the record changes the server just made, so the Address
+  // section + card update immediately (no refresh needed).
+  const wb=r.writeback||[];
+  const sig=r.signals||{};
+  if(wb.includes('phone') && (sig.phone||(r.directory&&r.directory.phone))){ window.PHONES=window.PHONES||{}; window.PHONES[id]=sig.phone||r.directory.phone; }
+  const cv0=DATA.conversations.find(x=>x.id===id);
+  if(cv0){ if(wb.includes('company') && sig.company_name) cv0.company=sig.company_name; if(wb.includes('name') && sig.owner) cv0.name=sig.owner; if(wb.includes('email') && sig.emails&&sig.emails[0]) cv0.contact_email=cv0.contact_email||sig.emails[0]; }
   const c=DATA.conversations.find(x=>x.id===id); if(c && curTab==='intel') renderTab(c);
+  if(window.renderList) renderList(curFilter());   // refresh the list row (name/company may have changed)
   const paid=(r.breakdown||[]).filter(x=>x.cost>0);
   const costStr = r.cost_usd>0 ? '$'+(+r.cost_usd).toFixed(4) : 'free';
   const misses=(r.breakdown||[]).filter(x=>x.ok===false && x.note).map(x=>x.note);
-  if(window.crmToast) crmToast('Looked up '+r.domain+' · '+costStr+(misses.length?' — note: '+misses[0]:''));
+  const wbMsg = wb.length ? ' · updated '+wb.join(', ') : '';
+  if(window.crmToast) crmToast('Looked up '+r.domain+' · '+costStr+wbMsg+(misses.length?' — note: '+misses[0]:''));
 }
 window.runLookup=runLookup;
+/* #1 — per-channel consent toggles on the Intel panel. A click writes a granted/revoked
+   consent_records row, auto-stamped with who + when, and logs it to the Activity timeline. */
+function consentToggles(c){
+  const cs=c.consent||{};
+  const row=(ch,lbl)=>{ const st=cs[ch]||'none'; const on=st==='granted';
+    return `<button class="cst-tog ${on?'on':(st==='revoked'?'rev':'')}" onclick="setChannelConsent('${c.id}','${ch}',${on?'false':'true'},event)" title="${on?'Consent on file — click to revoke':'Click to confirm '+lbl+' consent'}"><span class="cst-dot"></span>${lbl}<span class="cst-state">${on?'✓ granted':(st==='revoked'?'revoked':'confirm')}</span></button>`; };
+  return `<div class="cst-wrap"><div class="cst-h">Contact consent <span class="cst-hint">tap to confirm — logged to Activity</span></div><div class="cst-row">${row('email','Email')}${row('sms','SMS')}${row('voice','Voice')}</div></div>`;
+}
+async function setChannelConsent(id,channel,granted,ev){
+  if(ev)ev.stopPropagation();
+  const conv=DATA.conversations.find(x=>x.id===id); const contactId=conv?conv.contact_id:null;
+  if(!contactId){ if(window.crmToast)crmToast('No contact on this lead to set consent for'); return; }
+  const prev=conv&&conv.consent?conv.consent[channel]:'none';
+  if(conv){ conv.consent=conv.consent||{}; conv.consent[channel]=granted?'granted':'revoked'; }   // optimistic
+  const c=DATA.conversations.find(x=>x.id===id); if(c&&curTab==='intel') renderTab(c);
+  const r=await fetch('/api/crm/consent',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'set_channel',contact_id:contactId,channel,granted})}).then(x=>x.json()).catch(()=>null);
+  if(!r||!r.ok){ if(conv)conv.consent[channel]=prev; const c2=DATA.conversations.find(x=>x.id===id); if(c2&&curTab==='intel')renderTab(c2); if(window.crmToast)crmToast('Could not save consent — reverted'); return; }
+  if(window.crmToast)crmToast(channel.toUpperCase()+' consent '+(granted?'confirmed':'revoked')+' — logged to Activity');
+}
+window.consentToggles=consentToggles; window.setChannelConsent=setChannelConsent;
+/* #3 — flag a lead as managed by a marketing/web agency, from the Intel panel. */
+function agencyEditor(c){
+  const x=(window.INTEL||{})[c.id]||{}, e=(window.ENRICH||{})[c.id]||{};
+  const ag=(e._agency)||x.agency||{};   // manual flag wins over the detected one
+  const managed=!!ag.managed; const name=ag.name||'';
+  const detected=x.agency&&x.agency.name&&!e._agency?`<span class="ag-detect">🔎 detected: ${esc(x.agency.name)}</span>`:'';
+  return `<div class="cst-wrap"><div class="cst-h">Managed by agency? ${detected}</div>
+    <div class="ag-edit">
+      <button class="cst-tog ${managed?'on':''}" onclick="saveAgency('${c.id}',${managed?'false':'true'},null,event)">${managed?'✓ Yes — agency-run':'Flag as agency-run'}</button>
+      <input id="ag-name-${c.id}" class="ag-name" placeholder="Agency name (optional)" value="${esc(name)}" onblur="saveAgency('${c.id}',${managed},this.value,event)">
+    </div></div>`;
+}
+async function saveAgency(id,managed,name,ev){
+  if(ev)ev.stopPropagation();
+  const conv=DATA.conversations.find(x=>x.id===id); const contactId=conv?conv.contact_id:null;
+  if(!contactId){ if(window.crmToast)crmToast('No contact on this lead'); return; }
+  if(name==null){ const el=document.getElementById('ag-name-'+id); name=el?el.value:''; }
+  const r=await fetch('/api/crm/agency',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'set',contact_id:contactId,managed:!!managed,name})}).then(x=>x.json()).catch(()=>null);
+  if(!r||!r.ok){ if(window.crmToast)crmToast('Could not save agency flag'); return; }
+  window.ENRICH=window.ENRICH||{}; window.ENRICH[id]=Object.assign({}, window.ENRICH[id]||{}, {_agency:r.agency});
+  AGENCY.loaded=false;   // force the Agency tab to re-pull next time
+  const c=DATA.conversations.find(x=>x.id===id); if(c&&curTab==='intel') renderTab(c);
+  if(window.crmToast)crmToast(managed?'Flagged as agency-managed':'Agency flag cleared');
+}
+window.agencyEditor=agencyEditor; window.saveAgency=saveAgency;
 function intelDashboard(c){
   const e=((window.ENRICH||{})[c.id]||{}), x=(window.INTEL||{})[c.id]||{}, d=(window.DIRECTORY||{})[c.id]||{}, it=c.intel, ph=PHONES[c.id];
   const fit=`<span class="fit ${it.fit}">${it.fit.toUpperCase()}</span>`;
@@ -3854,7 +3979,20 @@ function intelDashboard(c){
   const contact=`
     ${d.address?idRow('ok','Address',d.address,null):''}
     ${ph?`<div class="prow"><span class="pst good">✓</span><span class="pk">Phone</span><span class="pv"><a href="${telHref(ph)}">${esc(ph)}</a></span></div>`:''}
-    ${c.contact_email?`<div class="prow"><span class="pst good">✓</span><span class="pk">Email</span><span class="pv"><a href="mailto:${esc(c.contact_email)}">${esc(c.contact_email)}</a></span></div>`:''}`;
+    ${c.contact_email?`<div class="prow"><span class="pst good">✓</span><span class="pk">Email</span><span class="pv"><a href="mailto:${esc(c.contact_email)}">${esc(c.contact_email)}</a></span></div>`:''}
+    ${x.service_area?`<div class="prow"><span class="pk">Service area</span><span class="pv">${esc(x.service_area)}</span></div>`:''}
+    ${x.hours?`<div class="prow"><span class="pk">Hours</span><span class="pv">${esc(x.hours)}</span></div>`:''}
+    ${x.license?`<div class="prow"><span class="pk">License</span><span class="pv">${esc(x.license)}</span></div>`:''}`;
+  // #5/#1 — reachable people found by the Claude research pass (names, roles, emails, phones).
+  const people=(d.contacts||[]).filter(p=>p&&(p.name||p.email||p.phone));
+  const extraEmails=(d.emails||[]).filter(em=>em && em!==c.contact_email && !people.some(p=>p.email===em));
+  const extraPhones=(d.phones||[]).filter(pn=>pn && pn!==ph && !people.some(p=>p.phone===pn));
+  const peopleBody = (people.length||d.owner||extraEmails.length||extraPhones.length) ? `
+    ${d.owner&&!people.some(p=>p.name===d.owner)?`<div class="prow"><span class="pk">${esc(d.owner)}</span><span class="pv" style="color:var(--tx-3)">owner</span></div>`:''}
+    ${people.map(p=>`<div class="prow"><span class="pk">${esc(p.name||'—')}${p.role?` <span style="color:var(--tx-3);font-weight:500">· ${esc(p.role)}</span>`:''}</span><span class="pv">${p.email?`<a href="mailto:${esc(p.email)}">${esc(p.email)}</a>`:''}${p.phone?`${p.email?' · ':''}<a href="${telHref(p.phone)}">${esc(p.phone)}</a>`:''}</span></div>`).join('')}
+    ${extraEmails.map(em=>`<div class="prow"><span class="pk" style="color:var(--tx-3)">Email</span><span class="pv"><a href="mailto:${esc(em)}">${esc(em)}</a></span></div>`).join('')}
+    ${extraPhones.map(pn=>`<div class="prow"><span class="pk" style="color:var(--tx-3)">Phone</span><span class="pv"><a href="${telHref(pn)}">${esc(pn)}</a></span></div>`).join('')}
+  ` : '<div class="idash-empty">No named contacts found yet — run 🔎 Claude Lookup to pull people, phones &amp; emails from the site and their messages.</div>';
   return `<div class="intel-dash">
     <div class="idash-hero">
       <div class="idh-title">${fit}${esc(c.company||c.name||'Unknown')}<span class="idh-trade">${[x.trade,city].filter(Boolean).join(' · ')}</span></div>
@@ -3875,7 +4013,8 @@ function intelDashboard(c){
       ${icardD('Website tech','Detected on-site', `<div class="techchips">${techChips}</div>${gapFlags}`)}
       ${icardD('Reputation','Google Business', rep)}
       ${icardD('On-site engagement','First-party', eng)}
-      ${icardD('Contact &amp; location','CRM + directories', `<div class="presence">${contact||'<div class="idash-empty">—</div>'}</div>${spyGeoLine(it)}`)}
+      ${icardD('People you can reach','Claude research', `<div class="presence">${peopleBody}</div>`)}
+      ${icardD('Contact &amp; location','CRM + directories', `<div class="presence">${contact||'<div class="idash-empty">—</div>'}</div>${spyGeoLine(it)}${consentToggles(c)}${agencyEditor(c)}`)}
     </div>
     ${it.signal?`<div class="idash-opp">🔥 <div><b>Why they fit —</b> ${esc(it.signal)}${recoverable!=null?` <span class="opp-num">≈ ${recoverable.toLocaleString()} consented leads/mo</span> they're leaving on the table`:''}.</div></div>`:''}
   </div>`;

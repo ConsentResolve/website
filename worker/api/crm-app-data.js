@@ -280,6 +280,7 @@ export async function onRequestGet({ request, env }) {
     const cmsgs = (msgsByConv.get(r.id) || []).map((m) => ({
       dir: m.direction === "in" ? "in" : "out", channel: m.channel === "crisp" ? "chatwoot" : m.channel,
       body: m.body_text || stripHtml(m.body_html) || "", ts: humanTime(m.sent_at), meta: "",
+      _ts: m.sent_at ? Date.parse(m.sent_at) : 0,   // sort key for threading merges
     }));
     const seqTotal = run && /earn/i.test(run.name || "") ? 3 : 4;
     return {
@@ -315,12 +316,20 @@ export async function onRequestGet({ request, env }) {
       messages: cmsgs.length ? cmsgs : [{ dir: "system", body: "No messages on this conversation yet.", ts: humanTime(r.last_message_at) || "" }],
     };
   });
+  // ---- Thread by person/company (#2) ----
+  // Collapse conversations that belong to the same person (contact_id) — or the same
+  // company when a conversation has no contact — into ONE thread. The primary row is the
+  // one with the newest activity (so the list stays newest-first and Reply defaults to the
+  // newest channel); every member's messages are merged and sorted oldest→newest so the
+  // thread reads top-to-bottom. Distinct named people at the same company stay separate.
+  const THREADED = threadConversations(DATA_CONVERSATIONS);
+
   const DATA_COUNTS = {
-    open: DATA_CONVERSATIONS.filter((c) => c.bucket === "open").length,
-    auto: DATA_CONVERSATIONS.filter((c) => c.bucket === "auto").length,
-    snoozed: DATA_CONVERSATIONS.filter((c) => c.bucket === "snoozed").length,
-    nurture: DATA_CONVERSATIONS.filter((c) => c.bucket === "nurture").length,
-    all: DATA_CONVERSATIONS.length,
+    open: THREADED.filter((c) => c.bucket === "open").length,
+    auto: THREADED.filter((c) => c.bucket === "auto").length,
+    snoozed: THREADED.filter((c) => c.bucket === "snoozed").length,
+    nurture: THREADED.filter((c) => c.bucket === "nurture").length,
+    all: THREADED.length,
   };
 
   // ---- Site Spy visitors (from real site_visit events) ----
@@ -501,7 +510,7 @@ export async function onRequestGet({ request, env }) {
     me: meOut,
     CONSENT_LEDGER, CONSENT_STATS, consentSummary,
     SEQUENCES,
-    DATA_CONVERSATIONS, DATA_COUNTS,
+    DATA_CONVERSATIONS: THREADED, DATA_COUNTS,
     ENRICH, DIRECTORY, INTEL, TASKSTATE,
     SITESPY, NURTURE, SITE_SOURCES, SPY_LEADS, PIPELINE, ANALYTICS,
     inbox: { buckets },
@@ -513,6 +522,42 @@ export async function onRequestGet({ request, env }) {
 
 function firstRow(res) { return (res.results && res.results[0]) || {}; }
 function safeJson(s, d) { try { return JSON.parse(s); } catch (_) { return d; } }
+
+// Group conversations by person (contact_id), or company when there is no contact.
+// Returns one row per group: the newest-activity conversation, carrying every member's
+// messages merged oldest→newest, summed unread, and a thread_count. Order is preserved
+// as newest-first because the input is already sorted by last activity.
+function threadConversations(list) {
+  const groups = new Map(); // key → array of conversations
+  const order = [];         // group keys in first-seen (newest-first) order
+  for (const c of list) {
+    const key = c.contact_id ? "ct:" + c.contact_id : (c.company ? "co:" + String(c.company).toLowerCase() : "id:" + c.id);
+    if (!groups.has(key)) { groups.set(key, []); order.push(key); }
+    groups.get(key).push(c);
+  }
+  const out = [];
+  for (const key of order) {
+    const members = groups.get(key);
+    if (members.length === 1) { out.push(members[0]); continue; }
+    // Primary = newest activity (members retain the input's newest-first order, so [0]).
+    const primary = members.slice().sort((a, b) => (b.age_ts || 0) - (a.age_ts || 0))[0];
+    // Merge every member's messages, drop the per-conversation "no messages yet" placeholder,
+    // sort oldest→newest so the thread reads top-to-bottom.
+    const msgs = [];
+    for (const m of members) for (const mm of (m.messages || [])) if (mm.dir !== "system") msgs.push(mm);
+    msgs.sort((a, b) => (a._ts || 0) - (b._ts || 0));
+    primary.messages = msgs.length ? msgs : primary.messages;
+    // Merge notes into the activity feed (contact-level activities are already shared, so
+    // only fold in sibling NOTES, deduped).
+    const seen = new Set((primary.activity || []).map((a) => a.kind + "|" + a.label + "|" + a.ts));
+    for (const m of members) { if (m === primary) continue; for (const a of (m.activity || [])) { if (a.kind !== "note") continue; const k = a.kind + "|" + a.label + "|" + a.ts; if (!seen.has(k)) { seen.add(k); primary.activity.push(a); } } }
+    primary.unread = members.some((m) => m.unread);
+    primary.thread_count = members.length;
+    primary.thread_ids = members.map((m) => m.id);
+    out.push(primary);
+  }
+  return out;
+}
 
 // ---- consent-ledger humanizers (shape the row for the UI) ----
 function humanTime(iso) {

@@ -82,17 +82,82 @@ function parseSite(domain, html) {
   };
 }
 
-// ---- optional Claude summary ------------------------------------------------
-async function claudeSummary(env, domain, text) {
+// ---- fetch a few high-signal pages (home + contact/about) -------------------
+// The old lookup read ONE page; a "tell me everything" answer needs the pages
+// where humans actually put names, phones, hours, and service areas.
+const EXTRA_PATHS = ["/contact", "/contact-us", "/about", "/about-us", "/our-team", "/team"];
+async function fetchPages(domain) {
+  const home = await fetchSite(domain);
+  const pages = [{ path: "/", html: home.html }];
+  if (home.ok && home.html) {
+    // Only chase links the homepage actually references, so we don't burn time on 404s.
+    const low = home.html.toLowerCase();
+    const wanted = EXTRA_PATHS.filter((p) => low.includes(p.replace(/^\//, "")) ).slice(0, 2);
+    for (const p of wanted) {
+      const r = await fetchSite(domain + p).catch(() => null);
+      if (r && r.ok && r.html) pages.push({ path: p, html: r.html });
+    }
+  }
+  const toText = (html) => (html || "").replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const text = pages.map((p) => `[page ${p.path}]\n` + toText(p.html).slice(0, 7000)).join("\n\n");
+  return { home, text };
+}
+
+// ---- gather recent INBOUND messages for this contact ------------------------
+// #1: their email/chat/SMS often already contains a phone, company, or trade the
+// record is missing. We feed those bodies to Claude so a lookup fills the blanks.
+async function gatherInbound(env, contactId) {
+  if (!contactId) return "";
+  try {
+    const rows = await env.DB.prepare(
+      `SELECT m.direction, m.channel, m.body_text, m.sent_at
+         FROM messages m JOIN conversations c ON c.id = m.conversation_id
+        WHERE c.contact_id = ? AND m.direction = 'in' AND m.body_text IS NOT NULL
+        ORDER BY COALESCE(m.sent_at, m.created_at) DESC LIMIT 12`
+    ).bind(contactId).all().catch(() => ({ results: [] }));
+    const txt = (rows.results || []).map((r) => `[${r.channel} in] ${String(r.body_text || "").replace(/\s+/g, " ").slice(0, 1200)}`).join("\n");
+    return txt.slice(0, 8000);
+  } catch (_) { return ""; }
+}
+
+// ---- rich Claude extraction -------------------------------------------------
+// Reads the site pages + the lead's own inbound messages and returns a full,
+// salesperson-ready profile: reachable people, phones, emails, trade, area,
+// hours, license, and whether the site is run by a marketing agency (#3).
+async function claudeEnrich(env, domain, siteText, inboundText) {
   if (!env.ANTHROPIC_API_KEY) return { used: false, cost: 0 };
-  const prompt = `You are enriching a home-service contractor lead. From this website text for ${domain}, return STRICT JSON:
-{"trade": "<primary trade or null>", "services": ["..."], "runs_ads": <true|false|null>, "brief": "<one crisp sentence a salesperson would find useful>"}
-Only the JSON. Text:\n${text.slice(0, 6000)}`;
+  const prompt = `You are a B2B sales researcher enriching a home-service contractor lead for "${domain}". Use the WEBSITE PAGES and the lead's own INBOUND MESSAGES below. Extract everything a salesperson could act on. Prefer facts stated in the messages over guesses. If a field is unknown, use null (or [] for lists). Do NOT invent data.
+
+Return STRICT JSON only, no prose:
+{
+  "company_name": "<official business name or null>",
+  "trade": "<primary trade, e.g. HVAC, roofing, plumbing, or null>",
+  "services": ["specific services offered"],
+  "service_area": "<cities/counties/region served or null>",
+  "owner_name": "<owner/principal full name or null>",
+  "contacts": [{"name":"<person>","role":"<title/role>","email":"<email or null>","phone":"<phone or null>"}],
+  "phones": ["all distinct phone numbers found"],
+  "emails": ["all distinct email addresses found"],
+  "hours": "<business hours or null>",
+  "license_number": "<contractor license # or null>",
+  "years_in_business": <integer or null>,
+  "socials": {"facebook":null,"instagram":null,"linkedin":null,"tiktok":null,"youtube":null},
+  "runs_ads": <true|false|null>,
+  "agency_managed": <true|false|null>,
+  "agency_name": "<marketing/web agency that built or runs the site, if any credit/footer/tech reveals one, else null>",
+  "brief": "<2-3 sentence sales-useful summary: what they do, size/vibe, and the best angle to reach them>"
+}
+
+WEBSITE PAGES:
+${(siteText || "").slice(0, 14000)}
+
+INBOUND MESSAGES FROM THIS LEAD:
+${(inboundText || "(none)").slice(0, 8000)}`;
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 400, messages: [{ role: "user", content: prompt }] }),
+      body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1500, messages: [{ role: "user", content: prompt }] }),
     });
     const j = await r.json();
     const usage = j.usage || {};
@@ -101,6 +166,43 @@ Only the JSON. Text:\n${text.slice(0, 6000)}`;
     try { data = JSON.parse((j.content && j.content[0] && j.content[0].text || "{}").replace(/^```json\s*|\s*```$/g, "")); } catch (_) {}
     return { used: true, cost, data };
   } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
+}
+
+// ---- conservative writeback: fill BLANKS on the record, never overwrite ------
+// Returns a list of the fields we actually changed (for the activity log + UI toast).
+function firstPhone(list) { for (const p of (list || [])) { const d = String(p || "").replace(/[^\d]/g, ""); if (d.length >= 10) return String(p).trim(); } return null; }
+async function writeBackRecord(env, { contact, company, data }) {
+  const changed = [];
+  if (!data) return changed;
+  // Phone → contact_identifiers (only if the contact has none on file).
+  const phone = firstPhone(data.phones) || (data.contacts || []).map((c) => c && c.phone).filter(Boolean).map(firstPhone).find(Boolean);
+  if (phone && contact) {
+    const has = await env.DB.prepare("SELECT id FROM contact_identifiers WHERE contact_id=? AND type='phone' LIMIT 1").bind(contact.id).first().catch(() => null);
+    if (!has) {
+      await env.DB.prepare("INSERT OR IGNORE INTO contact_identifiers (id, contact_id, type, value, verified) VALUES (?,?,?,?,0)")
+        .bind(rid(), contact.id, "phone", phone).run().catch(() => {});
+      await env.DB.prepare("UPDATE contacts SET phone=COALESCE(NULLIF(phone,''),?), updated_at=datetime('now') WHERE id=?").bind(phone, contact.id).run().catch(() => {});
+      changed.push("phone");
+    }
+  }
+  // Email → set primary_email if missing (never overwrite an existing one).
+  const email = (data.emails || []).find((e) => /@/.test(String(e || "")));
+  if (email && contact && !contact.primary_email) {
+    await env.DB.prepare("UPDATE contacts SET primary_email=?, updated_at=datetime('now') WHERE id=?").bind(String(email).toLowerCase(), contact.id).run().catch(() => {});
+    changed.push("email");
+  }
+  // Contact name → set full_name if missing (prefer an explicit owner).
+  const name = data.owner_name || ((data.contacts || [])[0] || {}).name;
+  if (name && contact && (!contact.full_name || contact.full_name === contact.primary_email)) {
+    await env.DB.prepare("UPDATE contacts SET full_name=?, updated_at=datetime('now') WHERE id=?").bind(String(name).slice(0, 120), contact.id).run().catch(() => {});
+    changed.push("name");
+  }
+  // Company name → replace a domain-placeholder name with the real business name.
+  if (data.company_name && company) {
+    const looksPlaceholder = !company.name || company.name === company.domain || /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(company.name);
+    if (looksPlaceholder) { await env.DB.prepare("UPDATE companies SET name=?, updated_at=datetime('now') WHERE id=?").bind(String(data.company_name).slice(0, 160), company.id).run().catch(() => {}); changed.push("company"); }
+  }
+  return changed;
 }
 
 export async function onRequestPost({ request, env }) {
@@ -138,26 +240,43 @@ export async function onRequestPost({ request, env }) {
   const parsed = { enrich: { ...pEnr, website: { ...(pEnr.website || {}), domain } }, directory: { ...(pDir || {}) }, intel: { ...(pInt || {}) } };
   const breakdown = [];
 
-  // ── Claude / free: fetch the live site, parse it, and (if keyed) summarize with Claude ──
+  // ── Claude / free: fetch site pages + read inbound messages, extract a full profile, write back ──
+  let writeback = [];
   if (mode === "claude" || mode === "all") {
-    const site = await fetchSite(domain);
-    if (site.ok && site.html) {
-      const p = parseSite(domain, site.html);
+    const { home, text } = await fetchPages(domain);
+    if (home.ok && home.html) {
+      const p = parseSite(domain, home.html);
       Object.assign(parsed.enrich, p.enrich);
       Object.assign(parsed.directory, p.directory);
       Object.assign(parsed.intel, p.intel);
     }
-    breakdown.push({ source: "Website parse", cost: 0, ok: site.ok, note: site.ok ? null : "site fetch failed (" + (site.status || site.error || "?") + ")" });
-    const text = (site.html || "").replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
-    const cl = await claudeSummary(env, domain, text);
+    breakdown.push({ source: "Website parse", cost: 0, ok: home.ok, note: home.ok ? null : "site fetch failed (" + (home.status || home.error || "?") + ")" });
+    const inbound = await gatherInbound(env, b.contact_id);
+    const cl = await claudeEnrich(env, domain, text, inbound);
     if (cl.used && cl.data) {
-      breakdown.push({ source: "Claude summary", cost: cl.cost, ok: !cl.error });
-      if (cl.data.trade) parsed.intel.trade = cl.data.trade;
-      if (cl.data.brief) parsed.intel.brief = cl.data.brief;
-      if (Array.isArray(cl.data.services)) parsed.intel.services = cl.data.services.slice(0, 8);
-      if (typeof cl.data.runs_ads === "boolean") parsed.intel.runs_ads = cl.data.runs_ads;
+      const d = cl.data;
+      breakdown.push({ source: "Claude research", cost: cl.cost, ok: !cl.error, note: inbound ? "read site + inbound messages" : "read site" });
+      if (d.trade) parsed.intel.trade = d.trade;
+      if (d.brief) parsed.intel.brief = d.brief;
+      if (Array.isArray(d.services)) parsed.intel.services = d.services.slice(0, 12);
+      if (typeof d.runs_ads === "boolean") parsed.intel.runs_ads = d.runs_ads;
+      if (d.service_area) parsed.intel.service_area = d.service_area;
+      if (d.hours) parsed.intel.hours = d.hours;
+      if (d.license_number) parsed.intel.license = d.license_number;
+      if (d.owner_name) parsed.directory.owner = d.owner_name;
+      if (Array.isArray(d.contacts) && d.contacts.length) parsed.directory.contacts = d.contacts.filter((c) => c && (c.name || c.email || c.phone)).slice(0, 8);
+      if (Array.isArray(d.emails) && d.emails.length) parsed.directory.emails = [...new Set(d.emails.filter((e) => /@/.test(String(e))))].slice(0, 8);
+      if (Array.isArray(d.phones) && d.phones.length) parsed.directory.phones = [...new Set(d.phones.map((p) => String(p).trim()).filter(Boolean))].slice(0, 8);
+      if (!parsed.directory.phone && parsed.directory.phones && parsed.directory.phones.length) parsed.directory.phone = parsed.directory.phones[0];
+      if (d.company_name) parsed.enrich.company_name = d.company_name;
+      if (d.years_in_business != null && !parsed.enrich.years) parsed.enrich.years = d.years_in_business;
+      if (d.socials && typeof d.socials === "object") for (const k of ["facebook", "instagram", "linkedin", "tiktok", "youtube"]) if (d.socials[k] && !parsed.directory[k]) parsed.directory[k] = d.socials[k];
+      // #3 agency detection — cached so the Agency tab can read/flag it.
+      if (d.agency_managed != null || d.agency_name) parsed.intel.agency = { managed: !!d.agency_managed, name: d.agency_name || null, detected_at: new Date().toISOString() };
+      // #1 writeback — fill blanks on the actual record (phone, email, name, company).
+      writeback = await writeBackRecord(env, { contact: ct, company: co, data: d }).catch(() => []);
     } else {
-      breakdown.push({ source: "Claude summary", cost: 0, ok: false, note: env.ANTHROPIC_API_KEY ? (cl.error || "no result") : "ANTHROPIC_API_KEY not set — using page parse only" });
+      breakdown.push({ source: "Claude research", cost: 0, ok: false, note: env.ANTHROPIC_API_KEY ? (cl.error || "no result") : "ANTHROPIC_API_KEY not set — using page parse only" });
     }
     if (env.APOLLO_API_KEY && ct && ct.primary_email) {
       const me0 = await currentUser(request, env).catch(() => null);
@@ -224,6 +343,16 @@ export async function onRequestPost({ request, env }) {
     rating: en.gmb ? en.gmb.rating : null,
     reviews: en.gmb ? en.gmb.reviews : null,
     brief: it.brief || null,
+    // reachable people + the richer profile from the Claude research pass
+    contacts: di.contacts || [],
+    emails: di.emails || [],
+    phones: di.phones || [],
+    owner: di.owner || null,
+    company_name: en.company_name || null,
+    service_area: it.service_area || null,
+    hours: it.hours || null,
+    license: it.license || null,
+    agency: it.agency || null,
   };
 
   // Cache the merged enrichment on the company (parsed already includes prev).
@@ -235,7 +364,7 @@ export async function onRequestPost({ request, env }) {
   const me = await currentUser(request, env).catch(() => null);
   await env.DB.prepare("INSERT INTO lookup_log (id, contact_id, company_id, domain, cost_usd, sources, actor, created_at) VALUES (?,?,?,?,?,?,?,datetime('now'))")
     .bind(rid(), b.contact_id, co ? co.id : null, domain, cost_usd, JSON.stringify(breakdown.map((x) => x.source)), me ? me.id : null).run().catch(() => {});
-  if (b.contact_id) await addActivityV2(env, { actorId: me ? me.id : null, entityType: "contact", entityId: b.contact_id, action: "intel_lookup", meta: { domain, cost_usd, mode } }).catch(() => {});
+  if (b.contact_id) await addActivityV2(env, { actorId: me ? me.id : null, entityType: "contact", entityId: b.contact_id, action: "intel_lookup", meta: { domain, cost_usd, mode, updated: writeback } }).catch(() => {});
 
-  return json({ ok: true, domain, mode, cost_usd, breakdown, enrich: parsed.enrich, directory: parsed.directory, intel: parsed.intel, signals, claude_on: !!env.ANTHROPIC_API_KEY, dataforseo_on: !!(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD) }, {}, cors);
+  return json({ ok: true, domain, mode, cost_usd, breakdown, enrich: parsed.enrich, directory: parsed.directory, intel: parsed.intel, signals, writeback, claude_on: !!env.ANTHROPIC_API_KEY, dataforseo_on: !!(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD) }, {}, cors);
 }
