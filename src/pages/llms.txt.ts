@@ -19,7 +19,7 @@ export const GET: APIRoute = async () => {
   const lines: string[] = [
     "# Consent Resolve",
     "",
-    "> Consent-first ad-spend recovery layer for home-service contractors. About 98% of website visitors bounce without contacting the business — Consent Resolve identifies those bounced visitors after they accept the site's consent banner, then feeds them back into the retargeting, email/SMS, and CRM funnels the contractor already runs. Same ad budget, more inbound calls. Flat $7 per recovered lead, exclusive, never resold. Card required, cancel anytime.",
+    "> Consent-first ad-spend recovery layer for home-service contractors. About 98% of website visitors bounce without contacting the business — Consent Resolve identifies those bounced visitors after they accept the site's consent banner, then feeds them back into the retargeting, email/SMS, and CRM funnels the contractor already runs. Same ad budget, more inbound calls. Flat $7 per recovered lead, exclusive, never resold. Card required, no contract.",
     "",
     "## Core pages",
     `- [Home](${SITE}/): What Consent Resolve recovers, why it's additive to existing ad channels, and how the funnel insertion works`,
@@ -87,7 +87,7 @@ export const GET: APIRoute = async () => {
     "- **Exclusivity:** Every recovered lead is the contractor's alone. Never resold, never shared, never auctioned.",
     "- **Compliance:** Identification only after explicit consent. No shadow-tracking, no fingerprinting, no probabilistic guessing — matched through a trusted, deterministic data source. Built for the laws that actually hit U.S. contractors: TCPA, CIPA, and state privacy enforcement (e.g. Texas TDPSA). Engineered to the strictest standard in the world (GDPR), so the U.S. patchwork is covered by design. Every recovery timestamped + signed; policies stay current via Termageddon. Consent Resolve never hands the contractor a number to cold-call.",
     "- **Setup:** Paste one line of code. Live in about 10 minutes. Works on WordPress, Wix, Squarespace, ServiceTitan, GHL, and most other site builders.",
-    "- **Pricing:** Card required. Flat $7 per recovered lead. Cancel anytime. All sales are final — no refunds (you're only billed for consented, deliverable leads; ad-blocked, non-consenting, and invalid records are never billed). NEVER \"free\".",
+    "- **Pricing:** Card required. Flat $7 per recovered lead. Pay-as-you-go. All sales are final — no refunds (you're only billed for consented, deliverable leads; ad-blocked, non-consenting, and invalid records are never billed). NEVER \"free\".",
     "- **Positioning:** Reframed June 2026 from \"identify visitors and call them\" (outbound) to \"recover the anonymous bounce and feed it back into your existing funnel\" (additive).",
     "",
     "## Canonical numbers (with sources)",

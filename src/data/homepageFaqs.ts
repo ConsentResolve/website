@@ -31,7 +31,7 @@ export const HOMEPAGE_FAQS: HomepageFaq[] = [
     answer: "On the trade side: Jobber, Housecall Pro, ServiceTitan, and GoHighLevel. Plus Salesforce, HubSpot, Pipedrive, Zoho CRM, Microsoft Dynamics, ActiveCampaign, Mailchimp, Klaviyo, Marketo, Pardot, Intercom, Segment, Google Sheets, Slack, Zapier, and any tool through a custom API or webhook. Don't see your CRM? We build custom integrations for enterprise customers.",
   },
   {
-    question: "Can I cancel anytime?",
-    answer: "Yes. Flat $7 a lead — card required, no contract, cancel whenever you want.",
+    question: "How does billing work?",
+    answer: "Yes. Flat $7 a lead — card required, no contract, pay-as-you-go.",
   },
 ];

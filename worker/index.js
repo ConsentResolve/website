@@ -36,6 +36,7 @@ import * as gbpStatus from "./api/gbp-status.js";
 import * as admin from "./admin.js";
 import * as crm from "./crm.js";
 import * as crmApp from "./crm-app.js";
+import * as crmChangelog from "./crm-changelog.js";
 import * as signupSiteCheck from "./api/signup-site-check.js";
 import * as crmLeads from "./api/crm-leads.js";
 import * as crmAnalytics from "./api/crm-analytics.js";
@@ -327,6 +328,15 @@ export default {
       } catch (err) {
         return new Response(JSON.stringify({ error: "stl_console_error", detail: String(err).slice(0, 300) }),
           { status: 500, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+      }
+    }
+
+    // Chat-style CRM changelog (cr_crm-gated) — every feature, fix, and change.
+    if (url.pathname === "/crm/changelog") {
+      try {
+        return await crmChangelog.handle({ request, env, ctx });
+      } catch (err) {
+        return new Response("changelog error: " + String(err).slice(0, 200), { status: 500, headers: { "Content-Type": "text/plain" } });
       }
     }
 
