@@ -358,7 +358,11 @@ async function executeStep(env, run, c, step, idx, out, dry) {
       eff = !enabled(env);
     }
   }
-  const t = tpl(env, step.template, c);
+  // IV emails render from their (possibly edited-in-CRM) subject/html override; other
+  // workflows use the code templates.
+  const t = (isIvStep(run, step) && step.action === "send_email")
+    ? renderIvTemplate(step.template, buildVars(env, { contact: c, visitor: (c._enrich || {})._visitor, person: (c._enrich || {})._person }), { subject: step.subject, html: step.html })
+    : tpl(env, step.template, c);
   let res, type, cost = 0;
   if (step.action === "send_email") {
     if (!c.email) { await logStep(env, run, idx, "email", step.action, "skipped", "no_email"); out.skipped++; return; }

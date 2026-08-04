@@ -1138,6 +1138,24 @@ html,body{height:100%}
   .seqedit-in{width:64px;border:1px solid var(--line);background:var(--surface-2);border-radius:7px;padding:5px 8px;font-size:13px;color:var(--tx-1);font-family:inherit;text-align:center}
   .seqedit-in:focus{outline:none;border-color:var(--accent)}
   .seqedit-help{padding:9px 14px 4px;font-size:11.5px;color:var(--tx-3)}
+  .seqedit-block{border-bottom:1px solid var(--line);padding:12px 14px}
+  .seqedit-block:last-of-type{border-bottom:0}
+  .seqedit-prev{margin-left:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--tx-2);border-radius:7px;padding:3px 9px;font-size:11.5px;font-weight:700;cursor:pointer}
+  .seqedit-flabel{display:block;font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--tx-3);margin:10px 0 4px}
+  .seqedit-subj{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px 10px;font-size:13.5px;color:var(--tx-1);font-family:inherit}
+  .seqedit-subj:focus{outline:none;border-color:var(--accent)}
+  .seqedit-bodywrap{margin-top:8px}
+  .seqedit-bodywrap summary{font-size:12px;font-weight:700;color:var(--tx-2);cursor:pointer;padding:4px 0}
+  .seqedit-body{width:100%;box-sizing:border-box;min-height:180px;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:9px 10px;font-family:var(--font-mono);font-size:11.5px;line-height:1.5;color:var(--tx-1);resize:vertical}
+  .seqedit-body:focus{outline:none;border-color:var(--accent)}
+  .ivprev-modal{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center}
+  .ivprev-back{position:absolute;inset:0;background:rgba(6,14,26,.55)}
+  .ivprev-card{position:relative;width:min(680px,94vw);height:min(84vh,900px);background:var(--surface-1);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow)}
+  .ivprev-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+  .ivprev-from{font-size:11.5px;color:var(--tx-3)}
+  .ivprev-subj{font-size:15px;font-weight:800;color:var(--tx-1);margin-top:2px}
+  .ivprev-x{border:none;background:none;font-size:16px;color:var(--tx-3);cursor:pointer}
+  .ivprev-frame{flex:1;border:0;width:100%;background:#fff}
   /* ---- Site engagement panel (top of the conversation body) ---- */
   .site-eng{flex:0 0 auto;margin:16px 18px 6px;border:1px solid var(--line);border-radius:12px;background:var(--surface-1);overflow:hidden}
   .site-eng .se-h{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--tx-2)}
@@ -3896,31 +3914,63 @@ function renderSequences(){
       <div class="seq-foot">Steps only fire on channels the contact has consented to. A reply, a booked demo, or an opt-out exits the sequence immediately.</div>
     </div>`;
 }
-/* Editable cadence panel for the IV sequence — edit the wait (days) before each step. */
+/* Editable panel for the IV sequence — edit the wait (days), subject, and body of each
+   email, with a live Preview. */
+const IV_SAMPLE={first_name:'Adrianne',full_name:'Adrianne Allen',initials:'AA',email:'aallen@grandcanyontrust.org',city_state:'Flagstaff, Arizona',source:'google.com',visit_time:'Aug 3, 2:14 PM',time_on_site:'2 pages',seconds_elapsed:'45',trade_noun:'job',trade_adjective:'home-service',data_record_url:'#',delete_url:'#',unsubscribe_url:'#'};
+function ivFill(html){ return String(html||'').replace(/\{\{(\w+)\}\}/g,(_,k)=> IV_SAMPLE[k]!=null?IV_SAMPLE[k]:''); }
 function seqEditPanel(s){
-  const def=s.def||[];
-  const label=st=> st.action==='subscribe_newsletter'?'✉ Subscribe to newsletter': st.action==='send_email'?('✉ Email '+(def.slice(0,def.indexOf(st)+1).filter(x=>x.action==='send_email').length)):(st.action||'Step');
+  const def=s.def||[]; let emailN=0;
   const rows=def.map((st,i)=>{
-    const days=(st.delay_minutes||0)/1440;
-    const dstr=Number.isInteger(days)?String(days):days.toFixed(2);
-    return `<div class="seqedit-row">
-      <span class="seqedit-lbl">${esc(label(st))}</span>
-      <span class="seqedit-delay">${i===0?'<span class="seqedit-imm">send on enroll</span>':`wait <input type="number" min="0" step="0.5" value="${dstr}" data-step="${i}" class="seqedit-in"> days`}</span>
-    </div>`;
+    if(st.action==='send_email'){
+      emailN++;
+      const days=(st.delay_minutes||0)/1440; const dstr=Number.isInteger(days)?String(days):days.toFixed(2);
+      return `<div class="seqedit-block">
+        <div class="seqedit-row">
+          <span class="seqedit-lbl">✉ Email ${emailN} <button class="seqedit-prev" onclick="seqPreview('${s.id}',${i})">👁 Preview</button></span>
+          <span class="seqedit-delay">${i===0?'<span class="seqedit-imm">send on enroll</span>':`wait <input type="number" min="0" step="0.5" value="${dstr}" data-step="${i}" data-f="delay" class="seqedit-in"> days`}</span>
+        </div>
+        <label class="seqedit-flabel">Subject</label>
+        <input class="seqedit-subj" data-step="${i}" data-f="subject" value="${esc(st.subject||'')}">
+        <details class="seqedit-bodywrap"><summary>Edit body (HTML)</summary>
+          <textarea class="seqedit-body" data-step="${i}" data-f="html" spellcheck="false">${esc(st.html||'')}</textarea>
+        </details>
+      </div>`;
+    }
+    return `<div class="seqedit-row"><span class="seqedit-lbl">✉ Subscribe to newsletter</span><span class="seqedit-delay">after the last email</span></div>`;
   }).join('');
-  return `<div class="seqedit">${rows}<div class="seqedit-help">Days are counted from the previous step. Email 1 sends the moment a visitor is enrolled.</div></div>`;
+  return `<div class="seqedit">${rows}<div class="seqedit-help">Days count from the previous step. Email 1 sends on enroll. {{placeholders}} like {{first_name}}, {{city_state}}, {{visit_time}} fill per recipient — Preview shows sample data.</div></div>`;
 }
 function seqEditToggle(id){ window._seqEdit = window._seqEdit===id ? null : id; renderSequences(); }
-async function seqSaveCadence(id){
-  const s=(window.SEQUENCES||[]).find(x=>x.id===id); if(!s) return;
+function collectDef(id){
+  const s=(window.SEQUENCES||[]).find(x=>x.id===id); if(!s) return null;
   const def=(s.def||[]).map(st=>({...st}));
-  document.querySelectorAll('.seqedit-in').forEach(inp=>{ const i=+inp.dataset.step; const days=parseFloat(inp.value)||0; if(def[i]) def[i].delay_minutes=Math.round(days*1440); });
+  document.querySelectorAll('.seqedit [data-step]').forEach(inp=>{ const i=+inp.dataset.step, f=inp.dataset.f; if(!def[i])return;
+    if(f==='delay') def[i].delay_minutes=Math.round((parseFloat(inp.value)||0)*1440);
+    else if(f==='subject') def[i].subject=inp.value;
+    else if(f==='html') def[i].html=inp.value; });
+  return {s,def};
+}
+async function seqSaveCadence(id){
+  const got=collectDef(id); if(!got) return; const {s,def}=got;
   const msg=document.getElementById('seqSaveMsg'); if(msg)msg.textContent='saving…';
   const r=await fetch('/api/crm/workflow',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({save_definition:true,workflow_id:id,definition:def})}).then(x=>x.json()).catch(()=>null);
-  if(r&&r.ok){ s.def=def; window._seqEdit=null; renderSequences(); if(window.crmToast)crmToast('Cadence saved'); }
+  if(r&&r.ok){ s.def=def; window._seqEdit=null; renderSequences(); if(window.crmToast)crmToast('Sequence saved'); }
   else if(msg)msg.textContent='save failed';
 }
-window.seqEditToggle=seqEditToggle; window.seqSaveCadence=seqSaveCadence; window.seqEditPanel=seqEditPanel;
+function seqPreview(id,i){
+  // Preview the CURRENT (possibly-unsaved) content for this step, filled with sample data.
+  const got=collectDef(id); const st=(got&&got.def[i])|| (((window.SEQUENCES||[]).find(x=>x.id===id)||{}).def||[])[i]; if(!st) return;
+  const subj=ivFill(st.subject||''), html=ivFill(st.html||'');
+  let m=document.getElementById('ivPrevModal');
+  if(!m){ m=document.createElement('div'); m.id='ivPrevModal'; m.className='ivprev-modal'; document.body.appendChild(m); }
+  m.innerHTML=`<div class="ivprev-back" onclick="document.getElementById('ivPrevModal').remove()"></div>
+    <div class="ivprev-card">
+      <div class="ivprev-head"><div><div class="ivprev-from">From: Tyler Spurlock &lt;hello@consentresolve.com&gt;</div><div class="ivprev-subj">${esc(subj)}</div></div><button class="ivprev-x" onclick="document.getElementById('ivPrevModal').remove()">✕</button></div>
+      <iframe class="ivprev-frame" sandbox=""></iframe>
+    </div>`;
+  const f=m.querySelector('.ivprev-frame'); f.srcdoc=html;
+}
+window.seqEditToggle=seqEditToggle; window.seqSaveCadence=seqSaveCadence; window.seqEditPanel=seqEditPanel; window.seqPreview=seqPreview;
 
 window.renderPipeline=renderPipeline; // exposed for the live-data bootstrap (fixture→fetch)
 

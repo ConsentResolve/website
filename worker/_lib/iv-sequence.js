@@ -48,7 +48,7 @@ export function buildVars(env, { contact, visitor, person }) {
     unsubscribe_url: SITE + "/api/unsubscribe" + q,
   };
 }
-function fill(html, vars) { return html.replace(/\{\{(\w+)\}\}/g, (_, k) => (vars[k] != null ? vars[k] : "")); }
+export function fill(html, vars) { return String(html || "").replace(/\{\{(\w+)\}\}/g, (_, k) => (vars[k] != null ? vars[k] : "")); }
 
 // Tyler's signature block (name + avatar + contact line) — appended to emails 2 & 3.
 function tylerSig() {
@@ -60,30 +60,19 @@ function tylerSig() {
     </td></tr></table>`;
 }
 
-// ---- the three email templates (personalized, Tyler-signed) ----------------
-export const IV_TEMPLATES = {
-  // Email 1 — the "here's what your lead looks like" card (Day 0)
-  iv_lead_card: (v) => ({
-    subject: `${v.first_name}, we ran it on you — you're the card`,
-    html: fill(LEAD_CARD_HTML, v),
-  }),
-  // Email 2 — "the 98 you paid for and never met" (Day 2)
-  iv_the_98: (v) => ({
-    subject: `The 98% of your site visitors you paid for and never met`,
-    html: fill(THE_98_HTML, v),
-  }),
-  // Email 3 — "why we mail contractors free field marketing" (Day 5)
-  iv_yard_signs: (v) => ({
-    subject: `Why we mail contractors free yard signs`,
-    html: fill(YARD_SIGNS_HTML, v),
-  }),
-};
-
-// One place the engine asks: given a template id + rendered vars, get the email.
-export function renderIvTemplate(id, vars) {
-  const fn = IV_TEMPLATES[id];
-  return fn ? fn(vars) : null;
+// Given a template id + vars, return the rendered {subject, html}. An `override` (edited
+// subject/html stored on the workflow step) wins over the code default in IV_RAW.
+export function renderIvTemplate(id, vars, override) {
+  const base = (override && (override.subject || override.html)) ? { subject: override.subject || (IV_RAW[id] || {}).subject, html: override.html || (IV_RAW[id] || {}).html } : IV_RAW[id];
+  if (!base) return null;
+  return { subject: fill(base.subject || "", vars), html: fill(base.html || "", vars) };
 }
+// Back-compat: the preview harness uses IV_TEMPLATES(vars).
+export const IV_TEMPLATES = {
+  iv_lead_card: (v) => renderIvTemplate("iv_lead_card", v),
+  iv_the_98: (v) => renderIvTemplate("iv_the_98", v),
+  iv_yard_signs: (v) => renderIvTemplate("iv_yard_signs", v),
+};
 
 // ---- workflow definition ---------------------------------------------------
 // Day 0 / Day 2 / Day 5, then subscribe to the newsletter. delay_minutes are cumulative-from-enroll
@@ -185,3 +174,12 @@ ${tylerSig()}
 <p style="margin:20px 0 0 0;font-size:15px;line-height:1.6"><strong style="color:#16181D">P.S.</strong> &mdash; No contract, no setup fee, no monthly. Slow month, small bill. That's the whole pricing page.</p></td></tr>
 <tr><td style="padding-top:26px"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px solid #E3E5E9"><tr><td style="padding-top:14px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9BA0A8">Consent Resolve &middot; ${ADDR}<br>You consented to hear from us on consentresolve.com. <a href="{{unsubscribe_url}}" style="color:#9BA0A8">Unsubscribe</a> &middot; <a href="{{delete_url}}" style="color:#9BA0A8">delete my record</a></td></tr></table></td></tr>
 </table></td></tr></table>`;
+
+// Raw (unfilled) subject + html per template — the editable source of truth. The engine
+// fills {{placeholders}} at send time; the CRM editor edits these strings (or a per-step
+// override stored on the workflow definition).
+export const IV_RAW = {
+  iv_lead_card: { subject: "{{first_name}}, we ran it on you — you're the card", html: LEAD_CARD_HTML },
+  iv_the_98:    { subject: "The 98% of your site visitors you paid for and never met", html: THE_98_HTML },
+  iv_yard_signs:{ subject: "Why we mail contractors free yard signs", html: YARD_SIGNS_HTML },
+};

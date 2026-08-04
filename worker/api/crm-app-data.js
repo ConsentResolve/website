@@ -13,6 +13,7 @@ import { ensureRebuildSchema } from "../_lib/crm-rebuild.js";
 import { ensureScoringSchema, TIER_SLA_MIN } from "../_lib/lead-scoring.js";
 import { computeSources } from "../_lib/sitespy.js";
 import { listSpyLeads } from "./crm-spy.js";
+import { IV_RAW } from "../_lib/iv-sequence.js";
 import { buildAnalytics } from "../_lib/analytics.js";
 
 export async function onRequestOptions({ request, env }) {
@@ -160,7 +161,12 @@ export async function onRequestGet({ request, env }) {
       optoutRate: enrolled ? (runs.opted_out || 0) / enrolled : 0,
       steps,
       editable: w.id === "identified-visitor",   // only the IV sequence is user-editable
-      def,                                        // raw step definition (delay_minutes etc.) for the editor
+      // Raw step definition for the editor. For IV email steps, attach the current
+      // subject/html (edited override if present, else the code template default) so the
+      // CRM can preview + edit the actual email.
+      def: w.id === "identified-visitor" ? def.map((s) => (s.action === "send_email"
+        ? { ...s, subject: s.subject || (IV_RAW[s.template] || {}).subject || "", html: s.html || (IV_RAW[s.template] || {}).html || "" }
+        : s)) : def,
     });
   }
 

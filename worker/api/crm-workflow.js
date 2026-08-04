@@ -60,7 +60,18 @@ export async function onRequestPost({ request, env }) {
     const cur = await env.DB.prepare("SELECT definition FROM workflows WHERE id=?").bind(body.workflow_id).first();
     let def = []; try { def = JSON.parse(cur?.definition || "[]"); } catch (_) {}
     const inc = Array.isArray(body.definition) ? body.definition : [];
-    const merged = def.map((s, i) => ({ ...s, delay_minutes: Math.max(0, Math.min(43200, Math.round(Number((inc[i] || {}).delay_minutes) || 0))) }));
+    // Accept delay (all steps) + subject/html (email steps only). Preserve the code-owned
+    // action/channel/template. HTML is the operator's own outbound email (they're the sender);
+    // capped to a sane size.
+    const merged = def.map((s, i) => {
+      const c = inc[i] || {};
+      const out = { ...s, delay_minutes: Math.max(0, Math.min(43200, Math.round(Number(c.delay_minutes) || 0))) };
+      if (s.action === "send_email") {
+        if (typeof c.subject === "string") out.subject = c.subject.slice(0, 300);
+        if (typeof c.html === "string") out.html = c.html.slice(0, 60000);
+      }
+      return out;
+    });
     await env.DB.prepare("UPDATE workflows SET definition=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?").bind(JSON.stringify(merged), body.workflow_id).run();
     return json({ ok: true, saved: merged.length }, {}, cors);
   }
