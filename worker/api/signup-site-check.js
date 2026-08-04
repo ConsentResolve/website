@@ -6,27 +6,32 @@
 // visits. Returns qualified:null (not a hard fail) whenever we genuinely can't tell
 // — bad domain, DataForSEO unconfigured, or an API error — so the front end shows
 // the self-affirm panel instead of blocking a real contractor.
+//
+// This endpoint is public and each live lookup costs ~$0.012. Two guards keep that
+// in check: an in-memory result cache (same domain within CACHE_TTL is free) and a
+// single retry only on a TRANSIENT empty (null result WITH cost 0 — a real "no data"
+// answer bills and is not retried). It does NOT write to the CRM/D1.
 import { json, corsHeaders } from "../_lib/http.js";
-import { normDomain, dataforseoLookup, dfsConfigured, dfsAuth } from "../_lib/dataforseo.js";
+import { normDomain, dataforseoLookup, dfsConfigured } from "../_lib/dataforseo.js";
 
-// Raw one-shot probe (debug=2) — returns DataForSEO's own status so an empty result
-// (no Labs subscription / zero balance / bad creds) is diagnosable without guessing.
-async function dfsProbe(env, domain) {
-  try {
-    const r = await fetch("https://api.dataforseo.com/v3/dataforseo_labs/google/domain_rank_overview/live", {
-      method: "POST", headers: { Authorization: dfsAuth(env), "Content-Type": "application/json" },
-      body: JSON.stringify([{ target: domain, location_code: 2840, language_code: "en" }]),
-    });
-    const j = await r.json().catch(() => ({}));
-    const t = (j.tasks && j.tasks[0]) || {};
-    return { http: r.status, api_status_code: j.status_code, api_status_message: j.status_message, task_status_code: t.status_code, task_status_message: t.status_message, cost: j.cost, result_count: (t.result && t.result.length) || 0 };
-  } catch (e) { return { error: String(e).slice(0, 160) }; }
-}
-
-const THRESHOLD = 500; // estimated monthly visitors to qualify
+const THRESHOLD = 500;             // estimated monthly visitors to qualify
+const CACHE_TTL = 6 * 3600 * 1000; // 6h — traffic estimates barely move day to day
+const cache = new Map();           // domain -> { at, payload }  (per-isolate, best-effort)
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
+}
+
+async function estimate(env, domain) {
+  let r = await dataforseoLookup(env, domain);
+  let traffic = r && r.data ? r.data.traffic_month : null;
+  // Retry ONCE only on a transient empty (null + no charge). A genuine "no data"
+  // response is billed (cost > 0) and left as unknown rather than re-billed.
+  if (traffic == null && (r.cost || 0) === 0 && r.used !== false) {
+    r = await dataforseoLookup(env, domain);
+    traffic = r && r.data ? r.data.traffic_month : null;
+  }
+  return { traffic, cost: r.cost || 0, used: r.used === true, error: r.error || null };
 }
 
 async function check({ request, env }) {
@@ -40,15 +45,20 @@ async function check({ request, env }) {
   const domain = normDomain(raw);
   if (!domain) return json({ ok: true, qualified: null, reason: "bad_domain" }, {}, cors);
   if (!dfsConfigured(env)) return json({ ok: true, qualified: null, reason: "unconfigured", domain }, {}, cors);
-  if (url.searchParams.get("debug") === "2") return json({ ok: true, domain, probe: await dfsProbe(env, domain) }, {}, cors);
 
-  const r = await dataforseoLookup(env, domain);
-  const traffic = r && r.data ? r.data.traffic_month : null;
-  // traffic===null -> couldn't estimate (treat as unknown, not a fail).
-  const qualified = traffic == null ? null : traffic >= THRESHOLD;
-  const out = { ok: true, domain, traffic, threshold: THRESHOLD, qualified, cost: r.cost || 0 };
-  // ?debug=1 surfaces why a lookup came back empty (creds present? API error?).
-  if (url.searchParams.get("debug") === "1") out._debug = { configured: dfsConfigured(env), used: r.used === true, error: r.error || null };
+  // Serve a fresh cached verdict without re-billing DataForSEO.
+  const hit = cache.get(domain);
+  if (hit && Date.now() - hit.at < CACHE_TTL) return json({ ...hit.payload, cached: true }, {}, cors);
+
+  const e = await estimate(env, domain);
+  const qualified = e.traffic == null ? null : e.traffic >= THRESHOLD;
+  const payload = { ok: true, domain, traffic: e.traffic, threshold: THRESHOLD, qualified };
+  // Only cache a definitive verdict — never a transient/unknown, so a flaky empty
+  // isn't pinned for 6h.
+  if (qualified !== null) cache.set(domain, { at: Date.now(), payload });
+
+  const out = { ...payload, cost: e.cost };
+  if (url.searchParams.get("debug") === "1") out._debug = { configured: dfsConfigured(env), used: e.used, error: e.error };
   return json(out, {}, cors);
 }
 
