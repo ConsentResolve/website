@@ -27,6 +27,20 @@ function fmtDateTime(v) {
   if (isNaN(d.getTime())) return null;
   return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 }
+// Turn whatever page/URL field we have into a natural noun phrase ("pricing page",
+// "get-started page", "homepage"). Returns "" when we don't actually know the page — the
+// caller falls back to a generic "site" so the copy never claims data we don't have.
+function pagePhrase(v) {
+  const raw = v.last_url || v.landing_url || v.landing_page || v.page_url || v.last_page || v.page || v.path || v.url || "";
+  if (!raw) return "";
+  let path;
+  try { path = new URL(String(raw), SITE).pathname; } catch (_) { path = String(raw); }
+  path = path.replace(/[?#].*$/, "").replace(/\/+$/, "").toLowerCase();
+  if (!path || path === "") return "homepage";
+  const seg = path.split("/").filter(Boolean).pop();
+  const map = { pricing: "pricing page", "get-started": "get-started page", demo: "demo page", "how-it-works": "how-it-works page", about: "about page", contact: "contact page", faq: "FAQ page", blog: "blog", "sample-lead": "sample-lead page" };
+  return map[seg] || (seg.replace(/[-_]+/g, " ") + " page");
+}
 // Build the placeholder set from whatever we actually have, with graceful fallbacks so an
 // email with thin data still reads naturally.
 export function buildVars(env, { contact, visitor, person }) {
@@ -36,6 +50,7 @@ export function buildVars(env, { contact, visitor, person }) {
   const cityState = [p.city, p.state].filter(Boolean).join(", ");
   const cid = contact.id || "";
   const q = "?c=" + encodeURIComponent(cid);
+  const when = fmtDateTime(v.last_seen);
   return {
     first_name: esc(first),
     full_name: esc(fullName || "Website visitor"),
@@ -43,7 +58,12 @@ export function buildVars(env, { contact, visitor, person }) {
     email: esc(contact.primary_email || ""),
     city_state: cityState ? esc(cityState) : "your area",
     source: v.referrer || v.source_url ? esc(v.referrer || v.source_url) : "your website",
-    visit_time: fmtDateTime(v.last_seen) || "recently",
+    // The specific page they were on, when we know it; else a generic "site".
+    landing_page: esc(pagePhrase(v) || "site"),
+    // A drop-in clause that reads right with OR without a timestamp: "on Aug 3 at 2:14 PM"
+    // when known, plain "recently" otherwise (so we never render "... at recently").
+    visit_moment: when ? "on " + esc(when) : "recently",
+    visit_time: when || "recently",
     time_on_site: v.page_views ? `${v.page_views} page${v.page_views === 1 ? "" : "s"}` : "a few minutes",
     seconds_elapsed: "45",
     // Trade is rarely known for these visitors — keep the copy natural without it.
@@ -107,7 +127,7 @@ const LEAD_CARD_HTML = `<div style="display:none;max-height:0;overflow:hidden;op
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%;background-color:#FFFFFE;border:1px solid #E3E5E9;border-radius:12px">
 <tr><td style="padding:26px 24px 0 24px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif">
 <p style="margin:0 0 14px 0;font-size:16px;line-height:1.6;color:#22252B">{{first_name}} &mdash;</p>
-<p style="margin:0 0 14px 0;font-size:16px;line-height:1.6;color:#22252B">You were on our pricing page at {{visit_time}}. Our banner asked, you said yes, and this went out {{seconds_elapsed}} seconds later.</p>
+<p style="margin:0 0 14px 0;font-size:16px;line-height:1.6;color:#22252B">You were on our {{landing_page}} {{visit_moment}}. Our banner asked, you said yes, and this went out {{seconds_elapsed}} seconds later.</p>
 <p style="margin:0 0 20px 0;font-size:16px;line-height:1.6;color:#22252B">Same card you'd get. Same minute. Only difference is next time the name in it belongs to a homeowner.</p></td></tr>
 <tr><td style="padding:0 24px">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid #C9CDD3;border-radius:12px;background-color:#FFFFFE">
@@ -115,7 +135,7 @@ const LEAD_CARD_HTML = `<div style="display:none;max-height:0;overflow:hidden;op
 <tr><td style="padding:16px">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
 <td width="46" valign="top" style="width:46px"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="42" style="width:42px;height:42px;background-color:#E6F1FB;border-radius:21px"><tr><td align="center" valign="middle" style="height:42px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:14px;font-weight:bold;color:#185FA5">{{initials}}</td></tr></table></td>
-<td valign="top" style="padding-left:12px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif"><p style="margin:0;font-size:17px;font-weight:bold;color:#16181D;line-height:1.3">{{full_name}}</p><p style="margin:3px 0 0 0;font-size:14px;color:#71767F;line-height:1.4">Read your pricing page &middot; {{time_on_site}}</p></td></tr></table>
+<td valign="top" style="padding-left:12px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif"><p style="margin:0;font-size:17px;font-weight:bold;color:#16181D;line-height:1.3">{{full_name}}</p><p style="margin:3px 0 0 0;font-size:14px;color:#71767F;line-height:1.4">Browsed your {{landing_page}} &middot; {{time_on_site}}</p></td></tr></table>
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:16px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:15px">
 <tr><td style="padding:6px 0;color:#71767F">Email</td><td align="right" style="padding:6px 0;color:#0F6E56;font-weight:bold">{{email}}</td></tr>
 <tr><td style="padding:6px 0;color:#71767F">Area</td><td align="right" style="padding:6px 0;color:#22252B">{{city_state}}</td></tr>
@@ -131,7 +151,7 @@ const LEAD_CARD_HTML = `<div style="display:none;max-height:0;overflow:hidden;op
 <tr><td style="padding:22px 24px 8px 24px;border-top:1px solid #E3E5E9;margin-top:8px">${tylerSig()}</td></tr>
 <tr><td style="padding:8px 24px 26px 24px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:13px;line-height:1.6;color:#8A8F97"><a href="{{data_record_url}}" style="color:#8A8F97">See everything we have on you</a> &middot; <a href="{{delete_url}}" style="color:#8A8F97">delete it</a> &middot; both work instantly, one click, no form.</td></tr>
 </table>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%"><tr><td style="padding:18px 8px 4px 8px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9BA0A8">Consent Resolve &middot; <a href="sms:${TEL}" style="color:#9BA0A8">${PHONE}</a><br>You're getting this because you consented on consentresolve.com at {{visit_time}}. <a href="{{unsubscribe_url}}" style="color:#9BA0A8">Unsubscribe</a></td></tr></table>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%"><tr><td style="padding:18px 8px 4px 8px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9BA0A8">Consent Resolve &middot; <a href="sms:${TEL}" style="color:#9BA0A8">${PHONE}</a><br>You're getting this because you consented on consentresolve.com {{visit_moment}}. <a href="{{unsubscribe_url}}" style="color:#9BA0A8">Unsubscribe</a></td></tr></table>
 </td></tr></table>`;
 
 const THE_98_HTML = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#FFFFFE"><tr><td align="left" style="padding:22px 18px">
