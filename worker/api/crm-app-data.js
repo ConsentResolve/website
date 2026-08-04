@@ -237,8 +237,13 @@ export async function onRequestGet({ request, env }) {
     for (const d of await selectIn(contactIds, `SELECT primary_contact_id, title, value_cents, close_probability FROM deals WHERE primary_contact_id IN __IN__`)) {
       if (!dealByCt.has(d.primary_contact_id)) dealByCt.set(d.primary_contact_id, d);
     }
-    for (const r of await selectIn(contactIds, `SELECT r.contact_id, r.status, r.current_step, r.exit_reason, w.name FROM workflow_runs r JOIN workflows w ON w.id=r.workflow_id WHERE r.contact_id IN __IN__`)) {
-      if (!runByCt.has(r.contact_id)) runByCt.set(r.contact_id, r);
+    // Prefer an ACTIVE run when a contact has more than one (e.g. an old completed
+    // earn-consent run plus a live identified-visitor run). The bucketing below turns an
+    // active run into the "auto" bucket — so surfacing the active one keeps sequenced
+    // contacts (identified visitors) out of the Open queue instead of arbitrarily landing
+    // on a finished run and falling back to "open".
+    for (const r of await selectIn(contactIds, `SELECT r.contact_id, r.status, r.current_step, r.exit_reason, w.name FROM workflow_runs r JOIN workflows w ON w.id=r.workflow_id WHERE r.contact_id IN __IN__ ORDER BY CASE WHEN r.status='active' THEN 0 ELSE 1 END`)) {
+      if (!runByCt.has(r.contact_id) || (r.status === "active" && runByCt.get(r.contact_id).status !== "active")) runByCt.set(r.contact_id, r);
     }
     // Last-known IP + geo per contact (from the presence heartbeat, via visitor_links).
     try {

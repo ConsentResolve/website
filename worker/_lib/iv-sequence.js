@@ -77,13 +77,14 @@ export function buildVars(env, { contact, visitor, person }) {
 export function fill(html, vars) { return String(html || "").replace(/\{\{(\w+)\}\}/g, (_, k) => (vars[k] != null ? vars[k] : "")); }
 
 // Tyler's signature block (name + avatar + contact line) — appended to emails 2 & 3.
+// NOTE: the phone/click-to-text intentionally lives ONLY in the body CTA (smsCta / footer),
+// never here — so each email renders the number exactly once.
 function tylerSig() {
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:2px 0 0 0"><tr>
     <td valign="middle" style="padding-right:12px"><img src="${AVATAR}" width="48" height="48" alt="Tyler Spurlock" style="width:48px;height:48px;border-radius:24px;display:block"></td>
     <td valign="middle" style="font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;line-height:1.4">
       <div style="font-size:15px;font-weight:bold;color:#16181D">Tyler Spurlock</div>
       <div style="font-size:13px;color:#71767F">Consent Resolve · <a href="mailto:hello@consentresolve.com" style="color:#0F6E56">hello@consentresolve.com</a></div>
-      <div style="font-size:13px;margin-top:3px"><a href="sms:${TEL}" style="color:#0F6E56;font-weight:bold;text-decoration:none">💬 Text me: ${PHONE}</a></div>
     </td></tr></table>`;
 }
 
@@ -161,12 +162,12 @@ const THE_98_HTML = `<table role="presentation" cellpadding="0" cellspacing="0" 
 <p style="margin:0 0 16px 0">Here's the thing nobody tells contractors about their website. Out of every 100 people who land on it, about 2 call or fill out the form. The other 98 leave without a word.</p>
 <p style="margin:0 0 16px 0">You paid for all 100 &mdash; the ad, the LSA click, the sign in the yard, years of your name getting around. You just never got to meet 98% of what you bought.</p>
 <p style="margin:0 0 16px 0">And those 98 aren't tire-kickers. A lot of them were on your site at 9pm, got interrupted, and never came back. The {{trade_noun}} still needs doing.</p>
-<p style="margin:0 0 16px 0">Roughly 3 out of 100 will say yes to being introduced. So:</p>
+<p style="margin:0 0 16px 0">Figure about 8 in 100 say yes to being introduced. On 500 visits a month that's somewhere around 30&ndash;50 resolved leads &mdash; call it 40. So:</p>
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 18px 0"><tr><td style="border-left:3px solid #0F6E56;padding:2px 0 2px 16px">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:16px;line-height:1.5;color:#22252B">
-<tr><td style="padding:5px 0">500 visits a month</td><td align="right" style="padding:5px 0;color:#71767F">15 leads &middot; <strong style="color:#16181D">$105</strong></td></tr>
-<tr><td style="padding:5px 0">1,200 visits</td><td align="right" style="padding:5px 0;color:#71767F">36 leads &middot; <strong style="color:#16181D">$252</strong></td></tr>
-<tr><td style="padding:5px 0">3,000 visits</td><td align="right" style="padding:5px 0;color:#71767F">90 leads &middot; <strong style="color:#16181D">$630</strong></td></tr></table></td></tr></table>
+<tr><td style="padding:5px 0">500 visits a month</td><td align="right" style="padding:5px 0;color:#71767F">~40 leads &middot; <strong style="color:#16181D">$280</strong></td></tr>
+<tr><td style="padding:5px 0">1,200 visits</td><td align="right" style="padding:5px 0;color:#71767F">~96 leads &middot; <strong style="color:#16181D">$672</strong></td></tr>
+<tr><td style="padding:5px 0">3,000 visits</td><td align="right" style="padding:5px 0;color:#71767F">~240 leads &middot; <strong style="color:#16181D">$1,680</strong></td></tr></table></td></tr></table>
 <p style="margin:0 0 16px 0">Now hold that up against what one {{trade_adjective}} lead runs you on Angi &mdash; shared with three other shops who are all calling the same homeowner before lunch.</p>
 <p style="margin:0 0 16px 0"><strong style="color:#16181D">Don't go dig up your traffic number. Just reply with your website address</strong> and I'll look it up and tell you what it's actually worth. If it's not worth it yet, I'll tell you that too &mdash; this only works when there's already traffic to work with.</p>
 <p style="margin:0 0 8px 0;font-size:15px;color:#71767F">Reply here, or text me &mdash; it comes straight to my phone:</p>

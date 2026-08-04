@@ -145,12 +145,14 @@ function emailShell(greeting, body, c) {
 // ---- Providers ------------------------------------------------------------
 // Sends through the connected Google Workspace mailbox (hello@consentresolve.com) —
 // no sending-domain DNS to verify. Name kept for call-site stability.
-async function sendResend(env, { to, subject, html, text, unsubUrl }, dry) {
+async function sendResend(env, { to, subject, html, text, unsubUrl, from }, dry) {
   if (dry) return { ok: true, id: "dry-preview", dry: true, preview: { to, subject } };
-  const from = env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>";
+  // A per-send `from` override (e.g. the IV sequence sends as "Tyler Spurlock") wins over the
+  // global FROM_EMAIL, so we can change one sequence's sender without touching every other email.
+  const fromAddr = from || env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>";
   // RFC 8058 one-click unsubscribe → required by Gmail/Yahoo for bulk senders + boosts deliverability.
   const headers = unsubUrl ? { "List-Unsubscribe": `<${unsubUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } : undefined;
-  const g = await gmailSend(env, { to, subject, html, text, from, replyTo: env.REPLY_TO || "hello@consentresolve.com", headers });
+  const g = await gmailSend(env, { to, subject, html, text, from: fromAddr, replyTo: env.REPLY_TO || "hello@consentresolve.com", headers });
   if (!g.ok) return { ok: false, error: `gmail_${g.error || "failed"}` };
   return { ok: true, id: g.id };
 }
@@ -366,7 +368,10 @@ async function executeStep(env, run, c, step, idx, out, dry) {
   let res, type, cost = 0;
   if (step.action === "send_email") {
     if (!c.email) { await logStep(env, run, idx, "email", step.action, "skipped", "no_email"); out.skipped++; return; }
-    res = await sendResend(env, { to: c.email, subject: t.subject, html: t.html, text: t.text, unsubUrl: c.id ? "https://consentresolve.com/api/unsubscribe?c=" + encodeURIComponent(c.id) : undefined }, eff);
+    // IV emails go out as "Tyler Spurlock" (the human they're written from); all other
+    // sequences keep the default Consent Resolve sender. Reply-To stays hello@ either way.
+    const from = (isIvStep(run, step) && step.action === "send_email") ? "Tyler Spurlock <hello@consentresolve.com>" : undefined;
+    res = await sendResend(env, { to: c.email, subject: t.subject, html: t.html, text: t.text, from, unsubUrl: c.id ? "https://consentresolve.com/api/unsubscribe?c=" + encodeURIComponent(c.id) : undefined }, eff);
     type = eff ? "email_preview" : "email_sent";
     if (!eff) await maybeCreateMessage(env, run, c, "email", t.subject, t.html);
   } else if (step.action === "send_sms") {
