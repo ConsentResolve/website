@@ -31,7 +31,10 @@ async function check({ request, env }) {
   const traffic = r && r.data ? r.data.traffic_month : null;
   // traffic===null -> couldn't estimate (treat as unknown, not a fail).
   const qualified = traffic == null ? null : traffic >= THRESHOLD;
-  return json({ ok: true, domain, traffic, threshold: THRESHOLD, qualified, cost: r.cost || 0 }, {}, cors);
+  const out = { ok: true, domain, traffic, threshold: THRESHOLD, qualified, cost: r.cost || 0 };
+  // ?debug=1 surfaces why a lookup came back empty (creds present? API error?).
+  if (url.searchParams.get("debug") === "1") out._debug = { configured: dfsConfigured(env), used: r.used === true, error: r.error || null };
+  return json(out, {}, cors);
 }
 
 export async function onRequestGet(ctx) { return check(ctx); }

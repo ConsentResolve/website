@@ -12,7 +12,10 @@
 	"assets": {
 		"directory": "./dist",
 		"not_found_handling": "404-page",
-		"binding": "ASSETS"
+		"binding": "ASSETS",
+		// Worker-served routes that have no static asset — force the Worker to run first so the
+		// assets layer's 404-page handling doesn't intercept directory paths like /signup/.
+		"run_worker_first": ["/signup", "/signup/*"]
 	},
 	// ── Live demo D1 ──────────────────────────────────────────────────────────
 	// Make sure the schema is applied to this database before relying on the API:
