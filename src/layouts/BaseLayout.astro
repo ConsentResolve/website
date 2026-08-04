@@ -251,6 +251,15 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         // Chat-to-phone bridge: a phone button in the header opens an inline consent form
         // overlaying the window; submitting fires an immediate Retell call (/api/chat-call).
         +'.cr-callbtn{background:transparent;border:none;width:30px;height:30px;border-radius:9px;color:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;transition:background .16s,color .16s,transform .12s var(--eo)}.cr-callbtn::after{content:"";width:18px;height:18px;background:currentColor;-webkit-mask:'+_ipn+' center/contain no-repeat;mask:'+_ipn+' center/contain no-repeat}.cr-callbtn:hover{background:rgba(255,255,255,.14);color:#fff}.cr-callbtn:active{transform:scale(.9)}'
+        // In-widget contact-capture card — a compact anchored overlay above the input row.
+        +'.cr-cap{position:absolute;left:12px;right:12px;bottom:72px;z-index:6;background:#fff;border:1px solid #e6ebf1;border-radius:14px;box-shadow:0 20px 46px -20px rgba(10,22,40,.55);padding:13px 14px;animation:crIn .26s var(--eo) both}'
+        +'.cr-caph{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:#0a1628;line-height:1.25;margin-bottom:10px}.cr-capx{margin-left:auto;background:none;border:none;color:#98a6b6;font-size:16px;line-height:1;cursor:pointer;padding:0 2px}.cr-capx:hover{color:#0a1628}'
+        +'.cr-capf{width:100%;height:40px;border:1.5px solid #e2e8f0;border-radius:10px;padding:0 12px;font:inherit;font-size:14px;color:#0a1628;background:#fbfdff;margin-bottom:8px;box-sizing:border-box}.cr-capf:focus{outline:none;border-color:#00e5a0;box-shadow:0 0 0 3px rgba(0,229,160,.18)}.cr-capf.bad{border-color:#ff4d4f;box-shadow:0 0 0 3px rgba(255,77,79,.15)}'
+        +'.cr-caplbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin:1px 0 6px}'
+        +'.cr-capseg{display:flex;gap:6px;margin-bottom:9px}.cr-capseg button{flex:1;height:34px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;font:inherit;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px}.cr-capseg button.on{background:#0a1628;color:#fff;border-color:#0a1628}'
+        +'.cr-capgo{width:100%;height:42px;border:none;border-radius:11px;background:#00e5a0;color:#04231a;font:inherit;font-weight:800;font-size:14.5px;cursor:pointer;transition:filter .15s}.cr-capgo:hover{filter:brightness(1.05)}.cr-capgo:disabled{opacity:.6;cursor:default}'
+        +'.cr-capnote{font-size:10.5px;color:#94a3b8;text-align:center;margin-top:7px;line-height:1.35}.cr-capnote:empty{display:none}'
+        +'.cr-capdone{text-align:center;padding:6px 4px 2px}.cr-capdone .k{width:44px;height:44px;border-radius:50%;background:rgba(0,229,160,.16);display:grid;place-items:center;margin:0 auto 8px;font-size:22px;color:#046c53}.cr-capdone .t{font-size:15px;font-weight:800;color:#0a1628}.cr-capdone .s{font-size:13px;color:#64748b;margin-top:3px}'
         // (The header call+text button now just sends a chat message — no inline form.)
         // Mobile: full-screen panel that slides up from the bottom, with safe-area insets;
         // hide the launcher while the window is open so it doesn't float over the input.
@@ -300,8 +309,47 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
             b.onclick=function(){var ta=sr.querySelector('textarea,input[type="text"]');if(!ta)return;var proto=ta.tagName==="TEXTAREA"?window.HTMLTextAreaElement.prototype:window.HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,"value").set.call(ta,"Can you call or text me?");ta.dispatchEvent(new Event("input",{bubbles:true}));var snd=sr.querySelector('[class*="_sendButton"]');if(snd)snd.click();else ta.dispatchEvent(new KeyboardEvent("keydown",{bubbles:true,key:"Enter",code:"Enter",keyCode:13,which:13}));};
             var cx=h.querySelector('[class*="_closeButton_"]');if(cx)h.insertBefore(b,cx);else h.appendChild(b);}
         }
-        ident();firstTyping();convo();lock();callUI();
-        if(!host.__crObs){host.__crObs=new MutationObserver(function(){ident();firstTyping();convo();lock();callUI();});host.__crObs.observe(sr,{childList:true,subtree:true});}
+        // In-widget contact-capture card: after Mack has answered at least once, slide up a
+        // compact overlay (name + preferred channel + email/phone). Submits to /api/chat-lead
+        // (capture-only, no auto-dial) and attaches to THIS live chat. Once per session,
+        // dismissable, and re-attached on React re-renders so any typed values survive.
+        function crBuildCap(){
+          var c=document.createElement("div");c.className="cr-cap";
+          c.innerHTML='<div class="cr-caph"><span>📬</span><span>Want a sample lead sent over?</span><button type="button" class="cr-capx" aria-label="Dismiss">✕</button></div>'
+            +'<input class="cr-capf cr-capname" placeholder="First name" autocomplete="given-name">'
+            +'<div class="cr-caplbl">Reach me by</div>'
+            +'<div class="cr-capseg"><button type="button" data-p="email" class="on">✉ Email</button><button type="button" data-p="text">💬 Text</button><button type="button" data-p="call">📞 Call</button></div>'
+            +'<input class="cr-capf cr-capcontact" type="email" inputmode="email" placeholder="Best email" autocomplete="email">'
+            +'<button type="button" class="cr-capgo">Send it →</button><div class="cr-capnote"></div>';
+          var pref="email",seg=c.querySelector(".cr-capseg"),field=c.querySelector(".cr-capcontact"),note=c.querySelector(".cr-capnote"),go=c.querySelector(".cr-capgo");
+          function setP(p){pref=p;seg.querySelectorAll("button").forEach(function(b){b.classList.toggle("on",b.dataset.p===p);});
+            if(p==="email"){field.type="email";field.setAttribute("inputmode","email");field.placeholder="Best email";note.textContent="";}
+            else{field.type="tel";field.setAttribute("inputmode","tel");field.placeholder="Mobile number";note.textContent="By sharing your number you agree Consent Resolve may "+(p==="text"?"text":"call")+" you about this.";}}
+          seg.querySelectorAll("button").forEach(function(b){b.onclick=function(){setP(b.dataset.p);field.classList.remove("bad");};});
+          c.querySelector(".cr-capx").onclick=function(){try{sessionStorage.setItem("cr_cap_done","1");}catch(e){}c.remove();};
+          go.onclick=function(){var v=(field.value||"").trim(),name=(c.querySelector(".cr-capname").value||"").trim();
+            var ok=pref==="email"?/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v):(v.replace(/\D/g,"").length>=10);
+            if(!ok){field.classList.add("bad");field.focus();return;}
+            go.disabled=true;go.textContent="Sending…";
+            var payload={name:name,pref:pref};if(pref==="email")payload.email=v;else payload.phone=v;
+            fetch("/api/chat-lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(){
+              try{sessionStorage.setItem("cr_cap_done","1");}catch(e){}
+              var how=pref==="email"?"email":(pref==="text"?"text":"a call");
+              c.innerHTML='<div class="cr-capdone"><div class="k">✓</div><div class="t">Got it'+(name?", "+name.replace(/</g,"&lt;"):"")+'!</div><div class="s">We’ll follow up by '+how+" — "+v.replace(/</g,"&lt;")+"</div></div>";
+              setTimeout(function(){c.remove();},2600);
+            }).catch(function(){go.disabled=false;go.textContent="Send it →";field.classList.add("bad");});};
+          return c;}
+        function captureUI(){try{
+          if(sessionStorage.getItem("cr_cap_done"))return;
+          var panel=sr.querySelector('[class*="_conversationPanel_"]');if(!panel)return;
+          var m=sr.querySelector('[class*="_messages_"]');if(!m)return;
+          if(!window.__crCapNode){var agents=m.querySelectorAll('[class*="_agentGroup_"]').length,users=m.querySelectorAll('[class*="_user_"]').length;
+            if(agents<2||users<1)return;window.__crCapNode=crBuildCap();}
+          var card=window.__crCapNode;
+          if(card&&!card.parentNode){if(getComputedStyle(panel).position==="static")panel.style.position="relative";panel.appendChild(card);}
+        }catch(e){}}
+        ident();firstTyping();convo();lock();callUI();captureUI();
+        if(!host.__crObs){host.__crObs=new MutationObserver(function(){ident();firstTyping();convo();lock();callUI();captureUI();});host.__crObs.observe(sr,{childList:true,subtree:true});}
         return true;
       }catch(e){return false;}};
       window.__retellBoot=function(open){try{if(window.__retellChatLoaded)return;window.__retellChatLoaded=1;var s=document.createElement("script");s.id="retell-widget";s.type="module";s.src="https://dashboard.retellai.com/retell-widget-v2.js";var A=window.__retellCfg;try{var u=new URLSearchParams(location.search);A["data-dynamic-variables"]=JSON.stringify({page:(document.title||"").slice(0,120),path:location.pathname,url:location.href.slice(0,200),utm_source:u.get("utm_source")||"",utm_campaign:u.get("utm_campaign")||"",utm_medium:u.get("utm_medium")||"",referrer:(document.referrer||"").slice(0,200)});}catch(e){}for(var k in A)s.setAttribute(k,A[k]);if(open)s.setAttribute("data-auto-open","true");(document.head||document.getElementsByTagName("head")[0]).appendChild(s);var p=0,pi=setInterval(function(){if(window.__retellEnhance()||++p>100)clearInterval(pi);},120);setTimeout(function(){var r=document.getElementById("retell-widget-root");if(r)r.classList.add("cr-ready");},2500);}catch(e){}};
