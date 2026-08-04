@@ -1934,7 +1934,7 @@ function personCard(c){
 function bubbleThread(c){
   return `${personCard(c)}${siteEngagement(c)}<div class="msgs">${c.messages.map(m=>{
     if(m.dir==="system") return `<div class="msg system">${esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
-    const who = m.who ? esc(m.who) : (m.dir==='in'?'▸ ':'')+(CH[m.channel]||m.channel||'').replace(/^[^ ]+ /,'');
+    const who = m.who ? (m.who==='Mack'?'🤖 Mack':esc(m.who)) : (m.dir==='in'?'▸ ':'')+(CH[m.channel]||m.channel||'').replace(/^[^ ]+ /,'');
     return `<div class="msg ${m.dir}"><div class="mh">${who}${m.meta?' · '+esc(m.meta):''}</div>${esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
   }).join("")}</div>`;
 }

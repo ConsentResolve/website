@@ -214,8 +214,9 @@ export async function onRequestGet({ request, env }) {
   const notesByConv = new Map();
   if (convIds.length) {
     const msgs = await selectIn(convIds,
-      `SELECT conversation_id, direction, channel, body_text, body_html, sent_at
-         FROM messages WHERE conversation_id IN __IN__ ORDER BY sent_at ASC`);
+      `SELECT m.conversation_id, m.direction, m.channel, m.body_text, m.body_html, m.sent_at, u.name author_name
+         FROM messages m LEFT JOIN users u ON u.id = m.author_id
+        WHERE m.conversation_id IN __IN__ ORDER BY m.sent_at ASC`);
     for (const m of msgs) { const a = msgsByConv.get(m.conversation_id) || []; a.push(m); msgsByConv.set(m.conversation_id, a); }
     // Notes (incl. legacy-imported ones) → shown in the Activity tab. Newest first.
     try {
@@ -290,11 +291,20 @@ export async function onRequestGet({ request, env }) {
     const tier = r.tier || "cold";
     // SLA clock (minutes remaining) for Interested/Warm/Hot leads awaiting a human touch.
     const slaMin = TIER_SLA_MIN[tier] || null;
-    const cmsgs = (msgsByConv.get(r.id) || []).map((m) => ({
-      dir: m.direction === "in" ? "in" : "out", channel: m.channel === "crisp" ? "chatwoot" : m.channel,
-      body: m.body_text || stripHtml(m.body_html) || "", ts: humanTime(m.sent_at), meta: "",
-      _ts: m.sent_at ? Date.parse(m.sent_at) : 0,   // sort key for threading merges
-    }));
+    // Who to name on each SMS/chat bubble: inbound = the person (their phone number,
+    // or name/email if we have it); outbound = the human rep who sent it, else Mack (AI).
+    // Only set for bubble-thread channels — email keeps its Gmail-style header untouched.
+    const personLabel = fmtPhone(r.phone) || fmtPhone(phoneByCt.get(r.contact_id)) || r.full_name || r.primary_email || "Them";
+    const cmsgs = (msgsByConv.get(r.id) || []).map((m) => {
+      const chan = m.channel === "crisp" ? "chatwoot" : m.channel;
+      const isBubble = chan === "sms" || chan === "chat" || chan === "chatwoot" || chan === "phone" || chan === "voice" || chan === "speed_to_lead";
+      const who = isBubble ? (m.direction === "in" ? personLabel : (m.author_name || "Mack")) : undefined;
+      return {
+        dir: m.direction === "in" ? "in" : "out", channel: chan, who,
+        body: m.body_text || stripHtml(m.body_html) || "", ts: humanTime(m.sent_at), meta: "",
+        _ts: m.sent_at ? Date.parse(m.sent_at) : 0,   // sort key for threading merges
+      };
+    });
     const seqTotal = run && /earn/i.test(run.name || "") ? 3 : 4;
     return {
       id: r.id, bucket, source: src, channel,
