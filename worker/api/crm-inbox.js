@@ -10,7 +10,7 @@ import { gAccessToken, sendMessage } from "../_lib/gmail.js";
 import { sendInstantlyReply } from "./crm-instantly.js";
 import { sendTestSms as sendSms } from "../_lib/stl/twilio.js";
 import { sendCrispMessage, getCrispTranscript } from "./crm-crisp.js";
-import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2, isAdmin } from "../_lib/crm-v2.js";
+import { ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIdentifier, normPhone, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2, isAdmin } from "../_lib/crm-v2.js";
 import { getByEmail } from "../_lib/db.js";
 import { progressFor } from "../_lib/demo-notify.js";
 import { addSuppression, isSuppressed, logEvent } from "../_lib/crm-rebuild.js";
@@ -530,6 +530,41 @@ export async function onRequestPost({ request, env }) {
   if (b.resume) {
     await env.DB.prepare("UPDATE conversations SET status='open', updated_at=datetime('now') WHERE id=? AND status='paused'").bind(b.id).run().catch(() => {});
     return json({ ok: true, resumed: true }, {}, cors);
+  }
+
+  // Seed two real, replyable TEST conversations into Open for manual QA — an inbound SMS from a
+  // chosen cell (a reply texts it back via Twilio) and an inbound email (a reply emails back via
+  // Gmail). No active sequence, so they sit in Open. crmAuthed; idempotent by thread.
+  if (b.seed_open_test) {
+    const now = new Date().toISOString();
+    const out = {};
+    // 1) Inbound SMS from a real cell → external_thread_id carries the number so the SMS reply
+    //    path texts it directly.
+    try {
+      const phone = normPhone(b.sms_phone || "+17133848985");
+      const cid = await findOrCreateContactByIdentifier(env, "phone", phone, { name: "Aaron (test cell)", source: "test" });
+      await env.DB.prepare("UPDATE contacts SET phone=COALESCE(phone,?) WHERE id=?").bind(phone, cid).run().catch(() => {});
+      const convId = ulid();
+      const preview = "Hey, testing the CRM — can you text me back?";
+      await env.DB.prepare(
+        "INSERT INTO conversations (id, contact_id, channel, source_detail, external_thread_id, subject, status, unread, last_message_at, last_message_preview, created_at) VALUES (?,?,?,?,?,?, 'open', 1, ?, ?, datetime('now'))"
+      ).bind(convId, cid, "sms", "test", "phone:" + phone, "Test SMS", now, preview).run();
+      await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: "sms", externalMessageId: "test-sms:" + convId, bodyText: preview, sentAt: now });
+      out.sms = { conversationId: convId, phone };
+    } catch (e) { out.sms_error = String(e).slice(0, 160); }
+    // 2) Inbound email → external_thread_id null so a reply starts a fresh Gmail thread to the address.
+    try {
+      const em = (b.email_addr || "aaron@kickass.net").toLowerCase();
+      const cid = await findOrCreateContactByEmail(env, em, { name: "Aaron (test email)", source: "test" });
+      const convId = ulid();
+      const preview = "Hi — this is a test. Reply and let's confirm it comes through.";
+      await env.DB.prepare(
+        "INSERT INTO conversations (id, contact_id, channel, source_detail, external_thread_id, subject, status, unread, last_message_at, last_message_preview, created_at) VALUES (?,?,?,?,?,?, 'open', 1, ?, ?, datetime('now'))"
+      ).bind(convId, cid, "email", "test", null, "Testing the CRM", now, preview).run();
+      await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: "email", externalMessageId: "test-email:" + convId, bodyText: preview, sentAt: now });
+      out.email = { conversationId: convId, email: em };
+    } catch (e) { out.email_error = String(e).slice(0, 160); }
+    return json({ ok: true, seeded: out }, {}, cors);
   }
 
   // Add an internal note to a conversation (Activity tab composer). Notes are private —
