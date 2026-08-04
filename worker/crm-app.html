@@ -342,17 +342,18 @@ html,body{height:100%}
   .idash-signals{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 2px}
   .sig{font-size:12px;font-weight:600;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:4px 11px}
   .sig.hot{background:var(--bad-soft,rgba(239,68,68,.12));color:var(--bad);border-color:var(--bad);font-weight:800}
-  .idash-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:12px;margin:18px 0}
-  .itile{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:14px 16px}
-  .itile .iv{font-family:var(--font-mono);font-size:var(--t-24);font-weight:800;color:var(--tx-1);line-height:1}
+  .idash-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:12px;margin:18px 0}
+  .itile{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:14px 16px;min-width:0}
+  .itile .iv{font-family:var(--font-mono);font-size:var(--t-24);font-weight:800;color:var(--tx-1);line-height:1;overflow-wrap:anywhere}
   .itile .il{font-size:11px;color:var(--tx-2);font-weight:600;margin-top:6px}
   .itile.spend .iv{color:var(--good)}
   .itile.opp{background:var(--good-soft);border-color:var(--good)}
   .itile.opp .iv{color:var(--good)}
   .itile.opp .il{color:var(--good);font-weight:800}
   .itile.muted .iv{color:var(--tx-3)}
-  .idash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .icard{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:16px 18px}
+  .idash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+  .icard{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:16px 18px;min-width:0}
+  .icard .presence,.icard .pv,.icard .prow{min-width:0;overflow-wrap:anywhere}
   .icard-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
   .icard-h h4{margin:0;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-2)}
   .isrc{font-size:8.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--tx-3);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:3px 8px;white-space:nowrap}
@@ -376,7 +377,8 @@ html,body{height:100%}
   .idash-opp{margin-top:16px;display:flex;gap:12px;align-items:flex-start;background:var(--bad-soft);border:1px solid rgba(246,112,138,.32);border-radius:var(--r-3);padding:15px 18px;font-size:var(--t-13);line-height:1.6;color:var(--tx-1)}
   .idash-opp b{color:var(--tx-1)}
   .opp-num{color:var(--good);font-weight:800;font-family:var(--font-mono)}
-  @media(max-width:1080px){.idash-grid{grid-template-columns:1fr}}
+  /* grid is container-responsive via auto-fit (above) — it must react to the detail-pane
+     width, not the viewport, so a narrow pane on a wide screen never bleeds off the right. */
 
   /* ---- Intel dossier v2 (sales-ready synthesis) ---- */
   .icard.full{grid-column:1/-1}
@@ -403,16 +405,16 @@ html,body{height:100%}
   .d2-moneyhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
   .d2-moneybig{font-family:var(--font-mono);font-size:34px;font-weight:800;color:var(--warn);letter-spacing:-.02em;line-height:1}
   .d2-moneysub{font-size:var(--t-13);color:var(--tx-2)} .d2-moneysub b{color:var(--tx-1)}
-  .d2-calc{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
-  @media(max-width:560px){.d2-calc{grid-template-columns:1fr}}
-  .d2-ctl label{display:flex;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--tx-2);margin-bottom:7px;text-transform:uppercase}
+  .d2-calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-top:14px}
+  .d2-ctl{min-width:0}
+  .d2-ctl label{display:flex;justify-content:space-between;gap:8px;font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--tx-2);margin-bottom:7px;text-transform:uppercase}
   .d2-ctl label output{color:var(--accent);font-family:var(--font-mono)}
-  .d2-ctl input[type=range]{width:100%;-webkit-appearance:none;appearance:none;background:transparent;height:20px;cursor:pointer}
+  .d2-ctl input[type=range]{width:100%;min-width:0;-webkit-appearance:none;appearance:none;background:transparent;height:20px;cursor:pointer}
   .d2-ctl input[type=range]::-webkit-slider-runnable-track{height:5px;background:var(--surface-3);border-radius:3px}
   .d2-ctl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);margin-top:-5.5px}
   .d2-ctl input[type=range]::-moz-range-track{height:5px;background:var(--surface-3);border-radius:3px}
   .d2-ctl input[type=range]::-moz-range-thumb{width:14px;height:14px;border:none;border-radius:50%;background:var(--accent)}
-  .d2-math{margin-top:13px;padding-top:12px;border-top:1px dashed var(--line-2);font-family:var(--font-mono);font-size:11.5px;color:var(--tx-2);line-height:1.9}
+  .d2-math{margin-top:13px;padding-top:12px;border-top:1px dashed var(--line-2);font-family:var(--font-mono);font-size:11.5px;color:var(--tx-2);line-height:1.9;overflow-wrap:anywhere}
   .d2-math b{color:var(--tx-1)} .d2-math .h{color:var(--warn);font-weight:700}
   /* website grade */
   .d2-grade{display:flex;gap:18px;align-items:flex-start}
@@ -448,6 +450,9 @@ html,body{height:100%}
   /* signal freshness */
   .d2-fresh{display:flex;flex-wrap:wrap;gap:7px 20px;font-family:var(--font-mono);font-size:11px;color:var(--tx-3)}
   .d2-fresh b{color:var(--tx-2);font-weight:600} .d2-fresh .ok{color:var(--good)}
+  /* Long unbreakable strings (URLs, emails, model output) must wrap, never bleed off the pane */
+  .intel-dash .d2-facts li,.intel-dash .d2-talk li,.intel-dash .d2-angle .ab,.intel-dash .d2-story,.intel-dash .d2-gnotes,.intel-dash .d2-obj dt,.intel-dash .d2-obj dd,.intel-dash .idh-brief,.intel-dash .d2-hook{overflow-wrap:anywhere;min-width:0}
+  .intel-dash .d2-icp,.intel-dash .d2-grade,.intel-dash .d2-facts,.intel-dash .d2-subs{min-width:0}
 
   /* Pipeline board (kanban) */
   .pipe-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;gap:16px}
@@ -4461,7 +4466,7 @@ function d2Recalc(id){
   const set=(x,v)=>{const el=document.getElementById(x+'-'+id); if(el)el.textContent=v;};
   set('d2rateout',(rate*100).toFixed(1).replace(/\.0$/,'')+'%'); set('d2trafout',traf.toLocaleString());
   set('d2dollars','$'+dollars.toLocaleString()); set('d2leads',leads.toLocaleString()+' leads');
-  const m=document.getElementById('d2math-'+id); if(m) m.innerHTML='<b>'+traf.toLocaleString()+'</b> visits/mo &nbsp;→&nbsp; <span class="h">'+leads.toLocaleString()+' recoverable @ $'+CR_PRICE+' = $'+dollars.toLocaleString()+'/mo</span> you’re not capturing yet';
+  const m=document.getElementById('d2math-'+id); if(m) m.innerHTML='<b>'+traf.toLocaleString()+'</b> visits/mo → <span class="h">'+leads.toLocaleString()+' recoverable @ $'+CR_PRICE+' = $'+dollars.toLocaleString()+'/mo</span> you’re not capturing yet';
 }
 window.d2Recalc=d2Recalc;
 function d2Owner(syn){
