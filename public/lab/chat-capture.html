@@ -96,22 +96,24 @@
   .chip{border:1px solid var(--mint);background:rgba(0,229,160,.10);color:#046c53;border-radius:999px;padding:7px 13px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
   .chip:hover{background:var(--mint);color:var(--mint-ink)}
 
-  /* the capture card */
-  .cap{align-self:stretch;margin:4px 2px 6px 34px;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;
-    box-shadow:0 16px 34px -22px rgba(10,22,40,.5);animation:rise .34s var(--eo) both}
-  .cap .top{height:4px;background:linear-gradient(90deg,#00e5a0,#00b7c9)}
-  .cap .in{padding:14px 15px}
-  .cap .ic{font-size:20px} .cap h3{margin:6px 0 3px;font-size:15.5px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
-  .cap p.s{margin:0 0 11px;font-size:13px;color:var(--ink2);line-height:1.45}
-  .fld{margin-bottom:9px} .fld label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);margin-bottom:4px}
-  .fld input{width:100%;height:42px;border:1.5px solid var(--line2);border-radius:11px;padding:0 13px;font:inherit;font-size:14.5px;color:var(--ink);transition:.15s;background:#fbfdff}
-  .fld input:focus{outline:none;border-color:var(--mint);box-shadow:0 0 0 3px rgba(0,229,160,.18)}
-  .fld input.bad{border-color:#ff4d4f;box-shadow:0 0 0 3px rgba(255,77,79,.15)}
-  .cap .go{width:100%;height:46px;border:none;border-radius:12px;background:var(--mint);color:var(--mint-ink);font:inherit;font-weight:800;font-size:15px;cursor:pointer;transition:.15s var(--eo);display:flex;align-items:center;justify-content:center;gap:7px}
+  /* the capture card — compact + integrated */
+  .cap{align-self:stretch;margin:3px 2px 4px 34px;background:#fff;border:1px solid var(--line);border-radius:13px;overflow:hidden;
+    box-shadow:0 10px 24px -20px rgba(10,22,40,.4);animation:rise .3s var(--eo) both}
+  .cap .in{padding:12px 13px}
+  .cap-h{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:var(--ink);line-height:1.25;margin-bottom:10px}
+  .cap-ic{font-size:17px}
+  .cf{width:100%;height:40px;border:1.5px solid var(--line2);border-radius:10px;padding:0 12px;font:inherit;font-size:14px;color:var(--ink);background:#fbfdff;margin-bottom:8px;transition:.15s}
+  .cf:focus{outline:none;border-color:var(--mint);box-shadow:0 0 0 3px rgba(0,229,160,.18)}
+  .cf.bad{border-color:#ff4d4f;box-shadow:0 0 0 3px rgba(255,77,79,.15)}
+  .preflbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);margin:1px 0 6px}
+  .segp{display:flex;gap:6px;margin-bottom:9px}
+  .segp button{flex:1;height:34px;border:1.5px solid var(--line2);background:#fff;border-radius:9px;font:inherit;font-size:12px;font-weight:700;color:var(--ink2);cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:4px}
+  .segp button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .cap .go{width:100%;height:42px;border:none;border-radius:11px;background:var(--mint);color:var(--mint-ink);font:inherit;font-weight:800;font-size:14.5px;cursor:pointer;transition:.15s var(--eo);display:flex;align-items:center;justify-content:center;gap:6px}
   .cap .go:hover{filter:brightness(1.04);transform:translateY(-1px)} .cap .go:active{transform:translateY(0)}
-  .cap .re{margin:9px 0 0;font-size:11.5px;color:var(--ink2);text-align:center;line-height:1.4}
-  .cap.done .in{text-align:center;padding:26px 16px}
-  .cap .check{width:52px;height:52px;border-radius:50%;background:rgba(0,229,160,.16);display:grid;place-items:center;margin:0 auto 10px;font-size:26px;color:#046c53;animation:pins .4s var(--eo) both}
+  .cap.done .in{text-align:center;padding:22px 16px}
+  .cap .check{width:46px;height:46px;border-radius:50%;background:rgba(0,229,160,.16);display:grid;place-items:center;margin:0 auto 8px;font-size:23px;color:#046c53;animation:pins .4s var(--eo) both}
+  .doneline{font-size:13px;color:var(--ink2);line-height:1.4}
   @keyframes pins{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
 
   /* input row */
@@ -155,7 +157,6 @@
     <div class="lbl">Fields</div>
     <div class="toggles">
       <div class="tog">Ask first name <div class="sw on" data-t="name"></div></div>
-      <div class="tog">Phone (optional) <div class="sw" data-t="phone"></div></div>
     </div>
     <button class="restart" id="restart">↻ Restart conversation</button>
     <div class="hint">Chat freely, then Mack offers the capture as a value swap. Nothing is gated — the goal is to <b>draw them in</b>, not block the chat.</div>
@@ -257,23 +258,36 @@
 
   // ---- the capture card (varies by prototype settings) ----
   function copyFor(){
-    if(state.variant==='personal') return {ic:"👋",h:"First — who am I chatting with?",s:"So I can keep this useful and send your sample to the right place.", btn:"That's me →"};
-    if(state.variant==='estimate') return {ic:"📊",h:"Want your recovery estimate emailed?",s:"Tell me where to send it and I'll include a sample lead + the quick setup steps.", btn:"Email my estimate →"};
-    return {ic:"📬",h:"Want a sample lead + a 2-min setup guide?",s:"I'll email it over so you can see exactly what you'd get — no obligation.", btn:"Send it my way →"};
+    if(state.variant==='personal') return {ic:"👋",h:"Who am I chatting with?", btn:"Continue →"};
+    if(state.variant==='estimate') return {ic:"📊",h:"Want your recovery estimate?", btn:"Send it →"};
+    return {ic:"📬",h:"Want a sample lead sent over?", btn:"Send it →"};
+  }
+  function setPref(card,p){
+    state.pref=p;
+    card.querySelectorAll('#prefseg button').forEach(function(b){ b.classList.toggle('on', b.dataset.p===p); });
+    var f=card.querySelector('#cc');
+    if(p==='email'){ f.type='email'; f.placeholder='Best email'; f.setAttribute('inputmode','email'); }
+    else { f.type='tel'; f.placeholder='Mobile number'; f.setAttribute('inputmode','tel'); }
   }
   function offerCapture(){
     if(state.captured||state.offered) return; state.offered=true; clearChips();
-    var c = copyFor();
+    var c = copyFor(); state.pref = state.pref || 'email';
     var card = el('div','cap'); card.innerHTML =
-      '<div class="top"></div><div class="in">'+
-        '<div class="ic">'+c.ic+'</div><h3>'+c.h+'</h3><p class="s">'+c.s+'</p>'+
-        (state.name?'<div class="fld"><label>First name</label><input id="cn" placeholder="e.g. Tyler" autocomplete="given-name"></div>':'')+
-        '<div class="fld"><label>Best email</label><input id="ce" type="email" placeholder="you@yourshop.com" autocomplete="email"></div>'+
-        (state.phone?'<div class="fld"><label>Mobile <span style="text-transform:none;font-weight:500;color:#9aa7b6">(optional)</span></label><input id="cp" type="tel" placeholder="(555) 123-4567" autocomplete="tel"></div>':'')+
+      '<div class="in">'+
+        '<div class="cap-h"><span class="cap-ic">'+c.ic+'</span>'+c.h+'</div>'+
+        (state.name?'<input id="cn" class="cf" placeholder="First name" autocomplete="given-name">':'')+
+        '<div class="preflbl">Reach me by</div>'+
+        '<div class="segp" id="prefseg">'+
+          '<button type="button" data-p="email">✉ Email</button>'+
+          '<button type="button" data-p="text">💬 Text</button>'+
+          '<button type="button" data-p="call">📞 Call</button>'+
+        '</div>'+
+        '<input id="cc" class="cf">'+
         '<button class="go" id="cgo">'+c.btn+'</button>'+
-        '<p class="re">🔒 No spam — it’s just how we follow up.</p>'+
       '</div>';
     msgs.appendChild(card);
+    card.querySelectorAll('#prefseg button').forEach(function(b){ b.onclick=function(){ setPref(card,b.dataset.p); }; });
+    setPref(card, state.pref);
     // Reliably reveal the WHOLE card (fields + button). Force an instant jump (smooth-behavior
     // left it mid-animation) and do NOT auto-focus the first field — focusing pulled the view
     // back to the top of the card and cut the button off.
@@ -284,14 +298,15 @@
     var e=document.getElementById('ce'); if(e) e.addEventListener('keydown',function(ev){ if(ev.key==='Enter') submitCapture(card); });
   }
   function submitCapture(card){
-    var e=document.getElementById('ce'); var email=(e.value||'').trim();
-    var n=document.getElementById('cn'); var name=n?(n.value||'').trim():'';
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ e.classList.add('bad'); e.focus(); return; }
-    state.captured=true;
-    card.classList.add('done');
-    card.querySelector('.in').innerHTML='<div class="check">✓</div><h3>Got it'+(name?', '+name.replace(/</g,'&lt;'):'')+'!</h3><p class="s" style="margin:0">On its way to <b>'+email.replace(/</g,'&lt;')+'</b> 📬</p>';
+    var f=card.querySelector('#cc'); var v=(f.value||'').trim();
+    var n=card.querySelector('#cn'); var name=n?(n.value||'').trim():'';
+    var ok = state.pref==='email' ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) : (v.replace(/\D/g,'').length>=10);
+    if(!ok){ f.classList.add('bad'); f.focus(); return; }
+    state.captured=true; card.classList.add('done');
+    var how = state.pref==='email'?'email':(state.pref==='text'?'text':'a call');
+    card.querySelector('.in').innerHTML='<div class="check">✓</div><div class="cap-h" style="justify-content:center;margin:0 0 4px">Got it'+(name?', '+name.replace(/</g,'&lt;'):'')+'!</div><div class="doneline">I’ll follow up by '+how+' — <b>'+v.replace(/</g,'&lt;')+'</b></div>';
     scroll();
-    setTimeout(function(){ bot("Sent! 📬 Reply right here with any questions. Want a human to walk you through setup too?", [{t:"Yes, have someone reach out", k:"legit"},{t:"I’m good for now", k:"angi"}]); }, 1100);
+    setTimeout(function(){ bot("On it 📬 Reply right here with any questions. Want a human to walk you through setup too?", [{t:"Yes, have someone reach out", k:"legit"},{t:"I’m good for now", k:"angi"}]); }, 1100);
   }
 
   // ---- boot + controls ----
