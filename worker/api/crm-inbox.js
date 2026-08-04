@@ -589,6 +589,22 @@ export async function onRequestPost({ request, env }) {
         "INSERT INTO conversations (id, contact_id, channel, source_detail, external_thread_id, subject, status, unread, last_message_at, last_message_preview, created_at) VALUES (?,?,?,?,?,?, 'open', 1, ?, ?, datetime('now'))"
       ).bind(emId, cid, "email", "test", null, "Testing the CRM", now, emPrev).run();
       await insertMessageOnce(env, { conversationId: emId, direction: "in", channel: "email", externalMessageId: "test-email:" + emId, bodyText: emPrev, sentAt: now });
+      // Extra SMS-only test conversations (phone-only contacts) — reply texts each number back.
+      const extra = Array.isArray(b.sms_phones) ? b.sms_phones : ["+16148275641", "+16148326497", "+16143142424"];
+      out.extra_sms = [];
+      for (const num of extra.slice(0, 20)) {
+        const d2 = normPhone(num); if (d2.length < 10) continue;
+        const p2 = d2.length === 10 ? "+1" + d2 : "+" + d2;
+        await env.DB.prepare("DELETE FROM contact_identifiers WHERE type='phone' AND value=?").bind(d2).run().catch(() => {});
+        const c2 = await findOrCreateContactByIdentifier(env, "phone", d2, { name: "SMS test " + p2, source: "test" });
+        await env.DB.prepare("UPDATE contacts SET phone=?, full_name=COALESCE(full_name,?) WHERE id=?").bind(p2, "SMS test " + p2, c2).run().catch(() => {});
+        const sid = ulid(); const prev = "Test text from " + p2 + " — reply to check the SMS pipe.";
+        await env.DB.prepare(
+          "INSERT INTO conversations (id, contact_id, channel, source_detail, external_thread_id, subject, status, unread, last_message_at, last_message_preview, created_at) VALUES (?,?,?,?,?,?, 'open', 1, ?, ?, datetime('now'))"
+        ).bind(sid, c2, "sms", "test", "phone:" + p2, "Test SMS", now, prev).run();
+        await insertMessageOnce(env, { conversationId: sid, direction: "in", channel: "sms", externalMessageId: "test-sms:" + sid, bodyText: prev, sentAt: now });
+        out.extra_sms.push({ conversationId: sid, phone: p2 });
+      }
       const rb = await env.DB.prepare("SELECT primary_email, phone FROM contacts WHERE id=?").bind(cid).first().catch(() => null);
       out.contact = { id: cid, email: em, phone: e164, readback: rb };
       out.sms = { conversationId: smsId };

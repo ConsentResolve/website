@@ -1976,7 +1976,6 @@ function actBar(c){
   return `<span class="rc-actbar">
     <button class="rc-act" onclick="openRemind('${c.id}')" title="Set a reminder / callback">⏰ Remind</button>
     <button class="rc-act" onclick="assignConv('${c.id}',event)" title="Assign a rep">${asg}</button>
-    <button class="rc-act" onclick="autoMenu('${c.id}',event)" title="Put on autopilot — sequence or newsletter">🤖 Auto</button>
     <button class="rc-act danger" onclick="deleteConv('${c.id}')" title="Delete conversation">🗑 Delete</button>
   </span>`;
 }
@@ -2000,7 +1999,6 @@ function composer(c){
       <span class="rc-actbar">
         <button class="rc-act" onclick="openRemind('${c.id}')" title="Set a reminder / callback">⏰ Remind</button>
         <button class="rc-act" onclick="assignConv('${c.id}',event)" title="Assign a rep">${asg}</button>
-        <button class="rc-act" onclick="autoMenu('${c.id}',event)" title="Put on autopilot — sequence or newsletter">🤖 Auto</button>
         <button class="rc-act danger" onclick="deleteConv('${c.id}')" title="Delete conversation">🗑 Delete</button>
       </span>
     </div>`;
@@ -2341,8 +2339,10 @@ window.autoMenu=autoMenu;
 window.assignConv=assignConv;
 // Paused → apply immediately. Auto → gate behind an approval modal that previews the sequence.
 let _pendingAutoBtn = null;
-function setAuto(btn,mode){
-  if(mode==='auto'){ _pendingAutoBtn = btn; openAutoModal(); return; }
+function setAuto(btn,mode,ev){
+  // ▶ Auto → offer the autopilot choice (enroll in a sequence OR subscribe to the newsletter).
+  // ⏸ Paused → hand it back to a human (persists the pause).
+  if(mode==='auto'){ autoMenu(sel, ev); return; }
   applyAuto(btn,'manual');
 }
 async function applyAuto(btn,mode){
@@ -2613,7 +2613,7 @@ function statusCard(c){
   const control = controllable
     ? `<div class="autoswitch">
         <button class="seg ${!autoOn?'on onman':''}" onclick="setAuto(this,'manual')">⏸ Paused</button>
-        <button class="seg ${autoOn?'on onauto':''}" onclick="setAuto(this,'auto')">▶ Auto</button>
+        <button class="seg ${autoOn?'on onauto':''}" onclick="setAuto(this,'auto',event)">▶ Auto</button>
       </div>`
     : `<span class="autobadge ${st}">${st==="done"?"✓ Ended":"⛔ Off"}</span>`;
   const waiting = st==="on" ? `<span class="sv mut">Automated</span>`
@@ -2813,7 +2813,7 @@ function autoControl(c){
   return controllable
     ? `<div class="autowrap"><div class="autoswitch">
         <button class="seg ${!autoOn?'on onman':''}" onclick="setAuto(this,'manual')">⏸ Paused</button>
-        <button class="seg ${autoOn?'on onauto':''}" onclick="setAuto(this,'auto')">▶ Auto</button>
+        <button class="seg ${autoOn?'on onauto':''}" onclick="setAuto(this,'auto',event)">▶ Auto</button>
       </div><div class="tip" id="autotip">${ANOTE[st]}</div></div>`
     : `<span class="autobadge ${st}">${st==='done'?'✓ Ended':'⛔ Off'}</span>`;
 }
