@@ -4,3 +4,5 @@
   X-Robots-Tag: noindex, nofollow
 /signup/*
   X-Robots-Tag: noindex, nofollow
+/lab/*
+  X-Robots-Tag: noindex, nofollow
