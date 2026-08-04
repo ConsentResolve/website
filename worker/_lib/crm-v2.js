@@ -219,22 +219,25 @@ export async function upsertConversationByThread(env, c) {
   const ex = await env.DB.prepare(
     "SELECT id FROM conversations WHERE channel=? AND external_thread_id=?"
   ).bind(c.channel, c.externalThreadId || "").first();
-  // Tombstones only guard the channels that get re-ingested from durable external state
-  // (Gmail/Instantly polls re-reading old mail; Site-Spy re-materialize). Event-driven
-  // channels (chat/sms/forms/meta) are never resurrected from stale data, so a prior
-  // delete must not block a genuinely new one.
-  // 'chat' is guarded too: website-chat threads are keyed by a unique session id, so a
-  // tombstone only blocks the exact deleted session from re-materializing via the live-chat
-  // sweep — a genuinely new chat is a new session id and is never blocked. (SMS is NOT guarded:
-  // its thread key is the phone number, and a later text from that number should re-open it.)
-  const guarded = c.channel === "email" || c.channel === "instantly" || c.channel === "identified" || c.channel === "chat";
-  if (!ex && guarded) {
-    // A manual re-open passes c.force, which bypasses the tombstone and clears it.
-    if (c.force) {
-      await env.DB.prepare("DELETE FROM conversation_tombstones WHERE thread_key=?").bind(threadKey).run().catch(() => {});
-    } else {
-      const dead = await env.DB.prepare("SELECT 1 x FROM conversation_tombstones WHERE thread_key=?").bind(threadKey).first().catch(() => null);
-      if (dead) return null;   // tombstoned → skip re-creation (callers null-check)
+  // PERMANENT durable-delete guard — applies to EVERY channel, timestamp-aware.
+  // A deleted thread stays deleted against re-ingest of the SAME (stale) data — the
+  // minute-by-minute Gmail / Twilio-SMS / Crisp / Site-Spy re-syncs re-read old messages,
+  // and without this they resurrect anything you deleted. It re-opens ONLY on genuinely NEW
+  // activity: a message timestamped AFTER the delete (c.lastAt > deleted_at) or an explicit
+  // c.force re-open. So a person texting/emailing again still starts a fresh thread, but a
+  // stale re-sync never brings a deleted conversation back. (Channel-agnostic on purpose:
+  // meta/sms/demo/phone/voice were previously un-guarded and could all resurrect.)
+  if (!ex) {
+    const dead = await env.DB.prepare("SELECT deleted_at FROM conversation_tombstones WHERE thread_key=?").bind(threadKey).first().catch(() => null);
+    if (dead) {
+      const delTs = Date.parse(dead.deleted_at || "") || 0;
+      const actTs = Date.parse(c.lastAt || "") || 0;
+      if (c.force || (actTs && actTs > delTs)) {
+        // Explicit re-open, or new activity since the delete → clear the tombstone and re-create.
+        await env.DB.prepare("DELETE FROM conversation_tombstones WHERE thread_key=?").bind(threadKey).run().catch(() => {});
+      } else {
+        return null;   // stale re-ingest of pre-delete data → stay deleted (callers null-check)
+      }
     }
   }
   if (ex) {
