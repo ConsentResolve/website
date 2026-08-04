@@ -4332,7 +4332,7 @@ async function saveAgency(id,managed,name,ev){
 }
 window.agencyEditor=agencyEditor; window.saveAgency=saveAgency;
 function intelDashboard(c){
-  const e=((window.ENRICH||{})[c.id]||{}), x=(window.INTEL||{})[c.id]||{}, d=(window.DIRECTORY||{})[c.id]||{}, it=c.intel, ph=PHONES[c.id];
+  const e=((window.ENRICH||{})[c.id]||{}), x=(window.INTEL||{})[c.id]||{}, d=(window.DIRECTORY||{})[c.id]||{}, it=c.intel, ph=PHONES[c.id]||c.contact_phone;
   const fit=`<span class="fit ${it.fit}">${it.fit.toUpperCase()}</span>`;
   if(!e){
     return `<div class="intel-dash"><div class="idash-hero"><div class="idh-title">${fit}${esc(c.name||'Unknown')}</div>
@@ -4517,7 +4517,7 @@ function select(id){
   }
   renderList(document.querySelector(".filters .on").dataset.f);
   const useGmail = c.channel==="email";
-  const phone = PHONES[c.id];
+  const phone = PHONES[c.id] || c.contact_phone;
   const emailCm = c.contact_email
     ? `<span class="cm"><span class="ci">✉</span><a href="mailto:${esc(c.contact_email)}">${esc(c.contact_email)}</a></span>`
     : `<span class="cm none">no email yet</span>`;
