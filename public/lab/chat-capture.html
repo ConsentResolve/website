@@ -73,7 +73,7 @@
   .hd .x{margin-left:auto;width:32px;height:32px;border-radius:9px;border:none;background:rgba(255,255,255,.08);color:#cfe;cursor:pointer;font-size:17px}
 
   /* messages */
-  .msgs{flex:1;overflow-y:auto;padding:16px 14px 6px;background:linear-gradient(#f6f9fc,#eef3f8);display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth}
+  .msgs{flex:1;min-height:0;overflow-y:auto;padding:16px 14px 10px;background:linear-gradient(#f6f9fc,#eef3f8);display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth}
   .row{display:flex;gap:8px;max-width:100%;align-items:flex-end;animation:rise .32s var(--eo) both}
   @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   .row.bot{align-self:flex-start} .row.me{align-self:flex-end;flex-direction:row-reverse}
