@@ -538,24 +538,28 @@ export async function onRequestPost({ request, env }) {
   if (b.seed_open_test) {
     const now = new Date().toISOString();
     const out = {};
-    // 1) Inbound SMS from a real cell → external_thread_id carries the number so the SMS reply
-    //    path texts it directly.
+    const wipeTest = async (cid) => { try { await env.DB.prepare("DELETE FROM messages WHERE conversation_id IN (SELECT id FROM conversations WHERE contact_id=? AND source_detail='test')").bind(cid).run(); await env.DB.prepare("DELETE FROM conversations WHERE contact_id=? AND source_detail='test'").bind(cid).run(); } catch (_) {} };
+    // 1) Inbound SMS from a real cell → external_thread_id carries the FULL E.164 number so the
+    //    SMS reply texts the correct destination (normPhone drops the +1, so rebuild it).
     try {
-      const phone = normPhone(b.sms_phone || "+17133848985");
-      const cid = await findOrCreateContactByIdentifier(env, "phone", phone, { name: "Aaron (test cell)", source: "test" });
-      await env.DB.prepare("UPDATE contacts SET phone=COALESCE(phone,?) WHERE id=?").bind(phone, cid).run().catch(() => {});
+      const digits = normPhone(b.sms_phone || "+17133848985");         // 10-digit NANP (contact identity)
+      const e164 = digits.length === 10 ? "+1" + digits : "+" + digits; // dial string for the reply
+      const cid = await findOrCreateContactByIdentifier(env, "phone", digits, { name: "Aaron (test cell)", source: "test" });
+      await env.DB.prepare("UPDATE contacts SET phone=? WHERE id=?").bind(e164, cid).run().catch(() => {});
+      await wipeTest(cid);
       const convId = ulid();
       const preview = "Hey, testing the CRM — can you text me back?";
       await env.DB.prepare(
         "INSERT INTO conversations (id, contact_id, channel, source_detail, external_thread_id, subject, status, unread, last_message_at, last_message_preview, created_at) VALUES (?,?,?,?,?,?, 'open', 1, ?, ?, datetime('now'))"
-      ).bind(convId, cid, "sms", "test", "phone:" + phone, "Test SMS", now, preview).run();
+      ).bind(convId, cid, "sms", "test", "phone:" + e164, "Test SMS", now, preview).run();
       await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: "sms", externalMessageId: "test-sms:" + convId, bodyText: preview, sentAt: now });
-      out.sms = { conversationId: convId, phone };
+      out.sms = { conversationId: convId, phone: e164 };
     } catch (e) { out.sms_error = String(e).slice(0, 160); }
     // 2) Inbound email → external_thread_id null so a reply starts a fresh Gmail thread to the address.
     try {
       const em = (b.email_addr || "aaron@kickass.net").toLowerCase();
       const cid = await findOrCreateContactByEmail(env, em, { name: "Aaron (test email)", source: "test" });
+      await wipeTest(cid);
       const convId = ulid();
       const preview = "Hi — this is a test. Reply and let's confirm it comes through.";
       await env.DB.prepare(
