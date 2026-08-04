@@ -343,10 +343,12 @@ function renderPage(rec, contactId, eraseIntent) {
         setTimeout(finish, 500);
         return;
       }
-      // hide the persuasion below the fold so only the file shreds
+      // hide the persuasion below the fold, scroll the file itself into view, THEN shred it
+      // so the falling-strips drama actually happens on-screen (the button sits far below).
       var zone2=document.getElementById('eraseZone'); if(zone2) zone2.style.display='none';
       document.querySelectorAll('.hm,.section-label,.smalllinks').forEach(function(el){ el.style.transition='opacity .3s'; el.style.opacity='0'; });
-      setTimeout(function(){ shred(stage); }, 180);
+      try { window.scrollTo({top:0, behavior:'smooth'}); } catch(e){ window.scrollTo(0,0); }
+      setTimeout(function(){ shred(stage); }, 620);
     });
   })();
   </script>`;
