@@ -3916,7 +3916,7 @@ function renderSequences(){
 }
 /* Editable panel for the IV sequence — edit the wait (days), subject, and body of each
    email, with a live Preview. */
-const IV_SAMPLE={first_name:'Adrianne',full_name:'Adrianne Allen',initials:'AA',email:'aallen@grandcanyontrust.org',city_state:'Flagstaff, Arizona',source:'google.com',visit_time:'Aug 3, 2:14 PM',time_on_site:'2 pages',seconds_elapsed:'45',trade_noun:'job',trade_adjective:'home-service',data_record_url:'#',delete_url:'#',unsubscribe_url:'#'};
+const IV_SAMPLE={first_name:'Adrianne',full_name:'Adrianne Allen',initials:'AA',email:'aallen@grandcanyontrust.org',city_state:'Flagstaff, Arizona',source:'google.com',landing_page:'pricing page',visit_moment:'on Aug 3 at 2:14 PM',visit_time:'Aug 3, 2:14 PM',time_on_site:'2 pages',seconds_elapsed:'45',trade_noun:'job',trade_adjective:'home-service',data_record_url:'#',delete_url:'#',unsubscribe_url:'#'};
 function ivFill(html){ return String(html||'').replace(/\{\{(\w+)\}\}/g,(_,k)=> IV_SAMPLE[k]!=null?IV_SAMPLE[k]:''); }
 function seqEditPanel(s){
   const def=s.def||[]; let emailN=0;
