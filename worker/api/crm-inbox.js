@@ -117,6 +117,10 @@ export async function pollEmailInbox(env, account) {
     const outbound = fromEmail === account;
     const other = outbound ? toEmail : fromEmail;
     if (!other) continue;
+    // Skip system mail the mailbox sends to itself (SEO weekly digest, internal test sends,
+    // etc.): hello@ -> hello@. These are notifications, not conversations, and re-materialize
+    // every poll if filed — which is why a deleted "SEO weekly" kept coming back.
+    if (other === account) continue;
     const sentAt = m.internalDate ? new Date(Number(m.internalDate)).toISOString() : (dateHdr || null);
     const { text, html } = extractBody(m.payload);
 

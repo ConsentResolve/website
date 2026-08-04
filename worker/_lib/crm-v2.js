@@ -223,7 +223,11 @@ export async function upsertConversationByThread(env, c) {
   // (Gmail/Instantly polls re-reading old mail; Site-Spy re-materialize). Event-driven
   // channels (chat/sms/forms/meta) are never resurrected from stale data, so a prior
   // delete must not block a genuinely new one.
-  const guarded = c.channel === "email" || c.channel === "instantly" || c.channel === "identified";
+  // 'chat' is guarded too: website-chat threads are keyed by a unique session id, so a
+  // tombstone only blocks the exact deleted session from re-materializing via the live-chat
+  // sweep — a genuinely new chat is a new session id and is never blocked. (SMS is NOT guarded:
+  // its thread key is the phone number, and a later text from that number should re-open it.)
+  const guarded = c.channel === "email" || c.channel === "instantly" || c.channel === "identified" || c.channel === "chat";
   if (!ex && guarded) {
     // A manual re-open passes c.force, which bypasses the tombstone and clears it.
     if (c.force) {
