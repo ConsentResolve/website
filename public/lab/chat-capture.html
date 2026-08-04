@@ -181,7 +181,12 @@
 
 <script>
   var msgs = document.getElementById('msgs');
-  var state = { variant:'value', name:true, phone:false, captured:false, turns:0, offered:false };
+  var state = { variant:'value', name:true, phone:false, captured:false, turns:0, offered:false, fbi:0 };
+  var FALLBACKS = [
+    "Short version: we turn the visitors already on your site into leads you own — a name and email, at $7 each.",
+    "Fair question. It's consent-first: they say yes on your banner, then you get a real, exclusive lead.",
+    "Heads up — I'm the scripted preview, so I keep it brief. The live Mack answers anything.",
+  ];
 
   function el(tag, cls, html){ var e=document.createElement('div'); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
   function scroll(){ msgs.scrollTop = msgs.scrollHeight; }
@@ -238,8 +243,11 @@
     else if(/angi|thumbtack|homeadvisor|differ|vs|compare|resell/.test(low))key='angi';
     if(key==='sample'){ bot(ANS.sample); setTimeout(offerCapture,1400); return; }
     if(key){ bot(ANS[key]); maybeOffer(); return; }
-    bot("Good question — short version: we turn the visitors already on your site into leads you own, at $7 each. Want me to email you a sample?");
-    setTimeout(offerCapture, 1500);
+    // unmatched free text — this is a scripted demo, so vary the reply and never loop the offer.
+    if(state.captured){ bot("You're all set — I’ll be in your inbox shortly. Anything else on pricing, a sample, or setup?"); return; }
+    if(state.offered){ bot("Still here 👍 Drop your email in the box above and I’ll send the sample over."); return; }
+    bot(FALLBACKS[state.fbi++ % FALLBACKS.length]);
+    setTimeout(offerCapture, 1600);
   }
 
   function maybeOffer(){ if(state.captured||state.offered) return; if(state.turns>=2){ setTimeout(offerCapture, 1500); } }
