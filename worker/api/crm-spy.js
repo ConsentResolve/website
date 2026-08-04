@@ -91,7 +91,7 @@ export async function onRequestPost({ request, env }) {
       const convId = await upsertConversationByThread(env, {
         channel: "identified", externalThreadId: "spy_" + id, contactId,
         subject: "Identified visitor — " + (lead.company || lead.domain || lead.name || lead.email),
-        incoming: true, lastAt: now,
+        incoming: true, lastAt: now, force: true,   // explicit re-open — bring it back even if previously deleted
         preview: (lead.notes || ("Identified via " + (lead.source || "site"))).slice(0, 160),
       });
       await env.DB.prepare("UPDATE crm_leads SET spy_state='opened', last_activity=? WHERE id=?").bind(now, id).run();

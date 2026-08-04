@@ -474,8 +474,12 @@ export async function onRequestPost({ request, env }) {
   // now orphaned (no other conversations), removes it and its identifiers too.
   if (b.del || b.delete_conversation) {
     const id = b.id || b.del;
-    const conv = await env.DB.prepare("SELECT id, contact_id FROM conversations WHERE id=?").bind(id).first();
+    const conv = await env.DB.prepare("SELECT id, contact_id, channel, external_thread_id FROM conversations WHERE id=?").bind(id).first();
     if (!conv) return json({ ok: true, already_gone: true }, {}, cors);
+    // Tombstone the thread so automated re-ingest (Gmail/Instantly polls, Site-Spy
+    // re-materialize) can't bring the deleted conversation back on the next tick.
+    await env.DB.prepare("INSERT OR REPLACE INTO conversation_tombstones (thread_key) VALUES (?)")
+      .bind(conv.channel + "|" + (conv.external_thread_id || "")).run().catch(() => {});
     await env.DB.prepare("DELETE FROM messages WHERE conversation_id=?").bind(id).run().catch(() => {});
     await env.DB.prepare("DELETE FROM notes WHERE conversation_id=?").bind(id).run().catch(() => {});
     await env.DB.prepare("DELETE FROM conversations WHERE id=?").bind(id).run();

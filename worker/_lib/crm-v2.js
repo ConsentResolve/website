@@ -75,6 +75,9 @@ export async function ensureCrmV2Schema(env) {
     S(`CREATE INDEX IF NOT EXISTS idx_conv_assignee ON conversations(assignee_id)`),
     S(`CREATE INDEX IF NOT EXISTS idx_conv_company ON conversations(company_id)`),
     S(`CREATE INDEX IF NOT EXISTS idx_conv_lastmsg ON conversations(last_message_at)`),
+    // Tombstones: a deleted conversation records its channel|thread key here so automated
+    // re-ingest (Gmail/Instantly polls, Site-Spy re-materialize) can't resurrect it.
+    S(`CREATE TABLE IF NOT EXISTS conversation_tombstones (thread_key TEXT PRIMARY KEY, deleted_at TEXT NOT NULL DEFAULT (datetime('now')))`),
     S(`CREATE TABLE IF NOT EXISTS messages (
       id TEXT PRIMARY KEY, conversation_id TEXT NOT NULL, direction TEXT NOT NULL,
       channel TEXT NOT NULL, author_id TEXT, external_message_id TEXT, in_reply_to_external TEXT,
@@ -212,9 +215,24 @@ export async function linkIdentifier(env, contactId, type, value) {
 
 // One conversation per (channel, external_thread_id). Updates rollup on each new message.
 export async function upsertConversationByThread(env, c) {
+  const threadKey = c.channel + "|" + (c.externalThreadId || "");
   const ex = await env.DB.prepare(
     "SELECT id FROM conversations WHERE channel=? AND external_thread_id=?"
   ).bind(c.channel, c.externalThreadId || "").first();
+  // Tombstones only guard the channels that get re-ingested from durable external state
+  // (Gmail/Instantly polls re-reading old mail; Site-Spy re-materialize). Event-driven
+  // channels (chat/sms/forms/meta) are never resurrected from stale data, so a prior
+  // delete must not block a genuinely new one.
+  const guarded = c.channel === "email" || c.channel === "instantly" || c.channel === "identified";
+  if (!ex && guarded) {
+    // A manual re-open passes c.force, which bypasses the tombstone and clears it.
+    if (c.force) {
+      await env.DB.prepare("DELETE FROM conversation_tombstones WHERE thread_key=?").bind(threadKey).run().catch(() => {});
+    } else {
+      const dead = await env.DB.prepare("SELECT 1 x FROM conversation_tombstones WHERE thread_key=?").bind(threadKey).first().catch(() => null);
+      if (dead) return null;   // tombstoned → skip re-creation (callers null-check)
+    }
+  }
   if (ex) {
     await env.DB.prepare(
       "UPDATE conversations SET last_message_at=?, last_message_preview=?, contact_id=COALESCE(contact_id, ?), company_id=COALESCE(company_id, ?), unread=CASE WHEN ?=1 THEN 1 ELSE unread END, updated_at=datetime('now') WHERE id=?"
@@ -235,6 +253,9 @@ export async function upsertConversationByThread(env, c) {
 
 // Insert a message, deduped on external_message_id (idempotent re-polls).
 export async function insertMessageOnce(env, m) {
+  // Guard: when upsertConversationByThread skipped a tombstoned thread it returns null —
+  // don't create an orphan message. Callers can pass null through safely.
+  if (!m.conversationId) return { id: null, skipped: true };
   if (m.externalMessageId) {
     const ex = await env.DB.prepare("SELECT id FROM messages WHERE external_message_id=?").bind(m.externalMessageId).first();
     if (ex) return { id: ex.id, existed: true };
