@@ -113,6 +113,9 @@ a:hover{text-decoration:underline}
 
 /* installation cards */
 .install{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:6px}
+@media (min-width:561px){ .install.three{grid-template-columns:1fr 1fr 1fr} }
+.install.three .opt-card{padding:14px 14px 13px}
+.install.three .opt-card .d{font-size:12px}
 .install > span{display:flex}
 .install input{position:absolute;opacity:0;pointer-events:none}
 .install .opt-card{
@@ -228,14 +231,6 @@ a:hover{text-decoration:underline}
     <h2 id="ob-head">Welcome aboard, {{first_name}}.</h2>
     <p class="lede">Set up your shop and we'll get you live. <strong>Everything on this page is what goes on your signs and mailers</strong> — so spell it the way you want the neighborhood to see it.</p>
 
-    <div class="headstart">
-      <svg class="box-ico" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <path d="M5 14l15-8 15 8v14l-15 8-15-8V14z" stroke="#17e88f" stroke-width="2" stroke-linejoin="round" fill="rgba(23,232,143,.08)"/>
-        <path d="M5 14l15 8 15-8M20 22v14" stroke="#17e88f" stroke-width="2" stroke-linejoin="round"/>
-      </svg>
-      <p><strong>Your first box is already earned.</strong> Welcome stickers ship the day your snippet goes live — and your lead counter starts running toward the 25-lead yard signs.</p>
-    </div>
-
     <form id="ob-form" action="/onboarding" method="post" novalidate>
 
       <!-- YOUR BUSINESS -->
@@ -300,12 +295,41 @@ a:hover{text-decoration:underline}
         </span>
       </div>
 
-      <!-- PHONE (optional) -->
-      <div class="sect"><span class="tag">Stay in the loop</span><span class="rule"></span></div>
-      <div class="field" id="f-phone">
-        <label for="phone">Mobile phone <span class="opt">(optional)</span></label>
-        <input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" autocomplete="tel">
-        <p class="hint">For lead alerts and shipping updates.</p>
+      <!-- BEST WAY TO REACH YOU -->
+      <div class="sect"><span class="tag">Best way to reach you</span><span class="rule"></span></div>
+      <p class="hint" style="margin:-4px 0 12px">How do you want us to reach you the moment a lead lands?</p>
+      <div class="install three" role="radiogroup" aria-label="Preferred contact method">
+        <span>
+          <input type="radio" id="contact-email" name="contact_method" value="email" checked>
+          <label class="opt-card" for="contact-email">
+            <span class="check" aria-hidden="true"></span>
+            <span class="t">Email</span>
+            <span class="d">Alerts &amp; updates by email.</span>
+          </label>
+        </span>
+        <span>
+          <input type="radio" id="contact-sms" name="contact_method" value="sms">
+          <label class="opt-card" for="contact-sms">
+            <span class="check" aria-hidden="true"></span>
+            <span class="t">Text me</span>
+            <span class="d">Fastest — a text per lead.</span>
+          </label>
+        </span>
+        <span>
+          <input type="radio" id="contact-phone" name="contact_method" value="phone">
+          <label class="opt-card" for="contact-phone">
+            <span class="check" aria-hidden="true"></span>
+            <span class="t">Call me</span>
+            <span class="d">We'll call you about new leads.</span>
+          </label>
+        </span>
+      </div>
+
+      <div class="field" id="f-phone" style="display:none;margin-top:16px">
+        <label for="phone">Mobile phone</label>
+        <input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" autocomplete="tel" inputmode="tel">
+        <p class="hint" id="phone-hint">So we can reach you when a lead lands.</p>
+        <p class="err-msg">Enter a valid phone number so we can reach you.</p>
       </div>
 
       <button class="cta" type="submit">Finish setup — get me live</button>
@@ -343,10 +367,32 @@ a:hover{text-decoration:underline}
     (/^\d{5}$/.test(zip.value.trim()) || !zip.value) ? clearError(zip) : setError(zip);
   });
 
+  // Contact preference: reveal + require the phone number only when SMS or Phone is chosen.
+  var phone = document.getElementById('phone');
+  var fPhone = document.getElementById('f-phone');
+  var phoneHint = document.getElementById('phone-hint');
+  var methods = Array.prototype.slice.call(document.querySelectorAll('input[name="contact_method"]'));
+  function selectedMethod(){ var m = methods.filter(function(r){ return r.checked; })[0]; return m ? m.value : 'email'; }
+  function digits(s){ return (s || '').replace(/\D/g, ''); }
+  function syncContact(){
+    var m = selectedMethod();
+    if(m === 'email'){ fPhone.style.display = 'none'; clearError(phone); }
+    else {
+      fPhone.style.display = 'block';
+      phoneHint.textContent = (m === 'sms')
+        ? 'So we can text you the moment a lead lands.'
+        : 'So we can call you about new leads and setup.';
+    }
+  }
+  methods.forEach(function(r){ r.addEventListener('change', function(){ syncContact(); if(selectedMethod() !== 'email'){ phone.focus(); } }); });
+  phone.addEventListener('input', function(){ clearError(phone); });
+  syncContact();
+
   form.addEventListener('submit', function(e){
     var bad = false;
     if(!company.value.trim()){ setError(company); bad = true; }
     if(!/^\d{5}$/.test(zip.value.trim())){ setError(zip); bad = true; }
+    if(selectedMethod() !== 'email' && digits(phone.value).length < 10){ setError(phone); bad = true; }
     if(bad){
       e.preventDefault();
       var first = form.querySelector('.field.error input');
