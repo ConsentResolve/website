@@ -36,7 +36,6 @@ import * as gbpStatus from "./api/gbp-status.js";
 import * as admin from "./admin.js";
 import * as crm from "./crm.js";
 import * as crmApp from "./crm-app.js";
-import * as signup from "./signup.js";
 import * as signupSiteCheck from "./api/signup-site-check.js";
 import * as crmLeads from "./api/crm-leads.js";
 import * as crmAnalytics from "./api/crm-analytics.js";
@@ -333,13 +332,6 @@ export default {
 
     // CRM rebuild app (frozen design, cr_crm-gated). Served before the legacy /crm
     // so it can coexist during cutover. Its sub-routes (/crm/app/<section>) are a SPA.
-    // Standalone signup flow (/signup/ + /signup/onboarding.html). Worker-served so we can
-    // force noindex; unlinked from the site. Before the generic static fallthrough.
-    if (url.pathname === "/signup" || url.pathname.startsWith("/signup/")) {
-      try { return signup.handle({ request, env, ctx }); }
-      catch (err) { return new Response("signup error", { status: 500 }); }
-    }
-
     if (url.pathname === "/crm/app" || url.pathname.startsWith("/crm/app/")) {
       try {
         return await crmApp.handle({ request, env, ctx });
