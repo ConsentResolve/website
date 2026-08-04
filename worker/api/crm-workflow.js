@@ -65,6 +65,19 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, saved: merged.length }, {}, cors);
   }
 
+  // Enroll internal test addresses into the IV sequence so the IV_TEST_EMAILS allowlist can
+  // send to them (a first live send lands in your own inbox). Any CRM user; capped.
+  if (Array.isArray(body.enroll_iv_test) && body.enroll_iv_test.length) {
+    const out = [];
+    for (const email of body.enroll_iv_test.slice(0, 20)) {
+      const em = String(email || "").toLowerCase().trim(); if (!em.includes("@")) continue;
+      const contactId = await findOrCreateContactByEmail(env, em, { name: body.name || "", source: "iv_test" });
+      const r = await enrollContact(env, { contactId, source: "iv_test", workflowId: "identified-visitor" });
+      out.push({ email: em, ...r });
+    }
+    return json({ ok: true, enrolled: out }, {}, cors);
+  }
+
   if (!(await isAdmin(request, env))) return json({ error: "forbidden" }, { status: 403 }, cors);
   if (body.enroll?.contactId) return json({ ok: true, result: await enrollContact(env, body.enroll) }, {}, cors);
   if (body.goal?.contactId) return json({ ok: true, exited: await handleGoalEvent(env, body.goal) }, {}, cors);
