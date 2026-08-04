@@ -59,23 +59,23 @@ Voicemail (18s): "${first(ctx.lead)}, ${repName(ctx)} with Consent Resolve. We h
     script:
 `"Hey — this is Mack, the AI assistant at Consent Resolve. Real AI, not a person. You hit submit about forty seconds ago, so here I am. That's kind of the whole point of what we do. Got thirty seconds, or should I just grab you a human?"
 
-Lead with the offer: your first 50 leads are on us, then a flat $7 a lead, cancel anytime. Priority: (1) warm-transfer to any available rep within 30s; (2) pull the meeting forward — "I've got ${repName(ctx)} free in ten minutes — want it now instead of ${when(ctx)}?"; (3) confirm the existing slot. Do NOT pitch or qualify beyond trade + company size.`,
+Pricing, only if it comes up: a flat $7 a lead, cancel anytime — no setup fee, no contract. Priority: (1) warm-transfer to any available rep within 30s; (2) pull the meeting forward — "I've got ${repName(ctx)} free in ten minutes — want it now instead of ${when(ctx)}?"; (3) confirm the existing slot. Do NOT pitch or qualify beyond trade + company size.`,
     disclosure_required: true,
   }),
   B2_sms_answered: (ctx) => ({
     text:
-`Mack here — good talking to you. You're set for ${when(ctx)}: ${link(ctx)}. Your first 50 leads are on us, then a flat $7 a lead. Reply here anytime, a human reads these. Text STOP to opt out.`,
+`Mack here — good talking to you. You're set for ${when(ctx)}: ${link(ctx)}. Flat $7 a lead, cancel anytime. Reply here anytime, a human reads these. Text STOP to opt out.`,
   }),
   B2_sms: (ctx) => ({
     text:
-`Hey ${first(ctx.lead)} — Mack from Consent Resolve. That was me calling forty seconds after you hit submit. Screening unknown numbers is correct behavior and I respect it. Quick reason I called: your first 50 leads are on us, then a flat $7 a lead — no card to claim the 50. You're on the books for ${when(ctx)}. Reply if you'd rather move it up. Text STOP to opt out.`,
+`Hey ${first(ctx.lead)} — Mack from Consent Resolve. That was me calling forty seconds after you hit submit. Screening unknown numbers is correct behavior and I respect it. Quick reason I called: we turn the visitors already on your site into leads you own — a flat $7 a lead, cancel anytime. You're on the books for ${when(ctx)}. Reply if you'd rather move it up. Text STOP to opt out.`,
   }),
   B3_email: (ctx) => ({
-    subject: `your first 50 leads are on us (+ your consent receipt)`,
+    subject: `your consent receipt from Consent Resolve`,
     text:
 `${first(ctx.lead)} —
 
-First, the offer that's waiting on you: your first 50 leads are on us — then a flat $7 a lead, cancel anytime. No card to claim the 50. That's real, consented leads you own outright, so you can see the quality before you pay a dime.
+First, the straight answer on cost: a flat $7 a lead, cancel anytime — no setup fee, no contract. That's real, consented leads you own outright.
 
 Now the fun part. At ${new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: ctx.lead.timezone || "America/Chicago" }).format(new Date(ctx.lead.created_at))} today you told us we could reach you by:
 
@@ -92,7 +92,7 @@ ${when(ctx)}. Talk then.`,
   }),
   B4_dial: (ctx) => ({
     script:
-`"Hey ${first(ctx.lead)} — ${repName(ctx)} with Consent Resolve, the human. Mack said you two talked. Two minutes before I hop on a call myself — ${when(ctx)} still good? Quick reminder, your first 50 leads are on us. And one thing: what made you click?"`,
+`"Hey ${first(ctx.lead)} — ${repName(ctx)} with Consent Resolve, the human. Mack said you two talked. Two minutes before I hop on a call myself — ${when(ctx)} still good? And one thing: what made you click?"`,
   }),
   B5_sms: (ctx) => ({
     text:
@@ -101,7 +101,7 @@ ${when(ctx)}. Talk then.`,
   // Chat-to-SMS bridge: visitor asked (in the web chat) for a text instead of a call.
   CHAT_sms: (ctx) => ({
     text:
-`Hey ${first(ctx.lead)} — Mack from Consent Resolve, picking up from our chat. Your first 50 leads are on us, then a flat $7 a lead. Reply right here with any questions — a human reads these. Text STOP to opt out.`,
+`Hey ${first(ctx.lead)} — Mack from Consent Resolve, picking up from our chat. Flat $7 a lead, cancel anytime. Reply right here with any questions — a human reads these. Text STOP to opt out.`,
   }),
 };
 

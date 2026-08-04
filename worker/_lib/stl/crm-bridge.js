@@ -270,14 +270,17 @@ export async function sweepTwilioSms(env) {
   try {
     await ensureCrmV2Schema(env); await ensureRebuildSchema(env);
     const auth = "Basic " + btoa(sid + ":" + tok);
-    const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json?PageSize=40`, { headers: { Authorization: auth } });
+    const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json?PageSize=100`, { headers: { Authorization: auth } });
     if (!res.ok) return { ok: false, status: res.status };
     const j = await res.json().catch(() => ({}));
     const rows = (j.messages || []).filter((m) => m.from === num || m.to === num);
     let mirrored = 0;
     for (const m of rows) {
       const sent = m.date_sent ? Date.parse(m.date_sent) : Date.now();
-      if (Date.now() - sent > 30 * 60000) continue; // only recent
+      // 6-hour window (was 30 min): the sweep is the ONLY reliable path for Retell-handled
+      // SMS (Retell doesn't webhook SMS to us), so a transient cron miss must not silently
+      // drop a message forever. Idempotent — deduped on the Twilio MessageSid below.
+      if (Date.now() - sent > 6 * 60 * 60000) continue;
       const inbound = m.to === num;                  // to our number → from the visitor
       const other = inbound ? m.from : m.to;
       const np = normPhone(other);
