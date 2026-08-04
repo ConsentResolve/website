@@ -45,7 +45,13 @@ function pagePhrase(v) {
 // email with thin data still reads naturally.
 export function buildVars(env, { contact, visitor, person }) {
   const v = visitor || {}, p = person || {};
-  const fullName = p.name || contact.full_name || "";
+  // A GDPR/CCPA data-erasure leaves a placeholder like "(erased at their request)" in the
+  // name field. Never render that as a greeting — treat any parenthetical/redaction marker as
+  // no-name so the copy falls back to "there" / "Website visitor" (e.g. an erased contact who
+  // later re-subscribes).
+  const rawName = p.name || contact.full_name || "";
+  const looksErased = /^\s*\(|\berased\b|\bredacted\b|\bdeleted\b/i.test(rawName);
+  const fullName = looksErased ? "" : rawName;
   const first = (fullName.split(" ")[0]) || "there";
   const cityState = [p.city, p.state].filter(Boolean).join(", ");
   const cid = contact.id || "";
