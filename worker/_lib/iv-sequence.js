@@ -11,6 +11,12 @@ const SITE = "https://consentresolve.com";
 const AVATAR = SITE + "/team/tyler-spurlock.jpg";
 const ADDR = "1907 Gulf Way #1, St Pete Beach, FL 33706";
 const PHONE = "(727) 999-9846";
+const TEL = "+17279999846"; // sms: target — tapping opens a text to Tyler's line
+
+// A click-to-text call-to-action on its OWN line, so on a phone it opens a fresh SMS.
+function smsCta(label) {
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:2px 0"><tr><td style="font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:15px"><a href="sms:${TEL}" style="color:#0F6E56;font-weight:bold;text-decoration:none">💬 ${label || "Text me"}: ${PHONE}</a></td></tr></table>`;
+}
 
 // ---- personalization -------------------------------------------------------
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
@@ -56,7 +62,8 @@ function tylerSig() {
     <td valign="middle" style="padding-right:12px"><img src="${AVATAR}" width="48" height="48" alt="Tyler Spurlock" style="width:48px;height:48px;border-radius:24px;display:block"></td>
     <td valign="middle" style="font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;line-height:1.4">
       <div style="font-size:15px;font-weight:bold;color:#16181D">Tyler Spurlock</div>
-      <div style="font-size:13px;color:#71767F">Consent Resolve · <a href="mailto:hello@consentresolve.com" style="color:#0F6E56">hello@consentresolve.com</a> · ${PHONE}</div>
+      <div style="font-size:13px;color:#71767F">Consent Resolve · <a href="mailto:hello@consentresolve.com" style="color:#0F6E56">hello@consentresolve.com</a></div>
+      <div style="font-size:13px;margin-top:3px"><a href="sms:${TEL}" style="color:#0F6E56;font-weight:bold;text-decoration:none">💬 Text me: ${PHONE}</a></div>
     </td></tr></table>`;
 }
 
@@ -124,7 +131,7 @@ const LEAD_CARD_HTML = `<div style="display:none;max-height:0;overflow:hidden;op
 <tr><td style="padding:22px 24px 8px 24px;border-top:1px solid #E3E5E9;margin-top:8px">${tylerSig()}</td></tr>
 <tr><td style="padding:8px 24px 26px 24px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:13px;line-height:1.6;color:#8A8F97"><a href="{{data_record_url}}" style="color:#8A8F97">See everything we have on you</a> &middot; <a href="{{delete_url}}" style="color:#8A8F97">delete it</a> &middot; both work instantly, one click, no form.</td></tr>
 </table>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%"><tr><td style="padding:18px 8px 4px 8px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9BA0A8">Consent Resolve &middot; ${ADDR} &middot; ${PHONE}<br>You're getting this because you consented on consentresolve.com at {{visit_time}}. <a href="{{unsubscribe_url}}" style="color:#9BA0A8">Unsubscribe</a></td></tr></table>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%"><tr><td style="padding:18px 8px 4px 8px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9BA0A8">Consent Resolve &middot; ${ADDR} &middot; <a href="sms:${TEL}" style="color:#9BA0A8">${PHONE}</a><br>You're getting this because you consented on consentresolve.com at {{visit_time}}. <a href="{{unsubscribe_url}}" style="color:#9BA0A8">Unsubscribe</a></td></tr></table>
 </td></tr></table>`;
 
 const THE_98_HTML = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#FFFFFE"><tr><td align="left" style="padding:22px 18px">
@@ -142,7 +149,9 @@ const THE_98_HTML = `<table role="presentation" cellpadding="0" cellspacing="0" 
 <tr><td style="padding:5px 0">3,000 visits</td><td align="right" style="padding:5px 0;color:#71767F">90 leads &middot; <strong style="color:#16181D">$630</strong></td></tr></table></td></tr></table>
 <p style="margin:0 0 16px 0">Now hold that up against what one {{trade_adjective}} lead runs you on Angi &mdash; shared with three other shops who are all calling the same homeowner before lunch.</p>
 <p style="margin:0 0 16px 0"><strong style="color:#16181D">Don't go dig up your traffic number. Just reply with your website address</strong> and I'll look it up and tell you what it's actually worth. If it's not worth it yet, I'll tell you that too &mdash; this only works when there's already traffic to work with.</p>
-<p style="margin:0 0 18px 0;font-size:15px;color:#71767F">Reply here, or call/text ${PHONE} &mdash; either works.</p>
+<p style="margin:0 0 8px 0;font-size:15px;color:#71767F">Reply here, or text me &mdash; it comes straight to my phone:</p>
+${smsCta("Text me")}
+<div style="height:10px;line-height:10px">&nbsp;</div>
 ${tylerSig()}
 <p style="margin:20px 0 0 0;font-size:15px;line-height:1.6;color:#22252B"><strong style="color:#16181D">P.S.</strong> &mdash; Those free yard signs I mentioned aren't a promo. There's a reason we ship them and it's a selfish one. I'll explain in a few days.</p>
 </td></tr>
@@ -169,7 +178,9 @@ const YARD_SIGNS_HTML = `<table role="presentation" cellpadding="0" cellspacing=
 </td></tr>
 <tr><td style="padding-bottom:14px"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="background-color:#0F6E56;border-radius:8px"><a href="${SITE}/get-started/" style="display:block;padding:15px 28px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:17px;font-weight:bold;color:#FFFFFE;text-decoration:none">Start now &mdash; $7 a lead</a></td></tr></table></td></tr>
 <tr><td style="font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:16px;line-height:1.65;color:#22252B">
-<p style="margin:0 0 18px 0;color:#71767F">Live in about 10 minutes. Or if you'd rather talk it through first: <a href="tel:+17279999846" style="color:#0F6E56;font-weight:bold">call or text ${PHONE}</a>, or just hit reply on this email.</p>
+<p style="margin:0 0 8px 0;color:#71767F">Live in about 10 minutes. Or if you'd rather talk it through first, just hit reply &mdash; or text me:</p>
+${smsCta("Text me")}
+<div style="height:10px;line-height:10px">&nbsp;</div>
 ${tylerSig()}
 <p style="margin:20px 0 0 0;font-size:15px;line-height:1.6"><strong style="color:#16181D">P.S.</strong> &mdash; No contract, no setup fee, no monthly. Slow month, small bill. That's the whole pricing page.</p></td></tr>
 <tr><td style="padding-top:26px"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px solid #E3E5E9"><tr><td style="padding-top:14px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9BA0A8">Consent Resolve &middot; ${ADDR}<br>You consented to hear from us on consentresolve.com. <a href="{{unsubscribe_url}}" style="color:#9BA0A8">Unsubscribe</a> &middot; <a href="{{delete_url}}" style="color:#9BA0A8">delete my record</a></td></tr></table></td></tr>

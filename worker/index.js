@@ -107,6 +107,7 @@ import * as crmMerge from "./api/crm-merge.js";
 import * as crmDemoNotify from "./api/crm-demo-notify.js";
 import * as crmRebuildMigrate from "./api/crm-rebuild-migrate.js";
 import * as crmWorkflow from "./api/crm-workflow.js";
+import * as dataRecord from "./api/data-record.js";
 import * as telnyxInbound from "./api/telnyx-inbound.js";
 import * as crmAppData from "./api/crm-app-data.js";
 import * as crmSources from "./api/crm-sources.js";
@@ -218,6 +219,8 @@ const ROUTES = {
   "/api/crm/demo-notify": crmDemoNotify,
   "/api/crm/rebuild/migrate": crmRebuildMigrate,
   "/api/crm/workflow": crmWorkflow,
+  "/api/crm/data-record": dataRecord,
+  "/api/crm/data-delete": dataRecord,
   "/api/telnyx/inbound": telnyxInbound,
   "/api/crm/app": crmAppData,
   "/api/crm/sources": crmSources,
