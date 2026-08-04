@@ -36,6 +36,8 @@ import * as gbpStatus from "./api/gbp-status.js";
 import * as admin from "./admin.js";
 import * as crm from "./crm.js";
 import * as crmApp from "./crm-app.js";
+import * as signup from "./signup.js";
+import * as signupSiteCheck from "./api/signup-site-check.js";
 import * as crmLeads from "./api/crm-leads.js";
 import * as crmAnalytics from "./api/crm-analytics.js";
 import * as crmSpend from "./api/crm-spend.js";
@@ -221,6 +223,7 @@ const ROUTES = {
   "/api/crm/workflow": crmWorkflow,
   "/api/crm/data-record": dataRecord,
   "/api/crm/data-delete": dataRecord,
+  "/api/crm/signup/site-check": signupSiteCheck,
   "/api/telnyx/inbound": telnyxInbound,
   "/api/crm/app": crmAppData,
   "/api/crm/sources": crmSources,
@@ -258,7 +261,7 @@ const ROUTES = {
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
-const NO_DB = new Set(["/api/preview", "/api/meta-capi"]);
+const NO_DB = new Set(["/api/preview", "/api/meta-capi", "/api/crm/signup/site-check"]);
 
 export default {
   async fetch(request, env, ctx) {
@@ -330,6 +333,13 @@ export default {
 
     // CRM rebuild app (frozen design, cr_crm-gated). Served before the legacy /crm
     // so it can coexist during cutover. Its sub-routes (/crm/app/<section>) are a SPA.
+    // Standalone signup flow (/signup/ + /signup/onboarding.html). Worker-served so we can
+    // force noindex; unlinked from the site. Before the generic static fallthrough.
+    if (url.pathname === "/signup" || url.pathname.startsWith("/signup/")) {
+      try { return signup.handle({ request, env, ctx }); }
+      catch (err) { return new Response("signup error", { status: 500 }); }
+    }
+
     if (url.pathname === "/crm/app" || url.pathname.startsWith("/crm/app/")) {
       try {
         return await crmApp.handle({ request, env, ctx });
