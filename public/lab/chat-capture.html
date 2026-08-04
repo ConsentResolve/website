@@ -271,14 +271,14 @@
         '<p class="re">🔒 No spam — it’s just how we follow up.</p>'+
       '</div>';
     msgs.appendChild(card);
-    // Robustly bring the WHOLE card (incl. the button) into view — the card is tall and the
-    // synchronous scroll fired before layout, so the fields/button were getting cut off.
-    var toBottom=function(){ msgs.scrollTop = msgs.scrollHeight; };
+    // Reliably reveal the WHOLE card (fields + button). Force an instant jump (smooth-behavior
+    // left it mid-animation) and do NOT auto-focus the first field — focusing pulled the view
+    // back to the top of the card and cut the button off.
+    var toBottom=function(){ msgs.style.scrollBehavior='auto'; msgs.scrollTop = msgs.scrollHeight; };
     requestAnimationFrame(function(){ requestAnimationFrame(toBottom); });
-    setTimeout(toBottom, 90); setTimeout(toBottom, 300);
+    setTimeout(toBottom, 60); setTimeout(toBottom, 200); setTimeout(toBottom, 450);
     document.getElementById('cgo').onclick=function(){ submitCapture(card); };
     var e=document.getElementById('ce'); if(e) e.addEventListener('keydown',function(ev){ if(ev.key==='Enter') submitCapture(card); });
-    var first=document.getElementById('cn')||e; if(first) setTimeout(function(){ try{first.focus({preventScroll:true});}catch(_){} toBottom(); }, 320);
   }
   function submitCapture(card){
     var e=document.getElementById('ce'); var email=(e.value||'').trim();
