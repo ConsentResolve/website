@@ -273,7 +273,7 @@ const visitorIdentification: Feature = {
   faq: {
     headline: "What pros ask about visitor identification.",
     items: [
-      { q: "How many visitors get identified?",            a: "It varies by traffic, but a meaningful share of your consented visitors — far more than the handful who fill out a form." },
+      { q: "How many visitors get identified?",            a: "Typically about 16–19% of your total visitors — roughly 160–185 for every 1,000 a month. Around 75% accept the consent banner, and we identify about 22–25% of those. Strong, in-scope sites do better; it's far more than the ~2% who ever fill out a form." },
       { q: "Do they have to fill out a form?",             a: "No. That's the point. We identify them without one." },
       { q: "Is it just business visitors or homeowners too?", a: "Both. Consent Resolve identifies individual people, which is what home service pros need." },
       { q: "What info do I actually get?",                 a: "A name, a way to reach them, and what they looked at on your site." },

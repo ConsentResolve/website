@@ -168,7 +168,7 @@ const THE_98_HTML = `<table role="presentation" cellpadding="0" cellspacing="0" 
 <p style="margin:0 0 16px 0">Here's the thing nobody tells contractors about their website. Out of every 100 people who land on it, about 2 call or fill out the form. The other 98 leave without a word.</p>
 <p style="margin:0 0 16px 0">You paid for all 100 &mdash; the ad, the LSA click, the sign in the yard, years of your name getting around. You just never got to meet 98% of what you bought.</p>
 <p style="margin:0 0 16px 0">And those 98 aren't tire-kickers. A lot of them were on your site at 9pm, got interrupted, and never came back. The {{trade_noun}} still needs doing.</p>
-<p style="margin:0 0 16px 0">Figure about 8 in 100 say yes to being introduced. On 500 visits a month that's somewhere around 30&ndash;50 resolved leads &mdash; call it 40. So:</p>
+<p style="margin:0 0 16px 0">Here's the math: about 75 in 100 accept the consent banner, and we put a name and email to roughly a quarter of those &mdash; so figure 16&ndash;19 identified leads for every 100 visitors. On 500 visits a month that's somewhere around 80&ndash;95 resolved leads &mdash; call it 85. So:</p>
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 18px 0"><tr><td style="border-left:3px solid #0F6E56;padding:2px 0 2px 16px">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:16px;line-height:1.5;color:#22252B">
 <tr><td style="padding:5px 0">500 visits a month</td><td align="right" style="padding:5px 0;color:#71767F">~40 leads &middot; <strong style="color:#16181D">$280</strong></td></tr>

@@ -17,12 +17,12 @@ import { breadcrumbSchema, faqSchema } from "~/lib/seo";
 
 const billingFaqs = [
   { question: "What counts as a lead?", answer: "An identified, consented contact — a verified email tied to a real person, with what they were shopping for, enriched with name and location where available. You're never billed for anonymous traffic, non-consenting visitors, or ad-blocked records." },
-  { question: "How am I billed?", answer: "$7 per delivered lead. We bill at the end of each week for the leads delivered that week." },
-  { question: "Are there setup fees?", answer: "No. No setup fees, no implementation fees, no \"onboarding\" surcharge. You install the snippet, you start receiving leads, you pay $7 each." },
-  { question: "Is there a contract or minimum?", answer: "No. No annual contract. No monthly minimum. No volume commitment. You pay only for the leads you receive." },
+  { question: "How am I billed?", answer: "$7 per resolved lead, pay-as-you-go. You buy leads in prepaid batches — the smallest is 14 for $98, then 50, 100, 250, or a custom amount — and each resolved lead draws one from your balance. Turn on auto-renew and your balance tops up automatically from your card when it runs low, with an optional monthly spend cap. No monthly fee, no platform fee." },
+  { question: "Are there setup fees?", answer: "No. No setup fees, no implementation fees, no \"onboarding\" surcharge, and no monthly platform fee. You install the snippet, buy a batch of leads, and pay $7 each — that's it." },
+  { question: "Is there a contract or minimum?", answer: "No annual contract, no monthly minimum, no volume commitment. It's pay-as-you-go — start with a batch as small as 14 leads ($98) and buy more whenever you want. Every batch is the same flat $7 per lead." },
   { question: "Do you bill for ad-blocked records?", answer: "No. Ad-blocked or zero-engagement records are never billed. You only pay for a consented, deliverable contact." },
-  { question: "What if a lead is bad?", answer: "All sales are final — we don't issue refunds. You're only ever billed for a consented, deliverable contact: ad-blocked, non-consenting, and hard-bounced or invalid records are never billed in the first place. The homeowner saw your site, raised their hand, and consented to be reached." },
-  { question: "How do I cancel?", answer: "From your dashboard, one click. You'll be charged for any leads already delivered that week and that's the last bill." },
+  { question: "What if a lead is bad?", answer: "Sales are final — we don't refund a lead you simply didn't close — and you're only ever billed for a consented, deliverable contact in the first place: ad-blocked, non-consenting, and hard-bounced or invalid records are never billed. The one exception is a duplicate: our backend won't deliver the same lead twice, but in the rare event one slips through, that's a 100% refund." },
+  { question: "How do I cancel?", answer: "There's nothing to cancel — it's pay-as-you-go. Switch off auto-renew from your dashboard anytime and you simply stop buying leads; you keep whatever's left in your balance and you're never charged again." },
   { question: "Do you offer enterprise / multi-location pricing?", answer: "Yes — multi-location operators and franchise networks get a custom rate. Email hello@consentresolve.com or call (727) 999-9846." },
 ];
 
@@ -155,7 +155,7 @@ const schemas = [
 
           <p class="mt-4 flex items-center justify-center gap-1.5 text-xs text-[color:var(--color-ink-muted)]">
             <IconLock size={12} stroke={1.75} />
-            Encrypted in transit and at rest · Card required for billing · Cancel anytime
+            Encrypted in transit and at rest · Card required to buy leads · Pay-as-you-go, no contract
           </p>
         </div>
 
@@ -206,7 +206,7 @@ const schemas = [
           </a>
         </div>
         <p class="mt-6 text-[11px] leading-relaxed text-[color:var(--color-ink-muted)]">
-          Illustrative only. We don't publish recovery or close rates — set your own assumptions in the calculator. The only fixed number is the flat $7 per recovered lead. Sourced industry data lives on /stats/.
+          A typical site resolves about 16–19% of its visitors to an identified lead (~160–185 per 1,000/month) — roughly 75% accept the consent banner and we identify about a quarter of those. Close rates are your own — set your assumptions in the calculator. The only fixed number is the flat $7 per recovered lead. Sourced industry data lives on /stats/.
         </p>
       </div>
     </div>
@@ -220,7 +220,7 @@ const schemas = [
   />
 
   <AEOAnswer
-    text="Consent Resolve costs a flat $7 per recovered lead — a consented homeowner identified from a website visitor who would otherwise have bounced. There's no setup fee, no monthly minimum, no contract. Recovered leads are incremental on top of your existing ad channels, so the right way to measure us is cost-per-booked-job, not cost-per-lead. Card required at signup; cancel anytime. All sales are final — no refunds."
+    text="Consent Resolve costs a flat $7 per recovered lead — a consented homeowner identified from a website visitor who would otherwise have bounced. There's no setup fee, no monthly minimum, no contract. Billing is pay-as-you-go: you buy leads in prepaid batches (the smallest is 14 for $98) with optional auto-renew, and a card is required to buy. A typical site resolves about 16–19% of its visitors to a lead (~160–185 per 1,000/month). Recovered leads are incremental on top of your existing ad channels, so the right way to measure us is cost-per-booked-job, not cost-per-lead. Sales are final — the only refund is a duplicate lead, which the system prevents and refunds 100% if one ever slips through."
   />
 
   <!-- Custom Final CTA: $7-focused, matches sitewide canon -->

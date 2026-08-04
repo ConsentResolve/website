@@ -1948,6 +1948,9 @@ function replyChannels(c){
   // implied consent to respond, and email replies are always permitted under CAN-SPAM. (The
   // opted-out and identified-no-consent guards above this still block those cases first.)
   const ch=c.channel;
+  // If we have BOTH an email and a phone on file, always offer the Email/SMS toggle — a rep can
+  // reply on either channel from the bottom bar, regardless of how the lead first reached us.
+  if(c.contact_email && c.contact_phone){ out.add('email'); out.add('sms'); }
   if(ch==='chat'||ch==='chatwoot') out.add('chat');
   else if(ch==='sms'||ch==='phone'||ch==='voice'||ch==='speed_to_lead') out.add('sms');
   else if(ch==='email'||ch==='meta_lead'||ch==='demo_form'||ch==='instantly'||ch==='prospecting'||ch==='identified') out.add('email');

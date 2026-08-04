@@ -9,7 +9,7 @@ import { IconArrowRight, IconCalculator } from "@tabler/icons-react";
  * presented as fact. The reader sets every assumption themselves — monthly
  * visitors, average job value, recovery rate, and recovered-to-booked rate.
  * The only fixed number is the flat $7 Consent Resolve cost. Everything is
- * labeled illustrative; we don't publish performance claims. Sourced
+ * labeled illustrative; typical resolution is ~16-19% of visitors. Sourced
  * industry data lives on /stats/.
  */
 
@@ -57,7 +57,7 @@ export default function RecoveryCalculator({
   const [avgJob, setAvgJob] = useState<number>(defaults.avgJob ?? 850);
   // Assumptions the reader controls — conservative starting points, NOT
   // published performance claims.
-  const [recoveryPct, setRecoveryPct] = useState<number>(defaults.recoveryPct ?? 10);
+  const [recoveryPct, setRecoveryPct] = useState<number>(defaults.recoveryPct ?? 18); // ~16-19% of visitors resolve to an ID (~75% accept the banner x ~22-25% resolution)
   const [bookedPct, setBookedPct] = useState<number>(defaults.bookedPct ?? 1);
   // Ripoff mode only: what they currently hand the lead sites each month.
   const [leadSpend, setLeadSpend] = useState<number>(defaults.leadSpend ?? 1_500);
@@ -262,7 +262,7 @@ export default function RecoveryCalculator({
             </a>
 
             <p className={`text-[11px] leading-relaxed ${dim}`}>
-              Illustrative only. Set your own assumptions — results depend on your traffic, close rate, and follow-up speed. We don't publish performance claims; see <a href="/stats/" className="underline">/stats/</a> for sourced industry data. The only fixed number is the flat $7 per recovered lead.
+              A typical site resolves about 16–19% of its visitors to an identified lead (~160–185 per 1,000/month) — roughly 75% accept the consent banner and we identify about a quarter of those. Strong, in-scope sites do better; weak ones lower. Booked jobs depend on your own close rate and follow-up speed — set your own assumptions above. The only fixed number is the flat $7 per recovered lead.
             </p>
           </div>
         </div>
