@@ -13,7 +13,7 @@ import { sendCrispMessage, getCrispTranscript } from "./crm-crisp.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2, isAdmin } from "../_lib/crm-v2.js";
 import { getByEmail } from "../_lib/db.js";
 import { progressFor } from "../_lib/demo-notify.js";
-import { addSuppression, logEvent } from "../_lib/crm-rebuild.js";
+import { addSuppression, isSuppressed, logEvent } from "../_lib/crm-rebuild.js";
 
 // Recognize a delivery-failure (DSN / bounce) email so we can suppress the dead address
 // instead of ingesting the mailer-daemon notice as a normal inbound conversation.
@@ -383,12 +383,41 @@ export async function onRequestPost({ request, env }) {
       : (conv.subject ? "Re: " + conv.subject.replace(/^re:\s*/i, "") : "Re: your inquiry");
     let externalId = null, sentVia = conv.channel;
 
-    if (conv.channel === "email") {
-      const to = conv.primary_email;
-      if (!to) return json({ error: "no_recipient" }, { status: 400 }, cors);
-      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], to, subj, body, conv.external_thread_id);
+    // Resolve the contact's reachable addresses once — used by both the explicit-channel
+    // override and native routing. Phone comes from the thread ("phone:<E164>") or, for a
+    // non-SMS thread (email / identified visitor / form lead), the contact's phone on file.
+    const email = conv.primary_email || null;
+    let phone = null;
+    {
+      const raw = String(conv.external_thread_id || "");
+      if (raw.startsWith("phone:")) phone = raw.slice(6);
+      if (!phone && conv.contact_id) { const pc = await env.DB.prepare("SELECT phone FROM contacts WHERE id=?").bind(conv.contact_id).first(); phone = pc && pc.phone; }
+      if (phone) { phone = String(phone).trim(); phone = phone.startsWith("+") ? phone : "+" + phone.replace(/[^\d]/g, ""); if (phone.replace(/[^\d]/g, "").length < 10) phone = null; }
+    }
+
+    // MANUAL CHANNEL OVERRIDE — a rep (e.g. Tyler) can choose to reply by Email or SMS on any
+    // Open conversation, regardless of how the lead first reached us (identified visitors, form
+    // leads, etc.). The composer's channel switch sends `channel`; we honor it here, gated by a
+    // reachable address + a not-suppressed check. This is the "reply via SMS and Email" ability.
+    const want = (b.channel === "email" || b.channel === "sms") ? b.channel : null;
+    if (want === "email") {
+      if (!email) return json({ error: "no_recipient", message: "No email address on file for this contact." }, { status: 400 }, cors);
+      if (await isSuppressed(env, { contactId: conv.contact_id, email, channel: "email" })) return json({ error: "suppressed", message: "This contact opted out of email." }, { status: 400 }, cors);
+      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null);
       if (res.error) return json({ error: res.error }, { status: 400 }, cors);
-      externalId = res.id;
+      externalId = res.id; sentVia = "email";
+    } else if (want === "sms") {
+      if (!phone) return json({ error: "no_phone", message: "No mobile number on file to text this contact." }, { status: 400 }, cors);
+      if (await isSuppressed(env, { contactId: conv.contact_id, phone, channel: "sms" })) return json({ error: "suppressed", message: "This contact opted out of texts (STOP)." }, { status: 400 }, cors);
+      const res = await sendSms(env, phone, body);
+      if (!res.ok) return json({ error: res.error || "sms_failed" }, { status: 400 }, cors);
+      externalId = res.sid; sentVia = "sms";
+    } else if (conv.channel === "email" || conv.channel === "identified") {
+      // Native default: identified visitors + email threads reply by email to the address on file.
+      if (!email) return json({ error: "no_recipient" }, { status: 400 }, cors);
+      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null);
+      if (res.error) return json({ error: res.error }, { status: 400 }, cors);
+      externalId = res.id; sentVia = "email";
     } else if (conv.channel === "meta_lead" || conv.channel === "demo_form") {
       const to = conv.primary_email;
       if (!to) return json({ error: "no_email", message: "No email on file for this lead — call only." }, { status: 400 }, cors);
@@ -439,7 +468,7 @@ export async function onRequestPost({ request, env }) {
     }
 
     const now = new Date().toISOString();
-    await insertMessageOnce(env, { conversationId: conv.id, direction: "out", channel: conv.channel, authorId, externalMessageId: externalId, bodyText: body, sentAt: now });
+    await insertMessageOnce(env, { conversationId: conv.id, direction: "out", channel: sentVia, authorId, externalMessageId: externalId, bodyText: body, sentAt: now });
     await env.DB.prepare("UPDATE conversations SET last_message_at=?, last_message_preview=?, unread=0, updated_at=datetime('now') WHERE id=?").bind(now, body.slice(0, 160), conv.id).run();
     await addActivityV2(env, { actorId: authorId, entityType: "conversation", entityId: conv.id, action: "replied", meta: { channel: conv.channel, via: sentVia } });
     return json({ ok: true, sent: sentVia }, {}, cors);

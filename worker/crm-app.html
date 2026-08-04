@@ -1950,7 +1950,7 @@ function replyChannels(c){
   const ch=c.channel;
   if(ch==='chatwoot'||ch==='chat') out.add('chat');
   else if(ch==='sms'||ch==='phone'||ch==='voice'||ch==='speed_to_lead') out.add('sms');
-  else if(ch==='email'||ch==='meta_lead'||ch==='demo_form'||ch==='instantly'||ch==='prospecting') out.add('email');
+  else if(ch==='email'||ch==='meta_lead'||ch==='demo_form'||ch==='instantly'||ch==='prospecting'||ch==='identified') out.add('email');
   // Plus any channel with an explicit granted-consent record.
   if(c.consent.sms==='granted') out.add('sms');
   if(c.consent.email==='granted') out.add('email');
@@ -2057,7 +2057,7 @@ async function sendReply(){
   const btn=document.querySelector('.rte-send'); const oldLabel=btn?btn.textContent:'';
   if(btn){ btn.disabled=true; btn.textContent='Sending…'; }
   try{
-    const r=await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:sel,reply:text})});
+    const r=await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:sel,reply:text,channel:ch})});
     const d=await r.json().catch(()=>({}));
     if(!r.ok||d.error){ alert('Could not send: '+(d.message||d.error||('HTTP '+r.status))); return; }
     // Only reflect the message in the thread AFTER the send actually succeeded.
