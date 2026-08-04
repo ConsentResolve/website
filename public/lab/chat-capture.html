@@ -74,6 +74,9 @@
 
   /* messages */
   .msgs{flex:1;min-height:0;overflow-y:auto;padding:16px 14px 10px;background:linear-gradient(#f6f9fc,#eef3f8);display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth}
+  /* msgs is a flex column; without this, flexbox shrinks tall children (the capture card) and
+     their overflow:hidden clips the fields/button. Keep every message at its natural height. */
+  .msgs > *{flex-shrink:0}
   .row{display:flex;gap:8px;max-width:100%;align-items:flex-end;animation:rise .32s var(--eo) both}
   @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   .row.bot{align-self:flex-start} .row.me{align-self:flex-end;flex-direction:row-reverse}
