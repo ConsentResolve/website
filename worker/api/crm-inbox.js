@@ -471,7 +471,30 @@ export async function onRequestPost({ request, env }) {
     await insertMessageOnce(env, { conversationId: conv.id, direction: "out", channel: sentVia, authorId, externalMessageId: externalId, bodyText: body, sentAt: now });
     await env.DB.prepare("UPDATE conversations SET last_message_at=?, last_message_preview=?, unread=0, updated_at=datetime('now') WHERE id=?").bind(now, body.slice(0, 160), conv.id).run();
     await addActivityV2(env, { actorId: authorId, entityType: "conversation", entityId: conv.id, action: "replied", meta: { channel: conv.channel, via: sentVia } });
-    return json({ ok: true, sent: sentVia }, {}, cors);
+
+    // HUMAN TAKEOVER — the moment a rep replies by hand, stop every automation for this
+    // contact so nothing sends on top of the conversation: no drip-sequence step, and no AI
+    // (Mack) follow-up. Best-effort + reversible (the rep can re-arm autopilot from the
+    // composer's 🤖 Auto menu). We do NOT opt the contact out — this only pauses automation.
+    let pausedAutomation = false;
+    try {
+      if (conv.contact_id) {
+        const r = await env.DB.prepare(
+          "UPDATE workflow_runs SET status='exited', exit_reason='human_reply', next_run_at=NULL, updated_at=datetime('now') WHERE contact_id=? AND status='active'"
+        ).bind(conv.contact_id).run();
+        if (r && r.meta && r.meta.changes) pausedAutomation = true;
+      }
+      // Cancel any pending Speed-to-Lead touchpoints (scheduled SMS / AI calls) for the
+      // matching lead so Mack doesn't text or dial after a human already answered.
+      if (phone) {
+        const r2 = await env.DB.prepare(
+          "UPDATE stl_touchpoints SET status='canceled', notes='human took over (manual CRM reply)' WHERE status='pending' AND lead_id IN (SELECT id FROM stl_leads WHERE phone=?)"
+        ).bind(phone).run();
+        if (r2 && r2.meta && r2.meta.changes) pausedAutomation = true;
+      }
+    } catch (_) {}
+
+    return json({ ok: true, sent: sentVia, automation_paused: pausedAutomation }, {}, cors);
   }
 
   // Mark a conversation read — the inbox's select() fires this so the unread dot/badge
