@@ -542,15 +542,16 @@ export async function onRequestPost({ request, env }) {
       const em = (b.email_addr || "aaron@kickass.net").toLowerCase();
       const digits = normPhone(b.sms_phone || "+17133848985");          // 10-digit NANP identity
       const e164 = digits.length === 10 ? "+1" + digits : "+" + digits; // dial string for the reply
-      // ONE test contact that owns BOTH an email and a phone — so both the email chip and the
-      // phone chip populate on both test conversations ("we know both").
+      // Idempotent + self-healing: wipe prior test conversations and any orphaned test
+      // identifiers (earlier cleanups deleted the contact rows but left the email/phone
+      // identifiers, so findOrCreateContactByEmail was returning a dead contact_id).
+      await env.DB.prepare("DELETE FROM messages WHERE conversation_id IN (SELECT id FROM conversations WHERE source_detail='test')").run().catch(() => {});
+      await env.DB.prepare("DELETE FROM conversations WHERE source_detail='test'").run().catch(() => {});
+      await env.DB.prepare("DELETE FROM contact_identifiers WHERE (type='email' AND value=?) OR (type='phone' AND value=?)").bind(em, digits).run().catch(() => {});
+      // ONE fresh test contact that owns BOTH an email and a phone — so both chips populate on
+      // both test conversations ("we know both").
       const cid = await findOrCreateContactByEmail(env, em, { name: "Aaron (test)", phone: e164, source: "test" });
-      // Hard-set both on the exact contact the conversations point to (COALESCE left it null
-      // when the contact pre-existed from an earlier test).
       await env.DB.prepare("UPDATE contacts SET primary_email=?, phone=?, full_name=COALESCE(full_name,'Aaron (test)') WHERE id=?").bind(em, e164, cid).run();
-      // Idempotent: clear any prior test conversations for this contact.
-      await env.DB.prepare("DELETE FROM messages WHERE conversation_id IN (SELECT id FROM conversations WHERE contact_id=? AND source_detail='test')").bind(cid).run().catch(() => {});
-      await env.DB.prepare("DELETE FROM conversations WHERE contact_id=? AND source_detail='test'").bind(cid).run().catch(() => {});
       // Inbound SMS from the cell — external_thread_id carries the full E.164 so the reply texts it.
       const smsId = ulid(); const smsPrev = "Hey, testing the CRM — can you text me back?";
       await env.DB.prepare(
