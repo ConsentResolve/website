@@ -387,7 +387,7 @@ export async function onRequestPost({ request, env }) {
   await ensureCrmV2Schema(env);
   let b = {};
   try { b = await request.json(); } catch { return json({ error: "bad_json" }, { status: 400 }, cors); }
-  if (!b.id && !b.del && !b.purge_test) return json({ error: "id_required" }, { status: 400 }, cors);
+  if (!b.id && !b.del && !b.purge_test && !b.seed_open_test) return json({ error: "id_required" }, { status: 400 }, cors);
 
   // Reply, send-to-origin (BUILD-PLAN P1-8). Routes by channel: email→Gmail (hello@),
   // instantly→Instantly reply (warmed mailbox), crisp→Crisp REST, meta_lead/demo_form→
