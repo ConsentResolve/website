@@ -106,6 +106,10 @@ export async function ensureCrmV2Schema(env) {
       id TEXT PRIMARY KEY, author_id TEXT, conversation_id TEXT, contact_id TEXT,
       body TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT (datetime('now')))`),
   ]);
+  // `hard` tombstone: a MANUAL delete (the trash button) sets this so the thread NEVER
+  // re-opens, even on genuinely-new activity — "gone forever." Automated tombstones leave it
+  // 0, keeping the timestamp-aware re-open for a real new reply. Guarded ALTER (idempotent).
+  await env.DB.prepare(`ALTER TABLE conversation_tombstones ADD COLUMN hard INTEGER NOT NULL DEFAULT 0`).run().catch(() => {});
   for (const u of SEED_USERS) {
     await env.DB.prepare(
       `INSERT INTO users (id, name, email, role) VALUES (?, ?, ?, ?) ON CONFLICT(email) DO NOTHING`
@@ -228,8 +232,11 @@ export async function upsertConversationByThread(env, c) {
   // stale re-sync never brings a deleted conversation back. (Channel-agnostic on purpose:
   // meta/sms/demo/phone/voice were previously un-guarded and could all resurrect.)
   if (!ex) {
-    const dead = await env.DB.prepare("SELECT deleted_at FROM conversation_tombstones WHERE thread_key=?").bind(threadKey).first().catch(() => null);
+    const dead = await env.DB.prepare("SELECT deleted_at, hard FROM conversation_tombstones WHERE thread_key=?").bind(threadKey).first().catch(() => null);
     if (dead) {
+      // A HARD (manually-deleted) tombstone never re-materializes — "wiped, scrubbed, gone
+      // forever." Only auto-tombstones fall through to the timestamp-aware re-open below.
+      if (dead.hard) return null;
       const delTs = Date.parse(dead.deleted_at || "") || 0;
       const actTs = Date.parse(c.lastAt || "") || 0;
       if (c.force || (actTs && actTs > delTs)) {

@@ -82,6 +82,11 @@
 		"CONSENT_TEXT_VERSION": "v1-2026-06",
 		"ALLOWED_ORIGINS": "https://consentresolve.com,https://www.consentresolve.com",
 		"SOCIAL_AUTOPOST_ENABLED": "true",
+		// Identified-Visitor (IV) sequence — LIVE as of 2026-08-04. IV_LIVE=true makes the
+		// 3-email "Tyler Spurlock" sequence send for real to every enrolled identified lead
+		// (and new ones via the CR visitor sync). Leave IV_TEST_EMAILS unset = send to all.
+		// To pause: set to "false" and redeploy. (Kept here, not as a secret, so it survives CI.)
+		"IV_LIVE": "true",
 		"INDEXNOW_KEY": "0452ce57fb0d3bbfdcb0d12e1ee8b142",
 		// Speed-to-Lead — non-secret config kept here so it survives `wrangler deploy`
 		// (dashboard plain-text vars get wiped on each CI deploy; secrets persist).

@@ -9,6 +9,9 @@ import { nowIso } from "./db.js";
 const SCOPES = [
   "https://www.googleapis.com/auth/gmail.readonly",
   "https://www.googleapis.com/auth/gmail.send",
+  // modify: lets a deleted conversation be moved to Trash AT SOURCE so the in:inbox poll can't
+  // re-ingest it. Requires a one-time reconnect of the Gmail mailbox to grant the new scope.
+  "https://www.googleapis.com/auth/gmail.modify",
   "openid",
   "email",
 ].join(" ");
@@ -150,6 +153,20 @@ export async function sendMessage(env, account, to, subject, body, threadId, opt
   const j = await r.json();
   if (j.error) return { error: (j.error && j.error.message) || "send_failed" };
   return { ok: true, id: j.id, threadId: j.threadId };
+}
+
+// Scrub a thread AT SOURCE: move the whole Gmail thread to Trash so the `in:inbox` ingest
+// poll can never re-materialize a deleted conversation. Reversible (Gmail Trash keeps it ~30
+// days) — we deliberately don't permanently destroy the mailbox. Used by conversation delete.
+export async function trashThread(env, account, threadId) {
+  if (!threadId) return { skipped: "no_thread" };
+  const tok = await gAccessToken(env, account);
+  if (!tok) return { error: "no_token" };
+  const r = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/threads/" + encodeURIComponent(threadId) + "/trash", {
+    method: "POST", headers: { Authorization: "Bearer " + tok },
+  });
+  if (!r.ok) { const t = await r.text().catch(() => ""); return { error: "trash_failed", detail: String(t).slice(0, 120) }; }
+  return { ok: true };
 }
 
 // Crude HTML→text fallback for the plain-text alternative when a caller passes only HTML.

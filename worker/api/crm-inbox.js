@@ -6,7 +6,7 @@
 // mailbox(es) to ingest: CRM_INBOX_EMAILS (comma-sep), default hello@consentresolve.com.
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
-import { gAccessToken, sendMessage } from "../_lib/gmail.js";
+import { gAccessToken, sendMessage, trashThread } from "../_lib/gmail.js";
 import { sendInstantlyReply } from "./crm-instantly.js";
 import { sendTestSms as sendSms } from "../_lib/stl/twilio.js";
 import { sendCrispMessage, getCrispTranscript } from "./crm-crisp.js";
@@ -423,6 +423,13 @@ export async function onRequestPost({ request, env }) {
     if (!conv) return json({ error: "not_found" }, { status: 404 }, cors);
     const me = await currentUser(request, env);
     const authorId = me ? me.id : null;
+    // FROM identity for outbound email. Leads should see the responding rep (e.g. "Tyler
+    // Spurlock") over the shared hello@ mailbox — never the mailbox's default send-as, which
+    // was rendering as "Aaron <aaron@consentresolve.com>". We set From explicitly (the same
+    // trick the IV sequence uses) so display name = who's replying and the address is hello@.
+    let repName = (me && me.name) || "";
+    if (!repName) { const _a = await env.DB.prepare("SELECT name FROM users WHERE role='admin' AND active=1 ORDER BY created_at LIMIT 1").first(); repName = (_a && _a.name) || "Consent Resolve"; }
+    const fromEmail = `${repName.replace(/["<>\r\n,]/g, " ").trim()} <hello@consentresolve.com>`;
     // Form leads (Meta/demo) reply with a clean, customer-facing subject — never the internal
     // "Meta Lead — Name" label (jargon + garbled chars read as spam).
     const subj = (conv.channel === "meta_lead" || conv.channel === "demo_form")
@@ -450,7 +457,7 @@ export async function onRequestPost({ request, env }) {
     if (want === "email") {
       if (!email) return json({ error: "no_recipient", message: "No email address on file for this contact." }, { status: 400 }, cors);
       if (await isSuppressed(env, { contactId: conv.contact_id, email, channel: "email" })) return json({ error: "suppressed", message: "This contact opted out of email." }, { status: 400 }, cors);
-      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM });
+      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail });
       if (res.error) return await failSend(env, conv.id, "email", res.error, res.error, cors);
       externalId = res.id; sentVia = "email";
     } else if (want === "sms") {
@@ -462,7 +469,7 @@ export async function onRequestPost({ request, env }) {
     } else if (conv.channel === "email" || conv.channel === "identified") {
       // Native default: identified visitors + email threads reply by email to the address on file.
       if (!email) return json({ error: "no_recipient" }, { status: 400 }, cors);
-      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM });
+      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail });
       if (res.error) return await failSend(env, conv.id, "email", res.error, res.error, cors);
       externalId = res.id; sentVia = "email";
     } else if (conv.channel === "meta_lead" || conv.channel === "demo_form") {
@@ -470,14 +477,12 @@ export async function onRequestPost({ request, env }) {
       if (!to) return json({ error: "no_email", message: "No email on file for this lead — call only." }, { status: 400 }, cors);
       // CAN-SPAM footer (name + physical address + opt-out) + List-Unsubscribe header — both are
       // legit-sender trust signals that help these first-touch emails clear spam filters. The rep
-      // name falls back to the admin user (matches the compose-preview name) when there's no session user.
-      let repName = (me && me.name) || "";
-      if (!repName) { const _a = await env.DB.prepare("SELECT name FROM users WHERE role='admin' AND active=1 ORDER BY created_at LIMIT 1").first(); repName = (_a && _a.name) || "Consent Resolve Team"; }
+      // name (resolved above) also signs the footer so it matches the visible From.
       const signed = body + "\r\n\r\n-- \r\n" + repName + "\r\n" +
         "Consent Resolve\r\n1907 Gulf Way #1, St Pete Beach, FL 33706\r\n" +
         "You're getting this because you asked to hear from us at consentresolve.com. Reply UNSUBSCRIBE and we'll stop.";
       const res = await sendMessage(env, inboxAccounts(env)[0], to, subj, signed, null, {
-        cc: CC_TEAM,
+        cc: CC_TEAM, from: fromEmail,
         headers: { "List-Unsubscribe": "<mailto:hello@consentresolve.com?subject=unsubscribe>" },
       }); // new email thread, not Messenger
       if (res.error) return await failSend(env, conv.id, "email", res.error, res.error, cors);
@@ -637,12 +642,20 @@ export async function onRequestPost({ request, env }) {
   // now orphaned (no other conversations), removes it and its identifiers too.
   if (b.del || b.delete_conversation) {
     const id = b.id || b.del;
-    const conv = await env.DB.prepare("SELECT id, contact_id, channel, external_thread_id FROM conversations WHERE id=?").bind(id).first();
+    const conv = await env.DB.prepare("SELECT id, contact_id, channel, channel_account_id, external_thread_id FROM conversations WHERE id=?").bind(id).first();
     if (!conv) return json({ ok: true, already_gone: true }, {}, cors);
     // Tombstone the thread so automated re-ingest (Gmail/Instantly polls, Site-Spy
     // re-materialize) can't bring the deleted conversation back on the next tick.
-    await env.DB.prepare("INSERT OR REPLACE INTO conversation_tombstones (thread_key) VALUES (?)")
+    await env.DB.prepare("INSERT OR REPLACE INTO conversation_tombstones (thread_key, hard) VALUES (?, 1)")
       .bind(conv.channel + "|" + (conv.external_thread_id || "")).run().catch(() => {});
+    // SCRUB AT SOURCE — for a Gmail-backed thread, move it to Trash so the `in:inbox` poll
+    // can never see it again. The DB tombstone alone couldn't stop resurrection because the
+    // email still lived in the inbox and any new message on the thread re-opened it. Trash is
+    // reversible (Gmail keeps it ~30 days); we do not permanently destroy the mailbox.
+    let sourceScrub = null;
+    if (conv.channel === "email" && conv.external_thread_id && !String(conv.external_thread_id).startsWith("phone:")) {
+      try { sourceScrub = await trashThread(env, conv.channel_account_id || inboxAccounts(env)[0], conv.external_thread_id); } catch (e) { sourceScrub = { error: String(e).slice(0, 80) }; }
+    }
     await env.DB.prepare("DELETE FROM messages WHERE conversation_id=?").bind(id).run().catch(() => {});
     await env.DB.prepare("DELETE FROM notes WHERE conversation_id=?").bind(id).run().catch(() => {});
     await env.DB.prepare("DELETE FROM conversations WHERE id=?").bind(id).run();
@@ -657,8 +670,8 @@ export async function onRequestPost({ request, env }) {
       }
     }
     const me = await currentUser(request, env);
-    await addActivityV2(env, { actorId: me ? me.id : null, entityType: "conversation", entityId: id, action: "deleted" }).catch(() => {});
-    return json({ ok: true, deleted: id }, {}, cors);
+    await addActivityV2(env, { actorId: me ? me.id : null, entityType: "conversation", entityId: id, action: "deleted", meta: { source_scrub: sourceScrub && sourceScrub.ok ? "gmail_trashed" : (sourceScrub && sourceScrub.error) || null } }).catch(() => {});
+    return json({ ok: true, deleted: id, source_scrub: sourceScrub && sourceScrub.ok ? "gmail_trashed" : (sourceScrub ? (sourceScrub.error || sourceScrub.skipped || "no_op") : null) }, {}, cors);
   }
 
   // Bulk purge obvious test/demo conversations. DRY-RUN BY DEFAULT — returns the match
