@@ -1,4 +1,4 @@
-// POST /api/claim-50 — lead capture for the /claim-50/ "first 50 on us" landing page.
+// POST /api/claim-50 — lead capture for the demo booking form (ClaimForm.astro).
 // Creates a v2 contact + conversation (so it lands in the CRM inbox with the qualifier data),
 // and records email + SMS (PEWC) consent in the ledger. Mirrors register.js minus Turnstile,
 // and carries the extra offer/estimate/attribution fields into the inbox note.
@@ -54,7 +54,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     ].filter(Boolean).join("\n");
     const convId = await upsertConversationByThread(env, {
       channel: "claim50", externalThreadId: "claim50:" + email, contactId,
-      subject: "Claim 50" + (name ? " — " + name : ""), sourceDetail: [trade && "trade:" + trade, website && "site:" + website, b.segment].filter(Boolean).join("|") || null,
+      subject: "Demo request" + (name ? " — " + name : ""), sourceDetail: [trade && "trade:" + trade, website && "site:" + website, b.segment].filter(Boolean).join("|") || null,
       incoming: true, lastAt: new Date().toISOString(),
       preview: [b.type === "exit_report" ? "📄 report" : "🔥 claim-50", name, email, website].filter(Boolean).join(" · ").slice(0, 160),
     });

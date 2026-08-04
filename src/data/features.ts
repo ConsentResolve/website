@@ -155,7 +155,7 @@ const consentFirstIdentification: Feature = {
       "Opt-in captured at the visitor's first click",
       "Every consent timestamped and stored",
       "Opt-outs honored automatically",
-      "Works with your existing cookie banner",
+      "Includes an auto-updating consent banner",
       "No purchased or scraped lists",
       "Audit trail you can show a regulator",
     ],

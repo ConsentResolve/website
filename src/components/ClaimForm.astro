@@ -10,7 +10,7 @@ const CAL_LINK = import.meta.env.PUBLIC_CAL_LINK || "aaron-phillips-xl2cpq/30min
 const inp = "w-full rounded-lg border border-[color:var(--color-rule)] bg-white px-3.5 py-3 text-[15px] text-[color:var(--color-ink)] outline-none transition focus:border-[color:var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-brand-soft)]";
 ---
 <div class="cr-claim rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] p-6 shadow-lg sm:p-7" data-cal-link={CAL_LINK}>
-  <h3 class="cr-claim-title font-display text-xl font-bold text-[color:var(--color-ink)]">Claim your 50 leads</h3>
+  <h3 class="cr-claim-title font-display text-xl font-bold text-[color:var(--color-ink)]">See it on your own site</h3>
   <p class="cr-claim-sub2 mt-1 text-sm text-[color:var(--color-ink-2)]">Two quick things, then pick a time. Takes about a minute.</p>
 
   <form class="cr-claim-form mt-5" novalidate>
@@ -38,7 +38,7 @@ const inp = "w-full rounded-lg border border-[color:var(--color-rule)] bg-white 
       {siteKey && (<div class="cf-turnstile" data-sitekey={siteKey}></div>)}
 
       <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--color-brand)] px-5 py-3.5 text-base font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)] disabled:opacity-60"><span class="cr-claim-btn">See my available times →</span></button>
-      <p class="text-center text-[13px] text-[color:var(--color-ink-2)]"><strong class="text-[color:var(--color-ink)]">No card to claim.</strong> First 50 on us, then a flat $7 — cancel anytime.</p>
+      <p class="text-center text-[13px] text-[color:var(--color-ink-2)]"><strong class="text-[color:var(--color-ink)]">No card to book a demo.</strong> Leads are a flat $7 each, pay-as-you-go — no contract.</p>
     </div>
 
     <!-- Step 2 — Cal.com -->
