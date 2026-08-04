@@ -435,7 +435,7 @@ export async function onRequestPost({ request, env }) {
       const raw = String(conv.external_thread_id || "");
       if (raw.startsWith("phone:")) phone = raw.slice(6);
       if (!phone && conv.contact_id) { const pc = await env.DB.prepare("SELECT phone FROM contacts WHERE id=?").bind(conv.contact_id).first(); phone = pc && pc.phone; }
-      if (phone) { phone = String(phone).trim(); phone = phone.startsWith("+") ? phone : "+" + phone.replace(/[^\d]/g, ""); if (phone.replace(/[^\d]/g, "").length < 10) phone = null; }
+      if (phone) { const dd = String(phone).replace(/[^\d]/g, ""); phone = dd.length === 10 ? "+1" + dd : dd.length >= 11 ? "+" + dd : null; } // E.164: 10-digit NANP → +1XXXXXXXXXX (a bare "+"+10 digits was invalid)
     }
 
     // MANUAL CHANNEL OVERRIDE — a rep (e.g. Tyler) can choose to reply by Email or SMS on any
@@ -492,14 +492,12 @@ export async function onRequestPost({ request, env }) {
       const res = await sendCrispMessage(env, conv.external_thread_id, body);
       if (res.error) return json({ error: res.error, message: res.message }, { status: 400 }, cors);
       externalId = res.id;
-    } else if (conv.channel === "sms" || conv.channel === "phone" || conv.channel === "voice" || conv.channel === "speed_to_lead") {
-      // Reply by SMS to the number on the thread ("phone:<E164>"). Covers inbound texts, calls,
-      // and speed-to-lead conversations that arrived with a phone number.
-      const raw = String(conv.external_thread_id || "");
-      const np = raw.startsWith("phone:") ? raw.slice(6) : "";
-      const to = np ? (np.startsWith("+") ? np : "+" + np) : null;
-      if (!to) return json({ error: "no_phone", message: "No phone number on this conversation to text." }, { status: 400 }, cors);
-      const res = await sendSms(env, to, body);
+    } else if (conv.channel === "sms" || conv.channel === "phone" || conv.channel === "voice" || conv.channel === "speed_to_lead"
+               || (conv.channel === "chat" && String(conv.external_thread_id || "").startsWith("phone:"))) {
+      // Reply by SMS to the number on the thread. Covers inbound texts, calls, speed-to-lead,
+      // and legacy phone-keyed threads still typed 'chat'. `phone` is already resolved + E.164.
+      if (!phone) return json({ error: "no_phone", message: "No phone number on this conversation to text." }, { status: 400 }, cors);
+      const res = await sendSms(env, phone, body);
       if (!res.ok) return await failSend(env, conv.id, "sms", res.error || "sms_failed", res.error, cors);
       externalId = res.sid; sentVia = "sms";
     } else {

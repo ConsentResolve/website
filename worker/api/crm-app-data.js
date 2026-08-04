@@ -266,9 +266,9 @@ export async function onRequestGet({ request, env }) {
       }
     } catch (_) {}
   }
-  const srcMap = { meta: "meta", instantly: "instantly", crisp: "chatwoot", chatwoot: "chatwoot", site: "site", demo: "demo", claim50: "demo", cal: "demo", apollo: "apollo", partner: "partner", manual: "manual" };
+  const srcMap = { meta: "meta", instantly: "instantly", crisp: "chat", chatwoot: "chat", chat: "chat", mack: "chat", site: "site", demo: "demo", claim50: "demo", cal: "demo", apollo: "apollo", partner: "partner", manual: "manual" };
   const lifeMap = { lead: "Lead", mql: "MQL", sql: "SQL", meeting_booked: "Meeting Booked", opportunity: "Opportunity", customer: "Customer" };
-  const srcLabelMap = { meta: "Meta · Lead form", instantly: "Instantly · cold email", chatwoot: "Chatwoot · site chat", site: "Site · demo signup", demo: "Demo signup", apollo: "Apollo · identified", partner: "🤝 Agency partner", manual: "Manual" };
+  const srcLabelMap = { meta: "Meta · Lead form", instantly: "Instantly · cold email", chat: "Site chat · Mack", site: "Site · demo signup", demo: "Demo signup", apollo: "Apollo · identified", partner: "🤝 Agency partner", manual: "Manual" };
   const stripHtml = (h) => (h || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   const inits = (n) => (n ? n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase() : "?");
   const AVCOL = ["#00b985", "#3b82f6", "#8b5cf6", "#f59e0b", "#ef4444", "#0ea5e9"];
@@ -278,7 +278,8 @@ export async function onRequestGet({ request, env }) {
     const src = srcMap[r.source] || "manual";
     // Preserve the real channel so the inbox shows the right composer/label.
     // Chat variants collapse to chatwoot; phone/voice → phone; sms → sms; everything else → email.
-    const channel = (r.channel === "crisp" || r.channel === "chat") ? "chatwoot"
+    const channel = (r.channel === "chat" && String(r.external_thread_id || "").startsWith("phone:")) ? "sms"
+      : (r.channel === "crisp" || r.channel === "chat" || r.channel === "chatwoot") ? "chat"
       : (r.channel === "phone" || r.channel === "voice" || r.channel === "speed_to_lead") ? "phone"
       : (r.channel === "sms") ? "sms"
       : "email";
@@ -296,7 +297,7 @@ export async function onRequestGet({ request, env }) {
     // Only set for bubble-thread channels — email keeps its Gmail-style header untouched.
     const personLabel = fmtPhone(r.phone) || fmtPhone(phoneByCt.get(r.contact_id)) || r.full_name || r.primary_email || "Them";
     const cmsgs = (msgsByConv.get(r.id) || []).map((m) => {
-      const chan = m.channel === "crisp" ? "chatwoot" : m.channel;
+      const chan = (m.channel === "crisp" || m.channel === "chatwoot") ? "chat" : m.channel;
       const isBubble = chan === "sms" || chan === "chat" || chan === "chatwoot" || chan === "phone" || chan === "voice" || chan === "speed_to_lead";
       const who = isBubble ? (m.direction === "in" ? personLabel : (m.author_name || "Mack")) : undefined;
       return {

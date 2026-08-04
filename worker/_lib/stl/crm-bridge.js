@@ -190,8 +190,11 @@ export async function mirrorInboundSmsRetell(env, ev) {
     // capture_email, and chat_ended all land on ONE conversation — SMS now behaves exactly
     // like website chat (watchable, sweepable, unified). Identity: SMS→phone, web→email; the
     // phone/email is still linked to the contact so a number's history stays together.
-    let contactId = null, channel = "chat", threadId = "chat:" + (chatId || (isSms ? np : Date.now())), subject;
+    let contactId = null, channel = "chat", threadId = "chat:" + (chatId || Date.now()), subject;
     if (isSms) {
+      // SMS is its own channel (not "chat") and threads by phone — so it shares ONE thread
+      // with the Twilio sweep and routes to the SMS reply path, not the website-chat path.
+      channel = "sms"; threadId = "phone:" + np;
       subject = "💬 SMS — " + (fromRaw || np);
       const idr = await env.DB.prepare("SELECT contact_id FROM contact_identifiers WHERE type='phone' AND value=?").bind(np).first().catch(() => null);
       contactId = idr ? idr.contact_id : await findOrCreateContactByIdentifier(env, "phone", np, { source: "inbound_sms" });
@@ -269,6 +272,12 @@ export async function sweepTwilioSms(env) {
   if (!sid || !tok || !num) return { ok: false, skipped: "no_twilio" };
   try {
     await ensureCrmV2Schema(env); await ensureRebuildSchema(env);
+    // One-time self-heal: legacy inbound-SMS threads were stored as channel 'chat' (they
+    // predate the dedicated 'sms' channel), which routed replies to the website-chat path
+    // ("replies aren't supported…"). Retype any phone-keyed thread to 'sms'. Idempotent —
+    // the guard makes it a no-op once every legacy row has been converted.
+    const legacy = await env.DB.prepare("SELECT 1 x FROM conversations WHERE channel='chat' AND external_thread_id LIKE 'phone:%' LIMIT 1").first().catch(() => null);
+    if (legacy) await env.DB.prepare("UPDATE conversations SET channel='sms' WHERE channel='chat' AND external_thread_id LIKE 'phone:%'").run().catch(() => {});
     const auth = "Basic " + btoa(sid + ":" + tok);
     const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json?PageSize=100`, { headers: { Authorization: auth } });
     if (!res.ok) return { ok: false, status: res.status };
@@ -294,7 +303,7 @@ export async function sweepTwilioSms(env) {
       const cc = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first().catch(() => null);
       const iso = new Date(sent).toISOString();
       const convId = await upsertConversationByThread(env, {
-        channel: "chat", externalThreadId: "phone:" + np, contactId, companyId: cc ? cc.company_id : null, sourceDetail: "sms",
+        channel: "sms", externalThreadId: "phone:" + np, contactId, companyId: cc ? cc.company_id : null, sourceDetail: "sms",
         subject: "💬 SMS — " + other, incoming: inbound, lastAt: iso,
         preview: (inbound ? "💬 " : "↩ ") + String(m.body || "").slice(0, 90),
       });

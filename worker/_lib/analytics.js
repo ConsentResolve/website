@@ -3,7 +3,7 @@
 // Everything is windowed by `days` so the dashboard's date selector re-computes
 // the whole page for any range. Used by /api/crm/app (default 30d) and the
 // /api/crm/analytics/range endpoint.
-const SRC_MAP = { meta: "meta", instantly: "instantly", crisp: "chatwoot", chatwoot: "chatwoot", site: "site", demo: "demo", claim50: "demo", cal: "demo", apollo: "apollo", manual: "manual" };
+const SRC_MAP = { meta: "meta", instantly: "instantly", crisp: "chat", chatwoot: "chat", chat: "chat", mack: "chat", site: "site", demo: "demo", claim50: "demo", cal: "demo", apollo: "apollo", manual: "manual" };
 const SOCIAL_METRICS = "https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/metrics.json";
 
 export async function buildAnalytics(env, days) {

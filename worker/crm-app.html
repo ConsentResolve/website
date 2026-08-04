@@ -170,7 +170,7 @@ html,body{height:100%}
   .chip .dot{width:6px;height:6px;border-radius:50%}
   .src-meta{background:var(--src-meta-soft);color:var(--src-meta)} .src-meta .dot{background:var(--src-meta)}
   .src-instantly{background:var(--src-instantly-soft);color:var(--src-instantly)} .src-instantly .dot{background:var(--src-instantly)}
-  .src-chatwoot{background:var(--src-chatwoot-soft);color:var(--src-chatwoot)} .src-chatwoot .dot{background:var(--src-chatwoot)}
+  .src-chatwoot,.src-chat{background:var(--src-chatwoot-soft);color:var(--src-chatwoot)} .src-chatwoot .dot,.src-chat .dot{background:var(--src-chatwoot)}
   .src-site,.src-demo{background:var(--src-site-soft);color:var(--src-site)} .src-site .dot,.src-demo .dot{background:var(--src-site)}
   .src-apollo{background:var(--src-apollo-soft);color:var(--src-apollo)} .src-apollo .dot{background:var(--src-apollo)}
   .src-manual{background:var(--src-manual-soft);color:var(--src-manual)} .src-manual .dot{background:var(--src-manual)}
@@ -1315,7 +1315,7 @@ window.DATA = {
         { dir:"out", channel:"sms", body:"Hi Sandra, Andy at Consent Resolve…", ts:"24 min ago", meta:"failed · 30006 landline" },
         { dir:"system", body:"⚠ SMS delivery failed (landline). Sequence paused — try email or call the number on file.", ts:"24 min ago" } ] },
 
-    { id:"c03", bucket:"open", source:"chatwoot", channel:"chatwoot", name:null, company:null,
+    { id:"c03", bucket:"open", source:"chat", channel:"chat", name:null, company:null,
       contact_email:null, initials:"?", lifecycle:"Lead", hot:false, unread:true, ts:"just now",
       task:{ tag:"do", text:"Answer the chat — “do you work with garage door companies?” (yes, we do)", cta:"Answer" },
       last:{ label:"New site chat", ts:"just now", tone:"info" },
@@ -1323,9 +1323,9 @@ window.DATA = {
       consent:{ email:"none", sms:"none", voice:"none" },
       sequence:{ step:0, total:0, label:"—", status:"none" },
       sla:{ min:1, level:"warn" },
-      intel:{ fit:"warm", time_on_site:"1m 30s", pages:3, first_seen:"3 min ago", speed_to_lead_h:null, cost_per_lead:null, src_label:"Chatwoot · site chat", site_status:"—", pages_viewed:["/garage-door-leads/","/pricing/"] },
+      intel:{ fit:"warm", time_on_site:"1m 30s", pages:3, first_seen:"3 min ago", speed_to_lead_h:null, cost_per_lead:null, src_label:"Site chat · Mack", site_status:"—", pages_viewed:["/garage-door-leads/","/pricing/"] },
       deal:null,
-      messages:[ { dir:"in", channel:"chatwoot", body:"do you work with garage door companies?", ts:"just now" } ] },
+      messages:[ { dir:"in", channel:"chat", body:"do you work with garage door companies?", ts:"just now" } ] },
 
     { id:"c13", bucket:"open", source:"site", channel:"sms", name:"Leah Cho", company:"Cho Landscaping",
       contact_email:"leah@cholandscaping.com", initials:"LC", lifecycle:"Opportunity", hot:true, unread:true, ts:"12 min ago",
@@ -1569,7 +1569,7 @@ window.ANALYTICS = {
     { src:"instantly",leads:96,  reply:0.05, demos:2,  act:0, spend:0    },
     { src:"site",     leads:41,  reply:0.44, demos:8,  act:4, spend:1600 },
     { src:"apollo",   leads:22,  reply:0.00, demos:0,  act:0, spend:0    },
-    { src:"chatwoot", leads:11,  reply:0.55, demos:3,  act:1, spend:0    },
+    { src:"chat",     leads:11,  reply:0.55, demos:3,  act:1, spend:0    },
     { src:"manual",   leads:6,   reply:0.33, demos:1,  act:0, spend:0    }
   ],
   spendByChannel:[ {k:"Meta",v:1700},{k:"Google",v:1100},{k:"LSA",v:500} ],
@@ -1744,9 +1744,9 @@ window.SITESPY = {
 /* Inbox render — reads window.DATA. Pure view logic, no app code (Rule Zero).
    Middle stays calm (who + what to do + the messages); ALL status/tags/activity
    live in the right rail. */
-const SRC = {meta:"Meta",instantly:"Instantly",chatwoot:"Chatwoot",site:"Site",demo:"Demo",apollo:"Apollo",manual:"Manual"};
-const SRC_COLOR = {meta:"var(--src-meta)",instantly:"var(--src-instantly)",chatwoot:"var(--src-chatwoot)",site:"var(--src-site)",demo:"var(--src-site)",apollo:"var(--src-apollo)",manual:"var(--src-manual)"};
-const CH  = {email:"✉ Email",sms:"💬 SMS",phone:"📞 Phone",voice:"📞 Phone",ai_call:"📞 AI call",chatwoot:"💬 Chat",demo_form:"✉ Demo",identified:"⛓ Identified"};
+const SRC = {meta:"Meta",instantly:"Instantly",chat:"Site chat",site:"Site",demo:"Demo",apollo:"Apollo",manual:"Manual"};
+const SRC_COLOR = {meta:"var(--src-meta)",instantly:"var(--src-instantly)",chat:"var(--src-chatwoot)",site:"var(--src-site)",demo:"var(--src-site)",apollo:"var(--src-apollo)",manual:"var(--src-manual)"};
+const CH  = {email:"✉ Email",sms:"💬 SMS",phone:"📞 Phone",voice:"📞 Phone",ai_call:"📞 AI call",chat:"💬 Chat",demo_form:"✉ Demo",identified:"⛓ Identified"};
 const SEQ_ICON = {active:"●",earn_consent:"✉",replied:"✓",booked:"🎉",opted_out:"⛔",failed:"⚠",voicemail:"📞",blocked:"⛓",onboarding:"⚙",none:"—"};
 const SEQ_LBL = s => ({active:"In sequence",earn_consent:"Earn consent",replied:"Replied",booked:"Booked",opted_out:"Opted out",failed:"Send failed",voicemail:"Voicemail → email",blocked:"No outreach",onboarding:"Onboarding",none:"New"}[s.status]||"");
 /* inline SVG line-icon set — inherits currentColor from the parent */
@@ -1948,7 +1948,7 @@ function replyChannels(c){
   // implied consent to respond, and email replies are always permitted under CAN-SPAM. (The
   // opted-out and identified-no-consent guards above this still block those cases first.)
   const ch=c.channel;
-  if(ch==='chatwoot'||ch==='chat') out.add('chat');
+  if(ch==='chat'||ch==='chatwoot') out.add('chat');
   else if(ch==='sms'||ch==='phone'||ch==='voice'||ch==='speed_to_lead') out.add('sms');
   else if(ch==='email'||ch==='meta_lead'||ch==='demo_form'||ch==='instantly'||ch==='prospecting'||ch==='identified') out.add('email');
   // Plus any channel with an explicit granted-consent record.
