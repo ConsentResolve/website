@@ -270,9 +270,15 @@
         '<button class="go" id="cgo">'+c.btn+'</button>'+
         '<p class="re">🔒 No spam — it’s just how we follow up.</p>'+
       '</div>';
-    msgs.appendChild(card); scroll();
+    msgs.appendChild(card);
+    // Robustly bring the WHOLE card (incl. the button) into view — the card is tall and the
+    // synchronous scroll fired before layout, so the fields/button were getting cut off.
+    var toBottom=function(){ msgs.scrollTop = msgs.scrollHeight; };
+    requestAnimationFrame(function(){ requestAnimationFrame(toBottom); });
+    setTimeout(toBottom, 90); setTimeout(toBottom, 300);
     document.getElementById('cgo').onclick=function(){ submitCapture(card); };
     var e=document.getElementById('ce'); if(e) e.addEventListener('keydown',function(ev){ if(ev.key==='Enter') submitCapture(card); });
+    var first=document.getElementById('cn')||e; if(first) setTimeout(function(){ try{first.focus({preventScroll:true});}catch(_){} toBottom(); }, 320);
   }
   function submitCapture(card){
     var e=document.getElementById('ce'); var email=(e.value||'').trim();

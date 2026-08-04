@@ -7,20 +7,20 @@ import FAQ from "~/components/sections/FAQ.astro";
 const incl = [
   ["Exclusive leads", "yours alone at $7 — never resold"],
   ["We install it for you", "on the call — about 10 minutes"],
-  ["Pay-as-you-go", "flat $7 a lead, no contract"],
+  ["Just $7 a lead", "flat — you only pay per lead, no contract"],
 ];
 const compare = [
   { tag: "Angi · Thumbtack · HomeAdvisor", head: "Someone else's list", tone: "them", items: ["Same homeowner sold to 4–5 shops", "You race to the bottom on price", "They never visited your site", "Pay whether it's your trade or not", "Contracts and monthly minimums"] },
-  { tag: "Consent Resolve", head: "Your own traffic, with a name on it", tone: "us", items: ["One consent, one contractor — you", "They were already on your site", "They said yes before anyone was identified", "Only billed for real, consented contacts", "Flat $7, pay-as-you-go, no contract"] },
+  { tag: "Consent Resolve", head: "Your own traffic, with a name on it", tone: "us", items: ["One consent, one contractor — you", "They were already on your site", "They said yes before anyone was identified", "Only billed for real, consented contacts", "Flat $7 a lead, no contract"] },
   { tag: "Doing nothing", head: "The quiet option", tone: "none", items: ["You keep paying for the same clicks", "98 of every 100 leave with no name", "The homeowner books whoever called first", "You never find out what you lost", "Your cost per booked job keeps climbing"] },
 ];
 const offer = [
-  ["Exclusive $7 leads", "Consented homeowners — real name, real email, and the job they were shopping for — land in your pipeline. Yours alone, never resold. A flat $7 a lead, pay-as-you-go.", "$7 / lead", true],
+  ["Exclusive $7 leads", "Consented homeowners — real name, real email, and the job they were shopping for — land in your pipeline. Yours alone, never resold. A flat $7 a lead.", "$7 / lead", true],
   ["We install it for you", "One line of code, pasted by us on the call. WordPress, Wix, Squarespace, ServiceTitan and most others. Live in about 10 minutes.", "Setup included", false],
   ["You only pay for real leads", "You're billed only for a consented, deliverable contact — ad-blocked, non-consenting, and bounced records are never billed. The system won't send the same lead twice; if a duplicate ever slips through, it's a 100% refund.", "Standing policy", false],
 ];
 const faqs = [
-  { question: "How does pricing work?", answer: "A flat $7 per resolved lead, pay-as-you-go. You buy leads in prepaid batches (the smallest is 14 for $98) with optional auto-renew, and each resolved lead draws one from your balance. No setup fee, no monthly minimum, no contract, and you can set a monthly spend cap so you're never surprised." },
+  { question: "How does pricing work?", answer: "A flat $7 per lead — you're only ever billed for a real, consented lead. No setup fee, no monthly minimum, no contract. Just $7 for each lead you get." },
   { question: "What if a lead is bad?", answer: "You're only ever billed for a real, consented, deliverable contact — ad-blocked, non-consenting, and hard-bounced records are never billed in the first place. And the system won't deliver the same lead twice; if a duplicate ever slips through, that's a 100% refund." },
   { question: "Will you sell my leads to the shop down the road?", answer: "No. Every lead is yours alone — never resold, never auctioned, never shared. One consent, one contractor." },
   { question: "Do I get phone numbers?", answer: "No, and that's deliberate. You get a name and a consented email plus what they were shopping for. They come back through your funnel and call you — no cold calls, no cold texts. That's what keeps it clean." },
@@ -32,7 +32,7 @@ const faqs = [
 <BaseLayout
   ogImage="/og/demo.png"
   title="See It Live — Exclusive $7 Leads — Consent Resolve"
-  description="Real homeowners who visited your site and said yes — name, email, and the job they were shopping for. A flat $7 a lead, pay-as-you-go, never resold. Live in about 10 minutes."
+  description="Real homeowners who visited your site and said yes — name, email, and the job they were shopping for. A flat $7 a lead, never resold. Live in about 10 minutes."
   noindex
   demoWidget={false}
 >
@@ -43,7 +43,7 @@ const faqs = [
         <div class="text-[color:var(--color-on-inverse)]">
           <p class="font-mono text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--color-brand)]">For plumbers, roofers, HVAC &amp; electricians</p>
           <h1 class="mt-3 font-display text-4xl font-extrabold leading-[1.04] tracking-tight md:text-5xl">The homeowners already on your site — <span class="text-[color:var(--color-brand)]">with a name on them.</span></h1>
-          <p class="mt-5 max-w-md text-lg leading-relaxed text-[color:var(--color-on-inverse-muted)]">Real homeowners who visited <em>your</em> site and said yes — name, email, and the job they were shopping for. <strong class="text-[color:var(--color-on-inverse)]">A flat $7 a lead, pay-as-you-go.</strong> Yours alone, never resold to the shop down the road.</p>
+          <p class="mt-5 max-w-md text-lg leading-relaxed text-[color:var(--color-on-inverse-muted)]">Real homeowners who visited <em>your</em> site and said yes — name, email, and the job they were shopping for. <strong class="text-[color:var(--color-on-inverse)]">A flat $7 a lead.</strong> Yours alone, never resold to the shop down the road.</p>
           <ul class="mt-7 space-y-2.5">
             {incl.map(([b, s]) => (
               <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-on-inverse)]"><span class="mt-0.5 text-[color:var(--color-brand)]">✓</span><span><strong>{b}</strong> <span class="text-[color:var(--color-on-inverse-muted)]">{s}</span></span></li>
