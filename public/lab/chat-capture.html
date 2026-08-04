@@ -208,10 +208,10 @@
 
   // ---- scripted, on-canon answers ----
   var ANS = {
-    price: "It's <b>$7 a resolved lead</b>, pay-as-you-go — no monthly fee, no contract. You buy in prepaid batches (smallest is 14 for $98) and only ever pay for real, consented leads.",
-    sample: "A lead is a real homeowner who visited your site and said yes — their <b>name, a verified email, and the job they were shopping for</b>. Want me to email you an actual sample so you can see the exact format?",
-    legit: "100% — it's consent-first. Nobody gets identified until they accept your banner, and every reveal is timestamped and signed. It's the opposite of the sketchy tracking tools.",
-    angi: "Angi sells the same homeowner to four or five shops at once. Ours is <b>exclusive</b> — one consent, one contractor, and they were already on <em>your</em> site. Never resold.",
+    price: "<b>$7 a lead</b>, pay-as-you-go — no contract. You only pay for real, consented leads.",
+    sample: "It's a real homeowner from your site — name, verified email, and the job they wanted. Want me to email you one?",
+    legit: "Totally — it's consent-first. Nobody's identified until they accept your banner.",
+    angi: "Angi resells the same lead to 4-5 shops. Ours is <b>exclusive</b> — yours alone, never resold.",
   };
   var CHIPS = [
     {t:"How much is it?", k:"price"},
@@ -238,7 +238,7 @@
     else if(/angi|thumbtack|homeadvisor|differ|vs|compare|resell/.test(low))key='angi';
     if(key==='sample'){ bot(ANS.sample); setTimeout(offerCapture,1400); return; }
     if(key){ bot(ANS[key]); maybeOffer(); return; }
-    bot("Good question — the short version: we turn the visitors already on your site into leads you own, at a flat $7. Want me to email you a sample lead and a 2-minute setup guide so you can see it for yourself?");
+    bot("Good question — short version: we turn the visitors already on your site into leads you own, at $7 each. Want me to email you a sample?");
     setTimeout(offerCapture, 1500);
   }
 
@@ -274,7 +274,7 @@
     card.classList.add('done');
     card.querySelector('.in').innerHTML='<div class="check">✓</div><h3>Got it'+(name?', '+name.replace(/</g,'&lt;'):'')+'!</h3><p class="s" style="margin:0">On its way to <b>'+email.replace(/</g,'&lt;')+'</b> 📬</p>';
     scroll();
-    setTimeout(function(){ bot("Sent! 📬 Take a peek and reply right here if anything’s unclear — I’m around. Want me to have a human walk you through setup too?", [{t:"Yes, have someone reach out", k:"legit"},{t:"I’m good for now", k:"angi"}]); }, 1100);
+    setTimeout(function(){ bot("Sent! 📬 Reply right here with any questions. Want a human to walk you through setup too?", [{t:"Yes, have someone reach out", k:"legit"},{t:"I’m good for now", k:"angi"}]); }, 1100);
   }
 
   // ---- boot + controls ----
