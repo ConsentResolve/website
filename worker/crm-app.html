@@ -2306,7 +2306,7 @@ function autoMenu(id, ev){
       crmToast('Enrolling in the warm-up sequence…');
       const r=await fetch('/api/crm/workflow',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({enroll:{contactId:c.contact_id, conversationId:c.id}})}).then(r=>r.json()).catch(()=>null);
       crmToast(r&&r.ok?'Enrolled — sequence is running.':'Could not enroll — try again.');
-      if(r&&r.ok){ c.bucket='auto'; rerenderComposer(); const f=document.querySelector('.filters .on'); if(f) renderList(f.dataset.f); }
+      if(r&&r.ok){ c.bucket='auto'; try{ await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:c.id,resume:true})}); }catch(_){} rerenderComposer(); const f=document.querySelector('.filters .on'); if(f) renderList(f.dataset.f); }
     } else if(a==='newsletter'){
       crmToast('Sending the newsletter opt-in…');
       const r=await fetch('/api/newsletter',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'enroll_repermission', contact_ids:[c.contact_id]})}).then(r=>r.json()).catch(()=>null);
@@ -2334,7 +2334,7 @@ function setAuto(btn,mode){
   if(mode==='auto'){ _pendingAutoBtn = btn; openAutoModal(); return; }
   applyAuto(btn,'manual');
 }
-function applyAuto(btn,mode){
+async function applyAuto(btn,mode){
   const c=DATA.conversations.find(x=>x.id===sel);
   // Flipping automation re-buckets the conversation: Auto → runs in the workflow; Manual → a human owns it in Open.
   if(c){
@@ -2351,6 +2351,17 @@ function applyAuto(btn,mode){
   const tk=document.querySelector('.tracker');
   if(tk){ tk.classList.remove('tk-auto','tk-paused'); tk.classList.add(mode==='auto'?'tk-auto':'tk-paused'); }
   renderList(document.querySelector('.filters .on').dataset.f);
+  // Persist server-side — Pause truly stops automation; Auto clears the pause + re-arms.
+  if(c && c.contact_id){
+    try{
+      if(mode==='manual'){
+        await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:c.id,pause:true})});
+      }else{
+        await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:c.id,resume:true})});
+        await fetch('/api/crm/workflow',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({enroll:{contactId:c.contact_id, conversationId:c.id}})});
+      }
+    }catch(_){}
+  }
 }
 window.setAuto = setAuto;
 

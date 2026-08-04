@@ -18,6 +18,18 @@ const uid = () => crypto.randomUUID();
 
 async function fromName(env) { return env.STL_FROM_NAME || "Consent Resolve"; }
 
+// Has a human taken this lead over in the CRM? True when the lead's linked contact has any
+// conversation marked 'paused' (a rep replied by hand or hit ⏸ Pause). The Open box is for
+// humans — while paused, the runner stops dispatching so automation never talks over a rep.
+async function humanOwns(env, leadId) {
+  try {
+    const r = await env.DB.prepare(
+      "SELECT 1 x FROM stl_leads l JOIN conversations cv ON cv.contact_id = l.crm_contact_id WHERE l.id=? AND cv.status='paused' LIMIT 1"
+    ).bind(leadId).first();
+    return !!r;
+  } catch (_) { return false; }
+}
+
 // Create pending touchpoints for a lead's whole sequence.
 export async function scheduleLead(env, lead, steps) {
   await ensureStlSchema(env);
@@ -112,6 +124,14 @@ export async function tick(env, limit = 50) {
     if (t.channel === "sms" && (await recentlySentSms(env, t.lead_id, 90 * 1000))) {
       await env.DB.prepare("UPDATE stl_touchpoints SET scheduled_for=? WHERE id=?").bind(now + 90 * 1000, t.id).run();
       summary.deferred++; continue;
+    }
+
+    // HUMAN TAKEOVER — if a rep has taken this lead over in the CRM (replied by hand or hit
+    // ⏸ Pause → the conversation is 'paused'), stop dispatching. The Open box is for humans;
+    // nothing automated (including Mack) fires on top of a paused conversation. Not an opt-out.
+    if (await humanOwns(env, t.lead_id)) {
+      await env.DB.prepare("UPDATE stl_touchpoints SET status='canceled', notes='human took over (CRM paused)' WHERE id=?").bind(t.id).run().catch(() => {});
+      summary.skipped = (summary.skipped || 0) + 1; continue;
     }
 
     // THE GATE — every outbound touch, no bypass.

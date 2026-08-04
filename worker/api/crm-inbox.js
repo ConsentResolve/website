@@ -355,6 +355,32 @@ export async function onRequestGet({ request, env }) {
 
 // Status machine A/B/C (BUILD-PLAN P1-9): open | snoozed(+snooze_days) | archived.
 // (D=Convert-to-Lead lands with the pipeline slice.)
+// Stop every automation for a contact when a human takes the conversation over — the single
+// path used by BOTH the explicit ⏸ Pause control and an inbound-handled manual reply. It:
+//   • marks the conversation 'paused' (the durable "a human owns this" marker — the Inbox
+//     buckets it as Open, and the Speed-to-Lead runner honors it so Mack won't dial/text),
+//   • exits any active drip/workflow run, and
+//   • cancels pending Speed-to-Lead touchpoints (scheduled SMS / AI calls).
+// Reversible via Resume/Auto. Never opts the contact out (that's a separate STOP path).
+async function pauseContactAutomation(env, { contactId, convId, phone }) {
+  let stopped = false;
+  try {
+    if (convId) {
+      await env.DB.prepare("UPDATE conversations SET status='paused', updated_at=datetime('now') WHERE id=? AND status NOT IN ('snoozed','archived','nurture')").bind(convId).run();
+    }
+    if (contactId) {
+      const r = await env.DB.prepare("UPDATE workflow_runs SET status='exited', exit_reason='human_takeover', next_run_at=NULL, updated_at=datetime('now') WHERE contact_id=? AND status='active'").bind(contactId).run();
+      if (r && r.meta && r.meta.changes) stopped = true;
+      const r2 = await env.DB.prepare("UPDATE stl_touchpoints SET status='canceled', notes='human took over (CRM paused)' WHERE status='pending' AND lead_id IN (SELECT id FROM stl_leads WHERE crm_contact_id=?)").bind(contactId).run();
+      if (r2 && r2.meta && r2.meta.changes) stopped = true;
+    }
+    if (phone) {
+      await env.DB.prepare("UPDATE stl_touchpoints SET status='canceled', notes='human took over (CRM paused)' WHERE status='pending' AND lead_id IN (SELECT id FROM stl_leads WHERE phone=?)").bind(phone).run();
+    }
+  } catch (_) {}
+  return stopped;
+}
+
 export async function onRequestPost({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
@@ -472,27 +498,10 @@ export async function onRequestPost({ request, env }) {
     await env.DB.prepare("UPDATE conversations SET last_message_at=?, last_message_preview=?, unread=0, updated_at=datetime('now') WHERE id=?").bind(now, body.slice(0, 160), conv.id).run();
     await addActivityV2(env, { actorId: authorId, entityType: "conversation", entityId: conv.id, action: "replied", meta: { channel: conv.channel, via: sentVia } });
 
-    // HUMAN TAKEOVER — the moment a rep replies by hand, stop every automation for this
-    // contact so nothing sends on top of the conversation: no drip-sequence step, and no AI
-    // (Mack) follow-up. Best-effort + reversible (the rep can re-arm autopilot from the
-    // composer's 🤖 Auto menu). We do NOT opt the contact out — this only pauses automation.
-    let pausedAutomation = false;
-    try {
-      if (conv.contact_id) {
-        const r = await env.DB.prepare(
-          "UPDATE workflow_runs SET status='exited', exit_reason='human_reply', next_run_at=NULL, updated_at=datetime('now') WHERE contact_id=? AND status='active'"
-        ).bind(conv.contact_id).run();
-        if (r && r.meta && r.meta.changes) pausedAutomation = true;
-      }
-      // Cancel any pending Speed-to-Lead touchpoints (scheduled SMS / AI calls) for the
-      // matching lead so Mack doesn't text or dial after a human already answered.
-      if (phone) {
-        const r2 = await env.DB.prepare(
-          "UPDATE stl_touchpoints SET status='canceled', notes='human took over (manual CRM reply)' WHERE status='pending' AND lead_id IN (SELECT id FROM stl_leads WHERE phone=?)"
-        ).bind(phone).run();
-        if (r2 && r2.meta && r2.meta.changes) pausedAutomation = true;
-      }
-    } catch (_) {}
+    // HUMAN TAKEOVER — a manual reply hands the conversation to a human. Route it through the
+    // SAME Pause path as the ⏸ button so nothing (a drip step or Mack) sends on top of it.
+    // "Anything a human touches in Open is paused." Reversible via Resume/Auto.
+    const pausedAutomation = await pauseContactAutomation(env, { contactId: conv.contact_id, convId: conv.id, phone });
 
     return json({ ok: true, sent: sentVia, automation_paused: pausedAutomation }, {}, cors);
   }
@@ -502,6 +511,25 @@ export async function onRequestPost({ request, env }) {
   if (b.mark_read) {
     await env.DB.prepare("UPDATE conversations SET unread=0 WHERE id=?").bind(b.id).run().catch(() => {});
     return json({ ok: true, read: b.id }, {}, cors);
+  }
+
+  // Pause automation for this contact — the ⏸ control. Same path a manual reply takes:
+  // a human owns it now, so no drip step and no AI (Mack) fires on top of the conversation.
+  if (b.pause) {
+    const conv = await env.DB.prepare("SELECT id, contact_id, external_thread_id FROM conversations WHERE id=?").bind(b.id).first();
+    if (!conv) return json({ error: "not_found" }, { status: 404 }, cors);
+    let phone = null;
+    { const raw = String(conv.external_thread_id || ""); if (raw.startsWith("phone:")) phone = raw.slice(6); if (!phone && conv.contact_id) { const pc = await env.DB.prepare("SELECT phone FROM contacts WHERE id=?").bind(conv.contact_id).first(); phone = pc && pc.phone; } }
+    const stopped = await pauseContactAutomation(env, { contactId: conv.contact_id, convId: conv.id, phone });
+    const me = await currentUser(request, env);
+    await addActivityV2(env, { actorId: me ? me.id : null, entityType: "conversation", entityId: conv.id, action: "automation_paused" }).catch(() => {});
+    return json({ ok: true, paused: true, stopped }, {}, cors);
+  }
+  // Resume — clear the human-owned/paused marker so a sequence can run again. The caller
+  // re-arms the actual automation separately (▶ Auto → /api/crm/workflow enroll).
+  if (b.resume) {
+    await env.DB.prepare("UPDATE conversations SET status='open', updated_at=datetime('now') WHERE id=? AND status='paused'").bind(b.id).run().catch(() => {});
+    return json({ ok: true, resumed: true }, {}, cors);
   }
 
   // Add an internal note to a conversation (Activity tab composer). Notes are private —
