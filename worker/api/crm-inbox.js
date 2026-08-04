@@ -381,6 +381,23 @@ async function pauseContactAutomation(env, { contactId, convId, phone }) {
   return stopped;
 }
 
+// Internal team CC'd on every outbound EMAIL reply so replies are watched in their own inboxes.
+const CC_TEAM = ["tyler@consentresolve.com", "jbeyke@consentresolve.com", "aaron@consentresolve.com"];
+// Drop a small system status line into the conversation so send success/failure is visible in
+// the thread (failures are persisted so they survive a refresh — a lightweight failure log).
+async function noteSend(env, convId, text) {
+  try {
+    await env.DB.prepare("INSERT INTO messages (id, conversation_id, direction, channel, body_text, sent_at) VALUES (?,?, 'system', 'system', ?, ?)")
+      .bind(ulid(), convId, String(text || "").slice(0, 300), new Date().toISOString()).run();
+  } catch (_) {}
+}
+// Record a send failure in the thread + return the 400 (single call site per failing branch).
+async function failSend(env, convId, kind, reason, message, cors) {
+  const label = kind === "sms" ? "SMS" : "Email";
+  await noteSend(env, convId, `⚠ ${label} failed to send — ${message || reason || "unknown error"}. Not delivered.`);
+  return json({ error: reason || "send_failed", message: message || reason || "send failed" }, { status: 400 }, cors);
+}
+
 export async function onRequestPost({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
@@ -429,20 +446,20 @@ export async function onRequestPost({ request, env }) {
     if (want === "email") {
       if (!email) return json({ error: "no_recipient", message: "No email address on file for this contact." }, { status: 400 }, cors);
       if (await isSuppressed(env, { contactId: conv.contact_id, email, channel: "email" })) return json({ error: "suppressed", message: "This contact opted out of email." }, { status: 400 }, cors);
-      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null);
-      if (res.error) return json({ error: res.error }, { status: 400 }, cors);
+      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM });
+      if (res.error) return await failSend(env, conv.id, "email", res.error, res.error, cors);
       externalId = res.id; sentVia = "email";
     } else if (want === "sms") {
       if (!phone) return json({ error: "no_phone", message: "No mobile number on file to text this contact." }, { status: 400 }, cors);
       if (await isSuppressed(env, { contactId: conv.contact_id, phone, channel: "sms" })) return json({ error: "suppressed", message: "This contact opted out of texts (STOP)." }, { status: 400 }, cors);
       const res = await sendSms(env, phone, body);
-      if (!res.ok) return json({ error: res.error || "sms_failed" }, { status: 400 }, cors);
+      if (!res.ok) return await failSend(env, conv.id, "sms", res.error || "sms_failed", res.error, cors);
       externalId = res.sid; sentVia = "sms";
     } else if (conv.channel === "email" || conv.channel === "identified") {
       // Native default: identified visitors + email threads reply by email to the address on file.
       if (!email) return json({ error: "no_recipient" }, { status: 400 }, cors);
-      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null);
-      if (res.error) return json({ error: res.error }, { status: 400 }, cors);
+      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM });
+      if (res.error) return await failSend(env, conv.id, "email", res.error, res.error, cors);
       externalId = res.id; sentVia = "email";
     } else if (conv.channel === "meta_lead" || conv.channel === "demo_form") {
       const to = conv.primary_email;
@@ -456,9 +473,10 @@ export async function onRequestPost({ request, env }) {
         "Consent Resolve\r\n1907 Gulf Way #1, St Pete Beach, FL 33706\r\n" +
         "You're getting this because you asked to hear from us at consentresolve.com. Reply UNSUBSCRIBE and we'll stop.";
       const res = await sendMessage(env, inboxAccounts(env)[0], to, subj, signed, null, {
+        cc: CC_TEAM,
         headers: { "List-Unsubscribe": "<mailto:hello@consentresolve.com?subject=unsubscribe>" },
       }); // new email thread, not Messenger
-      if (res.error) return json({ error: res.error }, { status: 400 }, cors);
+      if (res.error) return await failSend(env, conv.id, "email", res.error, res.error, cors);
       externalId = res.id; sentVia = "email";
     } else if (conv.channel === "instantly") {
       const eaccount = conv.channel_account_id;
@@ -482,7 +500,7 @@ export async function onRequestPost({ request, env }) {
       const to = np ? (np.startsWith("+") ? np : "+" + np) : null;
       if (!to) return json({ error: "no_phone", message: "No phone number on this conversation to text." }, { status: 400 }, cors);
       const res = await sendSms(env, to, body);
-      if (!res.ok) return json({ error: res.error || "sms_failed" }, { status: 400 }, cors);
+      if (!res.ok) return await failSend(env, conv.id, "sms", res.error || "sms_failed", res.error, cors);
       externalId = res.sid; sentVia = "sms";
     } else {
       return json({
@@ -503,7 +521,14 @@ export async function onRequestPost({ request, env }) {
     // "Anything a human touches in Open is paused." Reversible via Resume/Auto.
     const pausedAutomation = await pauseContactAutomation(env, { contactId: conv.contact_id, convId: conv.id, phone });
 
-    return json({ ok: true, sent: sentVia, automation_paused: pausedAutomation }, {}, cors);
+    // Success status line for the conversation window (client shows it immediately; the outbound
+    // bubble is the durable record, so we don't persist a separate ✓ line).
+    const statusNote = sentVia === "sms"
+      ? `✓ Sent by SMS${phone ? " to " + phone : ""}`
+      : sentVia === "email"
+        ? `✓ Sent by email${email ? " to " + email : ""} · cc ${CC_TEAM.map((a) => a.split("@")[0]).join(", ")}`
+        : "✓ Sent";
+    return json({ ok: true, sent: sentVia, status_note: statusNote, automation_paused: pausedAutomation }, {}, cors);
   }
 
   // Mark a conversation read — the inbox's select() fires this so the unread dot/badge

@@ -2016,7 +2016,7 @@ function composer(c){
       <span class="rc-sep"></span>` : '';
   const ph = cur==='email' ? "Write your email reply…" : cur==='chat' ? "Reply in chat…" : "Write a reply… (auto-personalizes {first}/{trade})";
   return `<div class="rcomp">
-    <div class="rc-head"><span class="clabel">Reply via</span>${sw}${cur==='email'?`<span class="cto">to ${esc(c.contact_email||'lead')}</span>`:''}<button class="rc-x" onclick="closeReply()" title="Discard">✕</button></div>
+    <div class="rc-head"><span class="clabel">Reply via</span>${sw}${cur==='email'?`<span class="cto">to ${esc(c.contact_email||'lead')}</span><span class="cto" style="opacity:.7" title="Your team is copied on every email reply">cc team · tyler, jbeyke, aaron</span>`:''}<button class="rc-x" onclick="closeReply()" title="Discard">✕</button></div>
     <div class="rc-toolbar">${fmtGroup}
       <span class="tmpl" onmousedown="return false" onclick="insertTemplate('demo')">Book a demo</span>
       <span class="tmpl" onmousedown="return false" onclick="insertTemplate('how')">How it works</span>
@@ -2059,14 +2059,25 @@ async function sendReply(){
   try{
     const r=await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:sel,reply:text,channel:ch})});
     const d=await r.json().catch(()=>({}));
-    if(!r.ok||d.error){ alert('Could not send: '+(d.message||d.error||('HTTP '+r.status))); return; }
-    // Only reflect the message in the thread AFTER the send actually succeeded.
+    if(!r.ok||d.error){
+      // Show the failure right in the conversation window; keep the draft so they can retry.
+      c.messages.push({dir:'system',body:'⚠ '+(ch==='sms'?'SMS':'Email')+' failed to send — '+(d.message||d.error||('HTTP '+r.status))+'. Not delivered.',ts:'just now'});
+      renderTab(c);
+      openReply(); setTimeout(()=>{const e2=document.getElementById('rte'); if(e2){e2.innerText=text; e2.focus();}},40);
+      return;
+    }
+    // Reflect the sent message AND a ✓ status line (delivery + cc for email) in the thread.
     c.messages.push({dir:'out',channel:d.sent||ch,body:text,ts:'just now',meta:'sent'});
+    if(d.status_note) c.messages.push({dir:'system',body:d.status_note,ts:'just now'});
     if(typeof c.unread!=='undefined') c.unread=false;
     replyOpen=false; ATTACH=[];
     renderTab(c);
     const sc=document.querySelector('#tabbody .msgs, #tabbody .gmail'); if(sc)sc.scrollTop=sc.scrollHeight;
-  }catch(e){ alert('Could not send: network error.'); }
+  }catch(e){
+    c.messages.push({dir:'system',body:'⚠ '+(ch==='sms'?'SMS':'Email')+' failed to send — network error.',ts:'just now'});
+    renderTab(c);
+    openReply(); setTimeout(()=>{const e2=document.getElementById('rte'); if(e2){e2.innerText=text; e2.focus();}},40);
+  }
   finally{ if(btn){ btn.disabled=false; btn.textContent=oldLabel; } }
 }
 window.openReply=openReply; window.closeReply=closeReply; window.fmt=fmt; window.rteLink=rteLink;
