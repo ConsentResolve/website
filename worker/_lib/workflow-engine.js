@@ -77,12 +77,21 @@ const EARN_CONSENT = {
 
 async function seedWorkflows(env) {
   await ensureRebuildSchema(env);
-  for (const w of [SPEED_TO_LEAD, EARN_CONSENT, IV_WORKFLOW]) {
+  // Code-owned workflows: keep the definition in sync from code on every seed.
+  for (const w of [SPEED_TO_LEAD, EARN_CONSENT]) {
     await env.DB.prepare(
       `INSERT INTO workflows (id,name,trigger,goal,definition,requires_consent,enabled)
        VALUES (?,?,?,?,?,?,1)
        ON CONFLICT(id) DO UPDATE SET definition=excluded.definition, goal=excluded.goal,
          requires_consent=excluded.requires_consent, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')`
+    ).bind(w.id, w.name, w.trigger, w.goal, w.definition, w.requires_consent).run();
+  }
+  // Editable workflows (IV): seed ONCE, then the DB definition is the source of truth so
+  // cadence edits from /crm/app#sequences aren't clobbered on the next cron.
+  for (const w of [IV_WORKFLOW]) {
+    await env.DB.prepare(
+      `INSERT INTO workflows (id,name,trigger,goal,definition,requires_consent,enabled)
+       VALUES (?,?,?,?,?,?,1) ON CONFLICT(id) DO NOTHING`
     ).bind(w.id, w.name, w.trigger, w.goal, w.definition, w.requires_consent).run();
   }
 }

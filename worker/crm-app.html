@@ -1124,6 +1124,20 @@ html,body{height:100%}
   .ag-rchip span{font-size:11px;color:var(--tx-3)}
   .ag-count{font-size:12.5px;color:var(--tx-3);margin-bottom:12px;font-weight:600}
   .thrbadge{font-size:10.5px;font-weight:700;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:0 7px;margin-left:2px;flex:0 0 auto}
+  /* ---- Editable sequence cadence ---- */
+  .seq-editbar{display:flex;align-items:center;gap:12px;margin:14px 0 6px;flex-wrap:wrap}
+  .seq-edit-btn{border:1px solid var(--line);background:var(--surface-1);color:var(--tx-1);border-radius:9px;padding:7px 13px;font-size:12.5px;font-weight:700;cursor:pointer}
+  .seq-save-btn{border:none;background:var(--accent);color:var(--on-accent);border-radius:9px;padding:7px 14px;font-size:12.5px;font-weight:800;cursor:pointer}
+  .seq-save-msg,.seq-edit-note{font-size:12px;color:var(--tx-3)}
+  .seqedit{border:1px solid var(--line);border-radius:12px;background:var(--surface-1);padding:8px 4px;margin:6px 0}
+  .seqedit-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;border-bottom:1px solid var(--line)}
+  .seqedit-row:last-of-type{border-bottom:0}
+  .seqedit-lbl{font-size:13.5px;font-weight:700;color:var(--tx-1)}
+  .seqedit-delay{font-size:13px;color:var(--tx-2)}
+  .seqedit-imm{color:var(--good);font-weight:600}
+  .seqedit-in{width:64px;border:1px solid var(--line);background:var(--surface-2);border-radius:7px;padding:5px 8px;font-size:13px;color:var(--tx-1);font-family:inherit;text-align:center}
+  .seqedit-in:focus{outline:none;border-color:var(--accent)}
+  .seqedit-help{padding:9px 14px 4px;font-size:11.5px;color:var(--tx-3)}
   /* ---- Site engagement panel (top of the conversation body) ---- */
   .site-eng{flex:0 0 auto;margin:16px 18px 6px;border:1px solid var(--line);border-radius:12px;background:var(--surface-1);overflow:hidden}
   .site-eng .se-h{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--tx-2)}
@@ -3877,10 +3891,36 @@ function renderSequences(){
           ${metric(Math.round(s.optoutRate*100)+'%','Opt-out')}
         </div>
       </div>
-      <div class="stepflow">${flow}</div>
+      ${s.editable?`<div class="seq-editbar"><button class="seq-edit-btn" onclick="seqEditToggle('${s.id}')">${window._seqEdit===s.id?'✕ Cancel':'✎ Edit cadence'}</button>${window._seqEdit===s.id?`<button class="seq-save-btn" onclick="seqSaveCadence('${s.id}')">Save cadence</button><span id="seqSaveMsg" class="seq-save-msg"></span>`:'<span class="seq-edit-note">tune the timing between emails · copy edits: just ask</span>'}</div>`:''}
+      ${window._seqEdit===s.id ? seqEditPanel(s) : `<div class="stepflow">${flow}</div>`}
       <div class="seq-foot">Steps only fire on channels the contact has consented to. A reply, a booked demo, or an opt-out exits the sequence immediately.</div>
     </div>`;
 }
+/* Editable cadence panel for the IV sequence — edit the wait (days) before each step. */
+function seqEditPanel(s){
+  const def=s.def||[];
+  const label=st=> st.action==='subscribe_newsletter'?'✉ Subscribe to newsletter': st.action==='send_email'?('✉ Email '+(def.slice(0,def.indexOf(st)+1).filter(x=>x.action==='send_email').length)):(st.action||'Step');
+  const rows=def.map((st,i)=>{
+    const days=(st.delay_minutes||0)/1440;
+    const dstr=Number.isInteger(days)?String(days):days.toFixed(2);
+    return `<div class="seqedit-row">
+      <span class="seqedit-lbl">${esc(label(st))}</span>
+      <span class="seqedit-delay">${i===0?'<span class="seqedit-imm">send on enroll</span>':`wait <input type="number" min="0" step="0.5" value="${dstr}" data-step="${i}" class="seqedit-in"> days`}</span>
+    </div>`;
+  }).join('');
+  return `<div class="seqedit">${rows}<div class="seqedit-help">Days are counted from the previous step. Email 1 sends the moment a visitor is enrolled.</div></div>`;
+}
+function seqEditToggle(id){ window._seqEdit = window._seqEdit===id ? null : id; renderSequences(); }
+async function seqSaveCadence(id){
+  const s=(window.SEQUENCES||[]).find(x=>x.id===id); if(!s) return;
+  const def=(s.def||[]).map(st=>({...st}));
+  document.querySelectorAll('.seqedit-in').forEach(inp=>{ const i=+inp.dataset.step; const days=parseFloat(inp.value)||0; if(def[i]) def[i].delay_minutes=Math.round(days*1440); });
+  const msg=document.getElementById('seqSaveMsg'); if(msg)msg.textContent='saving…';
+  const r=await fetch('/api/crm/workflow',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({save_definition:true,workflow_id:id,definition:def})}).then(x=>x.json()).catch(()=>null);
+  if(r&&r.ok){ s.def=def; window._seqEdit=null; renderSequences(); if(window.crmToast)crmToast('Cadence saved'); }
+  else if(msg)msg.textContent='save failed';
+}
+window.seqEditToggle=seqEditToggle; window.seqSaveCadence=seqSaveCadence; window.seqEditPanel=seqEditPanel;
 
 window.renderPipeline=renderPipeline; // exposed for the live-data bootstrap (fixture→fetch)
 

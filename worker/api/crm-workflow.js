@@ -50,9 +50,22 @@ export async function onRequestGet({ request, env }) {
 export async function onRequestPost({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
-  if (!(await isAdmin(request, env))) return json({ error: "forbidden" }, { status: 403 }, cors);
   const body = await request.json().catch(() => ({}));
   await ensureRebuildSchema(env); await seedWorkflows(env);
+
+  // Edit an editable sequence's cadence (delay per step). Any CRM user can tune timing;
+  // the code-owned action/channel/template are preserved — only delay_minutes is accepted.
+  if (body.save_definition && body.workflow_id) {
+    if (body.workflow_id !== "identified-visitor") return json({ error: "not_editable" }, { status: 400 }, cors);
+    const cur = await env.DB.prepare("SELECT definition FROM workflows WHERE id=?").bind(body.workflow_id).first();
+    let def = []; try { def = JSON.parse(cur?.definition || "[]"); } catch (_) {}
+    const inc = Array.isArray(body.definition) ? body.definition : [];
+    const merged = def.map((s, i) => ({ ...s, delay_minutes: Math.max(0, Math.min(43200, Math.round(Number((inc[i] || {}).delay_minutes) || 0))) }));
+    await env.DB.prepare("UPDATE workflows SET definition=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?").bind(JSON.stringify(merged), body.workflow_id).run();
+    return json({ ok: true, saved: merged.length }, {}, cors);
+  }
+
+  if (!(await isAdmin(request, env))) return json({ error: "forbidden" }, { status: 403 }, cors);
   if (body.enroll?.contactId) return json({ ok: true, result: await enrollContact(env, body.enroll) }, {}, cors);
   if (body.goal?.contactId) return json({ ok: true, exited: await handleGoalEvent(env, body.goal) }, {}, cors);
   // CONTROLLED SINGLE SEND: fire one real SMS to a chosen number to verify delivery, WITHOUT

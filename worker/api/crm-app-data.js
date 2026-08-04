@@ -159,6 +159,8 @@ export async function onRequestGet({ request, env }) {
       goalRate: enrolled ? (runs.booked || 0) / enrolled : 0,
       optoutRate: enrolled ? (runs.opted_out || 0) / enrolled : 0,
       steps,
+      editable: w.id === "identified-visitor",   // only the IV sequence is user-editable
+      def,                                        // raw step definition (delay_minutes etc.) for the editor
     });
   }
 
