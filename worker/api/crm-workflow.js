@@ -136,6 +136,44 @@ export async function onRequestPost({ request, env }) {
   }
 
   if (!(await isAdmin(request, env))) return json({ error: "forbidden" }, { status: 403 }, cors);
+
+  // One-time maintenance: strip stored subject/html overrides from the editable IV sequences
+  // (identified-visitor + its test clone) so the CODE templates in worker/_lib/iv-sequence.js
+  // become authoritative again. Needed after a template rewrite that stale DB overrides —
+  // saved by an earlier CRM edit — would otherwise shadow on every send. In-flight runs pick
+  // up the change immediately because the engine re-reads the definition each tick.
+  if (body.iv_reset_templates) {
+    const cleared = [];
+    for (const wid of ["identified-visitor", "identified-visitor-test"]) {
+      const row = await env.DB.prepare("SELECT definition FROM workflows WHERE id=?").bind(wid).first();
+      if (!row) continue;
+      let def = []; try { def = JSON.parse(row.definition || "[]"); } catch (_) {}
+      const next = def.map((s) => { const { subject, html, ...rest } = s; return rest; });
+      await env.DB.prepare("UPDATE workflows SET definition=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?").bind(JSON.stringify(next), wid).run();
+      cleared.push({ workflow: wid, steps: next.length });
+    }
+    return json({ ok: true, cleared }, {}, cors);
+  }
+
+  // Remove email suppressions for the given addresses and re-grant email consent, so the
+  // consent gate allows sending again — the mirror-image of the unsubscribe flow. Owner-
+  // authorized re-subscribe of internal review addresses. Clears both the new `suppressions`
+  // store and the legacy email-only `crm_suppressions` table, and records a fresh granted
+  // consent so the latest action isn't the prior 'revoked'.
+  if (Array.isArray(body.iv_unsuppress) && body.iv_unsuppress.length) {
+    const out = [];
+    for (const raw of body.iv_unsuppress.slice(0, 20)) {
+      const em = String(raw || "").toLowerCase().trim(); if (!em.includes("@")) continue;
+      const contact = await env.DB.prepare("SELECT id FROM contacts WHERE lower(primary_email)=? LIMIT 1").bind(em).first().catch(() => null);
+      const contactId = contact?.id || null;
+      const d1 = await env.DB.prepare("DELETE FROM suppressions WHERE lower(email)=?").bind(em).run().catch(() => ({}));
+      let d2 = {}; try { d2 = await env.DB.prepare("DELETE FROM crm_suppressions WHERE lower(email)=?").bind(em).run(); } catch (_) {}
+      await recordConsent(env, { contactId, email: em, channel: "email", action: "granted", basis: "internal test re-subscribe (owner-authorized)", captureMethod: "admin_unsuppress", source: "admin" });
+      out.push({ email: em, contactId, removed_new: d1?.meta?.changes ?? null, removed_legacy: d2?.meta?.changes ?? null });
+    }
+    return json({ ok: true, unsuppressed: out }, {}, cors);
+  }
+
   if (body.enroll?.contactId) return json({ ok: true, result: await enrollContact(env, body.enroll) }, {}, cors);
   if (body.goal?.contactId) return json({ ok: true, exited: await handleGoalEvent(env, body.goal) }, {}, cors);
   // CONTROLLED SINGLE SEND: fire one real SMS to a chosen number to verify delivery, WITHOUT
