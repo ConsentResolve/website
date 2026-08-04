@@ -111,7 +111,7 @@ const LEAD_CARD_HTML = `<div style="display:none;max-height:0;overflow:hidden;op
 <p style="margin:0 0 20px 0;font-size:16px;line-height:1.6;color:#22252B">Same card you'd get. Same minute. Only difference is next time the name in it belongs to a homeowner.</p></td></tr>
 <tr><td style="padding:0 24px">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid #C9CDD3;border-radius:12px;background-color:#FFFFFE">
-<tr><td style="padding:11px 16px;background-color:#E1F5EE;border-bottom:1px solid #D2E8DF;border-radius:11px 11px 0 0;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:13px;font-weight:bold;color:#0F6E56">They said yes at {{visit_time}}</td></tr>
+<tr><td style="padding:11px 16px;background-color:#E1F5EE;border-bottom:1px solid #D2E8DF;border-radius:11px 11px 0 0;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:13px;font-weight:bold;color:#0F6E56">This is what an Accept gets you &darr;</td></tr>
 <tr><td style="padding:16px">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
 <td width="46" valign="top" style="width:46px"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="42" style="width:42px;height:42px;background-color:#E6F1FB;border-radius:21px"><tr><td align="center" valign="middle" style="height:42px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:14px;font-weight:bold;color:#185FA5">{{initials}}</td></tr></table></td>
@@ -131,7 +131,7 @@ const LEAD_CARD_HTML = `<div style="display:none;max-height:0;overflow:hidden;op
 <tr><td style="padding:22px 24px 8px 24px;border-top:1px solid #E3E5E9;margin-top:8px">${tylerSig()}</td></tr>
 <tr><td style="padding:8px 24px 26px 24px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:13px;line-height:1.6;color:#8A8F97"><a href="{{data_record_url}}" style="color:#8A8F97">See everything we have on you</a> &middot; <a href="{{delete_url}}" style="color:#8A8F97">delete it</a> &middot; both work instantly, one click, no form.</td></tr>
 </table>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%"><tr><td style="padding:18px 8px 4px 8px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9BA0A8">Consent Resolve &middot; ${ADDR} &middot; <a href="sms:${TEL}" style="color:#9BA0A8">${PHONE}</a><br>You're getting this because you consented on consentresolve.com at {{visit_time}}. <a href="{{unsubscribe_url}}" style="color:#9BA0A8">Unsubscribe</a></td></tr></table>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%"><tr><td style="padding:18px 8px 4px 8px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9BA0A8">Consent Resolve &middot; <a href="sms:${TEL}" style="color:#9BA0A8">${PHONE}</a><br>You're getting this because you consented on consentresolve.com at {{visit_time}}. <a href="{{unsubscribe_url}}" style="color:#9BA0A8">Unsubscribe</a></td></tr></table>
 </td></tr></table>`;
 
 const THE_98_HTML = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#FFFFFE"><tr><td align="left" style="padding:22px 18px">
@@ -155,7 +155,7 @@ ${smsCta("Text me")}
 ${tylerSig()}
 <p style="margin:20px 0 0 0;font-size:15px;line-height:1.6;color:#22252B"><strong style="color:#16181D">P.S.</strong> &mdash; Those free yard signs I mentioned aren't a promo. There's a reason we ship them and it's a selfish one. I'll explain in a few days.</p>
 </td></tr>
-<tr><td style="padding-top:26px"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px solid #E3E5E9"><tr><td style="padding-top:14px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9BA0A8">Consent Resolve &middot; ${ADDR}<br>You consented to hear from us on consentresolve.com. <a href="{{unsubscribe_url}}" style="color:#9BA0A8">Unsubscribe</a> &middot; <a href="{{delete_url}}" style="color:#9BA0A8">delete my record</a></td></tr></table></td></tr>
+<tr><td style="padding-top:26px"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px solid #E3E5E9"><tr><td style="padding-top:14px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9BA0A8">Consent Resolve<br>You consented to hear from us on consentresolve.com. <a href="{{unsubscribe_url}}" style="color:#9BA0A8">Unsubscribe</a> &middot; <a href="{{delete_url}}" style="color:#9BA0A8">delete my record</a></td></tr></table></td></tr>
 </table></td></tr></table>`;
 
 const YARD_SIGNS_HTML = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#FFFFFE"><tr><td align="left" style="padding:22px 18px">
@@ -183,7 +183,7 @@ ${smsCta("Text me")}
 <div style="height:10px;line-height:10px">&nbsp;</div>
 ${tylerSig()}
 <p style="margin:20px 0 0 0;font-size:15px;line-height:1.6"><strong style="color:#16181D">P.S.</strong> &mdash; No contract, no setup fee, no monthly. Slow month, small bill. That's the whole pricing page.</p></td></tr>
-<tr><td style="padding-top:26px"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px solid #E3E5E9"><tr><td style="padding-top:14px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9BA0A8">Consent Resolve &middot; ${ADDR}<br>You consented to hear from us on consentresolve.com. <a href="{{unsubscribe_url}}" style="color:#9BA0A8">Unsubscribe</a> &middot; <a href="{{delete_url}}" style="color:#9BA0A8">delete my record</a></td></tr></table></td></tr>
+<tr><td style="padding-top:26px"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px solid #E3E5E9"><tr><td style="padding-top:14px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9BA0A8">Consent Resolve<br>You consented to hear from us on consentresolve.com. <a href="{{unsubscribe_url}}" style="color:#9BA0A8">Unsubscribe</a> &middot; <a href="{{delete_url}}" style="color:#9BA0A8">delete my record</a></td></tr></table></td></tr>
 </table></td></tr></table>`;
 
 // Raw (unfilled) subject + html per template — the editable source of truth. The engine

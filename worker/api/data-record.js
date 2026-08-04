@@ -253,8 +253,6 @@ function renderPage(rec, contactId, eraseIntent) {
       ${recordCard(rec)}
     </div>
 
-    ${hailMarys()}
-
     <div class="erase-zone${eraseIntent ? " focus" : ""}" id="eraseZone">
       <p>Still want it gone? This erases every field above — permanently, right now.</p>
       <button class="erase-btn" id="eraseBtn" data-c="${esc(contactId)}">No thanks — erase everything</button>
