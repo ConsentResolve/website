@@ -14,6 +14,7 @@ import { enrichContactById } from "../_lib/apollo.js";
 // DataForSEO calls live in a shared lib so the single-lead lookup and the bulk
 // Prospecting sweep use one implementation and can never drift (see worker/api/prospecting.js).
 import { normDomain, dataforseoLookup, dfsBacklinks, dfsTech, MARKETPLACES, TECH_BUCKETS } from "../_lib/dataforseo.js";
+import { scoreProspect } from "../_lib/prospect-score.js";
 
 const APOLLO_COST = (env) => Number(env.APOLLO_COST_PER_LOOKUP || 0.03);
 // Claude Haiku pricing (USD per token) — cheap extraction model.
@@ -145,8 +146,17 @@ Return STRICT JSON only, no prose:
   "runs_ads": <true|false|null>,
   "agency_managed": <true|false|null>,
   "agency_name": "<marketing/web agency that built or runs the site, if any credit/footer/tech reveals one, else null>",
-  "brief": "<2-3 sentence sales-useful summary: what they do, size/vibe, and the best angle to reach them>"
+  "brief": "<2-3 sentence sales-useful summary: what they do, size/vibe, and the best angle to reach them>",
+  "website_grade": {"overall":"<letter A+..F for lead-capture effectiveness>","usability":"<letter>","cta":"<letter>","seo":"<letter>","content":"<letter>","notes":"<1-2 sentences on the biggest lead-capture weaknesses you can see: form placement/field count, missing sticky call button, stale/undated content, thin service pages>"},
+  "why_hot": ["<3-6 short, qualitative reasons this contractor is a strong Consent Resolve fit, drawn from the SITE — e.g. 'CTA buried below the fold', 'community-first brand', 'busy crews (recent reviews)'. No fabricated numbers.>"],
+  "talking_points": ["<4-7 specific, sales-ready points a rep can open with, each referencing a REAL fact from the site or messages>"],
+  "email_angles": [{"label":"<short angle name>","body":"<1-2 sentence cold-email opener, personalized to THIS business, in a plain, human voice>"}],
+  "objections": [{"objection":"<a likely objection in the owner's words>","response":"<concise, honest rebuttal in Consent Resolve's voice>"}],
+  "owner_story": "<2-4 sentence rapport paragraph about the owner/company from the site — origin story, values, community ties, brand voice — for building genuine rapport. null if nothing found. Mark anything uncertain; do not invent.>",
+  "owner_hooks": ["<short conversational hooks: sponsorships, origin story, shop mascot, sports team, faith/family, years in business — for rapport>"]
 }
+
+CONSENT RESOLVE CONTEXT (keep talking_points/email_angles/objections accurate to this — do not overstate): We identify a contractor's OWN anonymous website visitors WITH their consent and hand back the name + email as an EXCLUSIVE lead at a flat $7 each, never resold. Consent-first (visitors opt in), it sits on top of their existing ads/funnel and installs in ~10 minutes. Honest math: ~75% of visitors consent, ~22-25% of those resolve, so ~16-19% of total visitors become identifiable leads. NEVER promise a close rate, ROI, or a specific dollar outcome. The core wedge: recover the ~97% of paid traffic that leaves the site unidentified.
 
 WEBSITE PAGES:
 ${(siteText || "").slice(0, 14000)}
@@ -157,7 +167,7 @@ ${(inboundText || "(none)").slice(0, 8000)}`;
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1500, messages: [{ role: "user", content: prompt }] }),
+      body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 3200, messages: [{ role: "user", content: prompt }] }),
     });
     const j = await r.json();
     const usage = j.usage || {};
@@ -273,6 +283,18 @@ export async function onRequestPost({ request, env }) {
       if (d.socials && typeof d.socials === "object") for (const k of ["facebook", "instagram", "linkedin", "tiktok", "youtube"]) if (d.socials[k] && !parsed.directory[k]) parsed.directory[k] = d.socials[k];
       // #3 agency detection — cached so the Agency tab can read/flag it.
       if (d.agency_managed != null || d.agency_name) parsed.intel.agency = { managed: !!d.agency_managed, name: d.agency_name || null, detected_at: new Date().toISOString() };
+      // Dossier synthesis — the salesperson-facing narrative fields (website grade, talking
+      // points, email angles, objections, owner rapport). Kept under intel.synthesis so the
+      // Intel tab renders them and re-running the paid lookup never wipes them.
+      const syn = {};
+      if (d.website_grade && typeof d.website_grade === "object") syn.website_grade = d.website_grade;
+      if (Array.isArray(d.why_hot) && d.why_hot.length) syn.why_hot = d.why_hot.slice(0, 8);
+      if (Array.isArray(d.talking_points) && d.talking_points.length) syn.talking_points = d.talking_points.slice(0, 8);
+      if (Array.isArray(d.email_angles) && d.email_angles.length) syn.email_angles = d.email_angles.filter((a) => a && (a.body || a.label)).slice(0, 6);
+      if (Array.isArray(d.objections) && d.objections.length) syn.objections = d.objections.filter((o) => o && (o.objection || o.response)).slice(0, 6);
+      if (d.owner_story) syn.owner_story = String(d.owner_story).slice(0, 900);
+      if (Array.isArray(d.owner_hooks) && d.owner_hooks.length) syn.owner_hooks = d.owner_hooks.slice(0, 8);
+      if (Object.keys(syn).length) { syn.synthesized_at = new Date().toISOString(); parsed.intel.synthesis = { ...(parsed.intel.synthesis || {}), ...syn }; }
       // #1 writeback — fill blanks on the actual record (phone, email, name, company).
       writeback = await writeBackRecord(env, { contact: ct, company: co, data: d }).catch(() => []);
     } else {
@@ -354,6 +376,24 @@ export async function onRequestPost({ request, env }) {
     license: it.license || null,
     agency: it.agency || null,
   };
+
+  // ICP fit — reuse the SAME scorer the Prospecting sweep uses, so the dossier's score and the
+  // Batch Triage list can never disagree. Maps our signal names onto scoreProspect's shape.
+  const _icp = scoreProspect({
+    marketplaces: signals.marketplaces,
+    competitor_id: signals.competitor_id,
+    running_ads: signals.running_ads,
+    ad_spend: (signals.ad_spend_low != null && signals.ad_spend_high != null) ? Math.round((signals.ad_spend_low + signals.ad_spend_high) / 2) : null,
+    call_tracking: signals.call_tracking,
+    field_crm: signals.field_crm,
+    ad_pixels: (signals.pixels && signals.pixels.length) ? "pixel" : null,
+    has_form: signals.has_form,
+    traffic_month: signals.traffic_month,
+    rating: signals.rating,
+    reviews: signals.reviews,
+    has_site: true,
+  });
+  signals.icp = { score: _icp.score, tier: _icp.tier, reasons: _icp.reasons };
 
   // Cache the merged enrichment on the company (parsed already includes prev).
   if (co) {

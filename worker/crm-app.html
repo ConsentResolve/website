@@ -378,6 +378,77 @@ html,body{height:100%}
   .opp-num{color:var(--good);font-weight:800;font-family:var(--font-mono)}
   @media(max-width:1080px){.idash-grid{grid-template-columns:1fr}}
 
+  /* ---- Intel dossier v2 (sales-ready synthesis) ---- */
+  .icard.full{grid-column:1/-1}
+  .icard.accent{border-top:2px solid var(--accent)}
+  .icard.warnt{border-top:2px solid var(--warn)}
+  .d2-empty{font-size:var(--t-12);color:var(--tx-3);font-style:italic}
+  /* ICP / why-hot */
+  .d2-icp{display:flex;gap:16px;align-items:stretch}
+  @media(max-width:560px){.d2-icp{flex-direction:column}}
+  .d2-icpL{display:flex;gap:12px;flex:0 0 auto;padding-right:16px;border-right:1px solid var(--line)}
+  @media(max-width:560px){.d2-icpL{border-right:none;border-bottom:1px solid var(--line);padding-right:0;padding-bottom:12px}}
+  .d2-icpbar{position:relative;width:9px;align-self:stretch;min-height:92px;background:var(--surface-3);border-radius:var(--r-full);overflow:hidden}
+  .d2-icpfill{position:absolute;bottom:0;left:0;right:0;background:var(--accent);border-radius:var(--r-full);transition:height 1s cubic-bezier(.22,.9,.3,1)}
+  .d2-icptxt{display:flex;flex-direction:column;gap:2px;justify-content:center}
+  .d2-score{font-family:var(--font-mono);font-size:30px;font-weight:800;color:var(--tx-1);line-height:1}
+  .d2-score small{font-size:var(--t-13);color:var(--tx-3);font-weight:700}
+  .d2-scorelbl{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--tx-3)}
+  .d2-tier{align-self:flex-start;margin-top:4px;font-size:10px;font-weight:800;letter-spacing:.09em;color:var(--on-accent);background:var(--accent);border-radius:var(--r-1);padding:3px 9px}
+  .d2-tier.warm{background:var(--warn);color:#20140a} .d2-tier.cold{background:var(--surface-3);color:var(--tx-2)}
+  .d2-facts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;justify-content:center}
+  .d2-facts li{font-size:var(--t-13);line-height:1.5;color:var(--tx-1);padding-left:16px;position:relative}
+  .d2-facts li::before{content:"";position:absolute;left:1px;top:8px;width:6px;height:6px;border-radius:2px;background:var(--accent)}
+  /* money calc */
+  .d2-moneyhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .d2-moneybig{font-family:var(--font-mono);font-size:34px;font-weight:800;color:var(--warn);letter-spacing:-.02em;line-height:1}
+  .d2-moneysub{font-size:var(--t-13);color:var(--tx-2)} .d2-moneysub b{color:var(--tx-1)}
+  .d2-calc{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  @media(max-width:560px){.d2-calc{grid-template-columns:1fr}}
+  .d2-ctl label{display:flex;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--tx-2);margin-bottom:7px;text-transform:uppercase}
+  .d2-ctl label output{color:var(--accent);font-family:var(--font-mono)}
+  .d2-ctl input[type=range]{width:100%;-webkit-appearance:none;appearance:none;background:transparent;height:20px;cursor:pointer}
+  .d2-ctl input[type=range]::-webkit-slider-runnable-track{height:5px;background:var(--surface-3);border-radius:3px}
+  .d2-ctl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);margin-top:-5.5px}
+  .d2-ctl input[type=range]::-moz-range-track{height:5px;background:var(--surface-3);border-radius:3px}
+  .d2-ctl input[type=range]::-moz-range-thumb{width:14px;height:14px;border:none;border-radius:50%;background:var(--accent)}
+  .d2-math{margin-top:13px;padding-top:12px;border-top:1px dashed var(--line-2);font-family:var(--font-mono);font-size:11.5px;color:var(--tx-2);line-height:1.9}
+  .d2-math b{color:var(--tx-1)} .d2-math .h{color:var(--warn);font-weight:700}
+  /* website grade */
+  .d2-grade{display:flex;gap:18px;align-items:flex-start}
+  @media(max-width:560px){.d2-grade{flex-direction:column}}
+  .d2-gbig{flex:0 0 auto;text-align:center;padding:11px 17px;background:var(--warn-soft);border:1px solid var(--warn);border-radius:var(--r-3)}
+  .d2-gbig .g{font-family:var(--font-display);font-size:40px;font-weight:800;line-height:1;color:var(--warn)}
+  .d2-gbig .gl{font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--tx-3);text-transform:uppercase;margin-top:5px}
+  .d2-subs{flex:1;min-width:0;display:flex;flex-direction:column;gap:9px}
+  .d2-sg{display:grid;grid-template-columns:118px 30px 1fr;gap:10px;align-items:center}
+  .d2-sg .n{font-size:12px;font-weight:600;color:var(--tx-2)}
+  .d2-sg .l{font-family:var(--font-mono);font-size:12.5px;font-weight:700;text-align:center;color:var(--tx-1)}
+  .d2-sg .bar{height:6px;background:var(--surface-3);border-radius:var(--r-full);overflow:hidden}
+  .d2-sg .bar i{display:block;height:100%;border-radius:var(--r-full);width:0;background:var(--accent);transition:width 1s cubic-bezier(.22,.9,.3,1)}
+  .d2-sg .bar i.warn{background:var(--warn)} .d2-sg .bar i.bad{background:var(--bad)}
+  .d2-gnotes{margin-top:11px;font-size:12px;color:var(--tx-2);line-height:1.65;border-top:1px dashed var(--line-2);padding-top:9px}
+  .d2-gnotes b{color:var(--tx-1)}
+  /* owner rapport */
+  .d2-story{font-size:var(--t-13);line-height:1.7;color:var(--tx-1)} .d2-story b{color:var(--tx-1);font-weight:700}
+  .d2-hooks{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+  .d2-hook{font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);border-radius:var(--r-full);padding:4px 11px}
+  /* talking points / email angles / objections */
+  .d2-talk{list-style:none;margin:0;padding:0}
+  .d2-talk li{font-size:var(--t-13);line-height:1.6;color:var(--tx-1);padding:8px 0 8px 20px;position:relative;border-bottom:1px solid var(--line)}
+  .d2-talk li:last-child{border-bottom:none}
+  .d2-talk li::before{content:"";position:absolute;left:1px;top:14px;width:7px;height:7px;border-radius:2px;background:var(--accent)}
+  .d2-talk li b{color:var(--tx-1)}
+  .d2-angle{padding:9px 0;border-bottom:1px solid var(--line)} .d2-angle:last-child{border-bottom:none}
+  .d2-angle .al{font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);margin-bottom:3px}
+  .d2-angle .ab{font-size:var(--t-13);line-height:1.6;color:var(--tx-1)}
+  .d2-obj dt{font-size:var(--t-13);color:var(--bad);font-weight:700;margin-top:10px}
+  .d2-obj dt::before{content:"\201C"} .d2-obj dt::after{content:"\201D"}
+  .d2-obj dd{font-size:var(--t-13);color:var(--tx-2);margin:3px 0 0;padding-left:12px;border-left:2px solid var(--line-2);line-height:1.6}
+  /* signal freshness */
+  .d2-fresh{display:flex;flex-wrap:wrap;gap:7px 20px;font-family:var(--font-mono);font-size:11px;color:var(--tx-3)}
+  .d2-fresh b{color:var(--tx-2);font-weight:600} .d2-fresh .ok{color:var(--good)}
+
   /* Pipeline board (kanban) */
   .pipe-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;gap:16px}
   .pipe-head h2{margin:0;font-family:var(--font-display);font-size:var(--t-24);font-weight:800}
@@ -4346,6 +4417,103 @@ async function saveAgency(id,managed,name,ev){
   if(window.crmToast)crmToast(managed?'Flagged as agency-managed':'Agency flag cleared');
 }
 window.agencyEditor=agencyEditor; window.saveAgency=saveAgency;
+/* ---- Intel dossier v2 — sales-ready synthesis panels ---- */
+function d2rich(s){ return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>'); }
+function d2ago(iso){ if(!iso) return 'never'; const s=(Date.now()-new Date(iso).getTime())/1000; if(s<90) return 'just now'; if(s<5400) return Math.round(s/60)+'m ago'; if(s<172800) return Math.round(s/3600)+'h ago'; return Math.round(s/86400)+'d ago'; }
+const D2_GPCT={'A+':98,'A':94,'A-':90,'B+':87,'B':83,'B-':80,'C+':77,'C':73,'C-':70,'D+':67,'D':63,'D-':60,'F':45};
+function d2gpct(v){ const p=D2_GPCT[String(v||'').trim().toUpperCase()]; return p!=null?p:65; }
+function d2gcls(v){ const p=d2gpct(v); return p>=80?'':p>=67?'warn':'bad'; }
+function d2Grade(g){
+  if(!g||typeof g!=='object'||!(g.overall||g.usability||g.cta||g.seo||g.content)) return '';
+  const sg=(n,v)=> v?`<div class="d2-sg"><span class="n">${n}</span><span class="l">${esc(v)}</span><span class="bar"><i class="${d2gcls(v)}" data-w="${d2gpct(v)}"></i></span></div>`:'';
+  const subs=[sg('Usability',g.usability),sg('Call to action',g.cta),sg('SEO',g.seo),sg('Content updates',g.content)].join('');
+  const body=`<div class="d2-grade">${g.overall?`<div class="d2-gbig"><div class="g">${esc(g.overall)}</div><div class="gl">Lead capture</div></div>`:''}<div class="d2-subs">${subs}</div></div>${g.notes?`<div class="d2-gnotes">${d2rich(g.notes)}</div>`:''}`;
+  return icardD('Website grade','Claude', body);
+}
+function d2Icp(sig, syn){
+  const icp=sig&&sig.icp; const why=(syn&&syn.why_hot)||[];
+  if(!icp && !why.length) return '';
+  const score=icp?icp.score:null, tier=((icp&&icp.tier)||'').toLowerCase();
+  const tierCls=tier==='hot'?'':tier==='warm'?'warm':'cold';
+  const facts=(why.length?why:(icp&&icp.reasons||[]).map(r=>String(r).replace(/^\+\d+\s*/,''))).slice(0,7);
+  const bar=score!=null?`<div class="d2-icpL"><div class="d2-icpbar"><i class="d2-icpfill" data-h="${score}"></i></div><div class="d2-icptxt"><div class="d2-score" data-n="${score}">0<small>/100</small></div><div class="d2-scorelbl">ICP fit</div>${tier?`<div class="d2-tier ${tierCls}">${tier.toUpperCase()} LEAD</div>`:''}</div></div>`:'';
+  const body=`<div class="d2-icp">${bar}<ul class="d2-facts">${facts.map(f=>`<li>${esc(f)}</li>`).join('')||'<li class="d2-empty">Run a lookup to score this lead.</li>'}</ul></div>`;
+  return `<div class="icard full accent"><div class="icard-h"><h4>Why this lead is hot</h4><span class="isrc">ICP fit + Claude</span></div>${body}</div>`;
+}
+function d2Money(id, traffic){
+  const t=traffic||0, rate=CR_IDENTIFY_RATE*100;
+  const body=`<div data-traffic="${t}" id="d2money-${id}">
+    <div class="d2-moneyhead"><div class="d2-moneybig" id="d2dollars-${id}">$0</div><div class="d2-moneysub">recoverable pipeline / month · <b id="d2leads-${id}">0 leads</b> @ $${CR_PRICE}</div></div>
+    <div class="d2-calc">
+      <div class="d2-ctl"><label>Identify + capture rate <output id="d2rateout-${id}">${rate.toFixed(1).replace(/\.0$/,'')}%</output></label><input type="range" id="d2rate-${id}" min="1" max="6" step="0.5" value="${rate}" oninput="d2Recalc('${id}')"></div>
+      <div class="d2-ctl"><label>Monthly visits <output id="d2trafout-${id}">${t.toLocaleString()}</output></label><input type="range" id="d2traf-${id}" min="0" max="${Math.max(5000, t*2)}" step="50" value="${t}" oninput="d2Recalc('${id}')"></div>
+    </div>
+    <div class="d2-math" id="d2math-${id}"></div>
+    ${t?'':'<div class="d2-empty" style="margin-top:8px">No traffic estimate yet — run 📊 DataForSEO to ground this, or drag the visits slider.</div>'}</div>`;
+  return `<div class="icard full warnt"><div class="icard-h"><h4>Money left on the table</h4><span class="isrc">rep can flex assumptions</span></div>${body}</div>`;
+}
+function d2Recalc(id){
+  const box=document.getElementById('d2money-'+id); if(!box) return;
+  const rEl=document.getElementById('d2rate-'+id), tEl=document.getElementById('d2traf-'+id);
+  const rate=parseFloat(rEl?rEl.value:CR_IDENTIFY_RATE*100)/100;
+  const traf=parseInt(tEl?tEl.value:0,10)||0;
+  const leads=Math.round(traf*rate), dollars=leads*CR_PRICE;
+  const set=(x,v)=>{const el=document.getElementById(x+'-'+id); if(el)el.textContent=v;};
+  set('d2rateout',(rate*100).toFixed(1).replace(/\.0$/,'')+'%'); set('d2trafout',traf.toLocaleString());
+  set('d2dollars','$'+dollars.toLocaleString()); set('d2leads',leads.toLocaleString()+' leads');
+  const m=document.getElementById('d2math-'+id); if(m) m.innerHTML='<b>'+traf.toLocaleString()+'</b> visits/mo &nbsp;→&nbsp; <span class="h">'+leads.toLocaleString()+' recoverable @ $'+CR_PRICE+' = $'+dollars.toLocaleString()+'/mo</span> you’re not capturing yet';
+}
+window.d2Recalc=d2Recalc;
+function d2Owner(syn){
+  const story=syn&&syn.owner_story, hooks=(syn&&syn.owner_hooks)||[];
+  if(!story && !hooks.length) return '';
+  const body=`${story?`<p class="d2-story">${d2rich(story)}</p>`:''}${hooks.length?`<div class="d2-hooks">${hooks.map(h=>`<span class="d2-hook">${esc(h)}</span>`).join('')}</div>`:''}`;
+  return icardD('Owner &amp; rapport intel','Claude · verify before use', body);
+}
+function d2List(title, src, list, full){
+  if(!list||!list.length) return '';
+  const body=`<ul class="d2-talk">${list.map(t=>`<li>${d2rich(t)}</li>`).join('')}</ul>`;
+  return `<div class="icard${full?' full':''}"><div class="icard-h"><h4>${title}</h4><span class="isrc">${src}</span></div>${body}</div>`;
+}
+function d2Angles(list){
+  if(!list||!list.length) return '';
+  const body=list.map(a=>`<div class="d2-angle">${a.label?`<div class="al">${esc(a.label)}</div>`:''}<div class="ab">${d2rich(a.body||'')}</div></div>`).join('');
+  return icardD('Email angles','Claude synthesis', body);
+}
+function d2Obj(list){
+  if(!list||!list.length) return '';
+  const body=`<dl class="d2-obj">${list.map(o=>`<dt>${esc(o.objection||'')}</dt><dd>${d2rich(o.response||'')}</dd>`).join('')}</dl>`;
+  return icardD('Objection prep','Claude synthesis', body);
+}
+function d2Fresh(id, e){
+  const when=e&&e._looked_up_at?d2ago(e._looked_up_at):'never';
+  const cost=e&&e._last_cost!=null?`<span>● <b>Last cost</b> $${(+e._last_cost).toFixed(4)}</span>`:'';
+  const body=`<div class="d2-fresh"><span class="ok">● <b>Enriched</b> ${esc(when)}</span>${cost}</div>`;
+  return `<div class="icard full"><div class="icard-h"><h4>Signal freshness</h4><button class="ilook-btn free" onclick="runLookup('${id}','all',event)" style="padding:5px 12px">↻ Re-enrich</button></div>${body}</div>`;
+}
+function d2InitDossier(c){
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.d2-icpfill').forEach(el=>{ el.style.height=(el.dataset.h||0)+'%'; });
+    document.querySelectorAll('.d2-sg .bar i').forEach(el=>{ el.style.width=(el.dataset.w||0)+'%'; });
+    document.querySelectorAll('.d2-score').forEach(el=>{ const n=+el.dataset.n||0; let t0=null; const tick=t=>{ t0=t0||t; const p=Math.min((t-t0)/900,1); el.innerHTML=Math.round(n*(1-Math.pow(1-p,3)))+'<small>/100</small>'; if(p<1)requestAnimationFrame(tick); }; requestAnimationFrame(tick); });
+    if(c) d2Recalc(c.id);
+  });
+}
+window.d2InitDossier=d2InitDossier;
+/* On-site engagement — the lead's first-party behavior on our site. Moved OUT of the Intel
+   dossier and INTO the Activity tab (it's behavior/timeline data, not company intel). */
+function siteEngCard(c){
+  const it=c.intel||{};
+  const hasData = it.time_on_site||it.pages||it.first_seen||it.speed_to_lead_h!=null||(it.pages_viewed&&it.pages_viewed.length);
+  if(!hasData) return '';
+  const body=`<div class="itiles-sm">
+      <div class="itile-sm"><div class="iv">${esc(it.time_on_site||'—')}</div><div class="il">On site</div></div>
+      <div class="itile-sm"><div class="iv">${it.pages||'—'}</div><div class="il">Pages</div></div>
+      <div class="itile-sm"><div class="iv">${esc(it.first_seen||'—')}</div><div class="il">First seen</div></div>
+      <div class="itile-sm"><div class="iv">${it.speed_to_lead_h!=null?it.speed_to_lead_h+'h':'—'}</div><div class="il">Speed→lead</div></div>
+    </div>${(it.pages_viewed&&it.pages_viewed.length)?`<div class="pv-list">${it.pages_viewed.map(p=>'→ '+esc(p)).join('')}</div>`:''}`;
+  return icardD('On-site engagement','First-party', body);
+}
 function intelDashboard(c){
   const e=((window.ENRICH||{})[c.id]||{}), x=(window.INTEL||{})[c.id]||{}, d=(window.DIRECTORY||{})[c.id]||{}, it=c.intel, ph=PHONES[c.id]||c.contact_phone;
   const fit=`<span class="fit ${it.fit}">${it.fit.toUpperCase()}</span>`;
@@ -4387,12 +4555,6 @@ function intelDashboard(c){
   if(!(e.pixels&&e.pixels.length)) gaps.push('No tracking pixel');
   const gapFlags=gaps.length?`<div class="gapline">${gaps.map(g=>`<span class="gap-flag">⚠ ${g}</span>`).join('')}</div>`:'';
   const rep = e.gmb ? `<div class="rep"><div class="rep-big">${e.gmb.rating}<span>★</span></div><div class="rep-sub"><b>${e.gmb.reviews}</b> Google reviews<br>${e.gmb.verified?'Verified profile':'Unclaimed profile'}</div></div>` : `<div class="idash-empty">No Google Business listing found.</div>`;
-  const eng=`<div class="itiles-sm">
-      <div class="itile-sm"><div class="iv">${esc(it.time_on_site)}</div><div class="il">On site</div></div>
-      <div class="itile-sm"><div class="iv">${it.pages}</div><div class="il">Pages</div></div>
-      <div class="itile-sm"><div class="iv">${esc(it.first_seen)}</div><div class="il">First seen</div></div>
-      <div class="itile-sm"><div class="iv">${it.speed_to_lead_h!=null?it.speed_to_lead_h+'h':'—'}</div><div class="il">Speed→lead</div></div>
-    </div>${it.pages_viewed.length?`<div class="pv-list">${it.pages_viewed.map(p=>'→ '+esc(p)).join('')}</div>`:''}`;
   const contact=`
     ${d.address?idRow('ok','Address',d.address,null):''}
     ${ph?`<div class="prow"><span class="pst good">✓</span><span class="pk">Phone</span><span class="pv"><a href="${telHref(ph)}">${esc(ph)}</a></span></div>`:''}
@@ -4410,6 +4572,7 @@ function intelDashboard(c){
     ${extraEmails.map(em=>`<div class="prow"><span class="pk" style="color:var(--tx-3)">Email</span><span class="pv"><a href="mailto:${esc(em)}">${esc(em)}</a></span></div>`).join('')}
     ${extraPhones.map(pn=>`<div class="prow"><span class="pk" style="color:var(--tx-3)">Phone</span><span class="pv"><a href="${telHref(pn)}">${esc(pn)}</a></span></div>`).join('')}
   ` : '<div class="idash-empty">No named contacts found yet — run 🔎 Claude Lookup to pull people, phones &amp; emails from the site and their messages.</div>';
+  const sig=(e&&e._signals)||{}, syn=(x&&x.synthesis)||{};
   return `<div class="intel-dash">
     <div class="idash-hero">
       <div class="idh-title">${fit}${esc(c.company||c.name||'Unknown')}<span class="idh-trade">${[x.trade,city].filter(Boolean).join(' · ')}</span></div>
@@ -4425,13 +4588,20 @@ function intelDashboard(c){
     ${signalsCard(e)}
     <div class="idash-tiles">${tiles}</div>
     <div class="idash-grid">
+      ${d2Icp(sig, syn)}
+      ${d2Money(c.id, traffic)}
+      ${d2List('Talking points','Claude synthesis', syn.talking_points, true)}
       ${icardD('Digital footprint','Search', `<div class="presence">${foot}</div>`)}
+      ${d2Grade(syn.website_grade)}
       ${icardD('Advertising','DataForSEO', adBody)}
       ${icardD('Website tech','Detected on-site', `<div class="techchips">${techChips}</div>${gapFlags}`)}
       ${icardD('Reputation','Google Business', rep)}
-      ${icardD('On-site engagement','First-party', eng)}
+      ${d2Owner(syn)}
+      ${d2Angles(syn.email_angles)}
+      ${d2Obj(syn.objections)}
       ${icardD('People you can reach','Claude research', `<div class="presence">${peopleBody}</div>`)}
       ${icardD('Contact &amp; location','CRM + directories', `<div class="presence">${contact||'<div class="idash-empty">—</div>'}</div>${spyGeoLine(it)}${consentToggles(c)}${agencyEditor(c)}`)}
+      ${d2Fresh(c.id, e)}
     </div>
     ${it.signal?`<div class="idash-opp">🔥 <div><b>Why they fit —</b> ${esc(it.signal)}${recoverable!=null?` <span class="opp-num">≈ ${recoverable.toLocaleString()} consented leads/mo</span> they're leaving on the table`:''}.</div></div>`:''}
   </div>`;
@@ -4446,10 +4616,11 @@ function renderTab(c){
     renderAttachChips();
   } else if(curTab==="activity"){
     b.className="tabbody";
-    b.innerHTML = `<div class="tabscroll">${activityCard(c)}${seqCard(c)}${consentCard(c)}</div>`;
+    b.innerHTML = `<div class="tabscroll">${siteEngCard(c)}${activityCard(c)}${seqCard(c)}${consentCard(c)}</div>`;
   } else if(curTab==="intel"){
     b.className="tabbody";
     b.innerHTML = `<div class="tabscroll intel-scroll">${intelDashboard(c)}</div>`;
+    d2InitDossier(c);
   } else if(curTab==="deal"){
     b.className="tabbody";
     b.innerHTML = `<div class="tabscroll">${dealTab(c)}</div>`;
