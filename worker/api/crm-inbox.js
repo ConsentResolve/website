@@ -545,8 +545,9 @@ export async function onRequestPost({ request, env }) {
       // ONE test contact that owns BOTH an email and a phone — so both the email chip and the
       // phone chip populate on both test conversations ("we know both").
       const cid = await findOrCreateContactByEmail(env, em, { name: "Aaron (test)", phone: e164, source: "test" });
-      await env.DB.prepare("UPDATE contacts SET primary_email=COALESCE(primary_email,?), phone=? WHERE id=?").bind(em, e164, cid).run().catch(() => {});
-      try { await findOrCreateContactByIdentifier(env, "phone", digits, { name: "Aaron (test)", source: "test" }); } catch (_) {}
+      // Hard-set both on the exact contact the conversations point to (COALESCE left it null
+      // when the contact pre-existed from an earlier test).
+      await env.DB.prepare("UPDATE contacts SET primary_email=?, phone=?, full_name=COALESCE(full_name,'Aaron (test)') WHERE id=?").bind(em, e164, cid).run();
       // Idempotent: clear any prior test conversations for this contact.
       await env.DB.prepare("DELETE FROM messages WHERE conversation_id IN (SELECT id FROM conversations WHERE contact_id=? AND source_detail='test')").bind(cid).run().catch(() => {});
       await env.DB.prepare("DELETE FROM conversations WHERE contact_id=? AND source_detail='test'").bind(cid).run().catch(() => {});
@@ -562,7 +563,8 @@ export async function onRequestPost({ request, env }) {
         "INSERT INTO conversations (id, contact_id, channel, source_detail, external_thread_id, subject, status, unread, last_message_at, last_message_preview, created_at) VALUES (?,?,?,?,?,?, 'open', 1, ?, ?, datetime('now'))"
       ).bind(emId, cid, "email", "test", null, "Testing the CRM", now, emPrev).run();
       await insertMessageOnce(env, { conversationId: emId, direction: "in", channel: "email", externalMessageId: "test-email:" + emId, bodyText: emPrev, sentAt: now });
-      out.contact = { id: cid, email: em, phone: e164 };
+      const rb = await env.DB.prepare("SELECT primary_email, phone FROM contacts WHERE id=?").bind(cid).first().catch(() => null);
+      out.contact = { id: cid, email: em, phone: e164, readback: rb };
       out.sms = { conversationId: smsId };
       out.email = { conversationId: emId };
     } catch (e) { out.error = String(e).slice(0, 200); }
