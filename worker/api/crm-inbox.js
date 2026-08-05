@@ -11,7 +11,7 @@ import { sendInstantlyReply } from "./crm-instantly.js";
 import { sendTestSms as sendSms } from "../_lib/stl/twilio.js";
 import { sendCrispMessage, getCrispTranscript } from "./crm-crisp.js";
 import { ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIdentifier, findOrCreateCompany, normPhone, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2, isAdmin, createTask } from "../_lib/crm-v2.js";
-import { handleGoalEvent } from "../_lib/workflow-engine.js";
+import { handleGoalEvent, enrollNurture } from "../_lib/workflow-engine.js";
 import { getByEmail } from "../_lib/db.js";
 import { progressFor } from "../_lib/demo-notify.js";
 import { addSuppression, isSuppressed, logEvent } from "../_lib/crm-rebuild.js";
@@ -169,8 +169,11 @@ async function notifyReply(env, { sentiment }) {
 async function handleInboundReply(env, { contactId, convId, text, subject }) {
   if (!contactId || !convId) return;
   const inSeq = await env.DB.prepare("SELECT 1 FROM workflow_runs WHERE contact_id=? LIMIT 1").bind(contactId).first().catch(() => null);
-  if (!inSeq) return;
-  try { await handleGoalEvent(env, { contactId, goal: "replied" }); } catch (_) {}   // ANY reply pauses
+  const inNurt = inSeq ? null : await env.DB.prepare("SELECT 1 FROM nurture_contacts WHERE contact_id=? AND status='active' LIMIT 1").bind(contactId).first().catch(() => null);
+  if (!inSeq && !inNurt) return;
+  try { await handleGoalEvent(env, { contactId, goal: "replied" }); } catch (_) {}   // ANY reply pauses sequences
+  // Any reply pauses quarterly nurture too (bad_timing re-activates it below).
+  await env.DB.prepare("UPDATE nurture_contacts SET status='paused', updated_at=datetime('now') WHERE contact_id=? AND status='active'").bind(contactId).run().catch(() => {});
   const cls = await classifyReply(env, (subject ? subject + "\n" : "") + (text || ""));
   const s = cls.sentiment;
   await addActivityV2(env, { entityType: "contact", entityId: contactId, action: "reply_classified", meta: { sentiment: s, followup: cls.followup_date || null } }).catch(() => {});
@@ -183,8 +186,9 @@ async function handleInboundReply(env, { contactId, convId, text, subject }) {
     try { await handleGoalEvent(env, { contactId, goal: "opted_out" }); } catch (_) {}
     await sysNote(env, convId, "🛑 Not interested — marked Do Not Contact and exited all sequences.");
   } else if (s === "bad_timing") {
-    await createTask(env, { contactId, conversationId: convId, type: "followup", title: "Follow up later — bad timing" + (cls.followup_date ? ` (${cls.followup_date})` : ""), body: "Timing is off. Sequence paused. Follow up" + (cls.followup_date ? ` around ${cls.followup_date}` : " next quarter") + ".", source: "automation" });
-    await sysNote(env, convId, "🕒 Bad timing — paused, follow-up task created" + (cls.followup_date ? ` (${cls.followup_date})` : "") + ".");
+    await enrollNurture(env, contactId, "bad_timing").catch(() => {});
+    await createTask(env, { contactId, conversationId: convId, type: "followup", title: "Follow up later — bad timing" + (cls.followup_date ? ` (${cls.followup_date})` : ""), body: "Timing is off. Sequence paused, added to Long-Term Nurture. Follow up" + (cls.followup_date ? ` around ${cls.followup_date}` : " next quarter") + ".", source: "automation" });
+    await sysNote(env, convId, "🕒 Bad timing — paused + added to Long-Term Nurture. Follow-up task created" + (cls.followup_date ? ` (${cls.followup_date})` : "") + ".");
   } else {
     await sysNote(env, convId, "✉️ Reply received — sequence paused. Needs a human.");
   }

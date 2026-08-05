@@ -115,7 +115,7 @@ import * as dataRecord from "./api/data-record.js";
 import * as telnyxInbound from "./api/telnyx-inbound.js";
 import * as crmAppData from "./api/crm-app-data.js";
 import * as crmSources from "./api/crm-sources.js";
-import { tick as workflowTick, runReplyTimers } from "./_lib/workflow-engine.js";
+import { tick as workflowTick, runReplyTimers, runNurture } from "./_lib/workflow-engine.js";
 import { syncSiteVisits } from "./_lib/sitespy.js";
 import { sweepDemoNotifications } from "./_lib/demo-notify.js";
 import { autoEnrichSweep } from "./_lib/apollo.js";
@@ -639,6 +639,12 @@ export default {
           console.log(`[seo-digest] ${d && d.ok ? "sent to " + d.to : "skip: " + (d && d.error)}`);
         } catch (err) { console.log(`[seo-digest] error: ${String(err).slice(0, 160)}`); }
       }
+      // Phase 3: Long-Term Nurture — once/day, quarterly value touches + seasonal sprints
+      // + hygiene archive. No-op until the engine is on.
+      try {
+        const n = await runNurture(env);
+        if (n && (n.sent || n.sprinted || n.archived)) console.log(`[nurture] sent ${n.sent || 0}, sprinted ${n.sprinted || 0}, archived ${n.archived || 0}`);
+      } catch (err) { console.log(`[nurture] error: ${String(err).slice(0, 160)}`); }
     }
 
     // Daily social drip.

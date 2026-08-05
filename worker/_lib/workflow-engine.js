@@ -79,7 +79,7 @@ async function freqCapFreeAt(env, contactId) {
   const CAP = 4, WINDOW = 30 * 86400000;
   const since = new Date(Date.now() - WINDOW).toISOString();
   const rows = (await env.DB.prepare(
-    "SELECT occurred_at FROM crm_events WHERE contact_id=? AND type IN ('email_sent','newsletter_sent','repermission_sent','reengagement_sent') AND occurred_at>=? ORDER BY occurred_at DESC LIMIT ?"
+    "SELECT occurred_at FROM crm_events WHERE contact_id=? AND type IN ('email_sent','newsletter_sent','repermission_sent','reengagement_sent','nurture_sent') AND occurred_at>=? ORDER BY occurred_at DESC LIMIT ?"
   ).bind(contactId, since, CAP).all().catch(() => ({ results: [] }))).results || [];
   if (rows.length < CAP) return 0;
   return new Date(rows[rows.length - 1].occurred_at).getTime() + WINDOW; // oldest of the last 4 frees a slot 30d later
@@ -134,6 +134,21 @@ const COLD_TO_DEMO = {
   ]),
 };
 
+// Re-engagement sprint (Phase 3) — fired when a nurture trigger hits (seasonal, manual tag,
+// or a reply). 3 touches over 2 weeks: email → call task → email. Then back to quarterly nurture.
+const REENGAGE = {
+  id: "reengage",
+  name: "Re-engagement sprint",
+  trigger: "manual_enroll",
+  goal: JSON.stringify(["replied", "booked", "opted_out"]),
+  requires_consent: JSON.stringify([]),
+  definition: JSON.stringify([
+    { channel: "email", action: "send_email", delay_minutes: 0, template: "re_1" },
+    { channel: "phone", action: "create_task", delay_minutes: 4320, task_type: "call", title: "Call {{first_name}} — re-engagement", task_body: "A trigger fired (seasonal / manual / reply). Quick call to reconnect on turning their site visitors into $7 leads." },
+    { channel: "email", action: "send_email", delay_minutes: 5760, template: "re_2" },
+  ]),
+};
+
 async function seedWorkflows(env) {
   await ensureRebuildSchema(env);
   // Code-owned workflows: keep the definition in sync from code on every seed.
@@ -147,7 +162,7 @@ async function seedWorkflows(env) {
   }
   // Editable workflows (IV): seed ONCE, then the DB definition is the source of truth so
   // cadence edits from /crm/app#sequences aren't clobbered on the next cron.
-  for (const w of [IV_WORKFLOW, COLD_TO_DEMO]) {
+  for (const w of [IV_WORKFLOW, COLD_TO_DEMO, REENGAGE]) {
     await env.DB.prepare(
       `INSERT INTO workflows (id,name,trigger,goal,definition,requires_consent,enabled)
        VALUES (?,?,?,?,?,?,1) ON CONFLICT(id) DO NOTHING`
@@ -197,6 +212,14 @@ function tpl(env, id, c) {
       subject: "should I stop",
       html: c2dShell(cv.first_name, `<p>Should I stop reaching out? No hard feelings if the timing is off.</p><p>If it is useful, I send a short monthly note on what is working in ${cv.trade} marketing. No pitch. Reply "monthly" and I will add you, and only you.</p>`, c),
     }),
+    // Long-Term Nurture — quarterly, value-led, no pitch. Rotates nt_1..nt_4.
+    nt_1: () => ({ subject: "worth knowing", html: c2dShell(cv.first_name, `<p>Quick one, no ask. For most ${cv.trade} shops, about 98% of the people who hit the website leave without ever calling. The fix isn't more traffic, it's catching the ones you already have. Just worth keeping on your radar.</p>`, c) }),
+    nt_2: () => ({ subject: "what the busy ones do", html: c2dShell(cv.first_name, `<p>Something the busier ${cv.trade} shops around ${cv.city} have figured out: a lead that already visited your site closes far more often than a cold shared lead, because they picked you first. Most shops just never capture them.</p>`, c) }),
+    nt_3: () => ({ subject: "one number to watch", html: c2dShell(cv.first_name, `<p>If you track one marketing number this quarter, make it cost per booked job, not cost per lead. A cheap lead that never books is the most expensive thing you buy. Happy to run yours sometime.</p>`, c) }),
+    nt_4: () => ({ subject: "slow-season tip", html: c2dShell(cv.first_name, `<p>Slower stretch? Good time to fix the leaky bucket. The homeowners already visiting your site are the cheapest work you'll ever get, and most leave unseen. When you want to plug that, I'm here.</p>`, c) }),
+    // Re-engagement sprint (a trigger fired) — 3 touches, warmer.
+    re_1: () => ({ subject: "circling back", html: c2dShell(cv.first_name, `<p>You mentioned the timing wasn't right a while back, so I left you alone. Figured now might be better. Still happy to show you how to turn the folks already on ${cv.company}'s site into $7 exclusive leads. Worth 15 minutes?</p>`, c) }),
+    re_2: () => ({ subject: "last try for now", html: c2dShell(cv.first_name, `<p>No worries if it's still not the moment. If turning your own website visitors into exclusive leads ever moves up the list, just reply and we'll pick it back up.</p>`, c) }),
     stl_sms1: () => ({ text: `Hi ${first}, ${c.owner || "Andy"} at ${BRAND} — we turn your website visitors into exclusive $7 leads. Want the 2-min version? Reply STOP to opt out.` }),
     stl_sms2: () => ({ text: `${first}, still happy to show you how ${BRAND} recovers the 98% of site visitors who leave without filling a form. Reply YES for a quick look. STOP to opt out.` }),
     stl_call: () => ({ script: `Hi${first !== "there" ? " " + first : ""}, this is an AI assistant calling on behalf of ${BRAND}. I'll be quick — we help home-service businesses turn the website visitors who leave without filling out a form into exclusive leads. Is now an OK time for about sixty seconds?` }),
@@ -462,7 +485,12 @@ async function stepRun(env, run, out, dry) {
     }
     // schedule the NEXT step (if any) after its delay; else complete.
     const next = steps[idx + 1];
-    if (!next) { await completeRun(env, run, "completed"); out.completed++; return; }
+    if (!next) {
+      await completeRun(env, run, "completed"); out.completed++;
+      // Finished Cold-to-Demo with zero engagement → drop into Long-Term Nurture.
+      if (run.workflow_id === "cold-to-demo") { try { if (!(await hadEngagement(env, run.contact_id, "1970-01-01T00:00:00Z"))) await enrollNurture(env, run.contact_id, "cold_to_demo_no_engagement"); } catch (_) {} }
+      return;
+    }
     let atMs = sendableAt(Date.now() + (next.delay_minutes || 0) * 60000, next.channel, env);
     // Phase 2: cold-to-demo emails land only Tue–Thu 8–11am prospect-local.
     if (run.workflow_id === "cold-to-demo" && next.action === "send_email") atMs = nextSlot(atMs, contactTz(c), coldOk);
@@ -686,8 +714,87 @@ async function runReplyTimers(env) {
   return { clickNoReply: a, calNoBooking: b };
 }
 
+// ── Phase 3: Long-Term Nurture engine ────────────────────────────────────────
+// Trade → months that trade's "season" is live (jumps a quarterly contact into a
+// re-engagement sprint). Editable; sensible defaults you can tune.
+const TRADE_SEASON = {
+  roofing: [3, 4, 5, 9, 10], hvac: [5, 6, 7, 8, 12, 1], plumbing: [11, 12, 1, 2],
+  electrical: [6, 7, 11, 12], landscaping: [3, 4, 5, 9], "lawn care": [3, 4, 5, 6],
+  "pest control": [4, 5, 6, 7], "pool service": [4, 5, 6], painting: [4, 5, 6, 9],
+  "garage door": [11, 12, 1], "septic": [3, 4, 5], "gutter": [3, 4, 9, 10],
+  "pressure washing": [3, 4, 5, 6], "tree service": [3, 4, 9, 10, 11], concrete: [4, 5, 6, 9],
+};
+let _nurtEnsured = false;
+async function ensureNurtureTable(env) {
+  if (_nurtEnsured) return;
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS nurture_contacts (
+    contact_id TEXT PRIMARY KEY, status TEXT NOT NULL DEFAULT 'active', next_touch_at TEXT,
+    last_touch_at TEXT, touches_sent INTEGER NOT NULL DEFAULT 0, no_engage_count INTEGER NOT NULL DEFAULT 0,
+    sprinted_season_month INTEGER, entered_reason TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')))`).run().catch(() => {});
+  await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_nurture_due ON nurture_contacts(status, next_touch_at)`).run().catch(() => {});
+  _nurtEnsured = true;
+}
+async function hadEngagement(env, contactId, since) {
+  const click = await env.DB.prepare("SELECT 1 FROM crm_events WHERE contact_id=? AND type IN ('link_clicked','site_visit') AND occurred_at>? LIMIT 1").bind(contactId, since).first().catch(() => null);
+  if (click) return true;
+  const reply = await env.DB.prepare("SELECT 1 FROM messages m JOIN conversations c ON c.id=m.conversation_id WHERE c.contact_id=? AND m.direction='in' AND COALESCE(m.sent_at,m.created_at)>? LIMIT 1").bind(contactId, since).first().catch(() => null);
+  return !!reply;
+}
+async function archiveNurture(env, contactId, reason) {
+  await env.DB.prepare("UPDATE nurture_contacts SET status='archived', updated_at=datetime('now') WHERE contact_id=?").bind(contactId).run().catch(() => {});
+  await logEvent(env, { type: "nurture_archived", contactId, meta: { reason } }).catch(() => {});
+}
+// Enroll a contact into quarterly nurture (from bad-timing replies or zero-engagement completions).
+async function enrollNurture(env, contactId, reason) {
+  await ensureNurtureTable(env);
+  const next = new Date(Date.now() + 90 * 86400e3).toISOString();
+  const ex = await env.DB.prepare("SELECT contact_id, status FROM nurture_contacts WHERE contact_id=?").bind(contactId).first().catch(() => null);
+  if (ex) { await env.DB.prepare("UPDATE nurture_contacts SET status='active', next_touch_at=COALESCE(next_touch_at,?), updated_at=datetime('now') WHERE contact_id=?").bind(next, contactId).run().catch(() => {}); return { ok: true, already: true }; }
+  await env.DB.prepare("INSERT INTO nurture_contacts (contact_id, status, next_touch_at, entered_reason) VALUES (?, 'active', ?, ?)").bind(contactId, next, reason || "").run().catch(() => {});
+  await logEvent(env, { type: "nurture_enrolled", contactId, meta: { reason } }).catch(() => {});
+  return { ok: true };
+}
+// Daily: send the quarterly value touch when due; seasonal in-season → sprint; hygiene archive.
+async function runNurture(env) {
+  await ensureNurtureTable(env);
+  if (!enabled(env)) return { skipped: "disabled" };
+  const nowMs = Date.now(), now = new Date(nowMs).toISOString();
+  const month = new Date(nowMs).getUTCMonth() + 1;
+  const due = (await env.DB.prepare("SELECT * FROM nurture_contacts WHERE status='active' AND next_touch_at IS NOT NULL AND next_touch_at<=? ORDER BY next_touch_at ASC LIMIT 100").bind(now).all().catch(() => ({ results: [] }))).results || [];
+  let sent = 0, archived = 0, sprinted = 0;
+  for (const row of due) {
+    const cid = row.contact_id;
+    const c = await loadContact(env, cid); if (!c || !c.email) { await archiveNurture(env, cid, "no_email"); archived++; continue; }
+    if (await isSuppressed(env, { contactId: cid, email: c.email, channel: "all" })) { await archiveNurture(env, cid, "suppressed"); archived++; continue; }
+    // Hygiene: two consecutive quarterly touches with zero clicks/replies → archive.
+    if ((row.no_engage_count || 0) >= 2) { await archiveNurture(env, cid, "cold_2q"); archived++; continue; }
+    const cv = coldVars(env, c);
+    const seasonMonths = TRADE_SEASON[String(cv.trade || "").toLowerCase()] || [];
+    // Seasonal trigger → 3-touch re-engagement sprint instead of a quarterly touch (once per season).
+    if (seasonMonths.includes(month) && row.sprinted_season_month !== month) {
+      await enrollContact(env, { contactId: cid, source: "nurture_seasonal", workflowId: "reengage" }).catch(() => {});
+      await env.DB.prepare("UPDATE nurture_contacts SET last_touch_at=?, next_touch_at=?, sprinted_season_month=?, updated_at=datetime('now') WHERE contact_id=?")
+        .bind(now, new Date(nowMs + 90 * 86400e3).toISOString(), month, cid).run().catch(() => {});
+      await logEvent(env, { type: "nurture_seasonal_sprint", contactId: cid, meta: { month, trade: cv.trade } }).catch(() => {});
+      sprinted++; continue;
+    }
+    // Quarterly value touch — rotate nt_1..nt_4. Was the prior touch engaged with?
+    const engaged = row.last_touch_at ? await hadEngagement(env, cid, row.last_touch_at) : true;
+    const tid = "nt_" + (((row.touches_sent || 0) % 4) + 1);
+    const t = tpl(env, tid, c);
+    const res = await sendResend(env, { to: c.email, subject: t.subject, html: t.html, unsubUrl: "https://consentresolve.com/api/unsubscribe?c=" + encodeURIComponent(c.id) }, !enabled(env));
+    await logEvent(env, { type: "nurture_sent", contactId: cid, channel: "email", meta: { template: tid } }).catch(() => {});
+    const newNoEngage = engaged ? 0 : ((row.no_engage_count || 0) + (row.last_touch_at ? 1 : 0));
+    await env.DB.prepare("UPDATE nurture_contacts SET last_touch_at=?, next_touch_at=?, touches_sent=touches_sent+1, no_engage_count=?, updated_at=datetime('now') WHERE contact_id=?")
+      .bind(now, new Date(nowMs + 90 * 86400e3).toISOString(), newNoEngage, cid).run().catch(() => {});
+    if (res && res.ok) sent++;
+  }
+  return { sent, archived, sprinted };
+}
+
 export {
   enabled, seedWorkflows, enrollContact, handleGoalEvent, processDueRuns,
   autoEnrollSweep, tick, sendableAt, tpl, sendTelnyxSms, sendResend, placeRetellCall,
-  runReplyTimers,
+  runReplyTimers, runNurture, enrollNurture,
 };

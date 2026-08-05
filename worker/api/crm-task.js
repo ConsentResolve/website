@@ -7,6 +7,7 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { currentUser, listTasks, createTask, completeTask } from "../_lib/crm-v2.js";
+import { enrollContact } from "../_lib/workflow-engine.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -37,6 +38,13 @@ export async function onRequestPost({ request, env }) {
     const status = ["done", "skipped", "open"].includes(b.status) ? b.status : "done";
     await completeTask(env, { id: b.id, status, outcome: b.outcome || null, actorId });
     return json({ ok: true, id: b.id, status }, {}, cors);
+  }
+
+  if (b.action === "reengage") {
+    // Manual trigger (e.g. spotted a new website launch or a review surge) → 3-touch sprint.
+    if (!b.contact_id) return json({ ok: false, error: "no_contact" }, { status: 400 }, cors);
+    const r = await enrollContact(env, { contactId: b.contact_id, source: "manual_reengage", workflowId: "reengage" }).catch((e) => ({ error: String(e) }));
+    return json({ ok: !r.error, ...r }, {}, cors);
   }
 
   if (b.action === "create") {
