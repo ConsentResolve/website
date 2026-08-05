@@ -115,7 +115,7 @@ import * as dataRecord from "./api/data-record.js";
 import * as telnyxInbound from "./api/telnyx-inbound.js";
 import * as crmAppData from "./api/crm-app-data.js";
 import * as crmSources from "./api/crm-sources.js";
-import { tick as workflowTick } from "./_lib/workflow-engine.js";
+import { tick as workflowTick, runReplyTimers } from "./_lib/workflow-engine.js";
 import { syncSiteVisits } from "./_lib/sitespy.js";
 import { sweepDemoNotifications } from "./_lib/demo-notify.js";
 import { autoEnrichSweep } from "./_lib/apollo.js";
@@ -478,6 +478,14 @@ export default {
         if (out && out.enriched) console.log(`[intel] auto-enriched ${out.enriched}/${out.scanned} lead(s) · $${out.cost_usd}`);
       } catch (err) {
         console.log(`[intel] drip error: ${String(err).slice(0, 160)}`);
+      }
+      // Phase 2: cold-to-demo no-reply/no-booking timers (engaged-no-reply → call task;
+      // demo-link-clicked-no-booking-24h → one nudge email). No-op until the engine is on.
+      try {
+        const out = await runReplyTimers(env);
+        if (out && (out.clickNoReply?.made || out.calNoBooking?.sent)) console.log(`[timers] call-tasks ${out.clickNoReply?.made || 0}, nudges ${out.calNoBooking?.sent || 0}`);
+      } catch (err) {
+        console.log(`[timers] error: ${String(err).slice(0, 160)}`);
       }
       // Instantly Website Visitors ingest DISABLED (2026-07-29): the Instantly
       // "Website Visitors" list turned out to be the HVAC cold-campaign's

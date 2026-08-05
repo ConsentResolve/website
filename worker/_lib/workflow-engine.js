@@ -47,6 +47,44 @@ function sendableAt(ms, channel, env) {
   return ms + addMins * 60000;
 }
 
+// ── Phase 2: cold-to-demo local-time windows + frequency cap ─────────────────
+// Prospect timezone approximated from US state (default Central). Not exact for the
+// rare multi-TZ state, and DST is handled by Intl.
+const STATE_TZ = {
+  CT: "America/New_York", DE: "America/New_York", FL: "America/New_York", GA: "America/New_York", IN: "America/New_York", ME: "America/New_York", MD: "America/New_York", MA: "America/New_York", MI: "America/New_York", NH: "America/New_York", NJ: "America/New_York", NY: "America/New_York", NC: "America/New_York", OH: "America/New_York", PA: "America/New_York", RI: "America/New_York", SC: "America/New_York", VT: "America/New_York", VA: "America/New_York", WV: "America/New_York", DC: "America/New_York",
+  AL: "America/Chicago", AR: "America/Chicago", IL: "America/Chicago", IA: "America/Chicago", KS: "America/Chicago", KY: "America/Chicago", LA: "America/Chicago", MN: "America/Chicago", MS: "America/Chicago", MO: "America/Chicago", NE: "America/Chicago", ND: "America/Chicago", OK: "America/Chicago", SD: "America/Chicago", TN: "America/Chicago", TX: "America/Chicago", WI: "America/Chicago",
+  AZ: "America/Phoenix", CO: "America/Denver", MT: "America/Denver", NM: "America/Denver", UT: "America/Denver", WY: "America/Denver", ID: "America/Denver",
+  CA: "America/Los_Angeles", NV: "America/Los_Angeles", OR: "America/Los_Angeles", WA: "America/Los_Angeles",
+  AK: "America/Anchorage", HI: "Pacific/Honolulu",
+};
+function contactTz(c) {
+  const en = (c && c._enrich) || {}; const sig = en._signals || {};
+  let st = String(sig.region || sig.state || en.region || en.state || (c && c.region) || "").trim().toUpperCase();
+  if (st.length !== 2) { const m = st.match(/\b([A-Z]{2})\b/); st = m ? m[1] : ""; }
+  return STATE_TZ[st] || "America/Chicago";
+}
+function localParts(ms, tz) {
+  const p = new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday: "short", hour: "numeric", minute: "numeric", hour12: false }).formatToParts(new Date(ms));
+  const wd = p.find((x) => x.type === "weekday").value, hh = Number(p.find((x) => x.type === "hour").value) % 24, mm = Number(p.find((x) => x.type === "minute").value);
+  const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  return { dow: map[wd] != null ? map[wd] : 1, mins: hh * 60 + mm };
+}
+function nextSlot(ms, tz, ok) { let t = ms; for (let i = 0; i < 48 * 15; i++) { if (ok(localParts(t, tz))) return t; t += 30 * 60000; } return t; }
+const coldOk = (p) => p.dow >= 2 && p.dow <= 4 && p.mins >= 480 && p.mins < 660;                                  // Tue–Thu 8:00–10:59
+const callOk = (p) => p.dow >= 1 && p.dow <= 5 && ((p.mins >= 480 && p.mins < 600) || (p.mins >= 960 && p.mins < 1050)); // Mon–Fri 8–10 / 4:00–5:30
+
+// Frequency cap: ≤4 automated emails / 30d across ALL sequences (workflow + newsletter,
+// NOT human 1:1 replies). Returns 0 if a slot is free now, else the epoch-ms a slot opens.
+async function freqCapFreeAt(env, contactId) {
+  const CAP = 4, WINDOW = 30 * 86400000;
+  const since = new Date(Date.now() - WINDOW).toISOString();
+  const rows = (await env.DB.prepare(
+    "SELECT occurred_at FROM crm_events WHERE contact_id=? AND type IN ('email_sent','newsletter_sent','repermission_sent','reengagement_sent') AND occurred_at>=? ORDER BY occurred_at DESC LIMIT ?"
+  ).bind(contactId, since, CAP).all().catch(() => ({ results: [] }))).results || [];
+  if (rows.length < CAP) return 0;
+  return new Date(rows[rows.length - 1].occurred_at).getTime() + WINDOW; // oldest of the last 4 frees a slot 30d later
+}
+
 // ---- Default workflow definitions ----------------------------------------
 const SPEED_TO_LEAD = {
   id: "speed-to-lead",
@@ -293,7 +331,9 @@ async function enrollContact(env, { contactId, conversationId, dealId, source, w
   const runId = ulid();
   const def = JSON.parse((await env.DB.prepare("SELECT definition FROM workflows WHERE id=?").bind(workflowId).first())?.definition || "[]");
   const firstDelay = (def[0]?.delay_minutes || 0);
-  const nextAt = new Date(sendableAt(Date.now() + firstDelay * 60000, def[0]?.channel, env)).toISOString();
+  let firstMs = sendableAt(Date.now() + firstDelay * 60000, def[0]?.channel, env);
+  if (workflowId === "cold-to-demo" && def[0]?.action === "send_email") firstMs = nextSlot(firstMs, contactTz(c), coldOk);
+  const nextAt = new Date(firstMs).toISOString();
   await env.DB.prepare(
     `INSERT INTO workflow_runs (id,workflow_id,contact_id,conversation_id,deal_id,status,current_step,next_run_at)
      VALUES (?,?,?,?,?, 'active', 0, ?)`
@@ -391,6 +431,18 @@ async function stepRun(env, run, out, dry) {
       }
     }
 
+    // Frequency cap (Phase 2): ≤4 automated emails / 30d across all sequences. Defer the
+    // whole run past the window rather than dropping the touch.
+    if (step.action === "send_email" && !dry) {
+      const freeAt = await freqCapFreeAt(env, run.contact_id);
+      if (freeAt > Date.now() + 60000) {
+        await logStep(env, run, idx, ch, step.action, "deferred", "freq_cap");
+        await logEvent(env, { type: "freq_capped", contactId: run.contact_id, workflowRunId: run.id, meta: { step: idx, retry_at: new Date(freeAt).toISOString() } });
+        await scheduleAt(env, run, idx, new Date(freeAt).toISOString());
+        out.deferred++; return;
+      }
+    }
+
     // Execute the action.
     const res = await executeStep(env, run, c, step, idx, out, dry);
     if (res === "exit") return;
@@ -411,8 +463,10 @@ async function stepRun(env, run, out, dry) {
     // schedule the NEXT step (if any) after its delay; else complete.
     const next = steps[idx + 1];
     if (!next) { await completeRun(env, run, "completed"); out.completed++; return; }
-    const at = new Date(sendableAt(Date.now() + (next.delay_minutes || 0) * 60000, next.channel, env)).toISOString();
-    await scheduleAt(env, run, idx + 1, at);
+    let atMs = sendableAt(Date.now() + (next.delay_minutes || 0) * 60000, next.channel, env);
+    // Phase 2: cold-to-demo emails land only Tue–Thu 8–11am prospect-local.
+    if (run.workflow_id === "cold-to-demo" && next.action === "send_email") atMs = nextSlot(atMs, contactTz(c), coldOk);
+    await scheduleAt(env, run, idx + 1, new Date(atMs).toISOString());
     return; // one action per tick per run
   }
   await completeRun(env, run, "completed"); out.completed++;
@@ -436,8 +490,10 @@ async function executeStep(env, run, c, step, idx, out, dry) {
     const title = fill(step.title || "Follow-up", cv);
     const body = fill(step.task_body || "", cv);
     if (live) {
+      // Call tasks get due-dated into the next call window (Mon–Fri 8–10 / 4–5:30 local).
+      const due = step.task_type === "call" ? new Date(nextSlot(Date.now(), contactTz(c), callOk)).toISOString() : new Date().toISOString();
       await createTask(env, { contactId: run.contact_id, conversationId: run.conversation_id, companyId: c.company_id || null,
-        type: step.task_type || "manual", title, body, dueAt: new Date().toISOString(), source: "sequence", workflowRunId: run.id });
+        type: step.task_type || "manual", title, body, dueAt: due, source: "sequence", workflowRunId: run.id });
     }
     await logStep(env, run, idx, step.channel, "create_task", live ? "created" : "preview", title);
     await logEvent(env, { type: live ? "task_created" : "sequence_step_completed", contactId: run.contact_id, conversationId: run.conversation_id, workflowRunId: run.id, channel: step.channel, meta: { step: idx, type: step.task_type || "manual", title, preview: !live || undefined } });
@@ -572,7 +628,66 @@ async function tick(env) {
   return { autoEnroll: a, process: p };
 }
 
+// ── Phase 2: no-reply / no-booking timer sweeps (run on the */5 cron) ────────
+// A cold-to-demo contact who clicked/visited but hasn't replied → a call task next
+// business day. Idempotent (skips if a call task was made in the last 3 days).
+async function sweepClickNoReply(env) {
+  if (!enabled(env)) return { skipped: "disabled" };
+  const dayAgo = new Date(Date.now() - 24 * 3600e3).toISOString();
+  const rows = (await env.DB.prepare(
+    `SELECT DISTINCT r.contact_id, r.conversation_id FROM workflow_runs r
+      WHERE r.workflow_id='cold-to-demo' AND r.status='active'
+        AND EXISTS (SELECT 1 FROM crm_events e WHERE e.contact_id=r.contact_id AND e.type IN ('link_clicked','site_visit') AND e.occurred_at>=?)`
+  ).bind(dayAgo).all().catch(() => ({ results: [] }))).results || [];
+  let made = 0;
+  for (const row of rows) {
+    const cid = row.contact_id; if (!cid) continue;
+    const replied = await env.DB.prepare("SELECT 1 FROM messages m JOIN conversations c ON c.id=m.conversation_id WHERE c.contact_id=? AND m.direction='in' AND COALESCE(m.sent_at,m.created_at)>=? LIMIT 1").bind(cid, dayAgo).first().catch(() => null);
+    if (replied) continue;
+    const recent = await env.DB.prepare("SELECT 1 FROM crm_tasks WHERE contact_id=? AND type='call' AND created_at>=? LIMIT 1").bind(cid, new Date(Date.now() - 3 * 86400e3).toISOString()).first().catch(() => null);
+    if (recent) continue;
+    const c = await loadContact(env, cid); if (!c) continue;
+    const due = new Date(nextSlot(Date.now() + 86400e3, contactTz(c), callOk)).toISOString();
+    await createTask(env, { contactId: cid, conversationId: row.conversation_id, type: "call", title: "Call — engaged, no reply", body: "They clicked a link or visited the site but haven't replied. Give them a quick call.", dueAt: due, source: "automation" });
+    await logEvent(env, { type: "noreply_calltask", contactId: cid, meta: {} }).catch(() => {});
+    made++;
+  }
+  return { made };
+}
+// Clicked the Email-4 calendar link ≥24h ago but never booked (and never replied) → one nudge.
+async function sweepCalNoBooking(env) {
+  const dry = !enabled(env);
+  const lo = new Date(Date.now() - 7 * 86400e3).toISOString(), hi = new Date(Date.now() - 24 * 3600e3).toISOString();
+  const rows = (await env.DB.prepare(
+    `SELECT DISTINCT contact_id FROM crm_events WHERE type='link_clicked' AND occurred_at>=? AND occurred_at<=? AND (meta LIKE '%c2d_4%' OR meta LIKE '%cold_to_demo%')`
+  ).bind(lo, hi).all().catch(() => ({ results: [] }))).results || [];
+  let sent = 0;
+  for (const row of rows) {
+    const cid = row.contact_id; if (!cid) continue;
+    const ct = await env.DB.prepare("SELECT lifecycle_stage FROM contacts WHERE id=?").bind(cid).first().catch(() => null);
+    if (ct && ct.lifecycle_stage === "meeting_booked") continue;
+    const replied = await env.DB.prepare("SELECT 1 FROM messages m JOIN conversations c ON c.id=m.conversation_id WHERE c.contact_id=? AND m.direction='in' LIMIT 1").bind(cid).first().catch(() => null);
+    if (replied) continue;
+    const nudged = await env.DB.prepare("SELECT 1 FROM crm_events WHERE contact_id=? AND type='demo_nudge_sent' LIMIT 1").bind(cid).first().catch(() => null);
+    if (nudged) continue;
+    const c = await loadContact(env, cid); if (!c || !c.email) continue;
+    if (await isSuppressed(env, { contactId: cid, email: c.email, channel: "all" })) continue;
+    const cv = coldVars(env, c);
+    const html = c2dShell(cv.first_name, `<p>Saw you grabbed a look at some times — anything I can answer before you pick one?</p><p>Happy to keep it to 15 minutes.</p>`, c);
+    const res = await sendResend(env, { to: c.email, subject: "anything I can answer?", html, unsubUrl: "https://consentresolve.com/api/unsubscribe?c=" + encodeURIComponent(c.id) }, dry);
+    await logEvent(env, { type: "demo_nudge_sent", contactId: cid, meta: { dry: dry || undefined } }).catch(() => {});
+    if (res && res.ok && !dry) sent++;
+  }
+  return { sent, dry };
+}
+async function runReplyTimers(env) {
+  const a = await sweepClickNoReply(env).catch((e) => ({ error: String(e).slice(0, 80) }));
+  const b = await sweepCalNoBooking(env).catch((e) => ({ error: String(e).slice(0, 80) }));
+  return { clickNoReply: a, calNoBooking: b };
+}
+
 export {
   enabled, seedWorkflows, enrollContact, handleGoalEvent, processDueRuns,
   autoEnrollSweep, tick, sendableAt, tpl, sendTelnyxSms, sendResend, placeRetellCall,
+  runReplyTimers,
 };
