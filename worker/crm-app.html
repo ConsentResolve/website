@@ -4472,7 +4472,8 @@ function signalsCard(e){
   if(S.has_form===false) chips.push(`<span class="sig hot">⚡ No lead-capture form — paying for traffic, catching none</span>`);
   else if(S.has_form===true) chips.push(`<span class="sig">Has a lead form</span>`);
   if(S.trade) chips.push(`<span class="sig">🔧 ${esc(S.trade)}</span>`);
-  if(S.traffic_month!=null) chips.push(`<span class="sig">📈 ${(+S.traffic_month).toLocaleString()} visits/mo</span>`);
+  if(S.google_screened===true) chips.push(`<span class="sig hot">✓ Google Screened</span>`);
+  if(S.traffic_month!=null) chips.push(`<span class="sig">📈 ${(+S.traffic_month).toLocaleString()} visits/mo${(S.organic_traffic!=null||S.paid_traffic!=null)?` (${(+(S.organic_traffic||0)).toLocaleString()} organic · ${(+(S.paid_traffic||0)).toLocaleString()} paid)`:''}</span>`);
   if(S.ad_spend_low!=null) chips.push(`<span class="sig">💸 ~$${(+S.ad_spend_low).toLocaleString()}–${(+S.ad_spend_high).toLocaleString()}/mo ads</span>`);
   if(S.chat===false) chips.push(`<span class="sig">💬 No live chat</span>`);
   if(S.rating!=null) chips.push(`<span class="sig">⭐ ${S.rating}${S.reviews?` (${S.reviews})`:''}</span>`);
@@ -4629,11 +4630,46 @@ function d2Obj(list){
   return icardD('Objection prep','Claude synthesis', body);
 }
 function d2Fresh(id, e){
-  const when=e&&e._looked_up_at?d2ago(e._looked_up_at):'never';
+  const f=(e&&e._signals&&e._signals.freshness)||{};
+  const map=[['claude','Profile'],['traffic','Traffic'],['backlinks','Authority'],['tech','Tech']];
+  let rows=map.filter(([k])=>f[k]).map(([k,lbl])=>`<span class="ok">● <b>${lbl}</b> ${esc(d2ago(f[k]))}</span>`);
+  if(!rows.length && e&&e._looked_up_at) rows=[`<span class="ok">● <b>Enriched</b> ${esc(d2ago(e._looked_up_at))}</span>`];
   const cost=e&&e._last_cost!=null?`<span>● <b>Last cost</b> $${(+e._last_cost).toFixed(4)}</span>`:'';
-  const body=`<div class="d2-fresh"><span class="ok">● <b>Enriched</b> ${esc(when)}</span>${cost}</div>`;
-  return `<div class="icard full"><div class="icard-h"><h4>Signal freshness</h4><button class="ilook-btn free" onclick="runLookup('${id}','all',event)" style="padding:5px 12px">↻ Re-enrich</button></div>${body}</div>`;
+  const body=`<div class="d2-fresh">${rows.join('')||'<span>not enriched yet</span>'}${cost}</div>`;
+  return `<div class="icard full"><div class="icard-h"><h4>Signal freshness</h4><div style="display:flex;gap:6px">
+    <button class="ilook-btn" onclick="d2CopyDossier('${id}',event)" style="padding:5px 12px">⧉ Copy dossier</button>
+    <button class="ilook-btn free" onclick="runLookup('${id}','all',event)" style="padding:5px 12px">↻ Re-enrich</button></div></div>${body}</div>`;
 }
+function d2Authority(sig){
+  const a=sig&&sig.authority; if(!a||(a.rank==null&&a.referring_domains==null)) return '';
+  const body=`<div class="presence">
+    ${a.rank!=null?idRow('ok','Domain rank',String(a.rank)):''}
+    ${a.referring_domains!=null?idRow('ok','Referring domains',a.referring_domains.toLocaleString()):''}
+    ${a.backlinks!=null?idRow('off','Total backlinks',a.backlinks.toLocaleString()):''}
+    ${a.spam_score!=null?idRow(a.spam_score>30?'no':'ok','Spam score',a.spam_score+' / 100'):''}
+  </div>`;
+  return icardD('Domain authority','DataForSEO backlinks', body);
+}
+function d2CopyDossier(id,ev){ if(ev)ev.stopPropagation();
+  const e=(window.ENRICH||{})[id]||{}, x=(window.INTEL||{})[id]||{}, d=(window.DIRECTORY||{})[id]||{}, s=e._signals||{}, syn=x.synthesis||{};
+  const L=[]; L.push('# '+(e.company_name||s.company_name||d.owner||'Lead')+(x.trade?(' — '+x.trade):''));
+  if(e.website&&e.website.domain) L.push(e.website.domain);
+  if(x.brief) L.push('\n'+x.brief);
+  if(s.icp) L.push('\nICP fit: '+s.icp.score+'/100 ('+String(s.icp.tier||'').toUpperCase()+')');
+  if(s.traffic_month) L.push('Traffic: '+s.traffic_month.toLocaleString()+'/mo'+(s.organic_traffic!=null?(' ('+s.organic_traffic.toLocaleString()+' organic · '+(s.paid_traffic||0).toLocaleString()+' paid)'):''));
+  if(s.ad_spend_low) L.push('Ad spend: ~$'+s.ad_spend_low.toLocaleString()+'–$'+s.ad_spend_high.toLocaleString()+'/mo');
+  if((s.marketplaces||[]).length) L.push('Marketplaces: '+s.marketplaces.join(', '));
+  if(s.authority) L.push('Domain authority: rank '+s.authority.rank+' · '+s.authority.referring_domains+' referring domains · spam '+s.authority.spam_score);
+  if(syn.website_grade) L.push('\nWebsite grade: '+syn.website_grade.overall+(syn.website_grade.notes?(' — '+syn.website_grade.notes.replace(/\*\*/g,'')):''));
+  if((syn.talking_points||[]).length) L.push('\nTalking points:\n'+syn.talking_points.map(t=>'• '+String(t).replace(/\*\*/g,'')).join('\n'));
+  if((syn.email_angles||[]).length) L.push('\nEmail angles:\n'+syn.email_angles.map(a=>'• '+(a.label?a.label+': ':'')+a.body).join('\n'));
+  if((syn.objections||[]).length) L.push('\nObjections:\n'+syn.objections.map(o=>'• "'+o.objection+'" → '+o.response).join('\n'));
+  const txt=L.join('\n');
+  const ok=()=>{ if(window.crmToast)crmToast('Dossier copied to clipboard'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok,()=>{if(window.crmToast)crmToast('Copy blocked by browser');});
+  else { try{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); ok(); }catch(_){ if(window.crmToast)crmToast('Copy failed'); } }
+}
+window.d2CopyDossier=d2CopyDossier;
 function d2InitDossier(c){
   requestAnimationFrame(()=>{
     document.querySelectorAll('.d2-icpfill').forEach(el=>{ el.style.height=(el.dataset.h||0)+'%'; });
@@ -4698,14 +4734,19 @@ function intelDashboard(c){
     idRow(e.facebook?'ok':'no','Facebook', e.facebook?`@${e.facebook.handle}${e.facebook.ads_live>0?' · '+e.facebook.ads_live+' ads live':' · '+fmtK(e.facebook.followers)+' followers'}`:'not found', e.facebook?'https://facebook.com/'+e.facebook.handle:null),
     idRow(d.linkedin?'ok':'off','LinkedIn', d.linkedin||'not found', d.linkedin?'https://linkedin.com/company/'+d.linkedin:null),
     idRow(d.instagram?'ok':'off','Instagram', d.instagram||'not found', d.instagram?'https://instagram.com/'+d.instagram:null),
-    idRow(d.tiktok?'ok':'off','TikTok', d.tiktok||'not found', d.tiktok?'https://tiktok.com/@'+d.tiktok:null)
+    idRow(d.tiktok?'ok':'off','TikTok', d.tiktok||'not found', d.tiktok?'https://tiktok.com/@'+d.tiktok:null),
+    (x.directories&&x.directories.yelp)?idRow('ok','Yelp','profile',x.directories.yelp):'',
+    (x.directories&&x.directories.nextdoor)?idRow('ok','Nextdoor','recommended',x.directories.nextdoor):'',
+    (x.directories&&x.directories.youtube&&!d.youtube)?idRow('ok','YouTube','channel',x.directories.youtube):'',
+    (x.directories&&x.directories.bbb)?idRow('ok','BBB','accredited',x.directories.bbb):'',
+    x.site_health?idRow(x.site_health.ssl===false?'no':'ok','Site health', [x.site_health.ssl?'SSL':(x.site_health.ssl===false?'no SSL':''), x.site_health.mobile_ready?'mobile-ready':(x.site_health.mobile_ready===false?'not mobile-ready':''), x.site_health.blog_last_updated?('blog: '+x.site_health.blog_last_updated):''].filter(Boolean).join(' · ')||'checked', null):''
   ].join('');
   const adBody = e.spend_high>0 ? `
     <div class="ad-total">$${e.spend_low.toLocaleString()}–${e.spend_high.toLocaleString()}<span> /mo</span></div>
-    <div class="ad-ch">${e.spend_channels.map(ch=>`<span class="techchip">${ch}</span>`).join('')}</div>
+    <div class="ad-ch">${(e.spend_channels||[]).map(ch=>`<span class="techchip">${ch}</span>`).join('')}</div>
     ${idRow(e.facebook&&e.facebook.ads_live>0?'ok':'off','Facebook ads', e.facebook&&e.facebook.ads_live>0?e.facebook.ads_live+' live now':'none live', null)}
-    ${idRow(e.ads.google?'ok':'off','Google Ads', e.ads.google?'running':'not running', null)}
-    ${idRow(e.ads.lsa?'ok':'off','Local Svc Ads', e.ads.lsa?'running':'not running', null)}`
+    ${idRow((e.ads||{}).google?'ok':'off','Google Ads', (e.ads||{}).google?'running':'not running', null)}
+    ${idRow((e.ads||{}).lsa?'ok':'off','Local Svc Ads', (e.ads||{}).lsa?'running':'not running', null)}`
     : `<div class="idash-empty">Not running paid ads right now — an organic-first opportunity.</div>`;
   const techChips=(x.tech||[]).map(t=>`<span class="techchip">${esc(t)}</span>`).join('') || `<span class="idash-empty">No technologies detected.</span>`;
   const gaps=[];
@@ -4754,6 +4795,7 @@ function intelDashboard(c){
       ${icardD('Advertising','DataForSEO', adBody)}
       ${icardD('Website tech','Detected on-site', `<div class="techchips">${techChips}</div>${gapFlags}`)}
       ${icardD('Reputation','Google Business', rep)}
+      ${d2Authority(sig)}
       ${d2Owner(syn)}
       ${d2Angles(syn.email_angles)}
       ${d2Obj(syn.objections)}

@@ -153,8 +153,13 @@ Return STRICT JSON only, no prose:
   "email_angles": [{"label":"<short angle name>","body":"<1-2 sentence cold-email opener, personalized to THIS business, in a plain, human voice>"}],
   "objections": [{"objection":"<a likely objection in the owner's words>","response":"<concise, honest rebuttal in Consent Resolve's voice>"}],
   "owner_story": "<2-4 sentence rapport paragraph about the owner/company from the site — origin story, values, community ties, brand voice — for building genuine rapport. null if nothing found. Mark anything uncertain; do not invent.>",
-  "owner_hooks": ["<short conversational hooks: sponsorships, origin story, shop mascot, sports team, faith/family, years in business — for rapport>"]
+  "owner_hooks": ["<short conversational hooks: sponsorships, origin story, shop mascot, sports team, faith/family, years in business — for rapport>"],
+  "google_screened": <true|false|null>,
+  "directories": {"yelp":"<Yelp profile URL if linked, else null>","nextdoor":"<Nextdoor URL if linked, else null>","bbb":"<BBB URL if linked, else null>","youtube":"<YouTube channel URL if linked, else null>"},
+  "site_health": {"ssl": <true|false|null>, "mobile_ready": <true|false|null>, "blog_last_updated": "<the most recent visible blog/news post date, or null>"}
 }
+
+Only report google_screened=true if you actually see a "Google Screened" or "Google Guaranteed" badge. For directories, only include a URL you can see linked on the site. For site_health, ssl=true if the pages loaded over https, mobile_ready from a responsive/viewport meta, blog_last_updated only if a real date is visible.
 
 CONSENT RESOLVE CONTEXT (keep talking_points/email_angles/objections accurate to this — do not overstate): We identify a contractor's OWN anonymous website visitors WITH their consent and hand back the name + email as an EXCLUSIVE lead at a flat $7 each, never resold. Consent-first (visitors opt in), it sits on top of their existing ads/funnel and installs in ~10 minutes. Honest math: ~75% of visitors consent, ~22-25% of those resolve, so ~16-19% of total visitors become identifiable leads. NEVER promise a close rate, ROI, or a specific dollar outcome. The core wedge: recover the ~97% of paid traffic that leaves the site unidentified.
 
@@ -308,6 +313,11 @@ export async function enrichLead(env, { contactId, website, mode, actorId, force
       if (d.socials && typeof d.socials === "object") for (const k of ["facebook", "instagram", "linkedin", "tiktok", "youtube"]) if (d.socials[k] && !parsed.directory[k]) parsed.directory[k] = d.socials[k];
       // #3 agency detection — cached so the Agency tab can read/flag it.
       if (d.agency_managed != null || d.agency_name) parsed.intel.agency = { managed: !!d.agency_managed, name: d.agency_name || null, detected_at: new Date().toISOString() };
+      // Additional site-observable data points.
+      if (typeof d.google_screened === "boolean") parsed.intel.google_screened = d.google_screened;
+      if (d.directories && typeof d.directories === "object") parsed.intel.directories = Object.assign({}, parsed.intel.directories || {}, d.directories);
+      if (d.site_health && typeof d.site_health === "object") parsed.intel.site_health = Object.assign({}, parsed.intel.site_health || {}, d.site_health);
+      (parsed.intel.freshness = parsed.intel.freshness || {}).claude = new Date().toISOString();
       // Dossier synthesis — the salesperson-facing narrative fields (website grade, talking
       // points, email angles, objections, owner rapport). Kept under intel.synthesis so the
       // Intel tab renders them and re-running the paid lookup never wipes them.
@@ -344,19 +354,27 @@ export async function enrichLead(env, { contactId, website, mode, actorId, force
         breakdown.push({ source: "DataForSEO (traffic + ad spend)", cost: dfs.cost, ok: true });
         const dd = dfs.data || {};
         if (dd.traffic_month != null) parsed.enrich.traffic_month = dd.traffic_month;
+        if (dd.organic_traffic != null) parsed.enrich.organic_traffic = dd.organic_traffic;
+        if (dd.paid_traffic != null) parsed.enrich.paid_traffic = dd.paid_traffic;
         if (dd.ad_spend != null && dd.ad_spend > 0) { parsed.enrich.spend_low = Math.round(dd.ad_spend * 0.8); parsed.enrich.spend_high = Math.round(dd.ad_spend * 1.2); parsed.enrich.spend_channels = ["Google Ads"]; }
         if (dd.paid_keywords != null) { parsed.enrich.ads = { ...(parsed.enrich.ads || {}), google: dd.paid_keywords > 0 }; parsed.enrich.running_ads = dd.paid_keywords > 0; }
         if (dd.organic_keywords != null) parsed.enrich.organic_keywords = dd.organic_keywords;
+        (parsed.intel.freshness = parsed.intel.freshness || {}).traffic = new Date().toISOString();
       } else {
         breakdown.push({ source: "DataForSEO", cost: dfs.cost || 0, ok: false, note: dfs.error || "no data returned for this domain" });
       }
-      // #1 highest-intent signal: lead-marketplace backlinks = already buying shared leads.
+      // #1 highest-intent signal: lead-marketplace backlinks = already buying shared leads. Also
+      // returns Domain Authority (rank / referring domains / spam score) in the same step.
       const bl = await dfsBacklinks(env, domain);
-      if (bl.used) { breakdown.push({ source: "DataForSEO backlinks", cost: bl.cost, ok: true }); parsed.enrich.marketplaces = bl.marketplaces; parsed.enrich.pays_per_lead = bl.marketplaces.length > 0; }
-      else breakdown.push({ source: "DataForSEO backlinks", cost: bl.cost || 0, ok: false, note: bl.error });
+      if (bl.used) {
+        breakdown.push({ source: "DataForSEO backlinks + authority", cost: bl.cost, ok: true });
+        parsed.enrich.marketplaces = bl.marketplaces; parsed.enrich.pays_per_lead = bl.marketplaces.length > 0;
+        if (bl.authority) parsed.enrich.authority = bl.authority;
+        (parsed.intel.freshness = parsed.intel.freshness || {}).backlinks = new Date().toISOString();
+      } else breakdown.push({ source: "DataForSEO backlinks", cost: bl.cost || 0, ok: false, note: bl.error });
       // Marketing-maturity tech stack (call tracking, pixels, field CRM, competitor identity pixels).
       const tk = await dfsTech(env, domain);
-      if (tk.used) { breakdown.push({ source: "DataForSEO technologies", cost: tk.cost, ok: true }); parsed.intel.tech_hits = tk.hits; if (tk.all && tk.all.length) parsed.intel.tech = [...new Set([...(parsed.intel.tech || []), ...tk.all])].slice(0, 30); }
+      if (tk.used) { breakdown.push({ source: "DataForSEO technologies", cost: tk.cost, ok: true }); parsed.intel.tech_hits = tk.hits; if (tk.all && tk.all.length) parsed.intel.tech = [...new Set([...(parsed.intel.tech || []), ...tk.all])].slice(0, 30); (parsed.intel.freshness = parsed.intel.freshness || {}).tech = new Date().toISOString(); }
       else breakdown.push({ source: "DataForSEO technologies", cost: tk.cost || 0, ok: false, note: tk.error });
     } else {
       breakdown.push({ source: "DataForSEO", cost: 0, ok: false, note: "DATAFORSEO_LOGIN / DATAFORSEO_PASSWORD not set" });
@@ -384,10 +402,17 @@ export async function enrichLead(env, { contactId, website, mode, actorId, force
     tech: it.tech || [],
     pixels: en.pixels || [],
     traffic_month: en.traffic_month != null ? en.traffic_month : null,
+    organic_traffic: en.organic_traffic != null ? en.organic_traffic : null,
+    paid_traffic: en.paid_traffic != null ? en.paid_traffic : null,
     ad_spend_low: en.spend_low != null ? en.spend_low : null,
     ad_spend_high: en.spend_high != null ? en.spend_high : null,
+    authority: en.authority || null,
     rating: en.gmb ? en.gmb.rating : null,
     reviews: en.gmb ? en.gmb.reviews : null,
+    google_screened: it.google_screened != null ? it.google_screened : null,
+    directories: it.directories || null,
+    site_health: it.site_health || null,
+    freshness: it.freshness || null,
     brief: it.brief || null,
     // reachable people + the richer profile from the Claude research pass
     contacts: di.contacts || [],

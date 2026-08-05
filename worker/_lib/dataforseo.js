@@ -30,8 +30,12 @@ export async function dataforseoLookup(env, domain) {
     const item = j.tasks && j.tasks[0] && j.tasks[0].result && j.tasks[0].result[0] && j.tasks[0].result[0].items && j.tasks[0].result[0].items[0];
     const m = (item && item.metrics) || {};
     const org = m.organic || {}, paid = m.paid || {};
+    const orgT = org.etv != null ? Math.round(org.etv) : null;
+    const paidT = paid.etv != null ? Math.round(paid.etv) : null;
     return { used: true, cost, data: {
-      traffic_month: org.etv != null ? Math.round(org.etv) : null,           // estimated monthly organic visits
+      traffic_month: (orgT != null || paidT != null) ? (orgT || 0) + (paidT || 0) : null,  // total estimated monthly visits
+      organic_traffic: orgT,                                                    // organic split
+      paid_traffic: paidT,                                                      // paid split
       ad_spend: paid.estimated_paid_traffic_cost != null ? Math.round(paid.estimated_paid_traffic_cost) : null,
       organic_keywords: org.count != null ? org.count : null,
       paid_keywords: paid.count != null ? paid.count : null,
@@ -42,21 +46,40 @@ export async function dataforseoLookup(env, domain) {
 // Lead marketplaces — a live backlink to one usually means they're buying shared leads ($60–300).
 export const MARKETPLACES = ["angi.com", "homeadvisor.com", "thumbtack.com", "porch.com", "networx.com", "modernize.com", "houzz.com", "buildzoom.com", "bark.com", "yelp.com", "nextdoor.com"];
 
-// ── Stage 3: which lead marketplaces they link to. The #1 "raises hand for $7/lead" signal.
+// ── Stage 3: which lead marketplaces they link to (#1 "raises hand for $7/lead" signal) PLUS
+//   Domain Authority (rank, referring domains, spam score) from the backlinks summary — two
+//   calls in one step so the dossier gets both without another round-trip.
 export async function dfsBacklinks(env, domain) {
   if (!dfsConfigured(env)) return { used: false, cost: 0 };
+  let cost = 0, marketplaces = [], authority = null;
   try {
     const r = await fetch("https://api.dataforseo.com/v3/backlinks/referring_domains/live", {
       method: "POST", headers: { Authorization: dfsAuth(env), "Content-Type": "application/json" },
       body: JSON.stringify([{ target: domain, limit: 1000, order_by: ["backlinks,desc"] }]),
     });
     const j = await r.json();
-    const cost = Number(j.cost || 0);
+    cost += Number(j.cost || 0);
     const items = (j.tasks && j.tasks[0] && j.tasks[0].result && j.tasks[0].result[0] && j.tasks[0].result[0].items) || [];
     const refs = items.map((i) => String(i.domain || "").toLowerCase().replace(/^www\./, ""));
-    const marketplaces = MARKETPLACES.filter((m) => refs.some((d) => d === m || d.endsWith("." + m)));
-    return { used: true, cost, marketplaces };
-  } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
+    marketplaces = MARKETPLACES.filter((m) => refs.some((d) => d === m || d.endsWith("." + m)));
+  } catch (e) { return { used: false, cost, error: String(e).slice(0, 120) }; }
+  // Domain Authority summary — rank / referring domains / backlinks / spam score.
+  try {
+    const r2 = await fetch("https://api.dataforseo.com/v3/backlinks/summary/live", {
+      method: "POST", headers: { Authorization: dfsAuth(env), "Content-Type": "application/json" },
+      body: JSON.stringify([{ target: domain, internal_list_limit: 1, backlinks_status_type: "live" }]),
+    });
+    const j2 = await r2.json();
+    cost += Number(j2.cost || 0);
+    const s = j2.tasks && j2.tasks[0] && j2.tasks[0].result && j2.tasks[0].result[0];
+    if (s) authority = {
+      rank: s.rank != null ? s.rank : null,
+      referring_domains: s.referring_domains != null ? s.referring_domains : null,
+      backlinks: s.backlinks != null ? s.backlinks : null,
+      spam_score: s.backlinks_spam_score != null ? s.backlinks_spam_score : null,
+    };
+  } catch (_) { /* authority is best-effort; marketplaces already captured */ }
+  return { used: true, cost, marketplaces, authority };
 }
 
 // ── Stage 1: domain technologies → marketing-maturity signals (call tracking, pixels, field CRM,
