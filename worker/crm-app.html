@@ -2383,8 +2383,11 @@ document.body.insertAdjacentHTML('beforeend', `
 document.getElementById('remindmodal').addEventListener('click',e=>{ if(e.target.id==='remindmodal') closeRemind(); });
 function deleteConv(id){
   const i=DATA.conversations.findIndex(x=>x.id===id); if(i<0)return;
-  /* Persist the delete so it survives refresh (was in-memory only — the "can't delete" bug). */
-  try{ fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({del:id})}); }catch(_){}
+  const c=DATA.conversations[i];
+  /* Delete EVERY underlying row of a merged thread — deleting only the primary left siblings that
+     re-threaded on the next load (the "deleted messages come back" bug). */
+  const ids=(c&&c.thread_ids&&c.thread_ids.length)?c.thread_ids:[id];
+  try{ fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({del:ids})}); }catch(_){}
   DATA.conversations.splice(i,1); recount();
   const f=curFilter();
   if(sel===id){ const nx=DATA.conversations.find(c=> f==='all'?true:c.bucket===f)||DATA.conversations[0];

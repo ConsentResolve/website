@@ -683,37 +683,44 @@ export async function onRequestPost({ request, env }) {
   // Removes the conversation + its messages/notes; if the contact was provisional and is
   // now orphaned (no other conversations), removes it and its identifiers too.
   if (b.del || b.delete_conversation) {
-    const id = b.id || b.del;
-    const conv = await env.DB.prepare("SELECT id, contact_id, channel, channel_account_id, external_thread_id FROM conversations WHERE id=?").bind(id).first();
-    if (!conv) return json({ ok: true, already_gone: true }, {}, cors);
-    // Tombstone the thread so automated re-ingest (Gmail/Instantly polls, Site-Spy
-    // re-materialize) can't bring the deleted conversation back on the next tick.
-    await env.DB.prepare("INSERT OR REPLACE INTO conversation_tombstones (thread_key, hard) VALUES (?, 1)")
-      .bind(conv.channel + "|" + (conv.external_thread_id || "")).run().catch(() => {});
-    // SCRUB AT SOURCE — for a Gmail-backed thread, move it to Trash so the `in:inbox` poll
-    // can never see it again. The DB tombstone alone couldn't stop resurrection because the
-    // email still lived in the inbox and any new message on the thread re-opened it. Trash is
-    // reversible (Gmail keeps it ~30 days); we do not permanently destroy the mailbox.
-    let sourceScrub = null;
-    if (conv.channel === "email" && conv.external_thread_id && !String(conv.external_thread_id).startsWith("phone:")) {
-      try { sourceScrub = await trashThread(env, conv.channel_account_id || inboxAccounts(env)[0], conv.external_thread_id); } catch (e) { sourceScrub = { error: String(e).slice(0, 80) }; }
-    }
-    await env.DB.prepare("DELETE FROM messages WHERE conversation_id=?").bind(id).run().catch(() => {});
-    await env.DB.prepare("DELETE FROM notes WHERE conversation_id=?").bind(id).run().catch(() => {});
-    await env.DB.prepare("DELETE FROM conversations WHERE id=?").bind(id).run();
-    if (conv.contact_id) {
-      const other = await env.DB.prepare("SELECT 1 x FROM conversations WHERE contact_id=? LIMIT 1").bind(conv.contact_id).first().catch(() => null);
-      if (!other) {
-        const ct = await env.DB.prepare("SELECT is_provisional FROM contacts WHERE id=?").bind(conv.contact_id).first().catch(() => null);
-        if (ct && ct.is_provisional) {
-          await env.DB.prepare("DELETE FROM contact_identifiers WHERE contact_id=?").bind(conv.contact_id).run().catch(() => {});
-          await env.DB.prepare("DELETE FROM contacts WHERE id=?").bind(conv.contact_id).run().catch(() => {});
+    // A displayed conversation is often a MERGED THREAD of several underlying rows (the inbox
+    // collapses a person's conversations into one). Deleting only the primary left the siblings,
+    // which re-threaded on the next load — THE "messages come back" bug. So we delete EVERY id
+    // passed. `del` accepts one id or an array (the UI sends the thread's member ids).
+    const raw = b.del != null ? b.del : b.id;
+    const ids = [...new Set((Array.isArray(raw) ? raw : [raw]).filter(Boolean).map(String))];
+    if (!ids.length) return json({ ok: true, already_gone: true }, {}, cors);
+    const me = await currentUser(request, env);
+    const scrubs = [];
+    let deleted = 0;
+    for (const id of ids) {
+      const conv = await env.DB.prepare("SELECT id, contact_id, channel, channel_account_id, external_thread_id FROM conversations WHERE id=?").bind(id).first();
+      if (!conv) continue;
+      // HARD tombstone so automated re-ingest (Gmail/Instantly/Site-Spy) can never resurrect it.
+      await env.DB.prepare("INSERT OR REPLACE INTO conversation_tombstones (thread_key, hard) VALUES (?, 1)")
+        .bind(conv.channel + "|" + (conv.external_thread_id || "")).run().catch(() => {});
+      // SCRUB AT SOURCE — move a Gmail-backed thread to Trash so the `in:inbox` poll can't re-read
+      // it (reversible; needs the gmail.modify scope — one Gmail reconnect enables it).
+      if (conv.channel === "email" && conv.external_thread_id && !String(conv.external_thread_id).startsWith("phone:")) {
+        try { const r = await trashThread(env, conv.channel_account_id || inboxAccounts(env)[0], conv.external_thread_id); scrubs.push(r && r.ok ? "gmail_trashed" : ((r && (r.error || r.skipped)) || "no_op")); } catch (e) { scrubs.push(String(e).slice(0, 60)); }
+      }
+      await env.DB.prepare("DELETE FROM messages WHERE conversation_id=?").bind(id).run().catch(() => {});
+      await env.DB.prepare("DELETE FROM notes WHERE conversation_id=?").bind(id).run().catch(() => {});
+      await env.DB.prepare("DELETE FROM conversations WHERE id=?").bind(id).run();
+      if (conv.contact_id) {
+        const other = await env.DB.prepare("SELECT 1 x FROM conversations WHERE contact_id=? LIMIT 1").bind(conv.contact_id).first().catch(() => null);
+        if (!other) {
+          const ct = await env.DB.prepare("SELECT is_provisional FROM contacts WHERE id=?").bind(conv.contact_id).first().catch(() => null);
+          if (ct && ct.is_provisional) {
+            await env.DB.prepare("DELETE FROM contact_identifiers WHERE contact_id=?").bind(conv.contact_id).run().catch(() => {});
+            await env.DB.prepare("DELETE FROM contacts WHERE id=?").bind(conv.contact_id).run().catch(() => {});
+          }
         }
       }
+      await addActivityV2(env, { actorId: me ? me.id : null, entityType: "conversation", entityId: id, action: "deleted" }).catch(() => {});
+      deleted++;
     }
-    const me = await currentUser(request, env);
-    await addActivityV2(env, { actorId: me ? me.id : null, entityType: "conversation", entityId: id, action: "deleted", meta: { source_scrub: sourceScrub && sourceScrub.ok ? "gmail_trashed" : (sourceScrub && sourceScrub.error) || null } }).catch(() => {});
-    return json({ ok: true, deleted: id, source_scrub: sourceScrub && sourceScrub.ok ? "gmail_trashed" : (sourceScrub ? (sourceScrub.error || sourceScrub.skipped || "no_op") : null) }, {}, cors);
+    return json({ ok: true, deleted: ids, count: deleted, source_scrub: scrubs }, {}, cors);
   }
 
   // Bulk purge obvious test/demo conversations. DRY-RUN BY DEFAULT — returns the match
