@@ -100,6 +100,8 @@ html,body{height:100%}
   .filters button.on{background:var(--surface-2);color:var(--tx-1)}
   .filters button .n{font-family:var(--font-mono);color:var(--tx-3);font-size:11px;margin-left:4px}
   .filters button.on .n{color:var(--accent)}
+  .sortsel{margin-left:auto;align-self:center;font:inherit;font-size:11.5px;font-weight:600;color:var(--tx-2);background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-1);padding:4px 6px;cursor:pointer}
+  .sortsel:hover{border-color:var(--accent)}
   .rows{overflow-y:auto;flex:1}
   .row{display:flex;align-items:center;gap:7px;width:100%;text-align:left;border:0;background:none;font:inherit;color:var(--tx-1);cursor:pointer;padding:11px 11px 12px 14px;border-bottom:1px solid var(--line);position:relative}
   .row-main{flex:1;min-width:0}
@@ -1477,6 +1479,11 @@ html,body{height:100%}
         <button data-f="nurture" title="Cold leads on ongoing newsletter touchpoints">Nurture <span class="n">0</span></button>
         <button data-f="snoozed">Snoozed <span class="n">1</span></button>
         <button data-f="all">All <span class="n">14</span></button>
+        <select id="sortsel" class="sortsel" title="Sort the list" onchange="setSort(this.value)">
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="unread">Unread first</option>
+        </select>
       </div>
       <div class="rows" id="rows"></div>
     </section>
@@ -2069,6 +2076,7 @@ function renderList(filter){
     }
     return filter==="all" ? true : c.bucket===filter;
   });
+  sortItems(items);
   rows.innerHTML = items.map(c=>{
     const col=SRC_COLOR[c.source]||"var(--tx-3)";
     const dot=`<span class="srcdot" style="border-color:${col};${c.unread?'background:'+col:''}"></span>`;
@@ -2093,6 +2101,16 @@ function onSearch(v){
   const active=document.querySelector(".filters .on");
   renderList(active?active.dataset.f:'open');
 }
+/* List sort: recency = most recent activity, falling back to when the lead arrived. */
+function convTs(c){ return Date.parse(c.last_message_at||c.arrived_ts||c.age_ts||(c.last&&c.last.ts)||0)||0; }
+function sortItems(items){
+  const s=window.__sort||'newest';
+  if(s==='oldest') items.sort((a,b)=>convTs(a)-convTs(b));
+  else if(s==='unread') items.sort((a,b)=>((b.unread?1:0)-(a.unread?1:0))||(convTs(b)-convTs(a)));
+  else items.sort((a,b)=>convTs(b)-convTs(a)); // newest first (default)
+}
+function setSort(v){ window.__sort=v; const a=document.querySelector('.filters .on'); renderList(a?a.dataset.f:'open'); }
+window.setSort=setSort;
 window.onSearch=onSearch;
 /* ⌘K / Ctrl-K focuses search; Esc clears it. */
 document.addEventListener('keydown',e=>{
