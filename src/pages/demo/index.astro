@@ -152,7 +152,7 @@ const faqs = [
       if (!link) return;
       Cal("init", "demo", { origin: "https://cal.com" });
       Cal.ns.demo("inline", { elementOrSelector: "#cal-inline", calLink: link, config: { layout: "month_view" } });
-      Cal.ns.demo("ui", { hideEventTypeDetails: false, layout: "month_view" });
+      Cal.ns.demo("ui", { hideEventTypeDetails: true, layout: "month_view" });
     })();
   </script>
 </BaseLayout>
