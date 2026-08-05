@@ -543,6 +543,25 @@ html,body{height:100%}
   .atable td.num,.atable th.num{text-align:right;font-family:var(--font-mono)}
   .atable td.roas{color:var(--src-site);font-weight:700}
   .atable-note{font-size:11px;color:var(--tx-3);margin-top:10px}
+  .ev-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .ev-head h4{margin:0}
+  .ev-btn{font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:9px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);cursor:pointer;white-space:nowrap}
+  .ev-btn:hover{background:var(--accent);color:#04120b}
+  .ev-btn.sm{font-size:11.5px;padding:5px 11px}
+  .ev-hint,.ev-load{font-size:13px;color:var(--tx-3);padding:6px 0}
+  .ev-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  @media(max-width:640px){.ev-cols{grid-template-columns:1fr}}
+  .ev-col{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface-1)}
+  .ev-ct{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-3);margin-bottom:10px}
+  .ev-stats{display:flex;flex-wrap:wrap;gap:14px}
+  .ev-stat{min-width:52px}
+  .ev-v{font-size:19px;font-weight:800;color:var(--tx-1);font-variant-numeric:tabular-nums}
+  .ev-l{font-size:10.5px;color:var(--tx-3);text-transform:uppercase;letter-spacing:.04em}
+  .ev-analysis{font-size:13.5px;line-height:1.65;color:var(--tx-1);background:var(--surface-1);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .ev-analysis b{color:var(--tx-1)}
+  .ev-li{display:block;padding-left:16px;position:relative;margin:3px 0}
+  .ev-li::before{content:"→";position:absolute;left:0;color:var(--accent)}
+  .ev-foot{margin-top:10px;display:flex;justify-content:flex-end}
   .sbchart{display:flex;flex-direction:column;gap:10px}
   .sb-row{display:flex;align-items:center;gap:10px;font-size:var(--t-13)}
   .sb-k{width:64px;color:var(--tx-2);font-weight:600}
@@ -4521,8 +4540,28 @@ function renderAnalytics(){
       <div class="card an-card"><h4>Sequence performance</h4>
         <table class="atable"><thead><tr><th>Sequence</th><th class="num">Enrolled</th><th class="num">Reply</th><th class="num">Goal hit</th><th class="num">Opt-out</th></tr></thead><tbody>${seqrows}</tbody></table>
       </div>
+    </div>
+    <div class="card an-card" id="engine-vs">
+      <div class="ev-head"><h4>Our engine vs Instantly</h4><button class="ev-btn" onclick="runAiCompare()">✨ Analyze &amp; explain</button></div>
+      <div id="ev-body" class="ev-body"><div class="ev-hint">One click pulls both channels' numbers, compares them, and tells you which is winning — and what to fix on each.</div></div>
     </div>`;
 }
+async function runAiCompare(){
+  const body=document.getElementById('ev-body'); if(!body) return;
+  body.innerHTML='<div class="ev-load">✨ Pulling both channels and analyzing…</div>';
+  let d; try{ const r=await fetch('/api/crm/seq-report',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({action:'ai_compare'})}); d=await r.json(); }catch(_){}
+  if(!d||!d.ok){ body.innerHTML='<div class="ev-hint">Could not run the analysis. Try again in a moment.</div>'; return; }
+  const e=d.engine||{}, i=d.instantly||{};
+  const stat=(v,l)=>'<div class="ev-stat"><div class="ev-v">'+v+'</div><div class="ev-l">'+l+'</div></div>';
+  const cols='<div class="ev-cols"><div class="ev-col"><div class="ev-ct">Our engine</div><div class="ev-stats">'
+    +stat(e.enrolled||0,'Enrolled')+stat((e.reply_rate||0)+'%','Reply')+stat((e.positive_rate||0)+'%','Positive')+stat(e.booked||0,'Booked')+stat(e.held||0,'Held')
+    +'</div></div><div class="ev-col"><div class="ev-ct">Instantly</div><div class="ev-stats">'
+    +stat(i.contacted||i.leads||0,'Contacted')+stat(i.replied||0,'Replies')+stat(i.opportunities||0,'Interested')+stat(i.clicked||0,'Clicks')
+    +'</div></div></div>';
+  body.innerHTML=cols+'<div class="ev-analysis">'+mdLite(d.analysis||'')+'</div><div class="ev-foot"><button class="ev-btn sm" onclick="runAiCompare()">↻ Re-run</button></div>';
+}
+function mdLite(s){ return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/^\s*[-*]\s+(.+)$/gm,'<span class="ev-li">$1</span>').replace(/\n/g,'<br>'); }
+window.runAiCompare=runAiCompare;
 
 window.renderAnalytics=renderAnalytics; // exposed for the live-data bootstrap (fixture→fetch)
 
