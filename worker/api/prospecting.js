@@ -101,6 +101,18 @@ export async function onRequestGet({ request, env }) {
   const runs = (runsRes.results || []).map((r) => ({
     ...r, query: safeJson(r.query, {}), counts: safeJson(r.counts, {}), cost: (r.cost_cents || 0) / 100,
   }));
+  // Real progress for active runs — domains that have finished the whole waterfall (reached the
+  // backlinks stage) vs the total domains in the run. Drives the progress bar (no more polling-blind).
+  for (const r of runs) {
+    if (r.status === "running" || r.status === "paused") {
+      const pr = await env.DB.prepare(
+        "SELECT COUNT(*) total, SUM(CASE WHEN stages_run LIKE '%backlinks%' THEN 1 ELSE 0 END) done FROM prospects WHERE run_id=? AND domain IS NOT NULL"
+      ).bind(r.id).first().catch(() => null);
+      const total = pr ? Number(pr.total || 0) : 0;
+      const done = pr ? Number(pr.done || 0) : 0;
+      r.progress = { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
+    }
+  }
 
   const tierRes = await env.DB.prepare(
     `SELECT tier, COUNT(*) n FROM prospects WHERE status != 'suppressed' GROUP BY tier`

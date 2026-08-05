@@ -1209,6 +1209,29 @@ html,body{height:100%}
   .pdc-i{width:9px;height:9px;border-radius:3px;display:inline-block;background:var(--tx-3)}
   .pdc-i.open{background:#3b6ef0} .pdc-i.sequence{background:#7c3aed} .pdc-i.newsletter{background:var(--warn)} .pdc-i.instantly{background:var(--good)} .pdc-i.skip{background:var(--tx-3)}
   .pspacer{flex:1}
+  /* enrichment progress card (CSV / sweep) */
+  .rp-card{background:var(--surface-1);border:1px solid var(--accent);border-radius:13px;padding:14px 16px;margin-bottom:14px;box-shadow:0 0 0 3px var(--accent-soft)}
+  .rp-card.paused{border-color:var(--warn);box-shadow:0 0 0 3px var(--warn-soft)}
+  .rp-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .rp-ttl{font-size:14px;font-weight:800;color:var(--tx-1);font-family:var(--font-mono)}
+  .rp-badge{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:4px 11px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .rp-badge.run{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent)}
+  .rp-badge.pause{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn)}
+  .rp-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:rpPulse 1s infinite}
+  @keyframes rpPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+  .rp-bar{height:10px;background:var(--surface-3);border-radius:999px;overflow:hidden;position:relative}
+  .rp-fill{display:block;height:100%;border-radius:999px;background:var(--accent);transition:width .8s cubic-bezier(.22,.9,.3,1);min-width:0}
+  .rp-fill.live{background-image:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);background-size:220% 100%;animation:rpShine 1.4s linear infinite}
+  @keyframes rpShine{0%{background-position:120% 0}100%{background-position:-120% 0}}
+  .rp-meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12.5px}
+  .rp-count{color:var(--tx-2)} .rp-count b{font-family:var(--font-mono);color:var(--tx-1);font-size:14px}
+  .rp-tiers{display:flex;gap:8px;flex-wrap:wrap}
+  .rp-t{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:7px;background:var(--surface-2);color:var(--tx-2);border:1px solid var(--line)}
+  .rp-t.hot{background:var(--bad-soft);color:var(--bad);border-color:var(--bad)}
+  .rp-t.warm{color:var(--warn)} .rp-t.cold{color:var(--tx-3)}
+  .rp-cost{margin-left:auto;font-family:var(--font-mono);color:var(--tx-3)}
+  .rp-note{margin-top:9px;font-size:12px;color:var(--warn);display:flex;align-items:center;gap:10px}
+  .rp-resume{font-size:11.5px;font-weight:700;border:1px solid var(--warn);background:var(--warn-soft);color:var(--warn);border-radius:7px;padding:4px 10px;cursor:pointer}
   /* dossier modal (batch → same Intel renderer) */
   .pdoss-ov{position:fixed;inset:0;z-index:1000;background:rgba(4,10,20,.55);display:flex;align-items:flex-start;justify-content:center;padding:32px 16px;overflow:auto}
   .pdoss-card{background:var(--surface-0);border:1px solid var(--line);border-radius:16px;width:min(1080px,100%);box-shadow:var(--shadow-lg,0 20px 60px rgba(0,0,0,.4));max-height:calc(100vh - 64px);display:flex;flex-direction:column;overflow:hidden}
@@ -3070,7 +3093,7 @@ function paintProspecting(){
   const total=(tc.hot||0)+(tc.warm||0)+(tc.cold||0)+(tc.dead||0)+(tc.no_site||0)+(tc.unscored||0);
   const pill=(k,lbl,cls)=>`<button class="ptier ${cls||''} ${PROSP.tier===k?'on':''}" onclick="prospSetTier('${k}')">${lbl}<span class="pn">${k==='all'?total:(tc[k]||0)}</span></button>`;
   const trOpts=(PROSP.trades||[]).map(t=>`<option value="${escP(t)}">${escP(t)}</option>`).join('');
-  const running=(PROSP.runs||[]).filter(r=>r.status==='running');
+  const running=(PROSP.runs||[]).filter(r=>r.status==='running'||r.status==='paused');
   const dfsWarn=PROSP.dfs?'':`<div class="pwarn">⚠ DataForSEO credentials aren’t set on the worker — sweeps will fail until <code>DATAFORSEO_LOGIN</code> / <code>DATAFORSEO_PASSWORD</code> are added as secrets.</div>`;
   host.innerHTML=`
   <div class="prosp">
@@ -3092,7 +3115,7 @@ function paintProspecting(){
       <label class="pcsv-btn">⬆ Choose CSV<input type="file" id="pw-csv" accept=".csv,text/csv" style="display:none" onchange="prospImportCsv(this)"></label>
       <span class="pcsv-name" id="pw-csv-name"></span>
     </div>
-    ${running.length?`<div class="prun-live" id="prun-live">${running.map(runRow).join('')}</div>`:''}
+    ${running.length?`<div class="prun-live" id="prun-live">${running.map(runProgressCard).join('')}</div>`:''}
     ${(PROSP.runs||[]).length?`<details class="pruns"><summary>Recent sweeps (${PROSP.runs.length})</summary>${PROSP.runs.map(runRow).join('')}</details>`:''}
     <div class="ptiers">${pill('all','All')}${pill('hot','🔥 Hot','hot')}${pill('warm','Warm','warm')}${pill('cold','Cold','cold')}${pill('no_site','No site','dead')}</div>
     ${bulkBar()}
@@ -3119,6 +3142,24 @@ function dispFooter(){
     <button class="pgo" onclick="prospPush(this)" ${any?'':'disabled'}>→ Push dispositions</button>
   </div>`;
 }
+function rpTiers(c){ return `<span class="rp-t hot">🔥 ${c.hot||0}</span><span class="rp-t warm">${c.warm||0} warm</span><span class="rp-t cold">${c.cold||0} cold</span>${c.dead?`<span class="rp-t dead">${c.dead} skip</span>`:''}`; }
+function runProgressCard(r){
+  const c=r.counts||{}, q=r.query||{}, pg=r.progress||{done:0,total:c.sites||0,pct:0};
+  const title=q.kind==='csv'?('📄 '+escP(q.filename||'CSV import')):(`${escP(q.trade||'')} · ${escP(q.city||'')}`);
+  const paused=r.status==='paused';
+  const badge=paused?'<span class="rp-badge pause">⏸ paused · cost cap</span>':'<span class="rp-badge run"><span class="rp-dot"></span>enriching…</span>';
+  return `<div class="rp-card${paused?' paused':''}" data-run="${r.id}">
+    <div class="rp-top"><b class="rp-ttl">${title}</b>${badge}</div>
+    <div class="rp-bar"><i class="rp-fill${paused?'':' live'}" style="width:${pg.pct||0}%"></i></div>
+    <div class="rp-meta">
+      <span class="rp-count"><b>${pg.done||0}</b> of ${pg.total||0} enriched · ${pg.pct||0}%</span>
+      <span class="rp-tiers">${rpTiers(c)}</span>
+      <span class="rp-cost">$${(r.cost||0).toFixed(2)}</span>
+    </div>
+    ${paused&&r.note?`<div class="rp-note">${escP(r.note)} <button class="rp-resume" onclick="prospResume('${r.id}')">Resume</button></div>`:''}
+  </div>`;
+}
+async function prospResume(id){ await prospPost({action:'process',max:25}); crmToast&&crmToast('Resuming enrichment…'); maybePollRuns(); }
 function runRow(r){
   const c=r.counts||{}; const q=r.query||{};
   const stat=r.status==='running'?'<span class="pst run">running…</span>':r.status==='paused'?'<span class="pst pause">paused</span>':r.status==='done'?'<span class="pst done">done</span>':`<span class="pst">${escP(r.status)}</span>`;
@@ -3248,11 +3289,34 @@ async function prospOpenDossier(id){
   if(typeof d2InitDossier==='function') d2InitDossier(conv);
 }
 function maybePollRuns(){
-  const running=(PROSP.runs||[]).some(r=>r.status==='running');
+  const active=(PROSP.runs||[]).some(r=>r.status==='running');
   if(_prospPoll){ clearTimeout(_prospPoll); _prospPoll=null; }
-  if(running && window.__crmView==='prospecting'){
-    _prospPoll=setTimeout(async()=>{ if(window.__crmView!=='prospecting') return; await renderProspecting(true); }, 8000);
-  }
+  if(active && window.__crmView==='prospecting'){ _prospPoll=setTimeout(pollRunProgress, 3500); }
+}
+// Smooth progress: poll the run status and PATCH the bar/counts in place — no full re-render
+// (which caused the jarring "constant refresh"). A single full refresh fires only on completion,
+// so the newly-scored, ranked list appears once when everything is done.
+async function pollRunProgress(){
+  if(window.__crmView!=='prospecting'){ _prospPoll=null; return; }
+  let d=null; try{ d=await prospGet('?tier='+encodeURIComponent(PROSP.tier)); }catch(_){}
+  if(!d||!d.ok){ _prospPoll=setTimeout(pollRunProgress, 6000); return; }
+  const wasActive=(PROSP.runs||[]).some(r=>r.status==='running');
+  PROSP.runs=d.runs||[]; PROSP.tierCounts=d.tierCounts||{};
+  let stillActive=false;
+  PROSP.runs.forEach(r=>{
+    if(r.status==='running') stillActive=true;
+    const card=document.querySelector('.rp-card[data-run="'+r.id+'"]'); if(!card) return;
+    const pg=r.progress||{}, c=r.counts||{};
+    const fill=card.querySelector('.rp-fill'); if(fill) fill.style.width=(pg.pct||0)+'%';
+    const cnt=card.querySelector('.rp-count'); if(cnt) cnt.innerHTML='<b>'+(pg.done||0)+'</b> of '+(pg.total||0)+' enriched · '+(pg.pct||0)+'%';
+    const t=card.querySelector('.rp-tiers'); if(t) t.innerHTML=rpTiers(c);
+    const cost=card.querySelector('.rp-cost'); if(cost) cost.textContent='$'+(r.cost||0).toFixed(2);
+    if(r.status==='paused' && !card.classList.contains('paused')){ card.classList.add('paused'); const f=card.querySelector('.rp-fill'); if(f)f.classList.remove('live'); }
+  });
+  if(stillActive){ _prospPoll=setTimeout(pollRunProgress, 3500); }
+  else if(wasActive){ // just finished → one clean refresh to reveal the scored, ranked list
+    if(window.crmToast) crmToast('Enrichment complete — list ranked'); renderProspecting(true);
+  } else { _prospPoll=null; }
 }
 window.renderProspecting=renderProspecting;
 
