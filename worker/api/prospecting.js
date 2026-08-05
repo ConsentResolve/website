@@ -577,21 +577,61 @@ async function apolloSearch(env, b, cors) {
   const p = await env.DB.prepare("SELECT id, name, domain, trade FROM prospects WHERE id=?").bind(b.id).first().catch(() => null);
   if (!p) return json({ ok: false, error: "not_found" }, { status: 404 }, cors);
   if (!p.domain) return json({ ok: false, error: "no_domain", message: "This prospect has no website domain — nothing to search Apollo with." }, { status: 400 }, cors);
-  const per = Math.min(10, Math.max(3, parseInt(b.per || 6, 10)));
-  const s = await peopleAtDomain(env, p.domain, DEFAULT_TITLES, per).catch((e) => ({ error: String(e) }));
+  // ALL people at the company (no title filter → matches Apollo's web count), paginated.
+  const s = await peopleAtDomain(env, p.domain, null, 25, 3).catch((e) => ({ error: String(e) }));
   if (s.error) {
     const scope = /not authorized/i.test(s.error || "");
     return json({ ok: false, error: scope ? "no_scope" : "apollo_error",
       message: scope ? "Your Apollo key doesn't have People Search enabled — turn on People Search + People Enrichment for the key in Apollo settings." : ("Apollo: " + s.error) }, { status: 502 }, cors);
   }
+  const isDm = (t) => { const x = String(t || "").toLowerCase(); return ["owner", "founder", "co-founder", "ceo", "chief executive", "president", "partner", "principal", "vice president", "vp", "cmo", "chief marketing", "marketing", "general manager", " gm", "operations", "director"].some((k) => x.includes(k)); };
   const candidates = (s.people || []).map((pp) => ({
     apollo_id: pp.id || null,
     name: pp.first_name || pp.name || "(name hidden)",
     title: pp.title || "",
     company: (pp.organization && pp.organization.name) || p.name || "",
     has_email: !!pp.has_email,
+    dm: isDm(pp.title),
   })).filter((c) => c.apollo_id);
-  return json({ ok: true, domain: p.domain, total: s.total || candidates.length, candidates }, {}, cors);
+  candidates.sort((a, b2) => (b2.dm ? 1 : 0) - (a.dm ? 1 : 0)); // decision-makers first
+  const org = await apolloOrgSummary(env, p.domain, p.name);
+  return json({ ok: true, domain: p.domain, total: s.total || candidates.length, candidates, org }, {}, cors);
+}
+
+// Company-level Apollo intel: headcount, LOCATIONS (franchise signal), socials, relevant tech.
+const TECH_BUCKETS_LC = {
+  "call tracking": ["callrail", "calltrackingmetrics", "whatconverts", "marchex", "dialpad"],
+  "running ads": ["google ads", "adwords", "doubleclick", "facebook pixel", "meta pixel", "bing ads", "gtag"],
+  "field CRM": ["servicetitan", "jobber", "housecall", "service fusion", "workiz", "fieldedge"],
+  "reviews": ["podium", "birdeye", "nicejob", "grade.us"],
+  "live chat": ["intercom", "drift", "tawk", "hubspot chat"],
+  "visitor ID (competitor)": ["rb2b", "retention.com", "customers.ai", "warmly", "opensend", "leadpost", "vector"],
+};
+function relevantTech(names) {
+  const low = (names || []).map((x) => String(x).toLowerCase());
+  const hits = [];
+  for (const [label, arr] of Object.entries(TECH_BUCKETS_LC)) if (arr.some((a) => low.some((t) => t.includes(a)))) hits.push(label);
+  return hits;
+}
+async function apolloOrgSummary(env, domain, fallbackName) {
+  try {
+    const { apolloOrgEnrich } = await import("../_lib/apollo.js");
+    const oe = await apolloOrgEnrich(env, domain);
+    const o = (oe && oe.organization) || null;
+    if (!o) return null;
+    const locations = o.retail_location_count || o.num_locations || o.num_suborganizations || 0;
+    const employees = o.estimated_num_employees || null;
+    const tech = (o.technology_names || (o.current_technologies || []).map((t) => t && t.name).filter(Boolean) || []).slice(0, 16);
+    const is_franchise = (locations && locations >= 5) || (o.num_suborganizations || 0) >= 3 || /franchis/i.test(o.short_description || "") || (employees && employees >= 250);
+    return {
+      name: o.name || fallbackName || domain,
+      employees, locations, is_franchise: !!is_franchise,
+      industry: o.industry || null, founded: o.founded_year || null,
+      socials: { linkedin: o.linkedin_url || null, facebook: o.facebook_url || null, twitter: o.twitter_url || null, blog: o.blog_url || null },
+      tech, tech_relevant: relevantTech(tech),
+      description: o.short_description ? String(o.short_description).slice(0, 220) : null,
+    };
+  } catch (_) { return null; }
 }
 
 // APOLLO KEEP — reveal the ticked people, save them as contacts under the prospect's company,
@@ -611,6 +651,21 @@ async function apolloKeep(env, b, actorId, cors) {
   const baseContactId = pr.contact_id, convId = pr.conversation_id;
   const crow = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(baseContactId).first().catch(() => null);
   const companyId = crow ? crow.company_id : null;
+
+  // Sync Prospecting → Intel: persist the Apollo company intel (locations/franchise/socials/
+  // tech) onto the company enrichment so the Intel dossier reflects it without re-fetching.
+  if (companyId) {
+    try {
+      const prow = await env.DB.prepare("SELECT domain, name FROM prospects WHERE id=?").bind(b.id).first().catch(() => null);
+      const org = prow && prow.domain ? await apolloOrgSummary(env, prow.domain, prow.name) : null;
+      if (org) {
+        const cur = await env.DB.prepare("SELECT enrichment FROM companies WHERE id=?").bind(companyId).first().catch(() => null);
+        let e = {}; try { e = cur && cur.enrichment ? JSON.parse(cur.enrichment) : {}; } catch (_) {}
+        e.apollo = org;
+        await env.DB.prepare("UPDATE companies SET enrichment=?, updated_at=datetime('now') WHERE id=?").bind(JSON.stringify(e), companyId).run().catch(() => {});
+      }
+    } catch (_) {}
+  }
 
   const now = new Date().toISOString();
   const savedContactIds = [], savedPeople = [];

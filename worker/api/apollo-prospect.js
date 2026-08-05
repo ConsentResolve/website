@@ -60,14 +60,25 @@ async function domainsFromLabel(env, labelId, cap) {
   return { domains };
 }
 
-export async function peopleAtDomain(env, domain, titles, perPage) {
+export async function peopleAtDomain(env, domain, titles, perPage, maxPages) {
   // mixed_people/search was deprecated for API callers -> use api_search. It returns
   // a MASKED preview (first_name, title, org.name, id, has_email) and no email/last
-  // name until you enrich by id.
-  const r = await apolloPost(env, "mixed_people/api_search", {
-    q_organization_domains: domain, person_titles: titles, page: 1, per_page: perPage || 5,
-  });
-  return { error: r.error, total: (r.data.pagination || {}).total_entries || 0, people: r.data.people || [] };
+  // name until you enrich by id. Paginates so we surface the whole company (matching
+  // Apollo's web UI count), not just the first page. person_titles omitted = ALL people.
+  const per = Math.min(100, Math.max(1, perPage || 25));
+  const pages = Math.max(1, maxPages || 1);
+  const base = { q_organization_domains: domain, per_page: per };
+  if (Array.isArray(titles) && titles.length) base.person_titles = titles;
+  let people = [], total = 0, error = null;
+  for (let page = 1; page <= pages; page++) {
+    const r = await apolloPost(env, "mixed_people/api_search", { ...base, page });
+    if (r.error) { error = r.error; break; }
+    total = (r.data.pagination || {}).total_entries || total;
+    const got = r.data.people || [];
+    people = people.concat(got);
+    if (got.length < per || people.length >= total) break;
+  }
+  return { error, total, people };
 }
 
 export const usableEmail = (e) =>
