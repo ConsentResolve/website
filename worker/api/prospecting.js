@@ -145,6 +145,7 @@ export async function onRequestPost({ request, env, ctx }) {
   if (action === "disposition") return setDisposition(env, b, actorId, cors);
   if (action === "bulk_disposition") return bulkDisposition(env, b, actorId, cors);
   if (action === "push_dispositions") return pushDispositions(env, b, actorId, ctx, cors);
+  if (action === "keep") return keepProspect(env, b, actorId, cors);
 
   // action === "sweep" — Stage 0 TAM import.
   if (!dfsConfigured(env)) return json({ ok: false, error: "dfs_not_configured", message: "DataForSEO credentials are not set." }, { status: 400 }, cors);
@@ -513,29 +514,50 @@ async function pushDispositions(env, b, actorId, ctx, cors) {
   for (const row of (rows.results || [])) {
     const p = await env.DB.prepare("SELECT id, disposition FROM prospects WHERE id=?").bind(row.id).first().catch(() => null);
     if (!p) continue;
-    let meta = null;
-    try {
-      if (p.disposition === "skip") { meta = { skipped: true }; out.skip++; }
-      else if (p.disposition === "instantly") { meta = { staged: "instantly", note: "Instantly push staged — not sent" }; out.instantly_staged++; }
-      else {
-        const pr = await promoteCore(env, p.id, actorId);
-        if (!pr.ok) { out.failed++; continue; }
-        meta = { conversation_id: pr.conversation_id || null, contact_id: pr.contact_id };
-        if (p.disposition === "open") { out.open++; }
-        else if (p.disposition === "sequence") {
-          const en = await enrollContact(env, { contactId: pr.contact_id, conversationId: pr.conversation_id, source: "batch_triage" }).catch(() => ({}));
-          meta.sequence_run_id = en && en.runId ? en.runId : null; out.sequence++;
-        } else if (p.disposition === "newsletter") {
-          await enrollRepermission(env, { contactIds: [pr.contact_id] }).catch(() => {});
-          meta.newsletter = true; out.newsletter++;
-        }
-      }
-    } catch (_) { out.failed++; continue; }
+    const r = await executeDisposition(env, p.id, p.disposition, actorId).catch(() => ({ kind: "failed" }));
+    if (r.kind === "failed") { out.failed++; continue; }
+    out[r.kind] = (out[r.kind] || 0) + 1;
     await env.DB.prepare("UPDATE prospects SET disposition_meta=?, updated_at=datetime('now') WHERE id=?")
-      .bind(JSON.stringify(meta || {}), p.id).run().catch(() => {});
+      .bind(JSON.stringify(r.meta || {}), p.id).run().catch(() => {});
   }
   return json({ ok: true, pushed: out,
     message: `Pushed: ${out.open} opened, ${out.sequence} into sequence, ${out.newsletter} to newsletter, ${out.skip} skipped. ${out.instantly_staged} Instantly staged (not sent).` }, {}, cors);
+}
+
+// Execute ONE disposition's side effect. Shared by push (batch) and keep (per-card, immediate).
+// Open/Sequence/Newsletter run live; Instantly is STAGED (recorded, not sent). Returns
+// { kind, meta, conversation_id } — `kind` is an `out`-counter key (open|sequence|newsletter|
+// instantly_staged|skip|failed).
+async function executeDisposition(env, prospectId, disposition, actorId) {
+  if (disposition === "skip") return { kind: "skip", meta: { skipped: true } };
+  if (disposition === "instantly") return { kind: "instantly_staged", meta: { staged: "instantly", note: "Instantly push staged — not sent" } };
+  const pr = await promoteCore(env, prospectId, actorId);
+  if (!pr.ok) return { kind: "failed", error: pr.error, meta: null };
+  const meta = { conversation_id: pr.conversation_id || null, contact_id: pr.contact_id };
+  if (disposition === "sequence") {
+    const en = await enrollContact(env, { contactId: pr.contact_id, conversationId: pr.conversation_id, source: "batch_triage" }).catch(() => ({}));
+    meta.sequence_run_id = en && en.runId ? en.runId : null;
+    return { kind: "sequence", meta, conversation_id: pr.conversation_id };
+  }
+  if (disposition === "newsletter") {
+    await enrollRepermission(env, { contactIds: [pr.contact_id] }).catch(() => {});
+    meta.newsletter = true;
+    return { kind: "newsletter", meta, conversation_id: pr.conversation_id };
+  }
+  return { kind: "open", meta, conversation_id: pr.conversation_id }; // human conversation
+}
+
+// KEEP a single prospect — set the chosen disposition AND execute it immediately (per-card flow).
+async function keepProspect(env, b, actorId, cors) {
+  const disp = DISPOSITIONS.includes(b.disposition) ? b.disposition : null;
+  if (!disp || disp === "skip") return json({ ok: false, error: "bad_disposition" }, { status: 400 }, cors);
+  await env.DB.prepare("UPDATE prospects SET disposition=?, disposition_by=?, disposition_at=datetime('now'), updated_at=datetime('now') WHERE id=?")
+    .bind(disp, actorId, b.id).run().catch(() => {});
+  const r = await executeDisposition(env, b.id, disp, actorId).catch(() => ({ kind: "failed" }));
+  if (r.kind === "failed") return json({ ok: false, error: r.error || "execute_failed" }, { status: 400 }, cors);
+  await env.DB.prepare("UPDATE prospects SET disposition_meta=? WHERE id=?").bind(JSON.stringify(r.meta || {}), b.id).run().catch(() => {});
+  const label = { open: "Opened a human conversation in your Inbox", sequence: "Enrolled in the outreach sequence", newsletter: "Added to the newsletter list", instantly_staged: "Staged for Instantly (recorded — not sent yet)" }[r.kind] || "Kept";
+  return json({ ok: true, disposition: disp, kind: r.kind, conversation_id: r.conversation_id || null, message: label }, {}, cors);
 }
 
 function safeJson(s, fallback) { try { return s ? JSON.parse(s) : fallback; } catch (_) { return fallback; } }

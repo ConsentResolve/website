@@ -1198,6 +1198,23 @@ html,body{height:100%}
   .pdb{font-size:11px;font-weight:700;padding:5px 9px;border-radius:7px;border:1px solid var(--line);background:var(--surface-1);color:var(--tx-2);cursor:pointer;white-space:nowrap}
   .pdb:hover{border-color:var(--accent);color:var(--accent)} .pdb.x:hover{border-color:var(--bad);color:var(--bad)}
   .pdnone{font-size:11px;color:var(--tx-3)}
+  .pcard.clickable{cursor:pointer;transition:border-color .12s ease,box-shadow .12s ease,transform .12s ease}
+  .pcard.clickable:hover{border-color:var(--accent);box-shadow:0 3px 14px rgba(0,0,0,.10)}
+  .pkd{display:flex;gap:6px}
+  .pkeep-btn,.pdel-btn{font-size:12px;font-weight:800;padding:7px 13px;border-radius:9px;border:1px solid var(--line);cursor:pointer;white-space:nowrap;transition:all .12s ease}
+  .pkeep-btn{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+  .pkeep-btn:hover{background:var(--good);color:#fff}
+  .pdel-btn{background:var(--surface-1);color:var(--tx-3)}
+  .pdel-btn:hover{background:var(--bad-soft,rgba(220,38,38,.10));border-color:var(--bad);color:var(--bad)}
+  .pkeep-ov{position:fixed;inset:0;z-index:1100;background:rgba(4,10,20,.55);display:flex;align-items:center;justify-content:center;padding:24px 16px;overflow:auto}
+  .pkeep-card{background:var(--surface-0);border:1px solid var(--line);border-radius:16px;width:min(560px,100%);box-shadow:var(--shadow-lg,0 20px 60px rgba(0,0,0,.4));padding:20px 20px 22px}
+  .pkeep-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;font-size:16px}
+  .pkeep-sub{color:var(--tx-3);font-size:13px;margin:4px 0 16px}
+  .pkeep-opts{display:flex;flex-direction:column;gap:10px}
+  .pkeep-opt{display:flex;flex-direction:column;gap:3px;text-align:left;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:var(--surface-1);cursor:pointer;transition:all .12s ease}
+  .pkeep-opt:hover{border-color:var(--accent);background:var(--surface-2);transform:translateY(-1px)}
+  .pkeep-t{font-size:14px;font-weight:800;color:var(--tx-1)}
+  .pkeep-d{font-size:12.5px;line-height:1.5;color:var(--tx-3)}
   .pdchip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);color:var(--tx-1)}
   .pdchip.open{background:var(--blue-soft,rgba(37,99,235,.12));border-color:#3b6ef0;color:#5b8def}
   .pdchip.sequence{background:rgba(124,58,237,.14);border-color:#7c3aed;color:#9a6ef5}
@@ -3225,28 +3242,20 @@ function prospCard(p){
   if(p.disposition){
     const m=p.disposition_meta||{}; const pushed=!!(m.conversation_id||m.staged||m.skipped||m.newsletter||m.sequence_run_id);
     dispCtl=`<span class="pdchip ${p.disposition}">${DISP_LBL[p.disposition]||p.disposition}${pushed?' ✓':''} <u onclick="event.stopPropagation();prospDisp('${p.id}',null)" title="Clear">✕</u></span>`;
-  } else if(noSite){
-    dispCtl='<span class="pdnone">below floor</span>';
   } else {
-    dispCtl=`<div class="pdbtns">
-      <button class="pdb" title="Open a conversation" onclick="event.stopPropagation();prospDisp('${p.id}','open')">Open</button>
-      <button class="pdb" title="Enroll in a sequence" onclick="event.stopPropagation();prospDisp('${p.id}','sequence')">Seq</button>
-      <button class="pdb" title="Add to newsletter" onclick="event.stopPropagation();prospDisp('${p.id}','newsletter')">News</button>
-      <button class="pdb" title="Instantly campaign (staged)" onclick="event.stopPropagation();prospDisp('${p.id}','instantly')">Inst</button>
-      <button class="pdb x" title="Skip" onclick="event.stopPropagation();prospDisp('${p.id}','skip')">✕</button></div>`;
+    dispCtl=`<div class="pkd"><button class="pkeep-btn" onclick="event.stopPropagation();prospKeepChooser('${p.id}',event)" title="Keep this lead — choose what to do">✓ Keep</button><button class="pdel-btn" onclick="event.stopPropagation();prospDelete('${p.id}',event)" title="Remove this lead">✕ Delete</button></div>`;
   }
-  const site=p.domain?`<a href="https://${escP(p.domain)}" target="_blank" rel="noopener" class="pdom">${escP(p.domain)}</a>`:'<span class="pdom none">no website</span>';
-  const nameAttr=p.domain?`class="pnm-b" onclick="prospOpenDossier('${p.id}')" title="Open the full dossier"`:'class="pnm-b none"';
-  return `<div class="pcard ${p.tier}${checked?' sel':''}" data-id="${p.id}">
-    ${check}
+  const site=p.domain?`<span class="pdom">${escP(p.domain)}</span>`:'<span class="pdom none">no website</span>';
+  return `<div class="pcard clickable ${p.tier}${checked?' sel':''}" data-id="${p.id}" onclick="prospOpenDossier('${p.id}')" title="Open the full dossier">
+    <span onclick="event.stopPropagation()">${check}</span>
     <div class="pscore ${p.tier}">${noSite?'—':p.score}</div>
     <div class="pmain">
-      <div class="pnm"><span ${nameAttr}>${escP(p.name||p.domain)}</span> ${tierBadge(p.tier)}${rec?`<span class="prec">$${rec.toLocaleString()}/mo</span>`:''}</div>
+      <div class="pnm"><span class="pnm-b">${escP(p.name||p.domain)}</span> ${tierBadge(p.tier)}${rec?`<span class="prec">$${rec.toLocaleString()}/mo</span>`:''}</div>
       <div class="pmeta">${site}${p.city?` · ${escP(p.city)}`:''}${p.trade?` · ${escP(p.trade)}`:''}${p.phone?` · ${escP(p.phone)}`:''}</div>
       ${chips.length?`<div class="pchips">${chips.join('')}</div>`:''}
       <div class="psrc"><span class="psrc-from">from ${prospSourceLabel(p)}</span>${((p.tier==='dead'||p.tier==='cold'||p.tier==='no_site')&&p.reasons&&p.reasons.length)?`<span class="pwhy" title="Why this score">${escP(String(p.reasons[0]||'').replace(/^\+\d+\s*/,''))}</span>`:''}</div>
     </div>
-    <div class="pact">${dispCtl}</div>
+    <div class="pact" onclick="event.stopPropagation()">${dispCtl}</div>
   </div>`;
 }
 function prospSetTier(t){ PROSP.tier=t; renderProspecting(true); }
@@ -3343,7 +3352,7 @@ function mergeDossier(cid, conv, lk){
 function openDossierModal(conv, promoteId){
   let ov=document.getElementById('pdoss-ov'); if(ov)ov.remove();
   ov=document.createElement('div'); ov.id='pdoss-ov'; ov.className='pdoss-ov';
-  const promo=promoteId?`<button class="pdoss-promote" onclick="prospPromoteFromDossier('${promoteId}',this)">+ Add to pipeline</button>`:'';
+  const promo=promoteId?`<button class="pkeep-btn" onclick="prospKeepChooser('${promoteId}',event)" title="Keep this lead — choose what to do">✓ Keep</button><button class="pdel-btn" onclick="prospDelete('${promoteId}',event)" title="Remove this lead">✕ Delete</button>`:'';
   ov.innerHTML='<div class="pdoss-card"><div class="pdoss-top"><b>Dossier <span id="pdoss-load" class="pdoss-load">✦ generating sales insights…</span></b><div class="pdoss-actions">'+promo+'<button class="pdoss-x" onclick="document.getElementById(\'pdoss-ov\').remove()">✕</button></div></div><div class="intel-scroll intel-dash-wrap">'+intelDashboard(conv)+'</div></div>';
   ov.onclick=(e)=>{ if(e.target===ov) ov.remove(); };
   document.body.appendChild(ov);
@@ -3354,6 +3363,40 @@ function prospPromoteFromDossier(id,btn){ if(btn){btn.disabled=true;btn.textCont
     else if(btn){btn.disabled=false;btn.textContent='+ Add to pipeline';} });
 }
 window.prospOpenDossier=prospOpenDossier; window.prospPromoteFromDossier=prospPromoteFromDossier;
+/* ── Keep / Delete ── */
+const KEEP_OPTS=[
+  ['open','💬 Human conversation (Open / Convo)','Creates a live conversation in your Inbox (Open) so a rep can personally email or call this lead — real 1:1 outreach you work by hand.'],
+  ['sequence','⚡ Add to Sequence','Enrolls them in an automated multi-step email sequence (a drip) that sends on a schedule until they reply or opt out — hands-off nurture.'],
+  ['newsletter','✉ Add to Newsletter','Adds them to your monthly newsletter list (consent-first). Light, ongoing brand nurture — no hard pitch, just staying top-of-mind.'],
+  ['instantly','→ Add to Instantly Campaign','Pushes them into an Instantly cold-email campaign on warmed mailboxes. Currently STAGED — recorded now, actually sent once the campaign is wired.']
+];
+function prospKeepChooser(id, ev){
+  if(ev) ev.stopPropagation();
+  const p=(PROSP.prospects||[]).find(x=>x.id===id); if(!p) return;
+  let ov=document.getElementById('pkeep-ov'); if(ov)ov.remove();
+  ov=document.createElement('div'); ov.id='pkeep-ov'; ov.className='pkeep-ov';
+  ov.innerHTML='<div class="pkeep-card"><div class="pkeep-top"><b>Keep “'+escP(p.name||p.domain)+'” — what next?</b><button class="pdoss-x" onclick="document.getElementById(\'pkeep-ov\').remove()">✕</button></div><div class="pkeep-sub">Pick a destination — it happens right away.</div><div class="pkeep-opts">'+KEEP_OPTS.map(o=>'<button class="pkeep-opt" onclick="prospKeepPick(\''+id+'\',\''+o[0]+'\')"><span class="pkeep-t">'+o[1]+'</span><span class="pkeep-d">'+escP(o[2])+'</span></button>').join('')+'</div></div>';
+  ov.onclick=function(e){ if(e.target===ov) ov.remove(); };
+  document.body.appendChild(ov);
+}
+async function prospKeepPick(id, disp){
+  const ov=document.getElementById('pkeep-ov'); if(ov) ov.remove();
+  const dm=document.getElementById('pdoss-ov'); if(dm) dm.remove();
+  if(window.crmToast) crmToast('Working…');
+  const r=await prospPost({action:'keep',id,disposition:disp});
+  if(r&&r.ok){ const p=(PROSP.prospects||[]).find(x=>x.id===id); if(p){p.disposition=disp;p.disposition_meta={done:true};p.status='promoted';} PROSP.dispositionCounts=recountDisp(); paintProspecting(); if(window.crmToast) crmToast('✓ '+(r.message||'Done')); }
+  else if(window.crmToast) crmToast((r&&(r.message||r.error))||'Could not keep');
+}
+async function prospDelete(id, ev){
+  if(ev) ev.stopPropagation();
+  const p=(PROSP.prospects||[]).find(x=>x.id===id);
+  if(!confirm('Delete “'+((p&&(p.name||p.domain))||'this lead')+'”? It’s removed from your prospect list.')) return;
+  const dm=document.getElementById('pdoss-ov'); if(dm) dm.remove();
+  const r=await prospPost({action:'suppress',id});
+  if(r&&r.ok){ PROSP.prospects=(PROSP.prospects||[]).filter(x=>x.id!==id); PROSP.sel.delete(id); paintProspecting(); if(window.crmToast)crmToast('Deleted'); }
+  else if(window.crmToast) crmToast('Could not delete');
+}
+window.prospKeepChooser=prospKeepChooser; window.prospKeepPick=prospKeepPick; window.prospDelete=prospDelete;
 function maybePollRuns(){
   const active=(PROSP.runs||[]).some(r=>r.status==='running');
   if(_prospPoll){ clearTimeout(_prospPoll); _prospPoll=null; }
