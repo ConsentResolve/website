@@ -2120,8 +2120,25 @@ document.addEventListener('keydown',e=>{
 
 function tracker(seq,isAuto){
   if(!seq.total) return "";
-  const steps=["SMS","AI call","Email","Next-day"].slice(0,seq.total);
-  const lbls = seq.label.startsWith("Earn")?["Email 1","Email 2","Pref center"]: seq.label.startsWith("Onboard")?["Welcome","Install","Activate"]: steps;
+  // Step labels come from the ACTUAL sequence, not a hardcoded default. Speed-to-lead is the
+  // only SMS/AI-call sequence; everything else here is email-first (IV = all email).
+  const SEQ_STEP_LABELS = {
+    "Identified Visitor Outreach": ["Email 1","Email 2","Email 3"],
+    "Earn consent (email only)": ["Email 1","Email 2","Pref center"],
+    "Cold-to-Demo (multichannel)": ["Email 1","LinkedIn","Email 2","Call","Email 3","Call","Email 4","Email 5"],
+    "Re-engagement sprint": ["Email","Call","Email"],
+    "Onboarding → activation": ["Welcome","Install","Activate"],
+  };
+  const L=seq.label||"";
+  const mapped = SEQ_STEP_LABELS[L]
+    || (L.startsWith("Earn")?SEQ_STEP_LABELS["Earn consent (email only)"]
+      : L.startsWith("Identified")?SEQ_STEP_LABELS["Identified Visitor Outreach"]
+      : L.startsWith("Cold-to-Demo")?SEQ_STEP_LABELS["Cold-to-Demo (multichannel)"]
+      : L.startsWith("Re-eng")?SEQ_STEP_LABELS["Re-engagement sprint"]
+      : L.startsWith("Onboard")?SEQ_STEP_LABELS["Onboarding → activation"]
+      : L.toLowerCase().includes("nurture")?["Nurture"]
+      : null);
+  const lbls = mapped || ["SMS","AI call","Email","Next-day"].slice(0,seq.total);
   const exited=["replied","booked","opted_out"].includes(seq.status);
   return `<div class="tracker ${isAuto?'tk-auto':'tk-paused'}">${lbls.map((l,i)=>{
     const n=i+1; const done=n<seq.step||exited&&n<=seq.step; const cur=n===seq.step&&!exited;
