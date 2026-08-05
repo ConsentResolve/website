@@ -1291,7 +1291,10 @@ html,body{height:100%}
   .pdchip.sequence{background:rgba(124,58,237,.14);border-color:#7c3aed;color:#9a6ef5}
   .pdchip.newsletter{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
   .pdchip.instantly{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+  .pdchip.whale{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
   .pdchip.skip{background:var(--surface-2);border-color:var(--line);color:var(--tx-3)}
+  .pchip.warn{background:var(--warn-soft);color:var(--warn);border-color:var(--warn)}
+  .pchip.warm{background:var(--warn-soft,rgba(217,119,6,.12));color:var(--warn,#b45309);border-color:transparent}
   .pdchip u{cursor:pointer;opacity:.6;font-weight:800;text-decoration:none} .pdchip u:hover{opacity:1}
   .pbulk{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--accent);border-radius:11px;padding:9px 13px;margin-bottom:12px}
   .pbulk-n{font-size:13px;font-weight:800;color:var(--accent)} .pbulk-l{font-size:12px;font-weight:700;color:var(--tx-2);text-transform:uppercase;letter-spacing:.04em}
@@ -1479,7 +1482,7 @@ html,body{height:100%}
       <a data-view="nurture" tabindex="0" onclick="showView('nurture')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V11"/><path d="M12 11C12 7 9.5 4.5 4.5 4.5c0 4 2.5 6.5 7.5 6.5z"/><path d="M12 9.5c0-3 2.2-5.5 6.5-5.5 0 3.2-2.3 5.5-6.5 5.5z"/></svg><span class="lbl">Nurture</span></a>
       <a data-view="sitespy" tabindex="0" onclick="showView('sitespy')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg><span class="lbl">Site Spy</span></a>
       <a data-view="prospecting" tabindex="0" onclick="showView('prospecting')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6M8 11h6"/></svg><span class="lbl">Prospecting</span></a>
-      <a data-view="agency" tabindex="0" onclick="showView('agency')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg><span class="lbl">Agency</span></a>
+      <a data-view="agency" tabindex="0" onclick="showView('agency')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg><span class="lbl">Whales</span></a>
       <a data-view="analytics" tabindex="0" onclick="showView('analytics')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M6 20v-6"/><path d="M12 20V6"/><path d="M18 20v-9"/></svg><span class="lbl">Analytics</span></a>
       <a data-view="sequences" tabindex="0" onclick="showView('sequences')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span class="lbl">Sequences</span></a>
       <a data-view="newsletter" tabindex="0" onclick="showView('newsletter')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span class="lbl">Newsletter</span></a>
@@ -3222,7 +3225,7 @@ window.showView=showView;
 /* ---- Prospecting: bulk city+trade sweep → DataForSEO waterfall → scored prospects ---- */
 let PROSP={prospects:[],runs:[],tierCounts:{},dispositionCounts:{},trades:[],dfs:false,tier:'all',loaded:false,sel:new Set()};
 let _prospPoll=null;
-const DISP_LBL={open:'💬 Open',sequence:'⚡ Sequence',newsletter:'✉ Newsletter',instantly:'→ Instantly',skip:'Skip'};
+const DISP_LBL={open:'💬 Open',sequence:'⚡ Sequence',newsletter:'✉ Newsletter',instantly:'→ Instantly',whale:'🐋 Whales',skip:'Skip'};
 const escP=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function prospGet(qs){ const r=await fetch('/api/crm/prospecting'+(qs||''),{headers:{'Accept':'application/json'}}); return r.json(); }
 async function prospPost(body){ const r=await fetch('/api/crm/prospecting',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); return r.json(); }
@@ -3474,7 +3477,8 @@ const KEEP_OPTS=[
   ['open','💬 Human conversation (Open / Convo)','Creates a live conversation in your Inbox (Open) so a rep can personally email or call this lead — real 1:1 outreach you work by hand.'],
   ['sequence','⚡ Add to Sequence','Enrolls them in an automated multi-step email sequence (a drip) that sends on a schedule until they reply or opt out — hands-off nurture.'],
   ['newsletter','✉ Add to Newsletter','Adds them to your monthly newsletter list (consent-first). Light, ongoing brand nurture — no hard pitch, just staying top-of-mind.'],
-  ['instantly','→ Add to Instantly Campaign','Reveals their email and pushes them straight into your Instantly cold-email campaign (warmed mailboxes) with their intel as personalization. The campaign is paused — they send when you launch it.']
+  ['instantly','→ Add to Instantly Campaign','Reveals their email and pushes them straight into your Instantly cold-email campaign (warmed mailboxes) with their intel as personalization. The campaign is paused — they send when you launch it.'],
+  ['whale','🐋 Send to Whales (special attention)','Flags this as a Whale — an agency-managed, franchise, or big account that needs special handling. Opens an assigned conversation AND lists it in the Whales tab so it isn\'t worked like a normal small lead.']
 ];
 function prospKeepChooser(id, ev){
   if(ev) ev.stopPropagation();
@@ -3485,7 +3489,7 @@ function prospKeepChooser(id, ev){
   ov.onclick=function(e){ if(e.target===ov) ov.remove(); };
   document.body.appendChild(ov);
 }
-const KEEP_DEST_LBL={open:'Human conversation (Open)',sequence:'Sequence',newsletter:'Newsletter',instantly:'Instantly campaign'};
+const KEEP_DEST_LBL={open:'Human conversation (Open)',sequence:'Sequence',newsletter:'Newsletter',instantly:'Instantly campaign',whale:'Whales'};
 // After a destination is chosen, resolve WHO to send to via Apollo before saving.
 async function prospKeepPick(id, disp){
   const ov=document.getElementById('pkeep-ov'); if(ov) ov.remove();
@@ -3592,25 +3596,30 @@ async function renderAgency(force){
   const roster=AGENCY.roster||[]; const list=AGENCY.agencies||[];
   const managed=list.filter(a=>a.managed);
   const rosterHtml=roster.length?`<div class="ag-roster">${roster.map(r=>`<div class="ag-rchip"><b>${escP(r.name)}</b><span>${r.clients} client${r.clients===1?'':'s'}</span></div>`).join('')}</div>`:'';
-  const rows=list.length?list.map(agRow).join(''):'<div class="idash-empty" style="padding:48px;text-align:center;color:var(--tx-3)">No agency-managed contractors yet. When a Claude lookup detects an agency, or you flag one from a lead’s Intel panel, it shows here.</div>';
+  const rows=list.length?list.map(agRow).join(''):'<div class="idash-empty" style="padding:48px;text-align:center;color:var(--tx-3)">No whales yet. Send an account here from <b>Prospecting</b> (Process → 🐋 Whales), or they land here automatically when a lookup detects an agency or a franchise / big company.</div>';
+  const nF=list.filter(a=>(a.kinds||[]).includes('franchise')).length, nA=list.filter(a=>(a.kinds||[]).includes('agency')).length, nB=list.filter(a=>(a.kinds||[]).includes('big')).length, nFl=list.filter(a=>(a.kinds||[]).includes('flagged')).length;
   host.innerHTML=`<div class="prosp">
-    <div class="phead"><div><h2 class="pttl">Agency-managed</h2><p class="psub">Contractors whose site/marketing is run by an agency — so you know you’re selling through the agency, or that the owner can’t change their own stack. Flag one from any lead’s <b>Intel</b> panel.</p></div>
+    <div class="phead"><div><h2 class="pttl">🐋 Whales</h2><p class="psub">Accounts that need special attention — <b>agency-managed</b>, <b>franchise / multi-location</b>, or <b>big companies</b>. The owner often can't change their own stack, and there's usually a gatekeeper. Send one here from Prospecting, or flag from a lead's <b>Intel</b> panel.</p></div>
       <button class="pref" onclick="renderAgency(true)" title="Refresh">↻</button></div>
     ${rosterHtml}
-    <div class="ag-count">${managed.length} managed · ${list.length} flagged</div>
+    <div class="ag-count">${list.length} whale${list.length===1?'':'s'}${nF?` · ${nF} franchise`:''}${nA?` · ${nA} agency`:''}${nB?` · ${nB} big`:''}${nFl?` · ${nFl} flagged`:''}</div>
     <div class="plist">${rows}</div>
   </div>`;
 }
+const WHALE_KIND={flagged:['🐋','flagged','hot'],agency:['🏢','managed by agency','warm'],franchise:['⚠','franchise / multi-location','warn'],big:['🏢','big company','warm']};
 function agRow(a){
   const openBtn=a.contact_id?`<button class="ppromote" onclick="openLeadFromAgency('${a.contact_id}')">Open lead →</button>`:'';
-  const src=a.source==='detected'?'<span class="pchip soft">🔎 detected</span>':'<span class="pchip soft">✍ manual</span>';
   const dom=a.domain?`<a href="https://${escP(a.domain)}" target="_blank" rel="noopener" class="pdom">${escP(a.domain)}</a>`:'';
-  return `<div class="pcard ${a.managed?'hot':''}">
-    <div class="pscore ${a.managed?'hot':'cold'}" style="font-size:13px">${a.managed?'AGY':'—'}</div>
+  const kinds=(a.kinds&&a.kinds.length?a.kinds:['flagged']);
+  const kindChips=kinds.map(k=>{const m=WHALE_KIND[k]||['🐋',k,'soft'];return `<span class="pchip ${m[2]}">${m[0]} ${m[1]}</span>`;}).join('');
+  const stats=[a.employees?`<b>${a.employees.toLocaleString()}</b> employees`:'',a.locations?`<b>${a.locations}</b> locations`:''].filter(Boolean).join(' · ');
+  const primary=(WHALE_KIND[kinds[0]]||['🐋','','soft']);
+  return `<div class="pcard ${primary[2]==='warn'?'':'hot'}">
+    <div class="pscore hot" style="font-size:16px">${primary[0]}</div>
     <div class="pmain">
       <div class="pnm">${escP(a.company||a.contact_name||'Unknown')} ${a.agency_name?`<span class="pbadge warm">${escP(a.agency_name)}</span>`:''}</div>
-      <div class="pmeta">${dom}${dom&&(a.note||a.by)?' · ':''}${a.note?escP(a.note):(a.by?'flagged by '+escP(a.by):'')}</div>
-      <div class="pchips">${src}${a.managed?'<span class="pchip hot">managed by agency</span>':''}</div>
+      <div class="pmeta">${dom}${dom&&stats?' · ':''}${stats}${(dom||stats)&&(a.note||a.by)?' · ':''}${a.note?escP(a.note):(a.by?'flagged by '+escP(a.by):'')}</div>
+      <div class="pchips">${kindChips}</div>
     </div>
     <div class="pact">${openBtn}</div>
   </div>`;

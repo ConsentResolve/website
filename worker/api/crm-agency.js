@@ -22,31 +22,48 @@ export async function onRequestGet({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ ok: false, error: "unauthorized" }, { status: 403 }, cors);
 
-  // Narrow to companies whose enrichment mentions an agency (manual flag or auto-detect).
+  // WHALES = accounts that need special attention: agency-managed, franchise / multi-location,
+  // big companies, or manually flagged. All live in companies.enrichment.
   const rows = await env.DB.prepare(
     `SELECT id, name, domain, enrichment FROM companies
-      WHERE enrichment LIKE '%_agency%' OR enrichment LIKE '%"agency"%' ORDER BY updated_at DESC LIMIT 400`
+      WHERE enrichment LIKE '%_agency%' OR enrichment LIKE '%"agency"%'
+         OR enrichment LIKE '%_whale%' OR enrichment LIKE '%"is_franchise":true%'
+         OR enrichment LIKE '%"apollo"%'
+      ORDER BY updated_at DESC LIMIT 500`
   ).all().catch(() => ({ results: [] }));
 
-  const agencies = [];
-  const rosterMap = new Map(); // agency name → count of managed clients
+  const agencies = [];              // (kept as the response key so the client keeps working)
+  const rosterMap = new Map();      // agency name → count of managed clients
   for (const r of (rows.results || [])) {
     const en = safe(r.enrichment, {});
-    const manual = en._agency || null;
-    const detected = (en._intel && en._intel.agency) || null;
-    const managed = manual ? !!manual.managed : (detected ? !!detected.managed : false);
-    const name = (manual && manual.name) || (detected && detected.name) || null;
-    if (!managed && !name && !manual) continue; // nothing to show
-    // find a contact to link to (so the row opens the lead)
+    const manualAg = en._agency || null;
+    const detectedAg = (en._intel && en._intel.agency) || null;
+    const managed = manualAg ? !!manualAg.managed : (detectedAg ? !!detectedAg.managed : false);
+    const agencyName = (manualAg && manualAg.name) || (detectedAg && detectedAg.name) || null;
+    const whale = en._whale || null;
+    const ap = en.apollo || {};
+    const employees = ap.employees || null, locations = ap.locations || null;
+    const isFranchise = !!ap.is_franchise;
+    const isBig = (employees && employees >= 250) || (locations && locations >= 5);
+    // Which whale reasons apply?
+    const kinds = [];
+    if (whale) kinds.push("flagged");
+    if (managed || agencyName) kinds.push("agency");
+    if (isFranchise) kinds.push("franchise");
+    if (isBig && !isFranchise) kinds.push("big");
+    if (!kinds.length) continue;    // an Apollo-enriched company that isn't actually a whale
     const ct = await env.DB.prepare("SELECT id, full_name FROM contacts WHERE company_id=? ORDER BY created_at LIMIT 1").bind(r.id).first().catch(() => null);
-    const row = {
+    agencies.push({
       company_id: r.id, company: r.name, domain: r.domain,
       contact_id: ct ? ct.id : null, contact_name: ct ? ct.full_name : null,
-      agency_name: name, managed, note: (manual && manual.note) || null,
-      source: manual ? "manual" : "detected", by: manual && manual.by || null, at: (manual && manual.at) || (detected && detected.detected_at) || null,
-    };
-    agencies.push(row);
-    if (managed && name) rosterMap.set(name, (rosterMap.get(name) || 0) + 1);
+      kinds, kind: kinds[0], agency_name: agencyName, managed,
+      employees, locations, is_franchise: isFranchise,
+      note: (whale && whale.reason) || (manualAg && manualAg.note) || null,
+      source: whale ? "flagged" : (manualAg ? "manual" : "detected"),
+      by: (whale && whale.by) || (manualAg && manualAg.by) || null,
+      at: (whale && whale.at) || (manualAg && manualAg.at) || (detectedAg && detectedAg.detected_at) || null,
+    });
+    if (managed && agencyName) rosterMap.set(agencyName, (rosterMap.get(agencyName) || 0) + 1);
   }
   const roster = [...rosterMap.entries()].map(([name, clients]) => ({ name, clients })).sort((a, b) => b.clients - a.clients);
   return json({ ok: true, agencies, roster }, {}, cors);

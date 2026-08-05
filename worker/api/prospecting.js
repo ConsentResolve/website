@@ -29,7 +29,19 @@ import { pushLeadToInstantly } from "../_lib/instantly.js";
 // The paused "Problem-Unaware (2026)" campaign. Override with env.INSTANTLY_CAMPAIGN_ID.
 const DEFAULT_INSTANTLY_CAMPAIGN = "44bd0040-5a28-4d38-a469-a73e2eb5ffca";
 
-const DISPOSITIONS = ["open", "sequence", "newsletter", "instantly", "skip"];
+const DISPOSITIONS = ["open", "sequence", "newsletter", "instantly", "whale", "skip"];
+
+// Flag a company as a WHALE (agency-managed / franchise / big account needing special
+// attention) so it surfaces in the Whales tab. Stored on companies.enrichment._whale.
+async function flagWhaleCompany(env, companyId, actorId, reason) {
+  if (!companyId) return;
+  let actorName = "CRM";
+  if (actorId) { const u = await env.DB.prepare("SELECT name FROM users WHERE id=?").bind(actorId).first().catch(() => null); if (u && u.name) actorName = u.name; }
+  const co = await env.DB.prepare("SELECT enrichment FROM companies WHERE id=?").bind(companyId).first().catch(() => null);
+  let e = {}; try { e = co && co.enrichment ? JSON.parse(co.enrichment) : {}; } catch (_) {}
+  e._whale = { flagged: true, reason: reason || "needs special attention", by: actorName, at: new Date().toISOString() };
+  await env.DB.prepare("UPDATE companies SET enrichment=?, updated_at=datetime('now') WHERE id=?").bind(JSON.stringify(e), companyId).run().catch(() => {});
+}
 
 const rid = (p) => p + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 const cents = (usd) => Math.round(Number(usd || 0) * 100);
@@ -552,6 +564,12 @@ async function executeDisposition(env, prospectId, disposition, actorId) {
     meta.newsletter = true;
     return { kind: "newsletter", meta, conversation_id: pr.conversation_id };
   }
+  if (disposition === "whale") {
+    const crow = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(pr.contact_id).first().catch(() => null);
+    await flagWhaleCompany(env, crow && crow.company_id, actorId, "flagged from Prospecting");
+    meta.whale = true;
+    return { kind: "whale", meta, conversation_id: pr.conversation_id };
+  }
   return { kind: "open", meta, conversation_id: pr.conversation_id }; // human conversation
 }
 
@@ -568,7 +586,7 @@ async function keepProspect(env, b, actorId, cors) {
   return json({ ok: true, disposition: disp, kind: r.kind, conversation_id: r.conversation_id || null, message: label }, {}, cors);
 }
 
-const DISP_LABEL = { open: "Human conversation", sequence: "Sequence", newsletter: "Newsletter", instantly: "Instantly (staged)", skip: "Skip" };
+const DISP_LABEL = { open: "Human conversation", sequence: "Sequence", newsletter: "Newsletter", instantly: "Instantly (staged)", whale: "Whales", skip: "Skip" };
 
 // APOLLO CONTACT SEARCH — free, masked preview of decision-makers at the prospect's domain.
 // Returns first-name + title + has_email only (no credits spent). The caller ticks who they
@@ -727,6 +745,7 @@ async function apolloKeep(env, b, actorId, cors) {
   }
   else if (disp === "sequence") { for (const cid of savedContactIds) await enrollContact(env, { contactId: cid, conversationId: cid === baseContactId ? convId : null, source: "prospect_keep_apollo", workflowId: "cold-to-demo" }).catch(() => {}); kind = "sequence"; }
   else if (disp === "newsletter") { await enrollRepermission(env, { contactIds: savedContactIds }).catch(() => {}); kind = "newsletter"; }
+  else if (disp === "whale") { await flagWhaleCompany(env, companyId, actorId, "flagged from Prospecting"); kind = "whale"; }
 
   const emails = savedPeople.filter((p) => p.email).length;
   const who = savedPeople.map((p) => (p.name || "?") + (p.title ? ` (${p.title})` : "")).join(", ") || "no contact selected";
@@ -735,7 +754,7 @@ async function apolloKeep(env, b, actorId, cors) {
   if (convId) await env.DB.prepare("INSERT INTO notes (id, author_id, conversation_id, contact_id, body) VALUES (?,?,?,?,?)").bind(rid("nt_"), actorId || null, convId, baseContactId, noteBody).run().catch(() => {});
   await env.DB.prepare("UPDATE prospects SET disposition_meta=?, updated_at=datetime('now') WHERE id=?").bind(JSON.stringify({ apollo: true, contacts: savedContactIds, credits, kind, instantly_pushed: pushed }), b.id).run().catch(() => {});
 
-  const msg = { open: "Opened a conversation", sequence: "Enrolled in the sequence", newsletter: "Added to the newsletter", instantly_pushed: `Pushed ${pushed} to the Instantly campaign` }[kind] || "Saved";
+  const msg = { open: "Opened a conversation", sequence: "Enrolled in the sequence", newsletter: "Added to the newsletter", instantly_pushed: `Pushed ${pushed} to the Instantly campaign`, whale: "Flagged as a Whale" }[kind] || "Saved";
   const resp = { ok: true, disposition: disp, kind, saved: savedPeople, credits, pushed, conversation_id: convId || null, message: `${msg} · ${savedPeople.length} contact(s), ${emails} email(s)` };
   if (disp === "instantly" && emails && !pushed) resp.warning = "Saved, but couldn't push to Instantly" + (pushErr ? " (" + pushErr + ")" : "") + ".";
   if (revealErr && /not authorized/i.test(revealErr)) resp.warning = "Apollo key lacks People Enrichment scope — emails couldn't be revealed.";
