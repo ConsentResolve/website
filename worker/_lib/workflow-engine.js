@@ -433,6 +433,15 @@ async function stepRun(env, run, out, dry) {
       if (!canSendNow) { await scheduleAt(env, run, idx, new Date(Date.now() + 3600 * 1000).toISOString()); out.deferred = (out.deferred || 0) + 1; return; }
     }
 
+    // PARK non-IV workflows while the engine is off. The */5 cron still ticks (because IV is
+    // live), so without this a Cold-to-Demo run would "preview" through every step and complete
+    // without sending. Instead we hold the CURRENT step (reschedule +1h, don't advance) so
+    // anything enrolled before go-live fires the moment WORKFLOW_ENGINE_ENABLED flips to true.
+    if (!dry && !enabled(env) && !isIvStep(run, step) && step.action !== "wait") {
+      await scheduleAt(env, run, idx, new Date(Date.now() + 3600 * 1000).toISOString());
+      out.deferred = (out.deferred || 0) + 1; return;
+    }
+
     // Consent gate before any message action.
     if (ch === "sms" || ch === "voice" || ch === "email") {
       const gate = await canSend(env, { contactId: run.contact_id, email: c.email, phone: c.phone, channel: ch });
