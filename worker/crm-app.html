@@ -83,7 +83,7 @@ html,body{height:100%}
   .toggle button.on{background:var(--accent);color:var(--on-accent)}
 
   .app{flex:1;display:grid;grid-template-columns:64px 1fr;grid-template-rows:1fr;min-height:0}
-  .viewwrap{grid-column:2;grid-row:1;display:grid;grid-template-columns:316px 1fr;min-height:0;min-width:0}
+  .viewwrap{grid-column:2;grid-row:1;display:grid;grid-template-columns:316px 1fr;grid-template-rows:1fr;min-height:0;min-width:0;height:100%;overflow:hidden}
   .pipeboard{grid-column:2;grid-row:1;min-height:0;min-width:0;overflow:auto;background:var(--surface-0);padding:22px 26px}
   .viewwrap[hidden],.pipeboard[hidden]{display:none}
   .rail{background:var(--surface-1);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 0}
@@ -223,7 +223,7 @@ html,body{height:100%}
   .tracker.tk-paused .st.cur .bub{box-shadow:0 0 0 4px var(--bad-soft)}
   .tracker.tk-paused .st.done::after{background:var(--bad)}
 
-  .thread{display:flex;flex-direction:column;min-height:0;background:var(--surface-0)}
+  .thread{display:flex;flex-direction:column;min-height:0;height:100%;overflow:hidden;background:var(--surface-0)}
   .thead{padding:14px 18px;border-bottom:1px solid var(--line);background:var(--surface-1)}
   .thead .t1{display:flex;align-items:flex-start;gap:11px}
   .hdr-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex:0 0 auto}
