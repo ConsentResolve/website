@@ -468,6 +468,15 @@ export default {
       } catch (err) {
         console.log(`[prospecting] waterfall error: ${String(err).slice(0, 160)}`);
       }
+      // Auto-intel drip — bring every lead's dossier up to date. Enriches a bounded batch of
+      // leads whose enrichment is missing / pre-synthesis / stale (>30d), running BOTH lookups.
+      // Also enriches new inbound leads (domain captured at ingest) within a tick or two.
+      try {
+        const out = await crmLookup.enrichDueLeads(env, { limit: 8 });
+        if (out && out.enriched) console.log(`[intel] auto-enriched ${out.enriched}/${out.scanned} lead(s) · $${out.cost_usd}`);
+      } catch (err) {
+        console.log(`[intel] drip error: ${String(err).slice(0, 160)}`);
+      }
       // Instantly Website Visitors ingest DISABLED (2026-07-29): the Instantly
       // "Website Visitors" list turned out to be the HVAC cold-campaign's
       // (mostly-unsubscribed) leads, not real visitors. Left off the cron; the

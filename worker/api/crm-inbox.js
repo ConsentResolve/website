@@ -10,7 +10,7 @@ import { gAccessToken, sendMessage, trashThread } from "../_lib/gmail.js";
 import { sendInstantlyReply } from "./crm-instantly.js";
 import { sendTestSms as sendSms } from "../_lib/stl/twilio.js";
 import { sendCrispMessage, getCrispTranscript } from "./crm-crisp.js";
-import { ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIdentifier, normPhone, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2, isAdmin } from "../_lib/crm-v2.js";
+import { ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIdentifier, findOrCreateCompany, normPhone, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2, isAdmin } from "../_lib/crm-v2.js";
 import { getByEmail } from "../_lib/db.js";
 import { progressFor } from "../_lib/demo-notify.js";
 import { addSuppression, isSuppressed, logEvent } from "../_lib/crm-rebuild.js";
@@ -94,6 +94,44 @@ async function markBounced(env, email) {
 }
 
 // Ingest recent inbox mail for one connected account into conversations/messages.
+// --- Auto-intel: find a new lead's website so the enrichment drip can enrich them ----------
+const FREEMAIL_HOST = /^(gmail|yahoo|ymail|hotmail|outlook|live|msn|aol|icloud|me|mac|proton|protonmail|comcast|att|sbcglobal|verizon|bellsouth|cox|charter|earthlink|gmx)\./i;
+// Business domain from an email address, or null for free-mail / our own / none.
+function bizDomainFromEmail(email) {
+  const at = String(email || "").split("@")[1];
+  if (!at) return null;
+  const d = at.trim().toLowerCase().replace(/[>,;].*$/, "");
+  return (!d || FREEMAIL_HOST.test(d) || d.includes("consentresolve")) ? null : d;
+}
+// First real business website in the email body/signature — explicit http(s):// or www. URLs
+// only, so we never match stray words. Skips our own + social/utility domains.
+const SKIP_DOMAIN = /(consentresolve|gmail|yahoo|hotmail|outlook|aol|icloud|proton|google|facebook|fb\.|instagram|linkedin|twitter|x\.com|youtube|tiktok|bit\.ly|schema\.org|w3\.org|example\.|sentry|mailchimp|constantcontact|calendly|godaddy|wixsite|squarespace)/i;
+function websiteFromBody(text, html) {
+  const hay = String(text || "") + " " + String(html || "");
+  const rx = /https?:\/\/(?:www\.)?([a-z0-9-]+(?:\.[a-z0-9-]+)+)|(?:^|[\s(<])(www\.[a-z0-9-]+(?:\.[a-z0-9-]+)+)/gi;
+  let m;
+  while ((m = rx.exec(hay))) {
+    const d = (m[1] || m[2] || "").toLowerCase().replace(/^www\./, "").replace(/[/?#].*$/, "");
+    if (d && /\.[a-z]{2,}$/.test(d) && !SKIP_DOMAIN.test(d)) return d;
+  }
+  return null;
+}
+// Persist a new inbound lead's website onto their company (cheap, no API) so the auto-enrich
+// drip runs both lookups on them next tick. Only fills a blank domain; safe to call repeatedly.
+async function attachLeadDomain(env, contactId, senderEmail, text, html) {
+  if (!contactId) return null;
+  const domain = bizDomainFromEmail(senderEmail) || websiteFromBody(text, html);
+  if (!domain) return null;
+  const ct = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first().catch(() => null);
+  if (ct && ct.company_id) {
+    await env.DB.prepare("UPDATE companies SET domain=COALESCE(NULLIF(domain,''), ?), updated_at=datetime('now') WHERE id=?").bind(domain, ct.company_id).run().catch(() => {});
+  } else {
+    const companyId = await findOrCreateCompany(env, { name: domain, domain }).catch(() => null);
+    if (companyId) await env.DB.prepare("UPDATE contacts SET company_id=?, updated_at=datetime('now') WHERE id=?").bind(companyId, contactId).run().catch(() => {});
+  }
+  return domain;
+}
+
 export async function pollEmailInbox(env, account) {
   const tok = await gAccessToken(env, account);
   if (!tok) return { account, error: "no_token" };
@@ -141,6 +179,10 @@ export async function pollEmailInbox(env, account) {
       externalMessageId: msgId, inReplyTo, bodyText: text || m.snippet || "", bodyHtml: html, sentAt,
     });
     if (!r.existed) ingested++;
+    // Auto-intel: on a genuinely-new inbound message, capture the lead's website (business
+    // sender domain, else a URL in the body) so the enrichment drip runs both lookups on them
+    // automatically as they come in. Cheap — no API calls here, just persists the domain.
+    if (!outbound && !r.existed) { try { await attachLeadDomain(env, contactId, other, text, html); } catch (_) {} }
   }
   return { account, seen, ingested, bounced };
 }

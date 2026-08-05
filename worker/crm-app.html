@@ -333,7 +333,10 @@ html,body{height:100%}
   .ilook-btn{border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);font:inherit;font-size:12px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer}
   .ilook-btn:hover{background:var(--accent);color:#04120b}
   .ilook-note{font-size:11px;color:var(--tx-3)}
-  .webinput{border:1px solid var(--line);border-radius:6px;background:var(--surface-0);color:var(--tx-1);font:inherit;font-size:12.5px;padding:4px 8px;width:150px}
+  .ilook-dom{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12.5px;color:var(--tx-2)}
+  .ilook-dom a{color:var(--accent);text-decoration:none} .ilook-dom a:hover{text-decoration:underline}
+  .ilook-add{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .webinput{border:1px solid var(--line);border-radius:6px;background:var(--surface-0);color:var(--tx-1);font:inherit;font-size:12.5px;padding:4px 8px;width:200px;max-width:100%}
   .webset{border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);font:inherit;font-size:12px;font-weight:700;padding:4px 9px;border-radius:6px;cursor:pointer;margin-left:6px}
   .webedit{border:0;background:transparent;color:var(--tx-3);cursor:pointer;font-size:12px;padding:0 4px}
   .ilook-btn.paid{border-color:var(--warn);background:var(--warn-soft,rgba(245,158,11,.14));color:var(--warn)}
@@ -4317,9 +4320,11 @@ function webRow(id, e){
 function editIntelWebsite(id,ev){ if(ev)ev.stopPropagation(); const cur=((window.ENRICH||{})[id]||{}).website; const v=(prompt('Website:', (cur&&cur.domain)||'')||'').trim(); if(v) setWebsiteAndLookup(id,v); }
 function setIntelWebsite(id){ const inp=document.getElementById('webinput-'+id); const v=inp?inp.value.trim():''; if(v) setWebsiteAndLookup(id,v); }
 function setWebsiteAndLookup(id,domain){
-  const dom=domain.replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/[/?#].*$/,'').trim();
+  const dom=(domain||'').replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/[/?#].*$/,'').trim();
+  if(!dom) return;
   window.ENRICH=window.ENRICH||{}; const en=window.ENRICH[id]||{}; en.website=Object.assign({},en.website||{},{domain:dom}); window.ENRICH[id]=en;
-  runLookup(id,'claude');   // free lookup: persists the domain + gathers intel, shows cost
+  if(window.__autoLook) delete window.__autoLook[id];
+  runLookup(id,'all');   // both lookups at once: persists the domain + full intel, shows cost
 }
 /* The most-important intel, distilled into a strip at the top of the dashboard. */
 function signalsCard(e){
@@ -4350,7 +4355,7 @@ async function runLookup(id, mode, ev){
   const e=(window.ENRICH||{})[id]||{};
   let site=(e.website&&e.website.domain)||'';
   if(!site){ site=(prompt('Website to look up (e.g. acmehvac.com):','')||'').trim(); if(!site) return; }
-  const label = mode==='dataforseo'?'DataForSEO':'Claude lookup';
+  const label = mode==='dataforseo'?'DataForSEO':mode==='all'?'Enriching':'Claude lookup';
   const note=document.getElementById('ilook-note-'+id); if(note) note.textContent=label+': looking up '+site+'…';
   if(window.crmToast) crmToast(label+': '+site+'…');
   const conv=DATA.conversations.find(x=>x.id===id);
@@ -4501,7 +4506,23 @@ function d2InitDossier(c){
     document.querySelectorAll('.d2-icpfill').forEach(el=>{ el.style.height=(el.dataset.h||0)+'%'; });
     document.querySelectorAll('.d2-sg .bar i').forEach(el=>{ el.style.width=(el.dataset.w||0)+'%'; });
     document.querySelectorAll('.d2-score').forEach(el=>{ const n=+el.dataset.n||0; let t0=null; const tick=t=>{ t0=t0||t; const p=Math.min((t-t0)/900,1); el.innerHTML=Math.round(n*(1-Math.pow(1-p,3)))+'<small>/100</small>'; if(p<1)requestAnimationFrame(tick); }; requestAnimationFrame(tick); });
-    if(c) d2Recalc(c.id);
+    if(c){
+      d2Recalc(c.id);
+      // Auto-enrich on open — the manual buttons are gone. If we have a domain but the dossier
+      // is missing/pre-synthesis, run BOTH lookups once automatically. Guarded per-conversation
+      // so it never loops (runLookup re-renders the tab, which re-calls d2InitDossier).
+      try{
+        const e=(window.ENRICH||{})[c.id]||{}, x=(window.INTEL||{})[c.id]||{};
+        const hasDom=!!(e.website&&e.website.domain);
+        const needs=(!x.synthesis)||(e._looked_up_at==null);
+        window.__autoLook=window.__autoLook||{};
+        if(hasDom && needs && !window.__autoLook[c.id]){
+          window.__autoLook[c.id]=1;
+          const n=document.getElementById('ilook-note-'+c.id); if(n)n.textContent='Enriching…';
+          runLookup(c.id,'all');
+        }
+      }catch(_){}
+    }
   });
 }
 window.d2InitDossier=d2InitDossier;
@@ -4576,7 +4597,7 @@ function intelDashboard(c){
     ${people.map(p=>`<div class="prow"><span class="pk">${esc(p.name||'—')}${p.role?` <span style="color:var(--tx-3);font-weight:500">· ${esc(p.role)}</span>`:''}</span><span class="pv">${p.email?`<a href="mailto:${esc(p.email)}">${esc(p.email)}</a>`:''}${p.phone?`${p.email?' · ':''}<a href="${telHref(p.phone)}">${esc(p.phone)}</a>`:''}</span></div>`).join('')}
     ${extraEmails.map(em=>`<div class="prow"><span class="pk" style="color:var(--tx-3)">Email</span><span class="pv"><a href="mailto:${esc(em)}">${esc(em)}</a></span></div>`).join('')}
     ${extraPhones.map(pn=>`<div class="prow"><span class="pk" style="color:var(--tx-3)">Phone</span><span class="pv"><a href="${telHref(pn)}">${esc(pn)}</a></span></div>`).join('')}
-  ` : '<div class="idash-empty">No named contacts found yet — run 🔎 Claude Lookup to pull people, phones &amp; emails from the site and their messages.</div>';
+  ` : '<div class="idash-empty">No named contacts found yet — intel runs automatically; add a website above if none is on file.</div>';
   const sig=(e&&e._signals)||{}, syn=(x&&x.synthesis)||{};
   return `<div class="intel-dash">
     <div class="idash-hero">
@@ -4584,10 +4605,9 @@ function intelDashboard(c){
       <p class="idh-brief">${esc(x.brief||it.signal||'')}</p>
       <div class="idh-src">
         ${(e.website&&e.website.domain)
-          ? `<button class="ilook-btn free" onclick="runLookup('${c.id}','claude',event)">🔎 Claude Lookup<span class="lk-tag free">Free</span></button>
-             <button class="ilook-btn paid" onclick="runLookup('${c.id}','dataforseo',event)">📊 DataForSEO Lookup<span class="lk-tag paid">Paid</span></button>`
-          : `<span class="ilook-note">Add a website (Website row below, or the Task tab) to enable lookups.</span>`}
-        <span class="ilook-note" id="ilook-note-${c.id}">${e._last_cost!=null?`Last lookup: $${(+e._last_cost).toFixed(4)}`:''}</span>
+          ? `<span class="ilook-dom">🌐 <a href="https://${esc(e.website.domain)}" target="_blank" rel="noopener">${esc(e.website.domain)}</a><button class="webedit" title="Wrong site? change it" onclick="editIntelWebsite('${c.id}',event)">✎</button></span>`
+          : `<span class="ilook-add"><input class="webinput" id="webadd-${c.id}" placeholder="add a website — e.g. acmehvac.com" spellcheck="false" onkeydown="if(event.key==='Enter'){setWebsiteAndLookup('${c.id}',this.value)}"><button class="ilook-btn" onclick="setWebsiteAndLookup('${c.id}',document.getElementById('webadd-${c.id}').value)">Run intel</button></span>`}
+        <span class="ilook-note" id="ilook-note-${c.id}">${e._last_cost!=null?`Enriched · $${(+e._last_cost).toFixed(4)}`:''}</span>
       </div>
     </div>
     ${signalsCard(e)}

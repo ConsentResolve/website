@@ -218,17 +218,28 @@ async function writeBackRecord(env, { contact, company, data }) {
 export async function onRequestPost({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ ok: false, error: "unauthorized" }, { status: 403 }, cors);
+  const b = await request.json().catch(() => ({}));
+  const me = await currentUser(request, env).catch(() => null);
+  const res = await enrichLead(env, { contactId: b.contact_id, website: b.website, mode: b.mode, actorId: me ? me.id : null });
+  return json(res, res.ok ? {} : { status: res.status || 400 }, cors);
+}
+
+// Core enrichment — shared by the HTTP endpoint, the auto-enrich cron drip, and inbound
+// ingest. Fetches the live site + Claude synthesis (free) and/or DataForSEO (paid), writes
+// back to the record, caches on the company, and returns the dossier payload. Deliberately
+// free of request/cors coupling so cron and ingest can call it directly.
+export async function enrichLead(env, { contactId, website, mode, actorId } = {}) {
   await ensureCrmV2Schema(env);
   await ensure(env);
-  const b = await request.json().catch(() => ({}));
-  if (!b.contact_id && !normDomain(b.website)) return json({ ok: false, error: "need_website", message: "No contact or website to look up." }, { status: 400 }, cors);
+  const b = { contact_id: contactId, website, mode };
+  if (!b.contact_id && !normDomain(b.website)) return { ok: false, status: 400, error: "need_website", message: "No contact or website to look up." };
 
   const ct = b.contact_id ? await env.DB.prepare("SELECT id, full_name, primary_email, company_id FROM contacts WHERE id=?").bind(b.contact_id).first().catch(() => null) : null;
   let co = ct && ct.company_id ? await env.DB.prepare("SELECT id, domain, enrichment FROM companies WHERE id=?").bind(ct.company_id).first().catch(() => null) : null;
   // Resolve the website: explicit param > saved company domain > business-email domain.
   let domain = normDomain(b.website) || normDomain(co && co.domain);
   if (!domain && ct && ct.primary_email && !/gmail|yahoo|hotmail|outlook|aol|icloud/.test(ct.primary_email)) domain = normDomain(ct.primary_email.split("@")[1]);
-  if (!domain) return json({ ok: false, error: "need_website", message: "No website on file — pass one to look up." }, {}, cors);
+  if (!domain) return { ok: false, status: 400, error: "need_website", message: "No website on file — pass one to look up." };
 
   // A lookup must PERSIST. If the contact has no company yet, create one from the domain and link
   // it — otherwise there's nowhere to cache the enrichment and it vanishes on refresh.
@@ -242,7 +253,7 @@ export async function onRequestPost({ request, env }) {
   // Persist the domain so we always "have somewhere to look".
   if (co && !normDomain(co.domain)) await env.DB.prepare("UPDATE companies SET domain=?, updated_at=datetime('now') WHERE id=?").bind(domain, co.id).run().catch(() => {});
 
-  const mode = b.mode || "all"; // 'claude' (free: site parse + Claude) | 'dataforseo' (paid) | 'all'
+  mode = mode || "all"; // 'claude' (free: site parse + Claude) | 'dataforseo' (paid) | 'all'
 
   // Start from cached enrichment so each button AUGMENTS the other's data instead of wiping it.
   let prev = {}; try { prev = co && co.enrichment ? JSON.parse(co.enrichment) : {}; } catch (_) {}
@@ -301,8 +312,7 @@ export async function onRequestPost({ request, env }) {
       breakdown.push({ source: "Claude research", cost: 0, ok: false, note: env.ANTHROPIC_API_KEY ? (cl.error || "no result") : "ANTHROPIC_API_KEY not set — using page parse only" });
     }
     if (env.APOLLO_API_KEY && ct && ct.primary_email) {
-      const me0 = await currentUser(request, env).catch(() => null);
-      const ar = await enrichContactById(env, b.contact_id, { actorId: me0 ? me0.id : await adminUserId(env) }).catch(() => ({}));
+      const ar = await enrichContactById(env, b.contact_id, { actorId: actorId || await adminUserId(env) }).catch(() => ({}));
       const org = ar && (ar.org || (ar.person && ar.person.organization));
       if (org) {
         parsed.enrich.employees = org.estimated_num_employees || parsed.enrich.employees;
@@ -401,10 +411,41 @@ export async function onRequestPost({ request, env }) {
     await env.DB.prepare("UPDATE companies SET enrichment=?, updated_at=datetime('now') WHERE id=?").bind(JSON.stringify(merged), co.id).run().catch(() => {});
   }
 
-  const me = await currentUser(request, env).catch(() => null);
+  const actor = actorId || (await adminUserId(env).catch(() => null));
   await env.DB.prepare("INSERT INTO lookup_log (id, contact_id, company_id, domain, cost_usd, sources, actor, created_at) VALUES (?,?,?,?,?,?,?,datetime('now'))")
-    .bind(rid(), b.contact_id, co ? co.id : null, domain, cost_usd, JSON.stringify(breakdown.map((x) => x.source)), me ? me.id : null).run().catch(() => {});
-  if (b.contact_id) await addActivityV2(env, { actorId: me ? me.id : null, entityType: "contact", entityId: b.contact_id, action: "intel_lookup", meta: { domain, cost_usd, mode, updated: writeback } }).catch(() => {});
+    .bind(rid(), b.contact_id, co ? co.id : null, domain, cost_usd, JSON.stringify(breakdown.map((x) => x.source)), actor || null).run().catch(() => {});
+  if (b.contact_id) await addActivityV2(env, { actorId: actor || null, entityType: "contact", entityId: b.contact_id, action: "intel_lookup", meta: { domain, cost_usd, mode, updated: writeback } }).catch(() => {});
 
-  return json({ ok: true, domain, mode, cost_usd, breakdown, enrich: parsed.enrich, directory: parsed.directory, intel: parsed.intel, signals, writeback, claude_on: !!env.ANTHROPIC_API_KEY, dataforseo_on: !!(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD) }, {}, cors);
+  return { ok: true, domain, mode, cost_usd, breakdown, enrich: parsed.enrich, directory: parsed.directory, intel: parsed.intel, signals, writeback, claude_on: !!env.ANTHROPIC_API_KEY, dataforseo_on: !!(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD) };
+}
+
+// Auto-enrich drip — brings every lead "up to date" without a manual button. Picks companies
+// that have a domain but whose enrichment is MISSING, in the OLD pre-synthesis format, or stale
+// (>30d), and runs BOTH lookups (mode:'all') for up to `limit` per call. Bounded so it respects
+// the Worker subrequest/time budget on the cron; successive ticks work through the whole book.
+export async function enrichDueLeads(env, { limit = 8 } = {}) {
+  const claudeOn = !!env.ANTHROPIC_API_KEY, dfsOn = !!(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD);
+  if (!claudeOn && !dfsOn) return { skipped: "no_enrich_keys" };
+  await ensureCrmV2Schema(env);
+  const staleBefore = new Date(Date.now() - 30 * 86400000).toISOString();
+  const rows = await env.DB.prepare(
+    `SELECT c.id AS contact_id, co.domain AS domain
+       FROM companies co
+       JOIN contacts c ON c.company_id = co.id
+      WHERE co.domain IS NOT NULL AND co.domain != ''
+        AND ( co.enrichment IS NULL
+              OR co.enrichment NOT LIKE '%"synthesis"%'
+              OR COALESCE(json_extract(co.enrichment, '$._looked_up_at'), '') < ? )
+      GROUP BY co.id
+      ORDER BY COALESCE(json_extract(co.enrichment, '$._looked_up_at'), '') ASC
+      LIMIT ?`
+  ).bind(staleBefore, limit).all().catch(() => ({ results: [] }));
+  let enriched = 0, cost = 0;
+  for (const r of (rows.results || [])) {
+    try {
+      const res = await enrichLead(env, { contactId: r.contact_id, website: r.domain, mode: "all" });
+      if (res && res.ok) { enriched++; cost += res.cost_usd || 0; }
+    } catch (_) { /* one bad domain never stalls the drip */ }
+  }
+  return { enriched, cost_usd: Math.round(cost * 10000) / 10000, scanned: (rows.results || []).length };
 }
