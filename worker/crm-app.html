@@ -2101,8 +2101,10 @@ function onSearch(v){
   const active=document.querySelector(".filters .on");
   renderList(active?active.dataset.f:'open');
 }
-/* List sort: recency = most recent activity, falling back to when the lead arrived. */
-function convTs(c){ return Date.parse(c.last_message_at||c.arrived_ts||c.age_ts||(c.last&&c.last.ts)||0)||0; }
+/* List sort key = the SAME value shown in the row's date stamp (arrived_ts||age_ts).
+   Those are already epoch numbers in live data, so use them directly (Date.parse expects a
+   string and would return NaN on a number). Fall back to parsing if a string ever appears. */
+function convTs(c){ const v=c.arrived_ts||c.age_ts||c.last_message_at||0; return (typeof v==='number'?v:Date.parse(v))||0; }
 function sortItems(items){
   const s=window.__sort||'newest';
   if(s==='oldest') items.sort((a,b)=>convTs(a)-convTs(b));
