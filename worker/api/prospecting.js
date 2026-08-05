@@ -390,11 +390,12 @@ async function promoteCore(env, prospectId, actorId) {
 
   // Create a conversation so it surfaces in the pipeline/inbox as a workable lead.
   const convId = rid("cv_");
+  // Auto-assign the lead to whoever processed it (the actor), so it lands in Open already owned.
   await env.DB.prepare(
-    `INSERT INTO conversations (id, contact_id, company_id, channel, source_detail, status, unread, subject, last_message_at, last_message_preview)
-     VALUES (?, ?, ?, 'prospecting', ?, 'open', 0, ?, datetime('now'), ?)`
+    `INSERT INTO conversations (id, contact_id, company_id, channel, source_detail, status, unread, subject, last_message_at, last_message_preview, assignee_id)
+     VALUES (?, ?, ?, 'prospecting', ?, 'open', 0, ?, datetime('now'), ?, ?)`
   ).bind(convId, contactId, companyId, `Prospecting · ${p.city || ""} ${p.trade || ""}`.trim(),
-    `${p.name || p.domain} — ${p.tier} prospect`, (safeJson(p.reasons, [])[0] || "Prospected lead")).run().catch(() => {});
+    `${p.name || p.domain} — ${p.tier} prospect`, (safeJson(p.reasons, [])[0] || "Prospected lead"), actorId || null).run().catch(() => {});
 
   await env.DB.prepare("UPDATE prospects SET status='promoted', promoted_contact_id=?, updated_at=datetime('now') WHERE id=?").bind(contactId, p.id).run().catch(() => {});
   await addActivityV2(env, { actorId, entityType: "contact", entityId: contactId, action: "promoted_from_prospect",
@@ -411,7 +412,7 @@ async function promoteCore(env, prospectId, actorId) {
     const q = rr ? safeJson(rr.query, {}) : {};
     src = q.kind === "csv" ? ("CSV import" + (q.filename ? ` (${q.filename})` : "")) : (q.trade || q.city ? ("sweep " + [q.trade, q.city].filter(Boolean).join(" · ")) : "a prospecting run");
   }
-  const noteBody = `🎯 Added to the Open pipeline by ${actorName} — from ${src}. Prospect tier: ${p.tier}${p.score != null ? ` (score ${p.score})` : ""}.`;
+  const noteBody = `🎯 Added to the Open pipeline by ${actorName} — from ${src}. Prospect tier: ${p.tier}${p.score != null ? ` (score ${p.score})` : ""}.${actorId ? ` Auto-assigned to ${actorName}.` : ""}`;
   await env.DB.prepare("INSERT INTO notes (id, author_id, conversation_id, contact_id, body) VALUES (?,?,?,?,?)")
     .bind(rid("nt_"), actorId || null, convId, contactId, noteBody).run().catch(() => {});
 
