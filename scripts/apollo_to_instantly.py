@@ -18,56 +18,89 @@ Per-industry: copy WAVE below and adjust. HVAC Wave #1 is pre-loaded.
 import argparse, csv, html, json, os, sys, urllib.request, urllib.error
 from pathlib import Path
 
-# ── Wave config (HVAC #1) ─────────────────────────────────────────────────────
-# Point cold email at the HVAC industry landing page (message-matched per email:
-# email 2 = the "$149 vs $7" math angle, email 3 = the "98% leave" hook). fn is last
-# so a rare space-in-name only truncates harmlessly. co/city omitted on purpose —
-# they often contain spaces that break auto-linkified plain-text URLs in email.
-_LP = "https://consentresolve.com/hvac-leads/?utm_source=instantly&utm_medium=email&utm_campaign=hvac_2026"
-LP_MATH = _LP + "&utm_content=math&fn={{firstName}}"
-LP_HOOK = _LP + "&utm_content=hook&fn={{firstName}}"
+# ── Wave config: Problem-Unaware · Visitor Recovery (2026) ────────────────────
+# Awareness arc for cold, problem-UNAWARE contractors: Unaware → Problem → Solution
+# → Product → Decision → breakup. First CTA is a REPLY (micro-yes), not a demo — you
+# sell the problem for two emails before asking for time. Link (the /demo/ Cal.com
+# booking page) appears only from email 3, so emails 1–2 stay link-free for
+# deliverability + reply. fn last in the URL so a rare space-in-name truncates
+# harmlessly. Tokens used are Apollo-CSV safe: {{firstName}} {{companyName}} {{city}}
+# {{website}}. Instantly syntax: spintax = {{RANDOM | a | b}}; sender =
+# {{sendingAccountFirstName}}; signature (physical address + unsubscribe for CAN-SPAM)
+# = {{accountSignature}}.
+_DEMO = "https://consentresolve.com/demo/?utm_source=instantly&utm_medium=email&utm_campaign=cf_unaware_2026"
+DEMO_MATH = _DEMO + "&utm_content=math&fn={{firstName}}"
+DEMO_SIGNS = _DEMO + "&utm_content=signs&fn={{firstName}}"
+DEMO_RISK = _DEMO + "&utm_content=risk&fn={{firstName}}"
+DEMO_HOOK = _DEMO + "&utm_content=breakup&fn={{firstName}}"
+TEXT_LINE = "Or text me — it comes straight to my phone: (727) 999-9846."
 WAVE = {
-    "name": "Contractors – Consent-First · HVAC TX (2026)",
+    "name": "Consent-First · Visitor Recovery — Problem-Unaware (2026)",
     "timezone": "America/Chicago",                       # Central
     "inboxes": ["aaron@getconsentresolve.com", "tyler@getconsentresolve.com",
                 "aaron@tryconsentresolve.com", "tyler@tryconsentresolve.com"],
     "daily_limit": 20, "send_from": "08:00", "send_to": "17:00",
-    # Research-backed (2026): short (<90w), company-specific personalization, ONE binary
-    # low-friction CTA, numbers/$ in subjects, NO link in email 1 (deliverability + reply),
-    # spintax openers, breakup finale. Link appears from email 2 (list-based retargeting
-    # doesn't need the email click, so removing it from #1 costs nothing).
-    # Instantly syntax: spintax = {{RANDOM | a | b | c}}; sender = {{sendingAccountFirstName}};
-    # signature (carries physical address + unsubscribe for CAN-SPAM) = {{accountSignature}}.
-    # Custom var {{city}} used plain (100% coverage). Link only from email 2.
     "sequence": [
+        # 1 · UNAWARE → problem. No link. Ask for a reply, nothing bigger. (A/B)
         {"delay": 0, "variants": [
-            {"subject": "the 98% leaving {{companyName}}'s site",
+            {"subject": "{{companyName}}'s website last month",
              "body": ("Hi {{firstName}},\n\n"
-                      "{{RANDOM | Quick question | One quick thing | Quick one}} — most {{city}}-area homeowners who land on {{companyName}}'s site leave without ever calling. Around 98%, and you never find out who they were.\n\n"
-                      "We hand those visitors back as exclusive, consent-first leads — real name, email, and what they need. $7 each, yours alone, never resold.\n\n"
-                      "Want me to send a 2-minute demo on a site like yours?\n\n"
+                      "{{RANDOM | Quick question | One quick thing | Quick one}} — most of the {{city}} homeowners who land on {{companyName}}'s site leave without ever calling. Around 98 of every 100. You paid to get them there; you just never found out who they were.\n\n"
+                      "If I could hand those visitors back to you — real name and email, and the job they were shopping for — would that be worth a look?\n\n"
+                      "Reply and I'll show you how it works on a site like yours.\n\n"
                       "— {{sendingAccountFirstName}}\n\n{{accountSignature}}")},
-            {"subject": "{{companyName}}'s website visitors",
+            {"subject": "the visitors {{companyName}} never met",
              "body": ("Hi {{firstName}},\n\n"
-                      "{{RANDOM | Quick one | Fast question}} — roughly 98% of the homeowners who visit {{companyName}}'s site around {{city}} leave without calling, and you never learn who they were.\n\n"
-                      "We turn them into exclusive, consent-first leads: name, email, what they need. $7 each, only yours, never resold.\n\n"
-                      "Worth a 2-minute demo on a site like yours?\n\n"
+                      "{{RANDOM | Quick one | Fast question}} — roughly 98% of the homeowners who visit {{companyName}}'s site leave without calling, and you never learn who they were.\n\n"
+                      "What if you got the name and email of the ones who were already on your site around {{city}}?\n\n"
+                      "Reply and I'll show you what that looks like.\n\n"
                       "— {{sendingAccountFirstName}}\n\n{{accountSignature}}")},
         ]},
+        # 2 · PROBLEM → the demonstration. Still no link — reply CTA.
         {"delay": 3, "variants": [
-            {"subject": "$149 vs $7",
-             "body": ("{{firstName}} — quick follow-up.\n\n"
-                      "A shared HVAC lead from the big platforms runs $35–150 and gets sold to 4–5 contractors. A consent-first lead is $7 and only yours.\n\n"
-                      "Here's a 2-minute demo on a site like yours: " + LP_MATH + "\n\n"
-                      "Not a fit? Just reply \"no\" and I'll close it out.\n\n"
+            {"subject": "what a \"yes\" actually gets you",
+             "body": ("{{firstName}} — here's the part that surprises people.\n\n"
+                      "Someone's already on your website. We put up a small banner that asks their permission. If they say yes, seconds later you get their name, their email, and the page they were looking at. Seven dollars. Only yours — never resold to another shop.\n\n"
+                      "No new ads, no more traffic to buy. It just catches the 98% you're already paying for and losing.\n\n"
+                      "Want me to run {{website}} and send you the monthly number — how many leads and what it'd cost? Just reply YES.\n\n"
                       "— {{sendingAccountFirstName}}\n\n{{accountSignature}}")},
         ]},
+        # 3 · SOLUTION → math + contrast. First link (the /demo/ booking page) + text.
+        {"delay": 3, "variants": [
+            {"subject": "$7 vs. what a lead costs you now",
+             "body": ("{{firstName}} — the math, quickly.\n\n"
+                      "About 75 of every 100 visitors accept the banner, and we put a name to roughly a quarter of those — call it 16–19 exclusive leads for every 100 visits. No middleman, no sharing.\n\n"
+                      "Compare a shared lead: $35–150, sold to 4–5 contractors who all call the same homeowner before lunch. Ours is $7, and nobody else ever gets it.\n\n"
+                      "Want to see it on your real numbers? Grab a 15-minute slot — we'll run your traffic live and install it while you watch: " + DEMO_MATH + "\n\n"
+                      + TEXT_LINE + "\n\n"
+                      "— {{sendingAccountFirstName}}\n\n{{accountSignature}}")},
+        ]},
+        # 4 · PRODUCT → trust: the honest disqualifier + the yard-sign flywheel.
+        {"delay": 3, "variants": [
+            {"subject": "when NOT to use us",
+             "body": ("{{firstName}} — the honest version.\n\n"
+                      "If {{companyName}}'s site gets under ~300 visits a month, don't sign up. You'd do better buying traffic first, and I'll tell you if that's you.\n\n"
+                      "But here's why it's cheap: we only make money when someone lands on your site and says yes. So we mail you yard signs, door hangers and truck magnets as you hit lead milestones — your logo, your number, a tracking code on each. You never get billed for any of it. The only line on your invoice is $7 a lead.\n\n"
+                      "Pick a time and we'll run your numbers: " + DEMO_SIGNS + "\n\n"
+                      "— {{sendingAccountFirstName}}\n\n{{accountSignature}}")},
+        ]},
+        # 5 · DECISION → risk reversal + the compliance edge.
+        {"delay": 4, "variants": [
+            {"subject": "no contract, live in 10 minutes",
+             "body": ("{{firstName}} — in case it's the friction stopping you:\n\n"
+                      "One snippet, live in about 10 minutes. No contract, no setup fee, no monthly. Slow month, small bill.\n\n"
+                      "And one thing the shared-lead sellers can't say: every lead said yes — they accepted the banner, on the record. That's clean under the TCPA/CIPA rules that are getting contractors sued for buying and calling shared lists.\n\n"
+                      "Worth 15 minutes? " + DEMO_RISK + "\n\n"
+                      "— {{sendingAccountFirstName}}\n\n{{accountSignature}}")},
+        ]},
+        # 6 · breakup.
         {"delay": 4, "variants": [
             {"subject": "should I close your file, {{firstName}}?",
              "body": ("I don't want to clutter your inbox, {{firstName}}.\n\n"
-                      "If turning the {{city}} homeowners who leave {{companyName}}'s site into $7 exclusive leads is ever worth 2 minutes, here's the demo: " + LP_HOOK + "\n\n"
+                      "If turning the folks who already visit {{companyName}}'s site into $7 exclusive leads is ever worth 15 minutes, here's where it starts: " + DEMO_HOOK + "\n\n"
                       "Otherwise I'll leave you to it — good luck this season.\n\n"
-                      "— {{sendingAccountFirstName}}\n\n{{accountSignature}}")},
+                      "— {{sendingAccountFirstName}}\n\n{{accountSignature}}\n\n"
+                      "P.S. Reply \"not now\" and I'll check back next quarter instead.")},
         ]},
     ],
 }

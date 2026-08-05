@@ -1,13 +1,19 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import ClaimForm from "~/components/ClaimForm.astro";
 import HowItWorks from "~/components/sections/HowItWorks.astro";
 import FAQ from "~/components/sections/FAQ.astro";
 
+// ── Cal.com booking link ────────────────────────────────────────────────
+// The slug after cal.com/ for the meeting you want prospects to book, e.g.
+// "consent-resolve/demo" or "tyler-spurlock/15min". CONFIRM THIS before the
+// page goes live — a wrong slug shows Cal's "not found" screen.
+const CAL_LINK = "aaron-phillips-xl2cpq/30min";
+// ─────────────────────────────────────────────────────────────────────────
+
 const incl = [
-  ["Exclusive leads", "yours alone at $7 — never resold"],
-  ["We install it for you", "on the call — about 10 minutes"],
-  ["Just $7 a lead", "flat — you only pay per lead, no contract"],
+  ["Pick a time that works", "15 minutes, screen-share — no slide deck"],
+  ["We run your real numbers", "your Analytics, your traffic, live on the call"],
+  ["We install it while you watch", "one line of code — live in about 10 minutes"],
 ];
 const compare = [
   { tag: "Angi · Thumbtack · HomeAdvisor", head: "Someone else's list", tone: "them", items: ["Same homeowner sold to 4–5 shops", "You race to the bottom on price", "They never visited your site", "Pay whether it's your trade or not", "Contracts and monthly minimums"] },
@@ -31,27 +37,38 @@ const faqs = [
 
 <BaseLayout
   ogImage="/og/demo.png"
-  title="See It Live — Exclusive $7 Leads — Consent Resolve"
-  description="Real homeowners who visited your site and said yes — name, email, and the job they were shopping for. A flat $7 a lead, never resold. Live in about 10 minutes."
+  title="Book a Live Demo — Exclusive $7 Leads — Consent Resolve"
+  description="Pick a time and we'll run your real traffic numbers and install your consent banner live — about 15 minutes. Real homeowners who visited your site and said yes, a flat $7 a lead, never resold."
   noindex
   demoWidget={false}
 >
-  <!-- HERO — offer left, form right -->
+  <!-- HERO — offer left, Cal.com calendar right -->
   <section class="bg-[color:var(--color-bg-inverse)]">
     <div class="mx-auto max-w-6xl px-6 py-14 lg:py-20">
-      <div class="grid items-center gap-12 lg:grid-cols-[1.05fr_.95fr]">
-        <div class="text-[color:var(--color-on-inverse)]">
+      <div class="grid items-start gap-12 lg:grid-cols-[.95fr_1.05fr]">
+        <div class="text-[color:var(--color-on-inverse)] lg:pt-6">
           <p class="font-mono text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--color-brand)]">For plumbers, roofers, HVAC &amp; electricians</p>
           <h1 class="mt-3 font-display text-4xl font-extrabold leading-[1.04] tracking-tight md:text-5xl">The homeowners already on your site — <span class="text-[color:var(--color-brand)]">with a name on them.</span></h1>
-          <p class="mt-5 max-w-md text-lg leading-relaxed text-[color:var(--color-on-inverse-muted)]">Real homeowners who visited <em>your</em> site and said yes — name, email, and the job they were shopping for. <strong class="text-[color:var(--color-on-inverse)]">A flat $7 a lead.</strong> Yours alone, never resold to the shop down the road.</p>
+          <p class="mt-5 max-w-md text-lg leading-relaxed text-[color:var(--color-on-inverse-muted)]">Pick a time on the right. We'll open your Analytics, run your real recovery numbers, and install your consent banner <strong class="text-[color:var(--color-on-inverse)]">while you watch</strong> — about 15 minutes, no slide deck.</p>
           <ul class="mt-7 space-y-2.5">
             {incl.map(([b, s]) => (
               <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-on-inverse)]"><span class="mt-0.5 text-[color:var(--color-brand)]">✓</span><span><strong>{b}</strong> <span class="text-[color:var(--color-on-inverse-muted)]">{s}</span></span></li>
             ))}
           </ul>
+          <p class="mt-7 text-sm text-[color:var(--color-on-inverse-muted)]">Rather talk first? Call <a href="tel:+17279999846" class="font-semibold text-[color:var(--color-on-inverse)] underline decoration-[color:var(--color-brand)] underline-offset-4">(727) 999-9846</a>.</p>
         </div>
 
-        <div id="claim" class="scroll-mt-24"><ClaimForm /></div>
+        <!-- Cal.com inline embed — opens on the month/date picker -->
+        <div id="book" class="scroll-mt-24">
+          <div class="rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg)] p-2 shadow-2xl sm:p-3">
+            <div id="cal-inline" data-cal-link={CAL_LINK} style="width:100%;min-height:600px;overflow:auto"></div>
+            <noscript>
+              <div class="p-6 text-center">
+                <a href={`https://cal.com/${CAL_LINK}`} class="inline-flex items-center justify-center rounded-lg bg-[color:var(--color-brand)] px-7 py-3.5 text-base font-bold text-[color:var(--color-on-brand)]">Pick a time →</a>
+              </div>
+            </noscript>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -112,7 +129,7 @@ const faqs = [
     </div>
   </section>
 
-  <FAQ eyebrow="Before you claim" headline="The questions we get every day." items={faqs} />
+  <FAQ eyebrow="Before you book" headline="The questions we get every day." items={faqs} />
 
   <!-- FINAL CTA -->
   <section class="bg-[color:var(--color-bg-inverse)]">
@@ -120,9 +137,22 @@ const faqs = [
       <h2 class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-on-inverse)] md:text-4xl">Every week you wait, another few hundred homeowners walk.</h2>
       <p class="mx-auto mt-3 max-w-lg text-[color:var(--color-on-inverse-muted)]">Worst case: 15 minutes, your real numbers, a working consent banner, and your real recovery numbers.</p>
       <div class="mt-7 flex flex-wrap justify-center gap-3">
-        <a href="#claim" class="inline-flex items-center justify-center rounded-lg bg-[color:var(--color-brand)] px-7 py-3.5 text-base font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)]">See it live →</a>
+        <a href="#book" class="inline-flex items-center justify-center rounded-lg bg-[color:var(--color-brand)] px-7 py-3.5 text-base font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)]">Pick a time →</a>
         <a href="tel:+17279999846" class="inline-flex items-center justify-center rounded-lg border border-[color:var(--color-on-inverse-muted)] px-7 py-3.5 text-base font-bold text-[color:var(--color-on-inverse)] transition-colors hover:bg-white/5">Or call (727) 999-9846</a>
       </div>
     </div>
   </section>
+
+  <!-- Cal.com embed loader — inline so Astro passes it through verbatim -->
+  <script is:inline>
+    (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if (typeof namespace === "string") { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ["initNamespace", namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+    (function () {
+      var el = document.getElementById("cal-inline");
+      var link = el ? el.getAttribute("data-cal-link") : "";
+      if (!link) return;
+      Cal("init", "demo", { origin: "https://cal.com" });
+      Cal.ns.demo("inline", { elementOrSelector: "#cal-inline", calLink: link, config: { layout: "month_view" } });
+      Cal.ns.demo("ui", { hideEventTypeDetails: false, layout: "month_view" });
+    })();
+  </script>
 </BaseLayout>
