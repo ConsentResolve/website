@@ -232,10 +232,13 @@ export async function upsertConversationByThread(env, c) {
   // stale re-sync never brings a deleted conversation back. (Channel-agnostic on purpose:
   // meta/sms/demo/phone/voice were previously un-guarded and could all resurrect.)
   if (!ex) {
-    const dead = await env.DB.prepare("SELECT deleted_at, hard FROM conversation_tombstones WHERE thread_key=?").bind(threadKey).first().catch(() => null);
+    // SELECT * (not named cols) so a missing `hard` column can never throw — that error was
+    // silently NULLing `dead`, skipping the guard entirely, and resurrecting deleted threads.
+    const dead = await env.DB.prepare("SELECT * FROM conversation_tombstones WHERE thread_key=?").bind(threadKey).first().catch(() => null);
     if (dead) {
       // A HARD (manually-deleted) tombstone never re-materializes — "wiped, scrubbed, gone
-      // forever." Only auto-tombstones fall through to the timestamp-aware re-open below.
+      // forever." The primary mechanism is a far-future deleted_at (below), so this works even
+      // if the `hard` column was never added; the flag is just belt-and-suspenders.
       if (dead.hard) return null;
       const delTs = Date.parse(dead.deleted_at || "") || 0;
       const actTs = Date.parse(c.lastAt || "") || 0;

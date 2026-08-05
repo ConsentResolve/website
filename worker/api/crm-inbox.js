@@ -712,9 +712,15 @@ export async function onRequestPost({ request, env }) {
     for (const id of ids) {
       const conv = await env.DB.prepare("SELECT id, contact_id, channel, channel_account_id, external_thread_id FROM conversations WHERE id=?").bind(id).first();
       if (!conv) continue;
-      // HARD tombstone so automated re-ingest (Gmail/Instantly/Site-Spy) can never resurrect it.
-      await env.DB.prepare("INSERT OR REPLACE INTO conversation_tombstones (thread_key, hard) VALUES (?, 1)")
-        .bind(conv.channel + "|" + (conv.external_thread_id || "")).run().catch(() => {});
+      // PERMANENT tombstone so automated re-ingest (Gmail/Instantly/Site-Spy) can never resurrect
+      // it. Uses ONLY base columns (thread_key + deleted_at) + a far-future date, so it ALWAYS
+      // writes even if the `hard` column was never added — the previous `(thread_key, hard)` insert
+      // threw on a missing column and wrote NOTHING, which is why deletes kept coming back. The
+      // year-9999 date can't be postdated by any real message, so upsert never re-opens it. A new
+      // email from the same person is a NEW Gmail thread (different key), so it's unaffected.
+      const tkey = conv.channel + "|" + (conv.external_thread_id || "");
+      await env.DB.prepare("INSERT OR REPLACE INTO conversation_tombstones (thread_key, deleted_at) VALUES (?, '9999-12-31T23:59:59Z')").bind(tkey).run().catch(() => {});
+      await env.DB.prepare("UPDATE conversation_tombstones SET hard=1 WHERE thread_key=?").bind(tkey).run().catch(() => {}); // belt-and-suspenders if the column exists
       // SCRUB AT SOURCE — move a Gmail-backed thread to Trash so the `in:inbox` poll can't re-read
       // it (reversible; needs the gmail.modify scope — one Gmail reconnect enables it).
       if (conv.channel === "email" && conv.external_thread_id && !String(conv.external_thread_id).startsWith("phone:")) {
