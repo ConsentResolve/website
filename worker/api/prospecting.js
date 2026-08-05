@@ -392,6 +392,21 @@ async function promoteCore(env, prospectId, actorId) {
   await addActivityV2(env, { actorId, entityType: "contact", entityId: contactId, action: "promoted_from_prospect",
     meta: { prospect_id: p.id, domain: p.domain, tier: p.tier, score: p.score } }).catch(() => {});
 
+  // AUDIT TRAIL — a prospect must never reach the Open pipeline without an intentional action, so
+  // record WHO did it, WHEN (the note's created_at), and from WHERE as a note in the conversation's
+  // Communication/Activity. Makes any promotion visible + attributable.
+  let actorName = "system";
+  if (actorId) { const u = await env.DB.prepare("SELECT name FROM users WHERE id=?").bind(actorId).first().catch(() => null); if (u && u.name) actorName = u.name; }
+  let src = "prospecting";
+  if (p.run_id) {
+    const rr = await env.DB.prepare("SELECT query FROM prospect_runs WHERE id=?").bind(p.run_id).first().catch(() => null);
+    const q = rr ? safeJson(rr.query, {}) : {};
+    src = q.kind === "csv" ? ("CSV import" + (q.filename ? ` (${q.filename})` : "")) : (q.trade || q.city ? ("sweep " + [q.trade, q.city].filter(Boolean).join(" · ")) : "a prospecting run");
+  }
+  const noteBody = `🎯 Added to the Open pipeline by ${actorName} — from ${src}. Prospect tier: ${p.tier}${p.score != null ? ` (score ${p.score})` : ""}.`;
+  await env.DB.prepare("INSERT INTO notes (id, author_id, conversation_id, contact_id, body) VALUES (?,?,?,?,?)")
+    .bind(rid("nt_"), actorId || null, convId, contactId, noteBody).run().catch(() => {});
+
   return { ok: true, contact_id: contactId, conversation_id: convId };
 }
 
