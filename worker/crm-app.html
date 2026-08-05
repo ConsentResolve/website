@@ -2390,7 +2390,11 @@ function deleteConv(id){
   /* Delete EVERY underlying row of a merged thread — deleting only the primary left siblings that
      re-threaded on the next load (the "deleted messages come back" bug). */
   const ids=(c&&c.thread_ids&&c.thread_ids.length)?c.thread_ids:[id];
-  try{ fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({del:ids})}); }catch(_){}
+  /* Await + confirm: surface the verified result so a failed delete/tombstone is visible (was
+     fire-and-forget, which hid failures). */
+  fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({del:ids})})
+    .then(x=>x.json()).catch(()=>null)
+    .then(r=>{ if(window.crmToast){ if(r&&r.ok) crmToast('Deleted '+(r.count||ids.length)+' · tombstoned '+(r.tombstoned||0)+' — won’t return'); else crmToast('Delete may have failed — '+((r&&(r.message||r.error))||'no response')); } });
   DATA.conversations.splice(i,1); recount();
   const f=curFilter();
   if(sel===id){ const nx=DATA.conversations.find(c=> f==='all'?true:c.bucket===f)||DATA.conversations[0];

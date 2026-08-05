@@ -708,6 +708,7 @@ export async function onRequestPost({ request, env }) {
     if (!ids.length) return json({ ok: true, already_gone: true }, {}, cors);
     const me = await currentUser(request, env);
     const scrubs = [];
+    const tkeys = [];
     let deleted = 0;
     for (const id of ids) {
       const conv = await env.DB.prepare("SELECT id, contact_id, channel, channel_account_id, external_thread_id FROM conversations WHERE id=?").bind(id).first();
@@ -721,6 +722,7 @@ export async function onRequestPost({ request, env }) {
       const tkey = conv.channel + "|" + (conv.external_thread_id || "");
       await env.DB.prepare("INSERT OR REPLACE INTO conversation_tombstones (thread_key, deleted_at) VALUES (?, '9999-12-31T23:59:59Z')").bind(tkey).run().catch(() => {});
       await env.DB.prepare("UPDATE conversation_tombstones SET hard=1 WHERE thread_key=?").bind(tkey).run().catch(() => {}); // belt-and-suspenders if the column exists
+      tkeys.push(tkey);
       // SCRUB AT SOURCE — move a Gmail-backed thread to Trash so the `in:inbox` poll can't re-read
       // it (reversible; needs the gmail.modify scope — one Gmail reconnect enables it).
       if (conv.channel === "email" && conv.external_thread_id && !String(conv.external_thread_id).startsWith("phone:")) {
@@ -742,7 +744,15 @@ export async function onRequestPost({ request, env }) {
       await addActivityV2(env, { actorId: me ? me.id : null, entityType: "conversation", entityId: id, action: "deleted" }).catch(() => {});
       deleted++;
     }
-    return json({ ok: true, deleted: ids, count: deleted, source_scrub: scrubs }, {}, cors);
+    // Verify the tombstones actually landed — the linchpin of the whole fix. Reading them back
+    // proves the write worked (vs. the old silent failure) and gives the UI a real confirmation.
+    let tombstoned = 0;
+    if (tkeys.length) {
+      const ph = tkeys.map(() => "?").join(",");
+      const v = await env.DB.prepare(`SELECT COUNT(*) n FROM conversation_tombstones WHERE thread_key IN (${ph})`).bind(...tkeys).first().catch(() => null);
+      tombstoned = v ? Number(v.n || 0) : 0;
+    }
+    return json({ ok: true, deleted: ids, count: deleted, tombstoned, source_scrub: scrubs }, {}, cors);
   }
 
   // Bulk purge obvious test/demo conversations. DRY-RUN BY DEFAULT — returns the match

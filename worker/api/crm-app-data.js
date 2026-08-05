@@ -185,6 +185,11 @@ export async function onRequestGet({ request, env }) {
 
   // ---- Inbox conversations (DATA.conversations shape) ----
   try { await env.DB.prepare("ALTER TABLE conversations ADD COLUMN snooze_note TEXT").run(); } catch (_) {} // ensure column exists before selecting it
+  try { await env.DB.prepare("CREATE TABLE IF NOT EXISTS conversation_tombstones (thread_key TEXT PRIMARY KEY, deleted_at TEXT NOT NULL DEFAULT (datetime('now')))").run(); } catch (_) {} // guarantee the tombstone table before the anti-resurrection filter
+  // ANTI-RESURRECTION FILTER — never show a conversation whose thread was deleted. Whatever
+  // re-inserts it (Gmail poll, a sync, a stray migration), a tombstoned thread stays hidden.
+  // Gated on a NON-EMPTY external_thread_id so it only affects real per-thread channels (email,
+  // sms, chat) — conversations that share an empty key (e.g. prospecting|) are never over-filtered.
   const convRows = (await env.DB.prepare(
     `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until, cv.snooze_note, cv.external_thread_id, cv.created_at, cv.assignee_id,
             ct.id contact_id, ct.full_name, ct.primary_email, ct.phone, ct.source, ct.lifecycle_stage, ct.lead_score, ct.tier, ct.newsletter_status, co.name company, co.domain co_domain, co.enrichment co_enrichment, au.name assignee_name
@@ -192,6 +197,8 @@ export async function onRequestGet({ request, env }) {
        LEFT JOIN contacts ct ON ct.id = cv.contact_id
        LEFT JOIN companies co ON co.id = ct.company_id
        LEFT JOIN users au ON au.id = cv.assignee_id
+      WHERE cv.external_thread_id IS NULL OR cv.external_thread_id = ''
+         OR NOT EXISTS (SELECT 1 FROM conversation_tombstones t WHERE t.thread_key = cv.channel || '|' || cv.external_thread_id)
       ORDER BY COALESCE(cv.last_message_at, cv.created_at) DESC LIMIT 500`
   ).all()).results || [];
   const convIds = convRows.map((r) => r.id);

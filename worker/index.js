@@ -489,6 +489,17 @@ export default {
       } catch (err) {
         console.log(`[inbox] poll error: ${String(err).slice(0, 160)}`);
       }
+      // ANTI-RESURRECTION SWEEP — hard-delete any conversation whose thread is tombstoned. If
+      // ANY path (the poll above, a sync, a stray migration) re-created a deleted thread, this
+      // removes it right after, so it never lingers in D1. The app already hides them; this keeps
+      // the row count honest. Gated on a non-empty external_thread_id (never touches prospecting|).
+      try {
+        const sw = await env.DB.prepare(
+          "DELETE FROM conversations WHERE external_thread_id IS NOT NULL AND external_thread_id != '' AND (channel || '|' || external_thread_id) IN (SELECT thread_key FROM conversation_tombstones)"
+        ).run();
+        const n = sw && sw.meta ? sw.meta.changes : 0;
+        if (n) console.log(`[tombstone-sweep] removed ${n} resurrected conversation(s)`);
+      } catch (err) { console.log(`[tombstone-sweep] error: ${String(err).slice(0, 160)}`); }
       // ONE-TIME: correct historical conversation arrival dates (created_at was defaulting to
       // the ingest moment, not when the lead came in). Runs once, marks a flag, never repeats.
       try {
