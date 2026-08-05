@@ -1238,6 +1238,11 @@ html,body{height:100%}
   .pdoss-top{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--line);font-family:var(--font-display);font-weight:800}
   .pdoss-x{border:1px solid var(--line);background:var(--surface-1);color:var(--tx-2);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:14px}
   .pdoss-x:hover{border-color:var(--bad);color:var(--bad)}
+  .pdoss-actions{display:flex;align-items:center;gap:8px}
+  .pdoss-load{font-family:var(--font-sans);font-weight:600;font-size:11.5px;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);border-radius:999px;padding:3px 10px;margin-left:8px;display:inline-flex;align-items:center;animation:rpPulse 1.3s ease-in-out infinite}
+  .pdoss-promote{font-size:12.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);border-radius:8px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+  .pdoss-promote:hover{background:var(--accent);color:var(--on-accent)}
+  .pdoss-promote:disabled{opacity:.7;cursor:default}
   .pdoss-card .intel-scroll{overflow:auto;padding:6px 4px}
   /* ---- Consent toggles (Intel panel) ---- */
   .cst-wrap{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
@@ -3266,28 +3271,58 @@ async function prospPush(btn){
   await renderProspecting(true);
 }
 /* Click a business name → promote + open the SAME Intel dossier in a modal (one renderer). */
-async function prospOpenDossier(id){
+const _dossCache={};   // session cache of full lookups by domain — re-opening never re-pays
+function prospOpenDossier(id){
   const p=(PROSP.prospects||[]).find(x=>x.id===id); if(!p) return;
-  crmToast&&crmToast('Loading dossier for '+(p.name||p.domain)+'…');
-  const pr=await prospPost({action:'promote',id});
-  if(!pr.ok||!pr.contact_id){ crmToast&&crmToast(pr.error||'Could not open dossier'); return; }
-  if(p){p.status='promoted';p.promoted_contact_id=pr.contact_id;}
-  const lk=await fetch('/api/crm/lookup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact_id:pr.contact_id,website:p.domain,mode:'all'})}).then(x=>x.json()).catch(()=>null);
-  const cid='__prospdoss';
+  const cid='__prospdoss', s=p.signals||{};
   window.ENRICH=window.ENRICH||{}; window.INTEL=window.INTEL||{}; window.DIRECTORY=window.DIRECTORY||{}; window.PHONES=window.PHONES||{}; window.__autoLook=window.__autoLook||{}; window.__autoLook[cid]=1;
-  window.ENRICH[cid]=Object.assign({},(lk&&lk.enrich)||{},{website:(lk&&lk.enrich&&lk.enrich.website)||{domain:p.domain},_signals:(lk&&lk.signals)||p.signals||{},_last_cost:lk&&lk.cost_usd,_looked_up_at:new Date().toISOString()});
-  window.INTEL[cid]=(lk&&lk.intel)||{trade:p.trade};
-  window.DIRECTORY[cid]=(lk&&lk.directory)||{};
-  if(p.phone) window.PHONES[cid]=p.phone;
+  // INSTANT open — seed the dossier from the prospect's OWN waterfall signals (score, traffic,
+  // marketplaces, socials, GMB, tech, authority). No network, so it appears immediately. The
+  // Claude synthesis (talking points / grade / owner / angles) streams in below.
+  window.ENRICH[cid]={
+    website:{domain:p.domain, capture:s.has_form},
+    traffic_month:s.traffic_month!=null?s.traffic_month:null, organic_traffic:s.organic_traffic, paid_traffic:s.paid_traffic,
+    marketplaces:s.marketplaces||[], pays_per_lead:(s.marketplaces||[]).length>0, running_ads:s.running_ads, ads:{google:!!s.running_ads},
+    spend_low:s.ad_spend?Math.round(s.ad_spend*0.8):undefined, spend_high:s.ad_spend?Math.round(s.ad_spend*1.2):undefined, spend_channels:s.ad_spend?['Google Ads']:undefined,
+    gmb:s.gmb||(p.rating!=null?{rating:p.rating,reviews:p.reviews||0,verified:false}:null), authority:s.authority,
+    facebook:s.facebook?{handle:s.facebook,ads_live:0,followers:0}:null,
+    _signals:Object.assign({}, s, {pays_per_lead:(s.marketplaces||[]).length>0, icp:{score:p.score,tier:p.tier,reasons:p.reasons||[]}}), _looked_up_at:new Date().toISOString()
+  };
+  window.INTEL[cid]={ trade:p.trade||s.trade_guess||null, tech:s.tech||[], chat:s.chat, google_screened:s.google_screened };
+  window.DIRECTORY[cid]={ instagram:s.instagram||null, linkedin:s.linkedin||null, tiktok:s.tiktok||null, phone:s.phone||p.phone||null };
+  if(s.phone||p.phone) window.PHONES[cid]=s.phone||p.phone;
   const fit=p.tier==='hot'?'hot':p.tier==='warm'?'warm':p.tier==='cold'?'cold':'unknown';
   const conv={id:cid,name:p.name||p.domain,company:p.name||p.domain,contact_email:'',contact_phone:p.phone||'',consent:{},channel:'prospecting',intel:{fit,time_on_site:'',pages:0,first_seen:'',speed_to_lead_h:null,pages_viewed:[],signal:(p.reasons&&p.reasons[0])||'',src_label:'batch',ip:'',location:p.city||''}};
+  openDossierModal(conv, id);
+  if(_dossCache[p.domain]){ mergeDossier(cid, conv, _dossCache[p.domain]); const b=document.getElementById('pdoss-load'); if(b)b.style.display='none'; return; }
+  // Background: Claude synthesis + real GMB. website-only (no promote) so browsing never clutters
+  // the pipeline; the "+ Add to pipeline" button promotes on purpose.
+  fetch('/api/crm/lookup',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({website:p.domain,mode:'all'})})
+    .then(x=>x.json()).catch(()=>null)
+    .then(lk=>{ const b=document.getElementById('pdoss-load'); if(b)b.style.display='none';
+      if(lk&&lk.ok){ _dossCache[p.domain]=lk; if(document.getElementById('pdoss-ov')) mergeDossier(cid, conv, lk); } });
+}
+function mergeDossier(cid, conv, lk){
+  window.ENRICH[cid]=Object.assign({}, window.ENRICH[cid], lk.enrich||{}, { _signals:Object.assign({}, lk.signals||{}, {icp:(lk.signals&&lk.signals.icp)||(window.ENRICH[cid]._signals||{}).icp}), _last_cost:lk.cost_usd });
+  window.INTEL[cid]=Object.assign({}, window.INTEL[cid], lk.intel||{});
+  window.DIRECTORY[cid]=Object.assign({}, window.DIRECTORY[cid], lk.directory||{});
+  const ov=document.getElementById('pdoss-ov'); if(!ov) return;
+  const wrap=ov.querySelector('.intel-dash-wrap'); if(wrap){ wrap.innerHTML=intelDashboard(conv); if(typeof d2InitDossier==='function') d2InitDossier(conv); }
+}
+function openDossierModal(conv, promoteId){
   let ov=document.getElementById('pdoss-ov'); if(ov)ov.remove();
   ov=document.createElement('div'); ov.id='pdoss-ov'; ov.className='pdoss-ov';
-  ov.innerHTML='<div class="pdoss-card"><div class="pdoss-top"><b>Dossier</b><button class="pdoss-x" onclick="document.getElementById(\'pdoss-ov\').remove()">✕</button></div><div class="intel-scroll intel-dash-wrap">'+intelDashboard(conv)+'</div></div>';
+  const promo=promoteId?`<button class="pdoss-promote" onclick="prospPromoteFromDossier('${promoteId}',this)">+ Add to pipeline</button>`:'';
+  ov.innerHTML='<div class="pdoss-card"><div class="pdoss-top"><b>Dossier <span id="pdoss-load" class="pdoss-load">✦ generating sales insights…</span></b><div class="pdoss-actions">'+promo+'<button class="pdoss-x" onclick="document.getElementById(\'pdoss-ov\').remove()">✕</button></div></div><div class="intel-scroll intel-dash-wrap">'+intelDashboard(conv)+'</div></div>';
   ov.onclick=(e)=>{ if(e.target===ov) ov.remove(); };
   document.body.appendChild(ov);
   if(typeof d2InitDossier==='function') d2InitDossier(conv);
 }
+function prospPromoteFromDossier(id,btn){ if(btn){btn.disabled=true;btn.textContent='Adding…';}
+  prospPost({action:'promote',id}).then(r=>{ if(r&&r.ok){ crmToast&&crmToast('Added to pipeline'); const p=(PROSP.prospects||[]).find(x=>x.id===id); if(p){p.status='promoted';p.promoted_contact_id=r.contact_id;} if(btn){btn.textContent='✓ In pipeline';} }
+    else if(btn){btn.disabled=false;btn.textContent='+ Add to pipeline';} });
+}
+window.prospOpenDossier=prospOpenDossier; window.prospPromoteFromDossier=prospPromoteFromDossier;
 function maybePollRuns(){
   const active=(PROSP.runs||[]).some(r=>r.status==='running');
   if(_prospPoll){ clearTimeout(_prospPoll); _prospPoll=null; }
