@@ -1230,6 +1230,22 @@ html,body{height:100%}
   .papollo-att{display:flex;align-items:flex-start;gap:8px;margin-top:9px;font-weight:700;color:var(--tx-2);cursor:pointer}
   .papollo-att input{margin-top:2px;accent-color:var(--good)}
   .papollo-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+  .seqtasks-wrap:empty{display:none}
+  .seqtasks-wrap{margin-bottom:14px}
+  .seqtasks-hd{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--tx-3);margin:0 0 8px;display:flex;align-items:center;gap:7px}
+  .seqtasks-n{background:var(--accent-soft);color:var(--accent);border-radius:var(--r-full);padding:1px 7px;font-size:10px}
+  .seqtask{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:start;padding:11px 12px;border:1px solid var(--line);border-radius:11px;background:var(--surface-1);margin-bottom:7px}
+  .seqtask-ic{font-size:15px;line-height:1.3}
+  .seqtask-main{min-width:0}
+  .seqtask-t{font-size:13.5px;font-weight:700;color:var(--tx-1)}
+  .seqtask-b{font-size:12px;line-height:1.5;color:var(--tx-3);margin-top:3px}
+  .seqtask-due{font-size:10.5px;font-weight:700;color:var(--tx-3);margin-top:4px}
+  .seqtask-acts{display:flex;flex-direction:column;gap:5px}
+  .seqtask-done,.seqtask-skip{font-size:11px;font-weight:800;padding:5px 11px;border-radius:8px;border:1px solid var(--line);cursor:pointer;white-space:nowrap}
+  .seqtask-done{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+  .seqtask-done:hover{background:var(--good);color:#fff}
+  .seqtask-skip{background:var(--surface-1);color:var(--tx-3)}
+  .seqtask-skip:hover{border-color:var(--tx-3);color:var(--tx-2)}
   .pdchip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);color:var(--tx-1)}
   .pdchip.open{background:var(--blue-soft,rgba(37,99,235,.12));border-color:#3b6ef0;color:#5b8def}
   .pdchip.sequence{background:rgba(124,58,237,.14);border-color:#7c3aed;color:#9a6ef5}
@@ -5047,9 +5063,29 @@ function renderTab(c){
     b.innerHTML = `<div class="tabscroll">${dealTab(c)}</div>`;
   } else {
     b.className="tabbody";
-    b.innerHTML = `<div class="tabscroll">${taskTab(c)}</div>`;
+    b.innerHTML = `<div class="tabscroll"><div id="seqtasks" class="seqtasks-wrap"></div>${taskTab(c)}</div>`;
+    loadSeqTasks(c);
   }
 }
+/* Open sequence/automation tasks (crm_tasks entity) for this conversation — the SDR worklist. */
+async function loadSeqTasks(c){
+  const host=document.getElementById('seqtasks'); if(!host||!c) return;
+  let tasks=[];
+  try{ const q=c.contact_id?('contact_id='+encodeURIComponent(c.contact_id)):('conversation_id='+encodeURIComponent(c.id)); const r=await fetch('/api/crm/task?status=open&'+q,{credentials:'same-origin'}); const d=await r.json(); tasks=(d&&d.tasks)||[]; }catch(_){}
+  if(!tasks.length){ host.innerHTML=''; return; }
+  const ic={call:'📞',linkedin:'🔗',manual:'✅',followup:'⏰',email_nudge:'✉️'};
+  host.innerHTML='<div class="seqtasks-hd">To-do <span class="seqtasks-n">'+tasks.length+'</span></div>'+tasks.map(function(t){
+    return '<div class="seqtask" data-id="'+t.id+'"><span class="seqtask-ic">'+(ic[t.type]||'✅')+'</span><div class="seqtask-main"><div class="seqtask-t">'+esc(t.title||'Task')+'</div>'+(t.body?'<div class="seqtask-b">'+esc(t.body)+'</div>':'')+(t.due_at?'<div class="seqtask-due">due '+esc(String(t.due_at).slice(0,10))+'</div>':'')+'</div><div class="seqtask-acts"><button class="seqtask-done" onclick="tskComplete(\''+t.id+'\',\'done\')">Done</button><button class="seqtask-skip" onclick="tskComplete(\''+t.id+'\',\'skipped\')">Skip</button></div></div>';
+  }).join('');
+}
+async function tskComplete(id,status){
+  const el=document.querySelector('.seqtask[data-id="'+id+'"]'); if(el) el.style.opacity=.5;
+  try{ await fetch('/api/crm/task',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({action:'complete',id,status})}); }catch(_){}
+  if(el) el.remove();
+  const host=document.getElementById('seqtasks'); if(host&&!host.querySelector('.seqtask')) host.innerHTML='';
+  if(window.crmToast) crmToast(status==='done'?'Task done':'Task skipped');
+}
+window.loadSeqTasks=loadSeqTasks; window.tskComplete=tskComplete;
 function switchTab(t){
   curTab=t; replyOpen=false; ATTACH=[];
   document.querySelectorAll(".tabs .tab").forEach(x=>x.classList.toggle("on", x.dataset.tab===t));

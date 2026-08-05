@@ -10,7 +10,8 @@ import { gAccessToken, sendMessage, trashThread } from "../_lib/gmail.js";
 import { sendInstantlyReply } from "./crm-instantly.js";
 import { sendTestSms as sendSms } from "../_lib/stl/twilio.js";
 import { sendCrispMessage, getCrispTranscript } from "./crm-crisp.js";
-import { ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIdentifier, findOrCreateCompany, normPhone, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2, isAdmin } from "../_lib/crm-v2.js";
+import { ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIdentifier, findOrCreateCompany, normPhone, upsertConversationByThread, insertMessageOnce, ulid, currentUser, adminUserId, addActivityV2, isAdmin, createTask } from "../_lib/crm-v2.js";
+import { handleGoalEvent } from "../_lib/workflow-engine.js";
 import { getByEmail } from "../_lib/db.js";
 import { progressFor } from "../_lib/demo-notify.js";
 import { addSuppression, isSuppressed, logEvent } from "../_lib/crm-rebuild.js";
@@ -132,6 +133,65 @@ async function attachLeadDomain(env, contactId, senderEmail, text, html) {
   return domain;
 }
 
+// ── Phase 1b: inbound reply intelligence ─────────────────────────────────────
+const REPLY_MODEL = "claude-haiku-4-5-20251001";
+async function classifyReply(env, text) {
+  if (!env.ANTHROPIC_API_KEY || !text) return { sentiment: "neutral", followup_date: null };
+  const prompt = `Classify this inbound email reply from a sales prospect. Return STRICT JSON only, no prose:
+{"sentiment":"positive|not_interested|bad_timing|neutral","followup_date":"<a timeframe if they named one, e.g. 'next spring','Q1','after March', else null>"}
+positive = interested, wants a demo/call/info, or asks a buying question. not_interested = a clear no, unsubscribe, "stop", "remove me", "not interested". bad_timing = interested-ish but not now ("circle back later","busy season","next quarter"). neutral = auto-reply, a question needing a human, or unclear.
+REPLY:
+${String(text).slice(0, 4000)}`;
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({ model: REPLY_MODEL, max_tokens: 200, messages: [{ role: "user", content: prompt }] }),
+    });
+    const j = await r.json();
+    let d = {}; try { d = JSON.parse(((j.content && j.content[0] && j.content[0].text) || "{}").replace(/^```json\s*|\s*```$/g, "")); } catch (_) {}
+    const s = ["positive", "not_interested", "bad_timing", "neutral"].includes(d.sentiment) ? d.sentiment : "neutral";
+    return { sentiment: s, followup_date: d.followup_date || null };
+  } catch (_) { return { sentiment: "neutral", followup_date: null }; }
+}
+async function sysNote(env, convId, text) {
+  if (!convId) return;
+  await env.DB.prepare("INSERT INTO messages (id, conversation_id, direction, channel, body_text, sent_at) VALUES (?,?, 'system', 'system', ?, ?)")
+    .bind(ulid(), convId, text, new Date().toISOString()).run().catch(() => {});
+}
+async function notifyReply(env, { sentiment }) {
+  const url = env.SALES_WEBHOOK_URL || env.TEAM_NOTIFY_URL;
+  if (!url) return;
+  try { await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: `CRM: a ${sentiment.replace("_", " ")} reply just came in → ${(env.STL_PUBLIC_ORIGIN || "https://consentresolve.com")}/crm/app` }) }); } catch (_) {}
+}
+// A reply to our outreach: ANY reply pauses the sequence; then classify + route + flag the SDR.
+// Gated to contacts who are (or were) in a sequence, so general inbound to hello@ is untouched.
+async function handleInboundReply(env, { contactId, convId, text, subject }) {
+  if (!contactId || !convId) return;
+  const inSeq = await env.DB.prepare("SELECT 1 FROM workflow_runs WHERE contact_id=? LIMIT 1").bind(contactId).first().catch(() => null);
+  if (!inSeq) return;
+  try { await handleGoalEvent(env, { contactId, goal: "replied" }); } catch (_) {}   // ANY reply pauses
+  const cls = await classifyReply(env, (subject ? subject + "\n" : "") + (text || ""));
+  const s = cls.sentiment;
+  await addActivityV2(env, { entityType: "contact", entityId: contactId, action: "reply_classified", meta: { sentiment: s, followup: cls.followup_date || null } }).catch(() => {});
+  if (s === "positive") {
+    await env.DB.prepare("UPDATE contacts SET lifecycle_stage='demo_requested', updated_at=datetime('now') WHERE id=?").bind(contactId).run().catch(() => {});
+    await createTask(env, { contactId, conversationId: convId, type: "followup", title: "Respond within 15 min — positive reply", body: "Lead replied positively. Reply personally with your booking link (do not automate), then confirm the demo.", dueAt: new Date().toISOString(), source: "automation" });
+    await sysNote(env, convId, "⚡ Positive reply — moved to Demo Requested. Respond within 15 minutes.");
+    await logEvent(env, { type: "demo_requested", contactId, conversationId: convId, meta: { via: "reply" } }).catch(() => {});
+  } else if (s === "not_interested") {
+    try { await handleGoalEvent(env, { contactId, goal: "opted_out" }); } catch (_) {}
+    await sysNote(env, convId, "🛑 Not interested — marked Do Not Contact and exited all sequences.");
+  } else if (s === "bad_timing") {
+    await createTask(env, { contactId, conversationId: convId, type: "followup", title: "Follow up later — bad timing" + (cls.followup_date ? ` (${cls.followup_date})` : ""), body: "Timing is off. Sequence paused. Follow up" + (cls.followup_date ? ` around ${cls.followup_date}` : " next quarter") + ".", source: "automation" });
+    await sysNote(env, convId, "🕒 Bad timing — paused, follow-up task created" + (cls.followup_date ? ` (${cls.followup_date})` : "") + ".");
+  } else {
+    await sysNote(env, convId, "✉️ Reply received — sequence paused. Needs a human.");
+  }
+  await env.DB.prepare("UPDATE conversations SET unread=1, status='open', updated_at=datetime('now') WHERE id=?").bind(convId).run().catch(() => {});
+  await notifyReply(env, { sentiment: s });
+}
+
 export async function pollEmailInbox(env, account) {
   const tok = await gAccessToken(env, account);
   if (!tok) return { account, error: "no_token" };
@@ -182,7 +242,10 @@ export async function pollEmailInbox(env, account) {
     // Auto-intel: on a genuinely-new inbound message, capture the lead's website (business
     // sender domain, else a URL in the body) so the enrichment drip runs both lookups on them
     // automatically as they come in. Cheap — no API calls here, just persists the domain.
-    if (!outbound && !r.existed) { try { await attachLeadDomain(env, contactId, other, text, html); } catch (_) {} }
+    if (!outbound && !r.existed) {
+      try { await attachLeadDomain(env, contactId, other, text, html); } catch (_) {}
+      try { await handleInboundReply(env, { contactId, convId, text: text || m.snippet, subject }); } catch (_) {}
+    }
   }
   return { account, seen, ingested, bounced };
 }

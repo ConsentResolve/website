@@ -542,7 +542,7 @@ async function executeDisposition(env, prospectId, disposition, actorId) {
   if (!pr.ok) return { kind: "failed", error: pr.error, meta: null };
   const meta = { conversation_id: pr.conversation_id || null, contact_id: pr.contact_id };
   if (disposition === "sequence") {
-    const en = await enrollContact(env, { contactId: pr.contact_id, conversationId: pr.conversation_id, source: "batch_triage" }).catch(() => ({}));
+    const en = await enrollContact(env, { contactId: pr.contact_id, conversationId: pr.conversation_id, source: "batch_triage", workflowId: "cold-to-demo" }).catch(() => ({}));
     meta.sequence_run_id = en && en.runId ? en.runId : null;
     return { kind: "sequence", meta, conversation_id: pr.conversation_id };
   }
@@ -669,7 +669,7 @@ async function apolloKeep(env, b, actorId, cors) {
       if (r && r.ok) pushed++; else pushErr = (r && r.error) || "push_failed";
     }
   }
-  else if (disp === "sequence") { for (const cid of savedContactIds) await enrollContact(env, { contactId: cid, conversationId: cid === baseContactId ? convId : null, source: "prospect_keep_apollo" }).catch(() => {}); kind = "sequence"; }
+  else if (disp === "sequence") { for (const cid of savedContactIds) await enrollContact(env, { contactId: cid, conversationId: cid === baseContactId ? convId : null, source: "prospect_keep_apollo", workflowId: "cold-to-demo" }).catch(() => {}); kind = "sequence"; }
   else if (disp === "newsletter") { await enrollRepermission(env, { contactIds: savedContactIds }).catch(() => {}); kind = "newsletter"; }
 
   const emails = savedPeople.filter((p) => p.email).length;
