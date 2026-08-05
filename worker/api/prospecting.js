@@ -31,8 +31,33 @@ const DEFAULT_INSTANTLY_CAMPAIGN = "44bd0040-5a28-4d38-a469-a73e2eb5ffca";
 
 const DISPOSITIONS = ["open", "sequence", "newsletter", "instantly", "whale", "skip"];
 
-// Flag a company as a WHALE (agency-managed / franchise / big account needing special
-// attention) so it surfaces in the Whales tab. Stored on companies.enrichment._whale.
+// Queue a prospect as a WHALE — NOTHING else happens (no conversation, no assignment, no
+// Apollo reveal). Creates/updates the company, caches signals so Intel pre-fills, flags it,
+// and marks the prospect done so it leaves the active prospecting list and shows in Whales.
+async function queueWhale(env, prospectId, actorId) {
+  const p = await env.DB.prepare("SELECT * FROM prospects WHERE id=?").bind(prospectId).first().catch(() => null);
+  if (!p) return { kind: "failed", error: "not_found", meta: null, conversation_id: null };
+  const sig = safeJson(p.signals, {});
+  const companyId = await findOrCreateCompany(env, { name: p.name || p.domain, domain: p.domain || null }).catch(() => null);
+  if (companyId) {
+    const cur = await env.DB.prepare("SELECT enrichment FROM companies WHERE id=?").bind(companyId).first().catch(() => null);
+    let e = {}; try { e = cur && cur.enrichment ? JSON.parse(cur.enrichment) : {}; } catch (_) {}
+    // Same shape promoteCore caches so the Intel dossier pre-fills without re-paying.
+    if (!e.website && p.domain) e.website = { domain: p.domain, capture: sig.has_form === true };
+    if (!e._signals) e._signals = sig;
+    if (!e._intel) e._intel = { trade: p.trade };
+    if (!e._source) e._source = "prospecting";
+    try { const org = p.domain ? await apolloOrgSummary(env, p.domain, p.name) : null; if (org) e.apollo = org; } catch (_) {}
+    let actorName = "CRM"; if (actorId) { const u = await env.DB.prepare("SELECT name FROM users WHERE id=?").bind(actorId).first().catch(() => null); if (u && u.name) actorName = u.name; }
+    e._whale = { flagged: true, reason: "queued from Prospecting for review", by: actorName, at: new Date().toISOString() };
+    await env.DB.prepare("UPDATE companies SET enrichment=?, domain=COALESCE(domain,?), updated_at=datetime('now') WHERE id=?").bind(JSON.stringify(e), p.domain || null, companyId).run().catch(() => {});
+  }
+  await env.DB.prepare("UPDATE prospects SET status='promoted', disposition='whale', disposition_by=?, disposition_at=datetime('now'), updated_at=datetime('now') WHERE id=?").bind(actorId, prospectId).run().catch(() => {});
+  await addActivityV2(env, { actorId, entityType: "company", entityId: companyId || prospectId, action: "whale_queued", meta: { domain: p.domain } }).catch(() => {});
+  return { kind: "whale", meta: { whale: true, company_id: companyId, queued: true }, conversation_id: null };
+}
+
+// Flag an ALREADY-promoted company as a whale (used by the Apollo path if it ever routes here).
 async function flagWhaleCompany(env, companyId, actorId, reason) {
   if (!companyId) return;
   let actorName = "CRM";
@@ -551,6 +576,7 @@ async function pushDispositions(env, b, actorId, ctx, cors) {
 async function executeDisposition(env, prospectId, disposition, actorId) {
   if (disposition === "skip") return { kind: "skip", meta: { skipped: true } };
   if (disposition === "instantly") return { kind: "instantly_staged", meta: { staged: "instantly", note: "Instantly push staged — not sent" } };
+  if (disposition === "whale") return await queueWhale(env, prospectId, actorId); // queue only — no conversation
   const pr = await promoteCore(env, prospectId, actorId);
   if (!pr.ok) return { kind: "failed", error: pr.error, meta: null };
   const meta = { conversation_id: pr.conversation_id || null, contact_id: pr.contact_id };
@@ -564,12 +590,6 @@ async function executeDisposition(env, prospectId, disposition, actorId) {
     meta.newsletter = true;
     return { kind: "newsletter", meta, conversation_id: pr.conversation_id };
   }
-  if (disposition === "whale") {
-    const crow = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(pr.contact_id).first().catch(() => null);
-    await flagWhaleCompany(env, crow && crow.company_id, actorId, "flagged from Prospecting");
-    meta.whale = true;
-    return { kind: "whale", meta, conversation_id: pr.conversation_id };
-  }
   return { kind: "open", meta, conversation_id: pr.conversation_id }; // human conversation
 }
 
@@ -582,7 +602,7 @@ async function keepProspect(env, b, actorId, cors) {
   const r = await executeDisposition(env, b.id, disp, actorId).catch(() => ({ kind: "failed" }));
   if (r.kind === "failed") return json({ ok: false, error: r.error || "execute_failed" }, { status: 400 }, cors);
   await env.DB.prepare("UPDATE prospects SET disposition_meta=? WHERE id=?").bind(JSON.stringify(r.meta || {}), b.id).run().catch(() => {});
-  const label = { open: "Opened a human conversation in your Inbox", sequence: "Enrolled in the outreach sequence", newsletter: "Added to the newsletter list", instantly_staged: "Staged for Instantly (recorded — not sent yet)" }[r.kind] || "Kept";
+  const label = { open: "Opened a human conversation in your Inbox", sequence: "Enrolled in the outreach sequence", newsletter: "Added to the newsletter list", instantly_staged: "Staged for Instantly (recorded — not sent yet)", whale: "Queued to Whales for review" }[r.kind] || "Kept";
   return json({ ok: true, disposition: disp, kind: r.kind, conversation_id: r.conversation_id || null, message: label }, {}, cors);
 }
 

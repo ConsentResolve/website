@@ -3474,11 +3474,11 @@ function prospPromoteFromDossier(id,btn){ if(btn){btn.disabled=true;btn.textCont
 window.prospOpenDossier=prospOpenDossier; window.prospPromoteFromDossier=prospPromoteFromDossier;
 /* ── Keep / Delete ── */
 const KEEP_OPTS=[
-  ['open','💬 Human conversation (Open / Convo)','Creates a live conversation in your Inbox (Open) so a rep can personally email or call this lead — real 1:1 outreach you work by hand.'],
-  ['sequence','⚡ Add to Sequence','Enrolls them in an automated multi-step email sequence (a drip) that sends on a schedule until they reply or opt out — hands-off nurture.'],
-  ['newsletter','✉ Add to Newsletter','Adds them to your monthly newsletter list (consent-first). Light, ongoing brand nurture — no hard pitch, just staying top-of-mind.'],
-  ['instantly','→ Add to Instantly Campaign','Reveals their email and pushes them straight into your Instantly cold-email campaign (warmed mailboxes) with their intel as personalization. The campaign is paused — they send when you launch it.'],
-  ['whale','🐋 Send to Whales (special attention)','Flags this as a Whale — an agency-managed, franchise, or big account that needs special handling. Opens an assigned conversation AND lists it in the Whales tab so it isn\'t worked like a normal small lead.']
+  ['whale','🐋 Whales','Nothing happens here — they just get sent to a queue for future review. If they\'re an agency, a franchise, or have ~100+ marketing employees, they\'re a whale.'],
+  ['open','💬 Human (Open / Convo) — Highest quality','Creates a live conversation in your Inbox (Open) so a rep can personally email or call this lead — real 1:1 outreach you work by hand.'],
+  ['sequence','⚡ Add to Sequence — Good quality','Enrolls them in an automated multi-step email sequence (a drip) that sends on a schedule until they reply or opt out — hands-off nurture.'],
+  ['instantly','→ Add to Instantly Campaign — Sketch quality','Reveals their email and pushes them straight into your Instantly cold-email campaign (warmed mailboxes) with their intel as personalization. The campaign is paused — they send when you launch it.'],
+  ['newsletter','✉ Add to Newsletter — Small fries / no website','Adds them to your monthly newsletter list (consent-first). Light, ongoing brand nurture — no hard pitch, just staying top-of-mind.']
 ];
 function prospKeepChooser(id, ev){
   if(ev) ev.stopPropagation();
@@ -3491,8 +3491,17 @@ function prospKeepChooser(id, ev){
 }
 const KEEP_DEST_LBL={open:'Human conversation (Open)',sequence:'Sequence',newsletter:'Newsletter',instantly:'Instantly campaign',whale:'Whales'};
 // After a destination is chosen, resolve WHO to send to via Apollo before saving.
+// Whale is the exception — it just queues the account (no Apollo lookup, no credits).
 async function prospKeepPick(id, disp){
   const ov=document.getElementById('pkeep-ov'); if(ov) ov.remove();
+  if(disp==='whale'){
+    if(window.crmToast) crmToast('Queuing to Whales…');
+    const r=await prospPost({action:'keep',id,disposition:'whale'});
+    const dm=document.getElementById('pdoss-ov'); if(dm) dm.remove();
+    if(r&&r.ok){ const p=(PROSP.prospects||[]).find(x=>x.id===id); if(p){p.disposition='whale';p.disposition_meta={done:true};p.status='promoted';} PROSP.dispositionCounts=recountDisp(); paintProspecting(); if(window.crmToast) crmToast('🐋 Queued to Whales for review'); }
+    else if(window.crmToast) crmToast((r&&(r.message||r.error))||'Could not queue');
+    return;
+  }
   prospApolloPicker(id, disp);
 }
 async function prospApolloPicker(id, disp){

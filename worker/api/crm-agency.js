@@ -44,7 +44,7 @@ export async function onRequestGet({ request, env }) {
     const ap = en.apollo || {};
     const employees = ap.employees || null, locations = ap.locations || null;
     const isFranchise = !!ap.is_franchise;
-    const isBig = (employees && employees >= 250) || (locations && locations >= 5);
+    const isBig = (employees && employees >= 100) || (locations && locations >= 5);
     // Which whale reasons apply?
     const kinds = [];
     if (whale) kinds.push("flagged");
