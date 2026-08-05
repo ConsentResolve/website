@@ -24,6 +24,10 @@ import { fetchSite, parseSite } from "./crm-lookup.js";
 import { peopleAtDomain, enrichPerson, usableEmail, DEFAULT_TITLES } from "./apollo-prospect.js";
 import { enrollContact } from "../_lib/workflow-engine.js";
 import { enrollRepermission } from "../_lib/newsletter.js";
+import { pushLeadToInstantly } from "../_lib/instantly.js";
+
+// The paused "Problem-Unaware (2026)" campaign. Override with env.INSTANTLY_CAMPAIGN_ID.
+const DEFAULT_INSTANTLY_CAMPAIGN = "44bd0040-5a28-4d38-a469-a73e2eb5ffca";
 
 const DISPOSITIONS = ["open", "sequence", "newsletter", "instantly", "skip"];
 
@@ -646,19 +650,38 @@ async function apolloKeep(env, b, actorId, cors) {
   }
 
   // Run the destination.
-  let kind = "open";
-  if (disp === "instantly") kind = "instantly_staged";
+  let kind = "open", pushed = 0, pushErr = null;
+  if (disp === "instantly") {
+    // Push each revealed contact straight into the paused Instantly campaign, carrying
+    // the prospect's intel as custom variables ({{website}}, {{city}}, {{trade}}). Paused
+    // campaign = staged; it only sends when you launch it in Instantly.
+    kind = "instantly_pushed";
+    const campaignId = env.INSTANTLY_CAMPAIGN_ID || DEFAULT_INSTANTLY_CAMPAIGN;
+    const pRow = await env.DB.prepare("SELECT name, domain, trade, city FROM prospects WHERE id=?").bind(b.id).first().catch(() => null);
+    for (const sp of savedPeople) {
+      if (!sp.email) continue;
+      const nm = String(sp.name || "").trim().split(/\s+/);
+      const r = await pushLeadToInstantly(env, {
+        campaignId, email: sp.email, firstName: nm[0] || "", lastName: nm.slice(1).join(" "),
+        company: (pRow && pRow.name) || "",
+        customVars: { website: (pRow && pRow.domain) || "", city: (pRow && pRow.city) || "", trade: (pRow && pRow.trade) || "" },
+      }).catch((e) => ({ ok: false, error: String(e) }));
+      if (r && r.ok) pushed++; else pushErr = (r && r.error) || "push_failed";
+    }
+  }
   else if (disp === "sequence") { for (const cid of savedContactIds) await enrollContact(env, { contactId: cid, conversationId: cid === baseContactId ? convId : null, source: "prospect_keep_apollo" }).catch(() => {}); kind = "sequence"; }
   else if (disp === "newsletter") { await enrollRepermission(env, { contactIds: savedContactIds }).catch(() => {}); kind = "newsletter"; }
 
   const emails = savedPeople.filter((p) => p.email).length;
   const who = savedPeople.map((p) => (p.name || "?") + (p.title ? ` (${p.title})` : "")).join(", ") || "no contact selected";
-  const noteBody = `👤 Apollo resolve by ${actorName} → ${DISP_LABEL[disp]}. Saved ${savedPeople.length} contact(s): ${who}. ${emails} email(s) revealed · consent: email permitted (B2B legitimate interest, authorized by ${actorName}); SMS/voice off. ${credits} Apollo credit(s) used.`;
+  const destTxt = disp === "instantly" ? `Instantly (pushed ${pushed}/${emails} to the campaign${pushErr ? " · error: " + pushErr : ""})` : DISP_LABEL[disp];
+  const noteBody = `👤 Apollo resolve by ${actorName} → ${destTxt}. Saved ${savedPeople.length} contact(s): ${who}. ${emails} email(s) revealed · consent: email permitted (B2B legitimate interest, authorized by ${actorName}); SMS/voice off. ${credits} Apollo credit(s) used.`;
   if (convId) await env.DB.prepare("INSERT INTO notes (id, author_id, conversation_id, contact_id, body) VALUES (?,?,?,?,?)").bind(rid("nt_"), actorId || null, convId, baseContactId, noteBody).run().catch(() => {});
-  await env.DB.prepare("UPDATE prospects SET disposition_meta=?, updated_at=datetime('now') WHERE id=?").bind(JSON.stringify({ apollo: true, contacts: savedContactIds, credits, kind }), b.id).run().catch(() => {});
+  await env.DB.prepare("UPDATE prospects SET disposition_meta=?, updated_at=datetime('now') WHERE id=?").bind(JSON.stringify({ apollo: true, contacts: savedContactIds, credits, kind, instantly_pushed: pushed }), b.id).run().catch(() => {});
 
-  const msg = { open: "Opened a conversation", sequence: "Enrolled in the sequence", newsletter: "Added to the newsletter", instantly_staged: "Staged for Instantly" }[kind] || "Saved";
-  const resp = { ok: true, disposition: disp, kind, saved: savedPeople, credits, conversation_id: convId || null, message: `${msg} · ${savedPeople.length} contact(s), ${emails} email(s)` };
+  const msg = { open: "Opened a conversation", sequence: "Enrolled in the sequence", newsletter: "Added to the newsletter", instantly_pushed: `Pushed ${pushed} to the Instantly campaign` }[kind] || "Saved";
+  const resp = { ok: true, disposition: disp, kind, saved: savedPeople, credits, pushed, conversation_id: convId || null, message: `${msg} · ${savedPeople.length} contact(s), ${emails} email(s)` };
+  if (disp === "instantly" && emails && !pushed) resp.warning = "Saved, but couldn't push to Instantly" + (pushErr ? " (" + pushErr + ")" : "") + ".";
   if (revealErr && /not authorized/i.test(revealErr)) resp.warning = "Apollo key lacks People Enrichment scope — emails couldn't be revealed.";
   return json(resp, {}, cors);
 }

@@ -87,6 +87,9 @@
 		// (and new ones via the CR visitor sync). Leave IV_TEST_EMAILS unset = send to all.
 		// To pause: set to "false" and redeploy. (Kept here, not as a secret, so it survives CI.)
 		"IV_LIVE": "true",
+		// Prospecting Keep → "Add to Instantly" pushes revealed contacts into this
+		// (PAUSED) campaign: "Consent-First · Visitor Recovery — Problem-Unaware (2026)".
+		"INSTANTLY_CAMPAIGN_ID": "44bd0040-5a28-4d38-a469-a73e2eb5ffca",
 		"INDEXNOW_KEY": "0452ce57fb0d3bbfdcb0d12e1ee8b142",
 		// Speed-to-Lead — non-secret config kept here so it survives `wrangler deploy`
 		// (dashboard plain-text vars get wiped on each CI deploy; secrets persist).
