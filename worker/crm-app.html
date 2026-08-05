@@ -1215,6 +1215,21 @@ html,body{height:100%}
   .pkeep-opt:hover{border-color:var(--accent);background:var(--surface-2);transform:translateY(-1px)}
   .pkeep-t{font-size:14px;font-weight:800;color:var(--tx-1)}
   .pkeep-d{font-size:12.5px;line-height:1.5;color:var(--tx-3)}
+  .papollo-card{width:min(600px,100%)}
+  .papollo-body{margin-top:6px}
+  .papollo-load,.papollo-empty{padding:22px 6px;text-align:center;color:var(--tx-3);font-size:13px}
+  .papollo-list{display:flex;flex-direction:column;gap:2px;max-height:46vh;overflow:auto;margin:2px 0 4px}
+  .papollo-row{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:10px;padding:9px 10px;border:1px solid transparent;border-radius:9px;cursor:pointer}
+  .papollo-row:hover{background:var(--surface-1);border-color:var(--line)}
+  .papollo-ck{width:16px;height:16px;accent-color:var(--good);cursor:pointer}
+  .papollo-nm{font-size:13.5px;font-weight:700;color:var(--tx-1);display:flex;align-items:center;gap:7px}
+  .papollo-mail{color:var(--good);font-size:12px}
+  .papollo-nomail{color:var(--tx-3);font-size:10.5px;font-weight:700;border:1px solid var(--line);border-radius:var(--r-full);padding:1px 6px}
+  .papollo-ttl{font-size:12px;color:var(--tx-3);text-align:right;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .papollo-consent{font-size:12px;line-height:1.55;color:var(--tx-3);background:var(--surface-1);border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin:8px 0 4px}
+  .papollo-att{display:flex;align-items:flex-start;gap:8px;margin-top:9px;font-weight:700;color:var(--tx-2);cursor:pointer}
+  .papollo-att input{margin-top:2px;accent-color:var(--good)}
+  .papollo-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
   .pdchip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);color:var(--tx-1)}
   .pdchip.open{background:var(--blue-soft,rgba(37,99,235,.12));border-color:#3b6ef0;color:#5b8def}
   .pdchip.sequence{background:rgba(124,58,237,.14);border-color:#7c3aed;color:#9a6ef5}
@@ -3379,14 +3394,47 @@ function prospKeepChooser(id, ev){
   ov.onclick=function(e){ if(e.target===ov) ov.remove(); };
   document.body.appendChild(ov);
 }
+const KEEP_DEST_LBL={open:'Human conversation (Open)',sequence:'Sequence',newsletter:'Newsletter',instantly:'Instantly campaign'};
+// After a destination is chosen, resolve WHO to send to via Apollo before saving.
 async function prospKeepPick(id, disp){
   const ov=document.getElementById('pkeep-ov'); if(ov) ov.remove();
-  const dm=document.getElementById('pdoss-ov'); if(dm) dm.remove();
-  if(window.crmToast) crmToast('Working…');
-  const r=await prospPost({action:'keep',id,disposition:disp});
-  if(r&&r.ok){ const p=(PROSP.prospects||[]).find(x=>x.id===id); if(p){p.disposition=disp;p.disposition_meta={done:true};p.status='promoted';} PROSP.dispositionCounts=recountDisp(); paintProspecting(); if(window.crmToast) crmToast('✓ '+(r.message||'Done')); }
-  else if(window.crmToast) crmToast((r&&(r.message||r.error))||'Could not keep');
+  prospApolloPicker(id, disp);
 }
+async function prospApolloPicker(id, disp){
+  const p=(PROSP.prospects||[]).find(x=>x.id===id)||{};
+  let ov=document.getElementById('papollo-ov'); if(ov)ov.remove();
+  ov=document.createElement('div'); ov.id='papollo-ov'; ov.className='pkeep-ov';
+  ov.innerHTML='<div class="pkeep-card papollo-card"><div class="pkeep-top"><b>Find the contact at '+escP(p.name||p.domain||'')+'</b><button class="pdoss-x" onclick="document.getElementById(\'papollo-ov\').remove()">✕</button></div><div class="pkeep-sub">Destination: <b>'+escP(KEEP_DEST_LBL[disp]||disp)+'</b></div><div id="papollo-body" class="papollo-body"><div class="papollo-load">🔎 Searching Apollo for '+escP(p.domain||'')+'…</div></div></div>';
+  ov.onclick=function(e){ if(e.target===ov) ov.remove(); };
+  document.body.appendChild(ov);
+  const r=await prospPost({action:'apollo_search',id});
+  const body=document.getElementById('papollo-body'); if(!body) return;
+  const failFoot='<div class="papollo-foot"><button class="pdel-btn" onclick="document.getElementById(\'papollo-ov\').remove()">Cancel</button><button class="pkeep-btn" onclick="prospApolloSave(\''+id+'\',\''+disp+'\',true)">Save without a contact →</button></div>';
+  if(!r||!r.ok){ body.innerHTML='<div class="papollo-empty">'+escP((r&&r.message)||'Apollo lookup failed.')+'</div>'+failFoot; return; }
+  window._apolloCand=r.candidates||[];
+  if(!r.candidates||!r.candidates.length){ body.innerHTML='<div class="papollo-empty">No decision-maker contacts came back for '+escP(r.domain||'')+'.</div>'+failFoot; return; }
+  body.innerHTML='<div class="papollo-list">'+r.candidates.map(function(c,i){return '<label class="papollo-row"><input type="checkbox" class="papollo-ck" data-i="'+i+'" '+(c.has_email?'checked':'')+'><span class="papollo-nm">'+escP(c.name)+(c.has_email?'<span class="papollo-mail" title="Apollo has an email on file">✉</span>':'<span class="papollo-nomail" title="No email on file">no email</span>')+'</span><span class="papollo-ttl">'+escP(c.title||'')+'</span></label>';}).join('')+'</div>'
+    +'<div class="papollo-consent">On save we reveal the email for each ticked person (≈1 Apollo credit each) and log <b>email permitted under B2B legitimate interest</b>, authorized by you. SMS &amp; voice stay off.<label class="papollo-att"><input type="checkbox" id="papollo-att" checked> I authorize B2B email outreach to the selected contacts.</label></div>'
+    +'<div class="papollo-foot"><button class="pdel-btn" onclick="document.getElementById(\'papollo-ov\').remove()">Cancel</button><button class="pkeep-btn" id="papollo-save" onclick="prospApolloSave(\''+id+'\',\''+disp+'\',false)">Save → '+escP(KEEP_DEST_LBL[disp]||disp)+'</button></div>';
+}
+async function prospApolloSave(id, disp, skip){
+  let selected=[];
+  if(!skip){
+    const att=document.getElementById('papollo-att');
+    if(att&&!att.checked){ if(window.crmToast)crmToast('Tick the authorization box first'); return; }
+    const cand=window._apolloCand||[];
+    selected=[...document.querySelectorAll('.papollo-ck:checked')].map(ck=>cand[+ck.dataset.i]).filter(Boolean).map(c=>({apollo_id:c.apollo_id,name:c.name,title:c.title}));
+    if(!selected.length){ if(window.crmToast)crmToast('Pick at least one contact, or use “Save without a contact”'); return; }
+  }
+  const btn=document.getElementById('papollo-save'); if(btn){btn.disabled=true;btn.textContent='Saving…';}
+  if(window.crmToast) crmToast(skip?'Saving…':'Revealing emails & saving…');
+  const r=skip ? await prospPost({action:'keep',id,disposition:disp}) : await prospPost({action:'apollo_keep',id,disposition:disp,selected});
+  const ov=document.getElementById('papollo-ov'); if(ov) ov.remove();
+  const dm=document.getElementById('pdoss-ov'); if(dm) dm.remove();
+  if(r&&r.ok){ const p=(PROSP.prospects||[]).find(x=>x.id===id); if(p){p.disposition=disp;p.disposition_meta={done:true};p.status='promoted';} PROSP.dispositionCounts=recountDisp(); paintProspecting(); if(window.crmToast) crmToast('✓ '+(r.message||'Done')+(r.warning?(' · '+r.warning):'')); }
+  else if(window.crmToast) crmToast((r&&(r.message||r.error))||'Could not save');
+}
+window.prospApolloPicker=prospApolloPicker; window.prospApolloSave=prospApolloSave;
 async function prospDelete(id, ev){
   if(ev) ev.stopPropagation();
   const p=(PROSP.prospects||[]).find(x=>x.id===id);

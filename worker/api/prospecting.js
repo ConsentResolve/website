@@ -21,6 +21,7 @@ import {
 } from "../_lib/dataforseo.js";
 import { scoreProspect } from "../_lib/prospect-score.js";
 import { fetchSite, parseSite } from "./crm-lookup.js";
+import { peopleAtDomain, enrichPerson, usableEmail, DEFAULT_TITLES } from "./apollo-prospect.js";
 import { enrollContact } from "../_lib/workflow-engine.js";
 import { enrollRepermission } from "../_lib/newsletter.js";
 
@@ -146,6 +147,8 @@ export async function onRequestPost({ request, env, ctx }) {
   if (action === "bulk_disposition") return bulkDisposition(env, b, actorId, cors);
   if (action === "push_dispositions") return pushDispositions(env, b, actorId, ctx, cors);
   if (action === "keep") return keepProspect(env, b, actorId, cors);
+  if (action === "apollo_search") return apolloSearch(env, b, cors);
+  if (action === "apollo_keep") return apolloKeep(env, b, actorId, cors);
 
   // action === "sweep" — Stage 0 TAM import.
   if (!dfsConfigured(env)) return json({ ok: false, error: "dfs_not_configured", message: "DataForSEO credentials are not set." }, { status: 400 }, cors);
@@ -558,6 +561,106 @@ async function keepProspect(env, b, actorId, cors) {
   await env.DB.prepare("UPDATE prospects SET disposition_meta=? WHERE id=?").bind(JSON.stringify(r.meta || {}), b.id).run().catch(() => {});
   const label = { open: "Opened a human conversation in your Inbox", sequence: "Enrolled in the outreach sequence", newsletter: "Added to the newsletter list", instantly_staged: "Staged for Instantly (recorded — not sent yet)" }[r.kind] || "Kept";
   return json({ ok: true, disposition: disp, kind: r.kind, conversation_id: r.conversation_id || null, message: label }, {}, cors);
+}
+
+const DISP_LABEL = { open: "Human conversation", sequence: "Sequence", newsletter: "Newsletter", instantly: "Instantly (staged)", skip: "Skip" };
+
+// APOLLO CONTACT SEARCH — free, masked preview of decision-makers at the prospect's domain.
+// Returns first-name + title + has_email only (no credits spent). The caller ticks who they
+// want; apolloKeep then reveals just those (≈1 credit each).
+async function apolloSearch(env, b, cors) {
+  if (!env.APOLLO_API_KEY) return json({ ok: false, error: "no_api_key", message: "Apollo API key isn't set on this worker." }, { status: 400 }, cors);
+  const p = await env.DB.prepare("SELECT id, name, domain, trade FROM prospects WHERE id=?").bind(b.id).first().catch(() => null);
+  if (!p) return json({ ok: false, error: "not_found" }, { status: 404 }, cors);
+  if (!p.domain) return json({ ok: false, error: "no_domain", message: "This prospect has no website domain — nothing to search Apollo with." }, { status: 400 }, cors);
+  const per = Math.min(10, Math.max(3, parseInt(b.per || 6, 10)));
+  const s = await peopleAtDomain(env, p.domain, DEFAULT_TITLES, per).catch((e) => ({ error: String(e) }));
+  if (s.error) {
+    const scope = /not authorized/i.test(s.error || "");
+    return json({ ok: false, error: scope ? "no_scope" : "apollo_error",
+      message: scope ? "Your Apollo key doesn't have People Search enabled — turn on People Search + People Enrichment for the key in Apollo settings." : ("Apollo: " + s.error) }, { status: 502 }, cors);
+  }
+  const candidates = (s.people || []).map((pp) => ({
+    apollo_id: pp.id || null,
+    name: pp.first_name || pp.name || "(name hidden)",
+    title: pp.title || "",
+    company: (pp.organization && pp.organization.name) || p.name || "",
+    has_email: !!pp.has_email,
+  })).filter((c) => c.apollo_id);
+  return json({ ok: true, domain: p.domain, total: s.total || candidates.length, candidates }, {}, cors);
+}
+
+// APOLLO KEEP — reveal the ticked people, save them as contacts under the prospect's company,
+// record consent (EMAIL under B2B legitimate interest; SMS/voice stay off), then run the
+// chosen destination. Reuses the provisional contact promoteCore made for the first person.
+async function apolloKeep(env, b, actorId, cors) {
+  const disp = DISPOSITIONS.includes(b.disposition) ? b.disposition : null;
+  if (!disp || disp === "skip") return json({ ok: false, error: "bad_disposition" }, { status: 400 }, cors);
+  const selected = Array.isArray(b.selected) ? b.selected.filter((s) => s && s.apollo_id) : [];
+
+  let actorName = "system";
+  if (actorId) { const u = await env.DB.prepare("SELECT name FROM users WHERE id=?").bind(actorId).first().catch(() => null); if (u && u.name) actorName = u.name; }
+
+  await env.DB.prepare("UPDATE prospects SET disposition=?, disposition_by=?, disposition_at=datetime('now'), updated_at=datetime('now') WHERE id=?").bind(disp, actorId, b.id).run().catch(() => {});
+  const pr = await promoteCore(env, b.id, actorId);
+  if (!pr.ok) return json({ ok: false, error: pr.error || "promote_failed" }, { status: 400 }, cors);
+  const baseContactId = pr.contact_id, convId = pr.conversation_id;
+  const crow = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(baseContactId).first().catch(() => null);
+  const companyId = crow ? crow.company_id : null;
+
+  const now = new Date().toISOString();
+  const savedContactIds = [], savedPeople = [];
+  let credits = 0, revealErr = null, primaryUsed = false;
+
+  for (const sel of selected) {
+    let person = null;
+    try { person = await enrichPerson(env, { id: sel.apollo_id }); credits++; } catch (e) { revealErr = String(e); }
+    const fullName = (person && person.name) || sel.name || null;
+    const title = (person && person.title) || sel.title || null;
+    const email = person && usableEmail(person.email) ? person.email : null;
+    const phone = person && Array.isArray(person.phone_numbers) && person.phone_numbers[0]
+      ? (person.phone_numbers[0].sanitized_number || person.phone_numbers[0].raw_number) : null;
+    const linkedin = (person && person.linkedin_url) || null;
+    const enr = JSON.stringify({ _source: "apollo_prospect", apollo_id: sel.apollo_id, linkedin, title, revealed_at: now });
+
+    let contactId;
+    if (!primaryUsed) {
+      contactId = baseContactId;
+      await env.DB.prepare("UPDATE contacts SET full_name=COALESCE(?,full_name), title=COALESCE(?,title), primary_email=COALESCE(?,primary_email), phone=COALESCE(?,phone), apollo_person_id=?, source='apollo_prospect', is_provisional=0, enrichment=?, updated_at=datetime('now') WHERE id=?")
+        .bind(fullName, title, email, phone, sel.apollo_id, enr, contactId).run().catch(() => {});
+      primaryUsed = true;
+    } else {
+      contactId = rid("ct_");
+      await env.DB.prepare("INSERT INTO contacts (id, company_id, full_name, primary_email, phone, title, apollo_person_id, enrichment, source, is_provisional) VALUES (?,?,?,?,?,?,?,?,'apollo_prospect',0)")
+        .bind(contactId, companyId, fullName, email, phone, title, sel.apollo_id, enr).run().catch(() => {});
+    }
+    if (email) {
+      await env.DB.prepare("INSERT OR IGNORE INTO contact_identifiers (id, contact_id, type, value, verified) VALUES (?,?,?,?,0)").bind(rid("id_"), contactId, "email", String(email).toLowerCase()).run().catch(() => {});
+      // Consent ledger: EMAIL permitted under B2B legitimate interest — NOT an opt-in. SMS/voice omitted → stay off.
+      await env.DB.prepare("INSERT INTO consent_records (id, contact_id, email, phone, channel, action, basis, capture_method, proof_ref, occurred_at) VALUES (?,?,?,?,?,?,?,?,?,?)")
+        .bind(rid("cn_"), contactId, email, phone, "email", "granted", "legitimate_interest", "apollo_prospect", "B2B legitimate interest · authorized by " + actorName + " @ " + now, now).run().catch(() => {});
+      await addActivityV2(env, { actorId, entityType: "contact", entityId: contactId, action: "consent_granted", meta: { channel: "email", basis: "legitimate_interest", method: "apollo_prospect", by: actorName } }).catch(() => {});
+    }
+    savedContactIds.push(contactId);
+    savedPeople.push({ contact_id: contactId, name: fullName, title, email, has_email: !!email });
+  }
+
+  // Run the destination.
+  let kind = "open";
+  if (disp === "instantly") kind = "instantly_staged";
+  else if (disp === "sequence") { for (const cid of savedContactIds) await enrollContact(env, { contactId: cid, conversationId: cid === baseContactId ? convId : null, source: "prospect_keep_apollo" }).catch(() => {}); kind = "sequence"; }
+  else if (disp === "newsletter") { await enrollRepermission(env, { contactIds: savedContactIds }).catch(() => {}); kind = "newsletter"; }
+
+  const emails = savedPeople.filter((p) => p.email).length;
+  const who = savedPeople.map((p) => (p.name || "?") + (p.title ? ` (${p.title})` : "")).join(", ") || "no contact selected";
+  const noteBody = `👤 Apollo resolve by ${actorName} → ${DISP_LABEL[disp]}. Saved ${savedPeople.length} contact(s): ${who}. ${emails} email(s) revealed · consent: email permitted (B2B legitimate interest, authorized by ${actorName}); SMS/voice off. ${credits} Apollo credit(s) used.`;
+  if (convId) await env.DB.prepare("INSERT INTO notes (id, author_id, conversation_id, contact_id, body) VALUES (?,?,?,?,?)").bind(rid("nt_"), actorId || null, convId, baseContactId, noteBody).run().catch(() => {});
+  await env.DB.prepare("UPDATE prospects SET disposition_meta=?, updated_at=datetime('now') WHERE id=?").bind(JSON.stringify({ apollo: true, contacts: savedContactIds, credits, kind }), b.id).run().catch(() => {});
+
+  const msg = { open: "Opened a conversation", sequence: "Enrolled in the sequence", newsletter: "Added to the newsletter", instantly_staged: "Staged for Instantly" }[kind] || "Saved";
+  const resp = { ok: true, disposition: disp, kind, saved: savedPeople, credits, conversation_id: convId || null, message: `${msg} · ${savedPeople.length} contact(s), ${emails} email(s)` };
+  if (revealErr && /not authorized/i.test(revealErr)) resp.warning = "Apollo key lacks People Enrichment scope — emails couldn't be revealed.";
+  return json(resp, {}, cors);
 }
 
 function safeJson(s, fallback) { try { return s ? JSON.parse(s) : fallback; } catch (_) { return fallback; } }
