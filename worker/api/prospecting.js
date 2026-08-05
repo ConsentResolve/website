@@ -78,7 +78,7 @@ export async function onRequestGet({ request, env }) {
 
   const rows = await env.DB.prepare(
     `SELECT id, domain, name, phone, city, region, trade, rating, reviews, score, tier, signals, reasons,
-            cost_cents, status, promoted_contact_id, disposition, disposition_meta, created_at
+            cost_cents, status, promoted_contact_id, disposition, disposition_meta, run_id, stages_run, created_at
      FROM prospects WHERE ${where.join(" AND ")}
      ORDER BY score DESC, reviews DESC LIMIT ?`
   ).bind(...binds, limit).all().catch(() => ({ results: [] }));
