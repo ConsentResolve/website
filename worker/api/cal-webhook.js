@@ -8,7 +8,7 @@
 // header, keyed by the secret you set on the webhook. Set the same secret as the worker
 // secret CAL_WEBHOOK_SECRET. If the secret is configured, an invalid signature is rejected.
 import { corsHeaders, json } from "../_lib/http.js";
-import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce } from "../_lib/crm-v2.js";
+import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThread, insertMessageOnce, findOrCreateCompany, emailDomain } from "../_lib/crm-v2.js";
 import { ensureRebuildSchema, logEvent } from "../_lib/crm-rebuild.js";
 import { handleGoalEvent } from "../_lib/workflow-engine.js";
 import { recordStlMeeting } from "./stl-calcom.js";
@@ -89,21 +89,38 @@ export async function onRequestPost({ request, env, waitUntil }) {
       bodyText: lines, sentAt: receivedIso,
     });
 
+    // Reminder: stamp the meeting time on the conversation so it shows in Open (⏰ chip) AND
+    // in the Reminders view — without moving it out of Open (status stays 'open'). Cancel clears it.
+    const noteWhen = startTime ? when.slice(0, 16).replace("T", " ") : "";
+    if (isCancelled) {
+      await env.DB.prepare("UPDATE conversations SET status='open', snooze_until=NULL, snooze_note=NULL, updated_at=datetime('now') WHERE id=?").bind(convId).run().catch(() => {});
+    } else {
+      await env.DB.prepare("UPDATE conversations SET status='open', snooze_until=?, snooze_note=?, updated_at=datetime('now') WHERE id=?")
+        .bind(startTime ? when : receivedIso, "📅 Meeting with " + (name || email) + (noteWhen ? " — " + noteWhen : ""), convId).run().catch(() => {});
+    }
+
     if (isCreated || isRescheduled) {
       // Booked → advance the lifecycle stage and EXIT the nurture (goal "booked").
       await env.DB.prepare("UPDATE contacts SET lifecycle_stage='meeting_booked', updated_at=datetime('now') WHERE id=?").bind(contactId).run().catch(() => {});
       await handleGoalEvent(env, { contactId, goal: "booked" }).catch(() => {});
     }
     if (isCreated) {
-      // Auto-create a Pipeline deal for the booking — once per contact, if they have a company.
+      // ALWAYS put the booking on the Pipeline — ensure a company first so the deal renders.
       try {
         const existing = await env.DB.prepare("SELECT id FROM deals WHERE primary_contact_id=? AND lead_status IN ('active','won') LIMIT 1").bind(contactId).first();
-        const ct2 = existing ? null : await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first();
-        if (!existing && ct2 && ct2.company_id) {
-          const dealId = "deal_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-          await env.DB.prepare(
-            "INSERT INTO deals (id, company_id, primary_contact_id, origin_conversation_id, owner_id, title, lead_status, close_probability) VALUES (?, ?, ?, ?, ?, ?, 'active', 50)"
-          ).bind(dealId, ct2.company_id, contactId, convId, null, "Meeting booked — " + (name || email)).run();
+        if (!existing) {
+          const ct2 = await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first();
+          let companyId = ct2 && ct2.company_id;
+          if (!companyId) {
+            companyId = await findOrCreateCompany(env, { name: name || email, domain: emailDomain(email) || null }).catch(() => null);
+            if (companyId) await env.DB.prepare("UPDATE contacts SET company_id=?, updated_at=datetime('now') WHERE id=?").bind(companyId, contactId).run().catch(() => {});
+          }
+          if (companyId) {
+            const dealId = "deal_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+            await env.DB.prepare(
+              "INSERT INTO deals (id, company_id, primary_contact_id, origin_conversation_id, owner_id, title, lead_status, close_probability) VALUES (?, ?, ?, ?, ?, ?, 'active', 60)"
+            ).bind(dealId, companyId, contactId, convId, null, "Meeting booked — " + (name || email)).run();
+          }
         }
       } catch (_) {}
     }

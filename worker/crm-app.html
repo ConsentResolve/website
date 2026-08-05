@@ -2473,7 +2473,7 @@ function wakeConv(id){
 }
 function renderReminders(){
   const el=document.getElementById('remindersview'); if(!el) return;
-  const items=DATA.conversations.filter(c=>c.bucket==='snoozed'&&c.snooze_until).sort((a,b)=>new Date(a.snooze_until)-new Date(b.snooze_until));
+  const items=DATA.conversations.filter(c=>c.snooze_until).sort((a,b)=>new Date(a.snooze_until)-new Date(b.snooze_until));
   const overdue=items.filter(c=>remOverdue(c.snooze_until)), upcoming=items.filter(c=>!remOverdue(c.snooze_until));
   const row=c=>`<div class="rm-item ${remOverdue(c.snooze_until)?'due':''}">
       <span class="rm-when">${remOverdue(c.snooze_until)?'⏰ DUE · ':''}${fmtRemWhen(c.snooze_until)}</span>
