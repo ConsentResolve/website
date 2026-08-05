@@ -606,6 +606,22 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, resumed: true }, {}, cors);
   }
 
+  // UNDO an opt-out — for a mistaken/test "Contact opted out of SMS/voice". Reverses the three
+  // things an opt-out writes: (1) the workflow run's exit_reason='opted_out' (which drives the
+  // banner), (2) the all-channel suppression that blocks sends, and (3) the manual test revoke
+  // rows on the consent ledger. Deliberate + logged (who undid it). Use only to correct errors.
+  if (b.restore) {
+    const conv = await env.DB.prepare("SELECT id, contact_id FROM conversations WHERE id=?").bind(b.id || b.restore).first().catch(() => null);
+    const contactId = (conv && conv.contact_id) || b.contact_id;
+    if (!contactId) return json({ ok: false, error: "no_contact" }, { status: 400 }, cors);
+    await env.DB.prepare("UPDATE workflow_runs SET exit_reason=NULL, status='exited', next_run_at=NULL, updated_at=datetime('now') WHERE contact_id=? AND exit_reason='opted_out'").bind(contactId).run().catch(() => {});
+    await env.DB.prepare("DELETE FROM suppressions WHERE contact_id=? AND (reason='opted_out' OR channel='all')").bind(contactId).run().catch(() => {});
+    await env.DB.prepare("DELETE FROM consent_records WHERE contact_id=? AND action='revoked' AND capture_method='manual_crm'").bind(contactId).run().catch(() => {});
+    const me = await currentUser(request, env);
+    await addActivityV2(env, { actorId: me ? me.id : null, entityType: "contact", entityId: contactId, action: "optout_undone", meta: { by: me ? me.name : "CRM" } }).catch(() => {});
+    return json({ ok: true, restored: true, contact_id: contactId }, {}, cors);
+  }
+
   // Seed two real, replyable TEST conversations into Open for manual QA — an inbound SMS from a
   // chosen cell (a reply texts it back via Twilio) and an inbound email (a reply emails back via
   // Gmail). No active sequence, so they sit in Open. crmAuthed; idempotent by thread.

@@ -712,6 +712,8 @@ html,body{height:100%}
   .btn{border:0;border-radius:var(--r-2);font:inherit;font-weight:700;padding:10px 18px;cursor:pointer;background:var(--accent);color:var(--on-accent)}
   .banner{margin:0;padding:11px 16px;font-size:var(--t-13);font-weight:600;display:flex;gap:9px;align-items:center;border-top:1px solid var(--line)}
   .banner.stop{background:var(--bad-soft);color:var(--bad)} .banner.block{background:var(--surface-2);color:var(--tx-2)}
+  .undo-optout{margin-left:auto;font:inherit;font-size:11.5px;font-weight:700;color:var(--tx-2);background:var(--surface-1);border:1px solid var(--line-2);border-radius:7px;padding:4px 10px;cursor:pointer;white-space:nowrap}
+  .undo-optout:hover{border-color:var(--accent);color:var(--accent)}
 
   /* Gmail-style reply: collapsed Reply button → expanded WYSIWYG editor */
   .composer-wrap{flex:0 0 auto}
@@ -2134,7 +2136,7 @@ function actBar(c){
    AND the action bar (this is the "restore functionality on no-consent leads" fix). */
 function noReplyBox(c, banner){ return `<div class="rcollapse nocon">${banner}${actBar(c)}</div>`; }
 function composer(c){
-  if(c.sequence.status==='opted_out') return noReplyBox(c, `<div class="banner stop">⛔ Contact opted out of SMS/voice. Only email is permitted. Revocation is on the consent ledger.</div>`);
+  if(c.sequence.status==='opted_out') return noReplyBox(c, `<div class="banner stop">⛔ Contact opted out of SMS/voice. Only email is permitted. Revocation is on the consent ledger. <button class="undo-optout" onclick="restoreContact('${c.id}')" title="Undo a mistaken / test opt-out">↩ Undo (restore)</button></div>`);
   if(c.sequence.status==='blocked') return noReplyBox(c, `<div class="banner block">⛓ Identified visitor (no consent to contact). Outreach is disabled — retargeting + context only.</div>`);
   const avail=replyChannels(c), cur=replyChOf(c);
   if(!cur) return noReplyBox(c, `<div class="banner block">No consented channel to reply on yet — earn consent first (email preference center).</div>`);
@@ -2396,6 +2398,15 @@ function deleteConv(id){
   if(!document.getElementById('pipelineview').hidden) renderPipeline();
 }
 window.deleteConv=deleteConv;
+/* Undo a mistaken / test opt-out — clears the workflow opt-out, the all-channel suppression, and
+   the manual revoke rows, then reloads. Deliberate + confirmed + logged server-side. */
+async function restoreContact(id){
+  if(!confirm('Undo the opt-out for this contact?\n\nThis clears the SMS/voice revocation and re-enables outreach. Use ONLY to correct a mistaken or test opt-out — never to override a real customer opt-out.')) return;
+  const r=await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({restore:id})}).then(x=>x.json()).catch(()=>null);
+  if(r&&r.ok){ if(window.crmToast)crmToast('Opt-out undone — reloading'); setTimeout(()=>location.reload(),500); }
+  else if(window.crmToast) crmToast((r&&(r.message||r.error))||'Could not undo');
+}
+window.restoreContact=restoreContact;
 
 /* Real CRM users (id/name), fetched once and cached. */
 const AV_COLORS=['#00b985','#3b82f6','#8b5cf6','#f59e0b','#ef4444','#0ea5e9'];
