@@ -13,7 +13,7 @@ import { ensureCrmV2Schema, currentUser, adminUserId, addActivityV2, findOrCreat
 import { enrichContactById } from "../_lib/apollo.js";
 // DataForSEO calls live in a shared lib so the single-lead lookup and the bulk
 // Prospecting sweep use one implementation and can never drift (see worker/api/prospecting.js).
-import { normDomain, dataforseoLookup, dfsBacklinks, dfsTech, MARKETPLACES, TECH_BUCKETS } from "../_lib/dataforseo.js";
+import { normDomain, dataforseoLookup, dfsBacklinks, dfsTech, dfsGmb, MARKETPLACES, TECH_BUCKETS } from "../_lib/dataforseo.js";
 import { scoreProspect } from "../_lib/prospect-score.js";
 
 const APOLLO_COST = (env) => Number(env.APOLLO_COST_PER_LOOKUP || 0.03);
@@ -33,18 +33,22 @@ async function ensure(env) {
 const rid = () => "lk_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
 // ---- free, server-side site parsing ----------------------------------------
-async function fetchSite(domain) {
+export async function fetchSite(domain) {
   const ctl = new AbortController();
   const t = setTimeout(() => ctl.abort(), 8000);
   try {
     const r = await fetch("https://" + domain, { redirect: "follow", signal: ctl.signal, cf: { cacheTtl: 0 }, headers: { "user-agent": "Mozilla/5.0 (ConsentResolveIntel)" } });
-    const html = (await r.text()).slice(0, 500000);
+    let html = await r.text();
+    // Strip heavy inline CSS / SVG / comments BEFORE truncating. Modern sites (e.g. a 1MB
+    // Tailwind dump) bury the footer — socials, schema, contact info — past the old 500KB cap,
+    // so those never got detected. Scripts are KEPT (pixel/tag detection reads them).
+    html = html.replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<svg[\s\S]*?<\/svg>/gi, " ").replace(/<!--[\s\S]*?-->/g, " ").slice(0, 900000);
     return { ok: r.ok, status: r.status, url: r.url, html };
   } catch (e) { return { ok: false, status: 0, url: "", html: "", error: String(e).slice(0, 120) }; }
   finally { clearTimeout(t); }
 }
 const grab = (re, html) => { const m = html.match(re); return m ? m[1] : null; };
-function parseSite(domain, html) {
+export function parseSite(domain, html) {
   const low = html.toLowerCase();
   const has = (re) => re.test(html);
   const capture = /<form[\s>][\s\S]{0,8000}?<(input|textarea)[\s>]/i.test(html);   // a form with any input = lead capture
@@ -376,6 +380,17 @@ export async function enrichLead(env, { contactId, website, mode, actorId, force
       const tk = await dfsTech(env, domain);
       if (tk.used) { breakdown.push({ source: "DataForSEO technologies", cost: tk.cost, ok: true }); parsed.intel.tech_hits = tk.hits; if (tk.all && tk.all.length) parsed.intel.tech = [...new Set([...(parsed.intel.tech || []), ...tk.all])].slice(0, 30); (parsed.intel.freshness = parsed.intel.freshness || {}).tech = new Date().toISOString(); }
       else breakdown.push({ source: "DataForSEO technologies", cost: tk.cost || 0, ok: false, note: tk.error });
+      // REAL Google Business Profile — authoritative rating / reviews / photos / claimed, keyed by
+      // business name (GMB isn't keyed by domain). Overrides the weak schema-scrape gmb. Skipped
+      // with no name; may return null for ambiguous franchise/corporate domains (many locations).
+      const bizName = parsed.enrich.company_name || (ct && ct.full_name) || (co && co.name) || null;
+      if (bizName && !/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(bizName)) {
+        const addr = String(parsed.directory.address || parsed.intel.service_area || "");
+        const cm = addr.match(/,\s*([A-Za-z .'-]{2,}),\s*[A-Z]{2}\b/);
+        const gb = await dfsGmb(env, { name: bizName, city: cm ? cm[1].trim() : null });
+        if (gb.used) { breakdown.push({ source: "DataForSEO Google Business", cost: gb.cost, ok: !!gb.gmb, note: gb.gmb ? null : "no GMB match for name" }); if (gb.gmb) { parsed.enrich.gmb = { ...(parsed.enrich.gmb || {}), ...gb.gmb }; (parsed.intel.freshness = parsed.intel.freshness || {}).gmb = new Date().toISOString(); } }
+        else breakdown.push({ source: "DataForSEO Google Business", cost: gb.cost || 0, ok: false, note: gb.error });
+      }
     } else {
       breakdown.push({ source: "DataForSEO", cost: 0, ok: false, note: "DATAFORSEO_LOGIN / DATAFORSEO_PASSWORD not set" });
     }

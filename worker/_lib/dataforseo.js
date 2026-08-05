@@ -82,6 +82,33 @@ export async function dfsBacklinks(env, domain) {
   return { used: true, cost, marketplaces, authority };
 }
 
+// ── Google Business Profile — the REAL GMB (rating, reviews, photos, claimed) by business name.
+//   Many sites (esp. franchise/corporate) don't embed AggregateRating schema, so the free
+//   site-scrape finds no rating; this is the authoritative source. Keyed by name + location.
+export async function dfsGmb(env, { name, city, region } = {}) {
+  if (!dfsConfigured(env) || !name) return { used: false, cost: 0 };
+  const loc = [city, region, "United States"].filter(Boolean).join(",") || "United States";
+  try {
+    const r = await fetch("https://api.dataforseo.com/v3/business_data/google/my_business_info/live", {
+      method: "POST", headers: { Authorization: dfsAuth(env), "Content-Type": "application/json" },
+      body: JSON.stringify([{ keyword: String(name).slice(0, 120), location_name: loc, language_code: "en" }]),
+    });
+    const j = await r.json();
+    const cost = Number(j.cost || 0);
+    const it = j.tasks && j.tasks[0] && j.tasks[0].result && j.tasks[0].result[0] && j.tasks[0].result[0].items && j.tasks[0].result[0].items[0];
+    if (!it) return { used: true, cost, gmb: null };
+    return { used: true, cost, gmb: {
+      rating: it.rating && it.rating.value != null ? Number(it.rating.value) : null,
+      reviews: it.rating && it.rating.votes_count != null ? Number(it.rating.votes_count) : 0,
+      verified: it.is_claimed === true,
+      photos: it.total_photos != null ? Number(it.total_photos) : null,
+      category: it.category || null,
+      address: it.address || null,
+      phone: it.phone || null,
+    } };
+  } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
+}
+
 // ── Stage 1: domain technologies → marketing-maturity signals (call tracking, pixels, field CRM,
 //   review tools, and competitor identity pixels we'd be displacing).
 export const TECH_BUCKETS = {

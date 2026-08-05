@@ -17,9 +17,10 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { ensureCrmV2Schema, currentUser, adminUserId, addActivityV2, findOrCreateCompany } from "../_lib/crm-v2.js";
 import {
-  normDomain, dfsConfigured, dfsBusinessListings, dfsTech, dataforseoLookup, dfsBacklinks, TRADE_CATEGORIES,
+  normDomain, dfsConfigured, dfsBusinessListings, dfsTech, dataforseoLookup, dfsBacklinks, dfsGmb, TRADE_CATEGORIES,
 } from "../_lib/dataforseo.js";
 import { scoreProspect } from "../_lib/prospect-score.js";
+import { fetchSite, parseSite } from "./crm-lookup.js";
 import { enrollContact } from "../_lib/workflow-engine.js";
 import { enrollRepermission } from "../_lib/newsletter.js";
 
@@ -244,8 +245,30 @@ export async function processProspectRuns(env, { maxDomains = 25 } = {}) {
       const stages = safeJson(p.stages_run, ["tam"]);
       let addCost = 0;
 
+      // Stage 0.5: FREE site scan — socials, GMB (schema rating), form / chat / pixels / tech /
+      // trade guess. No API cost (one fetch). This is why batch/CSV records now get a digital
+      // footprint, not just DataForSEO signals.
+      if (!stages.includes("site")) {
+        const home = await fetchSite(p.domain).catch(() => null);
+        if (home && home.ok && home.html) {
+          const ps = parseSite(p.domain, home.html);
+          if (ps.enrich.website) sig.has_form = ps.enrich.website.capture;
+          if (ps.enrich.gmb) { sig.gmb = ps.enrich.gmb; sig.rating = ps.enrich.gmb.rating; sig.reviews = ps.enrich.gmb.reviews; }
+          if (ps.enrich.facebook) sig.facebook = ps.enrich.facebook.handle;
+          if (ps.directory) { if (ps.directory.instagram) sig.instagram = ps.directory.instagram; if (ps.directory.linkedin) sig.linkedin = ps.directory.linkedin; if (ps.directory.tiktok) sig.tiktok = ps.directory.tiktok; if (ps.directory.phone && !p.phone) sig.phone = ps.directory.phone; }
+          if (ps.enrich.pixels && ps.enrich.pixels.length) sig.ad_pixels = sig.ad_pixels || ps.enrich.pixels.join(", ");
+          if (ps.intel.tech && ps.intel.tech.length) sig.tech = [...new Set([...(sig.tech || []), ...ps.intel.tech])].slice(0, 20);
+          if (ps.intel.chat != null) sig.chat = ps.intel.chat;
+          if (ps.intel.trade && !p.trade) sig.trade_guess = ps.intel.trade;
+          if (ps.enrich.gmb && ps.enrich.gmb.rating != null) {
+            await env.DB.prepare("UPDATE prospects SET rating=COALESCE(rating,?), reviews=COALESCE(NULLIF(reviews,0),?) WHERE id=?")
+              .bind(ps.enrich.gmb.rating, ps.enrich.gmb.reviews || 0, p.id).run().catch(() => {});
+          }
+        }
+        stages.push("site"); counts.site = (counts.site || 0) + 1;
+      }
       // Stage 1: tech fingerprint
-      if (!stages.includes("tech")) {
+      else if (!stages.includes("tech")) {
         const t = await dfsTech(env, p.domain);
         addCost += cents(t.cost);
         if (t.used) {
