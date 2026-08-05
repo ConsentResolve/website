@@ -88,6 +88,7 @@ import { nurtureTick } from "./_lib/nurture-sweep.js";
 import * as newsletter from "./api/newsletter.js";
 import * as founderVoice from "./api/founder-voice.js";
 import * as crmConsent from "./api/crm-consent.js";
+import * as crmTask from "./api/crm-task.js";
 import * as crmLookup from "./api/crm-lookup.js";
 import * as crmTasks from "./api/crm-tasks.js";
 import * as crmProspecting from "./api/prospecting.js";
@@ -201,6 +202,7 @@ const ROUTES = {
   "/api/crm/consent": crmConsent,
   "/api/crm/lookup": crmLookup,
   "/api/crm/tasks": crmTasks,
+  "/api/crm/task": crmTask,
   "/api/crm/prospecting": crmProspecting,
   "/api/crm/agency": crmAgency,
   "/api/crm/inbox": crmInbox,

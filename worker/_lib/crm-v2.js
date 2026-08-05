@@ -145,6 +145,55 @@ export async function addActivityV2(env, { actorId, entityType, entityId, action
   ).bind(ulid(), actorId || null, entityType, entityId, action, meta ? JSON.stringify(meta) : null).run();
 }
 
+// ── Task entity ──────────────────────────────────────────────────────────────
+// A real, assignable task (call / linkedin / manual / nudge) with a due date and an
+// outcome — distinct from the per-conversation `crm_task_state` checklist. Emitted by
+// sequence `create_task` steps (Days 3/8/14) and by reply automations.
+let _tasksEnsured = false;
+async function ensureTasksTable(env) {
+  if (_tasksEnsured) return;
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS crm_tasks (
+    id TEXT PRIMARY KEY, contact_id TEXT, conversation_id TEXT, company_id TEXT,
+    type TEXT NOT NULL DEFAULT 'manual', title TEXT NOT NULL, body TEXT,
+    due_at TEXT, status TEXT NOT NULL DEFAULT 'open', outcome TEXT,
+    assignee_id TEXT, source TEXT, workflow_run_id TEXT, created_by TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')))`).run().catch(() => {});
+  await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_crm_tasks_status ON crm_tasks(status, due_at)`).run().catch(() => {});
+  await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_crm_tasks_contact ON crm_tasks(contact_id)`).run().catch(() => {});
+  _tasksEnsured = true;
+}
+export async function createTask(env, { contactId, conversationId, companyId, type, title, body, dueAt, assigneeId, source, workflowRunId, createdBy }) {
+  await ensureTasksTable(env);
+  const id = "tk_" + ulid();
+  await env.DB.prepare(
+    `INSERT INTO crm_tasks (id, contact_id, conversation_id, company_id, type, title, body, due_at, assignee_id, source, workflow_run_id, created_by)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`
+  ).bind(id, contactId || null, conversationId || null, companyId || null, type || "manual", title || "Task", body || null,
+    dueAt || null, assigneeId || null, source || "manual", workflowRunId || null, createdBy || null).run().catch(() => {});
+  await addActivityV2(env, { actorId: createdBy || null, entityType: "contact", entityId: contactId || conversationId || id, action: "task_created", meta: { task_id: id, type: type || "manual", title, due_at: dueAt || null } }).catch(() => {});
+  return id;
+}
+export async function listTasks(env, { status = "open", contactId, conversationId, limit = 200 } = {}) {
+  await ensureTasksTable(env);
+  const where = [], bind = [];
+  if (status && status !== "all") { where.push("status=?"); bind.push(status); }
+  if (contactId) { where.push("contact_id=?"); bind.push(contactId); }
+  if (conversationId) { where.push("conversation_id=?"); bind.push(conversationId); }
+  const sql = `SELECT * FROM crm_tasks ${where.length ? "WHERE " + where.join(" AND ") : ""} ORDER BY (due_at IS NULL), due_at ASC, created_at ASC LIMIT ?`;
+  bind.push(Math.min(500, limit));
+  const r = await env.DB.prepare(sql).bind(...bind).all().catch(() => ({ results: [] }));
+  return r.results || [];
+}
+export async function completeTask(env, { id, status = "done", outcome, actorId }) {
+  await ensureTasksTable(env);
+  await env.DB.prepare("UPDATE crm_tasks SET status=?, outcome=COALESCE(?,outcome), updated_at=datetime('now') WHERE id=?")
+    .bind(status, outcome || null, id).run().catch(() => {});
+  const t = await env.DB.prepare("SELECT contact_id, type, title FROM crm_tasks WHERE id=?").bind(id).first().catch(() => null);
+  if (t) await addActivityV2(env, { actorId: actorId || null, entityType: "contact", entityId: t.contact_id || id, action: "task_" + status, meta: { task_id: id, type: t.type, outcome: outcome || null } }).catch(() => {});
+  return { ok: true };
+}
+
 // Find or create a company. Prefer domain match (non-free-email); else fall back to a
 // name-keyed company with NULL domain (the common free-email path for this ICP, spec §4).
 export async function findOrCreateCompany(env, { name, domain }) {

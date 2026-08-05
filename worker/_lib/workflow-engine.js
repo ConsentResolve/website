@@ -15,7 +15,7 @@ import {
 } from "./crm-rebuild.js";
 import { sendEmail as gmailSend } from "./gmail.js";
 import { trackedUrl } from "./click-track.js";
-import { ensureCrmV2Schema } from "./crm-v2.js";
+import { ensureCrmV2Schema, createTask } from "./crm-v2.js";
 import { IV_WORKFLOW, renderIvTemplate, buildVars } from "./iv-sequence.js";
 
 const enabled = (env) => env.WORKFLOW_ENGINE_ENABLED === "true";
@@ -75,6 +75,27 @@ const EARN_CONSENT = {
   ]),
 };
 
+// Cold-to-Demo — the multichannel outbound sequence (spec: consent-resolve-sequence-prompt).
+// 5 emails + 3 manual task steps (LinkedIn Day 3, calls Day 8/14) over 21 days. Editable in
+// #sequences (email copy + delays); task steps are code-owned. Merge fields resolved by coldVars.
+const COLD_TO_DEMO = {
+  id: "cold-to-demo",
+  name: "Cold-to-Demo (multichannel)",
+  trigger: "manual_enroll",
+  goal: JSON.stringify(["replied", "booked", "opted_out"]),
+  requires_consent: JSON.stringify([]),
+  definition: JSON.stringify([
+    { channel: "email",    action: "send_email",  delay_minutes: 0,     template: "c2d_1" },                                   // Day 1
+    { channel: "linkedin", action: "create_task", delay_minutes: 2880,  task_type: "linkedin", title: "LinkedIn: connect with {{first_name}} at {{company}}", task_body: "Send a connection request — no note, or a one-liner referencing their {{trade}} work in {{city}}. No pitch." }, // Day 3
+    { channel: "email",    action: "send_email",  delay_minutes: 2880,  template: "c2d_2" },                                   // Day 5
+    { channel: "phone",    action: "create_task", delay_minutes: 4320,  task_type: "call", title: "Call {{first_name}} — {{company}}", task_body: "Reference the emails: \"I sent you a couple notes about the anonymous traffic on your site.\" One sentence of value, ask for 15 minutes. No answer → sub-20-sec voicemail (name, company, one reason to call back). Log: connected / voicemail / bad number." }, // Day 8
+    { channel: "email",    action: "send_email",  delay_minutes: 2880,  template: "c2d_3" },                                   // Day 10
+    { channel: "phone",    action: "create_task", delay_minutes: 5760,  task_type: "call", title: "Call {{first_name}} (attempt 2) — {{company}}", task_body: "Second attempt. If voicemail again, DO NOT leave a second voicemail — hang up. Email 4 (the calendar ask) fires the same day automatically." }, // Day 14
+    { channel: "email",    action: "send_email",  delay_minutes: 0,     template: "c2d_4" },                                   // Day 14 (same day as call 2)
+    { channel: "email",    action: "send_email",  delay_minutes: 10080, template: "c2d_5" },                                   // Day 21
+  ]),
+};
+
 async function seedWorkflows(env) {
   await ensureRebuildSchema(env);
   // Code-owned workflows: keep the definition in sync from code on every seed.
@@ -88,7 +109,7 @@ async function seedWorkflows(env) {
   }
   // Editable workflows (IV): seed ONCE, then the DB definition is the source of truth so
   // cadence edits from /crm/app#sequences aren't clobbered on the next cron.
-  for (const w of [IV_WORKFLOW]) {
+  for (const w of [IV_WORKFLOW, COLD_TO_DEMO]) {
     await env.DB.prepare(
       `INSERT INTO workflows (id,name,trigger,goal,definition,requires_consent,enabled)
        VALUES (?,?,?,?,?,?,1) ON CONFLICT(id) DO NOTHING`
@@ -109,7 +130,35 @@ function tpl(env, id, c) {
   const first = (c.full_name || "there").split(" ")[0];
   // Pref-center CTA routed through the tracked redirect so nurture clicks land in the CRM.
   const PREF_CENTER = trackedUrl(env, { dest: "/get-started/", email: c.email, campaign: "nurture", label: id });
+  // Cold-to-Demo merge vars + the ONE booking link (email 4 only, per spec).
+  const cv = coldVars(env, c);
+  const demoLink = trackedUrl(env, { dest: "/demo/", email: c.email, campaign: "cold_to_demo", label: id });
   const t = {
+    // Day 1 — pain + relevance. Signal-personalized opener. No link. Interest CTA.
+    c2d_1: () => ({
+      subject: "your website traffic",
+      html: c2dShell(cv.first_name, `<p>${fill("{{signal_line}}", cv)}Most ${cv.trade} shops pay $80 to $150 for a shared lead from the aggregators, and that same lead gets sold to four other contractors. Meanwhile about 95% of the people who land on ${cv.company}'s own site leave without a name. You already paid to get them there.</p><p>Worth a look?</p>`, c),
+    }),
+    // Day 5 — proof / price. New angle. No link.
+    c2d_2: () => ({
+      subject: "$7 flat",
+      html: c2dShell(cv.first_name, `<p>Quick follow-up. The aggregators charge $80 to $150 a lead and share it around. We charge $7 a lead, flat, and it is yours alone. No contract.</p><p>Same homeowner, a fraction of the cost, and nobody else is calling them.</p><p>Want the math for ${cv.company}?</p>`, c),
+    }),
+    // Day 10 — objection preempt (legal/creepy). No link.
+    c2d_3: () => ({
+      subject: "is this legal",
+      html: c2dShell(cv.first_name, `<p>The question I get most: is this even legal? Fair one.</p><p>Nobody gets identified unless they give consent on your site first. That is the whole point, and it keeps you on the right side of the state privacy laws that are starting to bite contractors who buy shared lists. You are not renting someone else's data. You own a lead that opted in with you.</p><p>Happy to walk through it if it helps.</p>`, c),
+    }),
+    // Day 14 — direct ask. The ONE and only calendar link.
+    c2d_4: () => ({
+      subject: "15 minutes",
+      html: c2dShell(cv.first_name, `<p>Want to see it live on ${cv.company}'s own website traffic? Fifteen minutes.</p><p>I have Tuesday morning and Thursday afternoon open this week. Grab whatever works: <a href="${demoLink}">my calendar</a>.</p><p>Or reply with a time and I will send an invite.</p>`, c),
+    }),
+    // Day 21 — breakup + newsletter opt-in (reply-based; never auto-subscribe).
+    c2d_5: () => ({
+      subject: "should I stop",
+      html: c2dShell(cv.first_name, `<p>Should I stop reaching out? No hard feelings if the timing is off.</p><p>If it is useful, I send a short monthly note on what is working in ${cv.trade} marketing. No pitch. Reply "monthly" and I will add you, and only you.</p>`, c),
+    }),
     stl_sms1: () => ({ text: `Hi ${first}, ${c.owner || "Andy"} at ${BRAND} — we turn your website visitors into exclusive $7 leads. Want the 2-min version? Reply STOP to opt out.` }),
     stl_sms2: () => ({ text: `${first}, still happy to show you how ${BRAND} recovers the 98% of site visitors who leave without filling a form. Reply YES for a quick look. STOP to opt out.` }),
     stl_call: () => ({ script: `Hi${first !== "there" ? " " + first : ""}, this is an AI assistant calling on behalf of ${BRAND}. I'll be quick — we help home-service businesses turn the website visitors who leave without filling out a form into exclusive leads. Is now an OK time for about sixty seconds?` }),
@@ -140,6 +189,36 @@ function emailShell(greeting, body, c) {
     <hr style="border:none;border-top:1px solid #e5e9f0;margin:18px 0">
     <p style="font-size:12px;color:#8496a6">${BRAND} · ${addr}<br>
     You received this because you expressed interest in lead generation. <a href="https://consentresolve.com/api/unsubscribe?c=${encodeURIComponent(c.id || "")}">Unsubscribe</a>.</p></div>`;
+}
+
+// ---- Cold-to-Demo merge vars + copy --------------------------------------
+// Resolve {{first_name}} {{company}} {{city}} {{trade}} {{signal}} from the contact +
+// its company enrichment, with graceful fallbacks so a missing signal still reads clean.
+function coldVars(env, c) {
+  const en = c._enrich || {};
+  const sig = en._signals || {};
+  const first = String(c.full_name || "").trim().split(/\s+/)[0] || "there";
+  const company = c.company || "your company";
+  const city = sig.city || en.city || c.city || "your area";
+  const trade = (en._intel && en._intel.trade) || sig.trade || sig.trade_guess || "home-service";
+  let signal = en._signal || c.signal || "";
+  if (!signal) {
+    if (Array.isArray(sig.marketplaces) && sig.marketplaces.length) signal = "you're buying leads through " + sig.marketplaces[0];
+    else if (sig.running_ads || (sig.ad_spend > 0)) signal = "you're running ads to your site";
+    else if (c.domain) signal = "your site, " + c.domain;
+  }
+  const signal_line = signal ? ("Noticed " + signal + ". ") : "";
+  return { first_name: first, company, city, trade, signal, signal_line, domain: c.domain || "" };
+}
+function fill(str, v) { return String(str == null ? "" : str).replace(/\{\{(\w+)\}\}/g, (_, k) => (v[k] != null ? v[k] : "")); }
+function c2dShell(first, bodyHtml, c) {
+  const addr = "1907 Gulf Way #1, St Pete Beach, FL 33706";
+  return `<div style="font-family:system-ui,Arial,sans-serif;font-size:15px;line-height:1.6;color:#0e1c2e;max-width:520px">
+    <p>${first},</p>${bodyHtml}
+    <p>— Tyler, ${BRAND}</p>
+    <hr style="border:none;border-top:1px solid #e5e9f0;margin:16px 0">
+    <p style="font-size:12px;color:#8496a6">${BRAND} · ${addr}<br>
+    Not a fit? <a href="https://consentresolve.com/api/unsubscribe?c=${encodeURIComponent(c.id || "")}">Unsubscribe</a>.</p></div>`;
 }
 
 // ---- Providers ------------------------------------------------------------
@@ -184,7 +263,8 @@ async function placeRetellCall(env, { to, script }, dry) {
 // ---- Enrollment -----------------------------------------------------------
 async function loadContact(env, contactId) {
   const r = await env.DB.prepare(
-    `SELECT c.id, c.full_name, c.primary_email email, c.phone, c.source, u.name owner, co.enrichment
+    `SELECT c.id, c.full_name, c.primary_email email, c.phone, c.source, c.company_id, u.name owner,
+            co.name company, co.domain, co.enrichment
        FROM contacts c LEFT JOIN deals d ON d.primary_contact_id=c.id
        LEFT JOIN users u ON u.id=d.owner_id
        LEFT JOIN companies co ON co.id=c.company_id WHERE c.id=? LIMIT 1`
@@ -346,6 +426,22 @@ async function executeStep(env, run, c, step, idx, out, dry) {
     if (run.conversation_id) await env.DB.prepare("UPDATE conversations SET status='nurture', updated_at=datetime('now') WHERE id=?").bind(run.conversation_id).run().catch(() => {});
     await logStep(env, run, idx, null, "subscribe_newsletter", "sent", "");
     await logEvent(env, { type: "newsletter_subscribed", contactId: run.contact_id, workflowRunId: run.id, meta: { step: idx } });
+    return;
+  }
+  // Task step: emit an assignable task (LinkedIn / call / manual) for the SDR. No send;
+  // the human does the action and logs the outcome. Created live only when the engine is on.
+  if (step.action === "create_task") {
+    const live = !dry && enabled(env);
+    const cv = coldVars(env, c);
+    const title = fill(step.title || "Follow-up", cv);
+    const body = fill(step.task_body || "", cv);
+    if (live) {
+      await createTask(env, { contactId: run.contact_id, conversationId: run.conversation_id, companyId: c.company_id || null,
+        type: step.task_type || "manual", title, body, dueAt: new Date().toISOString(), source: "sequence", workflowRunId: run.id });
+    }
+    await logStep(env, run, idx, step.channel, "create_task", live ? "created" : "preview", title);
+    await logEvent(env, { type: live ? "task_created" : "sequence_step_completed", contactId: run.contact_id, conversationId: run.conversation_id, workflowRunId: run.id, channel: step.channel, meta: { step: idx, type: step.task_type || "manual", title, preview: !live || undefined } });
+    out.tasked = (out.tasked || 0) + 1;
     return;
   }
   // Per-sequence live gating: IV emails send for real only when IV_LIVE is on AND (no test
