@@ -4547,7 +4547,7 @@ function signalsCard(e){
 }
 window.editIntelWebsite=editIntelWebsite;window.setIntelWebsite=setIntelWebsite;window.setWebsiteAndLookup=setWebsiteAndLookup;
 /* On-demand intel lookup — gathers from the live website (+ Apollo/Claude if keyed), shows cost. */
-async function runLookup(id, mode, ev){
+async function runLookup(id, mode, ev, force){
   if(ev) ev.stopPropagation();
   mode = mode || 'all';
   const e=(window.ENRICH||{})[id]||{};
@@ -4558,7 +4558,7 @@ async function runLookup(id, mode, ev){
   if(window.crmToast) crmToast(label+': '+site+'…');
   const conv=DATA.conversations.find(x=>x.id===id);
   const contactId=conv?conv.contact_id:null;   // the endpoint keys off the CONTACT, not the conversation
-  const r=await fetch('/api/crm/lookup',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact_id:contactId, website:site, mode:mode})}).then(x=>x.json()).catch(()=>null);
+  const r=await fetch('/api/crm/lookup',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact_id:contactId, website:site, mode:mode, force:!!force})}).then(x=>x.json()).catch(()=>null);
   if(!r||!r.ok){ const msg=(r&&(r.message||r.error))||'lookup failed'; if(note) note.textContent=msg; if(window.crmToast) crmToast('Lookup failed: '+msg); return; }
   window.ENRICH=window.ENRICH||{}; window.DIRECTORY=window.DIRECTORY||{}; window.INTEL=window.INTEL||{};
   window.ENRICH[id]=Object.assign({}, window.ENRICH[id]||{}, r.enrich||{}, {_last_cost:r.cost_usd, _signals:r.signals});
@@ -4702,7 +4702,7 @@ function d2Fresh(id, e){
   const body=`<div class="d2-fresh">${rows.join('')||'<span>not enriched yet</span>'}${cost}</div>`;
   return `<div class="icard full"><div class="icard-h"><h4>Signal freshness</h4><div style="display:flex;gap:6px">
     <button class="ilook-btn" onclick="d2CopyDossier('${id}',event)" style="padding:5px 12px">⧉ Copy dossier</button>
-    <button class="ilook-btn free" onclick="runLookup('${id}','all',event)" style="padding:5px 12px">↻ Re-enrich</button></div></div>${body}</div>`;
+    <button class="ilook-btn free" onclick="runLookup('${id}','all',event,true)" style="padding:5px 12px">↻ Re-enrich</button></div></div>${body}</div>`;
 }
 function d2Authority(sig){
   const a=sig&&sig.authority; if(!a||(a.rank==null&&a.referring_domains==null)) return '';
