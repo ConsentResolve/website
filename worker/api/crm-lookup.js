@@ -220,7 +220,7 @@ export async function onRequestPost({ request, env }) {
   if (!(await crmAuthed(request, env))) return json({ ok: false, error: "unauthorized" }, { status: 403 }, cors);
   const b = await request.json().catch(() => ({}));
   const me = await currentUser(request, env).catch(() => null);
-  const res = await enrichLead(env, { contactId: b.contact_id, website: b.website, mode: b.mode, actorId: me ? me.id : null });
+  const res = await enrichLead(env, { contactId: b.contact_id, website: b.website, mode: b.mode, actorId: me ? me.id : null, force: !!b.force });
   return json(res, res.ok ? {} : { status: res.status || 400 }, cors);
 }
 
@@ -228,7 +228,7 @@ export async function onRequestPost({ request, env }) {
 // ingest. Fetches the live site + Claude synthesis (free) and/or DataForSEO (paid), writes
 // back to the record, caches on the company, and returns the dossier payload. Deliberately
 // free of request/cors coupling so cron and ingest can call it directly.
-export async function enrichLead(env, { contactId, website, mode, actorId } = {}) {
+export async function enrichLead(env, { contactId, website, mode, actorId, force } = {}) {
   await ensureCrmV2Schema(env);
   await ensure(env);
   const b = { contact_id: contactId, website, mode };
@@ -260,6 +260,20 @@ export async function enrichLead(env, { contactId, website, mode, actorId } = {}
   const { _directory: pDir, _intel: pInt, _looked_up_at: _plu, _last_cost: _plc, ...pEnr } = prev;
   const parsed = { enrich: { ...pEnr, website: { ...(pEnr.website || {}), domain } }, directory: { ...(pDir || {}) }, intel: { ...(pInt || {}) } };
   const breakdown = [];
+
+  // Fresh-cache shortcut — if this company was fully enriched (synthesis + ICP) within 30 days,
+  // return the cache instead of re-paying DataForSEO/Claude. Skipped when force is set. Keeps the
+  // auto-run on Intel-open, the batch dossier modal, and the drip from re-billing fresh leads.
+  {
+    const luTs = Date.parse(prev._looked_up_at || "") || 0;
+    const fresh = luTs && (Date.now() - luTs) < 30 * 86400000;
+    if (!force && fresh && prev._signals && prev._signals.icp && pInt && pInt.synthesis) {
+      return { ok: true, cached: true, domain, mode, cost_usd: 0,
+        breakdown: [{ source: "cache", cost: 0, ok: true, note: "fresh (<30d) — reused, no re-spend" }],
+        enrich: parsed.enrich, directory: parsed.directory, intel: parsed.intel, signals: prev._signals,
+        writeback: [], claude_on: !!env.ANTHROPIC_API_KEY, dataforseo_on: !!(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD) };
+    }
+  }
 
   // ── Claude / free: fetch site pages + read inbound messages, extract a full profile, write back ──
   let writeback = [];

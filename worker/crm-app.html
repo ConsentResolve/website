@@ -1179,6 +1179,43 @@ html,body{height:100%}
   .ppromote{border:none;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:12.5px;border-radius:9px;padding:8px 14px;cursor:pointer}
   .psupp{border:1px solid var(--line);background:var(--surface-2);color:var(--tx-3);border-radius:9px;width:30px;height:30px;cursor:pointer;font-size:13px}
   .pdone{font-size:12px;font-weight:700;color:var(--good)}
+  /* ---- Batch Triage ---- */
+  .pcsv{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:11px 14px;border:1px dashed var(--line-2);border-radius:12px;background:var(--surface-1);margin-bottom:14px}
+  .pcsv-l{font-size:12.5px;color:var(--tx-2)} .pcsv-l code{font-family:var(--font-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:4px;color:var(--tx-1)}
+  .pcsv-btn{font-size:12.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);border-radius:9px;padding:7px 13px;cursor:pointer;white-space:nowrap}
+  .pcsv-name{font-size:12px;color:var(--tx-3);font-family:var(--font-mono)}
+  .pchk{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:0 0 auto} .pchk-sp{width:16px;flex:0 0 auto}
+  .pcard.sel{background:var(--accent-soft);border-color:var(--accent)}
+  .pnm-b{cursor:pointer} .pnm-b:not(.none):hover{color:var(--accent);text-decoration:underline} .pnm-b.none{cursor:default}
+  .prec{font-family:var(--font-mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-left:6px}
+  .pdbtns{display:flex;gap:4px;flex-wrap:wrap}
+  .pdb{font-size:11px;font-weight:700;padding:5px 9px;border-radius:7px;border:1px solid var(--line);background:var(--surface-1);color:var(--tx-2);cursor:pointer;white-space:nowrap}
+  .pdb:hover{border-color:var(--accent);color:var(--accent)} .pdb.x:hover{border-color:var(--bad);color:var(--bad)}
+  .pdnone{font-size:11px;color:var(--tx-3)}
+  .pdchip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);color:var(--tx-1)}
+  .pdchip.open{background:var(--blue-soft,rgba(37,99,235,.12));border-color:#3b6ef0;color:#5b8def}
+  .pdchip.sequence{background:rgba(124,58,237,.14);border-color:#7c3aed;color:#9a6ef5}
+  .pdchip.newsletter{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+  .pdchip.instantly{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+  .pdchip.skip{background:var(--surface-2);border-color:var(--line);color:var(--tx-3)}
+  .pdchip u{cursor:pointer;opacity:.6;font-weight:800;text-decoration:none} .pdchip u:hover{opacity:1}
+  .pbulk{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--accent);border-radius:11px;padding:9px 13px;margin-bottom:12px}
+  .pbulk-n{font-size:13px;font-weight:800;color:var(--accent)} .pbulk-l{font-size:12px;font-weight:700;color:var(--tx-2);text-transform:uppercase;letter-spacing:.04em}
+  .pbb{font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface-1);color:var(--tx-1);cursor:pointer;white-space:nowrap}
+  .pbb:hover{border-color:var(--accent);color:var(--accent)}
+  .pbulk-x{margin-left:auto;font-size:12px;font-weight:700;color:var(--tx-2);background:none;border:none;cursor:pointer;text-decoration:underline}
+  .ptfoot{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:14px;padding-top:13px;border-top:1px solid var(--line)}
+  .pdc{font-size:12.5px;color:var(--tx-2);display:inline-flex;align-items:center;gap:7px} .pdc b{font-family:var(--font-mono);color:var(--tx-1)}
+  .pdc-i{width:9px;height:9px;border-radius:3px;display:inline-block;background:var(--tx-3)}
+  .pdc-i.open{background:#3b6ef0} .pdc-i.sequence{background:#7c3aed} .pdc-i.newsletter{background:var(--warn)} .pdc-i.instantly{background:var(--good)} .pdc-i.skip{background:var(--tx-3)}
+  .pspacer{flex:1}
+  /* dossier modal (batch → same Intel renderer) */
+  .pdoss-ov{position:fixed;inset:0;z-index:1000;background:rgba(4,10,20,.55);display:flex;align-items:flex-start;justify-content:center;padding:32px 16px;overflow:auto}
+  .pdoss-card{background:var(--surface-0);border:1px solid var(--line);border-radius:16px;width:min(1080px,100%);box-shadow:var(--shadow-lg,0 20px 60px rgba(0,0,0,.4));max-height:calc(100vh - 64px);display:flex;flex-direction:column;overflow:hidden}
+  .pdoss-top{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--line);font-family:var(--font-display);font-weight:800}
+  .pdoss-x{border:1px solid var(--line);background:var(--surface-1);color:var(--tx-2);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:14px}
+  .pdoss-x:hover{border-color:var(--bad);color:var(--bad)}
+  .pdoss-card .intel-scroll{overflow:auto;padding:6px 4px}
   /* ---- Consent toggles (Intel panel) ---- */
   .cst-wrap{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
   .cst-h{font-size:11.5px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--tx-3);margin-bottom:8px;display:flex;align-items:center;gap:8px}
@@ -3010,8 +3047,9 @@ function showView(v){
 window.showView=showView;
 
 /* ---- Prospecting: bulk city+trade sweep → DataForSEO waterfall → scored prospects ---- */
-let PROSP={prospects:[],runs:[],tierCounts:{},trades:[],dfs:false,tier:'all',loaded:false};
+let PROSP={prospects:[],runs:[],tierCounts:{},dispositionCounts:{},trades:[],dfs:false,tier:'all',loaded:false,sel:new Set()};
 let _prospPoll=null;
+const DISP_LBL={open:'💬 Open',sequence:'⚡ Sequence',newsletter:'✉ Newsletter',instantly:'→ Instantly',skip:'Skip'};
 const escP=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function prospGet(qs){ const r=await fetch('/api/crm/prospecting'+(qs||''),{headers:{'Accept':'application/json'}}); return r.json(); }
 async function prospPost(body){ const r=await fetch('/api/crm/prospecting',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); return r.json(); }
@@ -3020,7 +3058,7 @@ async function renderProspecting(force){
   const host=document.getElementById('prospectingview'); if(!host) return;
   if(!PROSP.loaded||force){
     host.innerHTML='<div style="padding:56px;text-align:center;color:var(--tx-3)">Loading prospects…</div>';
-    try{ const d=await prospGet('?tier='+encodeURIComponent(PROSP.tier)); Object.assign(PROSP,{prospects:d.prospects||[],runs:d.runs||[],tierCounts:d.tierCounts||{},trades:d.trades||[],dfs:!!d.dfs,loaded:true}); }
+    try{ const d=await prospGet('?tier='+encodeURIComponent(PROSP.tier)); Object.assign(PROSP,{prospects:d.prospects||[],runs:d.runs||[],tierCounts:d.tierCounts||{},dispositionCounts:d.dispositionCounts||{},trades:d.trades||[],dfs:!!d.dfs,loaded:true}); }
     catch(e){ host.innerHTML='<div class="idash-empty" style="padding:40px">Couldn’t load prospecting.</div>'; return; }
   }
   paintProspecting();
@@ -3049,10 +3087,36 @@ function paintProspecting(){
       <div class="pfield sm"><label>Cost cap</label><select id="pw-cap"><option value="500">$5</option><option value="1000">$10</option><option value="2500">$25</option></select></div>
       <button class="pgo" id="pw-go" onclick="prospSweep()">Run sweep</button>
     </div>
+    <div class="pcsv">
+      <span class="pcsv-l">Batch triage — upload a CSV of ICP domains (one <code>domain</code> column; optional name / trade / city):</span>
+      <label class="pcsv-btn">⬆ Choose CSV<input type="file" id="pw-csv" accept=".csv,text/csv" style="display:none" onchange="prospImportCsv(this)"></label>
+      <span class="pcsv-name" id="pw-csv-name"></span>
+    </div>
     ${running.length?`<div class="prun-live" id="prun-live">${running.map(runRow).join('')}</div>`:''}
     ${(PROSP.runs||[]).length?`<details class="pruns"><summary>Recent sweeps (${PROSP.runs.length})</summary>${PROSP.runs.map(runRow).join('')}</details>`:''}
     <div class="ptiers">${pill('all','All')}${pill('hot','🔥 Hot','hot')}${pill('warm','Warm','warm')}${pill('cold','Cold','cold')}${pill('no_site','No site','dead')}</div>
+    ${bulkBar()}
     <div class="plist" id="plist">${prospList()}</div>
+    ${dispFooter()}
+  </div>`;
+}
+function bulkBar(){
+  const n=PROSP.sel.size; if(!n) return '';
+  return `<div class="pbulk"><span class="pbulk-n">${n} selected</span><span class="pbulk-l">Send to:</span>
+    <button class="pbb" onclick="prospBulkDisp('open')">💬 Open</button>
+    <button class="pbb" onclick="prospBulkDisp('sequence')">⚡ Sequence</button>
+    <button class="pbb" onclick="prospBulkDisp('newsletter')">✉ Newsletter</button>
+    <button class="pbb" onclick="prospBulkDisp('instantly')">→ Instantly</button>
+    <button class="pbb" onclick="prospBulkDisp('skip')">Skip</button>
+    <button class="pbulk-x" onclick="prospClearSel()">Clear</button></div>`;
+}
+function dispFooter(){
+  const d=PROSP.dispositionCounts||{}; const any=Object.values(d).some(x=>x>0);
+  const c=(k,lbl,cls)=>`<span class="pdc"><i class="pdc-i ${cls}"></i>${lbl} <b>${d[k]||0}</b></span>`;
+  return `<div class="ptfoot">
+    ${c('open','Open','open')}${c('sequence','Sequence','sequence')}${c('newsletter','Newsletter','newsletter')}${c('instantly','Instantly','instantly')}${c('skip','Skipped','skip')}
+    <span class="pspacer"></span>
+    <button class="pgo" onclick="prospPush(this)" ${any?'':'disabled'}>→ Push dispositions</button>
   </div>`;
 }
 function runRow(r){
@@ -3077,17 +3141,35 @@ function prospCard(p){
   if(s.has_form===true) chips.push(`<span class="pchip">📝 form</span>`);
   if(p.rating!=null) chips.push(`<span class="pchip soft">${p.rating}★ ${p.reviews||0}</span>`);
   if(s.traffic_month!=null&&s.traffic_month>0) chips.push(`<span class="pchip soft">${s.traffic_month}/mo</span>`);
-  const promoted=p.status==='promoted';
-  const act=promoted?'<span class="pdone">✓ In pipeline</span>':`<button class="ppromote" onclick="prospPromote('${p.id}',event)">Promote →</button><button class="psupp" onclick="prospSuppress('${p.id}',event)" title="Hide">✕</button>`;
+  const noSite=p.tier==='no_site'||!p.domain;
+  const rec=(s.traffic_month>0)?Math.round(s.traffic_month*CR_IDENTIFY_RATE)*CR_PRICE:0;
+  const checked=PROSP.sel.has(p.id);
+  const check=noSite?'<span class="pchk-sp"></span>':`<input type="checkbox" class="pchk" ${checked?'checked':''} onclick="event.stopPropagation();prospToggleSel('${p.id}',this.checked)">`;
+  let dispCtl;
+  if(p.disposition){
+    const m=p.disposition_meta||{}; const pushed=!!(m.conversation_id||m.staged||m.skipped||m.newsletter||m.sequence_run_id);
+    dispCtl=`<span class="pdchip ${p.disposition}">${DISP_LBL[p.disposition]||p.disposition}${pushed?' ✓':''} <u onclick="event.stopPropagation();prospDisp('${p.id}',null)" title="Clear">✕</u></span>`;
+  } else if(noSite){
+    dispCtl='<span class="pdnone">below floor</span>';
+  } else {
+    dispCtl=`<div class="pdbtns">
+      <button class="pdb" title="Open a conversation" onclick="event.stopPropagation();prospDisp('${p.id}','open')">Open</button>
+      <button class="pdb" title="Enroll in a sequence" onclick="event.stopPropagation();prospDisp('${p.id}','sequence')">Seq</button>
+      <button class="pdb" title="Add to newsletter" onclick="event.stopPropagation();prospDisp('${p.id}','newsletter')">News</button>
+      <button class="pdb" title="Instantly campaign (staged)" onclick="event.stopPropagation();prospDisp('${p.id}','instantly')">Inst</button>
+      <button class="pdb x" title="Skip" onclick="event.stopPropagation();prospDisp('${p.id}','skip')">✕</button></div>`;
+  }
   const site=p.domain?`<a href="https://${escP(p.domain)}" target="_blank" rel="noopener" class="pdom">${escP(p.domain)}</a>`:'<span class="pdom none">no website</span>';
-  return `<div class="pcard ${p.tier}" data-id="${p.id}">
-    <div class="pscore ${p.tier}">${p.tier==='no_site'?'—':p.score}</div>
+  const nameAttr=p.domain?`class="pnm-b" onclick="prospOpenDossier('${p.id}')" title="Open the full dossier"`:'class="pnm-b none"';
+  return `<div class="pcard ${p.tier}${checked?' sel':''}" data-id="${p.id}">
+    ${check}
+    <div class="pscore ${p.tier}">${noSite?'—':p.score}</div>
     <div class="pmain">
-      <div class="pnm">${escP(p.name||p.domain)} ${tierBadge(p.tier)}</div>
+      <div class="pnm"><span ${nameAttr}>${escP(p.name||p.domain)}</span> ${tierBadge(p.tier)}${rec?`<span class="prec">$${rec.toLocaleString()}/mo</span>`:''}</div>
       <div class="pmeta">${site}${p.city?` · ${escP(p.city)}`:''}${p.trade?` · ${escP(p.trade)}`:''}${p.phone?` · ${escP(p.phone)}`:''}</div>
       ${chips.length?`<div class="pchips">${chips.join('')}</div>`:''}
     </div>
-    <div class="pact">${act}</div>
+    <div class="pact">${dispCtl}</div>
   </div>`;
 }
 function prospSetTier(t){ PROSP.tier=t; renderProspecting(true); }
@@ -3113,6 +3195,57 @@ async function prospPromote(id,ev){ if(ev)ev.stopPropagation();
 async function prospSuppress(id,ev){ if(ev)ev.stopPropagation();
   const r=await prospPost({action:'suppress',id});
   if(r.ok){ PROSP.prospects=(PROSP.prospects||[]).filter(x=>x.id!==id); paintProspecting(); }
+}
+/* ─────────── Batch Triage ─────────── */
+async function prospImportCsv(input){
+  const f=input&&input.files&&input.files[0]; if(!f) return;
+  const nm=document.getElementById('pw-csv-name'); if(nm)nm.textContent=f.name+' — importing…';
+  const text=await f.text().catch(()=>''); input.value='';
+  const r=await prospPost({action:'import_csv',csv:text,filename:f.name});
+  if(nm)nm.textContent=r.ok?(r.message||'imported'):(r.message||r.error||'import failed');
+  if(r.ok){ crmToast&&crmToast(r.message||'CSV imported — enriching'); PROSP.tier='all'; await renderProspecting(true); }
+  else crmToast&&crmToast(r.message||r.error||'Import failed');
+}
+function recountDisp(){ const d={}; (PROSP.prospects||[]).forEach(p=>{ if(p.disposition) d[p.disposition]=(d[p.disposition]||0)+1; }); return d; }
+async function prospDisp(id,disp){
+  const r=await prospPost({action:'disposition',id,disposition:disp});
+  if(r.ok){ const p=(PROSP.prospects||[]).find(x=>x.id===id); if(p){p.disposition=r.disposition;p.disposition_meta=null;} PROSP.dispositionCounts=recountDisp(); paintProspecting(); }
+}
+function prospToggleSel(id,on){ if(on)PROSP.sel.add(id); else PROSP.sel.delete(id); paintProspecting(); }
+function prospClearSel(){ PROSP.sel.clear(); paintProspecting(); }
+async function prospBulkDisp(disp){
+  const ids=[...PROSP.sel]; if(!ids.length) return;
+  const r=await prospPost({action:'bulk_disposition',ids,disposition:disp});
+  if(r.ok){ ids.forEach(id=>{ const p=(PROSP.prospects||[]).find(x=>x.id===id); if(p){p.disposition=disp;p.disposition_meta=null;} }); PROSP.sel.clear(); PROSP.dispositionCounts=recountDisp(); paintProspecting(); crmToast&&crmToast(ids.length+' → '+(DISP_LBL[disp]||disp)); }
+}
+async function prospPush(btn){
+  if(btn){btn.disabled=true;btn.textContent='Pushing…';}
+  const r=await prospPost({action:'push_dispositions'});
+  crmToast&&crmToast(r.ok?(r.message||'Pushed'):(r.error||'Push failed'));
+  await renderProspecting(true);
+}
+/* Click a business name → promote + open the SAME Intel dossier in a modal (one renderer). */
+async function prospOpenDossier(id){
+  const p=(PROSP.prospects||[]).find(x=>x.id===id); if(!p) return;
+  crmToast&&crmToast('Loading dossier for '+(p.name||p.domain)+'…');
+  const pr=await prospPost({action:'promote',id});
+  if(!pr.ok||!pr.contact_id){ crmToast&&crmToast(pr.error||'Could not open dossier'); return; }
+  if(p){p.status='promoted';p.promoted_contact_id=pr.contact_id;}
+  const lk=await fetch('/api/crm/lookup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact_id:pr.contact_id,website:p.domain,mode:'all'})}).then(x=>x.json()).catch(()=>null);
+  const cid='__prospdoss';
+  window.ENRICH=window.ENRICH||{}; window.INTEL=window.INTEL||{}; window.DIRECTORY=window.DIRECTORY||{}; window.PHONES=window.PHONES||{}; window.__autoLook=window.__autoLook||{}; window.__autoLook[cid]=1;
+  window.ENRICH[cid]=Object.assign({},(lk&&lk.enrich)||{},{website:(lk&&lk.enrich&&lk.enrich.website)||{domain:p.domain},_signals:(lk&&lk.signals)||p.signals||{},_last_cost:lk&&lk.cost_usd,_looked_up_at:new Date().toISOString()});
+  window.INTEL[cid]=(lk&&lk.intel)||{trade:p.trade};
+  window.DIRECTORY[cid]=(lk&&lk.directory)||{};
+  if(p.phone) window.PHONES[cid]=p.phone;
+  const fit=p.tier==='hot'?'hot':p.tier==='warm'?'warm':p.tier==='cold'?'cold':'unknown';
+  const conv={id:cid,name:p.name||p.domain,company:p.name||p.domain,contact_email:'',contact_phone:p.phone||'',consent:{},channel:'prospecting',intel:{fit,time_on_site:'',pages:0,first_seen:'',speed_to_lead_h:null,pages_viewed:[],signal:(p.reasons&&p.reasons[0])||'',src_label:'batch',ip:'',location:p.city||''}};
+  let ov=document.getElementById('pdoss-ov'); if(ov)ov.remove();
+  ov=document.createElement('div'); ov.id='pdoss-ov'; ov.className='pdoss-ov';
+  ov.innerHTML='<div class="pdoss-card"><div class="pdoss-top"><b>Dossier</b><button class="pdoss-x" onclick="document.getElementById(\'pdoss-ov\').remove()">✕</button></div><div class="intel-scroll intel-dash-wrap">'+intelDashboard(conv)+'</div></div>';
+  ov.onclick=(e)=>{ if(e.target===ov) ov.remove(); };
+  document.body.appendChild(ov);
+  if(typeof d2InitDossier==='function') d2InitDossier(conv);
 }
 function maybePollRuns(){
   const running=(PROSP.runs||[]).some(r=>r.status==='running');

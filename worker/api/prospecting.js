@@ -20,6 +20,10 @@ import {
   normDomain, dfsConfigured, dfsBusinessListings, dfsTech, dataforseoLookup, dfsBacklinks, TRADE_CATEGORIES,
 } from "../_lib/dataforseo.js";
 import { scoreProspect } from "../_lib/prospect-score.js";
+import { enrollContact } from "../_lib/workflow-engine.js";
+import { enrollRepermission } from "../_lib/newsletter.js";
+
+const DISPOSITIONS = ["open", "sequence", "newsletter", "instantly", "skip"];
 
 const rid = (p) => p + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 const cents = (usd) => Math.round(Number(usd || 0) * 100);
@@ -40,6 +44,12 @@ export async function ensureProspectingSchema(env) {
     cost_cents INTEGER DEFAULT 0, max_cost_cents INTEGER DEFAULT 500, status TEXT DEFAULT 'running',
     actor TEXT, note TEXT, created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')))`);
   await S(`CREATE INDEX IF NOT EXISTS idx_prospect_runs_status ON prospect_runs(status)`);
+  // Batch Triage: per-row disposition (Open / Sequence / Newsletter / Instantly / Skip) and the
+  // meta that records the side-effect result (conversation_id, sequence run, etc.) for idempotency.
+  await S(`ALTER TABLE prospects ADD COLUMN disposition TEXT`);
+  await S(`ALTER TABLE prospects ADD COLUMN disposition_meta TEXT`);
+  await S(`ALTER TABLE prospects ADD COLUMN disposition_by TEXT`);
+  await S(`ALTER TABLE prospects ADD COLUMN disposition_at TEXT`);
 }
 
 export async function onRequestOptions({ request, env }) {
@@ -67,7 +77,7 @@ export async function onRequestGet({ request, env }) {
 
   const rows = await env.DB.prepare(
     `SELECT id, domain, name, phone, city, region, trade, rating, reviews, score, tier, signals, reasons,
-            cost_cents, status, promoted_contact_id, created_at
+            cost_cents, status, promoted_contact_id, disposition, disposition_meta, created_at
      FROM prospects WHERE ${where.join(" AND ")}
      ORDER BY score DESC, reviews DESC LIMIT ?`
   ).bind(...binds, limit).all().catch(() => ({ results: [] }));
@@ -75,8 +85,14 @@ export async function onRequestGet({ request, env }) {
     ...r,
     signals: safeJson(r.signals, {}),
     reasons: safeJson(r.reasons, []),
+    disposition_meta: safeJson(r.disposition_meta, null),
     cost: (r.cost_cents || 0) / 100,
   }));
+  // Disposition tally for the triage footer counters.
+  const dispRes = await env.DB.prepare(
+    `SELECT disposition d, COUNT(*) n FROM prospects WHERE status != 'suppressed' AND disposition IS NOT NULL GROUP BY disposition`
+  ).all().catch(() => ({ results: [] }));
+  const dispositionCounts = {}; for (const t of (dispRes.results || [])) dispositionCounts[t.d] = t.n;
 
   const runsRes = await env.DB.prepare(
     `SELECT id, query, stage, counts, cost_cents, max_cost_cents, status, created_at, updated_at, note
@@ -91,7 +107,7 @@ export async function onRequestGet({ request, env }) {
   ).all().catch(() => ({ results: [] }));
   const tierCounts = {}; for (const t of (tierRes.results || [])) tierCounts[t.tier] = t.n;
 
-  return json({ ok: true, prospects, runs, tierCounts, dfs: dfsConfigured(env), trades: Object.keys(TRADE_CATEGORIES) }, {}, cors);
+  return json({ ok: true, prospects, runs, tierCounts, dispositionCounts, dfs: dfsConfigured(env), trades: Object.keys(TRADE_CATEGORIES) }, {}, cors);
 }
 
 // ── POST: sweep / promote / suppress ────────────────────────────────────────
@@ -111,6 +127,11 @@ export async function onRequestPost({ request, env, ctx }) {
     const out = await processProspectRuns(env, { maxDomains: Number(b.max || 25) });
     return json({ ok: true, processed: out }, {}, cors);
   }
+  // ── Batch Triage ──
+  if (action === "import_csv") return importCsv(env, b, actorId, ctx, cors);
+  if (action === "disposition") return setDisposition(env, b, actorId, cors);
+  if (action === "bulk_disposition") return bulkDisposition(env, b, actorId, cors);
+  if (action === "push_dispositions") return pushDispositions(env, b, actorId, ctx, cors);
 
   // action === "sweep" — Stage 0 TAM import.
   if (!dfsConfigured(env)) return json({ ok: false, error: "dfs_not_configured", message: "DataForSEO credentials are not set." }, { status: 400 }, cors);
@@ -286,9 +307,21 @@ async function pendingCount(env, runId) {
 
 // ── Promote a prospect into a real lead ─────────────────────────────────────
 async function promote(env, b, actorId, cors) {
-  const p = await env.DB.prepare("SELECT * FROM prospects WHERE id=?").bind(b.id).first().catch(() => null);
-  if (!p) return json({ ok: false, error: "not_found" }, { status: 404 }, cors);
-  if (p.promoted_contact_id) return json({ ok: true, already: true, contact_id: p.promoted_contact_id }, {}, cors);
+  const r = await promoteCore(env, b.id, actorId);
+  if (!r.ok) return json(r, { status: r.status || 400 }, cors);
+  return json(r, {}, cors);
+}
+
+// Core promotion — shared by the promote action AND Batch Triage dispositions. Creates a
+// company + provisional contact + an open conversation (so it surfaces in the pipeline), caches
+// the prospect's signals in the Intel shape, and returns the ids. Idempotent per prospect.
+async function promoteCore(env, prospectId, actorId) {
+  const p = await env.DB.prepare("SELECT * FROM prospects WHERE id=?").bind(prospectId).first().catch(() => null);
+  if (!p) return { ok: false, status: 404, error: "not_found" };
+  if (p.promoted_contact_id) {
+    const cv = await env.DB.prepare("SELECT id FROM conversations WHERE contact_id=? ORDER BY created_at LIMIT 1").bind(p.promoted_contact_id).first().catch(() => null);
+    return { ok: true, already: true, contact_id: p.promoted_contact_id, conversation_id: cv ? cv.id : null };
+  }
 
   const sig = safeJson(p.signals, {});
   const companyId = await findOrCreateCompany(env, { name: p.name || p.domain, domain: p.domain || null }).catch(() => null);
@@ -324,12 +357,135 @@ async function promote(env, b, actorId, cors) {
   await addActivityV2(env, { actorId, entityType: "contact", entityId: contactId, action: "promoted_from_prospect",
     meta: { prospect_id: p.id, domain: p.domain, tier: p.tier, score: p.score } }).catch(() => {});
 
-  return json({ ok: true, contact_id: contactId, conversation_id: convId }, {}, cors);
+  return { ok: true, contact_id: contactId, conversation_id: convId };
 }
 
 async function suppress(env, b, cors) {
   await env.DB.prepare("UPDATE prospects SET status='suppressed', updated_at=datetime('now') WHERE id=?").bind(b.id).run().catch(() => {});
   return json({ ok: true }, {}, cors);
+}
+
+// ── Batch Triage: CSV import ─────────────────────────────────────────────────
+// Minimal CSV parser (quoted fields + commas). Returns array of {header:value} objects.
+function parseCsv(text) {
+  const rows = [];
+  const lines = String(text || "").replace(/\r\n?/g, "\n").split("\n").filter((l) => l.trim() !== "");
+  if (!lines.length) return rows;
+  const split = (line) => {
+    const out = []; let cur = "", q = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (q) { if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }
+      else if (c === '"') q = true; else if (c === ",") { out.push(cur); cur = ""; } else cur += c;
+    }
+    out.push(cur); return out.map((s) => s.trim());
+  };
+  const headers = split(lines[0]).map((h) => h.toLowerCase().replace(/^﻿/, ""));
+  for (let i = 1; i < lines.length; i++) {
+    const cells = split(lines[i]); const o = {};
+    headers.forEach((h, j) => { o[h] = cells[j] != null ? cells[j] : ""; });
+    rows.push(o);
+  }
+  return rows;
+}
+const pick = (o, keys) => { for (const k of keys) if (o[k]) return o[k]; return ""; };
+
+// Import a CSV (or a pre-parsed rows array) of ICP domains as prospects, then kick the same
+// enrichment waterfall the trade/city sweep uses. Dedupes on domain (an already-known prospect
+// is reused, never re-paid). One column named "domain" is required; name/trade/city optional.
+async function importCsv(env, b, actorId, ctx, cors) {
+  const raw = typeof b.csv === "string" ? parseCsv(b.csv) : (Array.isArray(b.rows) ? b.rows : []);
+  if (!raw.length) return json({ ok: false, error: "empty", message: "No rows found — expected a CSV with a 'domain' column." }, { status: 400 }, cors);
+  const filename = String(b.filename || "upload.csv").slice(0, 120);
+  const maxCostCents = Math.max(50, Math.min(Number(b.max_cost_cents || 2000), 20000));
+  const runId = rid("pr_run_");
+  let inserted = 0, dupes = 0, invalid = 0;
+  const seen = new Set();
+  for (const r of raw) {
+    const domain = normDomain(pick(r, ["domain", "website", "url", "site"]));
+    if (!domain) { invalid++; continue; }
+    if (seen.has(domain)) { dupes++; continue; }
+    seen.add(domain);
+    const exists = await env.DB.prepare("SELECT id FROM prospects WHERE domain=?").bind(domain).first().catch(() => null);
+    if (exists) {
+      // Reuse the existing prospect but attach it to THIS run so it shows in the batch list.
+      await env.DB.prepare("UPDATE prospects SET run_id=?, updated_at=datetime('now') WHERE id=?").bind(runId, exists.id).run().catch(() => {});
+      dupes++; continue;
+    }
+    const id = rid("pr_");
+    const name = pick(r, ["business_name", "name", "company", "business"]) || domain;
+    const trade = pick(r, ["trade", "category", "industry"]).toLowerCase() || null;
+    const city = pick(r, ["city", "town"]) || null;
+    const region = pick(r, ["state", "region", "province"]) || null;
+    const ok = await env.DB.prepare(
+      `INSERT OR IGNORE INTO prospects (id, domain, name, city, region, trade, tier, status, run_id, signals, stages_run)
+       VALUES (?, ?, ?, ?, ?, ?, 'unscored', 'new', ?, ?, ?)`
+    ).bind(id, domain, name, city, region, trade, runId, JSON.stringify({ has_site: true }), JSON.stringify(["tam"])).run().catch(() => null);
+    if (ok) inserted++;
+  }
+  const counts = { found: raw.length, sites: inserted, dupes, invalid, tech: 0, traffic: 0, backlinks: 0, hot: 0, warm: 0, cold: 0, dead: 0 };
+  await env.DB.prepare(
+    `INSERT INTO prospect_runs (id, query, stage, counts, cost_cents, max_cost_cents, status, actor, note)
+     VALUES (?, ?, 'tech', ?, 0, ?, ?, ?, ?)`
+  ).bind(runId, JSON.stringify({ kind: "csv", filename, total: raw.length }), JSON.stringify(counts),
+    maxCostCents, inserted > 0 ? "running" : "done", actorId, `CSV import: ${filename}`).run().catch(() => {});
+  await addActivityV2(env, { actorId, entityType: "prospect_run", entityId: runId, action: "csv_import", meta: { filename, found: raw.length, sites: inserted } }).catch(() => {});
+  if (inserted > 0 && ctx && ctx.waitUntil) ctx.waitUntil(processProspectRuns(env, { maxDomains: 20 }).catch(() => {}));
+  return json({ ok: true, run_id: runId, counts,
+    message: `Imported ${inserted} new domain(s) — enriching now. ${dupes} already known, ${invalid} without a valid domain.` }, {}, cors);
+}
+
+// ── Batch Triage: dispositions ───────────────────────────────────────────────
+async function setDisposition(env, b, actorId, cors) {
+  const disp = DISPOSITIONS.includes(b.disposition) ? b.disposition : null;
+  await env.DB.prepare("UPDATE prospects SET disposition=?, disposition_meta=NULL, disposition_by=?, disposition_at=datetime('now'), updated_at=datetime('now') WHERE id=?")
+    .bind(disp, actorId, b.id).run().catch(() => {});
+  return json({ ok: true, id: b.id, disposition: disp }, {}, cors);
+}
+async function bulkDisposition(env, b, actorId, cors) {
+  const disp = DISPOSITIONS.includes(b.disposition) ? b.disposition : null;
+  const ids = (Array.isArray(b.ids) ? b.ids : []).slice(0, 1000);
+  if (!ids.length) return json({ ok: false, error: "no_ids" }, { status: 400 }, cors);
+  const ph = ids.map(() => "?").join(",");
+  await env.DB.prepare(`UPDATE prospects SET disposition=?, disposition_meta=NULL, disposition_by=?, disposition_at=datetime('now'), updated_at=datetime('now') WHERE id IN (${ph})`)
+    .bind(disp, actorId, ...ids).run().catch(() => {});
+  return json({ ok: true, updated: ids.length, disposition: disp }, {}, cors);
+}
+
+// Execute the side effects for triaged prospects that haven't been pushed yet (disposition_meta
+// NULL). Idempotent — a re-run skips rows already actioned. Open/Sequence/Newsletter run live;
+// Instantly is STAGED (recorded, not pushed) until the campaign mapping is verified.
+async function pushDispositions(env, b, actorId, ctx, cors) {
+  const rows = await env.DB.prepare(
+    `SELECT id FROM prospects WHERE disposition IS NOT NULL AND disposition_meta IS NULL AND status != 'suppressed' LIMIT 200`
+  ).all().catch(() => ({ results: [] }));
+  const out = { open: 0, sequence: 0, newsletter: 0, instantly_staged: 0, skip: 0, failed: 0 };
+  for (const row of (rows.results || [])) {
+    const p = await env.DB.prepare("SELECT id, disposition FROM prospects WHERE id=?").bind(row.id).first().catch(() => null);
+    if (!p) continue;
+    let meta = null;
+    try {
+      if (p.disposition === "skip") { meta = { skipped: true }; out.skip++; }
+      else if (p.disposition === "instantly") { meta = { staged: "instantly", note: "Instantly push staged — not sent" }; out.instantly_staged++; }
+      else {
+        const pr = await promoteCore(env, p.id, actorId);
+        if (!pr.ok) { out.failed++; continue; }
+        meta = { conversation_id: pr.conversation_id || null, contact_id: pr.contact_id };
+        if (p.disposition === "open") { out.open++; }
+        else if (p.disposition === "sequence") {
+          const en = await enrollContact(env, { contactId: pr.contact_id, conversationId: pr.conversation_id, source: "batch_triage" }).catch(() => ({}));
+          meta.sequence_run_id = en && en.runId ? en.runId : null; out.sequence++;
+        } else if (p.disposition === "newsletter") {
+          await enrollRepermission(env, { contactIds: [pr.contact_id] }).catch(() => {});
+          meta.newsletter = true; out.newsletter++;
+        }
+      }
+    } catch (_) { out.failed++; continue; }
+    await env.DB.prepare("UPDATE prospects SET disposition_meta=?, updated_at=datetime('now') WHERE id=?")
+      .bind(JSON.stringify(meta || {}), p.id).run().catch(() => {});
+  }
+  return json({ ok: true, pushed: out,
+    message: `Pushed: ${out.open} opened, ${out.sequence} into sequence, ${out.newsletter} to newsletter, ${out.skip} skipped. ${out.instantly_staged} Instantly staged (not sent).` }, {}, cors);
 }
 
 function safeJson(s, fallback) { try { return s ? JSON.parse(s) : fallback; } catch (_) { return fallback; } }
