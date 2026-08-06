@@ -82,8 +82,8 @@ html,body{height:100%}
   .toggle button{border:0;background:none;color:var(--tx-3);font:inherit;font-size:12px;font-weight:700;padding:5px 12px;border-radius:var(--r-full);cursor:pointer}
   .toggle button.on{background:var(--accent);color:var(--on-accent)}
 
-  .app{flex:1;display:grid;grid-template-columns:64px 1fr;grid-template-rows:1fr;min-height:0}
-  .viewwrap{grid-column:2;grid-row:1;display:grid;grid-template-columns:316px 1fr;grid-template-rows:1fr;min-height:0;min-width:0;height:100%;overflow:hidden}
+  .app{flex:1;display:grid;grid-template-columns:64px 1fr;grid-template-rows:minmax(0,1fr);min-height:0}
+  .viewwrap{grid-column:2;grid-row:1;display:grid;grid-template-columns:316px 1fr;grid-template-rows:minmax(0,1fr);min-height:0;min-width:0;height:100%;overflow:hidden}
   .pipeboard{grid-column:2;grid-row:1;min-height:0;min-width:0;overflow:auto;background:var(--surface-0);padding:22px 26px}
   .viewwrap[hidden],.pipeboard[hidden]{display:none}
   .rail{background:var(--surface-1);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 0}
