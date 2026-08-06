@@ -90,6 +90,7 @@ import * as founderVoice from "./api/founder-voice.js";
 import * as crmConsent from "./api/crm-consent.js";
 import * as crmTask from "./api/crm-task.js";
 import * as crmSeqReport from "./api/crm-seq-report.js";
+import * as stlTemplates from "./api/stl-templates.js";
 import * as crmLookup from "./api/crm-lookup.js";
 import * as crmTasks from "./api/crm-tasks.js";
 import * as crmProspecting from "./api/prospecting.js";
@@ -205,6 +206,7 @@ const ROUTES = {
   "/api/crm/tasks": crmTasks,
   "/api/crm/task": crmTask,
   "/api/crm/seq-report": crmSeqReport,
+  "/api/crm/stl-templates": stlTemplates,
   "/api/crm/prospecting": crmProspecting,
   "/api/crm/agency": crmAgency,
   "/api/crm/inbox": crmInbox,

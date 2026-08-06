@@ -4522,6 +4522,7 @@ function renderSequences(){
     <aside class="seq-list">
       <div class="seq-list-h">Sequences</div>${list}
       <button class="seq-new">＋ New sequence</button>
+      <button class="seq-new stlc-open" onclick="openStlCopy()">✎ Speed-to-Lead copy</button>
     </aside>
     <div class="seq-detail">
       <div class="seq-head">
@@ -4599,6 +4600,108 @@ function seqPreview(id,i){
   const f=m.querySelector('.ivprev-frame'); f.srcdoc=html;
 }
 window.seqEditToggle=seqEditToggle; window.seqSaveCadence=seqSaveCadence; window.seqEditPanel=seqEditPanel; window.seqPreview=seqPreview;
+
+/* ---- Speed-to-Lead message-copy editor (emails + SMS) ---- */
+const STL_SAMPLE={first:'Marcus',Trade:'Roofing',trade:'roofing',company:'Summit Exteriors',companyOrShop:'Summit Exteriors',companyOrTrade:'Summit Exteriors',when:'Thursday at 2:30 PM',link:'https://consentresolve.com/book',rep:'Tyler',repPhone:'(727) 202-5996',fromName:'Tyler',fromNameOrWe:'Tyler',revokeUrl:'https://consentresolve.com/consent/revoke?t=sample',season:'the summer rush',timestamp:'Aug 6, 2:14 PM',consentChecks:'✅ Email  ✅ SMS  ✅ Phone (human)  ✅ Phone (AI)',page:'/pricing',adSource:'google'};
+function stlFill(s){ return String(s||'').replace(/\{\{(\w+)\}\}/g,(_,k)=> STL_SAMPLE[k]!=null?STL_SAMPLE[k]:''); }
+function stlCss(){
+  if(document.getElementById('stlc-css')) return;
+  const st=document.createElement('style'); st.id='stlc-css';
+  st.textContent=`
+  .stlc-modal{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center}
+  .stlc-back{position:absolute;inset:0;background:rgba(6,14,28,.55);backdrop-filter:blur(2px)}
+  .stlc-card{position:relative;width:min(760px,94vw);max-height:92vh;display:flex;flex-direction:column;background:var(--bg-1,#fff);border:1px solid var(--bd,#e2e8f0);border-radius:14px;box-shadow:0 24px 60px rgba(2,8,20,.28);overflow:hidden}
+  .stlc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--bd,#e9eef4)}
+  .stlc-head b{font-size:16px}
+  .stlc-sub{font-size:12px;color:var(--tx-2,#64748b);margin-top:4px;line-height:1.6}
+  .stlc-tok{display:inline-block;background:var(--bg-2,#f1f5f9);border:1px solid var(--bd,#e2e8f0);border-radius:5px;padding:0 5px;font-size:11px;color:var(--tx-1,#334155);cursor:help;margin:1px 0}
+  .stlc-x{background:none;border:none;font-size:18px;line-height:1;cursor:pointer;color:var(--tx-2,#64748b);padding:2px 6px}
+  .stlc-body-scroll{overflow-y:auto;padding:6px 18px 18px}
+  .stlc-sec-h{font-size:13px;font-weight:700;margin:18px 0 4px;color:var(--tx-1,#1e293b)}
+  .stlc-sec-h span{font-weight:400;color:var(--tx-2,#64748b);margin-left:8px;font-size:12px}
+  .stlc-tpl{border:1px solid var(--bd,#e6ebf1);border-radius:10px;padding:12px;margin-top:10px;background:var(--bg-1,#fff)}
+  .stlc-tpl-h{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:8px;flex-wrap:wrap}
+  .stlc-ch{font-size:11px;font-weight:600;padding:1px 7px;border-radius:20px;background:var(--bg-2,#eef2f7);color:var(--tx-1,#475569)}
+  .stlc-ch.sms{background:#eaf7ee;color:#2f7d46}.stlc-ch.email{background:#eef3fb;color:#3b6bb5}
+  .stlc-mod{font-size:10px;font-weight:700;color:#b45309;background:#fef3c7;padding:1px 6px;border-radius:20px}
+  .stlc-warn{font-size:10px;font-weight:600;color:#9a3412;background:#ffedd5;padding:1px 6px;border-radius:20px;cursor:help}
+  .stlc-l{display:block;font-size:11px;font-weight:600;color:var(--tx-2,#64748b);margin:8px 0 3px}
+  .stlc-subj,.stlc-body{width:100%;box-sizing:border-box;border:1px solid var(--bd,#d7dee6);border-radius:7px;padding:8px 9px;font-size:13px;font-family:inherit;color:var(--tx-1,#1e293b);background:var(--bg-1,#fff)}
+  .stlc-body{resize:vertical;line-height:1.5;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+  .stlc-actions{display:flex;align-items:center;gap:8px;margin-top:9px;flex-wrap:wrap}
+  .stlc-btn{font-size:12px;font-weight:600;padding:5px 11px;border-radius:7px;border:1px solid var(--bd,#d7dee6);background:var(--bg-1,#fff);color:var(--tx-1,#334155);cursor:pointer}
+  .stlc-btn.primary{background:#0a1628;color:#fff;border-color:#0a1628}
+  .stlc-btn.ghost{color:#b91c1c;border-color:#f0d3d3}
+  .stlc-btn:disabled{opacity:.45;cursor:default}
+  .stlc-msg{font-size:11px;color:var(--tx-2,#64748b)}
+  .stlc-prev-back{position:absolute;inset:0;background:rgba(6,14,28,.4);z-index:1}
+  .stlc-prev-card{position:relative;z-index:2;width:min(520px,90vw);max-height:80vh;overflow:auto;background:#fff;border-radius:12px;box-shadow:0 20px 50px rgba(2,8,20,.3)}
+  .stlc-prev-head{padding:12px 14px;border-bottom:1px solid #eef2f7;font-size:12px;color:#475569}
+  .stlc-prev-body{padding:14px;white-space:pre-wrap;font-size:13.5px;line-height:1.55;color:#1e293b}`;
+  document.head.appendChild(st);
+}
+function closeStlCopy(){ const m=document.getElementById('stlCopyModal'); if(m)m.remove(); }
+async function openStlCopy(){
+  stlCss();
+  let m=document.getElementById('stlCopyModal');
+  if(!m){ m=document.createElement('div'); m.id='stlCopyModal'; m.className='stlc-modal'; document.body.appendChild(m); }
+  m.innerHTML=`<div class="stlc-back" onclick="closeStlCopy()"></div><div class="stlc-card"><div class="stlc-head"><b>Speed-to-Lead message copy</b><button class="stlc-x" onclick="closeStlCopy()">✕</button></div><div class="stlc-body-scroll"><div class="stlc-msg" style="padding:16px">Loading…</div></div></div>`;
+  let d; try{ d=await fetch('/api/crm/stl-templates',{credentials:'same-origin'}).then(r=>r.json()); }catch(_){}
+  if(!d||!d.templates){ m.querySelector('.stlc-body-scroll').innerHTML='<div class="stlc-msg" style="padding:16px">Could not load templates. Try again.</div>'; return; }
+  window._stlData=d;
+  const groups={}; d.templates.forEach(t=>{ (groups[t.seq]||(groups[t.seq]=[])).push(t); });
+  const tokChips=(d.tokens||[]).map(t=>`<code class="stlc-tok" title="${esc(t.d)}">{{${esc(t.k)}}}</code>`).join(' ');
+  const rowHtml=t=>`<div class="stlc-tpl" data-id="${t.id}">
+      <div class="stlc-tpl-h"><span class="stlc-ch ${t.channel}">${t.channel==='email'?'✉ Email':'💬 SMS'}</span><b>${esc(t.label)}</b>${t.isDefault?'':'<span class="stlc-mod">edited</span>'}${t.sensitive?'<span class="stlc-warn" title="Compliance-sensitive — this is the consent receipt leads receive. Keep the ✅ line and revoke link intact.">⚠ compliance</span>':''}</div>
+      ${t.channel==='email'?`<label class="stlc-l">Subject</label><input class="stlc-subj" value="${esc(t.subject)}">`:''}
+      <label class="stlc-l">Message</label>
+      <textarea class="stlc-body" spellcheck="false" rows="${t.channel==='email'?9:4}">${esc(t.body)}</textarea>
+      <div class="stlc-actions"><button class="stlc-btn" onclick="stlPreview('${t.id}')">👁 Preview</button><button class="stlc-btn primary" onclick="stlSave('${t.id}')">Save</button><button class="stlc-btn ghost" onclick="stlReset('${t.id}')" ${t.isDefault?'disabled':''}>Reset to default</button><span class="stlc-msg"></span></div>
+    </div>`;
+  const secMeta={B:['Sequence B — fully consented','AI-first, ~24-hour cadence'],A:['Sequence A — identified, not consented','email + human dial']};
+  const secHtml=seq=>groups[seq]?`<div class="stlc-sec-h">${esc(secMeta[seq][0])}<span>${esc(secMeta[seq][1])}</span></div>${groups[seq].map(rowHtml).join('')}`:'';
+  m.querySelector('.stlc-card').innerHTML=`
+    <div class="stlc-head"><div><b>Speed-to-Lead message copy</b><div class="stlc-sub">Edits apply to the next send — no redeploy. Call scripts stay code-owned. Merge fields: ${tokChips}</div></div><button class="stlc-x" onclick="closeStlCopy()">✕</button></div>
+    <div class="stlc-body-scroll">${secHtml('B')}${secHtml('A')}</div>`;
+}
+function stlRow(id){ return document.querySelector(`#stlCopyModal .stlc-tpl[data-id="${id}"]`); }
+function stlTpl(id){ return ((window._stlData||{}).templates||[]).find(t=>t.id===id); }
+function stlPreview(id){
+  const row=stlRow(id), t=stlTpl(id); if(!row||!t) return;
+  const subj=row.querySelector('.stlc-subj'); const body=row.querySelector('.stlc-body');
+  const subjTxt=subj?stlFill(subj.value):''; const bodyTxt=stlFill(body.value);
+  let p=document.getElementById('stlPrev'); if(!p){ p=document.createElement('div'); p.id='stlPrev'; p.className='stlc-modal'; document.body.appendChild(p); }
+  p.style.zIndex=90;
+  p.innerHTML=`<div class="stlc-prev-back" onclick="document.getElementById('stlPrev').remove()"></div>
+    <div class="stlc-prev-card"><div class="stlc-prev-head">${t.channel==='email'?`<div>From: Tyler Spurlock &lt;hello@consentresolve.com&gt;</div><div style="margin-top:3px;font-weight:600;color:#1e293b">${esc(subjTxt)}</div>`:'💬 SMS preview · sample data'}</div><div class="stlc-prev-body">${esc(bodyTxt)}</div></div>`;
+}
+async function stlSave(id){
+  const row=stlRow(id), t=stlTpl(id); if(!row||!t) return;
+  const msg=row.querySelector('.stlc-msg'); if(msg)msg.textContent='saving…';
+  const subj=row.querySelector('.stlc-subj'); const body=row.querySelector('.stlc-body');
+  const payload={save:{id, body:body.value, ...(subj?{subject:subj.value}:{})}};
+  let r; try{ r=await fetch('/api/crm/stl-templates',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(x=>x.json()); }catch(_){}
+  if(r&&r.ok){
+    t.isDefault=false; t.body=body.value; if(subj)t.subject=subj.value;
+    const h=row.querySelector('.stlc-tpl-h'); if(h&&!h.querySelector('.stlc-mod')){ const b=document.createElement('span'); b.className='stlc-mod'; b.textContent='edited'; h.appendChild(b); }
+    const rst=row.querySelector('.stlc-btn.ghost'); if(rst)rst.disabled=false;
+    if(msg)msg.textContent='Saved ✓'; if(window.crmToast)crmToast('Message saved — live on next send');
+  } else if(msg){ msg.textContent=(r&&r.error)?('save failed: '+r.error):'save failed'; }
+}
+async function stlReset(id){
+  const row=stlRow(id), t=stlTpl(id); if(!row||!t) return;
+  const msg=row.querySelector('.stlc-msg'); if(msg)msg.textContent='resetting…';
+  let r; try{ r=await fetch('/api/crm/stl-templates',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({reset:{id}})}).then(x=>x.json()); }catch(_){}
+  if(r&&r.ok){
+    t.isDefault=true; t.body=t.defaultBody; t.subject=t.defaultSubject;
+    const subj=row.querySelector('.stlc-subj'); if(subj)subj.value=t.defaultSubject;
+    row.querySelector('.stlc-body').value=t.defaultBody;
+    const mod=row.querySelector('.stlc-mod'); if(mod)mod.remove();
+    const rst=row.querySelector('.stlc-btn.ghost'); if(rst)rst.disabled=true;
+    if(msg)msg.textContent='Back to default'; if(window.crmToast)crmToast('Reset to default');
+  } else if(msg){ msg.textContent='reset failed'; }
+}
+window.openStlCopy=openStlCopy; window.closeStlCopy=closeStlCopy; window.stlPreview=stlPreview; window.stlSave=stlSave; window.stlReset=stlReset;
 
 window.renderPipeline=renderPipeline; // exposed for the live-data bootstrap (fixture→fetch)
 

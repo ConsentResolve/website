@@ -8,7 +8,7 @@ import { sequenceFor, SEQUENCE_B_ON_GRADUATION } from "./sequences.js";
 import { nextWindowOpen, inWindow } from "./windows.js";
 import { gate } from "./gate.js";
 import { dispatch, alert } from "./adapters.js";
-import { renderTemplate } from "./templates.js";
+import { renderTemplate, loadStlOverrides } from "./templates.js";
 import { addConsentEvent, classifyPopulation, logEvent } from "./classifier.js";
 import { getSettings } from "./settings.js";
 import { mirrorTouchpoint } from "./crm-bridge.js";
@@ -89,6 +89,7 @@ async function b1Transferred(env, leadId) {
 export async function tick(env, limit = 50) {
   await ensureStlSchema(env);
   const settings = await getSettings(env);
+  const overrides = await loadStlOverrides(env).catch(() => ({})); // CRM copy edits (empty = code defaults)
   const now = Date.now();
   const due = ((await env.DB.prepare(
     `SELECT t.*, l.population, l.trade, l.timezone, l.is_demo, l.status AS lead_status
@@ -152,6 +153,7 @@ export async function tick(env, limit = 50) {
       fromName: await fromName(env), repPhone: rep ? rep.phone : (env.STL_REP_PHONE || ""),
       bookingLink: env.STL_BOOKING_LINK || "https://consentresolve.com/book",
       revokeUrl: revokeToken ? `${env.STL_PUBLIC_ORIGIN || "https://consentresolve.com"}/consent/revoke?t=${revokeToken}` : "",
+      overrides,
     };
     const rendered = renderTemplate(t.template_id, ctx);
     const res = await dispatch(env, settings, t.channel, ctx, rendered);
