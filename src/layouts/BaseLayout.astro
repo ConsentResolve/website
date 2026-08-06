@@ -19,9 +19,13 @@ interface Props {
   /** Site-wide "See it live" demo widget (links to /demo/sample/ in a new tab). On by
    *  default; pass false on the /demo/* pages themselves so it isn't self-referential. */
   demoWidget?: boolean;
+  /** Suppress the Retell "Mack" chat launcher on this page (e.g. /demo, where we want a
+   *  single focused CTA — book a time — with no competing chat bubble). */
+  noChat?: boolean;
 }
 const props = Astro.props as Props;
 const showDemoWidget = props.demoWidget !== false;
+const noChat = props.noChat === true;
 
 // Ad-platform pixels — only emitted when the ID env var is set (no-op otherwise).
 // Set in Cloudflare Pages env: PUBLIC_META_PIXEL_ID, PUBLIC_TIKTOK_PIXEL_ID.
@@ -361,7 +365,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
          type=text/plain keeps it inert until the visitor consents to the "Retell Chat"
          service. data-usercentrics MUST match the EXACT service name configured in the CMP,
          or the passive FAB stays blocked — same requirement every other pixel here has. -->
-    <script is:inline type="text/plain" data-usercentrics="Retell Chat">window.__retellBoot(!!window.__retellOpenOnLoad);</script>
+    {!noChat && <script is:inline type="text/plain" data-usercentrics="Retell Chat">window.__retellBoot(!!window.__retellOpenOnLoad);</script>}
 
     <!-- Conversion tracking helper. ONE call site for every ad-measurable action so
          campaigns have something to optimize toward besides PageView (which was all

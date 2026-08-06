@@ -41,34 +41,51 @@ const faqs = [
   description="Pick a time and we'll run your real traffic numbers and install your consent banner live — about 15 minutes. Real homeowners who visited your site and said yes, a flat $7 a lead, never resold."
   noindex
   demoWidget={false}
+  noChat
 >
-  <!-- HERO — offer left, Cal.com calendar right -->
+  <!-- HERO — offer left, call/book CTA right -->
   <section class="bg-[color:var(--color-bg-inverse)]">
     <div class="mx-auto max-w-6xl px-6 py-14 lg:py-20">
-      <div class="grid items-start gap-12 lg:grid-cols-[.95fr_1.05fr]">
-        <div class="text-[color:var(--color-on-inverse)] lg:pt-6">
+      <div class="grid items-center gap-12 lg:grid-cols-[1.05fr_.95fr]">
+        <div class="text-[color:var(--color-on-inverse)]">
           <p class="font-mono text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--color-brand)]">For plumbers, roofers, HVAC &amp; electricians</p>
           <h1 class="mt-3 font-display text-4xl font-extrabold leading-[1.04] tracking-tight md:text-5xl">The homeowners already on your site — <span class="text-[color:var(--color-brand)]">with a name on them.</span></h1>
-          <p class="mt-5 max-w-md text-lg leading-relaxed text-[color:var(--color-on-inverse-muted)]">Pick a time on the right. We'll open your Analytics, run your real recovery numbers, and install your consent banner <strong class="text-[color:var(--color-on-inverse)]">while you watch</strong> — about 15 minutes, no slide deck.</p>
+          <p class="mt-5 max-w-md text-lg leading-relaxed text-[color:var(--color-on-inverse-muted)]">We'll open your Analytics, run your real recovery numbers, and install your consent banner <strong class="text-[color:var(--color-on-inverse)]">while you watch</strong> — about 15 minutes, no slide deck.</p>
           <ul class="mt-7 space-y-2.5">
             {incl.map(([b, s]) => (
               <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-on-inverse)]"><span class="mt-0.5 text-[color:var(--color-brand)]">✓</span><span><strong>{b}</strong> <span class="text-[color:var(--color-on-inverse-muted)]">{s}</span></span></li>
             ))}
           </ul>
-          <p class="mt-7 text-sm text-[color:var(--color-on-inverse-muted)]">Rather talk first? Call <a href="tel:+17279999846" class="font-semibold text-[color:var(--color-on-inverse)] underline decoration-[color:var(--color-brand)] underline-offset-4">(727) 999-9846</a>.</p>
         </div>
 
-        <!-- Cal.com inline embed — opens on the month/date picker -->
-        <div id="book" class="scroll-mt-24">
-          <div class="rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg)] p-2 shadow-2xl sm:p-3">
-            <div id="cal-inline" data-cal-link={CAL_LINK} style="width:100%;min-height:600px;overflow:auto"></div>
-            <noscript>
-              <div class="p-6 text-center">
-                <a href={`https://cal.com/${CAL_LINK}`} class="inline-flex items-center justify-center rounded-lg bg-[color:var(--color-brand)] px-7 py-3.5 text-base font-bold text-[color:var(--color-on-brand)]">Pick a time →</a>
-              </div>
-            </noscript>
-          </div>
+        <!-- Call now (prominent) + jump to the calendar -->
+        <div class="rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg)] p-6 text-center shadow-2xl sm:p-8">
+          <p class="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">15-minute live demo</p>
+          <a href="tel:+17279999846" class="mt-4 flex flex-col items-center gap-1 rounded-xl bg-[color:var(--color-bg-inverse)] px-5 py-5 transition-transform hover:-translate-y-0.5">
+            <span class="font-mono text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-brand)]">📞 Call now</span>
+            <span class="font-display text-3xl font-extrabold tracking-tight text-[color:var(--color-on-inverse)] md:text-[2.1rem]">(727) 999-9846</span>
+          </a>
+          <a href="#book" class="mt-4 inline-flex w-full items-center justify-center rounded-lg border border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] px-6 py-3.5 text-base font-bold text-[color:var(--color-ink)] transition-colors hover:border-[color:var(--color-brand)]">Or pick a time ↓</a>
+          <p class="mt-4 text-xs text-[color:var(--color-ink-muted)]">Mon–Fri, 8–5 CT · no slide deck, no pressure</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOOKING — Cal.com, full width so the calendar + times sit side by side (pick a day → pick a time) -->
+  <section id="book" class="scroll-mt-24 border-b border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)]">
+    <div class="mx-auto max-w-4xl px-6 py-12 lg:py-16">
+      <div class="mb-6 text-center">
+        <h2 class="font-display text-2xl font-bold tracking-tight text-[color:var(--color-ink)] md:text-3xl">Pick a time</h2>
+        <p class="mt-2 text-[color:var(--color-ink-2)]">Choose a day, then a time — 15 minutes, screen-share. Or just call <a href="tel:+17279999846" class="font-semibold text-[color:var(--color-ink)] underline decoration-[color:var(--color-brand)] underline-offset-4">(727) 999-9846</a>.</p>
+      </div>
+      <div class="rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg)] p-2 shadow-xl sm:p-3">
+        <div id="cal-inline" data-cal-link={CAL_LINK} style="width:100%;min-height:560px"></div>
+        <noscript>
+          <div class="p-6 text-center">
+            <a href={`https://cal.com/${CAL_LINK}`} class="inline-flex items-center justify-center rounded-lg bg-[color:var(--color-brand)] px-7 py-3.5 text-base font-bold text-[color:var(--color-on-brand)]">Pick a time →</a>
+          </div>
+        </noscript>
       </div>
     </div>
   </section>
