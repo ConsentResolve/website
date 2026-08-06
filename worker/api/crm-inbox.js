@@ -543,11 +543,22 @@ export async function onRequestPost({ request, env }) {
     let repName = (me && me.name) || "";
     if (!repName) { const _a = await env.DB.prepare("SELECT name FROM users WHERE role='admin' AND active=1 ORDER BY created_at LIMIT 1").first(); repName = (_a && _a.name) || "Consent Resolve"; }
     const fromEmail = `${repName.replace(/["<>\r\n,]/g, " ").trim()} <hello@consentresolve.com>`;
-    // Form leads (Meta/demo) reply with a clean, customer-facing subject — never the internal
-    // "Meta Lead — Name" label (jargon + garbled chars read as spam).
-    const subj = (conv.channel === "meta_lead" || conv.channel === "demo_form")
-      ? "Re: your inquiry with Consent Resolve"
-      : (conv.subject ? "Re: " + conv.subject.replace(/^re:\s*/i, "") : "Re: your inquiry");
+    // Subject line for an outbound EMAIL. Never leak an internal thread label — SMS/voice/chat
+    // threads carry labels like "💬 SMS — +16124333224" or a bare phone number, which read as
+    // spam and look unprofessional. Reuse the real subject only for a genuine email thread; for
+    // everything else (form leads, SMS→email switch, identified visitors) use a clean, human one.
+    const looksInternalSubj = (s) => {
+      if (!s || !String(s).trim()) return true;
+      const t = String(s).trim();
+      if (/^(re:\s*)?(💬|📞|📱|✉|☎|📧)/u.test(t)) return true;                          // starts with a channel emoji
+      if (/^(re:\s*)?(sms|mms|text|voice|call|calls|chat|identified|visitor|meta lead|lead)\b/i.test(t)) return true; // channel/label word
+      if (/[—\-–]\s*\+?\d[\d\s().\-]{5,}/.test(t) || /^\+?\d[\d\s().\-]{6,}$/.test(t)) return true; // "— +1612…" or a bare phone number
+      return false;
+    };
+    const realEmailThread = conv.channel === "email" && !looksInternalSubj(conv.subject);
+    const subj = realEmailThread
+      ? "Re: " + conv.subject.replace(/^re:\s*/i, "")
+      : "Re: your inquiry with Consent Resolve";
     let externalId = null, sentVia = conv.channel;
 
     // Resolve the contact's reachable addresses once — used by both the explicit-channel
