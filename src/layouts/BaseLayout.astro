@@ -393,8 +393,8 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
          is intent to chat — same stance the prior chat opener took — so boot + auto-open,
          then click the FAB once it mounts. mailto is the last-resort fallback. -->
     <script is:inline>window.crOpenChat=function(){try{if(window.crRetellOpen&&window.crRetellOpen())return;window.__retellBoot(true);var n=0,iv=setInterval(function(){if((window.crRetellOpen&&window.crRetellOpen())||++n>28)clearInterval(iv);},250);}catch(e){try{window.location.href="mailto:hello@consentresolve.com";}catch(_){}}};</script>
-    {noChat && <style is:inline>{`#retell-widget-root,#retell-widget,[class*="_fabChat"]{display:none!important}`}</style>}
-    {noChat && <script is:inline>{`(function(){try{window.__retellBoot=function(){};window.crOpenChat=function(){};window.crRetellOpen=function(){return false;};var kill=function(){var r=document.getElementById("retell-widget-root")||document.getElementById("retell-widget");if(r)r.remove();};kill();document.addEventListener("DOMContentLoaded",kill);setTimeout(kill,1500);setTimeout(kill,4000);}catch(e){}})();`}</script>}
+    {noChat && <style is:inline>{`#retell-widget-root,#retell-widget,[class*="_fabChat"],#cw,.cw{display:none!important;visibility:hidden!important;pointer-events:none!important}`}</style>}
+    {noChat && <script is:inline>{`(function(){try{window.__retellBoot=function(){};window.crOpenChat=function(){};window.crRetellOpen=function(){return false;};var kill=function(){["retell-widget-root","retell-widget","cw"].forEach(function(id){var e=document.getElementById(id);if(e)e.remove();});};kill();document.addEventListener("DOMContentLoaded",kill);setTimeout(kill,600);setTimeout(kill,2000);setTimeout(kill,5000);}catch(e){}})();`}</script>}
 
     <!-- ============================================================
          CUSTOM CHAT LAUNCHER — the orb + teaser + nudge that front Mack.
