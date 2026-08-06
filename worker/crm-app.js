@@ -86,6 +86,7 @@ window.CRM_LIVE_PENDING = true; // set before restoreView runs → data views sh
       // resetting to Open + the first conversation.
       if (window.restoreInbox) { window.restoreInbox(); }
       else { window.renderList('open'); if (window.select && window.DATA.conversations[0]) window.select(window.DATA.conversations[0].id); }
+      if (window.applyLeadHash) window.applyLeadHash();   // a shared #inbox/<id> deep-link wins over the last-open lead
       if (window.recount) window.recount();
     }
     if (window.__crmView) try { window.showView(window.__crmView); } catch (_) {}  // re-render active view with live data

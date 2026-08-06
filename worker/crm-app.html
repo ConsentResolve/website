@@ -3218,7 +3218,9 @@ function showView(v){
   }
   // Persist the active view so a refresh returns here (hash = shareable, localStorage = durable).
   try{ localStorage.setItem('crm_view', v); }catch(e){}
-  if(location.hash.slice(1)!==v){ try{ history.replaceState(null,'','#'+v); }catch(e){ location.hash=v; } }
+  // Keep an open lead in the shareable hash (#inbox/<id>); otherwise just the view name.
+  var hv=(v==='inbox' && window.sel)?('inbox/'+window.sel):v;
+  if(location.hash.slice(1)!==hv){ try{ history.replaceState(null,'','#'+hv); }catch(e){ location.hash=hv; } }
 }
 window.showView=showView;
 
@@ -3925,15 +3927,47 @@ window.nlSend=nlSend;
 // DEFERRED to a macrotask so every render helper (const/fn defined later in this
 // script) is initialized first — otherwise restoring #sitespy hit a TDZ error and
 // blanked the app. Wrapped so any failure falls back to the default Inbox.
+// Parse the URL hash → {view, lead}. A shared record link is #inbox/<convId> (or #lead/<id>).
+function parseHash(){
+  var h=decodeURIComponent(location.hash.slice(1)||'');
+  var m=h.match(/^(?:inbox\/|lead\/)(.+)$/);
+  if(m) return {view:'inbox', lead:m[1]};
+  return {view:h||'', lead:null};
+}
+// Select the hash's lead if its conversation is loaded. Returns true if it selected one.
+function applyLeadHash(){
+  try{
+    var p=parseHash(); if(!p.lead) return false;
+    if(window.DATA && DATA.conversations && DATA.conversations.some(function(c){return c.id===p.lead;})){
+      if(window.__crmView && window.__crmView!=='inbox') showView('inbox');
+      select(p.lead); return true;
+    }
+    window.__deepLead=p.lead; // data not in yet → the live-data bootstrap picks this up
+  }catch(e){}
+  return false;
+}
 function restoreView(){
   try{
     var valid={inbox:1,reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1,newsletter:1,prospecting:1,agency:1,settings:1};
-    var v=decodeURIComponent(location.hash.slice(1)||'');
+    var p=parseHash();
+    if(p.lead){ applyLeadHash(); return; }  // #inbox/<id> → land on that record
+    var v=p.view;
     if(!valid[v]){ try{ v=localStorage.getItem('crm_view')||''; }catch(e){ v=''; } }
     if(valid[v] && v!=='inbox') showView(v);
   }catch(e){ if(window.console) console.warn('restoreView failed', e); }
 }
 setTimeout(restoreView,0);
+window.applyLeadHash=applyLeadHash;
+// A coworker pasting a new record link mid-session (or back/forward) re-lands on it.
+window.addEventListener('hashchange', function(){ var p=parseHash(); if(p.lead){ applyLeadHash(); } else if(p.view && p.view!==window.__crmView){ try{ showView(p.view); }catch(e){} } });
+/* Copy a shareable link to the currently-open record and toast. */
+function copyRecordLink(){
+  if(!window.sel){ if(window.crmToast)crmToast('Open a conversation first'); return; }
+  var url=location.origin+location.pathname+'#inbox/'+window.sel;
+  try{ navigator.clipboard.writeText(url); if(window.crmToast)crmToast('🔗 Link copied — share it with a coworker'); }
+  catch(e){ window.prompt('Copy this link:', url); }
+}
+window.copyRecordLink=copyRecordLink;
 window.renderConsent=renderConsent; // exposed for the live-data bootstrap (fixture→fetch)
 window.renderSequences=renderSequences;
 window.renderList=renderList;
@@ -5275,6 +5309,9 @@ function select(id){
   sel=id; replyOpen=false; ATTACH=[]; curTab="reply";
   // Remember the open lead so a refresh returns to it (real ids only, not demo fixtures).
   try{ if(!String(id).startsWith('c0')) localStorage.setItem('crm_sel', id); }catch(e){}
+  // Shareable deep-link: reflect the open lead in the URL (#inbox/<id>) so the link can be
+  // copied and sent to a coworker, who lands right on this record.
+  try{ history.replaceState(null,'','#inbox/'+id); }catch(e){}
   stopChatPoll();
   const c=DATA.conversations.find(x=>x.id===id);
   // Opening a conversation marks it read: clear the dot locally, and persist so it stays
@@ -5309,7 +5346,7 @@ function select(id){
             <span class="sep">·</span>${phoneCm}
           </div>
         </div>
-        <div class="hdr-right">${(c.chat_id && c.live)?`<button class="watchbtn" id="watchBtn" onclick="toggleWatch('${c.id}')">🟢 Watch live</button>`:''}${autoControl(c)}</div>
+        <div class="hdr-right">${(c.chat_id && c.live)?`<button class="watchbtn" id="watchBtn" onclick="toggleWatch('${c.id}')">🟢 Watch live</button>`:''}<button class="watchbtn" onclick="copyRecordLink()" title="Copy a shareable link to this record">🔗 Share</button>${autoControl(c)}</div>
       </div>
       <div class="stagebar ${stageMeta.c}"><span class="sb-ic">${stageMeta.ic}</span><span class="sb-lab">Stage</span><span class="sb-val">${esc(c.lifecycle)}</span></div>
       <div class="tabs">
