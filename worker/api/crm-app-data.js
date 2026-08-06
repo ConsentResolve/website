@@ -466,7 +466,7 @@ export async function onRequestGet({ request, env }) {
     const hashStr = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return h; };
     const rows = (await env.DB.prepare(
       `SELECT d.id, d.title, d.value_cents, d.close_probability, d.lead_status, d.owner_id, d.disqualify_reason,
-              ct.full_name, co.name AS company, u.name AS owner_name
+              ct.full_name, ct.lead_score, ct.tier, co.name AS company, co.domain AS domain, co.enrichment AS enrichment, u.name AS owner_name
        FROM deals d
        LEFT JOIN contacts ct ON ct.id = d.primary_contact_id
        LEFT JOIN companies co ON co.id = d.company_id
@@ -487,12 +487,27 @@ export async function onRequestGet({ request, env }) {
     PIPELINE = rows.map((r, i) => {
       const nm = r.full_name || r.title || "Untitled deal";
       const ownNm = r.owner_name || "";
+      // Business intel pulled from the company enrichment blob (best-effort) — surfaced on the card.
+      let intel = null;
+      try {
+        const en = r.enrichment ? JSON.parse(r.enrichment) : null;
+        if (en) intel = {
+          employees: en.employees != null ? en.employees : null,
+          visits: en.traffic_month != null ? en.traffic_month : null,
+          industry: en.industry || null,
+          signal: en.signal || null,
+        };
+      } catch (_) {}
       return {
         id: r.id, name: nm, company: r.company || "",
         value_usd: Math.round((r.value_cents || 0) / 100),
         prob: r.close_probability == null ? null : Number(r.close_probability),
         status: (r.lead_status || "active").toLowerCase(),
         stage: stageOf(r),
+        score: r.lead_score == null ? null : Number(r.lead_score),  // business-intel score 0–100
+        tier: (r.tier || "").toLowerCase() || null,                  // hot | warm | cold
+        domain: r.domain || null,
+        intel,
         disqualify_reason: r.disqualify_reason || null,
         owner_id: r.owner_id || null,
         owner: ownNm ? { init: inits(ownNm), name: ownNm, color: OWCOL[Math.abs(hashStr(ownNm)) % OWCOL.length] } : null,
