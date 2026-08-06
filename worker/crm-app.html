@@ -136,7 +136,9 @@ html,body{height:100%}
   .tier.ti-hot{color:var(--bad);background:var(--bad-soft)}
   .trollup.done{color:var(--good);border-color:var(--good);background:var(--good-soft)}
   .rstage{flex:0 0 auto;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:var(--r-full);white-space:nowrap}
+  .rstage.lead{background:var(--accent-soft);color:var(--accent)}
   .rstage.trial{background:var(--warn-soft);color:var(--warn)}
+  .rstage.customer{background:var(--good-soft);color:var(--good)}
   .rstage.active{background:var(--good-soft);color:var(--good)}
   .rstage.lost{background:var(--bad-soft);color:var(--bad)}
   /* pipeline total (top of the list) */
@@ -245,6 +247,9 @@ html,body{height:100%}
   .stagebar.booked{background:var(--good-soft);border-color:var(--good);color:var(--good);box-shadow:0 0 0 3px var(--good-soft)}
   .stagebar.opp{background:var(--src-apollo-soft);border-color:var(--src-apollo);color:var(--src-apollo)}
   .stagebar.won{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+  .stagebar.new{background:var(--surface-2);border-color:var(--line);color:var(--tx-3)}
+  .stagebar.trial{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+  .stagebar.lost{background:var(--bad-soft,rgba(220,38,38,.1));border-color:var(--bad);color:var(--bad)}
 
   /* middle-section tabs: Activity / Intel / Task */
   .thead{padding-bottom:0;border-bottom:0}
@@ -470,7 +475,7 @@ html,body{height:100%}
   .pcol.dragover{border-color:var(--accent);background:var(--accent-soft)}
   .pcol-h{display:flex;align-items:center;gap:8px;margin-bottom:11px;padding-bottom:9px;border-bottom:1px solid var(--line)}
   .pcol-t{font-weight:800;font-size:var(--t-13)}
-  .pcol.new .pcol-t{color:var(--tx-2)} .pcol.trial .pcol-t{color:var(--warn)} .pcol.active .pcol-t{color:var(--good)} .pcol.lost .pcol-t{color:var(--bad)}
+  .pcol.new .pcol-t{color:var(--tx-2)} .pcol.lead .pcol-t{color:var(--accent)} .pcol.trial .pcol-t{color:var(--warn)} .pcol.customer .pcol-t{color:var(--good)} .pcol.active .pcol-t{color:var(--good)} .pcol.lost .pcol-t{color:var(--bad)}
   .pcol-c{font-size:11px;font-weight:700;color:var(--tx-3);font-family:var(--font-mono)}
   .pcol-sum{margin-left:auto;font-size:11px;font-weight:700;color:var(--src-site);font-family:var(--font-mono)}
   .pcol-body{display:flex;flex-direction:column;gap:9px;min-height:44px}
@@ -2926,7 +2931,7 @@ function statusCard(c){
     </div>
     ${seqBlock}
     <div class="sgrid">
-      <div class="scell"><span class="sl">Stage</span><span class="sv">${c.lifecycle}</span></div>
+      <div class="scell"><span class="sl">Stage</span><span class="sv">${stageLabelOf(c)}</span></div>
       <div class="scell"><span class="sl">Channel</span><span class="sv">${CH[c.channel]||c.channel}</span></div>
       <div class="scell"><span class="sl">Priority</span><span class="sv ${c.hot?'bad':'mut'}">${c.hot?'🔥 Hot':'Normal'}</span></div>
       <div class="scell"><span class="sl">Response</span>${waiting}</div>
@@ -3123,7 +3128,7 @@ function statusIntel(c){
   const seqBlock = s.total ? `<div class="seqwrap">${tracker(s, st==='on'||st==='done')}</div>` : '';
   return `<div class="card status"><h4>Status</h4>
     <div class="sgrid">
-      <div class="scell"><span class="sl">Stage</span><span class="sv">${c.lifecycle}</span></div>
+      <div class="scell"><span class="sl">Stage</span><span class="sv">${stageLabelOf(c)}</span></div>
       <div class="scell"><span class="sl">Channel</span><span class="sv">${CH[c.channel]||c.channel}</span></div>
       <div class="scell"><span class="sl">Priority</span><span class="sv ${c.hot?'bad':'mut'}">${c.hot?'🔥 Hot':'Normal'}</span></div>
       <div class="scell"><span class="sl">Response</span>${waiting}</div>
@@ -3138,9 +3143,18 @@ function predictLeads(v){return Math.round(v*CR_IDENTIFY_RATE);}
 function predictValue(v){return predictLeads(v)*CR_PRICE;}
 function snap(v){if(v<=100)return 100;if(v>=100000)return 100000;const m=Math.pow(10,Math.floor(Math.log10(v))-1);return Math.round(v/m)*m;}
 const DEALSTATE={};
-function initStage(id){const c=DATA.conversations.find(x=>x.id===id);if(!c)return'new';const s=c.sequence.status;if(s==='booked')return'trial';if(s==='opted_out'||s==='blocked')return'lost';return'new';}
+function initStage(id){const c=DATA.conversations.find(x=>x.id===id);if(!c)return'new';const s=c.sequence.status;if(s==='booked'||s==='replied')return'lead';if(s==='opted_out'||s==='blocked')return'lost';return'new';}
 function dstate(id){if(!DEALSTATE[id]){const e=(window.ENRICH||{})[id]||{},st=initStage(id);DEALSTATE[id]={stage:st,trial:st==='trial',username:'',visitors:e.traffic_month||1000};}return DEALSTATE[id];}
-function dealStage(id,stage){dstate(id).stage=stage;rerenderDeal(id);}
+const STAGE_LABELS={new:'New',lead:'Lead',trial:'Trial',customer:'Customer',lost:'Lost',disqualified:'Disqualified'};
+function stageLabelOf(c){ try{ return STAGE_LABELS[dstate(c.id).stage]||'New'; }catch(e){ return 'New'; } }
+window.stageLabelOf=stageLabelOf;
+function dealStage(id,stage){
+  dstate(id).stage=stage; rerenderDeal(id);
+  // Persist so the stage survives a refresh and drives the Pipeline (server buckets by lead_status).
+  const MAP={'new':{lead_status:'new',close_probability:10},lead:{lead_status:'active',close_probability:50},trial:{lead_status:'trial',close_probability:70},customer:{lead_status:'won',close_probability:100},lost:{lead_status:'lost'}};
+  const p=MAP[stage]; if(!p||String(id).startsWith('c0')) return;
+  fetch('/api/crm/deals',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({id,disqualify_reason:''},p))}).catch(()=>{});
+}
 /* Disqualify / requalify straight from the lead's Stage tab. Persists via /api/crm/deals
    keyed by the CONVERSATION id (find-or-create the deal server-side) + runs the cascade. */
 async function dealTabDisqualify(id){
@@ -3176,7 +3190,7 @@ function rerenderDeal(id){
 function updatePipe(){
   const el=document.getElementById('pipe'); if(!el) return;
   let sum=0,n=0;
-  DATA.conversations.forEach(c=>{const d=dstate(c.id); if(d.stage==='trial'||d.stage==='active'){sum+=predictValue(d.visitors);n++;}});
+  DATA.conversations.forEach(c=>{const d=dstate(c.id); if(d.stage==='lead'||d.stage==='trial'){sum+=predictValue(d.visitors);n++;}});
   el.innerHTML = `${IC.pipe} Pipeline <b>$${sum.toLocaleString()}</b><span class="pmo">/mo</span><span class="pn">${n} open deal${n===1?'':'s'}</span>`;
 }
 
@@ -4271,7 +4285,7 @@ window.onAvatar=onAvatar;
 document.addEventListener('click',e=>{ const m=document.getElementById('pfmenu'); if(m && !m.hidden && !e.target.closest('.profile')) m.hidden=true; });
 
 /* ---- Pipeline kanban board ---- */
-const PSTAGES=[['new','New'],['trial','Trial'],['active','Active'],['lost','Lost']];
+const PSTAGES=[['new','New'],['lead','Lead'],['trial','Trial'],['customer','Customer'],['lost','Lost']];
 let dragId=null;
 function pipeDrag(e,id){dragId=id;try{e.dataTransfer.setData('text/plain',id);}catch(_){}e.dataTransfer.effectAllowed='move';}
 function pipeDrop(e,stage){e.preventDefault();e.currentTarget.classList.remove('dragover');
@@ -4290,7 +4304,7 @@ function pipeDropReal(e,stage){
   // Disqualifying needs a reason (and archives + stops contact) — route through the modal.
   if(stage==='disqualified'){ openDisqualify(id); return; }
   const wasDq = d.stage==='disqualified';
-  const map={lost:{lead_status:'lost'},'new':{lead_status:'active',close_probability:20},trial:{lead_status:'active',close_probability:50},active:{lead_status:'active',close_probability:85}};
+  const map={'new':{lead_status:'new',close_probability:10},lead:{lead_status:'active',close_probability:50},trial:{lead_status:'trial',close_probability:70},customer:{lead_status:'won',close_probability:100},lost:{lead_status:'lost'}};
   const payload=map[stage]; if(!payload) return;
   if(wasDq) payload.disqualify_reason='';   // dragging OUT of disqualified = requalify, clear the reason
   const prev={stage:d.stage,prob:d.prob,status:d.status,reason:d.disqualify_reason};
@@ -4444,7 +4458,7 @@ function renderPipelineReal(el,P){
     return `<div class="pcol ${k}" ondragover="pipeOver(event)" ondragleave="pipeLeave(event)" ondrop="pipeDropReal(event,'${k}')"><div class="pcol-h"><span class="pcol-t">${l}</span><span class="pcol-c">${items.length}</span><span class="pcol-sum">$${sum.toLocaleString()}</span></div><div class="pcol-body">${cards}</div></div>`;
   };
   const cols=stages.map(col).join('');
-  const openD=P.filter(d=>['new','trial','active'].includes(d.stage));
+  const openD=P.filter(d=>['new','lead','trial'].includes(d.stage));
   const total=openD.reduce((a,d)=>a+(d.value_usd||0),0);
   const dqCount=P.filter(d=>d.stage==='disqualified').length;
   el.innerHTML=`<div class="pipe-head"><h2>Pipeline</h2>
@@ -4789,7 +4803,7 @@ function renderConsent(){
 window.dealStage=dealStage;window.dealTrial=dealTrial;window.dealUser=dealUser;window.dealTraffic=dealTraffic;
 function dealTab(c){
   const d=dstate(c.id), v=d.visitors, pct=Math.max(0,Math.min(100,100*Math.log10(v/100)/3));
-  const stages=[['new','New'],['trial','Trial'],['active','Active'],['lost','Lost']];
+  const stages=[['new','New'],['lead','Lead'],['trial','Trial'],['customer','Customer'],['lost','Lost']];
   const dq=d.stage==='disqualified';
   return `<div class="dealtab">
     <div class="dblock"><h5>Stage</h5>
@@ -5330,8 +5344,10 @@ function select(id){
     ? `<span class="cm"><span class="ci">📞</span><a href="${telHref(phone)}">${esc(phone)}</a></span>`
     : `<span class="cm none">no phone</span>`;
   const o = ownerOf(c);
-  const STAGE_META = { "Lead":{c:"lead",ic:"◍"}, "MQL":{c:"mql",ic:"◑"}, "SQL":{c:"sql",ic:"◕"}, "Meeting Booked":{c:"booked",ic:"📅"}, "Opportunity":{c:"opp",ic:"◆"}, "Customer":{c:"won",ic:"★"} };
-  const stageMeta = STAGE_META[c.lifecycle] || { c:"lead", ic:"◍" };
+  // Stage bar reflects the SAME 5-stage pipeline as the Stage tab + Pipeline (New/Lead/Trial/Customer/Lost).
+  const STAGE_META = { "new":{c:"new",ic:"○",l:"New"}, "lead":{c:"lead",ic:"◍",l:"Lead"}, "trial":{c:"trial",ic:"◐",l:"Trial"}, "customer":{c:"won",ic:"★",l:"Customer"}, "lost":{c:"lost",ic:"✕",l:"Lost"}, "disqualified":{c:"lost",ic:"⛔",l:"Disqualified"} };
+  const _dstg = (typeof dstate==='function') ? (dstate(c.id).stage||'new') : 'new';
+  const stageMeta = STAGE_META[_dstg] || STAGE_META['new'];
   const ownerEl = o
     ? `<div class="owner" title="Reassign this conversation"><span class="oav" style="background:${o.color}">${o.init}</span><span>${esc(o.name)}</span><span class="car">▾</span></div>`
     : `<div class="owner unassigned" title="Assign a rep — happens automatically when someone replies"><span>＋ Assign</span><span class="car">▾</span></div>`;
@@ -5348,7 +5364,7 @@ function select(id){
         </div>
         <div class="hdr-right">${(c.chat_id && c.live)?`<button class="watchbtn" id="watchBtn" onclick="toggleWatch('${c.id}')">🟢 Watch live</button>`:''}<button class="watchbtn" onclick="copyRecordLink()" title="Copy a shareable link to this record">🔗 Share</button>${autoControl(c)}</div>
       </div>
-      <div class="stagebar ${stageMeta.c}"><span class="sb-ic">${stageMeta.ic}</span><span class="sb-lab">Stage</span><span class="sb-val">${esc(c.lifecycle)}</span></div>
+      <div class="stagebar ${stageMeta.c}"><span class="sb-ic">${stageMeta.ic}</span><span class="sb-lab">Stage</span><span class="sb-val">${stageMeta.l}</span></div>
       <div class="tabs">
         <button class="tab ${curTab==='reply'?'on':''}" data-tab="reply" onclick="switchTab('reply')"><span class="ti">${IC.reply}</span>Reply</button>
         <button class="tab ${curTab==='activity'?'on':''}" data-tab="activity" onclick="switchTab('activity')"><span class="ti">${IC.activity}</span>Activity</button>

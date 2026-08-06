@@ -473,13 +473,15 @@ export async function onRequestGet({ request, env }) {
        LEFT JOIN users u ON u.id = d.owner_id
        ORDER BY d.value_cents DESC LIMIT 120`
     ).all()).results || [];
+    // 5-stage funnel: New → Lead → Trial → Customer → Lost (+ Disqualified). Driven by
+    // lead_status; probability only breaks the tie for legacy "active" rows.
     const stageOf = (r) => {
-      const s = (r.lead_status || "").toLowerCase();
+      const s = (r.lead_status || "new").toLowerCase();
       if (s === "disqualified") return "disqualified";
       if (s === "lost") return "lost";
-      const p = r.close_probability == null ? 0 : Number(r.close_probability);
-      if (s === "won" || p >= 75) return "active";
-      if (p >= 40) return "trial";
+      if (s === "won" || s === "customer") return "customer";
+      if (s === "trial") return "trial";
+      if (s === "lead" || s === "active" || s === "contacted" || s === "replied") return "lead";
       return "new";
     };
     PIPELINE = rows.map((r, i) => {
