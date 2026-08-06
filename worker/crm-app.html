@@ -4781,8 +4781,63 @@ function renderAnalytics(){
     <div class="card an-card" id="engine-vs">
       <div class="ev-head"><h4>Our engine vs Instantly</h4><button class="ev-btn" onclick="runAiCompare()">✨ Analyze &amp; explain</button></div>
       <div id="ev-body" class="ev-body"><div class="ev-hint">One click pulls both channels' numbers, compares them, and tells you which is winning — and what to fix on each.</div></div>
+    </div>
+    <div class="card an-card" id="rep-activity">
+      <div class="ev-head"><h4>Rep activity</h4>
+        <span class="ra-ctl">
+          <select id="ra-actor" onchange="loadRepActivity()">${['Tyler','Andy','Jason','Aaron'].map(n=>`<option value="${n.toLowerCase()}">${n}</option>`).join('')}<option value="all">Everyone</option></select>
+          <select id="ra-hours" onchange="loadRepActivity()"><option value="24">Last 24h</option><option value="48">Last 48h</option><option value="168">Last 7d</option></select>
+        </span>
+      </div>
+      <div id="ra-body" class="ev-body"><div class="ev-hint">Replies sent and everything a rep did in the window — pulled live from the activity log.</div></div>
     </div>`;
+  loadRepActivity();
 }
+function raFmt(ts){ // "2026-08-06 14:03:22" (UTC) -> local short
+  try{ const d=new Date(String(ts).replace(' ','T')+'Z'); return d.toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }catch(_){ return ts; }
+}
+function raCss(){
+  if(document.getElementById('ra-css')) return;
+  const st=document.createElement('style'); st.id='ra-css';
+  st.textContent=`
+  #rep-activity .ra-ctl{display:flex;gap:6px}
+  #rep-activity .ra-ctl select{font-size:12px;padding:4px 8px;border:1px solid var(--bd,#d7dee6);border-radius:7px;background:var(--bg-1,#fff);color:var(--tx-1,#334155)}
+  .ra-kpis{display:flex;gap:16px;margin:2px 0 10px}
+  .ra-kpi{font-size:13px;color:var(--tx-2,#64748b)}.ra-kpi b{font-size:18px;color:var(--tx-1,#0f172a);margin-right:4px}
+  .ra-sub{font-size:12px;font-weight:700;color:var(--tx-2,#64748b);text-transform:uppercase;letter-spacing:.04em;margin:4px 0 4px}
+  .ra-list{list-style:none;margin:0;padding:0}
+  .ra-list li{display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 0;border-bottom:1px solid var(--bd,#eef2f7);color:var(--tx-1,#334155)}
+  .ra-list li:last-child{border-bottom:none}
+  .ra-act{font-weight:600;color:var(--tx-1,#1e293b)}
+  .ra-when{margin-left:auto;font-size:11px;color:var(--tx-2,#94a3b8);white-space:nowrap}`;
+  document.head.appendChild(st);
+}
+async function loadRepActivity(){
+  raCss();
+  const body=document.getElementById('ra-body'); if(!body) return;
+  const actor=(document.getElementById('ra-actor')||{}).value||'tyler';
+  const hours=(document.getElementById('ra-hours')||{}).value||'24';
+  body.innerHTML='<div class="ev-load">Pulling activity…</div>';
+  let d; try{ d=await fetch(`/api/crm/activity?actor=${encodeURIComponent(actor)}&hours=${hours}`,{credentials:'same-origin'}).then(r=>r.json()); }catch(_){}
+  if(!d){ body.innerHTML='<div class="ev-hint">Could not load activity.</div>'; return; }
+  if(d.scope==='all'){
+    if(!d.users||!d.users.length){ body.innerHTML=`<div class="ev-hint">No rep activity in the last ${d.since_hours}h.</div>`; return; }
+    body.innerHTML=`<table class="atable"><thead><tr><th>Rep</th><th class="num">Replies</th><th class="num">Total actions</th></tr></thead><tbody>${d.users.map(u=>`<tr><td>${esc(u.name||u.email)}</td><td class="num">${u.replies||0}</td><td class="num">${u.actions||0}</td></tr>`).join('')}</tbody></table>`;
+    return;
+  }
+  if(d.error){ body.innerHTML=`<div class="ev-hint">${d.error==='no_such_user'?('No CRM user matches "'+esc(actor)+'".'):esc(d.error)}</div>`; return; }
+  const s=d.summary||{replies:0,actions_total:0,by_action:{}};
+  const who=esc((d.actor&&d.actor.name)||actor);
+  const repList=(d.replies||[]).length
+    ? `<div class="ra-sub">Replies</div><ul class="ra-list">${d.replies.map(r=>`<li><b>${esc(r.to)}</b>${r.channel?` · ${esc(r.channel)}`:''}<span class="ra-when">${raFmt(r.at)}</span></li>`).join('')}</ul>`
+    : `<div class="ra-sub">Replies</div><div class="ev-hint">No replies from ${who} in the last ${d.since_hours}h.</div>`;
+  const other=(d.actions||[]).filter(a=>a.action!=='replied');
+  const actList=other.length
+    ? `<div class="ra-sub" style="margin-top:12px">Other actions</div><ul class="ra-list">${other.slice(0,40).map(a=>`<li><span class="ra-act">${esc(a.label)}</span> — ${esc(a.target)}<span class="ra-when">${raFmt(a.at)}</span></li>`).join('')}</ul>`
+    : '';
+  body.innerHTML=`<div class="ra-kpis"><span class="ra-kpi"><b>${s.replies}</b> replies</span><span class="ra-kpi"><b>${s.actions_total}</b> total actions</span></div>${repList}${actList}`;
+}
+window.loadRepActivity=loadRepActivity;
 async function runAiCompare(){
   const body=document.getElementById('ev-body'); if(!body) return;
   body.innerHTML='<div class="ev-load">✨ Pulling both channels and analyzing…</div>';
