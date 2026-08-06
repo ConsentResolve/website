@@ -526,6 +526,10 @@ export async function onRequestPost({ request, env }) {
   if (b.reply !== undefined) {
     const body = String(b.reply || "").trim();
     if (!body) return json({ error: "empty_reply" }, { status: 400 }, cors);
+    // Rich HTML body from the composer (sanitized client-side). Sent as the text/html part so
+    // replies render with native Gmail formatting; `body` stays the text/plain fallback.
+    const emailHtml = (typeof b.html === "string" && b.html.trim()) ? b.html : null;
+    const escH = (s) => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const conv = await env.DB.prepare(
       "SELECT cv.*, c.primary_email FROM conversations cv LEFT JOIN contacts c ON c.id=cv.contact_id WHERE cv.id=?"
     ).bind(b.id).first();
@@ -566,7 +570,7 @@ export async function onRequestPost({ request, env }) {
     if (want === "email") {
       if (!email) return json({ error: "no_recipient", message: "No email address on file for this contact." }, { status: 400 }, cors);
       if (await isSuppressed(env, { contactId: conv.contact_id, email, channel: "email" })) return json({ error: "suppressed", message: "This contact opted out of email." }, { status: 400 }, cors);
-      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail });
+      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail, ...(emailHtml ? { html: emailHtml } : {}) });
       if (res.error) return await failSend(env, conv.id, "email", res.error, res.error, cors);
       externalId = res.id; sentVia = "email";
     } else if (want === "sms") {
@@ -578,7 +582,7 @@ export async function onRequestPost({ request, env }) {
     } else if (conv.channel === "email" || conv.channel === "identified") {
       // Native default: identified visitors + email threads reply by email to the address on file.
       if (!email) return json({ error: "no_recipient" }, { status: 400 }, cors);
-      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail });
+      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail, ...(emailHtml ? { html: emailHtml } : {}) });
       if (res.error) return await failSend(env, conv.id, "email", res.error, res.error, cors);
       externalId = res.id; sentVia = "email";
     } else if (conv.channel === "meta_lead" || conv.channel === "demo_form") {
@@ -590,9 +594,13 @@ export async function onRequestPost({ request, env }) {
       const signed = body + "\r\n\r\n-- \r\n" + repName + "\r\n" +
         "Consent Resolve\r\n1907 Gulf Way #1, St Pete Beach, FL 33706\r\n" +
         "You're getting this because you asked to hear from us at consentresolve.com. Reply UNSUBSCRIBE and we'll stop.";
+      // Matching HTML footer so the rich reply still carries the CAN-SPAM block.
+      const signedHtml = emailHtml ? emailHtml +
+        `<br><br><div style="color:#5f6368;font-size:12px;font-family:Arial,Helvetica,sans-serif;line-height:1.5">-- <br>${escH(repName)}<br>Consent Resolve<br>1907 Gulf Way #1, St Pete Beach, FL 33706<br>You're getting this because you asked to hear from us at consentresolve.com. Reply UNSUBSCRIBE and we'll stop.</div>` : null;
       const res = await sendMessage(env, inboxAccounts(env)[0], to, subj, signed, null, {
         cc: CC_TEAM, from: fromEmail,
         headers: { "List-Unsubscribe": "<mailto:hello@consentresolve.com?subject=unsubscribe>" },
+        ...(signedHtml ? { html: signedHtml } : {}),
       }); // new email thread, not Messenger
       if (res.error) return await failSend(env, conv.id, "email", res.error, res.error, cors);
       externalId = res.id; sentVia = "email";

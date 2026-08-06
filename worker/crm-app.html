@@ -829,6 +829,19 @@ html,body{height:100%}
   .rte:empty::before{content:attr(data-ph);color:var(--tx-3);pointer-events:none}
   .rte a{color:var(--accent)}
   .rte ul,.rte ol{margin:6px 0 6px 22px}
+  /* Email composer: Arial WYSIWYG so what you type matches what the recipient sees in Gmail. */
+  .rte-email{font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5}
+  .rte blockquote{margin:6px 0;padding:2px 0 2px 12px;border-left:2px solid var(--line-2);color:var(--tx-2)}
+  .rc-toolbar .tb.tb-color{position:relative;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+  .tb-color span{line-height:1;font-size:13px}
+  .tb-colorbar{width:15px;height:3px;border-radius:2px;background:#d34b66}
+  /* Gmail-style rendering of a sent/received HTML email in the thread + bubbles. */
+  .gm-html{white-space:normal;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:var(--tx-1)}
+  .gm-html p{margin:0 0 10px} .gm-html p:last-child{margin-bottom:0}
+  .gm-html ul,.gm-html ol{margin:6px 0 10px 22px} .gm-html li{margin:2px 0}
+  .gm-html blockquote{margin:6px 0;padding:2px 0 2px 12px;border-left:2px solid var(--line-2);color:var(--tx-2)}
+  .gm-html a{color:#1a73e8;text-decoration:underline}
+  .mbody{white-space:normal;margin-top:2px} .mbody a{color:#1a73e8} .mbody ul,.mbody ol{margin:4px 0 4px 20px}
   .rc-attach{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 8px}
   .rc-attach:empty{display:none}
   .achip{display:inline-flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-1);padding:4px 9px;font-size:11px;color:var(--tx-2)}
@@ -2259,7 +2272,7 @@ function bubbleThread(c){
   return `${personCard(c)}${siteEngagement(c)}<div class="msgs">${c.messages.map(m=>{
     if(m.dir==="system") return `<div class="msg system">${esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
     const who = m.who ? (m.who==='Mack'?'🤖 Mack':esc(m.who)) : (m.dir==='in'?'▸ ':'')+(CH[m.channel]||m.channel||'').replace(/^[^ ]+ /,'');
-    return `<div class="msg ${m.dir}"><div class="mh">${who}${m.meta?' · '+esc(m.meta):''}</div>${esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
+    return `<div class="msg ${m.dir}"><div class="mh">${who}${m.meta?' · '+esc(m.meta):''}</div>${m.html?'<div class="mbody">'+m.html+'</div>':esc(m.body)}<div class="mt">${esc(m.ts)}</div></div>`;
   }).join("")}</div>`;
 }
 
@@ -2332,12 +2345,19 @@ function composer(c){
   }
   const sw = chToggle;
   const fmtGroup = cur==='email' ? `
-      <button class="tb" onmousedown="return false" onclick="fmt('bold')" title="Bold" style="font-weight:800">B</button>
-      <button class="tb" onmousedown="return false" onclick="fmt('italic')" title="Italic" style="font-style:italic">I</button>
-      <button class="tb" onmousedown="return false" onclick="fmt('underline')" title="Underline" style="text-decoration:underline">U</button>
+      <button class="tb" onmousedown="return false" onclick="fmt('bold')" title="Bold (⌘B)" style="font-weight:800">B</button>
+      <button class="tb" onmousedown="return false" onclick="fmt('italic')" title="Italic (⌘I)" style="font-style:italic">I</button>
+      <button class="tb" onmousedown="return false" onclick="fmt('underline')" title="Underline (⌘U)" style="text-decoration:underline">U</button>
+      <button class="tb" onmousedown="return false" onclick="fmt('strikeThrough')" title="Strikethrough" style="text-decoration:line-through">S</button>
+      <button class="tb tb-color" onmousedown="return false" onclick="fmtColor()" title="Text color"><span>A</span><i class="tb-colorbar"></i></button>
+      <input type="color" id="rteColor" value="#202124" onchange="fmtColorApply(this.value)" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none">
       <span class="rc-sep"></span>
       <button class="tb" onmousedown="return false" onclick="fmt('insertUnorderedList')" title="Bulleted list">•≡</button>
-      <button class="tb" onmousedown="return false" onclick="rteLink()" title="Insert link">🔗</button>
+      <button class="tb" onmousedown="return false" onclick="fmt('insertOrderedList')" title="Numbered list">1≡</button>
+      <button class="tb" onmousedown="return false" onclick="fmtBlock('blockquote')" title="Quote">❝</button>
+      <span class="rc-sep"></span>
+      <button class="tb" onmousedown="return false" onclick="rteLink()" title="Insert link (⌘K)">🔗</button>
+      <button class="tb" onmousedown="return false" onclick="fmtClear()" title="Remove formatting">T̶ₓ</button>
       <span class="rc-sep"></span>` : '';
   const ph = cur==='email' ? "Write your email reply…" : cur==='chat' ? "Reply in chat…" : "Write a reply… (auto-personalizes {first}/{trade})";
   return `<div class="rcomp">
@@ -2347,7 +2367,7 @@ function composer(c){
       <span class="tmpl" onmousedown="return false" onclick="insertTemplate('how')">How it works</span>
       <span class="tmpl" onmousedown="return false" onclick="insertTemplate('pricing')">Pricing</span>
     </div>
-    <div class="rte" id="rte" contenteditable="true" data-ph="${ph}"></div>
+    <div class="rte${cur==='email'?' rte-email':''}" id="rte" contenteditable="true" data-ph="${ph}"></div>
     <div class="rc-attach" id="attachChips"></div>
     <div class="rc-foot">
       <button class="btn" onclick="sendReply()">Send</button>
@@ -2362,7 +2382,50 @@ function rerenderComposer(){const host=document.getElementById('composerhost'); 
 function openReply(){replyOpen=true; ATTACH=[]; rerenderComposer(); setTimeout(()=>document.getElementById('rte')?.focus(),0);}
 function closeReply(){replyOpen=false; ATTACH=[]; rerenderComposer();}
 function fmt(cmd){document.execCommand(cmd,false,null); document.getElementById('rte')?.focus();}
+function fmtBlock(tag){document.getElementById('rte')?.focus(); document.execCommand('formatBlock',false,tag);}
+function fmtColor(){const ed=document.getElementById('rte'); if(!ed)return; const inp=document.getElementById('rteColor'); if(inp){ed.focus(); inp.click();}}
+function fmtColorApply(hex){document.getElementById('rte')?.focus(); document.execCommand('foreColor',false,hex);}
+function fmtClear(){const ed=document.getElementById('rte'); if(!ed)return; ed.focus(); document.execCommand('removeFormat',false,null); document.execCommand('formatBlock',false,'div');}
 function rteLink(){const u=prompt('Link URL','https://'); if(u){document.getElementById('rte')?.focus(); document.execCommand('createLink',false,u);}}
+/* Sanitize the composer's contenteditable HTML to an email-safe allowlist, then wrap it in a
+   Gmail-style shell so the reply renders natively in the recipient's inbox. Returns null if empty. */
+const RTE_ALLOW=new Set(['B','STRONG','I','EM','U','S','STRIKE','A','UL','OL','LI','P','BR','BLOCKQUOTE','DIV','SPAN','FONT']);
+const RTE_STYLE_OK=/^(color|font-weight|font-style|text-decoration|text-align|background-color)$/i;
+function rteSanitize(root){
+  const clone=root.cloneNode(true);
+  const walk=(node)=>{
+    Array.from(node.childNodes).forEach(ch=>{
+      if(ch.nodeType===8){ ch.remove(); return; }                 // comments
+      if(ch.nodeType!==1) return;                                  // keep text nodes
+      const tag=ch.tagName.toUpperCase();
+      if(tag==='SCRIPT'||tag==='STYLE'){ ch.remove(); return; }
+      if(!RTE_ALLOW.has(tag)){                                     // unwrap unknown tags, keep children
+        const f=document.createDocumentFragment(); while(ch.firstChild)f.appendChild(ch.firstChild); ch.replaceWith(f); walk(node); return;
+      }
+      Array.from(ch.attributes).forEach(a=>{
+        const n=a.name.toLowerCase();
+        if(n.startsWith('on')){ ch.removeAttribute(a.name); return; }
+        if(tag==='A'&&n==='href'){ const h=a.value.trim(); if(!/^(https?:|mailto:)/i.test(h)){ch.removeAttribute('href');} return; }
+        if(tag==='FONT'&&n==='color') return;
+        if(n==='style'){
+          const kept=a.value.split(';').map(s=>s.trim()).filter(Boolean).filter(d=>RTE_STYLE_OK.test((d.split(':')[0]||'').trim())).join('; ');
+          if(kept) ch.setAttribute('style',kept); else ch.removeAttribute('style'); return;
+        }
+        ch.removeAttribute(a.name);
+      });
+      if(tag==='A'&&ch.getAttribute('href')){ ch.setAttribute('target','_blank'); ch.setAttribute('rel','noopener noreferrer'); }
+      walk(ch);
+    });
+  };
+  walk(clone);
+  return clone.innerHTML;
+}
+function buildReplyHtml(ed){
+  const inner=rteSanitize(ed);
+  if(!inner.replace(/<br\s*\/?>|&nbsp;|\s/gi,'')) return null;      // effectively empty
+  return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#202124">${inner}</div>`;
+}
+window.fmtBlock=fmtBlock; window.fmtColor=fmtColor; window.fmtColorApply=fmtColorApply; window.fmtClear=fmtClear;
 function insertText(t){const ed=document.getElementById('rte'); if(!ed)return; ed.focus(); document.execCommand('insertText',false,t);}
 const RTMPL={
   demo:"Want the 2-minute version? Grab any time here and I'll show it on your own site: [link]",
@@ -2379,10 +2442,11 @@ async function sendReply(){
   // The reply endpoint sends `body` only — attachments aren't wired through the backend yet.
   if(!text){ alert(ATTACH.length ? 'Type a message to send (attachments aren’t sent yet).' : ''); if(!ATTACH.length) closeReply(); return; }
   const ch=replyChOf(c);
+  const replyHtml=(ch==='email'&&ed)?buildReplyHtml(ed):null;
   const btn=document.querySelector('.rte-send'); const oldLabel=btn?btn.textContent:'';
   if(btn){ btn.disabled=true; btn.textContent='Sending…'; }
   try{
-    const r=await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:sel,reply:text,channel:ch})});
+    const r=await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:sel,reply:text,html:replyHtml,channel:ch})});
     const d=await r.json().catch(()=>({}));
     if(!r.ok||d.error){
       // Show the failure right in the conversation window; keep the draft so they can retry.
@@ -2392,7 +2456,7 @@ async function sendReply(){
       return;
     }
     // Reflect the sent message AND a ✓ status line (delivery + cc for email) in the thread.
-    c.messages.push({dir:'out',channel:d.sent||ch,body:text,ts:'just now',meta:'sent'});
+    c.messages.push({dir:'out',channel:d.sent||ch,body:text,html:(ch==='email'?replyHtml:null),ts:'just now',meta:'sent'});
     if(d.status_note) c.messages.push({dir:'system',body:d.status_note,ts:'just now'});
     if(typeof c.unread!=='undefined') c.unread=false;
     replyOpen=false; ATTACH=[];
@@ -2426,7 +2490,7 @@ function gmailThread(c){
         <div class="gm-who"><b>${esc(who)}</b> <span class="addr">&lt;${esc(addr)}&gt;</span><span class="to">to ${out?esc(c.name||'lead'):'me'}</span></div>
         <div class="gm-time">${esc(m.ts)}${opened?'<span class="op">✓ opened</span>':''}</div>
       </div>
-      <div class="gm-body">${esc(m.body)}</div>
+      <div class="gm-body${m.html?' gm-html':''}">${m.html?m.html:esc(m.body)}</div>
     </div>`;
   };
   return `<div class="gmail">
