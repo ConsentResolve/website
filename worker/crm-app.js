@@ -90,6 +90,7 @@ window.CRM_LIVE_PENDING = true; // set before restoreView runs → data views sh
       if (window.recount) window.recount();
     }
     if (window.__crmView) try { window.showView(window.__crmView); } catch (_) {}  // re-render active view with live data
+    try { if (window.enterForcedFocus) window.enterForcedFocus(0); } catch (_) {}  // Single-Task: force focus once real data is in
   } catch (e) {
     // FAIL-SAFE: any render error -> restore the demo fixtures so the app never breaks
     window.CRM_LIVE_PENDING = false;

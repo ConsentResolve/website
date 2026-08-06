@@ -1528,7 +1528,6 @@ html,body{height:100%}
           <option value="oldest">Oldest</option>
           <option value="unread">Unread first</option>
         </select>
-        <button id="focusBtn" class="focus-btn" hidden onclick="focusStart()" title="Single-Task Mode — work the one lead that matters most, one at a time">◎ Single-Task</button>
       </div>
       <div class="rows" id="rows"></div>
     </section>
@@ -4871,8 +4870,26 @@ async function stCheck(){
   try{ const d=await fetch('/api/crm/single-task',{credentials:'same-origin'}).then(r=>r.json());
     window._stEnabled=!!(d&&d.enabled); window._stMe=(d&&d.user)||null;
   }catch(_){ window._stEnabled=false; }
-  const b=document.getElementById('focusBtn'); if(b) b.hidden=!window._stEnabled;
+  const b=document.getElementById('focusBtn'); if(b) b.hidden=true; // forced when enabled — no manual entry
+  applyForced();
   return window._stEnabled;
+}
+// Enabled == FORCED. Hide the inbox list immediately and drop into the focus queue as soon
+// as real data is loaded; disabling (only from Settings) restores the normal inbox.
+function applyForced(){
+  window._forced=window._stEnabled;
+  if(window._forced){ document.body.classList.add('focus-on'); enterForcedFocus(0); }
+  else{ window._focusMode=false; document.body.classList.remove('focus-on');
+        const h=document.getElementById('focushud'); if(h)h.remove();
+        const z=document.getElementById('focusZero'); if(z)z.remove(); }
+}
+function dataReady(){ return window.CRM_LIVE_PENDING===false || (DATA&&DATA.conversations&&DATA.conversations.some(c=>!String(c.id).startsWith('c0'))); }
+function enterForcedFocus(tries){
+  tries=tries||0; if(!window._forced || window._focusMode) return;
+  const iv=document.getElementById('inboxview');
+  if(!iv || iv.hidden) return;                       // re-enter when they return to the inbox
+  if(!dataReady() && tries<20){ setTimeout(()=>enterForcedFocus(tries+1),400); return; }
+  focusStart();
 }
 // Rank: my leads first, then hottest, then longest-waiting. Only OPEN + UNREAD (waiting on us).
 function focusCandidates(){
@@ -4889,10 +4906,10 @@ function focusHud(remaining){
   h.innerHTML=`<span class="fh-prog">◎ ${remaining} waiting</span><span class="fh-sep">·</span>`
     +`<button onclick="focusRemind()" title="Set a reminder / callback">⏰ Remind</button>`
     +`<button class="fh-dq" onclick="focusDq()" title="Disqualify this lead">⛔ Disqualify</button>`
-    +`<button onclick="focusSkip()" title="Skip for now">Skip →</button>`
-    +`<button class="fh-exit" onclick="focusExit()">✕ Exit</button>`;
+    +`<button onclick="focusSkip()" title="Skip for now">Skip →</button>`;
 }
 function focusServe(c){
+  const z=document.getElementById('focusZero'); if(z)z.remove();
   select(c.id);
   focusHud(focusCandidates().length);
   try{ if(typeof openReply==='function') setTimeout(openReply,60); }catch(_){}
@@ -4900,15 +4917,14 @@ function focusServe(c){
   fetch('/api/crm/single-task',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({viewed:{id:c.id}})}).catch(()=>{});
 }
 function focusZero(){
-  focusExit(true);
-  let z=document.getElementById('focusZero');
-  if(!z){ z=document.createElement('div'); z.id='focusZero'; document.body.appendChild(z); }
-  z.innerHTML=`<div class="fz-card"><div class="fz-emoji">✅</div><h3>Inbox zero</h3><p>No leads waiting on a reply right now. Nice work.</p><button onclick="document.getElementById('focusZero').remove()">Done</button></div>`;
+  window._focusMode=false;                          // no active lead, but STAY in focus-on (list stays hidden)
+  const h=document.getElementById('focushud'); if(h)h.remove();
+  let z=document.getElementById('focusZero'); if(!z){ z=document.createElement('div'); z.id='focusZero'; document.body.appendChild(z); }
+  z.innerHTML=`<div class="fz-card"><div class="fz-emoji">✅</div><h3>Inbox zero</h3><p>No leads waiting on a reply right now. Nice work.</p><button onclick="focusRecheck()">Check for new leads</button></div>`;
 }
+function focusRecheck(){ const z=document.getElementById('focusZero'); if(z)z.remove(); window._focusDone=new Set(); focusStart(); }
 function focusStart(){
-  if(!window._stEnabled){ if(window.crmToast)crmToast('Enable Single-Task Mode in Settings first'); return; }
-  if(typeof showView==='function' && document.getElementById('inboxview') && document.getElementById('inboxview').hidden) showView('inbox');
-  window._focusMode=true; window._focusDone=new Set(); document.body.classList.add('focus-on');
+  window._focusMode=true; if(!window._focusDone)window._focusDone=new Set(); document.body.classList.add('focus-on');
   const p=focusPick(); if(!p){ focusZero(); return; }
   focusServe(p);
 }
@@ -4931,19 +4947,21 @@ function renderSingleTaskSetting(host){
   if(!host||document.getElementById('st-setting')) return;
   const card=document.createElement('div'); card.id='st-setting'; card.className='card an-card'; card.style.marginTop='16px';
   card.innerHTML=`<h4 style="margin:0 0 4px">Single-Task Mode <span style="font-weight:400;color:var(--tx-3)">(beta)</span></h4>
-    <p style="font-size:13px;color:var(--tx-2);margin:0 0 12px;line-height:1.5">Cuts the inbox down to the one lead that matters most — hottest and longest-waiting first — and serves the next the moment you reply, set a reminder, or disqualify. Enables the <b>◎ Single-Task</b> button on your inbox.</p>
-    <label class="set-sw"><input type="checkbox" id="st-toggle"><span>Enable for me</span></label>
+    <p style="font-size:13px;color:var(--tx-2);margin:0 0 12px;line-height:1.5">When on, your inbox is <b>locked to one lead at a time</b> — the hottest, longest-waiting one — and serves the next the moment you reply, set a reminder, or disqualify. There's no list and no way out except turning this off. Off by default; each person sets their own.</p>
+    <label class="set-sw"><input type="checkbox" id="st-toggle"><span>Force Single-Task Mode on my inbox</span></label>
     <span id="st-msg" style="font-size:12px;color:var(--tx-2);margin-left:10px"></span>`;
   host.appendChild(card);
   const cb=card.querySelector('#st-toggle'); cb.checked=!!window._stEnabled;
   cb.addEventListener('change',async()=>{
     const msg=card.querySelector('#st-msg'); msg.textContent='saving…';
     let r; try{ r=await fetch('/api/crm/single-task',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:cb.checked})}).then(x=>x.json()); }catch(_){}
-    if(r&&r.ok){ window._stEnabled=cb.checked; const b=document.getElementById('focusBtn'); if(b)b.hidden=!cb.checked; msg.textContent=cb.checked?'On ✓':'Off'; }
+    if(r&&r.ok){ window._stEnabled=cb.checked; applyForced(); msg.textContent=cb.checked?'On — forced on your inbox':'Off'; }
     else { cb.checked=!cb.checked; msg.textContent='save failed'; }
   });
 }
-window.focusStart=focusStart; window.focusSkip=focusSkip; window.focusExit=focusExit; window.focusAdvance=focusAdvance; window.focusRemind=focusRemind; window.focusDq=focusDq; window.stCheck=stCheck; window.renderSingleTaskSetting=renderSingleTaskSetting;
+window.focusStart=focusStart; window.focusSkip=focusSkip; window.focusExit=focusExit; window.focusAdvance=focusAdvance; window.focusRemind=focusRemind; window.focusDq=focusDq; window.focusRecheck=focusRecheck; window.stCheck=stCheck; window.enterForcedFocus=enterForcedFocus; window.applyForced=applyForced; window.renderSingleTaskSetting=renderSingleTaskSetting;
+// Returning to the inbox re-asserts forced focus (nav clicks go through window.showView).
+(function(){ const _sv=window.showView; if(typeof _sv==='function'){ window.showView=function(v){ _sv(v); if(v==='inbox' && window._forced){ document.body.classList.add('focus-on'); setTimeout(()=>enterForcedFocus(0),60); } }; } })();
 stCheck();
 async function runAiCompare(){
   const body=document.getElementById('ev-body'); if(!body) return;
