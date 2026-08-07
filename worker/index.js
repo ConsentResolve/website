@@ -221,7 +221,6 @@ const ROUTES = {
   "/api/lead-prefill": leadPrefill,
   "/api/meta-capi": metaCapi,
   "/api/booking/slots": booking,
-  "/api/booking/_et": booking,
   "/api/booking/create": booking,
   "/api/booking/update": booking,
   "/api/booking/event": booking,
