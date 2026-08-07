@@ -23,32 +23,43 @@ export async function onRequestGet({ request, env }) {
   const all = async (sql, ...p) => { try { return (await env.DB.prepare(sql).bind(...p).all()).results || []; } catch { return []; } };
 
   if (path === "/api/crm/companies") {
+    // Pick the page of companies FIRST (cheap: filter + updated_at, then LIMIT), and only then
+    // compute the per-company roll-ups. Computing the 4 correlated subqueries for every company
+    // in the table (and sorting by one of them) is what made this hang once the prospecting import
+    // grew the companies table into the thousands.
     const rows = await all(
-      `SELECT co.id, co.name, co.domain, co.updated_at,
-              (SELECT COUNT(*) FROM contacts c WHERE c.company_id=co.id) AS contacts,
-              (SELECT COUNT(*) FROM deals d WHERE d.company_id=co.id) AS deals,
-              (SELECT COALESCE(SUM(value_cents),0) FROM deals d WHERE d.company_id=co.id AND d.lead_status IN ('active','trial','won')) AS open_value_cents,
-              (SELECT MAX(cv.last_message_at) FROM conversations cv WHERE cv.company_id=co.id) AS last_activity
-         FROM companies co
-        WHERE (?1='' OR co.name LIKE ?2 OR co.domain LIKE ?2)
-        ORDER BY (last_activity IS NULL), last_activity DESC, co.updated_at DESC
-        LIMIT ?3`,
+      `WITH base AS (
+          SELECT id, name, domain, updated_at FROM companies
+           WHERE (?1='' OR name LIKE ?2 OR domain LIKE ?2)
+           ORDER BY updated_at DESC
+           LIMIT ?3)
+       SELECT b.id, b.name, b.domain, b.updated_at,
+              (SELECT COUNT(*) FROM contacts c WHERE c.company_id=b.id) AS contacts,
+              (SELECT COUNT(*) FROM deals d WHERE d.company_id=b.id) AS deals,
+              (SELECT COALESCE(SUM(value_cents),0) FROM deals d WHERE d.company_id=b.id AND d.lead_status IN ('active','trial','won')) AS open_value_cents,
+              (SELECT MAX(cv.last_message_at) FROM conversations cv WHERE cv.company_id=b.id) AS last_activity
+         FROM base b
+        ORDER BY (last_activity IS NULL), last_activity DESC, b.updated_at DESC`,
       q, like, limit
     );
     return json({ companies: rows.map((r) => ({ ...r, open_value_usd: Math.round((r.open_value_cents || 0) / 100) })) }, {}, cors);
   }
 
-  // default: /api/crm/contacts
+  // default: /api/crm/contacts — same shape: page the contacts first, then roll up per-contact.
   const rows = await all(
-    `SELECT ct.id, ct.full_name, ct.primary_email, ct.phone, ct.tier, ct.lead_score,
-            (SELECT d.lead_status FROM deals d WHERE d.primary_contact_id=ct.id ORDER BY d.updated_at DESC LIMIT 1) AS deal_status,
+    `WITH base AS (
+        SELECT ct.id, ct.full_name, ct.primary_email, ct.phone, ct.tier, ct.lead_score, ct.updated_at, ct.company_id
+          FROM contacts ct LEFT JOIN companies co ON co.id=ct.company_id
+         WHERE (?1='' OR ct.full_name LIKE ?2 OR ct.primary_email LIKE ?2 OR ct.phone LIKE ?2 OR co.name LIKE ?2)
+         ORDER BY ct.updated_at DESC
+         LIMIT ?3)
+     SELECT b.id, b.full_name, b.primary_email, b.phone, b.tier, b.lead_score, b.updated_at,
+            (SELECT d.lead_status FROM deals d WHERE d.primary_contact_id=b.id ORDER BY d.updated_at DESC LIMIT 1) AS deal_status,
             co.id AS company_id, co.name AS company,
-            (SELECT MAX(cv.last_message_at) FROM conversations cv WHERE cv.contact_id=ct.id) AS last_activity,
-            (SELECT COUNT(*) FROM deals d WHERE d.primary_contact_id=ct.id) AS deals
-       FROM contacts ct LEFT JOIN companies co ON co.id=ct.company_id
-      WHERE (?1='' OR ct.full_name LIKE ?2 OR ct.primary_email LIKE ?2 OR ct.phone LIKE ?2 OR co.name LIKE ?2)
-      ORDER BY (last_activity IS NULL), last_activity DESC, ct.updated_at DESC
-      LIMIT ?3`,
+            (SELECT MAX(cv.last_message_at) FROM conversations cv WHERE cv.contact_id=b.id) AS last_activity,
+            (SELECT COUNT(*) FROM deals d WHERE d.primary_contact_id=b.id) AS deals
+       FROM base b LEFT JOIN companies co ON co.id=b.company_id
+      ORDER BY (last_activity IS NULL), last_activity DESC, b.updated_at DESC`,
     q, like, limit
   );
   const contacts = rows.map((r) => ({ ...r, stage: stageKey(r.deal_status), stage_label: stageLabel(r.deal_status) }));
