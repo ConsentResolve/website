@@ -1,92 +1,159 @@
 /*! Consent Resolve — demo booking widget (self-contained, no framework).
     Mount: <div data-cr-booking data-api="https://consentresolve.com"></div> + this script.
     All Cal.com calls go through the Worker (/api/booking/*); the API key never reaches here.
-    Scoped with the crbw- prefix + explicit input/button resets so it can't clash with a host page. */
+    Scoped with the crbw- prefix + explicit input/button resets so it can't clash with a host page.
+
+    Flow (conversion-tuned): 1 Trade → 2 Lead source → 3 Time → 4 Email (mobile optional) → booked.
+    The commitment funnel ends at step 4; once the slot is held we ask for the rest (name/company/
+    website) on a post-booking screen that's fully skippable — the booking can never be lost there. */
 (function () {
   "use strict";
   if (window.__crbwLoaded) return; window.__crbwLoaded = true;
 
+  // ---- On-brand icon set (Tabler paths, stroke 1.75, currentColor) --------
+  var PATHS = {
+    home: '<path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/>',
+    temp: '<path d="M10 13.5a4 4 0 1 0 4 0v-8.5a2 2 0 0 0 -4 0v8.5"/><path d="M10 9l4 0"/>',
+    droplet: '<path d="M7.5 19.4a6 6 0 0 0 9 0a6 6 0 0 0 1.57 -8.55l-4.89 -7.26a1.4 1.4 0 0 0 -2.35 0l-4.9 7.26a6 6 0 0 0 1.57 8.55z"/>',
+    bolt: '<path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11"/>',
+    bug: '<path d="M9 9v-1a3 3 0 0 1 6 0v1"/><path d="M8 9h8a6 6 0 0 1 1 3v3a5 5 0 0 1 -10 0v-3a6 6 0 0 1 1 -3"/><path d="M3 13l4 0"/><path d="M17 13l4 0"/><path d="M12 20l0 -6"/><path d="M4 19l3.35 -2"/><path d="M20 19l-3.35 -2"/><path d="M4 7l3.75 2.4"/><path d="M20 7l-3.75 2.4"/>',
+    tool: '<path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6 -6a6 6 0 0 1 -8 -8l3.5 3.5"/>',
+    google: '<path d="M17.788 5.108a9 9 0 1 0 3.212 6.892h-8"/>',
+    clipboard: '<path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2"/><path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"/><path d="M9 12l.01 0"/><path d="M13 12l2 0"/><path d="M9 16l.01 0"/><path d="M13 16l2 0"/>',
+    facebook: '<path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3"/>',
+    users: '<path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/>',
+    shuffle: '<path d="M18 4l3 3l-3 3"/><path d="M18 20l3 -3l-3 -3"/><path d="M3 7h3a5 5 0 0 1 5 5a5 5 0 0 0 5 5h5"/><path d="M21 7h-5a4.978 4.978 0 0 0 -3 1m-4 8a4.984 4.984 0 0 1 -3 1h-3"/>',
+    chevron: '<path d="M9 6l6 6l-6 6"/>',
+    left: '<path d="M15 6l-6 6l6 6"/>',
+    check: '<path d="M5 12l5 5l10 -10"/>',
+    circleCheck: '<path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/>',
+    arrow: '<path d="M5 12l14 0"/><path d="M13 18l6 -6"/><path d="M13 6l6 6"/>',
+    phone: '<path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2"/>',
+    clock: '<path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 7v5l3 3"/>',
+    shield: '<path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/><path d="M9 12l2 2l4 -4"/>',
+    sparkle: '<path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z"/>',
+  };
+  function ic(name, size, stroke) {
+    return '<svg viewBox="0 0 24 24" width="' + (size || 24) + '" height="' + (size || 24) +
+      '" fill="none" stroke="currentColor" stroke-width="' + (stroke || 1.75) +
+      '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (PATHS[name] || "") + "</svg>";
+  }
+
   var TRADES = [
-    { id: "roofing", label: "Roofing", icon: "🏠" },
-    { id: "hvac", label: "HVAC", icon: "🌡️" },
-    { id: "plumbing", label: "Plumbing", icon: "🔧" },
-    { id: "electrical", label: "Electrical", icon: "⚡" },
-    { id: "pest", label: "Pest control", icon: "🐜" },
-    { id: "other", label: "Other trade", icon: "🛠️" },
+    { id: "roofing", label: "Roofing", icon: "home" },
+    { id: "hvac", label: "HVAC", icon: "temp" },
+    { id: "plumbing", label: "Plumbing", icon: "droplet" },
+    { id: "electrical", label: "Electrical", icon: "bolt" },
+    { id: "pest", label: "Pest control", icon: "bug" },
+    { id: "other", label: "Other trade", icon: "tool" },
   ];
-  var TRAFFIC = ["Under 500 visits/mo", "500 to 2,000 visits/mo", "Over 2,000 visits/mo", "Not sure"];
-  var SOURCES = ["Google ads", "Google LSA", "Angi / HomeAdvisor", "Facebook / Meta", "Referrals", "Yard signs / trucks", "SEO / organic", "Other"];
-  var TIME_LEFT = ["About 45 seconds left", "About 35 seconds left", "About 25 seconds left", "About 15 seconds left"];
+  // Step 2 — single question, single tap. The channel they name is the CPL we compare to $7.
+  var SOURCES = [
+    { id: "Google ads", label: "Google ads", sub: "Search or Local Services", icon: "google" },
+    { id: "Lead sites", label: "Lead sites", sub: "Angi, Thumbtack, HomeAdvisor", icon: "clipboard" },
+    { id: "Facebook / Instagram", label: "Facebook / Instagram", sub: "Meta ads or posts", icon: "facebook" },
+    { id: "Referrals & repeat", label: "Referrals & repeat", sub: "Word of mouth, past customers", icon: "users" },
+    { id: "A mix / not sure", label: "A mix / not sure", sub: "A little of everything", icon: "shuffle" },
+  ];
+  var TIME_LEFT = ["about 40 seconds", "about 30 seconds", "about 20 seconds", "about 10 seconds"];
   var PHONE = "(727) 999-9846";
+  var SLOT_CAP = 6; // times shown before the "show all" expander
 
   var CSS = [
-    ".crbw{--mint:#00e5a0;--mint-hi:#00c489;--navy:#0a1628;--ink:#0e1c2e;--ink-2:#48586a;--muted:#8496a6;--line:#e2e8f0;--line-2:#cdd7e1;--bg:#ffffff;--soft:#f5f8fb;--good:#0f9d6b;--warn:#b9791a;font-family:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--ink);background:var(--bg);border-radius:16px;overflow:hidden;box-sizing:border-box;-webkit-text-size-adjust:100%;text-align:left}",
+    ".crbw{--mint:#00e5a0;--mint-700:#00a86e;--navy:#0a1628;--ink:#0a1628;--ink-2:#475569;--muted:#94a3b8;--line:#e2e8f0;--line-2:#cbd5e1;--bg:#ffffff;--soft:#f8fafc;--brand-soft:rgba(0,229,160,.12);--good:#00a86e;--warn:#b9791a;--font:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--font-disp:'Bricolage Grotesque',var(--font);font-family:var(--font);color:var(--ink);background:var(--bg);border-radius:16px;overflow:hidden;box-sizing:border-box;-webkit-text-size-adjust:100%;text-align:left}",
     ".crbw *,.crbw *::before,.crbw *::after{box-sizing:border-box}",
     ".crbw button{font:inherit;cursor:pointer;margin:0;border:0;background:none;color:inherit}",
+    ".crbw svg{display:block;flex:0 0 auto}",
     ".crbw input{font:inherit;margin:0;width:100%;color:var(--ink);background:#fff}",
-    ".crbw-prog{padding:14px 18px 0}",
-    ".crbw-prog-row{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:7px}",
+    ".crbw-prog{padding:15px 18px 0}",
+    ".crbw-prog-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px}",
+    ".crbw-prog-row .t{display:inline-flex;align-items:center;gap:4px}",
     ".crbw-prog-bar{height:6px;border-radius:6px;background:var(--soft);overflow:hidden}",
-    ".crbw-prog-bar i{display:block;height:100%;border-radius:6px;background:var(--mint);transition:width .3s cubic-bezier(.22,.61,.36,1)}",
+    ".crbw-prog-bar i{display:block;height:100%;border-radius:6px;background:var(--mint);transition:width .35s cubic-bezier(.22,.61,.36,1)}",
     ".crbw-body{padding:18px 18px 20px}",
-    ".crbw-h{font-size:20px;font-weight:800;line-height:1.2;margin:2px 0 3px;letter-spacing:-.01em}",
-    ".crbw-sub{font-size:13.5px;color:var(--ink-2);line-height:1.5;margin:0 0 15px}",
+    ".crbw-h{font-family:var(--font-disp);font-size:21px;font-weight:800;line-height:1.15;margin:2px 0 4px;letter-spacing:-.015em}",
+    ".crbw-sub{font-size:13.5px;color:var(--ink-2);line-height:1.5;margin:0 0 16px}",
     ".crbw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}",
     "@media (max-width:520px){.crbw-grid{grid-template-columns:repeat(2,1fr)}}",
-    ".crbw-card{min-height:76px;border:1.5px solid var(--line);border-radius:12px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 6px;font-size:13.5px;font-weight:700;color:var(--ink);transition:border-color .14s,background .14s,transform .1s}",
+    ".crbw-card{min-height:82px;border:1.5px solid var(--line);border-radius:12px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:12px 6px;font-size:13.5px;font-weight:700;color:var(--ink);transition:border-color .14s,background .14s,box-shadow .14s,transform .1s}",
     ".crbw-card:hover{border-color:var(--mint);background:var(--soft)}",
     ".crbw-card:active{transform:scale(.97)}",
-    ".crbw-card .ic{font-size:24px;line-height:1}",
-    ".crbw-card.on{border-color:var(--mint);background:rgba(0,229,160,.10)}",
-    ".crbw-qh{font-size:14.5px;font-weight:800;margin:4px 0 9px}",
-    ".crbw-qhh{font-size:12px;font-weight:600;color:var(--muted);margin:-4px 0 9px}",
-    ".crbw-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}",
-    ".crbw-chip{min-height:44px;padding:0 14px;border:1.5px solid var(--line);border-radius:999px;background:#fff;font-size:13.5px;font-weight:700;color:var(--ink-2);display:inline-flex;align-items:center;transition:border-color .14s,background .14s,color .14s}",
-    ".crbw-chip:hover{border-color:var(--line-2)}",
-    ".crbw-chip.on{border-color:var(--mint);background:rgba(0,229,160,.12);color:var(--navy)}",
-    ".crbw-days{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;-webkit-overflow-scrolling:touch}",
-    ".crbw-day{flex:0 0 auto;min-width:84px;border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:9px 10px;text-align:center;transition:border-color .14s,background .14s}",
+    ".crbw-card .ic{color:var(--mint-700)}",
+    ".crbw-card.on{border-color:var(--mint);background:var(--brand-soft);box-shadow:0 0 0 3px var(--brand-soft)}",
+    // Step 2 — vertical list of big tap rows (single-select, auto-advance)
+    ".crbw-list{display:flex;flex-direction:column;gap:9px}",
+    ".crbw-row{display:flex;align-items:center;gap:13px;width:100%;min-height:62px;padding:10px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;text-align:left;transition:border-color .14s,background .14s,box-shadow .14s,transform .1s}",
+    ".crbw-row:hover{border-color:var(--mint);background:var(--soft)}",
+    ".crbw-row:active{transform:scale(.99)}",
+    ".crbw-row .ric{width:40px;height:40px;border-radius:11px;background:var(--brand-soft);color:var(--mint-700);display:flex;align-items:center;justify-content:center}",
+    ".crbw-row .rt{display:flex;flex-direction:column;gap:1px;min-width:0}",
+    ".crbw-row .rl{font-size:15px;font-weight:800;color:var(--ink);line-height:1.2}",
+    ".crbw-row .rs{font-size:12px;font-weight:600;color:var(--muted);line-height:1.3}",
+    ".crbw-row .rc{margin-left:auto;color:var(--line-2);transition:color .14s,transform .14s}",
+    ".crbw-row:hover .rc{color:var(--mint-700);transform:translateX(2px)}",
+    // Time step
+    ".crbw-days{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;-webkit-overflow-scrolling:touch}",
+    ".crbw-day{flex:0 0 auto;min-width:78px;border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:9px 10px;text-align:center;transition:border-color .14s,background .14s}",
     ".crbw-day:hover{border-color:var(--line-2)}",
-    ".crbw-day.on{border-color:var(--mint);background:rgba(0,229,160,.10)}",
+    ".crbw-day.on{border-color:var(--mint);background:var(--brand-soft);box-shadow:0 0 0 3px var(--brand-soft)}",
     ".crbw-day .dw{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}",
-    ".crbw-day .dd{font-size:15px;font-weight:800;margin:2px 0 4px}",
+    ".crbw-day .dd{font-size:15px;font-weight:800;margin:2px 0 4px;color:var(--ink)}",
     ".crbw-day .dn{font-size:11px;font-weight:800;color:var(--good)}",
     ".crbw-day .dn.low{color:var(--warn)}",
-    ".crbw-slotgroup{margin-top:8px}",
-    ".crbw-slotlbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:10px 0 6px}",
+    ".crbw-timehd{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-2);margin:16px 0 9px}",
+    ".crbw-timehd svg{color:var(--mint-700)}",
     ".crbw-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}",
     "@media (max-width:520px){.crbw-slots{grid-template-columns:repeat(2,1fr)}}",
-    ".crbw-slot{min-height:44px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:13.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;justify-content:center;transition:border-color .14s,background .14s}",
-    ".crbw-slot:hover{border-color:var(--mint)}",
+    ".crbw-slot{min-height:46px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:14px;font-weight:700;color:var(--ink);display:flex;align-items:center;justify-content:center;transition:border-color .14s,background .14s,color .14s}",
+    ".crbw-slot:hover{border-color:var(--mint);background:var(--soft)}",
     ".crbw-slot.on{border-color:var(--mint);background:var(--mint);color:var(--navy)}",
-    ".crbw-f{margin-bottom:12px}",
-    ".crbw-f label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}",
+    ".crbw-showall{width:100%;margin-top:10px;padding:11px;border:1.5px dashed var(--line-2);border-radius:10px;font-size:13px;font-weight:700;color:var(--ink-2);background:#fff;transition:border-color .14s,color .14s}",
+    ".crbw-showall:hover{border-color:var(--mint);color:var(--mint-700)}",
+    // Forms
+    ".crbw-f{margin-bottom:13px}",
+    ".crbw-f label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:var(--ink)}",
     ".crbw-f label i{font-style:normal;font-weight:500;color:var(--muted)}",
-    ".crbw-f input{height:46px;padding:0 13px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:15px;outline:none;transition:border-color .14s,box-shadow .14s}",
-    ".crbw-f input:focus{border-color:var(--mint);box-shadow:0 0 0 3px rgba(0,229,160,.18)}",
+    ".crbw-f input{height:48px;padding:0 13px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:15px;outline:none;transition:border-color .14s,box-shadow .14s}",
+    ".crbw-f input::placeholder{color:var(--line-2)}",
+    ".crbw-f input:focus{border-color:var(--mint);box-shadow:0 0 0 3px var(--brand-soft)}",
     ".crbw-f input.bad{border-color:#d34b66;box-shadow:0 0 0 3px rgba(211,75,102,.16)}",
-    ".crbw-pill{display:inline-block;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:14px}",
-    ".crbw-btn{width:100%;min-height:50px;border-radius:12px;background:var(--mint);color:var(--navy);font-size:15.5px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .14s,transform .1s,opacity .14s}",
-    ".crbw-btn:hover{background:var(--mint-hi)}",
+    ".crbw-err{font-size:12px;font-weight:600;color:#c23a54;margin-top:5px}",
+    ".crbw-pill{display:inline-flex;align-items:center;gap:7px;background:var(--brand-soft);border:1px solid rgba(0,168,110,.25);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:800;color:var(--mint-700);margin-bottom:16px}",
+    ".crbw-pill svg{color:var(--mint-700)}",
+    ".crbw-btn{width:100%;min-height:52px;border-radius:12px;background:var(--mint);color:var(--navy);font-size:15.5px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .14s,transform .1s,opacity .14s}",
+    ".crbw-btn:hover{background:var(--mint-700)}",
     ".crbw-btn:active{transform:scale(.99)}",
     ".crbw-btn[disabled]{opacity:.5;cursor:default}",
-    ".crbw-note{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.5}",
-    ".crbw-trust{font-size:11.5px;color:var(--muted);text-align:center;margin-top:14px;font-weight:600}",
-    ".crbw-back{font-size:13px;font-weight:700;color:var(--ink-2);background:none;padding:6px 2px;margin-bottom:6px;display:inline-flex;align-items:center;gap:5px}",
+    ".crbw-ghost{width:100%;min-height:46px;border-radius:12px;background:none;color:var(--ink-2);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:9px;transition:color .14s}",
+    ".crbw-ghost:hover{color:var(--navy)}",
+    ".crbw-note{font-size:12px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.5}",
+    ".crbw-trust{display:flex;align-items:center;justify-content:center;gap:7px;font-size:11.5px;color:var(--ink-2);text-align:center;margin-top:16px;font-weight:600}",
+    ".crbw-trust svg{color:var(--mint-700)}",
+    ".crbw-back{font-size:13px;font-weight:700;color:var(--ink-2);background:none;padding:4px 2px 4px 0;margin-bottom:8px;display:inline-flex;align-items:center;gap:3px}",
     ".crbw-back:hover{color:var(--navy)}",
     ".crbw-warn{background:rgba(185,121,26,.10);border:1px solid rgba(185,121,26,.3);color:#8a5a13;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600;margin-bottom:12px;line-height:1.45}",
-    ".crbw-fallback{text-align:center;padding:20px 6px}",
-    ".crbw-fallback a{color:var(--navy);font-weight:800;font-size:19px;text-decoration:none}",
+    ".crbw-fallback{text-align:center;padding:14px 6px 6px}",
+    ".crbw-fallback a{color:var(--navy);font-weight:800;font-size:19px;text-decoration:none;display:inline-flex;align-items:center;gap:7px}",
+    ".crbw-fallback a svg{color:var(--mint-700)}",
     ".crbw-spin{width:17px;height:17px;border:2.5px solid rgba(10,22,40,.25);border-top-color:var(--navy);border-radius:50%;animation:crbwSpin .7s linear infinite;display:inline-block}",
     "@keyframes crbwSpin{to{transform:rotate(360deg)}}",
-    ".crbw-conf{text-align:center;padding:24px 16px 26px}",
-    ".crbw-check{width:58px;height:58px;border-radius:50%;background:rgba(0,229,160,.16);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:30px;color:var(--good)}",
-    ".crbw-conf h3{font-size:22px;font-weight:800;margin:0 0 5px}",
-    ".crbw-conf p{font-size:14px;color:var(--ink-2);margin:0 0 18px}",
-    ".crbw-expect{text-align:left;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:14px 15px;margin-top:16px}",
+    ".crbw-load{padding:40px 0;text-align:center;color:var(--muted);font-size:13px;font-weight:600}",
+    ".crbw-load .crbw-spin{width:22px;height:22px;border-top-color:var(--mint);border-color:var(--line);border-top-color:var(--mint);margin:0 auto 10px}",
+    // Booked / details
+    ".crbw-booked{display:flex;align-items:center;gap:11px;background:var(--brand-soft);border:1px solid rgba(0,168,110,.22);border-radius:12px;padding:13px 14px;margin-bottom:16px}",
+    ".crbw-booked .bc{width:38px;height:38px;border-radius:50%;background:var(--mint);color:var(--navy);display:flex;align-items:center;justify-content:center}",
+    ".crbw-booked .bt{font-size:14px;font-weight:800;color:var(--navy);line-height:1.25}",
+    ".crbw-booked .bs{font-size:12.5px;font-weight:600;color:var(--mint-700);line-height:1.3}",
+    ".crbw-why{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:2px 0 16px}",
+    ".crbw-why li{list-style:none;display:flex;gap:9px;font-size:13px;color:var(--ink-2);line-height:1.45;padding:3px 0}",
+    ".crbw-why li svg{color:var(--mint-700);margin-top:1px}",
+    ".crbw-conf{text-align:center;padding:26px 16px 24px}",
+    ".crbw-check{width:60px;height:60px;border-radius:50%;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:var(--mint-700)}",
+    ".crbw-conf h3{font-family:var(--font-disp);font-size:23px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}",
+    ".crbw-conf p{font-size:14.5px;color:var(--ink-2);margin:0 0 20px}",
+    ".crbw-expect{text-align:left;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:14px 15px;margin-top:18px}",
     ".crbw-expect li{list-style:none;display:flex;gap:9px;font-size:13.5px;color:var(--ink);line-height:1.5;padding:5px 0}",
-    ".crbw-expect li::before{content:'✓';color:var(--good);font-weight:800;flex:0 0 auto}",
-    ".crbw-load{padding:36px 0;text-align:center;color:var(--muted);font-size:13px;font-weight:600}",
+    ".crbw-expect li svg{color:var(--mint-700);margin-top:2px}",
     "@media (prefers-reduced-motion:reduce){.crbw *{transition:none!important;animation:none!important}}",
   ].join("");
 
@@ -113,7 +180,7 @@
     var api = (host.getAttribute("data-api") || location.origin).replace(/\/+$/, "");
     var session = (crypto.randomUUID ? crypto.randomUUID() : "s-" + Math.random().toString(36).slice(2));
     var utm = captureUtm();
-    var state = { step: 1, trade: null, traffic: null, sources: [], day: null, slot: null, days: null, booking: null, completed: false };
+    var state = { step: 1, trade: null, source: null, day: null, slot: null, phone: "", days: null, showAll: false, booking: null, completed: false };
 
     function track(event, step, meta) {
       try {
@@ -129,19 +196,21 @@
 
     function progress() {
       if (state.step > 4) return "";
-      return '<div class="crbw-prog"><div class="crbw-prog-row"><span>Step ' + state.step + ' of 4</span><span>' + TIME_LEFT[state.step - 1] + '</span></div>' +
+      return '<div class="crbw-prog"><div class="crbw-prog-row"><span>Step ' + state.step + ' of 4</span>' +
+        '<span class="t">' + ic("clock", 13, 2) + TIME_LEFT[state.step - 1] + '</span></div>' +
         '<div class="crbw-prog-bar"><i style="width:' + (state.step * 25) + '%"></i></div></div>';
     }
-    function focusHeading() { var h = root.querySelector(".crbw-h,.crbw-conf h3"); if (h) { h.setAttribute("tabindex", "-1"); try { h.focus({ preventScroll: false }); } catch (e) { h.focus(); } } }
-
+    function focusHeading() { var h = root.querySelector(".crbw-h,.crbw-conf h3,.crbw-booked .bt"); if (h) { h.setAttribute("tabindex", "-1"); try { h.focus({ preventScroll: true }); } catch (e) { try { h.focus(); } catch (_) {} } }
+    }
     function go(step) { state.step = step; render(); track("step_view", "step" + step); }
 
     function render() {
       var body;
       if (state.step === 1) body = viewTrade();
-      else if (state.step === 2) body = viewMarketing();
+      else if (state.step === 2) body = viewSource();
       else if (state.step === 3) body = viewTime();
       else if (state.step === 4) body = viewContact();
+      else if (state.step === 5) body = viewDetails();
       else body = viewConfirm();
       root.innerHTML = progress() + '<div class="crbw-body">' + body + "</div>";
       wire();
@@ -151,34 +220,34 @@
     // ---- Step 1: Trade ----
     function viewTrade() {
       return '<h2 class="crbw-h">What trade are you in?</h2>' +
-        '<p class="crbw-sub">We\'ll show your demo with real data from your industry.</p>' +
+        '<p class="crbw-sub">We\'ll build the demo around real numbers from your industry.</p>' +
         '<div class="crbw-grid">' + TRADES.map(function (t) {
-          return '<button class="crbw-card' + (state.trade === t.id ? " on" : "") + '" data-trade="' + t.id + '"><span class="ic" aria-hidden="true">' + t.icon + '</span>' + esc(t.label) + "</button>";
+          return '<button class="crbw-card' + (state.trade === t.id ? " on" : "") + '" data-trade="' + t.id + '"><span class="ic">' + ic(t.icon, 26) + "</span>" + esc(t.label) + "</button>";
         }).join("") + "</div>" +
-        '<div class="crbw-trust">15-minute demo · Consent-first, always · Flat $7/lead, no contracts</div>';
+        '<div class="crbw-trust">' + ic("shield", 14, 2) + "15-minute demo · Consent-first · Flat $7/lead, no contracts</div>";
     }
-    // ---- Step 2: Marketing ----
-    function viewMarketing() {
-      return '<button class="crbw-back" data-back="1">‹ Back</button>' +
-        '<div class="crbw-qh">Roughly how much website traffic do you get?</div>' +
-        '<div class="crbw-chips">' + TRAFFIC.map(function (t) {
-          return '<button class="crbw-chip' + (state.traffic === t ? " on" : "") + '" data-traffic="' + esc(t) + '">' + esc(t) + "</button>";
-        }).join("") + "</div>" +
-        '<div class="crbw-qh">How do you get leads today? <i style="font-weight:500;color:var(--muted)">(optional — tap all that apply)</i></div>' +
-        '<div class="crbw-qhh">Helps us compare your cost per lead to $7 flat.</div>' +
-        '<div class="crbw-chips">' + SOURCES.map(function (s) {
-          return '<button class="crbw-chip' + (state.sources.indexOf(s) >= 0 ? " on" : "") + '" data-src="' + esc(s) + '">' + esc(s) + "</button>";
-        }).join("") + "</div>" +
-        '<button class="crbw-btn" data-continue="2"' + (state.traffic ? "" : " disabled") + ">Continue</button>";
+
+    // ---- Step 2: Lead source (single tap → advance) ----
+    function viewSource() {
+      return '<button class="crbw-back" data-back="1">' + ic("left", 15, 2) + "Back</button>" +
+        '<h2 class="crbw-h">Where do most of your leads come from today?</h2>' +
+        '<p class="crbw-sub">So we can put your real cost per lead next to our flat $7 — live on the call.</p>' +
+        '<div class="crbw-list">' + SOURCES.map(function (s) {
+          return '<button class="crbw-row" data-src="' + esc(s.id) + '">' +
+            '<span class="ric">' + ic(s.icon, 21) + "</span>" +
+            '<span class="rt"><span class="rl">' + esc(s.label) + '</span><span class="rs">' + esc(s.sub) + "</span></span>" +
+            '<span class="rc">' + ic("chevron", 18, 2) + "</span></button>";
+        }).join("") + "</div>";
     }
+
     // ---- Step 3: Time ----
     function viewTime() {
       var inner;
-      if (state.days === null) inner = '<div class="crbw-load">Loading live openings…</div>';
-      else if (state.days === false) inner = '<div class="crbw-fallback"><div class="crbw-warn" style="text-align:left">Couldn\'t load times right now.</div><p style="font-size:13.5px;color:var(--ink-2);margin:0 0 8px">Call or text us and we\'ll grab a time by hand:</p><a href="tel:+17279999846">' + PHONE + "</a></div>";
-      else if (!state.days.length) inner = '<div class="crbw-fallback"><p style="font-size:13.5px;color:var(--ink-2);margin:0 0 8px">No open times in the next couple weeks — call or text and we\'ll fit you in:</p><a href="tel:+17279999846">' + PHONE + "</a></div>";
+      if (state.days === null) inner = '<div class="crbw-load"><span class="crbw-spin"></span>Finding live openings…</div>';
+      else if (state.days === false) inner = '<div class="crbw-fallback"><div class="crbw-warn" style="text-align:left">Couldn\'t load times right now.</div><p style="font-size:13.5px;color:var(--ink-2);margin:0 0 10px">Call or text us and we\'ll grab a time by hand:</p><a href="tel:+17279999846">' + ic("phone", 20, 2) + PHONE + "</a></div>";
+      else if (!state.days.length) inner = '<div class="crbw-fallback"><p style="font-size:13.5px;color:var(--ink-2);margin:0 0 10px">No open times in the next couple weeks — call or text and we\'ll fit you in:</p><a href="tel:+17279999846">' + ic("phone", 20, 2) + PHONE + "</a></div>";
       else {
-        var strip = state.days.slice(0, 5).map(function (d) {
+        var strip = state.days.slice(0, 4).map(function (d) {
           var low = d.slotCount <= 2;
           var parts = d.label.split(", ");
           var dw = parts[0] || d.label, dd = parts.slice(1).join(", ");
@@ -187,130 +256,173 @@
         var slotsHtml = "";
         if (state.day) {
           var day = state.days.filter(function (d) { return d.date === state.day; })[0];
-          if (day) {
-            var am = [], pm = [];
-            day.slots.forEach(function (s) { (/\bAM$/i.test(s.time) ? am : pm).push(s); });
-            var grp = function (label, arr) { return arr.length ? '<div class="crbw-slotgroup"><div class="crbw-slotlbl">' + label + '</div><div class="crbw-slots">' + arr.map(function (s) { return '<button class="crbw-slot' + (state.slot === s.iso ? " on" : "") + '" data-slot="' + esc(s.iso) + '">' + esc(s.time) + "</button>"; }).join("") + "</div></div>" : ""; };
-            slotsHtml = grp("Morning", am) + grp("Afternoon", pm);
+          if (day && day.slots.length) {
+            var all = day.slots;
+            var shown = state.showAll ? all : all.slice(0, SLOT_CAP);
+            slotsHtml = '<div class="crbw-timehd">' + ic("clock", 14, 2) + "Times · Central</div>" +
+              '<div class="crbw-slots">' + shown.map(function (s) {
+                return '<button class="crbw-slot' + (state.slot === s.iso ? " on" : "") + '" data-slot="' + esc(s.iso) + '">' + esc(s.time) + "</button>";
+              }).join("") + "</div>";
+            if (!state.showAll && all.length > SLOT_CAP) {
+              slotsHtml += '<button class="crbw-showall" data-showall="1">Show all ' + all.length + " times</button>";
+            }
           }
         }
-        inner = '<div class="crbw-days">' + strip + "</div>" + slotsHtml +
-          '<button class="crbw-btn" data-continue="3" style="margin-top:16px"' + (state.slot ? "" : " disabled") + ">Continue</button>";
+        inner = '<div class="crbw-days">' + strip + "</div>" + slotsHtml;
       }
-      return '<button class="crbw-back" data-back="2">‹ Back</button>' +
-        '<h2 class="crbw-h">Grab a demo time</h2>' +
-        '<p class="crbw-sub">15 minutes, screen share, Central time. Live openings below.</p>' + inner;
+      return '<button class="crbw-back" data-back="2">' + ic("left", 15, 2) + "Back</button>" +
+        '<h2 class="crbw-h">Pick a time that works</h2>' +
+        '<p class="crbw-sub">15 minutes, screen share. Tap a time and you\'re almost done.</p>' + inner;
     }
-    // ---- Step 4: Contact ----
+
+    // ---- Step 4: Email (mobile optional) ----
     function viewContact() {
-      var slotObj = null;
-      (state.days || []).forEach(function (d) { (d.slots || []).forEach(function (s) { if (s.iso === state.slot) slotObj = { day: d.label, time: s.time }; }); });
+      var slotObj = findSlot(state.slot);
       var tradeLabel = (TRADES.filter(function (t) { return t.id === state.trade; })[0] || {}).label || "Demo";
       var pill = slotObj ? esc(tradeLabel) + " demo — " + esc(slotObj.day) + " at " + esc(slotObj.time) : esc(tradeLabel) + " demo";
-      return '<button class="crbw-back" data-back="3">‹ Back</button>' +
-        '<h2 class="crbw-h">Last step — your details</h2>' +
-        '<div class="crbw-pill">' + pill + "</div>" +
-        '<div class="crbw-f"><label for="crbw-name">Name</label><input id="crbw-name" type="text" autocomplete="name" required></div>' +
-        '<div class="crbw-f"><label for="crbw-co">Company</label><input id="crbw-co" type="text" autocomplete="organization"></div>' +
-        '<div class="crbw-f"><label for="crbw-web">Website <i>(we\'ll pull up your site live in your demo)</i></label><input id="crbw-web" type="url" inputmode="url" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="torresroofing.com" required></div>' +
-        '<div class="crbw-f"><label for="crbw-phone">Mobile number <i>(we\'ll text your demo link and a reminder)</i></label><input id="crbw-phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(555) 123-4567" required></div>' +
-        '<div class="crbw-f"><label for="crbw-email">Email <i>(for the calendar invite)</i></label><input id="crbw-email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" required></div>' +
-        '<button class="crbw-btn" data-submit="1">Book my demo</button>' +
-        '<div class="crbw-note">No pressure, no contracts. Reschedule anytime by text.</div>';
+      return '<button class="crbw-back" data-back="3">' + ic("left", 15, 2) + "Back</button>" +
+        '<h2 class="crbw-h">Where should we send it?</h2>' +
+        '<div class="crbw-pill">' + ic("clock", 14, 2) + pill + "</div>" +
+        '<div class="crbw-f"><label for="crbw-email">Email <i>(for your calendar invite)</i></label><input id="crbw-email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="you@yourcompany.com" required></div>' +
+        '<div class="crbw-f"><label for="crbw-phone">Mobile <i>(optional — for a text reminder)</i></label><input id="crbw-phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(555) 123-4567"></div>' +
+        '<button class="crbw-btn" data-submit="1">Confirm my demo ' + ic("arrow", 18, 2.2) + "</button>" +
+        '<div class="crbw-note">No pressure, no contracts. Reschedule anytime.</div>';
     }
-    // ---- Confirmation ----
+
+    // ---- Step 5: Post-booking details (skippable) ----
+    function viewDetails() {
+      var slotObj = findSlot((state.booking && state.booking.startIso) || state.slot);
+      var when = slotObj ? slotObj.day + " at " + slotObj.time : "You're on the calendar";
+      var needPhone = !state.phone;
+      return '<div class="crbw-booked"><span class="bc">' + ic("check", 22, 2.4) + '</span><span><span class="bt">You\'re booked' + (slotObj ? "" : "!") + '</span><span class="bs">' + esc(when) + " · Central</span></span></div>" +
+        '<h2 class="crbw-h">Make your 15 minutes count</h2>' +
+        '<p class="crbw-sub">Add these now and we\'ll walk in ready — no warm-up, no wasted minutes.</p>' +
+        '<ul class="crbw-why">' +
+        "<li>" + ic("check", 15, 2.4) + "We pull up <b>your</b> website and Analytics before we dial — you see your own missed leads, not a canned demo</li>" +
+        "<li>" + ic("check", 15, 2.4) + "We pre-run your numbers so the call is answers, not data entry</li>" +
+        "</ul>" +
+        '<div class="crbw-f"><label for="crbw-name">Your name</label><input id="crbw-name" type="text" autocomplete="name" placeholder="Jordan Torres"></div>' +
+        '<div class="crbw-f"><label for="crbw-co">Company</label><input id="crbw-co" type="text" autocomplete="organization" placeholder="Torres Roofing"></div>' +
+        '<div class="crbw-f"><label for="crbw-web">Website <i>(so we can pull it up live)</i></label><input id="crbw-web" type="url" inputmode="url" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="torresroofing.com"></div>' +
+        (needPhone ? '<div class="crbw-f"><label for="crbw-phone2">Mobile <i>(optional — text reminder)</i></label><input id="crbw-phone2" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(555) 123-4567"></div>' : "") +
+        '<button class="crbw-btn" data-save="1">Save &amp; finish</button>' +
+        '<button class="crbw-ghost" data-skip="1">Skip — I\'ll bring it to the demo</button>';
+    }
+
+    // ---- Final confirmation ----
     function viewConfirm() {
       var b = state.booking || {};
-      var slotObj = null;
-      (state.days || []).forEach(function (d) { (d.slots || []).forEach(function (s) { if (s.iso === (b.startIso || state.slot)) slotObj = { day: d.label, time: s.time }; }); });
+      var slotObj = findSlot(b.startIso || state.slot);
       var line = slotObj ? slotObj.day + " at " + slotObj.time + " · Central" : "You're on the calendar.";
       return '<div class="crbw-conf" aria-live="polite">' +
-        '<div class="crbw-check" aria-hidden="true">✓</div>' +
-        "<h3>Demo booked</h3>" +
+        '<div class="crbw-check">' + ic("circleCheck", 34, 2) + "</div>" +
+        "<h3>You're all set" + "</h3>" +
         "<p>" + esc(line) + "</p>" +
-        (b.uid ? '<button class="crbw-btn" data-ics="' + esc(b.uid) + '">Add to my calendar</button>' : "") +
+        (b.uid ? '<button class="crbw-btn" data-ics="' + esc(b.uid) + '">' + ic("clock", 18, 2) + "Add to my calendar</button>" : "") +
         '<ul class="crbw-expect">' +
-        "<li>We'll review your website before the call and show your missed leads live</li>" +
-        "<li>Demo link by text in the next 2 minutes, reminder the morning of</li>" +
-        "<li>We'll compare what you pay per lead now to $7 flat, live on the call</li>" +
+        "<li>" + ic("check", 16, 2.2) + "Demo link by " + (state.phone ? "text" : "email") + " shortly, plus a reminder before we start</li>" +
+        "<li>" + ic("check", 16, 2.2) + "We'll open your Analytics and show your missed leads live</li>" +
+        "<li>" + ic("check", 16, 2.2) + "We compare what you pay per lead now to $7 flat — right on the call</li>" +
         "</ul></div>";
     }
 
+    function findSlot(iso) {
+      var out = null;
+      (state.days || []).forEach(function (d) { (d.slots || []).forEach(function (s) { if (s.iso === iso) out = { day: d.label, time: s.time }; }); });
+      return out;
+    }
+
     function loadSlots() {
-      state.days = null; render();
+      state.days = null; state.showAll = false; render();
       var today = new Date();
       var start = today.toISOString().slice(0, 10);
       var end = new Date(today.getTime() + 16 * 86400000).toISOString().slice(0, 10);
       fetch(api + "/api/booking/slots?start=" + start + "&end=" + end, { headers: { Accept: "application/json" } })
         .then(function (r) { return r.json(); })
-        .then(function (j) { state.days = (j && Array.isArray(j.days)) ? j.days : false; if (state.days && !state.days.length && j._configured === false) state.days = false; render(); })
+        .then(function (j) {
+          state.days = (j && Array.isArray(j.days)) ? j.days : false;
+          if (state.days && !state.days.length && j._configured === false) state.days = false;
+          if (state.days && state.days.length && !state.day) state.day = state.days[0].date; // preselect first open day
+          render();
+        })
         .catch(function () { state.days = false; render(); });
     }
 
     function submit(btn) {
-      var name = root.querySelector("#crbw-name"), web = root.querySelector("#crbw-web"), phone = root.querySelector("#crbw-phone"), email = root.querySelector("#crbw-email"), co = root.querySelector("#crbw-co");
+      var email = root.querySelector("#crbw-email"), phone = root.querySelector("#crbw-phone");
+      [email, phone].forEach(function (i) { i.classList.remove("bad"); });
+      root.querySelectorAll(".crbw-err").forEach(function (e) { e.remove(); });
       var bad = false;
-      [name, web, phone, email].forEach(function (i) { i.classList.remove("bad"); });
-      if (!name.value.trim()) { name.classList.add("bad"); bad = true; }
-      if (!web.value.trim()) { web.classList.add("bad"); bad = true; }
-      if (phone.value.replace(/\D/g, "").length < 10) { phone.classList.add("bad"); bad = true; }
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim())) { email.classList.add("bad"); bad = true; }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim())) { email.classList.add("bad"); email.parentNode.appendChild(el('<div class="crbw-err">Enter a valid email so we can send your invite.</div>')); bad = true; }
+      if (phone.value.trim() && phone.value.replace(/\D/g, "").length < 10) { phone.classList.add("bad"); phone.parentNode.appendChild(el('<div class="crbw-err">That mobile number looks short — or leave it blank.</div>')); bad = true; }
       if (bad) { var f = root.querySelector(".crbw-f input.bad"); if (f) f.focus(); return; }
 
-      btn.disabled = true; btn.innerHTML = '<span class="crbw-spin" aria-hidden="true"></span> Booking…';
+      state.phone = phone.value.trim();
+      btn.disabled = true; btn.innerHTML = '<span class="crbw-spin" aria-hidden="true"></span> Confirming…';
       track("booking_submitted", "step4");
       fetch(api + "/api/booking/create", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          startIso: state.slot, name: name.value.trim(), company: co.value.trim(), website: web.value.trim(),
-          phone: phone.value.trim(), email: email.value.trim(), trade: state.trade, traffic: state.traffic,
-          leadSources: state.sources, utm: utm, sessionId: session,
+          startIso: state.slot, email: email.value.trim(), phone: state.phone,
+          trade: state.trade, leadSources: state.source ? [state.source] : [],
+          utm: utm, sessionId: session,
         }),
       }).then(function (r) { return r.json(); }).then(function (j) {
         if (j && j.ok) {
-          state.booking = j.booking || {}; state.completed = true; state.step = 5;
+          state.booking = j.booking || {}; state.completed = true;
           track("booking_confirmed", "confirm", { uid: state.booking.uid });
-          render();
+          go(5); // post-booking details
         } else if (j && j.reason === "slot_taken") {
           track("booking_failed", "step4", { reason: "slot_taken" });
           state.slot = null; state.step = 3; render();
-          var w = el('<div class="crbw-warn">That time was just grabbed by someone else — pick another below.</div>');
-          var b = root.querySelector(".crbw-body"); if (b) b.insertBefore(w, b.querySelector(".crbw-days") || b.firstChild);
+          var b = root.querySelector(".crbw-body");
+          if (b) b.insertBefore(el('<div class="crbw-warn">That time was just grabbed by someone else — pick another below.</div>'), b.querySelector(".crbw-days") || b.firstChild);
           loadSlots();
         } else {
           track("booking_failed", "step4", { reason: (j && j.reason) || "error" });
-          btn.disabled = false; btn.textContent = "Book my demo";
+          btn.disabled = false; btn.innerHTML = "Confirm my demo " + ic("arrow", 18, 2.2);
           var b2 = root.querySelector(".crbw-body");
           if (b2 && !b2.querySelector(".crbw-warn")) b2.insertBefore(el('<div class="crbw-warn">Something went wrong booking that. Try again, or call ' + PHONE + ".</div>"), b2.querySelector(".crbw-pill"));
         }
       }).catch(function () {
         track("booking_failed", "step4", { reason: "network" });
-        btn.disabled = false; btn.textContent = "Book my demo";
+        btn.disabled = false; btn.innerHTML = "Confirm my demo " + ic("arrow", 18, 2.2);
       });
     }
+
+    function saveDetails(btn) {
+      var name = val("#crbw-name"), co = val("#crbw-co"), web = val("#crbw-web"), ph = val("#crbw-phone2");
+      var uidv = state.booking && state.booking.uid;
+      if (!uidv) { go(6); return; }
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="crbw-spin" aria-hidden="true"></span> Saving…'; }
+      track("details_saved", "step5", { has_web: !!web, has_name: !!name });
+      fetch(api + "/api/booking/update", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid: uidv, name: name, company: co, website: web, phone: ph, sessionId: session }),
+      }).then(function () {}).catch(function () {}).then(function () {
+        if (ph && !state.phone) state.phone = ph;
+        go(6);
+      });
+    }
+    function val(sel) { var e = root.querySelector(sel); return e ? e.value.trim() : ""; }
 
     function wire() {
       root.querySelectorAll("[data-trade]").forEach(function (b) { b.onclick = function () { state.trade = b.getAttribute("data-trade"); track("step_complete", "step1", { trade: state.trade }); go(2); }; });
       root.querySelectorAll("[data-back]").forEach(function (b) { b.onclick = function () { go(+b.getAttribute("data-back")); }; });
-      root.querySelectorAll("[data-traffic]").forEach(function (b) { b.onclick = function () { state.traffic = b.getAttribute("data-traffic"); render(); }; });
-      root.querySelectorAll("[data-src]").forEach(function (b) { b.onclick = function () { var s = b.getAttribute("data-src"); var i = state.sources.indexOf(s); if (i >= 0) state.sources.splice(i, 1); else state.sources.push(s); b.classList.toggle("on"); }; });
-      root.querySelectorAll("[data-day]").forEach(function (b) { b.onclick = function () { state.day = b.getAttribute("data-day"); state.slot = null; render(); }; });
-      root.querySelectorAll("[data-slot]").forEach(function (b) { b.onclick = function () { state.slot = b.getAttribute("data-slot"); track("slot_selected", "step3"); render(); }; });
-      var cont = root.querySelector("[data-continue]");
-      if (cont) cont.onclick = function () {
-        var from = +cont.getAttribute("data-continue");
-        if (from === 2) { if (!state.traffic) return; track("step_complete", "step2", { traffic: state.traffic, sources: state.sources.length }); go(3); loadSlots(); }
-        else if (from === 3) { if (!state.slot) return; track("step_complete", "step3"); go(4); }
-      };
-      var pIn = root.querySelector("#crbw-phone");
-      if (pIn) pIn.oninput = function () { pIn.value = fmtPhone(pIn.value); };
-      var sub = root.querySelector("[data-submit]");
-      if (sub) sub.onclick = function () { submit(sub); };
-      var ics = root.querySelector("[data-ics]");
-      if (ics) ics.onclick = function () { window.location.href = api + "/api/booking/ics?uid=" + encodeURIComponent(ics.getAttribute("data-ics")); };
+      root.querySelectorAll("[data-src]").forEach(function (b) { b.onclick = function () { state.source = b.getAttribute("data-src"); track("step_complete", "step2", { source: state.source }); go(3); loadSlots(); }; });
+      root.querySelectorAll("[data-day]").forEach(function (b) { b.onclick = function () { state.day = b.getAttribute("data-day"); state.slot = null; state.showAll = false; render(); }; });
+      root.querySelectorAll("[data-slot]").forEach(function (b) { b.onclick = function () { state.slot = b.getAttribute("data-slot"); track("slot_selected", "step3"); track("step_complete", "step3"); go(4); }; });
+      var showall = root.querySelector("[data-showall]");
+      if (showall) showall.onclick = function () { state.showAll = true; render(); };
+      var pIn = root.querySelector("#crbw-phone"); if (pIn) pIn.oninput = function () { pIn.value = fmtPhone(pIn.value); };
+      var pIn2 = root.querySelector("#crbw-phone2"); if (pIn2) pIn2.oninput = function () { pIn2.value = fmtPhone(pIn2.value); };
+      var sub = root.querySelector("[data-submit]"); if (sub) sub.onclick = function () { submit(sub); };
+      var save = root.querySelector("[data-save]"); if (save) save.onclick = function () { saveDetails(save); };
+      var skip = root.querySelector("[data-skip]"); if (skip) skip.onclick = function () { track("details_skipped", "step5"); go(6); };
+      var ics = root.querySelector("[data-ics]"); if (ics) ics.onclick = function () { window.location.href = api + "/api/booking/ics?uid=" + encodeURIComponent(ics.getAttribute("data-ics")); };
     }
 
-    // Abandon beacon — fire once if they leave before confirming.
+    // Abandon beacon — fire once if they leave before the slot is held (steps 1-4 only).
     var beaconed = false;
     function abandon() { if (beaconed || state.completed) return; beaconed = true; track("abandoned", "step" + state.step); }
     window.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") abandon(); });

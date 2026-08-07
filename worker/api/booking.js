@@ -66,6 +66,12 @@ export function normPhoneE164(p) {
 }
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : "id-" + Math.random().toString(36).slice(2));
 const clean = (s) => String(s == null ? "" : s).trim();
+// Placeholder attendee name from the email local-part (Title Case) until they give us a real one.
+function guestName(email) {
+  const lp = clean(email).split("@")[0].replace(/[._-]+/g, " ").trim();
+  if (!lp) return "Demo guest";
+  return lp.replace(/\b\w/g, (c) => c.toUpperCase()).slice(0, 60);
+}
 
 // ---- time formatting (America/Chicago) ------------------------------------
 function fmtTime(iso) {
@@ -188,13 +194,18 @@ export async function onRequestPost({ request, env }) {
     let b = {};
     try { b = await request.json(); } catch (_) { return json({ ok: false, reason: "bad_json" }, { status: 400 }, cors); }
 
-    const name = clean(b.name), email = clean(b.email);
+    // Commitment funnel asks only for email + a time. Name/company/website/phone are collected on
+    // the post-booking (skippable) screen and patched in via /api/booking/update — so the only hard
+    // requirements to hold the slot are a valid email and the chosen start time.
+    const email = clean(b.email);
     const website = normWebsite(b.website), phone = normPhoneE164(b.phone);
     const startIso = clean(b.startIso);
-    if (!name || !website || !phone || !email || !startIso) {
+    if (!email || !startIso) {
       return json({ ok: false, reason: "missing_fields" }, { status: 400 }, cors);
     }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ ok: false, reason: "bad_email" }, { status: 400 }, cors);
+    // Cal.com requires an attendee name; fall back to the email's local-part until they tell us.
+    const name = clean(b.name) || guestName(email);
 
     await ensureBookingSchema(env);
     if (await tooManyRecent(env, request)) return json({ ok: false, reason: "rate_limited" }, { status: 429 }, cors);
@@ -211,10 +222,12 @@ export async function onRequestPost({ request, env }) {
       website, company,
       utm_source: clean(utm.utm_source || utm.source), utm_medium: clean(utm.utm_medium || utm.medium), utm_campaign: clean(utm.utm_campaign || utm.campaign),
     };
+    const attendee = { name, email, timeZone: TZ, language: "en" };
+    if (phone) attendee.phoneNumber = phone;
     const payload = {
       eventTypeId: Number(env.CALCOM_EVENT_TYPE_ID),
       start: startIso,
-      attendee: { name, email, phoneNumber: phone, timeZone: TZ, language: "en" },
+      attendee: attendee,
       metadata: meta,
     };
 
@@ -241,6 +254,30 @@ export async function onRequestPost({ request, env }) {
     } catch (_) {}
 
     return json({ ok: true, booking: { uid: bUid, startIso } }, {}, cors);
+  }
+
+  // ---- /api/booking/update — post-booking detail capture (name/company/website/phone) ----
+  // The slot is already held; this only enriches the record, so a failure never costs a booking.
+  if (path === "/api/booking/update") {
+    let b = {};
+    try { b = await request.json(); } catch (_) { return json({ ok: false, reason: "bad_json" }, { status: 400 }, cors); }
+    const bUid = clean(b.uid);
+    if (!bUid) return json({ ok: false, reason: "missing_uid" }, { status: 400 }, cors);
+    const name = clean(b.name), company = clean(b.company);
+    const website = normWebsite(b.website), phone = normPhoneE164(b.phone);
+    try {
+      await ensureBookingSchema(env);
+      // Only overwrite columns the user actually filled in (COALESCE(NULLIF(...))).
+      await env.DB.prepare(
+        `UPDATE bookings SET
+           name    = COALESCE(NULLIF(?,''), name),
+           company = COALESCE(NULLIF(?,''), company),
+           website = COALESCE(NULLIF(?,''), website),
+           phone   = COALESCE(NULLIF(?,''), phone)
+         WHERE uid = ?`
+      ).bind(name, company, website || "", phone || "", bUid).run();
+    } catch (_) {}
+    return json({ ok: true }, {}, cors);
   }
 
   return json({ ok: false }, { status: 404 }, cors);

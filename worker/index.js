@@ -222,6 +222,7 @@ const ROUTES = {
   "/api/meta-capi": metaCapi,
   "/api/booking/slots": booking,
   "/api/booking/create": booking,
+  "/api/booking/update": booking,
   "/api/booking/event": booking,
   "/api/booking/ics": booking,
   "/api/crm/deals": crmDeals,
