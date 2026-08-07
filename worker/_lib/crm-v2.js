@@ -204,9 +204,13 @@ export async function completeTask(env, { id, status = "done", outcome, actorId 
   return { ok: true };
 }
 
-// Find or create a company. Prefer domain match (non-free-email); else fall back to a
-// name-keyed company with NULL domain (the common free-email path for this ICP, spec §4).
-export async function findOrCreateCompany(env, { name, domain }) {
+// Find or create a company from a real BUSINESS DOMAIN. A company is a business, and the only
+// thing that reliably identifies one is its domain — so if all we have is a personal email or a
+// bare phone number (no domain), there is NO company and this returns null. The contact simply
+// has no company_id. Name-keyed grouping (a NULL-domain company keyed by a typed business name)
+// is OPT-IN via allowNameOnly, and only the callers that genuinely know a business by name use it
+// (prospecting a listing with no website, legacy import, a human typing the company on a record).
+export async function findOrCreateCompany(env, { name, domain, allowNameOnly = false }) {
   const dom = (domain || "").toLowerCase().trim();
   if (dom && !FREE_EMAIL_DOMAINS.has(dom)) {
     const ex = await env.DB.prepare("SELECT id FROM companies WHERE lower(domain)=?").bind(dom).first();
@@ -215,16 +219,15 @@ export async function findOrCreateCompany(env, { name, domain }) {
     await env.DB.prepare("INSERT INTO companies (id, name, domain) VALUES (?, ?, ?)").bind(id, name || dom, dom).run();
     return id;
   }
-  if (name) {
-    const ex = await env.DB.prepare("SELECT id FROM companies WHERE domain IS NULL AND lower(name)=lower(?)").bind(name).first();
+  const nm = String(name || "").trim();
+  if (allowNameOnly && nm) {
+    const ex = await env.DB.prepare("SELECT id FROM companies WHERE domain IS NULL AND lower(name)=lower(?)").bind(nm).first();
     if (ex) return ex.id;
     const id = ulid();
-    await env.DB.prepare("INSERT INTO companies (id, name) VALUES (?, ?)").bind(id, name).run();
+    await env.DB.prepare("INSERT INTO companies (id, name) VALUES (?, ?)").bind(id, nm).run();
     return id;
   }
-  const id = ulid();
-  await env.DB.prepare("INSERT INTO companies (id, name) VALUES (?, ?)").bind(id, "(unknown)").run();
-  return id;
+  return null;   // no business domain, not an explicit business name → no company
 }
 
 // Identity v0 (P1-6): match an email to a contact via contact_identifiers, else create

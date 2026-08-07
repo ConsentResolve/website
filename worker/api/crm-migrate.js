@@ -59,7 +59,7 @@ async function run({ request, env }) {
     if (exists) { skipped++; continue; }
     if (dry) { migrated++; if (samples.length < 8) samples.push(email); continue; }
 
-    const companyId = await findOrCreateCompany(env, { name: l.company, domain: l.domain || emailDomain(email) });
+    const companyId = await findOrCreateCompany(env, { name: l.company, domain: l.domain || emailDomain(email), allowNameOnly: true });
     const contactId = ulid();
     await env.DB.prepare(
       `INSERT INTO contacts (id, company_id, full_name, primary_email, phone, source, is_provisional)

@@ -91,7 +91,7 @@ async function run({ request, env }) {
       contactId = existing.contact_id;
       companyId = (await env.DB.prepare("SELECT company_id FROM contacts WHERE id=?").bind(contactId).first())?.company_id || null;
     } else {
-      companyId = await findOrCreateCompany(env, { name: l.company, domain: l.domain || emailDomain(email) });
+      companyId = await findOrCreateCompany(env, { name: l.company, domain: l.domain || emailDomain(email), allowNameOnly: true });
       contactId = "mig-ct-" + l.id;
       await env.DB.prepare(
         `INSERT OR IGNORE INTO contacts (id, company_id, full_name, primary_email, phone, source, is_provisional) VALUES (?,?,?,?,?,?,0)`

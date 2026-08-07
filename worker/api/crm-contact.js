@@ -106,7 +106,7 @@ export async function onRequestPost({ request, env }) {
 
   const sets = [], vals = [];
   if (b.company_name !== undefined) {
-    const companyId = await findOrCreateCompany(env, { name: String(b.company_name || "").trim() });
+    const companyId = await findOrCreateCompany(env, { name: String(b.company_name || "").trim(), allowNameOnly: true });
     sets.push("company_id=?"); vals.push(companyId);
     // keep any conversations' denormalized company_id in sync
     await env.DB.prepare("UPDATE conversations SET company_id=? WHERE contact_id=?").bind(companyId, b.id).run();

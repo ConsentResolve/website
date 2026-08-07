@@ -38,7 +38,7 @@ async function queueWhale(env, prospectId, actorId) {
   const p = await env.DB.prepare("SELECT * FROM prospects WHERE id=?").bind(prospectId).first().catch(() => null);
   if (!p) return { kind: "failed", error: "not_found", meta: null, conversation_id: null };
   const sig = safeJson(p.signals, {});
-  const companyId = await findOrCreateCompany(env, { name: p.name || p.domain, domain: p.domain || null }).catch(() => null);
+  const companyId = await findOrCreateCompany(env, { name: p.name || p.domain, domain: p.domain || null, allowNameOnly: true }).catch(() => null);
   if (companyId) {
     const cur = await env.DB.prepare("SELECT enrichment FROM companies WHERE id=?").bind(companyId).first().catch(() => null);
     let e = {}; try { e = cur && cur.enrichment ? JSON.parse(cur.enrichment) : {}; } catch (_) {}
@@ -404,7 +404,7 @@ async function promoteCore(env, prospectId, actorId) {
   }
 
   const sig = safeJson(p.signals, {});
-  const companyId = await findOrCreateCompany(env, { name: p.name || p.domain, domain: p.domain || null }).catch(() => null);
+  const companyId = await findOrCreateCompany(env, { name: p.name || p.domain, domain: p.domain || null, allowNameOnly: true }).catch(() => null);
   // Cache the enrichment on the company in the SAME shape the Intel panel reads,
   // so promoting a prospect pre-fills the lookup screen (no re-spend needed).
   if (companyId) {
