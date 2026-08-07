@@ -4743,6 +4743,17 @@ const OPS_CSS = `
 .ops-empty{padding:36px;text-align:center;color:var(--tx-3);font-size:13px}
 .ops-toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--surface-3);color:var(--tx-1);border:1px solid var(--line-2);border-radius:var(--r-2);padding:10px 16px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:9999;opacity:0;transition:opacity .2s,transform .2s}
 .ops-toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.opsactcell{display:flex;gap:5px;flex-wrap:wrap}
+.opsactbtn{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:800;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r-1);padding:3px 8px;cursor:pointer;white-space:nowrap}
+.opsactbtn:hover{border-color:var(--accent);color:var(--tx-1)}
+.opsactbtn.mtg{color:var(--accent-hi);background:var(--accent-soft);border-color:transparent}
+.opsactbtn.mtg:hover{border-color:var(--accent)}
+.ops-pop{position:fixed;z-index:10000;background:var(--surface-1);border:1px solid var(--line-2);border-radius:var(--r-2);box-shadow:0 14px 38px rgba(0,0,0,.42);padding:12px 14px;min-width:210px}
+.opspop-h{font-size:12px;font-weight:800;color:var(--tx-1);margin-bottom:4px}
+.opspop-when{font-size:12.5px;color:var(--accent-hi);font-weight:700;margin-bottom:10px}
+.opspop-acts{display:flex;flex-direction:column;gap:6px}
+.opspop-btn{display:block;text-align:center;font-size:12px;font-weight:700;color:var(--tx-1);background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r-1);padding:7px;cursor:pointer;text-decoration:none}
+.opspop-btn:hover{border-color:var(--accent);color:var(--accent-hi)}
 `;
 function opsCss(){ if(document.getElementById('ops-css'))return; const s=document.createElement('style'); s.id='ops-css'; s.textContent=OPS_CSS; document.head.appendChild(s); }
 const OPS_COMM={ replying:{lbl:'Actively replying',live:true}, open:{lbl:'Open'}, auto:{lbl:'Auto'}, booked:{lbl:'Booked'}, snoozed:{lbl:'Snoozed'}, won:{lbl:'Won'}, closed:{lbl:'Closed'} };
@@ -4805,7 +4816,10 @@ function opsRow(d){
   const intel=`<div class="opsintel"><span class="opsfit ${fit}">${d.tier||'no intel'}</span>${big?`<span class="big">${big.v}<em> ${big.u}</em></span>`:''}</div>`;
   const stale=d._comm==='open'&&d._a.h!=null&&d._a.h>24;
   const last=`<div class="opslast"><div class="lt">${esc(d.last_label||'—')}</div><div class="ag ${stale?'stale':''}">${d._a.t} ago${d._att?`<span class="opswhy ${d._att.lvl}">${esc(d._att.t)}</span>`:''}</div>${d._kud?`<span class="opskud">★ ${esc(d._kud)}</span>`:''}</div>`;
-  const mtg=d.meeting?`<span class="opsmtg">▦ ${esc(d.meeting.label)}</span>`:`<span class="opsmtg-none">—</span>`;
+  const actBtns=[];
+  if(d.conv_id) actBtns.push(`<button class="opsactbtn" data-conv="${esc(d.conv_id)}" title="Open the conversation">💬 Chat</button>`);
+  if(d.meeting) actBtns.push(`<button class="opsactbtn mtg" data-mtg="${esc(d.meeting.uid||'')}" data-when="${esc(d.meeting.label)}" data-conv2="${esc(d.conv_id||'')}" title="Meeting details">📅 Meeting</button>`);
+  const mtg=actBtns.length?`<div class="opsactcell">${actBtns.join('')}</div>`:`<span class="opsmtg-none">—</span>`;
   const acts=`<div class="opsacts">${(d.owner&&d._att)?`<button class="help" data-act="nudge" data-id="${d.id}">⚑ Nudge</button>`:''}${d._kud?`<button class="kud" data-act="kudos" data-id="${d.id}">★ Kudos</button>`:''}<button data-act="open" data-id="${d.id}">Open →</button></div>`;
   return `<div class="ops-row ${cls}" data-open="${d.id}">
     <div class="stp"><i></i></div>
@@ -4839,6 +4853,19 @@ function opsRepGroups(R){
 function opsSort(rows,st){ if(!st.sort)return rows; const g={company:d=>(d.company||d.name||'').toLowerCase(),owner:d=>d.owner?d.owner.name:'zz',comm:d=>d._comm,prob:d=>d.prob||0,value:d=>d.value_usd||0,intel:d=>d.est_spend||(d.intel&&d.intel.visits)||d.score||0,age:d=>d._a.h||0}; const f=g[st.sort]; if(!f)return rows; return [...rows].sort((a,b)=>{const x=f(a),y=f(b);return (x>y?1:x<y?-1:0)*st.dir;}); }
 
 function opsToast(msg){ let t=document.getElementById('ops-toast'); if(!t){ t=document.createElement('div'); t.id='ops-toast'; t.className='ops-toast'; document.body.appendChild(t);} t.textContent=msg; t.classList.add('show'); clearTimeout(t._to); t._to=setTimeout(()=>t.classList.remove('show'),2200); }
+function opsMeetingPopover(btn){
+  document.querySelectorAll('.ops-pop').forEach(x=>x.remove());
+  const uid=btn.getAttribute('data-mtg'), when=btn.getAttribute('data-when'), conv=btn.getAttribute('data-conv2');
+  const pop=document.createElement('div'); pop.className='ops-pop';
+  pop.innerHTML=`<div class="opspop-h">📅 Demo meeting</div><div class="opspop-when">${esc(when)} · Central</div><div class="opspop-acts">${uid?`<a href="/api/booking/ics?uid=${encodeURIComponent(uid)}" class="opspop-btn">Add to calendar (.ics)</a>`:''}${conv?`<button class="opspop-btn" data-conv="${esc(conv)}">Open conversation</button>`:''}${(!uid&&!conv)?'<div style="font-size:12px;color:var(--tx-3)">No extra details on file.</div>':''}</div>`;
+  document.body.appendChild(pop);
+  const r=btn.getBoundingClientRect();
+  const top=Math.min(window.innerHeight-pop.offsetHeight-10, r.bottom+6);
+  const left=Math.max(10, Math.min(window.innerWidth-pop.offsetWidth-10, r.left));
+  pop.style.top=top+'px'; pop.style.left=left+'px';
+  pop.addEventListener('click',ev=>{ const c=ev.target.closest('[data-conv]'); if(c){ pop.remove(); showView('inbox'); if(window.select) select(c.getAttribute('data-conv')); } });
+  setTimeout(()=>{ document.addEventListener('click',function h(ev){ if(!pop.contains(ev.target)){ pop.remove(); document.removeEventListener('click',h,true);} }, true); },0);
+}
 
 function renderPipelineReal(el,P){
   opsCss();
@@ -4871,7 +4898,7 @@ function renderPipelineReal(el,P){
         <span class="sortable" data-os="value">Value</span>
         <span class="sortable" data-os="intel">Intel</span>
         <span class="sortable" data-os="age">Last activity</span>
-        <span>Meeting</span>
+        <span>Activity</span>
       </div>
       <div>${body}</div>
     </div></div>
@@ -4882,6 +4909,8 @@ function renderPipelineReal(el,P){
       const ov=e.target.closest('[data-ov]'); if(ov){ window._ops.view=ov.dataset.ov; renderPipeline(); return; }
       const of=e.target.closest('[data-of]'); if(of){ window._ops.filter=of.dataset.of; renderPipeline(); return; }
       const os=e.target.closest('[data-os]'); if(os){ const k=os.dataset.os; window._ops.dir=window._ops.sort===k?-window._ops.dir:1; window._ops.sort=k; renderPipeline(); return; }
+      const conv=e.target.closest('[data-conv]'); if(conv){ e.stopPropagation(); const cid=conv.getAttribute('data-conv'); showView('inbox'); if(window.select) select(cid); return; }
+      const mtg=e.target.closest('[data-mtg]'); if(mtg){ e.stopPropagation(); opsMeetingPopover(mtg); return; }
       const act=e.target.closest('[data-act]');
       if(act){ e.stopPropagation(); const id=act.dataset.id;
         if(act.dataset.act==='open'){ openDealDetail(id); }

@@ -479,13 +479,15 @@ export async function onRequestGet({ request, env }) {
     // so a deal with no conversation still shows.
     const rows = (await env.DB.prepare(
       `SELECT d.id, d.title, d.value_cents, d.close_probability, d.lead_status, d.owner_id, d.disqualify_reason,
+              d.origin_conversation_id AS conv_id,
               ct.full_name, ct.primary_email, ct.lead_score, ct.tier, ct.lifecycle_stage,
               co.name AS company, co.domain AS domain, co.enrichment AS enrichment, u.name AS owner_name,
               cv.status AS conv_status, cv.snooze_until, cv.assignee_id,
               cv.last_message_at, cv.last_message_preview, au.name AS assignee_name,
               (SELECT m.direction FROM messages m WHERE m.conversation_id = cv.id ORDER BY COALESCE(m.sent_at, m.created_at) DESC LIMIT 1) AS last_dir,
               (SELECT 1 FROM workflow_runs wr WHERE wr.status='active' AND (wr.conversation_id = cv.id OR wr.deal_id = d.id OR wr.contact_id = d.primary_contact_id) LIMIT 1) AS wf_active,
-              (SELECT MIN(bk.start_iso) FROM bookings bk WHERE bk.email = ct.primary_email AND substr(bk.start_iso,1,10) >= date('now')) AS meeting_iso
+              (SELECT bk.start_iso FROM bookings bk WHERE bk.email = ct.primary_email AND substr(bk.start_iso,1,10) >= date('now') ORDER BY bk.start_iso ASC LIMIT 1) AS meeting_iso,
+              (SELECT bk.uid FROM bookings bk WHERE bk.email = ct.primary_email AND substr(bk.start_iso,1,10) >= date('now') ORDER BY bk.start_iso ASC LIMIT 1) AS meeting_uid
        FROM deals d
        LEFT JOIN contacts ct ON ct.id = d.primary_contact_id
        LEFT JOIN companies co ON co.id = d.company_id
@@ -556,7 +558,8 @@ export async function onRequestGet({ request, env }) {
         age_min: ageMin,
         last_ts: lastTs,
         last_label: r.last_message_preview || null,
-        meeting: r.meeting_iso ? { iso: r.meeting_iso, label: humanTime(r.meeting_iso) } : null,
+        meeting: r.meeting_iso ? { iso: r.meeting_iso, label: humanTime(r.meeting_iso), uid: r.meeting_uid || null } : null,
+        conv_id: r.conv_id || null,
         assignee: r.assignee_name || null,
         disqualify_reason: r.disqualify_reason || null,
         owner_id: r.owner_id || null,
