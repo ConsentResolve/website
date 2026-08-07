@@ -104,6 +104,8 @@ export async function onRequestGet({ request, env }) {
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
   if (!(await isAdmin(request, env))) return json({ error: "forbidden" }, { status: 403 }, cors);
   if (!env.RETELL_API_KEY) return json({ error: "no_retell_key" }, { status: 503 }, cors);
+  // Browser-friendly apply: /api/crm/mack?apply=1 does the same as POST {apply:true}.
+  if (new URL(request.url).searchParams.get("apply") === "1") return json(await applyMack(env), {}, cors);
   const r = await resolveAgent(env);
   const agent = r.agent || {};
   // Surface anything that looks form/collection related so we can see what to turn off.
@@ -126,9 +128,12 @@ export async function onRequestPost({ request, env }) {
   if (!env.RETELL_API_KEY) return json({ error: "no_retell_key" }, { status: 503 }, cors);
   let b = {}; try { b = await request.json(); } catch (_) {}
   if (!b.apply) return json({ error: "pass {apply:true} to apply" }, { status: 400 }, cors);
+  return json(await applyMack(env), {}, cors);
+}
 
+async function applyMack(env) {
   const r = await resolveAgent(env);
-  if (!r.llmId) return json({ ok: false, error: "no_llm_id", agent_found: r.ok, agent_keys: Object.keys(r.agent || {}) }, {}, cors);
+  if (!r.llmId) return { ok: false, error: "no_llm_id", agent_found: r.ok, agent_keys: Object.keys(r.agent || {}) };
 
   // Back up the current prompt + tools so this is reversible.
   await ensureBackupTable(env);
@@ -158,12 +163,12 @@ export async function onRequestPost({ request, env }) {
     formUpd = { patched: patch, ok: f.ok, status: f.status };
   }
 
-  return json({
+  return {
     ok: !!llmUpd.ok,
-    llm_update: { ok: llmUpd.ok, status: llmUpd.status },
+    llm_update: { ok: llmUpd.ok, status: llmUpd.status, error: llmUpd.ok ? null : llmUpd.json },
     tools_set: tools.map((t) => t.name),
     form: formUpd,
     backed_up: true,
     note: "Prompt + booking tools applied. Test a chat on the live site. To revert, the prior prompt is in the mack_backup table.",
-  }, {}, cors);
+  };
 }
