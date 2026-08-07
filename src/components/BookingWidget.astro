@@ -1,0 +1,19 @@
+---
+// Consent Resolve — native demo-booking widget. Drops the mount point + loader; all Cal.com
+// calls go through the Worker (/api/booking/*), so the API key never reaches the browser.
+// Reuse anywhere: <BookingWidget /> in an Astro page, or copy the two lines below onto any
+// landing page (the script auto-mounts every [data-cr-booking] on the page).
+interface Props { api?: string; class?: string }
+const { api = "https://consentresolve.com", class: klass = "" } = Astro.props;
+---
+
+<div data-cr-booking data-api={api} class={klass}>
+  <noscript>
+    <div style="text-align:center;padding:24px 16px;font-family:system-ui,-apple-system,sans-serif;color:#0e1c2e">
+      <p style="margin:0 0 10px;font-size:14px">Booking needs JavaScript turned on.</p>
+      <a href="tel:+17279999846" style="font-weight:800;font-size:19px;color:#0a1628;text-decoration:none">Call or text (727) 999-9846</a>
+      <p style="margin:10px 0 0;font-size:13px;color:#8496a6">…and we'll grab your demo time by hand.</p>
+    </div>
+  </noscript>
+</div>
+<script is:inline src="/booking-widget.js" defer></script>

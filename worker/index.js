@@ -105,6 +105,7 @@ import * as crmInstantlyCampaign from "./api/crm-instantly-campaign.js";
 import * as crmLeadTokens from "./api/crm-lead-tokens.js";
 import * as leadPrefill from "./api/lead-prefill.js";
 import * as metaCapi from "./api/meta-capi.js";
+import * as booking from "./api/booking.js";
 import * as crmDeals from "./api/crm-deals.js";
 import * as crmEnrich from "./api/crm-enrich.js";
 import * as crmAnalytics2 from "./api/crm-analytics2.js";
@@ -219,6 +220,10 @@ const ROUTES = {
   "/api/crm/instantly/leadtokens": crmLeadTokens,
   "/api/lead-prefill": leadPrefill,
   "/api/meta-capi": metaCapi,
+  "/api/booking/slots": booking,
+  "/api/booking/create": booking,
+  "/api/booking/event": booking,
+  "/api/booking/ics": booking,
   "/api/crm/deals": crmDeals,
   "/api/crm/enrich": crmEnrich,
   "/api/crm/analytics2": crmAnalytics2,

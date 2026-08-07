@@ -2,13 +2,7 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import HowItWorks from "~/components/sections/HowItWorks.astro";
 import FAQ from "~/components/sections/FAQ.astro";
-
-// ── Cal.com booking link ────────────────────────────────────────────────
-// The slug after cal.com/ for the meeting you want prospects to book, e.g.
-// "consent-resolve/demo" or "tyler-spurlock/15min". CONFIRM THIS before the
-// page goes live — a wrong slug shows Cal's "not found" screen.
-const CAL_LINK = "aaron-phillips-xl2cpq/30min";
-// ─────────────────────────────────────────────────────────────────────────
+import BookingWidget from "~/components/BookingWidget.astro";
 
 const incl = [
   ["Cool stats on your website", "pulled live from your real Analytics"],
@@ -62,18 +56,12 @@ const faqs = [
           </div>
         </div>
 
-        <!-- Cal.com inline embed — column_view, HEIGHT-CAPPED with internal scroll so picking
-             a date can never lengthen the widget, and WIDTH-capped + centered so it's a tidy
-             fixed box on desktop instead of full-bleed. (month_view needs ~768px to go
-             side-by-side; in this ~560px column it stacks taller, so column_view stays best.) -->
+        <!-- Native booking widget (4-step demo flow). Replaces the Cal.com iframe — fully
+             on-brand, no cross-origin styling limits. Calls go through /api/booking/* on the
+             Worker (Cal.com API key never reaches the browser). -->
         <div id="book" class="scroll-mt-24">
-          <div class="cal-card mx-auto w-full max-w-[520px] rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg)] p-2 shadow-2xl sm:p-3">
-            <div class="cal-scale-box"><div id="cal-inline" data-cal-link={CAL_LINK} style="overflow:auto"></div></div>
-            <noscript>
-              <div class="p-6 text-center">
-                <a href={`https://cal.com/${CAL_LINK}`} class="inline-flex items-center justify-center rounded-lg bg-[color:var(--color-brand)] px-7 py-3.5 text-base font-bold text-[color:var(--color-on-brand)]">Pick a time →</a>
-              </div>
-            </noscript>
+          <div class="mx-auto w-full max-w-[440px] rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg)] shadow-2xl">
+            <BookingWidget />
           </div>
         </div>
       </div>
@@ -150,37 +138,4 @@ const faqs = [
     </div>
   </section>
 
-  <!-- Cal.com embed loader — inline so Astro passes it through verbatim -->
-  <script is:inline>
-    (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if (typeof namespace === "string") { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ["initNamespace", namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
-    (function () {
-      var el = document.getElementById("cal-inline");
-      var link = el ? el.getAttribute("data-cal-link") : "";
-      if (!link) return;
-      Cal("init", "demo", { origin: "https://cal.com" });
-      Cal.ns.demo("inline", { elementOrSelector: "#cal-inline", calLink: link, config: { layout: "week_view", theme: "dark" } });
-      // Lock to the dark theme so it always matches the navy hero (never follows the visitor's
-      // OS light/dark). Brand the accent (selected date, Confirm button, highlights) with our
-      // mint #00e5a0 via cssVarsPerTheme — the only cross-origin-safe way to recolor the embed.
-      Cal.ns.demo("ui", {
-        theme: "dark",
-        cssVarsPerTheme: { dark: { "cal-brand": "#00e5a0" }, light: { "cal-brand": "#00e5a0" } },
-        hideEventTypeDetails: true,
-        layout: "week_view",
-      });
-    })();
-  </script>
-
-  <!-- Cal embed sizing: fixed box (no layout shift). On desktop, scale the whole widget to
-       75% (25% smaller) — the scale-box clips to the scaled footprint so the card shrinks with
-       it. Mobile keeps the full-size, full-width embed. -->
-  <style>
-    #cal-inline { width: 100%; height: 560px; }
-    .cal-scale-box { width: 100%; }
-    @media (min-width: 1024px) {
-      .cal-card { max-width: max-content; }
-      .cal-scale-box { width: 390px; height: 420px; overflow: hidden; }
-      #cal-inline { width: 520px; height: 560px; transform: scale(0.75); transform-origin: top left; }
-    }
-  </style>
 </BaseLayout>
