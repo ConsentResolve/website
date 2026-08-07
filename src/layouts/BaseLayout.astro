@@ -487,7 +487,10 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <MobileProductStory />
     {showDemoWidget && <DemoWidget />}
 
-    <!-- Custom chat launcher (desktop). Hidden until JS confirms it's enabled in config. -->
+    <!-- Custom chat launcher (desktop). Hidden until JS confirms it's enabled in config.
+         Omitted entirely on noChat pages (e.g. /demo) so there's no #cw to render or animate —
+         the activation script below early-returns when #cw is absent. -->
+    {!noChat && (
     <div class="cw" id="cw" aria-hidden="true">
       <div class="cw-teaser" role="status" aria-live="polite">
         <div class="cw-head">
@@ -521,6 +524,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         <span class="cw-badge" id="cwBadge" aria-hidden="true">1</span>
       </div>
     </div>
+    )}
 
     <script is:inline>
     (function(){
