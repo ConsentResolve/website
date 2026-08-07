@@ -124,15 +124,16 @@
     ".crbw-tnone{font-size:13.5px;color:var(--muted);text-align:center;padding:14px 0}",
     // Time step
     ".crbw-list{display:flex;flex-direction:column;gap:9px}",
-    ".crbw-days{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;-webkit-overflow-scrolling:touch}",
-    ".crbw-day{flex:0 0 auto;min-width:78px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:9px 10px;text-align:center;transition:border-color .14s,background .14s}",
+    ".crbw-days{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:2px 0 2px}",
+    ".crbw-day{border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:11px 6px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:border-color .14s,background .14s}",
     ".crbw-day:hover{border-color:var(--line-2)}",
     ".crbw-day.on{border-color:var(--mint);background:var(--brand-soft-2);box-shadow:0 0 0 3px var(--brand-soft)}",
     ".crbw-day .dw{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}",
-    ".crbw-day .dd{font-size:15px;font-weight:800;margin:2px 0 4px;color:var(--ink)}",
+    ".crbw-day .dd{font-size:17px;font-weight:800;margin:3px 0 5px;color:var(--ink);line-height:1.05}",
     ".crbw-day .dn{font-size:11px;font-weight:800;color:var(--good)}",
     ".crbw-day .dn.low{color:var(--warn)}",
-    ".crbw-timehd{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-2);margin:16px 0 9px}",
+    ".crbw-timebox{border:1.5px solid var(--line);border-radius:12px;padding:13px 13px 14px;margin-top:14px;background:rgba(255,255,255,.02)}",
+    ".crbw-timehd{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-2);margin:0 0 10px}",
     ".crbw-timehd svg{color:var(--mint)}",
     ".crbw-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}",
     "@media (max-width:520px){.crbw-slots{grid-template-columns:repeat(2,1fr)}}",
@@ -305,13 +306,14 @@
           if (day && day.slots.length) {
             var all = day.slots;
             var shown = state.showAll ? all : all.slice(0, SLOT_CAP);
-            slotsHtml = '<div class="crbw-timehd">' + ic("clock", 14, 2) + "Times · Central</div>" +
+            var inner2 = '<div class="crbw-timehd">' + ic("clock", 14, 2) + "Times · Central</div>" +
               '<div class="crbw-slots">' + shown.map(function (s) {
                 return '<button class="crbw-slot' + (state.slot === s.iso ? " on" : "") + '" data-slot="' + esc(s.iso) + '">' + esc(s.time) + "</button>";
               }).join("") + "</div>";
             if (!state.showAll && all.length > SLOT_CAP) {
-              slotsHtml += '<button class="crbw-showall" data-showall="1">Show all ' + all.length + " times</button>";
+              inner2 += '<button class="crbw-showall" data-showall="1">Show all ' + all.length + " times</button>";
             }
+            slotsHtml = '<div class="crbw-timebox">' + inner2 + "</div>";
           }
         }
         inner = '<div class="crbw-days">' + strip + "</div>" + slotsHtml;
