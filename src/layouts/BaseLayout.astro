@@ -209,7 +209,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         "data-agent-id":"agent_53dfb7733266901d4989695004",
         "data-title":"Chat with Mack","data-bot-name":"Mack","data-fab-text":"Chat with us",
         "data-theme-color":"#0e1c2e","data-component-color":"#00e5a0",
-        "data-logo-url":"https://consentresolve.com/apple-touch-icon.png"};
+        "data-logo-url":"https://consentresolve.com/mack.jpg"};
       // Injected into the widget's OPEN shadow root to restyle what Retell's data-attrs
       // can't reach. Class hashes can change on Retell updates, so target stable prefixes.
       // Product-grade chat: navy identity header, tailed bubbles, Hanken Grotesk, motion.
@@ -225,7 +225,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         // Glassy header (frosted navy) with Mack identity; nav/brand cells hidden.
         +'[class*="_header_"]{background:rgba(10,22,40,.82)!important;-webkit-backdrop-filter:blur(16px) saturate(1.3)!important;backdrop-filter:blur(16px) saturate(1.3)!important;color:#fff!important;border-bottom:1px solid rgba(255,255,255,.06)!important;padding:12px 14px!important;min-height:0!important;display:flex!important;align-items:center!important;gap:8px!important;flex:0 0 auto!important}'
         +'[class*="_navButton_"],[class*="_headerBrand_"]{display:none!important}'
-        +'.cr-ident{display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-left:2px}.cr-av{width:34px;height:34px;border-radius:50%;background:#00e5a0;color:#04231a;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 auto;box-shadow:0 0 0 3px rgba(0,229,160,.22)}.cr-idtext{display:flex;flex-direction:column;line-height:1.2;min-width:0}.cr-idtext b{font-size:15px;font-weight:700;color:#fff}.cr-idtext i{font-style:normal;font-size:11.5px;color:#a7bacf;display:flex;align-items:center;gap:5px;margin-top:2px}.cr-dot{width:7px;height:7px;border-radius:50%;background:#00e5a0;box-shadow:0 0 0 2px rgba(0,229,160,.3)}'
+        +'.cr-ident{display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-left:2px}.cr-av{width:34px;height:34px;border-radius:50%;background:#00e5a0;color:#04231a;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 auto;overflow:hidden;position:relative;box-shadow:0 0 0 3px rgba(0,229,160,.22)}.cr-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.cr-idtext{display:flex;flex-direction:column;line-height:1.2;min-width:0}.cr-idtext b{font-size:15px;font-weight:700;color:#fff}.cr-idtext i{font-style:normal;font-size:11.5px;color:#a7bacf;display:flex;align-items:center;gap:5px;margin-top:2px}.cr-dot{width:7px;height:7px;border-radius:50%;background:#00e5a0;box-shadow:0 0 0 2px rgba(0,229,160,.3)}'
         // Clean close button — no box/outline, subtle hover circle, press feedback.
         +'[class*="_closeButton_"]{background:transparent!important;border:none!important;box-shadow:none!important;width:30px!important;height:30px!important;border-radius:9px!important;color:rgba(255,255,255,.72)!important;display:flex!important;align-items:center!important;justify-content:center!important;margin-left:auto!important;transition:background .16s ease,color .16s ease,transform .12s var(--eo)!important}[class*="_closeButton_"] svg,[class*="_closeButton_"] path{fill:currentColor!important;stroke:currentColor!important}[class*="_closeButton_"]:hover{background:rgba(255,255,255,.14)!important;color:#fff!important}[class*="_closeButton_"]:active{transform:scale(.9)!important}[class*="_closeButton_"]:focus-visible{outline:2px solid #00e5a0!important;outline-offset:2px!important}'
         // conversationPanel WRAPS the scroller + input — leave it structural; _messages_ is the real scroller.
@@ -282,7 +282,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
         if(!sr.getElementById("cr-tune")){var st=document.createElement("style");st.id="cr-tune";st.textContent=window.__retellCSS;sr.appendChild(st);}
         if(window.__crHideFab)host.classList.add("cr-hidefab"); // custom launcher owns the bubble → kill Retell's FAB
         try{var _root=document.getElementById("retell-widget-root");if(_root)_root.classList.add("cr-ready");}catch(e){} // reveal once styled (kills the default-icon flash)
-        function ident(){var h=sr.querySelector('[class*="_header_"]');if(h&&!h.querySelector(".cr-ident")){var d=document.createElement("div");d.className="cr-ident";d.innerHTML='<span class="cr-av">M</span><span class="cr-idtext"><b>Mack</b><i><span class="cr-dot"></span>Online · replies instantly</i></span>';h.insertBefore(d,h.firstChild);}}
+        function ident(){var h=sr.querySelector('[class*="_header_"]');if(h&&!h.querySelector(".cr-ident")){var d=document.createElement("div");d.className="cr-ident";d.innerHTML='<span class="cr-av">M<img src="/mack.jpg" alt="Mack" onerror="this.remove()"></span><span class="cr-idtext"><b>Mack</b><i><span class="cr-dot"></span>Online · replies instantly</i></span>';h.insertBefore(d,h.firstChild);}}
         // First-open "Mack is typing…" beat before the greeting (once per session).
         function firstTyping(){if(window.__crTyped)return;var m=sr.querySelector('[class*="_messages_"]');if(!m)return;window.__crTyped=1;host.classList.add("cr-firstopen");var add=function(){if(m&&!m.querySelector(".cr-first")){var t=document.createElement("div");t.className="cr-typing cr-first";t.innerHTML="<i></i><i></i><i></i>";m.appendChild(t);}};add();var mo=new MutationObserver(add);mo.observe(m,{childList:true});setTimeout(function(){mo.disconnect();var t=m.querySelector(".cr-first");if(t)t.remove();host.classList.remove("cr-firstopen");},1600);}
         // Mid-conversation typing: Retell shows none, so we add dots after the user sends
@@ -418,7 +418,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       .cw-teaser::after{content:"";position:absolute;right:13px;bottom:-6px;width:15px;height:15px;background:var(--cr-white);border-radius:0 0 4px 0;transform:rotate(45deg) skew(6deg,6deg)}
       .cw-head{display:flex;align-items:center;gap:10px;margin-bottom:9px}
       .cw-av{width:38px;height:38px;border-radius:50%;flex:none;overflow:hidden;position:relative;background:var(--cr-mint);color:#04231a;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 0 2px var(--cr-white),0 0 0 3.5px rgba(0,229,160,.45)}
-      .cw-av img{width:100%;height:100%;display:block;object-fit:cover}
+      .cw-av img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover}
       .cw-name{font-size:13px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
       .cw-sub{font-size:10px;color:rgba(10,22,40,.52);margin-top:2px;display:flex;align-items:center;gap:5px}
       .cw-sub i{width:5px;height:5px;border-radius:50%;background:var(--cr-mint);flex:none}
@@ -488,7 +488,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <div class="cw" id="cw" aria-hidden="true">
       <div class="cw-teaser" role="status" aria-live="polite">
         <div class="cw-head">
-          <div class="cw-av" id="cwAv" aria-hidden="true">M</div>
+          <div class="cw-av" id="cwAv" aria-hidden="true">M<img src="/mack.jpg" alt="" onerror="this.remove()"></div>
           <div>
             <div class="cw-name" id="cwName">Mack</div>
             <div class="cw-sub"><i></i> <span id="cwStatus">Online</span></div>
