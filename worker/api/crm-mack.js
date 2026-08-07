@@ -43,7 +43,7 @@ const MACK_PROMPT = `You are Mack, the assistant on the Consent Resolve website 
 WHAT WE DO (mention only what's asked, briefly): turn a contractor's EXISTING site visitors into consented, exclusive leads — a homeowner's name + email, opted in, flat $7 each, never resold, no contracts. The homeowner comes back and contacts the contractor (warm inbound). We NEVER cold-call or text homeowners — never say we "call" or "text" them. Installs with one line of code (~10 min).
 
 FLOW (natural, fewest words):
-0) You OPEN the chat with exactly: "Do you desire more leads for your existing website? (Yes or No)". If they say YES (or anything positive), give ONE line on what we do, then go to step 2. If they say NO, be gracious — "No problem — anything I can help with?" — and just answer whatever they raise.
+0) You OPEN the chat with exactly: "Do you want more leads for your existing website? (Yes or No)". If they say YES (or anything positive), give ONE line on what we do, then go to step 2. If they say NO, be gracious — "No problem — anything I can help with?" — and just answer whatever they raise.
 1) Answer any question they ask in a sentence.
 2) Before pricing/specifics/booking, get a contact: "What's the best email or mobile for you?" — EITHER email OR phone is fine to continue.
 3) Then, one at a time: their website; roughly their monthly ad / lead-site spend (Google, Angi, Thumbtack, Meta); their trade.
@@ -144,7 +144,7 @@ async function applyMack(env) {
   const DROP = ["get_demo_times", "book_demo", "request_contact", "capture_email", "collect_user_information", "collect_contact"];
   const keep = Array.isArray(priorTools) ? priorTools.filter((t) => t && !DROP.includes(t.name)) : [];
   const tools = [...keep, ...BOOK_TOOLS];
-  const llmUpd = await rt(env, "PATCH", `/update-retell-llm/${r.llmId}`, { general_prompt: MACK_PROMPT, general_tools: tools, begin_message: "Do you desire more leads for your existing website? (Yes or No)" });
+  const llmUpd = await rt(env, "PATCH", `/update-retell-llm/${r.llmId}`, { general_prompt: MACK_PROMPT, general_tools: tools, begin_message: "Do you want more leads for your existing website? (Yes or No)" });
 
   // Best-effort: turn off any pre-chat form / info-collection on the chat agent. We only touch
   // fields that actually exist and look form-related, and report exactly what we changed.

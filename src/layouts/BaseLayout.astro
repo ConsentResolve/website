@@ -496,10 +496,10 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
           <button class="cw-x" id="cwX" aria-label="Dismiss message">&times;</button>
         </div>
         <div class="cw-typing" id="cwTyping" aria-hidden="true"><i></i><i></i><i></i></div>
-        <p class="cw-msg" id="cwMsg">Do you desire more leads for your existing website? (Yes or No)</p>
+        <p class="cw-msg" id="cwMsg">Do you want more leads for your existing website? (Yes or No)</p>
         <div class="cw-chips" id="cwChips">
-          <button class="cw-chip" data-q="price">Get a price</button>
-          <button class="cw-chip" data-q="time">Book a time</button>
+          <button class="cw-chip" data-q="yes">Yes</button>
+          <button class="cw-chip" data-q="no">No</button>
         </div>
         <a class="cw-call" id="cwCall" href="tel:+17279999846">Rather talk? Call <b>(727) 999-9846</b></a>
       </div>
@@ -523,7 +523,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <script is:inline>
     (function(){
       var DEF={enabled:true,agentName:"Mack",status:"Online",
-        greeting:"Do you desire more leads for your existing website? (Yes or No)",phone:"+17279999846",
+        greeting:"Do you want more leads for your existing website? (Yes or No)",phone:"+17279999846",
         entranceDelay:700,teaser:{enabled:true,delay:8000,scroll:0.45,exitIntent:true},
         nudge:{enabled:true,every:16000,max:3},badge:"honest"};
       // Per-path launcher overrides (merged on top of the API/DEF config). Empty = every page,
@@ -625,7 +625,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
           open=true;cw.classList.remove('teaser-on','badge-on');clearInterval(timer);
           if(navigator.vibrate)try{navigator.vibrate(8);}catch(_){}
           try{ if(window.crOpenChat) window.crOpenChat(); }catch(e){}
-          var SEED={price:"I'd like a price.",time:"I'd like to book a time."};
+          var SEED={price:"I'd like a price.",time:"I'd like to book a time.",yes:"Yes",no:"No"};
           (C.chips||[]).forEach(function(ch){if(ch.seed)SEED[ch.q]=ch.seed;});
           var seed=SEED[q]||"";
           if(seed) seedMessage(seed);
