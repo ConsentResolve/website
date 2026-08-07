@@ -12,6 +12,7 @@ import { ensureCrmV2Schema, findOrCreateContactByEmail, upsertConversationByThre
 import { ensureRebuildSchema, logEvent } from "../_lib/crm-rebuild.js";
 import { handleGoalEvent } from "../_lib/workflow-engine.js";
 import { recordStlMeeting } from "./stl-calcom.js";
+import { sendCapi } from "./meta-capi.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -129,6 +130,20 @@ export async function onRequestPost({ request, env, waitUntil }) {
       contactId, conversationId: convId, source: "cal",
       meta: { uid: uid || null, startTime: startTime || null, meetingType: meetingType || null },
     }).catch(() => {});
+
+    // Meta CAPI — a booked meeting is a stronger optimization signal than a form submit. Fire a
+    // server-side `Schedule` conversion (first-party: they booked with their own email). event_id
+    // is stable per booking so it dedupes if a browser Schedule pixel ever fires the same one.
+    if (isCreated) {
+      await sendCapi(env, {
+        eventName: "Schedule",
+        eventId: "cal-sched:" + (uid || email),
+        email,
+        phone: String(attendee.phoneNumber || p.responses?.phone?.value || "").trim(),
+        eventSourceUrl: "https://consentresolve.com/demo/",
+        actionSource: "website",
+      }).catch(() => {});
+    }
 
     // Also feed the Speed-to-Lead engine: attach the booking to the STL lead (if any),
     // mark it booked, and schedule/cancel the B5 T-1h reminder. No-op if not an STL lead.
