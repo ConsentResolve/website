@@ -580,7 +580,7 @@ async function buildPipeline(env) {
   const inits = (n) => (n ? n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase() : "?");
   const rows = (await env.DB.prepare(
     `SELECT d.id, d.title, d.value_cents, d.close_probability, d.lead_status, d.owner_id, d.disqualify_reason,
-            d.origin_conversation_id AS conv_id,
+            d.origin_conversation_id AS conv_id, d.company_id AS company_id, d.primary_contact_id AS contact_pid,
             ct.full_name, ct.primary_email, ct.lead_score, ct.tier, ct.lifecycle_stage,
             co.name AS company, co.domain AS domain, co.enrichment AS enrichment, u.name AS owner_name,
             cv.status AS conv_status, cv.snooze_until, cv.assignee_id,
@@ -652,6 +652,8 @@ async function buildPipeline(env) {
       last_label: r.last_message_preview || null,
       meeting: r.meeting_iso ? { iso: r.meeting_iso, label: humanTime(r.meeting_iso), uid: r.meeting_uid || null } : null,
       conv_id: r.conv_id || null,
+      company_id: r.company_id || null,
+      contact_id: r.contact_pid || null,
       assignee: r.assignee_name || null,
       disqualify_reason: r.disqualify_reason || null,
       owner_id: r.owner_id || null,

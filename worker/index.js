@@ -112,6 +112,8 @@ import * as crmAnalytics2 from "./api/crm-analytics2.js";
 import * as crmMeta from "./api/crm-meta.js";
 import * as crmPresence from "./api/crm-presence.js";
 import * as crmContact from "./api/crm-contact.js";
+import * as crmCompany from "./api/crm-company.js";
+import * as crmRecords from "./api/crm-records.js";
 import * as crmMerge from "./api/crm-merge.js";
 import * as crmDemoNotify from "./api/crm-demo-notify.js";
 import * as crmRebuildMigrate from "./api/crm-rebuild-migrate.js";
@@ -234,6 +236,9 @@ const ROUTES = {
   "/api/crm/meta/launch": crmMetaLaunch,
   "/api/crm/presence": crmPresence,
   "/api/crm/contact": crmContact,
+  "/api/crm/company": crmCompany,
+  "/api/crm/contacts": crmRecords,
+  "/api/crm/companies": crmRecords,
   "/api/crm/merge": crmMerge,
   "/api/crm/demo-notify": crmDemoNotify,
   "/api/crm/rebuild/migrate": crmRebuildMigrate,

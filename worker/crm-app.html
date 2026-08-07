@@ -1537,6 +1537,8 @@ html,body{height:100%}
       <a class="on" data-view="inbox" tabindex="0" onclick="showView('inbox')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span class="lbl">Inbox</span></a>
       <a data-view="reminders" tabindex="0" onclick="showView('reminders')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="lbl">Reminders</span></a>
       <a data-view="pipeline" tabindex="0" onclick="showView('pipeline')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="5" height="16" rx="1.2"/><rect x="9.5" y="4" width="5" height="11" rx="1.2"/><rect x="15.5" y="4" width="5" height="6" rx="1.2"/></svg><span class="lbl">Pipeline</span></a>
+      <a data-view="contacts" tabindex="0" onclick="openContactsBrowse()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="lbl">Contacts</span></a>
+      <a data-view="companies" tabindex="0" onclick="openCompaniesBrowse()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16"/><path d="M15 21V9h3a1 1 0 0 1 1 1v11"/><path d="M8 8h.01M8 12h.01M8 16h.01M11 8h.01M11 12h.01M11 16h.01"/></svg><span class="lbl">Companies</span></a>
       <a data-view="nurture" tabindex="0" onclick="showView('nurture')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V11"/><path d="M12 11C12 7 9.5 4.5 4.5 4.5c0 4 2.5 6.5 7.5 6.5z"/><path d="M12 9.5c0-3 2.2-5.5 6.5-5.5 0 3.2-2.3 5.5-6.5 5.5z"/></svg><span class="lbl">Nurture</span></a>
       <a data-view="sitespy" tabindex="0" onclick="showView('sitespy')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg><span class="lbl">Site Spy</span></a>
       <a data-view="prospecting" tabindex="0" onclick="showView('prospecting')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6M8 11h6"/></svg><span class="lbl">Prospecting</span></a>
@@ -1571,6 +1573,8 @@ html,body{height:100%}
     <section class="thread" id="thread"></section>
     </div>
     <section class="pipeboard" id="pipelineview" hidden></section>
+    <section class="pipeboard" id="contactsview" hidden></section>
+    <section class="pipeboard" id="companiesview" hidden></section>
     <section id="remindersview" hidden></section>
     <section class="nurtureview" id="nurtureview" hidden></section>
     <section class="nurtureview" id="sitespyview" hidden></section>
@@ -3336,7 +3340,7 @@ function showView(v){
   // running on other screens forever (rate-limit + battery drain).
   if(v!=='inbox' && typeof stopChatPoll==='function') stopChatPoll();
   document.querySelectorAll('.rail a[data-view]').forEach(a=>a.classList.toggle('on', a.dataset.view===v));
-  const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview',newsletter:'newsletterview',prospecting:'prospectingview',agency:'agencyview',settings:'settingsview'};
+  const views={inbox:'inboxview',reminders:'remindersview',pipeline:'pipelineview',contacts:'contactsview',companies:'companiesview',nurture:'nurtureview',sitespy:'sitespyview',sequences:'sequencesview',analytics:'analyticsview',consent:'consentview',newsletter:'newsletterview',prospecting:'prospectingview',agency:'agencyview',settings:'settingsview'};
   window.__crmView=v;
   Object.entries(views).forEach(([k,id])=>{const el=document.getElementById(id); if(el) el.hidden=k!==v;});
   // Render the active view defensively — a single view throwing must never blank the app.
@@ -3351,6 +3355,8 @@ function showView(v){
     }
     else if(v==='reminders')renderReminders();
     else if(v==='pipeline'){ renderPipeline(); if(window.opsRefresh&&!window.CRM_LIVE_PENDING) opsRefresh(); }
+    else if(v==='contacts')renderContactsView();
+    else if(v==='companies')renderCompaniesView();
     else if(v==='nurture')renderNurture();
     else if(v==='sitespy')renderSiteSpy();
     else if(v==='sequences')renderSequences();
@@ -4086,7 +4092,7 @@ window.nlSend=nlSend;
 // blanked the app. Wrapped so any failure falls back to the default Inbox.
 // ===== Deep-links: land anywhere — #<view> opens a view, #<view>/<recordId> opens a record.
 // A pasted link switches to the view and opens the exact record once its data is loaded.
-var VALID_VIEWS={inbox:1,reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1,newsletter:1,prospecting:1,agency:1,settings:1};
+var VALID_VIEWS={inbox:1,reminders:1,pipeline:1,contacts:1,companies:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1,newsletter:1,prospecting:1,agency:1,settings:1};
 // Per-view "open this record by id". A view not listed just opens (record id ignored).
 var RECORD_OPENERS={
   inbox:function(id){ if(window.select) select(id); },
@@ -4112,6 +4118,9 @@ function parseHash(){
 function applyRecordHash(){
   try{
     var p=parseHash(); if(!p.id) return false;
+    // Contact/Company records are fetched by id (no in-memory list) — open them directly.
+    if(p.view==='contact'){ if(window.openContactRecord) window.openContactRecord(p.id); return true; }
+    if(p.view==='company'){ if(window.openCompanyRecord) window.openCompanyRecord(p.id); return true; }
     var view=VALID_VIEWS[p.view]?p.view:'inbox';
     var opener=RECORD_OPENERS[view];
     if(window.__crmView!==view){ try{ showView(view); }catch(e){} }  // switch → also triggers the view's data load
@@ -4825,7 +4834,7 @@ function opsRow(d){
   const acts=`<div class="opsacts">${(d.owner&&d._att)?`<button class="help" data-act="nudge" data-id="${d.id}">⚑ Nudge</button>`:''}${d._kud?`<button class="kud" data-act="kudos" data-id="${d.id}">★ Kudos</button>`:''}<button data-act="open" data-id="${d.id}">Deal ↗</button></div>`;
   return `<div class="ops-row ${cls}" data-open="${d.id}" data-conv-row="${esc(d.conv_id||'')}" title="Open the record">
     <div class="stp"><i></i></div>
-    <div class="opsco"><div class="c1">${d.tier==='hot'?'<span class="opsdot" title="Hot"></span>':''}<span class="nm">${esc(d.company||d.name||'—')}</span></div><div class="c2">${esc(d.company?(d.name||d.domain||''):(d.domain||''))||'—'}</div></div>
+    <div class="opsco"><div class="c1">${d.tier==='hot'?'<span class="opsdot" title="Hot"></span>':''}<span class="nm"${d.company_id?` data-openco="${esc(d.company_id)}" style="cursor:pointer" title="Open company record"`:''}>${esc(d.company||d.name||'—')}</span></div><div class="c2"${d.contact_id?` data-openct="${esc(d.contact_id)}" style="cursor:pointer" title="Open contact record"`:''}>${esc(d.company?(d.name||d.domain||''):(d.domain||''))||'—'}</div></div>
     ${opsOwnerCell(d)}
     <div>${pill}</div>
     <div>${stg}</div>
@@ -4927,6 +4936,8 @@ function renderPipelineReal(el,P){
       const ov=e.target.closest('[data-ov]'); if(ov){ window._ops.view=ov.dataset.ov; renderPipeline(); return; }
       const of=e.target.closest('[data-of]'); if(of){ window._ops.filter=of.dataset.of; renderPipeline(); return; }
       const os=e.target.closest('[data-os]'); if(os){ const k=os.dataset.os; window._ops.dir=window._ops.sort===k?-window._ops.dir:1; window._ops.sort=k; renderPipeline(); return; }
+      const oco=e.target.closest('[data-openco]'); if(oco){ e.stopPropagation(); if(window.openCompanyRecord) openCompanyRecord(oco.getAttribute('data-openco')); return; }
+      const oct=e.target.closest('[data-openct]'); if(oct){ e.stopPropagation(); if(window.openContactRecord) openContactRecord(oct.getAttribute('data-openct')); return; }
       const conv=e.target.closest('[data-conv]'); if(conv){ e.stopPropagation(); const cid=conv.getAttribute('data-conv'); showView('inbox'); if(window.select) select(cid); return; }
       const mtg=e.target.closest('[data-mtg]'); if(mtg){ e.stopPropagation(); opsMeetingPopover(mtg); return; }
       const act=e.target.closest('[data-act]');
@@ -4964,6 +4975,219 @@ function renderPipeline(){
   const total=open.reduce((a,c)=>a+predictValue(dstate(c.id).visitors),0);
   el.innerHTML = `<div class="pipe-head"><h2>Pipeline</h2><div class="pipe-total">${IC.pipe} Open pipeline <b>$${total.toLocaleString()}</b>/mo · ${open.length} deal${open.length===1?'':'s'}</div></div>
     <div class="pboard">${cols}</div>`;
+}
+
+/* ===================== RECORDS — Contacts & Companies (standard-CRM record system) ===================== */
+window._rec = window._rec || { contactId:null, companyId:null, cq:'', coq:'', editing:false };
+const REC_CSS = `
+.recwrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.rec-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.rec-head h2{margin:0;font-size:var(--t-19)}
+.rec-search{flex:1;min-width:220px;max-width:460px;height:38px;padding:0 14px;border:1px solid var(--line-2);border-radius:var(--r-2);background:var(--surface-1);color:var(--tx-1);font:inherit;font-size:var(--t-14);outline:none}
+.rec-search:focus{border-color:var(--accent)}
+.rec-list{display:flex;flex-direction:column;gap:7px}
+.rec-loading,.rec-empty{padding:34px;text-align:center;color:var(--tx-3);font-size:var(--t-13)}
+.rec-row{display:flex;align-items:center;gap:12px;width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:var(--r-2);background:var(--surface-1);cursor:pointer;text-align:left;transition:border-color .12s,background .12s}
+.rec-row:hover{border-color:var(--accent);background:var(--surface-2)}
+.rec-av{width:34px;height:34px;border-radius:50%;background:var(--surface-3);color:var(--tx-2);display:grid;place-items:center;font-size:12px;font-weight:800;flex:0 0 auto}
+.rec-av.co{border-radius:9px;background:var(--accent-soft);color:var(--accent-hi)}
+.rec-main{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.rec-nm{font-size:var(--t-14);font-weight:800;color:var(--tx-1);display:flex;align-items:center;gap:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec-tier{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.rec-sub{font-size:12px;color:var(--tx-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec-meta{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.rec-chip{font-size:11px;font-weight:800;color:var(--accent-hi);background:var(--accent-soft);border-radius:var(--r-full);padding:2px 9px;font-family:var(--font-mono)}
+.rec-ago{font-size:11px;color:var(--tx-3);font-weight:600;white-space:nowrap}
+/* detail */
+.recd{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.recd-back{align-self:flex-start;border:1px solid var(--line-2);background:var(--surface-1);color:var(--tx-2);border-radius:var(--r-1);padding:6px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.recd-back:hover{border-color:var(--accent);color:var(--tx-1)}
+.recd-hero{display:flex;align-items:flex-start;gap:16px;background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:18px 20px;flex-wrap:wrap}
+.recd-av{width:56px;height:56px;border-radius:50%;background:var(--surface-3);color:var(--tx-1);display:grid;place-items:center;font-size:19px;font-weight:800;flex:0 0 auto}
+.recd-av.co{border-radius:13px;background:var(--accent-soft);color:var(--accent-hi)}
+.recd-id{flex:1;min-width:200px}
+.recd-nm{font-size:var(--t-24);font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.recd-badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
+.recd-badge{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;border-radius:5px;padding:2px 8px;background:var(--surface-3);color:var(--tx-2)}
+.recd-badge.hot{background:var(--bad-soft);color:var(--bad)} .recd-badge.warm{background:var(--warn-soft);color:var(--warn)}
+.recd-badge.link{cursor:pointer;background:var(--accent-soft);color:var(--accent-hi)} .recd-badge.link:hover{filter:brightness(1.1)}
+.recd-contactline{font-size:var(--t-13);color:var(--tx-2);margin-top:9px;display:flex;gap:14px;flex-wrap:wrap}
+.recd-contactline a{color:var(--accent-hi);text-decoration:none} .recd-contactline a:hover{text-decoration:underline}
+.recd-heroacts{display:flex;gap:8px;flex-wrap:wrap}
+.recd-btn{border:1px solid var(--line-2);background:var(--surface-2);color:var(--tx-1);border-radius:var(--r-1);padding:7px 13px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.recd-btn:hover{border-color:var(--accent)}
+.recd-btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.recd-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.recd-stat{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-2);padding:11px 14px}
+.recd-stat .sv{font-size:var(--t-19);font-weight:800;font-family:var(--font-mono)}
+.recd-stat .sl{font-size:11px;color:var(--tx-3);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-top:2px}
+.recd-cols{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+@media(max-width:900px){.recd-cols{grid-template-columns:1fr}}
+.recd-card{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);overflow:hidden}
+.recd-card h4{margin:0;padding:12px 16px;font-size:12.5px;font-weight:800;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.recd-card h4 .n{font-size:11px;font-weight:700;color:var(--tx-3);background:var(--surface-3);border-radius:var(--r-full);padding:1px 8px}
+.recd-item{display:flex;align-items:center;gap:11px;padding:10px 16px;border-top:1px solid var(--line);cursor:pointer;transition:background .1s}
+.recd-item:first-of-type{border-top:0}
+.recd-item:hover{background:var(--surface-2)}
+.recd-item .ii{flex:1;min-width:0}
+.recd-item .it{font-size:var(--t-13);font-weight:700;color:var(--tx-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recd-item .is{font-size:11.5px;color:var(--tx-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recd-item .iv{font-size:12.5px;font-weight:800;font-family:var(--font-mono);color:var(--tx-1);white-space:nowrap}
+.recd-item .ipill{font-size:10px;font-weight:800;text-transform:uppercase;border-radius:5px;padding:2px 7px;background:var(--surface-3);color:var(--tx-2);white-space:nowrap}
+.recd-item .ipill.won{background:var(--good-soft);color:var(--good)} .recd-item .ipill.lost,.recd-item .ipill.disqualified{background:var(--bad-soft);color:var(--bad)}
+.recd-empty2{padding:16px;text-align:center;color:var(--tx-3);font-size:12px}
+.recd-tl{max-height:420px;overflow:auto}
+.recd-tlrow{display:flex;gap:10px;padding:9px 16px;border-top:1px solid var(--line);font-size:12px}
+.recd-tlrow:first-child{border-top:0}
+.recd-tlrow .tk{flex:0 0 64px;color:var(--tx-3);font-weight:700;font-size:10.5px;text-transform:uppercase;padding-top:1px}
+.recd-tlrow .tb{flex:1;min-width:0;color:var(--tx-2);line-height:1.4}
+.recd-tlrow .tt{font-size:10.5px;color:var(--tx-3);white-space:nowrap}
+.recd-edit{display:flex;flex-direction:column;gap:9px;background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:16px}
+.recd-edit label{font-size:11px;font-weight:800;color:var(--tx-3);text-transform:uppercase;letter-spacing:.03em}
+.recd-edit input{height:40px;padding:0 12px;border:1px solid var(--line-2);border-radius:var(--r-2);background:var(--surface-2);color:var(--tx-1);font:inherit;font-size:var(--t-14);outline:none}
+.recd-edit input:focus{border-color:var(--accent)}
+.recd-edit .er{display:flex;gap:8px;margin-top:4px}
+`;
+function recCss(){ if(document.getElementById('rec-css'))return; const s=document.createElement('style'); s.id='rec-css'; s.textContent=REC_CSS; document.head.appendChild(s); }
+function recMoney(n){ n=Number(n)||0; return '$'+(n>=1000?(n/1000).toFixed(n%1000?1:0)+'k':n); }
+function recAgo(iso){ if(!iso)return '—'; const t=Date.parse(iso); if(isNaN(t))return '—'; const m=Math.floor((Date.now()-t)/60000); if(m<1)return 'just now'; if(m<60)return m+'m ago'; const h=Math.floor(m/60); if(h<24)return h+'h ago'; const d=Math.floor(h/24); return d+'d ago'; }
+function recInits(s){ return (s||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+const REC_STAGE={new:'New',active:'Lead',lead:'Lead',trial:'Trial',won:'Customer',customer:'Customer',lost:'Lost',disqualified:'Disqualified'};
+
+function openContactsBrowse(){ window._rec.contactId=null; window._rec.editing=false; if(window.__crmView!=='contacts')showView('contacts'); else renderContactsView(); }
+function openCompaniesBrowse(){ window._rec.companyId=null; window._rec.editing=false; if(window.__crmView!=='companies')showView('companies'); else renderCompaniesView(); }
+function openContactRecord(id){ window._rec.contactId=id; window._rec.editing=false; if(window.__crmView!=='contacts')showView('contacts'); else renderContactsView(); try{history.replaceState(null,'','#contact/'+id);}catch(_){} }
+function openCompanyRecord(id){ window._rec.companyId=id; window._rec.editing=false; if(window.__crmView!=='companies')showView('companies'); else renderCompaniesView(); try{history.replaceState(null,'','#company/'+id);}catch(_){} }
+window.openContactsBrowse=openContactsBrowse; window.openCompaniesBrowse=openCompaniesBrowse; window.openContactRecord=openContactRecord; window.openCompanyRecord=openCompanyRecord;
+
+function renderContactsView(){ const el=document.getElementById('contactsview'); if(!el)return; recCss(); recWire(el); if(window._rec.contactId){ renderContactDetail(el, window._rec.contactId); if(window.__crmView==='contacts')try{history.replaceState(null,'','#contact/'+window._rec.contactId);}catch(_){} } else { renderBrowse(el,'contacts'); } }
+function renderCompaniesView(){ const el=document.getElementById('companiesview'); if(!el)return; recCss(); recWire(el); if(window._rec.companyId){ renderCompanyDetail(el, window._rec.companyId); if(window.__crmView==='companies')try{history.replaceState(null,'','#company/'+window._rec.companyId);}catch(_){} } else { renderBrowse(el,'companies'); } }
+window.renderContactsView=renderContactsView; window.renderCompaniesView=renderCompaniesView;
+
+function renderBrowse(el,kind){
+  const isCo=kind==='companies'; const q=isCo?window._rec.coq:window._rec.cq;
+  el.innerHTML=`<div class="recwrap"><div class="rec-head"><h2>${isCo?'Companies':'Contacts'}</h2><input class="rec-search" id="rec-q" type="search" placeholder="Search ${isCo?'name or domain':'name, email, phone, company'}…" value="${esc(q)}"></div><div class="rec-list" id="rec-list"><div class="rec-loading">Searching…</div></div></div>`;
+  const input=el.querySelector('#rec-q');
+  if(input){ input.focus(); try{input.setSelectionRange(input.value.length,input.value.length);}catch(_){}
+    input.oninput=()=>{ const v=input.value; if(isCo)window._rec.coq=v; else window._rec.cq=v; clearTimeout(window._recTo); window._recTo=setTimeout(()=>recFetchList(kind),220); }; }
+  recFetchList(kind);
+}
+function recFetchList(kind){
+  const isCo=kind==='companies'; const q=isCo?window._rec.coq:window._rec.cq;
+  const list=document.getElementById('rec-list'); if(!list)return;
+  fetch('/api/crm/'+(isCo?'companies':'contacts')+'?q='+encodeURIComponent(q||'')+'&limit=80',{credentials:'same-origin',cache:'no-store'})
+    .then(r=>r.json()).then(j=>{
+      if(isCo){ const rows=(j&&j.companies)||[]; list.innerHTML=rows.length?rows.map(recCoRow).join(''):'<div class="rec-empty">No companies match.</div>'; }
+      else { const rows=(j&&j.contacts)||[]; list.innerHTML=rows.length?rows.map(recCtRow).join(''):'<div class="rec-empty">No contacts match.</div>'; }
+    }).catch(()=>{ list.innerHTML='<div class="rec-empty">Couldn\'t load.</div>'; });
+}
+function recTierDot(t){ t=(t||'').toLowerCase(); const c=t==='hot'?'var(--bad)':t==='warm'?'var(--warn)':'var(--tx-3)'; return `<span class="rec-tier" style="background:${c}" title="${esc(t||'—')}"></span>`; }
+function recCtRow(c){ return `<button class="rec-row" data-contact="${esc(c.id)}"><span class="rec-av">${esc(recInits(c.full_name))}</span><span class="rec-main"><span class="rec-nm">${recTierDot(c.tier)}${esc(c.full_name||'Unknown')}</span><span class="rec-sub">${esc(c.primary_email||c.phone||'—')}${c.company?' · '+esc(c.company):''}</span></span><span class="rec-meta">${c.deals?`<span class="rec-chip">${c.deals} deal${c.deals>1?'s':''}</span>`:''}<span class="rec-ago">${recAgo(c.last_activity)}</span></span></button>`; }
+function recCoRow(c){ return `<button class="rec-row" data-company="${esc(c.id)}"><span class="rec-av co">${esc((c.name||'?').slice(0,2).toUpperCase())}</span><span class="rec-main"><span class="rec-nm">${esc(c.name||'—')}</span><span class="rec-sub">${esc(c.domain||'no domain')} · ${c.contacts||0} contact${c.contacts==1?'':'s'} · ${c.deals||0} deal${c.deals==1?'':'s'}</span></span><span class="rec-meta">${c.open_value_usd?`<span class="rec-chip">${recMoney(c.open_value_usd)}</span>`:''}<span class="rec-ago">${recAgo(c.last_activity)}</span></span></button>`; }
+
+function recDealItem(d){ const st=(d.lead_status||'').toLowerCase(); const lbl=REC_STAGE[st]||st||'—'; return `<div class="recd-item" data-deal="${esc(d.id)}"><span class="ipill ${st}">${esc(lbl)}</span><span class="ii"><span class="it">${esc(d.title||d.contact_name||'Deal')}</span><span class="is">${d.close_probability!=null?d.close_probability+'% · ':''}${d.owner_name?'Owner: '+esc(d.owner_name):''}</span></span><span class="iv">${d.value_cents?recMoney(Math.round(d.value_cents/100)):'—'}</span></div>`; }
+function recConvItem(c){ return `<div class="recd-item" data-conv="${esc(c.id)}"><span class="ii"><span class="it">${esc(c.contact_name||c.subject||c.channel||'Conversation')}${c.unread?' <span style="color:var(--accent-hi)">●</span>':''}</span><span class="is">${esc((c.channel||'')+' · '+(c.last_message_preview||c.subject||''))}</span></span><span class="rec-ago">${recAgo(c.last_message_at)}</span></div>`; }
+function recTlRow(e){ const k=e.kind==='message'?(e.direction==='in'?'← in':'→ out'):e.kind; const body=e.kind==='message'?esc((e.text||'').slice(0,140)):e.kind==='note'?('Note: '+esc((e.text||'').slice(0,120))):e.kind==='activity'?esc(e.action||''):e.kind==='pageview'?('Viewed '+esc(e.path||'')):esc(JSON.stringify(e)); return `<div class="recd-tlrow"><span class="tk">${esc(k)}</span><span class="tb">${body}</span><span class="tt">${recAgo(e.at)}</span></div>`; }
+
+function renderContactDetail(el,id){
+  el.innerHTML=`<div class="recd"><button class="recd-back" data-back="contacts">← All contacts</button><div class="rec-loading">Loading record…</div></div>`;
+  fetch('/api/crm/contact?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(r=>r.json()).then(d=>{
+    if(!d||d.error){ el.querySelector('.rec-loading').textContent='Record not found.'; return; }
+    const ct=d.contact||{}, co=d.company||null, st=d.stats||{};
+    const tier=(ct.tier||'').toLowerCase();
+    if(window._rec.editing){ el.querySelector('.recd').innerHTML=`<button class="recd-back" data-back="contacts">← All contacts</button>`+recContactEditForm(ct,co); return; }
+    const badges=[tier?`<span class="recd-badge ${tier}">${esc(tier)}</span>`:'', ct.lifecycle_stage?`<span class="recd-badge">${esc(ct.lifecycle_stage)}</span>`:'', ct.lead_score!=null?`<span class="recd-badge">Score ${ct.lead_score}</span>`:''].filter(Boolean).join('');
+    const line=[ct.primary_email?`<a href="mailto:${esc(ct.primary_email)}">${esc(ct.primary_email)}</a>`:'', ct.phone?esc(ct.phone):'', co?`<a data-company="${esc(co.id)}">🏢 ${esc(co.name||'company')}</a>`:''].filter(Boolean).join('<span style="color:var(--tx-4)">·</span> ');
+    el.querySelector('.recd').innerHTML=`
+      <button class="recd-back" data-back="contacts">← All contacts</button>
+      <div class="recd-hero"><span class="recd-av">${esc(recInits(ct.full_name))}</span>
+        <div class="recd-id"><div class="recd-nm">${esc(ct.full_name||'Unknown')}</div>${badges?`<div class="recd-badges">${badges}</div>`:''}<div class="recd-contactline">${line||'—'}</div></div>
+        <div class="recd-heroacts"><button class="recd-btn" data-editc>Edit</button>${co?`<button class="recd-btn" data-company="${esc(co.id)}">Company →</button>`:''}</div>
+      </div>
+      <div class="recd-stats">
+        <div class="recd-stat"><div class="sv">${st.conversations||0}</div><div class="sl">Conversations</div></div>
+        <div class="recd-stat"><div class="sv">${st.deals||0}</div><div class="sl">Deals</div></div>
+        <div class="recd-stat"><div class="sv">${st.messages||0}</div><div class="sl">Messages</div></div>
+        <div class="recd-stat"><div class="sv">${st.speed_to_lead_hours!=null?st.speed_to_lead_hours+'h':'—'}</div><div class="sl">Speed to lead</div></div>
+      </div>
+      <div class="recd-cols">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="recd-card"><h4>Deals <span class="n">${(d.deals||[]).length}</span></h4>${(d.deals||[]).length?(d.deals||[]).map(recDealItem).join(''):'<div class="recd-empty2">No deals yet.</div>'}</div>
+          <div class="recd-card"><h4>Communications <span class="n">${(d.conversations||[]).length}</span></h4>${(d.conversations||[]).length?(d.conversations||[]).map(recConvItem).join(''):'<div class="recd-empty2">No conversations.</div>'}</div>
+        </div>
+        <div class="recd-card"><h4>Activity timeline</h4><div class="recd-tl">${(d.timeline||[]).length?(d.timeline||[]).slice(0,60).map(recTlRow).join(''):'<div class="recd-empty2">No activity.</div>'}</div></div>
+      </div>`;
+  }).catch(()=>{ const l=el.querySelector('.rec-loading'); if(l)l.textContent='Couldn\'t load record.'; });
+}
+function recContactEditForm(ct,co){ return `<div class="recd-edit"><div class="recd-nm" style="font-size:var(--t-16);margin-bottom:4px">Edit contact</div>
+  <label>Full name</label><input id="rec-e-name" value="${esc(ct.full_name||'')}">
+  <label>Phone</label><input id="rec-e-phone" value="${esc(ct.phone||'')}">
+  <label>Company</label><input id="rec-e-company" value="${esc(co?co.name:'')}" placeholder="Company name">
+  <div class="er"><button class="recd-btn primary" data-savec="${esc(ct.id)}">Save</button><button class="recd-btn" data-canceledit>Cancel</button></div></div>`; }
+
+function renderCompanyDetail(el,id){
+  el.innerHTML=`<div class="recd"><button class="recd-back" data-back="companies">← All companies</button><div class="rec-loading">Loading record…</div></div>`;
+  fetch('/api/crm/company?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(r=>r.json()).then(d=>{
+    if(!d||d.error){ el.querySelector('.rec-loading').textContent='Record not found.'; return; }
+    const co=d.company||{}, st=d.stats||{}, intel=d.intel||{};
+    if(window._rec.editing){ el.querySelector('.recd').innerHTML=`<button class="recd-back" data-back="companies">← All companies</button>`+recCompanyEditForm(co); return; }
+    const chips=[intel.traffic_month?`<span class="recd-badge">📈 ${Number(intel.traffic_month).toLocaleString()} visits/mo</span>`:'', (intel.ad_spend_month||intel.est_ad_spend)?`<span class="recd-badge">💸 ${recMoney(intel.ad_spend_month||intel.est_ad_spend)}/mo ad spend</span>`:'', intel.industry?`<span class="recd-badge">${esc(intel.industry)}</span>`:'', intel.employees?`<span class="recd-badge">👥 ${intel.employees}</span>`:''].filter(Boolean).join('');
+    el.querySelector('.recd').innerHTML=`
+      <button class="recd-back" data-back="companies">← All companies</button>
+      <div class="recd-hero"><span class="recd-av co">${esc((co.name||'?').slice(0,2).toUpperCase())}</span>
+        <div class="recd-id"><div class="recd-nm">${esc(co.name||'Company')}</div>${chips?`<div class="recd-badges">${chips}</div>`:''}<div class="recd-contactline">${co.domain?`<a href="https://${esc(co.domain)}" target="_blank" rel="noopener">${esc(co.domain)}</a>`:'no domain on file'}</div></div>
+        <div class="recd-heroacts"><button class="recd-btn" data-editco>Edit</button></div>
+      </div>
+      <div class="recd-stats">
+        <div class="recd-stat"><div class="sv">${recMoney(st.open_value_usd||0)}</div><div class="sl">Open pipeline</div></div>
+        <div class="recd-stat"><div class="sv">${recMoney(st.weighted_value_usd||0)}</div><div class="sl">Weighted</div></div>
+        <div class="recd-stat"><div class="sv">${recMoney(st.won_value_usd||0)}</div><div class="sl">Won</div></div>
+        <div class="recd-stat"><div class="sv">${st.contacts||0}</div><div class="sl">Contacts</div></div>
+        <div class="recd-stat"><div class="sv">${st.deals||0}</div><div class="sl">Deals</div></div>
+      </div>
+      <div class="recd-cols">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="recd-card"><h4>Contacts <span class="n">${(d.contacts||[]).length}</span></h4>${(d.contacts||[]).length?(d.contacts||[]).map(c=>`<div class="recd-item" data-contact="${esc(c.id)}">${recTierDot(c.tier)}<span class="ii"><span class="it">${esc(c.full_name||'Unknown')}</span><span class="is">${esc(c.title||c.primary_email||'')}</span></span><span class="rec-ago">${c.lifecycle_stage||''}</span></div>`).join(''):'<div class="recd-empty2">No contacts.</div>'}</div>
+          <div class="recd-card"><h4>Deals <span class="n">${(d.deals||[]).length}</span></h4>${(d.deals||[]).length?(d.deals||[]).map(recDealItem).join(''):'<div class="recd-empty2">No deals.</div>'}</div>
+          <div class="recd-card"><h4>Communications <span class="n">${(d.conversations||[]).length}</span></h4>${(d.conversations||[]).length?(d.conversations||[]).map(recConvItem).join(''):'<div class="recd-empty2">No conversations.</div>'}</div>
+        </div>
+        <div class="recd-card"><h4>Activity timeline</h4><div class="recd-tl">${(d.timeline||[]).length?(d.timeline||[]).slice(0,60).map(recTlRow).join(''):'<div class="recd-empty2">No activity.</div>'}</div></div>
+      </div>`;
+  }).catch(()=>{ const l=el.querySelector('.rec-loading'); if(l)l.textContent='Couldn\'t load record.'; });
+}
+function recCompanyEditForm(co){ return `<div class="recd-edit"><div class="recd-nm" style="font-size:var(--t-16);margin-bottom:4px">Edit company</div>
+  <label>Name</label><input id="rec-e-coname" value="${esc(co.name||'')}">
+  <label>Domain</label><input id="rec-e-codomain" value="${esc(co.domain||'')}" placeholder="example.com">
+  <div class="er"><button class="recd-btn primary" data-saveco="${esc(co.id)}">Save</button><button class="recd-btn" data-canceledit>Cancel</button></div></div>`; }
+
+function recSaveContact(id){
+  const v=s=>{const e=document.getElementById(s);return e?e.value.trim():undefined;};
+  const body={id, full_name:v('rec-e-name'), phone:v('rec-e-phone'), company_name:v('rec-e-company')};
+  fetch('/api/crm/contact',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(r=>r.json()).then(()=>{ window._rec.editing=false; if(window.crmToast)crmToast('Contact saved'); renderContactsView(); })
+    .catch(()=>{ if(window.crmToast)crmToast('Could not save'); });
+}
+function recSaveCompany(id){
+  const v=s=>{const e=document.getElementById(s);return e?e.value.trim():undefined;};
+  fetch('/api/crm/company',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id, name:v('rec-e-coname'), domain:v('rec-e-codomain')})})
+    .then(r=>r.json()).then(()=>{ window._rec.editing=false; if(window.crmToast)crmToast('Company saved'); renderCompaniesView(); })
+    .catch(()=>{ if(window.crmToast)crmToast('Could not save'); });
+}
+
+function recWire(el){
+  if(el._recWired)return; el._recWired=true;
+  el.addEventListener('click',e=>{
+    const back=e.target.closest('[data-back]'); if(back){ if(back.dataset.back==='contacts')openContactsBrowse(); else openCompaniesBrowse(); return; }
+    const editc=e.target.closest('[data-editc]'); if(editc){ window._rec.editing=true; renderContactsView(); return; }
+    const editco=e.target.closest('[data-editco]'); if(editco){ window._rec.editing=true; renderCompaniesView(); return; }
+    const cancel=e.target.closest('[data-canceledit]'); if(cancel){ window._rec.editing=false; if(window._rec.contactId)renderContactsView(); else renderCompaniesView(); return; }
+    const savec=e.target.closest('[data-savec]'); if(savec){ recSaveContact(savec.getAttribute('data-savec')); return; }
+    const saveco=e.target.closest('[data-saveco]'); if(saveco){ recSaveCompany(saveco.getAttribute('data-saveco')); return; }
+    const co=e.target.closest('[data-company]'); if(co){ e.preventDefault(); openCompanyRecord(co.getAttribute('data-company')); return; }
+    const ct=e.target.closest('[data-contact]'); if(ct){ openContactRecord(ct.getAttribute('data-contact')); return; }
+    const deal=e.target.closest('[data-deal]'); if(deal){ if(window.openDealDetail)openDealDetail(deal.getAttribute('data-deal')); return; }
+    const conv=e.target.closest('[data-conv]'); if(conv){ showView('inbox'); if(window.select)select(conv.getAttribute('data-conv')); return; }
+  });
 }
 
 /* ===================== SEQUENCES ===================== */
