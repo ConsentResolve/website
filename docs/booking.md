@@ -1,7 +1,14 @@
 # Native demo booking (Cal.com v2 + widget)
 
-Replaces the Cal.com iframe on `/demo` with a fully on-brand, 4-step booking flow. The Cal.com
-API key never reaches the browser — every Cal call goes through the Worker.
+Replaces the Cal.com iframe on `/demo` with a fully on-brand booking flow. The Cal.com API key
+never reaches the browser — every Cal call goes through the Worker.
+
+**Flow (conversion-tuned).** The commitment funnel is 4 steps: 1 Trade → 2 Lead source (single
+tap) → 3 Time (first open day preselected; times capped at 6 with a "show all") → 4 Email
+(required) + mobile (optional). The slot is **held at step 4** — that's the only place email +
+time are required. Once booked, a **skippable** step 5 asks for name / company / website (it sells
+why giving them early makes the demo better) and PATCHes the record via `/api/booking/update`;
+skipping never costs the booking. Step 6 is the final confirmation + calendar file.
 
 ```
 Browser widget  →  Worker (/api/booking/*)  →  Cal.com v2 API
@@ -44,7 +51,8 @@ captured on mount and flow through to the booking metadata.
 
 ## Endpoints
 - `GET  /api/booking/slots?start=YYYY-MM-DD&end=YYYY-MM-DD` → `{ days:[{date,label,slotCount,slots:[{time,iso}]}] }` (America/Chicago, 60s edge cache, zero-slot days dropped).
-- `POST /api/booking/create` `{ startIso,name,company,website,phone,email,trade,traffic,leadSources[],utm }` → `{ ok, booking:{uid,startIso} }` or `{ ok:false, reason:"slot_taken"|"api_error"|... }`.
+- `POST /api/booking/create` `{ startIso,email, [phone,trade,leadSources[],utm,name,company,website] }` → `{ ok, booking:{uid,startIso} }` or `{ ok:false, reason:"slot_taken"|"api_error"|"missing_fields"|... }`. Only `email` + `startIso` are required; a missing name falls back to the email local-part for the Cal attendee.
+- `POST /api/booking/update` `{ uid, [name,company,website,phone] }` → `{ ok:true }`. Post-booking enrichment; only overwrites columns the user actually filled in.
 - `POST /api/booking/event` `{ event, step, sessionId, meta }` → per-step funnel logging.
 - `GET  /api/booking/ics?uid=…` → `.ics` for "Add to my calendar".
 
