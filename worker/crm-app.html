@@ -310,16 +310,14 @@ html,body{height:100%}
   /* Deal tab — vivid, high-contrast, theme-adaptive via tokens */
   .dblock{margin-bottom:26px;max-width:640px}
   .dblock h5{margin:0 0 12px;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-2)}
-  .dstages{display:inline-flex;background:var(--surface-3);border:1px solid var(--line);border-radius:var(--r-full);padding:3px;gap:3px}
-  .dstage{border:0;background:none;color:var(--tx-2);font:inherit;font-size:var(--t-13);font-weight:800;padding:9px 24px;border-radius:var(--r-full);cursor:pointer;transition:background var(--motion),color var(--motion)}
-  .dstage:hover{background:var(--surface-1);color:var(--tx-1)}
-  .dstage.on{color:#fff}
-  .dstage.on.new{background:#475569}
-  .dstage.on.trial{background:#d98a0b}
-  .dstage.on.active{background:#0a9d5f}
-  .dstage.on.lost{background:#d0463d}
-  .dstage.dq{color:var(--bad)}
-  .dstage.dq:hover{background:var(--bad-soft)}
+  /* Stage selector: consistent outlined rounded-rectangle chips; the active one fills + reverses. */
+  .dstages{display:inline-flex;gap:7px;flex-wrap:wrap}
+  .dstage{border:1.5px solid var(--line-2);background:none;color:var(--tx-2);font:inherit;font-size:var(--t-13);font-weight:800;padding:8px 18px;border-radius:var(--r-2);cursor:pointer;transition:background var(--motion),color var(--motion),border-color var(--motion)}
+  .dstage:hover{border-color:var(--accent);color:var(--tx-1)}
+  .dstage.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+  .dstage.dq{color:var(--bad);border-color:var(--bad-soft)}
+  .dstage.dq:hover{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+  .dstage.dq.on{background:var(--bad);color:#fff;border-color:var(--bad)}
   .dstage.on.disqualified{background:var(--bad);color:#fff}
   .dq-why{margin-top:8px;font-size:12.5px;color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:6px 10px}
   .dchk{display:flex;align-items:center;gap:11px;font-size:var(--t-14);font-weight:700;color:var(--tx-1);cursor:pointer}
