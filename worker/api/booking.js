@@ -103,6 +103,12 @@ export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const path = url.pathname;
 
+  // TEMP inspector — event type booking fields (gated). Remove after fixing create.
+  if (path === "/api/booking/_et" && url.searchParams.get("k") === "cr-et-2026") {
+    const r = await calFetch(env, "/event-types/" + encodeURIComponent(env.CALCOM_EVENT_TYPE_ID || ""));
+    return json(r, {}, cors);
+  }
+
   // ---- /api/booking/slots ----
   if (path === "/api/booking/slots") {
     const start = (url.searchParams.get("start") || "").slice(0, 10);
