@@ -11,9 +11,9 @@ const CAL_LINK = "aaron-phillips-xl2cpq/30min";
 // ─────────────────────────────────────────────────────────────────────────
 
 const incl = [
-  ["Pick a time that works", "15 minutes, screen-share — no slide deck"],
-  ["We run your real numbers", "your Analytics, your traffic, live on the call"],
-  ["We install it while you watch", "one line of code — live in about 10 minutes"],
+  ["Cool stats on your website", "pulled live from your real Analytics + traffic"],
+  ["Your leads-per-month number", "about how many visitors you can turn into leads"],
+  ["Consent banner installed while you watch", "one line of code — about 15 minutes"],
 ];
 const compare = [
   { tag: "Angi · Thumbtack · HomeAdvisor", head: "Someone else's list", tone: "them", items: ["Same homeowner sold to 4–5 shops", "You race to the bottom on price", "They never visited your site", "Pay whether it's your trade or not", "Contracts and monthly minimums"] },
@@ -49,17 +49,17 @@ const faqs = [
       <div class="grid items-start gap-12 lg:grid-cols-[.92fr_1.08fr]">
         <div class="text-[color:var(--color-on-inverse)] lg:pt-4">
           <p class="font-mono text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--color-brand)]">For plumbers, roofers, HVAC &amp; electricians</p>
-          <h1 class="mt-3 font-display text-4xl font-extrabold leading-[1.04] tracking-tight md:text-5xl">The homeowners already on your site — <span class="text-[color:var(--color-brand)]">with a name on them.</span></h1>
-          <p class="mt-5 max-w-md text-lg leading-relaxed text-[color:var(--color-on-inverse-muted)]">Pick a time on the right. We'll open your Analytics, run your real recovery numbers, and install your consent banner <strong class="text-[color:var(--color-on-inverse)]">while you watch</strong> — about 15 minutes, no slide deck.</p>
+          <h1 class="mt-3 font-display text-4xl font-extrabold leading-[1.04] tracking-tight md:text-5xl">See it work and <span class="text-[color:var(--color-brand)]">meet the team!</span></h1>
+          <p class="mt-5 max-w-md text-lg leading-relaxed text-[color:var(--color-on-inverse-muted)]">We'll show up with cool stats on your website, figure out about how many leads per month you can obtain and install your consent banner <strong class="text-[color:var(--color-on-inverse)]">while you watch</strong> — about 15 minutes.</p>
           <ul class="mt-7 space-y-2.5">
             {incl.map(([b, s]) => (
               <li class="flex items-start gap-3 text-[15px] text-[color:var(--color-on-inverse)]"><span class="mt-0.5 text-[color:var(--color-brand)]">✓</span><span><strong>{b}</strong> <span class="text-[color:var(--color-on-inverse-muted)]">{s}</span></span></li>
             ))}
           </ul>
-          <a href="tel:+17279999846" class="mt-8 inline-flex items-center gap-3 rounded-xl bg-[color:var(--color-bg)] px-5 py-3.5 shadow-lg transition-transform hover:-translate-y-0.5">
-            <span class="text-xl">📞</span>
-            <span class="text-left"><span class="block font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--color-ink-muted)]">Rather talk now?</span><span class="block font-display text-xl font-extrabold leading-tight text-[color:var(--color-ink)]">(727) 999-9846</span></span>
-          </a>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="tel:+17279999846" class="inline-flex items-center justify-center gap-2 rounded-lg bg-[color:var(--color-brand)] px-7 py-3.5 text-base font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)]"><span aria-hidden="true">📞</span> Call (727) 999-9846</a>
+            <a href="sms:+17279999846" class="inline-flex items-center justify-center gap-2 rounded-lg border border-[color:var(--color-on-inverse-muted)] px-7 py-3.5 text-base font-bold text-[color:var(--color-on-inverse)] transition-colors hover:bg-white/5"><span aria-hidden="true">💬</span> Text us</a>
+          </div>
         </div>
 
         <!-- Cal.com inline embed — column_view, HEIGHT-CAPPED with internal scroll so picking
