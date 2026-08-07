@@ -3350,7 +3350,7 @@ function showView(v){
       if(host) host.innerHTML='<div class="idash-empty" style="padding:56px;text-align:center;color:var(--tx-3)">Loading live data…</div>';
     }
     else if(v==='reminders')renderReminders();
-    else if(v==='pipeline')renderPipeline();
+    else if(v==='pipeline'){ renderPipeline(); if(window.opsRefresh&&!window.CRM_LIVE_PENDING) opsRefresh(); }
     else if(v==='nurture')renderNurture();
     else if(v==='sitespy')renderSiteSpy();
     else if(v==='sequences')renderSequences();
@@ -4741,6 +4741,8 @@ const OPS_CSS = `
 .ops-empty{padding:36px;text-align:center;color:var(--tx-3);font-size:13px}
 .ops-toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--surface-3);color:var(--tx-1);border:1px solid var(--line-2);border-radius:var(--r-2);padding:10px 16px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:9999;opacity:0;transition:opacity .2s,transform .2s}
 .ops-toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.ops-refresh{border:1px solid var(--line-2);background:var(--surface-1);color:var(--tx-2);border-radius:var(--r-1);padding:5px 11px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;margin-left:auto}
+.ops-refresh:hover{border-color:var(--accent);color:var(--tx-1)}
 .opsactcell{display:flex;gap:5px;flex-wrap:wrap}
 .opsactbtn{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:800;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r-1);padding:3px 8px;cursor:pointer;white-space:nowrap}
 .opsactbtn:hover{border-color:var(--accent);color:var(--tx-1)}
@@ -4865,6 +4867,17 @@ function opsMeetingPopover(btn){
   setTimeout(()=>{ document.addEventListener('click',function h(ev){ if(!pop.contains(ev.target)){ pop.remove(); document.removeEventListener('click',h,true);} }, true); },0);
 }
 
+function opsUpdatedLabel(){ if(!window._opsTs)return ''; const s=Math.round((Date.now()-window._opsTs)/1000); if(s<5)return 'Updated just now'; if(s<60)return 'Updated '+s+'s ago'; const m=Math.round(s/60); return 'Updated '+(m<60?m+'m':'>1h')+' ago'; }
+/* Re-fetch JUST the pipeline (fast ?only=pipeline endpoint) so the ops console never shows a
+   stale page-load snapshot — runs on view-entry and on the manual Refresh button. */
+function opsRefresh(){
+  const lbl=document.getElementById('ops-updated'); if(lbl)lbl.textContent='refreshing…';
+  fetch('/api/crm/app?only=pipeline',{credentials:'same-origin',cache:'no-store'})
+    .then(r=>r.json()).then(j=>{ if(j&&Array.isArray(j.PIPELINE)){ window.PIPELINE=j.PIPELINE; window._opsTs=Date.now(); } })
+    .catch(()=>{})
+    .then(()=>{ const pv=document.getElementById('pipelineview'); if(pv&&!pv.hidden) renderPipeline(); });
+}
+window.opsRefresh=opsRefresh;
 function renderPipelineReal(el,P){
   opsCss();
   const st=window._ops=window._ops||{view:'stage',filter:'all',sort:null,dir:1};
@@ -4880,7 +4893,7 @@ function renderPipelineReal(el,P){
   });
   if(!body) body=`<div class="ops-empty">Nothing matches that filter.</div>`;
   el.innerHTML=`<div class="opswrap">
-    <div class="pipe-head" style="margin:0"><h2 style="margin:0">Pipeline — Operations</h2></div>
+    <div class="pipe-head" style="margin:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="margin:0">Pipeline — Operations</h2><span id="ops-updated" style="font-size:11.5px;color:var(--tx-3);font-weight:600">${opsUpdatedLabel()}</span><button class="ops-refresh" data-refresh="1" title="Pull the latest deals now">↻ Refresh</button></div>
     <div class="ops-kpis">${opsKpis(R)}</div>
     <div class="ops-ctl">
       <div class="ops-seg"><button data-ov="stage" class="${st.view==='stage'?'on':''}">By status</button><button data-ov="rep" class="${st.view==='rep'?'on':''}">By rep</button></div>
@@ -4904,6 +4917,7 @@ function renderPipelineReal(el,P){
   if(!el._opsWired){
     el._opsWired=true;
     el.addEventListener('click',e=>{
+      const rf=e.target.closest('[data-refresh]'); if(rf){ e.stopPropagation(); opsRefresh(); return; }
       const ov=e.target.closest('[data-ov]'); if(ov){ window._ops.view=ov.dataset.ov; renderPipeline(); return; }
       const of=e.target.closest('[data-of]'); if(of){ window._ops.filter=of.dataset.of; renderPipeline(); return; }
       const os=e.target.closest('[data-os]'); if(os){ const k=os.dataset.os; window._ops.dir=window._ops.sort===k?-window._ops.dir:1; window._ops.sort=k; renderPipeline(); return; }
