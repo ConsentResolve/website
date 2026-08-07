@@ -4613,28 +4613,258 @@ function pcCard(d){
     <div class="pc-chips">${chips}</div>${reason}
   </div>`;
 }
+/* ============================================================================
+   OPERATIONS CONSOLE — the pipeline as a COO ops table (rows, not cards).
+   Company · owner · comm stage · deal stage · value · Intel · last activity ·
+   meeting, with an attention lane, per-rep load, filters and sorting.
+   ============================================================================ */
+const OPS_CSS = `
+.opswrap{display:flex;flex-direction:column;gap:14px}
+.ops-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+@media(max-width:1180px){.ops-kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.ops-kpis{grid-template-columns:repeat(2,1fr)}}
+.ops-kpi{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);padding:12px 14px}
+.ops-kpi .kl{font-size:var(--t-11);font-weight:700;color:var(--tx-3);text-transform:uppercase;letter-spacing:.04em}
+.ops-kpi .kv{font-size:var(--t-24);font-weight:800;letter-spacing:-.02em;margin-top:3px;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.ops-kpi .ks{font-size:var(--t-11);color:var(--tx-3);font-weight:600;margin-top:1px}
+.ops-kpi.alert{border-color:var(--bad)} .ops-kpi.alert .kv{color:var(--bad)}
+.ops-kpi.warnk{border-color:var(--warn)} .ops-kpi.warnk .kv{color:var(--warn)}
+.ops-kpi.goodk .kv{color:var(--good)}
+.ops-load{display:flex;gap:5px;margin-top:7px;align-items:flex-end;height:24px}
+.ops-load .rl{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.ops-load .rl i{width:100%;border-radius:3px 3px 0 0;min-height:3px}
+.ops-load .rl small{font-size:9px;color:var(--tx-3);font-weight:800}
+.ops-ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ops-seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-2);padding:3px}
+.ops-seg button{border:0;background:none;color:var(--tx-3);font:inherit;font-size:12.5px;font-weight:700;padding:6px 13px;border-radius:var(--r-1);cursor:pointer}
+.ops-seg button.on{background:var(--accent);color:var(--on-accent)}
+.ops-chip{border:1px solid var(--line-2);background:var(--surface-1);color:var(--tx-2);border-radius:var(--r-full);padding:5px 11px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.ops-chip .cn{background:var(--surface-3);color:var(--tx-2);border-radius:var(--r-full);padding:0 6px;font-size:10.5px;min-width:16px;text-align:center}
+.ops-chip.on{border-color:var(--accent);background:var(--accent-soft);color:var(--tx-1)}
+.ops-chip.on .cn{background:var(--accent);color:var(--on-accent)}
+.ops-tbl{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-3);overflow:hidden}
+.ops-scroll{overflow-x:auto}
+.ops-h,.ops-row{display:grid;grid-template-columns:4px minmax(220px,1.4fr) 122px 138px 158px 92px 150px minmax(200px,1.2fr) 122px;align-items:center;min-width:1140px}
+.ops-h{background:var(--surface-2);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2}
+.ops-h span{font-size:10.5px;font-weight:800;color:var(--tx-3);text-transform:uppercase;letter-spacing:.04em;padding:8px 12px;white-space:nowrap}
+.ops-h span.sortable{cursor:pointer;user-select:none} .ops-h span.sortable:hover{color:var(--tx-1)}
+.ops-h span:first-child{padding:0}
+.ops-grp{border-top:1px solid var(--line)}
+.ops-grp:first-of-type{border-top:0}
+.ops-gh{display:flex;align-items:center;gap:9px;padding:9px 14px;background:var(--surface-2)}
+.ops-gh .gt{font-size:11.5px;font-weight:800;letter-spacing:.02em;text-transform:uppercase}
+.ops-gh .gc{font-size:11px;font-weight:700;color:var(--tx-3);background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-full);padding:1px 8px}
+.ops-gh .gm{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--tx-2);font-family:var(--font-mono)}
+.ops-row{border-top:1px solid var(--line);cursor:pointer;position:relative;transition:background .1s}
+.ops-row:hover{background:var(--surface-2)}
+.ops-row>div{padding:10px 12px;min-width:0}
+.ops-row .stp{padding:0!important;align-self:stretch}
+.ops-row .stp i{display:block;width:4px;height:100%;min-height:50px;background:transparent}
+.ops-row.att .stp i{background:var(--bad)} .ops-row.attw .stp i{background:var(--warn)}
+.ops-row.booked .stp i{background:var(--accent)} .ops-row.replying .stp i{background:var(--good)}
+.ops-row.autor .stp i{background:#7c8cff}
+.opsco{display:flex;flex-direction:column;gap:2px;min-width:0}
+.opsco .c1{display:flex;align-items:center;gap:7px;min-width:0}
+.opsco .nm{font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.opsco .td{font-size:9.5px;font-weight:800;color:var(--tx-3);border:1px solid var(--line-2);border-radius:5px;padding:0 5px;flex:0 0 auto;text-transform:uppercase}
+.opsco .c2{font-size:11.5px;color:var(--tx-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.opsdot{width:7px;height:7px;border-radius:50%;background:var(--bad);flex:0 0 auto;box-shadow:0 0 0 3px var(--bad-soft)}
+.opsown{display:flex;align-items:center;gap:8px}
+.opsav{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:9.5px;font-weight:800;flex:0 0 auto}
+.opsown .on{font-size:12px;font-weight:700;color:var(--tx-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.opsown.un .opsav{background:var(--surface-2);border:1.5px dashed var(--line-2);color:var(--tx-3)}
+.opsown.un .on{color:var(--bad);font-weight:800}
+.opsown.bot .opsav{background:rgba(124,140,255,.16);color:#7c8cff;border:1px solid rgba(124,140,255,.4)}
+.opsown.bot .on{color:#7c8cff}
+.opspill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;padding:4px 9px;border-radius:var(--r-full);white-space:nowrap}
+.opspill.replying{background:var(--good-soft);color:var(--good)}
+.opspill.open{background:var(--warn-soft);color:var(--warn)}
+.opspill.auto{background:rgba(124,140,255,.16);color:#7c8cff}
+.opspill.booked{background:var(--accent-soft);color:var(--accent-hi)}
+.opspill.snoozed,.opspill.closed{background:var(--surface-3);color:var(--tx-3)}
+.opspill.won{background:var(--good-soft);color:var(--good)}
+.opspd{width:6px;height:6px;border-radius:50%;background:currentColor;flex:0 0 auto}
+.opspd.live{animation:opspulse 1.4s infinite}
+@keyframes opspulse{0%,100%{opacity:1}50%{opacity:.25}}
+.opsstg{display:flex;flex-direction:column;gap:5px}
+.opsstg .sl{font-size:11.5px;font-weight:700;color:var(--tx-2);display:flex;justify-content:space-between}
+.opsstg .sl b{font-family:var(--font-mono);color:var(--tx-3);font-weight:700}
+.opsmeter{height:5px;border-radius:5px;background:var(--surface-3);overflow:hidden}
+.opsmeter i{display:block;height:100%;border-radius:5px;background:var(--accent)}
+.opsval{font-family:var(--font-mono);font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.opsval.zero{color:var(--tx-3);font-weight:600;font-size:12px}
+.opsval em{display:block;font-size:9px;color:var(--tx-3);font-style:normal;font-weight:700}
+.opsintel{display:flex;flex-direction:column;gap:3px}
+.opsfit{font-size:9.5px;font-weight:800;text-transform:uppercase;border-radius:5px;padding:1px 6px;width:max-content}
+.opsfit.hot{background:var(--bad-soft);color:var(--bad)} .opsfit.warm{background:var(--warn-soft);color:var(--warn)}
+.opsfit.cold,.opsfit.none{background:var(--surface-3);color:var(--tx-3)}
+.opsintel .big{font-size:12.5px;font-weight:800;font-family:var(--font-mono)} .opsintel .big em{font-style:normal;color:var(--tx-3);font-weight:600;font-size:10px;font-family:var(--font-sans)}
+.opslast{display:flex;flex-direction:column;gap:2px;min-width:0}
+.opslast .lt{font-size:12px;color:var(--tx-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.opslast .ag{font-size:11px;font-weight:700;color:var(--tx-3);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.opslast .ag.stale{color:var(--bad)}
+.opswhy{font-size:9.5px;font-weight:800;border-radius:5px;padding:1px 6px}
+.opswhy.bad{color:var(--bad);background:var(--bad-soft)} .opswhy.warn{color:var(--warn);background:var(--warn-soft)}
+.opskud{color:var(--good);background:var(--good-soft);font-size:9.5px;font-weight:800;border-radius:5px;padding:1px 6px;width:max-content;margin-top:2px}
+.opsmtg{font-size:11px;font-weight:800;color:var(--accent-hi);background:var(--accent-soft);border-radius:7px;padding:5px 9px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.opsmtg small{display:block;font-weight:700;color:var(--tx-3);font-size:9.5px}
+.opsmtg-none{color:var(--tx-3);font-size:12px}
+.opsacts{position:absolute;right:12px;top:50%;transform:translateY(-50%);display:none;gap:5px;background:var(--surface-1);border:1px solid var(--line-2);border-radius:var(--r-2);padding:5px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.ops-row:hover .opsacts{display:flex}
+.opsacts button{border:0;background:none;font-size:11px;font-weight:800;color:var(--tx-2);cursor:pointer;padding:3px 8px;border-radius:var(--r-1)}
+.opsacts button:hover{background:var(--surface-2);color:var(--tx-1)}
+.opsacts button.help{color:var(--warn)} .opsacts button.kud{color:var(--good)}
+.ops-empty{padding:36px;text-align:center;color:var(--tx-3);font-size:13px}
+.ops-toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--surface-3);color:var(--tx-1);border:1px solid var(--line-2);border-radius:var(--r-2);padding:10px 16px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:9999;opacity:0;transition:opacity .2s,transform .2s}
+.ops-toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+`;
+function opsCss(){ if(document.getElementById('ops-css'))return; const s=document.createElement('style'); s.id='ops-css'; s.textContent=OPS_CSS; document.head.appendChild(s); }
+const OPS_COMM={ replying:{lbl:'Actively replying',live:true}, open:{lbl:'Open'}, auto:{lbl:'Auto'}, booked:{lbl:'Booked'}, snoozed:{lbl:'Snoozed'}, won:{lbl:'Won'}, closed:{lbl:'Closed'} };
+function opsMoney(n){ n=Number(n)||0; return '$'+(n>=1000?(n/1000).toFixed(n%1000?1:0)+'k':n); }
+function opsAge(min){ if(min==null)return {t:'—',h:null}; const h=min/60; let t; if(min<60)t=min+'m'; else if(h<48)t=Math.round(h)+'h'; else t=Math.round(h/24)+'d'; return {t,h}; }
+function opsDerive(P){ return (P||[]).map(d=>{
+  const a=opsAge(d.age_min); const comm=d.comm||'open'; let att=null;
+  if(comm==='replying'&&a.h!=null&&a.h>2) att={t:'AWAITING REPLY · '+a.t,lvl:'bad'};
+  else if(comm==='open'&&a.h!=null&&a.h>24) att={t:'STALLED · '+a.t,lvl:'bad'};
+  else if(comm==='open'&&!d.owner_id) att={t:'UNASSIGNED',lvl:'warn'};
+  const kudos=(comm==='booked'&&a.h!=null&&a.h<1)?'Booked fast ⚡':null;
+  return Object.assign({},d,{_a:a,_comm:comm,_att:att,_kud:kudos});
+}); }
+function opsActive(d){ return ['replying','open','auto','booked'].includes(d._comm); }
+function opsIntelBig(d){
+  if(d.est_spend!=null) return {v:opsMoney(d.est_spend),u:'/mo ad spend'};
+  if(d.intel&&d.intel.visits) return {v:pcFmtK(d.intel.visits),u:'visits/mo'};
+  if(d.score!=null) return {v:Math.round(d.score),u:'intel score'};
+  return null;
+}
+
+function opsKpis(R){
+  const active=R.filter(opsActive);
+  const wtd=active.reduce((s,d)=>s+(d.value_usd||0)*((d.prob!=null?d.prob:0)/100),0);
+  const raw=active.reduce((s,d)=>s+(d.value_usd||0),0);
+  const att=R.filter(d=>d._att).length;
+  const stale=R.filter(d=>d._comm==='open'&&d._a.h!=null&&d._a.h>24).length;
+  const booked=R.filter(d=>d.meeting).length;
+  const replying=R.filter(d=>d._comm==='replying').length;
+  const auto=R.filter(d=>d._comm==='auto').length;
+  const load={}; active.forEach(d=>{ if(d._comm==='auto')return; const k=d.owner?d.owner.init:'—'; load[k]=load[k]||{n:0,c:d.owner?d.owner.color:'var(--tx-3)'}; load[k].n++; });
+  const keys=Object.keys(load).slice(0,5); const maxL=Math.max(1,...keys.map(k=>load[k].n));
+  const bars=keys.length?keys.map(k=>`<div class="rl"><i style="height:${4+load[k].n/maxL*18}px;background:${load[k].c}"></i><small>${k}·${load[k].n}</small></div>`).join(''):'<small style="color:var(--tx-3)">—</small>';
+  return `
+  <div class="ops-kpi"><div class="kl">Weighted pipeline</div><div class="kv">${opsMoney(Math.round(wtd))}</div><div class="ks">${opsMoney(raw)} raw · ${active.filter(d=>d.value_usd).length} sized</div></div>
+  <div class="ops-kpi alert"><div class="kl">Needs attention</div><div class="kv">${att}</div><div class="ks">stalled · unassigned · dropped</div></div>
+  <div class="ops-kpi warnk"><div class="kl">Open &gt; 24h</div><div class="kv">${stale}</div><div class="ks">waiting on us too long</div></div>
+  <div class="ops-kpi goodk"><div class="kl">Booked</div><div class="kv">${booked}</div><div class="ks">demo on the calendar</div></div>
+  <div class="ops-kpi"><div class="kl">Live now</div><div class="kv">${replying}</div><div class="ks">replying · ${auto} on auto</div></div>
+  <div class="ops-kpi"><div class="kl">Rep load</div><div class="ops-load">${bars}</div><div class="ks" style="margin-top:5px">active per rep</div></div>`;
+}
+const OPS_FILTERS=[['all','All'],['att','Needs attention'],['booked','Booked'],['stale','Open >24h'],['unassigned','Unassigned']];
+function opsPass(d,f){ switch(f){ case'att':return !!d._att; case'booked':return !!d.meeting; case'stale':return d._comm==='open'&&d._a.h!=null&&d._a.h>24; case'unassigned':return d._comm==='open'&&!d.owner_id; default:return true; } }
+function opsFilters(R,cur){ return OPS_FILTERS.map(([k,l])=>{ const n=R.filter(d=>opsPass(d,k)).length; return `<button class="ops-chip ${cur===k?'on':''}" data-of="${k}">${l}<span class="cn">${n}</span></button>`; }).join(''); }
+
+function opsOwnerCell(d){
+  if(d._comm==='auto'&&!d.owner) return `<div class="opsown bot"><span class="opsav">⚙</span><span class="on">Automation</span></div>`;
+  if(!d.owner) return `<div class="opsown un"><span class="opsav">?</span><span class="on">Assign</span></div>`;
+  return `<div class="opsown"><span class="opsav" style="background:${d.owner.color}">${esc(d.owner.init)}</span><span class="on">${esc(d.owner.name.split(' ')[0])}</span></div>`;
+}
+function opsRow(d){
+  const c=OPS_COMM[d._comm]||OPS_COMM.open;
+  const cls=[d._att?(d._att.lvl==='bad'?'att':'attw'):'', d._comm==='booked'?'booked':'', d._comm==='replying'?'replying':'', d._comm==='auto'?'autor':''].join(' ');
+  const pill=`<span class="opspill ${d._comm}"><span class="opspd ${c.live?'live':''}"></span>${c.lbl}</span>`;
+  const stLbl=(STAGE_LABELS&&STAGE_LABELS[d.stage])||d.stage||'—';
+  const dead=['lost','disqualified'].includes(d.stage);
+  const stg=`<div class="opsstg"><div class="sl">${esc(stLbl)}<b>${d.prob!=null?d.prob+'%':''}</b></div><div class="opsmeter"><i style="width:${d.prob||0}%;${dead?'background:var(--tx-3)':''}"></i></div></div>`;
+  const val=d.value_usd?`<div class="opsval">${opsMoney(d.value_usd)}</div>`:`<div class="opsval zero">—<em>unsized</em></div>`;
+  const fit=d.tier||'none'; const big=opsIntelBig(d);
+  const intel=`<div class="opsintel"><span class="opsfit ${fit}">${d.tier||'no intel'}</span>${big?`<span class="big">${big.v}<em> ${big.u}</em></span>`:''}</div>`;
+  const stale=d._comm==='open'&&d._a.h!=null&&d._a.h>24;
+  const last=`<div class="opslast"><div class="lt">${esc(d.last_label||'—')}</div><div class="ag ${stale?'stale':''}">${d._a.t} ago${d._att?`<span class="opswhy ${d._att.lvl}">${esc(d._att.t)}</span>`:''}</div>${d._kud?`<span class="opskud">★ ${esc(d._kud)}</span>`:''}</div>`;
+  const mtg=d.meeting?`<span class="opsmtg">▦ ${esc(d.meeting.label)}</span>`:`<span class="opsmtg-none">—</span>`;
+  const acts=`<div class="opsacts">${(d.owner&&d._att)?`<button class="help" data-act="nudge" data-id="${d.id}">⚑ Nudge</button>`:''}${d._kud?`<button class="kud" data-act="kudos" data-id="${d.id}">★ Kudos</button>`:''}<button data-act="open" data-id="${d.id}">Open →</button></div>`;
+  return `<div class="ops-row ${cls}" data-open="${d.id}">
+    <div class="stp"><i></i></div>
+    <div class="opsco"><div class="c1">${d.tier==='hot'?'<span class="opsdot" title="Hot"></span>':''}<span class="nm">${esc(d.company||d.name||'—')}</span></div><div class="c2">${esc(d.company?(d.name||d.domain||''):(d.domain||''))||'—'}</div></div>
+    ${opsOwnerCell(d)}
+    <div>${pill}</div>
+    <div>${stg}</div>
+    ${val}
+    <div>${intel}</div>
+    ${last}
+    <div>${mtg}</div>
+    ${acts}
+  </div>`;
+}
+const OPS_SGROUPS=[
+  {k:'att',t:'▲ Needs attention',c:'var(--bad)',test:d=>!!d._att},
+  {k:'booked',t:'▦ Booked / upcoming',c:'var(--accent-hi)',test:d=>d._comm==='booked'&&!d._att},
+  {k:'replying',t:'◉ Actively replying',c:'var(--good)',test:d=>d._comm==='replying'&&!d._att},
+  {k:'open',t:'◷ Open — waiting on us',c:'var(--warn)',test:d=>d._comm==='open'&&!d._att},
+  {k:'auto',t:'⚙ Auto — sequence running',c:'#7c8cff',test:d=>d._comm==='auto'&&!d._att},
+  {k:'later',t:'◍ Later / closed',c:'var(--tx-3)',test:d=>['snoozed','won','closed'].includes(d._comm)&&!d._att}
+];
+function opsRepGroups(R){
+  const seen=new Map();
+  R.forEach(d=>{ if(d.owner){ if(!seen.has(d.owner.init)) seen.set(d.owner.init,{t:d.owner.init+' · '+d.owner.name,c:d.owner.color,ids:new Set()}); } });
+  const g=[...seen.entries()].map(([k,v])=>({k,t:v.t,c:v.c,test:d=>d.owner&&d.owner.init===k}));
+  g.push({k:'un',t:'? · Unassigned',c:'var(--bad)',test:d=>!d.owner&&d._comm!=='auto'});
+  g.push({k:'bot',t:'⚙ Automation',c:'#7c8cff',test:d=>d._comm==='auto'&&!d.owner});
+  return g;
+}
+function opsSort(rows,st){ if(!st.sort)return rows; const g={company:d=>(d.company||d.name||'').toLowerCase(),owner:d=>d.owner?d.owner.name:'zz',comm:d=>d._comm,prob:d=>d.prob||0,value:d=>d.value_usd||0,intel:d=>d.est_spend||(d.intel&&d.intel.visits)||d.score||0,age:d=>d._a.h||0}; const f=g[st.sort]; if(!f)return rows; return [...rows].sort((a,b)=>{const x=f(a),y=f(b);return (x>y?1:x<y?-1:0)*st.dir;}); }
+
+function opsToast(msg){ let t=document.getElementById('ops-toast'); if(!t){ t=document.createElement('div'); t.id='ops-toast'; t.className='ops-toast'; document.body.appendChild(t);} t.textContent=msg; t.classList.add('show'); clearTimeout(t._to); t._to=setTimeout(()=>t.classList.remove('show'),2200); }
+
 function renderPipelineReal(el,P){
-  // Disqualified is a real stage — show it by default. The toggle now only HIDES it
-  // (opt-out, persisted), so it's never silently missing when deals get disqualified.
-  if(window._showDq===undefined){ try{window._showDq=localStorage.getItem('pipeHideDq')!=='1';}catch(_){window._showDq=true;} }
-  const showDq=!!window._showDq;
-  const stages = showDq ? PSTAGES.concat([['disqualified','Disqualified']]) : PSTAGES;
-  const wtd=d=>(d.value_usd||0)*((d.prob!=null?d.prob:100)/100);
-  const col=([k,l])=>{
-    const items=P.filter(d=>d.stage===k);
-    const sum=items.reduce((a,d)=>a+(d.value_usd||0),0);
-    const cards=items.map(pcCard).join('') || `<div class="pcol-empty">${k==='disqualified'?'None':'No deals'}</div>`;
-    return `<div class="pcol ${k}" ondragover="pipeOver(event)" ondragleave="pipeLeave(event)" ondrop="pipeDropReal(event,'${k}')"><div class="pcol-h"><span class="pcol-t">${l}</span><span class="pcol-c">${items.length}</span><span class="pcol-sum">$${sum.toLocaleString()}</span></div><div class="pcol-body">${cards}</div></div>`;
-  };
-  const cols=stages.map(col).join('');
-  const openD=P.filter(d=>['new','lead','trial'].includes(d.stage));
-  const total=openD.reduce((a,d)=>a+(d.value_usd||0),0);
-  const wtotal=Math.round(openD.reduce((a,d)=>a+wtd(d),0));
-  const dqCount=P.filter(d=>d.stage==='disqualified').length;
-  el.innerHTML=`<div class="pipe-head"><h2>Pipeline</h2>
-    <div class="pipe-total">${IC.pipe} Open pipeline <b>$${total.toLocaleString()}</b> · weighted <b>$${wtotal.toLocaleString()}</b> · ${openD.length} deal${openD.length===1?'':'s'}</div>
-    <label class="pipe-toggle"><input type="checkbox" ${showDq?'checked':''} onchange="toggleDq(this.checked)"> Show disqualified${dqCount?` (${dqCount})`:''}</label>
-    </div><div class="pboard">${cols}</div>`;
+  opsCss();
+  const st=window._ops=window._ops||{view:'stage',filter:'all',sort:null,dir:1};
+  const R=opsDerive(P);
+  const groups=st.view==='rep'?opsRepGroups(R):OPS_SGROUPS;
+  let body='';
+  groups.forEach(g=>{
+    let rows=R.filter(g.test).filter(d=>opsPass(d,st.filter));
+    rows=opsSort(rows,st);
+    if(!rows.length)return;
+    const sum=rows.reduce((a,d)=>a+(d.value_usd||0),0);
+    body+=`<div class="ops-grp"><div class="ops-gh"><span class="gt" style="color:${g.c||'var(--tx-1)'}">${g.t}</span><span class="gc">${rows.length}</span>${sum?`<span class="gm">${opsMoney(sum)} in play</span>`:''}</div>${rows.map(opsRow).join('')}</div>`;
+  });
+  if(!body) body=`<div class="ops-empty">Nothing matches that filter.</div>`;
+  el.innerHTML=`<div class="opswrap">
+    <div class="pipe-head" style="margin:0"><h2 style="margin:0">Pipeline — Operations</h2></div>
+    <div class="ops-kpis">${opsKpis(R)}</div>
+    <div class="ops-ctl">
+      <div class="ops-seg"><button data-ov="stage" class="${st.view==='stage'?'on':''}">By status</button><button data-ov="rep" class="${st.view==='rep'?'on':''}">By rep</button></div>
+      ${opsFilters(R,st.filter)}
+    </div>
+    <div class="ops-tbl"><div class="ops-scroll">
+      <div class="ops-h">
+        <span></span>
+        <span class="sortable" data-os="company">Company · Contact</span>
+        <span class="sortable" data-os="owner">Owner</span>
+        <span class="sortable" data-os="comm">Comm stage</span>
+        <span class="sortable" data-os="prob">Deal stage</span>
+        <span class="sortable" data-os="value">Value</span>
+        <span class="sortable" data-os="intel">Intel</span>
+        <span class="sortable" data-os="age">Last activity</span>
+        <span>Meeting</span>
+      </div>
+      <div>${body}</div>
+    </div></div>
+  </div>`;
+  if(!el._opsWired){
+    el._opsWired=true;
+    el.addEventListener('click',e=>{
+      const ov=e.target.closest('[data-ov]'); if(ov){ window._ops.view=ov.dataset.ov; renderPipeline(); return; }
+      const of=e.target.closest('[data-of]'); if(of){ window._ops.filter=of.dataset.of; renderPipeline(); return; }
+      const os=e.target.closest('[data-os]'); if(os){ const k=os.dataset.os; window._ops.dir=window._ops.sort===k?-window._ops.dir:1; window._ops.sort=k; renderPipeline(); return; }
+      const act=e.target.closest('[data-act]');
+      if(act){ e.stopPropagation(); const id=act.dataset.id;
+        if(act.dataset.act==='open'){ openDealDetail(id); }
+        else if(act.dataset.act==='nudge'){ const d=(window.PIPELINE||[]).find(x=>x.id===id); opsToast('Nudged '+((d&&d.owner&&d.owner.name.split(' ')[0])||'the rep')+' about '+((d&&(d.company||d.name))||'this deal')); }
+        else if(act.dataset.act==='kudos'){ const d=(window.PIPELINE||[]).find(x=>x.id===id); opsToast('★ Kudos sent for '+((d&&(d.company||d.name))||'a job well done')); }
+        return; }
+      const row=e.target.closest('[data-open]'); if(row){ openDealDetail(row.dataset.open); }
+    });
+  }
 }
 function renderPipeline(){
   const el=document.getElementById('pipelineview'); if(!el) return;

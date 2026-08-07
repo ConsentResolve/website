@@ -466,16 +466,32 @@ export async function onRequestGet({ request, env }) {
   let PIPELINE = null;
   try {
     await env.DB.prepare("ALTER TABLE deals ADD COLUMN disqualify_reason TEXT").run().catch(() => {}); // idempotent
+    // Guard: the ops-console query LEFT-JOINs bookings; on a fresh env the table may not exist yet
+    // (it's created lazily by the booking endpoints). Without this the whole query would throw and
+    // silently fall back to the demo kanban.
+    await env.DB.prepare(
+      `CREATE TABLE IF NOT EXISTS bookings (id TEXT PRIMARY KEY, uid TEXT, session_id TEXT, name TEXT, company TEXT, website TEXT, phone TEXT, email TEXT, trade TEXT, traffic TEXT, lead_sources TEXT, start_iso TEXT, utm_json TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))`
+    ).run().catch(() => {});
     const OWCOL = ["#00b985", "#3b82f6", "#8b5cf6", "#f59e0b", "#ef4444", "#0ea5e9"];
     const hashStr = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return h; };
+    // Ops-console needs conversation state (comm stage / age), the linked contact's booked
+    // demo (bookings table, matched by email), and the last message direction. All LEFT JOINs
+    // so a deal with no conversation still shows.
     const rows = (await env.DB.prepare(
       `SELECT d.id, d.title, d.value_cents, d.close_probability, d.lead_status, d.owner_id, d.disqualify_reason,
-              ct.full_name, ct.lead_score, ct.tier, co.name AS company, co.domain AS domain, co.enrichment AS enrichment, u.name AS owner_name
+              ct.full_name, ct.primary_email, ct.lead_score, ct.tier, ct.lifecycle_stage,
+              co.name AS company, co.domain AS domain, co.enrichment AS enrichment, u.name AS owner_name,
+              cv.status AS conv_status, cv.snooze_until, cv.assignee_id, cv.workflow_run_id,
+              cv.last_message_at, cv.last_message_preview, au.name AS assignee_name,
+              (SELECT m.direction FROM messages m WHERE m.conversation_id = cv.id ORDER BY COALESCE(m.sent_at, m.created_at) DESC LIMIT 1) AS last_dir,
+              (SELECT MIN(bk.start_iso) FROM bookings bk WHERE bk.email = ct.primary_email AND substr(bk.start_iso,1,10) >= date('now')) AS meeting_iso
        FROM deals d
        LEFT JOIN contacts ct ON ct.id = d.primary_contact_id
        LEFT JOIN companies co ON co.id = d.company_id
        LEFT JOIN users u ON u.id = d.owner_id
-       ORDER BY d.value_cents DESC LIMIT 120`
+       LEFT JOIN conversations cv ON cv.id = d.origin_conversation_id
+       LEFT JOIN users au ON au.id = cv.assignee_id
+       ORDER BY d.updated_at DESC LIMIT 200`
     ).all()).results || [];
     // 5-stage funnel: New → Lead → Trial → Customer → Lost (+ Disqualified). Driven by
     // lead_status; probability only breaks the tie for legacy "active" rows.
@@ -492,26 +508,55 @@ export async function onRequestGet({ request, env }) {
       const nm = r.full_name || r.title || "Untitled deal";
       const ownNm = r.owner_name || "";
       // Business intel pulled from the company enrichment blob (best-effort) — surfaced on the card.
-      let intel = null;
+      let intel = null, estSpend = null;
       try {
         const en = r.enrichment ? JSON.parse(r.enrichment) : null;
-        if (en) intel = {
-          employees: en.employees != null ? en.employees : null,
-          visits: en.traffic_month != null ? en.traffic_month : null,
-          industry: en.industry || null,
-          signal: en.signal || null,
-        };
+        if (en) {
+          intel = {
+            employees: en.employees != null ? en.employees : null,
+            visits: en.traffic_month != null ? en.traffic_month : null,
+            industry: en.industry || null,
+            signal: en.signal || null,
+          };
+          estSpend = [en.ad_spend_month, en.est_ad_spend, en.monthly_ad_spend, en.ad_spend, en.spend_month]
+            .map((v) => (typeof v === "string" ? Number(String(v).replace(/[^0-9.]/g, "")) : v))
+            .find((v) => v != null && !Number.isNaN(v) && v > 0) ?? null;
+        }
       } catch (_) {}
+
+      const stage = stageOf(r);
+      const lastTs = r.last_message_at ? Date.parse(r.last_message_at) : null;
+      const ageMin = lastTs ? Math.max(0, Math.round((Date.now() - lastTs) / 60000)) : null;
+      const snoozed = (r.snooze_until && Date.parse(r.snooze_until) > Date.now()) || r.conv_status === "snoozed";
+      // Communication stage — distinct from the deal stage. Derived from the linked conversation.
+      let comm;
+      if (stage === "customer") comm = "won";
+      else if (stage === "lost" || stage === "disqualified") comm = "closed";
+      else if (r.meeting_iso) comm = "booked";
+      else if (r.conv_status === "archived") comm = "closed";
+      else if (snoozed) comm = "snoozed";
+      else if (r.last_dir === "in") comm = "replying";           // they replied — ball's in our court
+      else if (r.assignee_id || r.owner_id) comm = "open";        // a human owns it, awaiting next move
+      else if (r.workflow_run_id) comm = "auto";                  // sequence running, no human needed
+      else comm = "open";
+
       return {
         id: r.id, name: nm, company: r.company || "",
         value_usd: Math.round((r.value_cents || 0) / 100),
         prob: r.close_probability == null ? null : Number(r.close_probability),
         status: (r.lead_status || "active").toLowerCase(),
-        stage: stageOf(r),
+        stage,
         score: r.lead_score == null ? null : Number(r.lead_score),  // business-intel score 0–100
         tier: (r.tier || "").toLowerCase() || null,                  // hot | warm | cold
         domain: r.domain || null,
-        intel,
+        intel, est_spend: estSpend,
+        // ---- ops-console fields ----
+        comm,
+        age_min: ageMin,
+        last_ts: lastTs,
+        last_label: r.last_message_preview || null,
+        meeting: r.meeting_iso ? { iso: r.meeting_iso, label: humanTime(r.meeting_iso) } : null,
+        assignee: r.assignee_name || null,
         disqualify_reason: r.disqualify_reason || null,
         owner_id: r.owner_id || null,
         owner: ownNm ? { init: inits(ownNm), name: ownNm, color: OWCOL[Math.abs(hashStr(ownNm)) % OWCOL.length] } : null,
