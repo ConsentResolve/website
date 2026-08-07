@@ -242,7 +242,7 @@ export async function onRequestGet({ request, env }) {
     for (const cr of await selectIn(contactIds, `SELECT contact_id, channel, action FROM consent_records WHERE contact_id IN __IN__ ORDER BY occurred_at ASC`)) {
       const s = consentByCt.get(cr.contact_id) || {}; s[cr.channel] = cr.action; consentByCt.set(cr.contact_id, s);
     }
-    for (const d of await selectIn(contactIds, `SELECT primary_contact_id, title, value_cents, close_probability FROM deals WHERE primary_contact_id IN __IN__`)) {
+    for (const d of await selectIn(contactIds, `SELECT primary_contact_id, title, value_cents, close_probability, lead_status FROM deals WHERE primary_contact_id IN __IN__`)) {
       if (!dealByCt.has(d.primary_contact_id)) dealByCt.set(d.primary_contact_id, d);
     }
     // Prefer an ACTIVE run when a contact has more than one (e.g. an old completed
@@ -348,7 +348,7 @@ export async function onRequestGet({ request, env }) {
         : { step: 0, total: 0, label: "—", status: "none" },
       sla: { min: mins, level: unread ? (mins > 15 ? "bad" : mins > 5 ? "warn" : "none") : "none" },
       intel: (() => { const g = geoByCt.get(r.contact_id); return { fit: "unknown", time_on_site: "—", pages: 0, first_seen: humanTime(r.last_message_at) || "—", speed_to_lead_h: null, cost_per_lead: null, src_label: srcLabelMap[src] || "Lead", site_status: "—", pages_viewed: [], ip: g ? (g.ip || null) : null, location: g ? ([g.city, g.region, g.country].filter(Boolean).join(", ") || null) : null }; })(),
-      deal: deal ? { title: deal.title || r.company || r.full_name || "Deal", value_usd: Math.round((deal.value_cents || 0) / 100), prob: deal.close_probability || 63 } : null,
+      deal: deal ? { title: deal.title || r.company || r.full_name || "Deal", value_usd: Math.round((deal.value_cents || 0) / 100), prob: deal.close_probability || 63, status: (deal.lead_status || "active").toLowerCase() } : null,
       messages: cmsgs.length ? cmsgs : [{ dir: "system", body: "No messages on this conversation yet.", ts: humanTime(r.last_message_at) || "" }],
     };
   });

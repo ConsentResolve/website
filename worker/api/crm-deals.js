@@ -141,6 +141,24 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, id: dealId, lead_status: "disqualified" }, {}, cors);
   }
 
+  // Edits from a lead's Intel/Deal tab only know the CONVERSATION id. Resolve it to the deal
+  // (find-or-create), set b.id, then reuse the normal id-update path below (incl. CAPI on trial/won).
+  if (b.conversation && b.id === undefined) {
+    const conv = await env.DB.prepare("SELECT id, contact_id, company_id FROM conversations WHERE id=?").bind(b.conversation).first().catch(() => null);
+    if (!conv) return json({ error: "conversation_not_found" }, { status: 404 }, cors);
+    const existing = await env.DB.prepare(
+      "SELECT id FROM deals WHERE origin_conversation_id=? OR (primary_contact_id IS NOT NULL AND primary_contact_id=?) ORDER BY created_at LIMIT 1"
+    ).bind(b.conversation, conv.contact_id).first().catch(() => null);
+    if (existing && existing.id) b.id = existing.id;
+    else {
+      const nid = ulid();
+      await env.DB.prepare(
+        "INSERT INTO deals (id, company_id, primary_contact_id, origin_conversation_id, owner_id, lead_status) VALUES (?,?,?,?,?,?)"
+      ).bind(nid, conv.company_id || null, conv.contact_id || null, b.conversation, actor, "active").run().catch(() => {});
+      b.id = nid;
+    }
+  }
+
   if (!b.id) return json({ error: "id_required" }, { status: 400 }, cors);
   await env.DB.prepare("ALTER TABLE deals ADD COLUMN disqualify_reason TEXT").run().catch(() => {}); // idempotent
   // Capture the PRIOR lead_status so we only fire a CRM CAPI conversion on a real transition
@@ -195,5 +213,5 @@ export async function onRequestPost({ request, env }) {
       meta: { received: capi ? (capi.received || 0) : 0, error: capi ? (capi.error || null) : "not_sent", value_cents: valueCents ?? null },
     }).catch(() => {});
   }
-  return json({ ok: true }, {}, cors);
+  return json({ ok: true, id: b.id }, {}, cors);
 }

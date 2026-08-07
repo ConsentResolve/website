@@ -3255,17 +3255,43 @@ function predictValue(v){return predictLeads(v)*CR_PRICE;}
 function snap(v){if(v<=100)return 100;if(v>=100000)return 100000;const m=Math.pow(10,Math.floor(Math.log10(v))-1);return Math.round(v/m)*m;}
 const DEALSTATE={};
 function initStage(id){const c=DATA.conversations.find(x=>x.id===id);if(!c)return'new';const s=c.sequence.status;if(s==='booked'||s==='replied')return'lead';if(s==='opted_out'||s==='blocked')return'lost';return'new';}
-function dstate(id){if(!DEALSTATE[id]){const e=(window.ENRICH||{})[id]||{},st=initStage(id);DEALSTATE[id]={stage:st,trial:st==='trial',username:'',visitors:e.traffic_month||1000};}return DEALSTATE[id];}
+function dstate(id){if(!DEALSTATE[id]){const e=(window.ENRICH||{})[id]||{},st=initStage(id);DEALSTATE[id]={stage:st,trial:st==='trial',username:'',visitors:e.traffic_month||1000,value_usd:null,_synced:false};}return DEALSTATE[id];}
+/* Seed the Deal tab from the REAL persisted deal (attached to the conversation as c.deal) so the
+   Stage + Deal size reflect what's saved — not always "New". Runs once per session per lead. */
+const STATUS_TO_STAGE={new:'new',active:'lead',lead:'lead',contacted:'lead',replied:'lead',trial:'trial',won:'customer',customer:'customer',lost:'lost',disqualified:'disqualified'};
+function dsyncFromDeal(c){ if(!c||!c.deal)return; const st=dstate(c.id); if(st._synced)return; st._synced=true;
+  if(c.deal.status){ st.stage=STATUS_TO_STAGE[String(c.deal.status).toLowerCase()]||st.stage; st.trial=st.stage==='trial'; }
+  if(c.deal.value_usd){ st.value_usd=c.deal.value_usd; } }
 const STAGE_LABELS={new:'New',lead:'Lead',trial:'Trial',customer:'Customer',lost:'Lost',disqualified:'Disqualified'};
 function stageLabelOf(c){ try{ return STAGE_LABELS[dstate(c.id).stage]||'New'; }catch(e){ return 'New'; } }
 window.stageLabelOf=stageLabelOf;
+const PROB_TO_STAGE={new:'new',active:'lead',trial:'trial',won:'customer',lost:'lost'};
 function dealStage(id,stage){
-  dstate(id).stage=stage; rerenderDeal(id);
+  const st=dstate(id); const prev=st.stage; st.stage=stage; st.trial=(stage==='trial'); rerenderDeal(id);
   // Persist so the stage survives a refresh and drives the Pipeline (server buckets by lead_status).
   const MAP={'new':{lead_status:'new',close_probability:10},lead:{lead_status:'active',close_probability:50},trial:{lead_status:'trial',close_probability:70},customer:{lead_status:'won',close_probability:100},lost:{lead_status:'lost'}};
-  const p=MAP[stage]; if(!p||String(id).startsWith('c0')) return;
-  fetch('/api/crm/deals',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({id,disqualify_reason:''},p))}).catch(()=>{});
+  const p=MAP[stage]; if(!p||String(id).startsWith('c0')) return;   // demo ids: local only
+  // Keyed by the CONVERSATION id — the server find-or-creates the deal, then updates lead_status.
+  fetch('/api/crm/deals',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({conversation:id,disqualify_reason:''},p))})
+    .then(r=>r.json()).then(j=>{
+      if(!j||!j.ok){ st.stage=prev; st.trial=(prev==='trial'); rerenderDeal(id); if(window.crmToast)crmToast('Could not save stage — reverted'); return; }
+      if(window.PIPELINE&&j.id){ const dl=window.PIPELINE.find(x=>x.id===j.id); if(dl){ dl.stage=PROB_TO_STAGE[p.lead_status]||dl.stage; dl.status=p.lead_status; if(p.close_probability!=null)dl.prob=p.close_probability; } const pv=document.getElementById('pipelineview'); if(pv&&!pv.hidden)renderPipeline(); }
+      if(window.crmToast)crmToast('Stage saved · '+(STAGE_LABELS[stage]||stage));
+    }).catch(()=>{ st.stage=prev; st.trial=(prev==='trial'); rerenderDeal(id); if(window.crmToast)crmToast('Could not save stage — reverted'); });
 }
+/* Deal size — editable dollar value, persisted to the deal's value_cents (keyed by conversation). */
+function dealSizeSave(id,dollars){
+  const st=dstate(id); const n=Math.max(0,Math.round(Number(dollars)||0)); const prev=st.value_usd; st.value_usd=n;
+  if(String(id).startsWith('c0')) return;   // demo ids: local only
+  fetch('/api/crm/deals',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({conversation:id,value_cents:n*100})})
+    .then(r=>r.json()).then(j=>{
+      if(!j||!j.ok){ st.value_usd=prev; if(window.crmToast)crmToast('Could not save deal size — reverted'); return; }
+      if(window.PIPELINE&&j.id){ const dl=window.PIPELINE.find(x=>x.id===j.id); if(dl)dl.value_usd=n; const pv=document.getElementById('pipelineview'); if(pv&&!pv.hidden)renderPipeline(); }
+      if(window.crmToast)crmToast('Deal size saved · $'+n.toLocaleString());
+    }).catch(()=>{ st.value_usd=prev; if(window.crmToast)crmToast('Could not save deal size — reverted'); });
+}
+function dealSizeUse(id){ const st=dstate(id); const est=predictValue(st.visitors)*12; const inp=document.getElementById('dsize'); if(inp)inp.value=est; dealSizeSave(id,est); }
+window.dealSizeSave=dealSizeSave; window.dealSizeUse=dealSizeUse; window.dealStage=dealStage;
 /* Disqualify / requalify straight from the lead's Stage tab. Persists via /api/crm/deals
    keyed by the CONVERSATION id (find-or-create the deal server-side) + runs the cascade. */
 async function dealTabDisqualify(id){
@@ -5464,7 +5490,9 @@ function renderConsent(){
 }
 window.dealStage=dealStage;window.dealTrial=dealTrial;window.dealUser=dealUser;window.dealTraffic=dealTraffic;
 function dealTab(c){
+  dsyncFromDeal(c);
   const d=dstate(c.id), v=d.visitors, pct=Math.max(0,Math.min(100,100*Math.log10(v/100)/3));
+  const dealVal=(d.value_usd!=null?d.value_usd:Math.round(predictValue(v)*12));
   const stages=[['new','New'],['lead','Lead'],['trial','Trial'],['customer','Customer'],['lost','Lost']];
   const dq=d.stage==='disqualified';
   return `<div class="dealtab">
@@ -5478,8 +5506,16 @@ function dealTab(c){
       <div class="dchk"><span class="tcheck ${d.trial?'on':''}" onclick="dealTrial('${c.id}',${d.trial?'false':'true'})">${d.trial?'✓':''}</span>Signed up for a trial <span class="dsub">via console.consentresolve.com</span></div>
       ${d.trial?`<div class="duser"><label>Console username</label><input placeholder="e.g. langroofing-tx" value="${esc(d.username)}" onchange="dealUser('${c.id}',this.value)"></div>`:''}
     </div>
-    <div class="dblock"><h5>Estimated deal size — from monthly traffic</h5>
+    <div class="dblock"><h5>Deal size</h5>
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:13px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r-2);padding:8px 12px">
+          <span style="color:var(--tx-3);font-weight:700;font-family:var(--font-mono)">$</span>
+          <input id="dsize" type="number" min="0" step="100" value="${dealVal}" onchange="dealSizeSave('${c.id}',this.value)" style="width:130px;border:0;background:none;color:var(--tx-1);font-family:var(--font-mono);font-size:var(--t-16);font-weight:700;outline:none">
+        </div>
+        <span style="color:var(--tx-3);font-size:var(--t-12)">total deal value · saves on change</span>
+      </div>
       <div class="dpredict">
+        <div style="font-size:var(--t-11);color:var(--tx-3);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px">Estimate from monthly traffic</div>
         <div class="dp-value"><span class="dp-big">$<span id="dvalue">${predictValue(v).toLocaleString()}</span></span><span class="dp-per">/mo</span><span class="dp-yr">≈ $<span id="dyear">${(predictValue(v)*12).toLocaleString()}</span> / yr</span></div>
         <div class="dp-flow">
           <div class="dp-cell visits"><div class="dp-n" id="dvisits">${v.toLocaleString()}</div><div class="dp-l">Visitors / mo</div></div>
@@ -5490,6 +5526,7 @@ function dealTab(c){
         </div>
         <input class="dslider" type="range" min="0" max="100" step="0.5" value="${pct.toFixed(1)}" oninput="dealTraffic('${c.id}',this.value)">
         <div class="dscale"><span>100</span><span>1k</span><span>10k</span><span>100k</span></div>
+        <button type="button" onclick="dealSizeUse('${c.id}')" style="margin-top:11px;width:100%;border:1px dashed var(--line-2);background:none;color:var(--tx-2);font:inherit;font-weight:700;font-size:var(--t-12);padding:9px;border-radius:var(--r-2);cursor:pointer">Use this estimate as the deal size →</button>
         <div class="dp-note">Assumes ~2% of monthly visitors opt in as consented $7 leads.</div>
       </div>
     </div>
