@@ -114,6 +114,7 @@ import * as crmPresence from "./api/crm-presence.js";
 import * as crmContact from "./api/crm-contact.js";
 import * as crmCompany from "./api/crm-company.js";
 import * as crmRecords from "./api/crm-records.js";
+import * as crmCleanupCompanies from "./api/crm-cleanup-companies.js";
 import * as crmMack from "./api/crm-mack.js";
 import * as chatBook from "./api/chat-book.js";
 import * as crmMerge from "./api/crm-merge.js";
@@ -241,6 +242,7 @@ const ROUTES = {
   "/api/crm/company": crmCompany,
   "/api/crm/contacts": crmRecords,
   "/api/crm/companies": crmRecords,
+  "/api/crm/cleanup-companies": crmCleanupCompanies,
   "/api/crm/mack": crmMack,
   "/api/chat-book/times": chatBook,
   "/api/chat-book/create": chatBook,

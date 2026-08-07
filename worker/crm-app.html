@@ -5189,7 +5189,7 @@ function renderCompanyDetail(el,id){
       <button class="recd-back" data-back="companies">← All companies</button>
       <div class="recd-hero"><span class="recd-av co">${esc((co.name||'?').slice(0,2).toUpperCase())}</span>
         <div class="recd-id"><div class="recd-nm">${esc(co.name||'Company')}</div>${chips?`<div class="recd-badges">${chips}</div>`:''}<div class="recd-contactline">${co.domain?`<a href="https://${esc(co.domain)}" target="_blank" rel="noopener">${esc(co.domain)}</a>`:'no domain on file'}</div></div>
-        <div class="recd-heroacts"><button class="recd-btn" data-editco>Edit</button></div>
+        <div class="recd-heroacts"><button class="recd-btn" data-editco>Edit</button><button class="recd-btn" data-rmco="${esc(co.id)}" title="Remove this company and detach its contacts (they keep their records, just no company)">Not a real company</button></div>
       </div>
       <div class="recd-stats">
         <div class="recd-stat"><div class="sv">${recMoney(st.open_value_usd||0)}</div><div class="sl">Open pipeline</div></div>
@@ -5233,6 +5233,13 @@ function recWire(el){
     const back=e.target.closest('[data-back]'); if(back){ if(back.dataset.back==='contacts')openContactsBrowse(); else openCompaniesBrowse(); return; }
     const editc=e.target.closest('[data-editc]'); if(editc){ window._rec.editing=true; renderContactsView(); return; }
     const editco=e.target.closest('[data-editco]'); if(editco){ window._rec.editing=true; renderCompaniesView(); return; }
+    const rmco=e.target.closest('[data-rmco]'); if(rmco){ e.stopPropagation(); const cid=rmco.getAttribute('data-rmco');
+      if(!confirm('Remove this company? Its contacts and conversations stay — they’re just detached (no company). This can’t be undone.')) return;
+      rmco.textContent='Removing…'; rmco.disabled=true;
+      fetch('/api/crm/cleanup-companies',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:cid,execute:true})}).then(r=>r.json()).then(j=>{
+        if(j&&j.deleted){ if(window.crmToast)crmToast('Company removed · '+(j.detached_contacts||0)+' contact(s) detached'); window._rec.companyId=null; openCompaniesBrowse(); }
+        else { if(window.crmToast)crmToast('Could not remove — '+((j&&j.error)||'error')); rmco.textContent='Not a real company'; rmco.disabled=false; }
+      }).catch(()=>{ if(window.crmToast)crmToast('Could not remove (network)'); rmco.textContent='Not a real company'; rmco.disabled=false; }); return; }
     const cancel=e.target.closest('[data-canceledit]'); if(cancel){ window._rec.editing=false; if(window._rec.contactId)renderContactsView(); else renderCompaniesView(); return; }
     const optin=e.target.closest('[data-optin]'); if(optin){ e.stopPropagation(); const cid=optin.getAttribute('data-optin'); optin.textContent='Saving…'; fetch('/api/newsletter',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'opt_in_contact',contact_id:cid})}).then(r=>r.json()).then(()=>{ if(window.crmToast)crmToast('Marked opted-in'); renderContactsView(); }).catch(()=>{ if(window.crmToast)crmToast('Could not save'); }); return; }
     const savec=e.target.closest('[data-savec]'); if(savec){ recSaveContact(savec.getAttribute('data-savec')); return; }
