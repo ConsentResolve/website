@@ -14,7 +14,7 @@ import { ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIde
 import { handleGoalEvent, enrollNurture } from "../_lib/workflow-engine.js";
 import { getByEmail } from "../_lib/db.js";
 import { progressFor } from "../_lib/demo-notify.js";
-import { addSuppression, isSuppressed, logEvent } from "../_lib/crm-rebuild.js";
+import { addSuppression, isSuppressed, logEvent, recordConsent } from "../_lib/crm-rebuild.js";
 
 // Recognize a delivery-failure (DSN / bounce) email so we can suppress the dead address
 // instead of ingesting the mailer-daemon notice as a normal inbound conversation.
@@ -705,6 +705,35 @@ export async function onRequestPost({ request, env }) {
     const me = await currentUser(request, env);
     await addActivityV2(env, { actorId: me ? me.id : null, entityType: "contact", entityId: contactId, action: "optout_undone", meta: { by: me ? me.name : "CRM" } }).catch(() => {});
     return json({ ok: true, restored: true, contact_id: contactId }, {}, cors);
+  }
+
+  // RE-ENABLE a single channel for a contact — the targeted "this opt-out was a mistake, allow
+  // email again" action behind the suppressed-send banner. Clears the suppression that blocks the
+  // channel (all-channel OR channel-specific, matched by contact or email), the legacy email
+  // opt-out row, and any opted_out automation exit — then records an HONEST admin re-grant on the
+  // consent ledger (who/when), so the correction is auditable rather than silent.
+  if (b.unsuppress) {
+    const ch = (b.channel === "sms" || b.channel === "voice") ? b.channel : "email";
+    const conv = await env.DB.prepare(
+      "SELECT cv.id, cv.contact_id, c.primary_email, c.phone FROM conversations cv LEFT JOIN contacts c ON c.id=cv.contact_id WHERE cv.id=?"
+    ).bind(b.id).first().catch(() => null);
+    const contactId = (conv && conv.contact_id) || b.contact_id || null;
+    const email = (conv && conv.primary_email) || null;
+    const phone = (conv && conv.phone) || null;
+    if (!contactId && !email) return json({ ok: false, error: "no_contact" }, { status: 400 }, cors);
+    await env.DB.prepare(
+      "DELETE FROM suppressions WHERE (channel='all' OR channel=?) AND ((? IS NOT NULL AND contact_id=?) OR (? IS NOT NULL AND email=?))"
+    ).bind(ch, contactId, contactId, email, email).run().catch(() => {});
+    if (ch === "email" && email) await env.DB.prepare("DELETE FROM crm_suppressions WHERE email=?").bind(email).run().catch(() => {});
+    if (contactId) await env.DB.prepare("UPDATE workflow_runs SET exit_reason=NULL, status='exited', next_run_at=NULL, updated_at=datetime('now') WHERE contact_id=? AND exit_reason='opted_out'").bind(contactId).run().catch(() => {});
+    const me = await currentUser(request, env);
+    await recordConsent(env, {
+      contactId, email: ch === "email" ? email : null, phone: ch !== "email" ? phone : null,
+      channel: ch, action: "granted", basis: "admin re-enabled — mistaken opt-out corrected",
+      captureMethod: "manual_crm", source: "crm", proofRef: me ? ("by:" + (me.email || me.name)) : null,
+    }).catch(() => {});
+    await addActivityV2(env, { actorId: me ? me.id : null, entityType: "contact", entityId: contactId, action: "suppression_cleared", meta: { channel: ch, by: me ? me.name : "CRM" } }).catch(() => {});
+    return json({ ok: true, unsuppressed: true, channel: ch, contact_id: contactId }, {}, cors);
   }
 
   // Seed two real, replyable TEST conversations into Open for manual QA — an inbound SMS from a

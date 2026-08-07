@@ -2460,6 +2460,17 @@ async function sendReply(){
     const r=await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const d=await r.json().catch(()=>({}));
     if(!r.ok||d.error){
+      // Opted-out contact: show WHY, and let them re-enable + resend if it was a mistake.
+      if(d.error==='suppressed'){
+        const chL=(ch||'email')==='sms'?'texts':(ch||'email')==='voice'?'calls':'email';
+        const okp=confirm((d.message||('This contact opted out of '+chL+'.'))+'\n\nWas that a mistake? Click OK to re-enable '+chL+' for this contact and send now. (This is logged.)');
+        if(okp){
+          const rr=await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({unsuppress:true,id:sel,channel:ch||'email'})}).then(x=>x.json()).catch(()=>null);
+          if(rr&&rr.ok){ if(window.crmToast)crmToast('✓ '+chL.charAt(0).toUpperCase()+chL.slice(1)+' re-enabled — sending…'); return sendReply(); }
+          sysPush('⚠ Couldn’t re-enable '+chL+' — '+((rr&&rr.error)||'error')); restoreDraft(); return;
+        }
+        sysPush('⛔ Not sent — this contact is opted out of '+chL+'.'); restoreDraft(); return;
+      }
       sysPush('⚠ Failed to send — '+(d.message||d.error||('HTTP '+r.status))+'. Not delivered.');
       restoreDraft();
       return;
