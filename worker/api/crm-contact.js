@@ -31,6 +31,27 @@ export async function onRequestGet({ request, env }) {
     ? await all("SELECT direction, channel, body_text, sent_at, created_at FROM messages WHERE conversation_id IN (" + placeholders + ") ORDER BY COALESCE(sent_at, created_at) DESC", ...convIds)
     : [];
   const notes = await all("SELECT n.body, n.created_at, u.name AS author FROM notes n LEFT JOIN users u ON u.id=n.author_id WHERE n.contact_id=? ORDER BY n.created_at DESC", id);
+
+  // ---- Communication status: newsletter, per-channel consent, do-not-contact ----
+  const email = contact.primary_email || "";
+  const consentRows = await all(
+    "SELECT channel, action FROM consent_records WHERE contact_id=? OR (email IS NOT NULL AND email!='' AND email=?) ORDER BY COALESCE(occurred_at, created_at) ASC",
+    id, email
+  );
+  const consent = {};
+  for (const c of consentRows) if (c.channel) consent[c.channel] = c.action; // ordered asc → latest wins
+  const suppressions = await all(
+    "SELECT channel, reason, source, created_at FROM suppressions WHERE contact_id=? OR (email IS NOT NULL AND email!='' AND email=?)",
+    id, email
+  );
+  const comms = {
+    newsletter_status: contact.newsletter_status || "pending",
+    repermission_step: contact.repermission_step != null ? contact.repermission_step : null,
+    lifecycle_stage: contact.lifecycle_stage || null,
+    consent,                                   // { email:'granted', sms:'revoked', ... }
+    suppressed: suppressions.length > 0,
+    suppressions,
+  };
   const acts = await all("SELECT a.action, a.created_at, u.name AS actor FROM activities a LEFT JOIN users u ON u.id=a.actor_id WHERE a.entity_type='contact' AND a.entity_id=? ORDER BY a.created_at DESC LIMIT 50", id);
 
   // Session-stitched pageviews: the visitor's pre-identification browsing (via cr_vid).
@@ -67,7 +88,7 @@ export async function onRequestGet({ request, env }) {
     deals: deals.length, messages: msgs.length, speed_to_lead_hours: stl, pageviews: pageviews.length,
   };
 
-  return json({ contact, company, conversations, deals, timeline, stats }, {}, cors);
+  return json({ contact, company, conversations, deals, timeline, stats, comms }, {}, cors);
 }
 
 export async function onRequestPost({ request, env }) {

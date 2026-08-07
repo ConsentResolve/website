@@ -5047,6 +5047,15 @@ const REC_CSS = `
 .recd-edit input{height:40px;padding:0 12px;border:1px solid var(--line-2);border-radius:var(--r-2);background:var(--surface-2);color:var(--tx-1);font:inherit;font-size:var(--t-14);outline:none}
 .recd-edit input:focus{border-color:var(--accent)}
 .recd-edit .er{display:flex;gap:8px;margin-top:4px}
+.reccomm{padding:12px 16px;display:flex;flex-direction:column;gap:11px}
+.reccomm-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.reccomm-row .rl{width:82px;flex:0 0 auto;font-size:11px;font-weight:800;color:var(--tx-3);text-transform:uppercase;letter-spacing:.03em}
+.recnl{font-size:12.5px;font-weight:800;border-radius:5px;padding:3px 9px}
+.recnl.good{background:var(--good-soft);color:var(--good)} .recnl.bad{background:var(--bad-soft);color:var(--bad)} .recnl.muted{background:var(--surface-3);color:var(--tx-2)}
+.reccons{display:flex;gap:6px;flex-wrap:wrap}
+.reccon{font-size:11px;font-weight:800;border-radius:5px;padding:2px 8px}
+.reccon.good{background:var(--good-soft);color:var(--good)} .reccon.bad{background:var(--bad-soft);color:var(--bad)} .reccon.muted{background:var(--surface-3);color:var(--tx-3)}
+.recdnc{font-size:12px;font-weight:800;color:var(--bad);background:var(--bad-soft);border-radius:6px;padding:6px 10px}
 `;
 function recCss(){ if(document.getElementById('rec-css'))return; const s=document.createElement('style'); s.id='rec-css'; s.textContent=REC_CSS; document.head.appendChild(s); }
 function recMoney(n){ n=Number(n)||0; return '$'+(n>=1000?(n/1000).toFixed(n%1000?1:0)+'k':n); }
@@ -5088,6 +5097,17 @@ function recCoRow(c){ return `<button class="rec-row" data-company="${esc(c.id)}
 function recDealItem(d){ const st=(d.lead_status||'').toLowerCase(); const lbl=REC_STAGE[st]||st||'—'; return `<div class="recd-item" data-deal="${esc(d.id)}"><span class="ipill ${st}">${esc(lbl)}</span><span class="ii"><span class="it">${esc(d.title||d.contact_name||'Deal')}</span><span class="is">${d.close_probability!=null?d.close_probability+'% · ':''}${d.owner_name?'Owner: '+esc(d.owner_name):''}</span></span><span class="iv">${d.value_cents?recMoney(Math.round(d.value_cents/100)):'—'}</span></div>`; }
 function recConvItem(c){ return `<div class="recd-item" data-conv="${esc(c.id)}"><span class="ii"><span class="it">${esc(c.contact_name||c.subject||c.channel||'Conversation')}${c.unread?' <span style="color:var(--accent-hi)">●</span>':''}</span><span class="is">${esc((c.channel||'')+' · '+(c.last_message_preview||c.subject||''))}</span></span><span class="rec-ago">${recAgo(c.last_message_at)}</span></div>`; }
 function recTlRow(e){ const k=e.kind==='message'?(e.direction==='in'?'← in':'→ out'):e.kind; const body=e.kind==='message'?esc((e.text||'').slice(0,140)):e.kind==='note'?('Note: '+esc((e.text||'').slice(0,120))):e.kind==='activity'?esc(e.action||''):e.kind==='pageview'?('Viewed '+esc(e.path||'')):esc(JSON.stringify(e)); return `<div class="recd-tlrow"><span class="tk">${esc(k)}</span><span class="tb">${body}</span><span class="tt">${recAgo(e.at)}</span></div>`; }
+const REC_NL={opted_in:['Subscribed','good'],active:['Subscribed','good'],pending:['Pending','muted'],suppressed:['Unsubscribed','bad'],unsubscribed:['Unsubscribed','bad'],optout:['Unsubscribed','bad']};
+function recNlBadge(status){ const s=(status||'pending').toLowerCase(); return REC_NL[s]||[s.replace(/_/g,' '),'muted']; }
+function recConChip(label,val){ const v=(val||'none').toLowerCase(); const cls=v==='granted'?'good':(v==='revoked'||v==='denied'||v==='optout')?'bad':'muted'; const sym=v==='granted'?'✓':(v==='revoked'||v==='denied'||v==='optout')?'✕':'—'; return `<span class="reccon ${cls}" title="${esc(v)}">${label} ${sym}</span>`; }
+function recCommsCard(cm){ cm=cm||{}; const nb=recNlBadge(cm.newsletter_status); const step=(String(cm.newsletter_status||'').toLowerCase()==='pending'&&cm.repermission_step)?` · re-permission ${cm.repermission_step}/4`:''; const con=cm.consent||{};
+  const supp=cm.suppressed?`<div class="reccomm-row"><span class="rl">Do-not-contact</span><span class="recdnc">⛔ Suppressed${(cm.suppressions&&cm.suppressions.length)?' · '+esc(cm.suppressions.map(s=>s.channel||s.reason||'').filter(Boolean).join(', ')):''}</span></div>`:'';
+  return `<div class="recd-card"><h4>Communication status</h4><div class="reccomm">
+    <div class="reccomm-row"><span class="rl">Newsletter</span><span class="recnl ${nb[1]}">${esc(nb[0])}</span>${step?`<span style="font-size:11.5px;color:var(--tx-3);font-weight:600">${esc(step.replace(/^ · /,''))}</span>`:''}</div>
+    <div class="reccomm-row"><span class="rl">Consent</span><span class="reccons">${recConChip('Email',con.email)}${recConChip('SMS',con.sms)}${recConChip('Voice',con.voice)}</span></div>
+    ${cm.lifecycle_stage?`<div class="reccomm-row"><span class="rl">Lifecycle</span><span class="recnl muted">${esc(cm.lifecycle_stage)}</span></div>`:''}
+    ${supp}
+  </div></div>`; }
 
 function renderContactDetail(el,id){
   el.innerHTML=`<div class="recd"><button class="recd-back" data-back="contacts">← All contacts</button><div class="rec-loading">Loading record…</div></div>`;
@@ -5096,7 +5116,8 @@ function renderContactDetail(el,id){
     const ct=d.contact||{}, co=d.company||null, st=d.stats||{};
     const tier=(ct.tier||'').toLowerCase();
     if(window._rec.editing){ el.querySelector('.recd').innerHTML=`<button class="recd-back" data-back="contacts">← All contacts</button>`+recContactEditForm(ct,co); return; }
-    const badges=[tier?`<span class="recd-badge ${tier}">${esc(tier)}</span>`:'', ct.lifecycle_stage?`<span class="recd-badge">${esc(ct.lifecycle_stage)}</span>`:'', ct.lead_score!=null?`<span class="recd-badge">Score ${ct.lead_score}</span>`:''].filter(Boolean).join('');
+    const nb=recNlBadge((d.comms&&d.comms.newsletter_status)||ct.newsletter_status);
+    const badges=[tier?`<span class="recd-badge ${tier}">${esc(tier)}</span>`:'', ct.lifecycle_stage?`<span class="recd-badge">${esc(ct.lifecycle_stage)}</span>`:'', ct.lead_score!=null?`<span class="recd-badge">Score ${ct.lead_score}</span>`:'', `<span class="recd-badge ${nb[1]==='good'?'':nb[1]==='bad'?'':''}" title="Newsletter status">✉ ${esc(nb[0])}</span>`].filter(Boolean).join('');
     const line=[ct.primary_email?`<a href="mailto:${esc(ct.primary_email)}">${esc(ct.primary_email)}</a>`:'', ct.phone?esc(ct.phone):'', co?`<a data-company="${esc(co.id)}">🏢 ${esc(co.name||'company')}</a>`:''].filter(Boolean).join('<span style="color:var(--tx-4)">·</span> ');
     el.querySelector('.recd').innerHTML=`
       <button class="recd-back" data-back="contacts">← All contacts</button>
@@ -5112,6 +5133,7 @@ function renderContactDetail(el,id){
       </div>
       <div class="recd-cols">
         <div style="display:flex;flex-direction:column;gap:16px">
+          ${recCommsCard(d.comms)}
           <div class="recd-card"><h4>Deals <span class="n">${(d.deals||[]).length}</span></h4>${(d.deals||[]).length?(d.deals||[]).map(recDealItem).join(''):'<div class="recd-empty2">No deals yet.</div>'}</div>
           <div class="recd-card"><h4>Communications <span class="n">${(d.conversations||[]).length}</span></h4>${(d.conversations||[]).length?(d.conversations||[]).map(recConvItem).join(''):'<div class="recd-empty2">No conversations.</div>'}</div>
         </div>
