@@ -343,15 +343,9 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
               setTimeout(function(){c.remove();},2600);
             }).catch(function(){go.disabled=false;go.textContent="Send it →";field.classList.add("bad");});};
           return c;}
-        function captureUI(){try{
-          if(sessionStorage.getItem("cr_cap_done"))return;
-          var panel=sr.querySelector('[class*="_conversationPanel_"]');if(!panel)return;
-          var m=sr.querySelector('[class*="_messages_"]');if(!m)return;
-          if(!window.__crCapNode){var agents=m.querySelectorAll('[class*="_agentGroup_"]').length,users=m.querySelectorAll('[class*="_user_"]').length;
-            if(agents<2||users<1)return;window.__crCapNode=crBuildCap();}
-          var card=window.__crCapNode;
-          if(card&&!card.parentNode){if(getComputedStyle(panel).position==="static")panel.style.position="relative";panel.appendChild(card);}
-        }catch(e){}}
+        // Contact-capture card REMOVED — Mack now collects email/phone conversationally, so this
+        // no longer injects the pop-up form. (crBuildCap is left defined but unused.)
+        function captureUI(){ try { var old = window.__crCapNode; if (old && old.parentNode) old.remove(); window.__crCapNode = null; } catch(e){} }
         ident();firstTyping();convo();lock();callUI();captureUI();
         if(!host.__crObs){host.__crObs=new MutationObserver(function(){ident();firstTyping();convo();lock();callUI();captureUI();});host.__crObs.observe(sr,{childList:true,subtree:true});}
         return true;
