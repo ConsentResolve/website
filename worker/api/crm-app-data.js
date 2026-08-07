@@ -221,7 +221,7 @@ export async function onRequestGet({ request, env }) {
   const notesByConv = new Map();
   if (convIds.length) {
     const msgs = await selectIn(convIds,
-      `SELECT m.conversation_id, m.direction, m.channel, m.body_text, m.body_html, m.sent_at, u.name author_name
+      `SELECT m.conversation_id, m.direction, m.channel, m.body_text, m.body_html, m.sent_at, u.name author_name, u.email author_email
          FROM messages m LEFT JOIN users u ON u.id = m.author_id
         WHERE m.conversation_id IN __IN__ ORDER BY m.sent_at ASC`);
     for (const m of msgs) { const a = msgsByConv.get(m.conversation_id) || []; a.push(m); msgsByConv.set(m.conversation_id, a); }
@@ -309,6 +309,10 @@ export async function onRequestGet({ request, env }) {
       const who = isBubble ? (m.direction === "in" ? personLabel : (m.author_name || "Mack")) : undefined;
       return {
         dir: m.direction === "in" ? "in" : "out", channel: chan, who,
+        // Real author of an OUTBOUND message (who actually replied) — surfaced so the thread
+        // shows the true sender, never the person currently viewing the page.
+        author: m.direction === "out" ? (m.author_name || null) : null,
+        author_email: m.direction === "out" ? (m.author_email || null) : null,
         body: m.body_text || stripHtml(m.body_html) || "", ts: humanTime(m.sent_at), meta: "",
         _ts: m.sent_at ? Date.parse(m.sent_at) : 0,   // sort key for threading merges
       };

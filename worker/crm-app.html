@@ -2480,9 +2480,12 @@ function gmailThread(c){
   const sys = c.messages.filter(m=>m.dir==="system");
   const card = m=>{
     const out = m.dir==="out";
-    const who = out ? DATA.me.name : (c.name||"Unknown");
-    const addr = out ? DATA.me.email : (c.contact_email||"");
-    const init = out ? initials(DATA.me.name) : (c.initials==="?"?"?":c.initials);
+    // Show who ACTUALLY replied (stored per message), not whoever is viewing the page. Fall
+    // back to the current user only for a just-sent message that has no recorded author yet.
+    const outName = m.author || (DATA.me&&DATA.me.name) || "Consent Resolve";
+    const who = out ? outName : (c.name||"Unknown");
+    const addr = out ? (m.author_email || "hello@consentresolve.com") : (c.contact_email||"");
+    const init = out ? initials(outName) : (c.initials==="?"?"?":c.initials);
     const opened = m.meta==="opened";
     return `<div class="gm-msg">
       <div class="gm-head">
@@ -5587,6 +5590,7 @@ function intelDashboard(c){
         <span class="ilook-note" id="ilook-note-${c.id}">${e._last_cost!=null?`Enriched · $${(+e._last_cost).toFixed(4)}`:''}</span>
       </div>
     </div>
+    ${icardD('Contact &amp; location','CRM + directories', `<div class="presence">${contact||'<div class="idash-empty">—</div>'}</div>${spyGeoLine(it)}${consentToggles(c)}${agencyEditor(c)}`)}
     ${signalsCard(e)}
     <div class="idash-tiles">${tiles}</div>
     <div class="idash-grid">
@@ -5603,7 +5607,6 @@ function intelDashboard(c){
       ${d2Angles(syn.email_angles)}
       ${d2Obj(syn.objections)}
       ${icardD('People you can reach','Claude research', `<div class="presence">${peopleBody}</div>`)}
-      ${icardD('Contact &amp; location','CRM + directories', `<div class="presence">${contact||'<div class="idash-empty">—</div>'}</div>${spyGeoLine(it)}${consentToggles(c)}${agencyEditor(c)}`)}
       ${d2Fresh(c.id, e)}
     </div>
     ${it.signal?`<div class="idash-opp">🔥 <div><b>Why they fit —</b> ${esc(it.signal)}${recoverable!=null?` <span class="opp-num">≈ ${recoverable.toLocaleString()} consented leads/mo</span> they're leaving on the table`:''}.</div></div>`:''}
