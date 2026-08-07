@@ -15,6 +15,7 @@ import { handleGoalEvent, enrollNurture } from "../_lib/workflow-engine.js";
 import { getByEmail } from "../_lib/db.js";
 import { progressFor } from "../_lib/demo-notify.js";
 import { addSuppression, isSuppressed, logEvent, recordConsent } from "../_lib/crm-rebuild.js";
+import { getUserSettings } from "../_lib/user-settings.js";
 
 // Recognize a delivery-failure (DSN / bounce) email so we can suppress the dead address
 // instead of ingesting the mailer-daemon notice as a normal inbound conversation.
@@ -542,6 +543,14 @@ export async function onRequestPost({ request, env }) {
     let repName = (me && me.name) || "";
     if (!repName) { const _a = await env.DB.prepare("SELECT name FROM users WHERE role='admin' AND active=1 ORDER BY created_at LIMIT 1").first(); repName = (_a && _a.name) || "Consent Resolve"; }
     const fromEmail = `${repName.replace(/["<>\r\n,]/g, " ").trim()} <hello@consentresolve.com>`;
+    // Personal email signature from the sending rep's Account settings (Settings → Account →
+    // "Email signature"). Appended to the EMAIL body only — never to SMS. It's plain text from a
+    // textarea, so escape it and convert newlines to <br> for the HTML part.
+    const meSig = me ? String(((await getUserSettings(env, me.email)) || {}).signature || "").trim() : "";
+    const sigText = meSig ? "\r\n\r\n" + meSig : "";
+    const sigHtml = meSig ? "<br><br>" + escH(meSig).replace(/\r?\n/g, "<br>") : "";
+    const emailText = body + sigText;                            // text/plain for email sends
+    const emailHtmlSig = emailHtml ? emailHtml + sigHtml : null; // text/html when the composer sent html
     // Subject line for an outbound EMAIL. Never leak an internal thread label — SMS/voice/chat
     // threads carry labels like "💬 SMS — +16124333224" or a bare phone number, which read as
     // spam and look unprofessional. Reuse the real subject only for a genuine email thread; for
@@ -580,7 +589,7 @@ export async function onRequestPost({ request, env }) {
     if (want === "email") {
       if (!email) return json({ error: "no_recipient", message: "No email address on file for this contact." }, { status: 400 }, cors);
       if (await isSuppressed(env, { contactId: conv.contact_id, email, channel: "email" })) return json({ error: "suppressed", message: "This contact opted out of email." }, { status: 400 }, cors);
-      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail, ...(emailHtml ? { html: emailHtml } : {}) });
+      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, emailText, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail, ...(emailHtmlSig ? { html: emailHtmlSig } : {}) });
       if (res.error) return await failSend(env, conv.id, "email", res.error, res.error, cors);
       externalId = res.id; sentVia = "email";
     } else if (want === "sms") {
@@ -592,7 +601,7 @@ export async function onRequestPost({ request, env }) {
     } else if (conv.channel === "email" || conv.channel === "identified") {
       // Native default: identified visitors + email threads reply by email to the address on file.
       if (!email) return json({ error: "no_recipient" }, { status: 400 }, cors);
-      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, body, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail, ...(emailHtml ? { html: emailHtml } : {}) });
+      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, emailText, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail, ...(emailHtmlSig ? { html: emailHtmlSig } : {}) });
       if (res.error) return await failSend(env, conv.id, "email", res.error, res.error, cors);
       externalId = res.id; sentVia = "email";
     } else if (conv.channel === "meta_lead" || conv.channel === "demo_form") {
@@ -601,11 +610,11 @@ export async function onRequestPost({ request, env }) {
       // CAN-SPAM footer (name + physical address + opt-out) + List-Unsubscribe header — both are
       // legit-sender trust signals that help these first-touch emails clear spam filters. The rep
       // name (resolved above) also signs the footer so it matches the visible From.
-      const signed = body + "\r\n\r\n-- \r\n" + repName + "\r\n" +
+      const signed = body + sigText + "\r\n\r\n-- \r\n" + repName + "\r\n" +
         "Consent Resolve\r\n1907 Gulf Way #1, St Pete Beach, FL 33706\r\n" +
         "You're getting this because you asked to hear from us at consentresolve.com. Reply UNSUBSCRIBE and we'll stop.";
       // Matching HTML footer so the rich reply still carries the CAN-SPAM block.
-      const signedHtml = emailHtml ? emailHtml +
+      const signedHtml = emailHtml ? emailHtml + sigHtml +
         `<br><br><div style="color:#5f6368;font-size:12px;font-family:Arial,Helvetica,sans-serif;line-height:1.5">-- <br>${escH(repName)}<br>Consent Resolve<br>1907 Gulf Way #1, St Pete Beach, FL 33706<br>You're getting this because you asked to hear from us at consentresolve.com. Reply UNSUBSCRIBE and we'll stop.</div>` : null;
       const res = await sendMessage(env, inboxAccounts(env)[0], to, subj, signed, null, {
         cc: CC_TEAM, from: fromEmail,
