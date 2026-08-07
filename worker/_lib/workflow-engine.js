@@ -701,8 +701,13 @@ async function sweepCalNoBooking(env) {
   let sent = 0;
   for (const row of rows) {
     const cid = row.contact_id; if (!cid) continue;
-    const ct = await env.DB.prepare("SELECT lifecycle_stage FROM contacts WHERE id=?").bind(cid).first().catch(() => null);
-    if (ct && ct.lifecycle_stage === "meeting_booked") continue;
+    // Skip anyone who already has a demo booked (source of truth: the bookings table,
+    // matched by the contact's email — this replaced the old lifecycle_stage='meeting_booked' flag).
+    const ct = await env.DB.prepare("SELECT primary_email FROM contacts WHERE id=?").bind(cid).first().catch(() => null);
+    if (ct && ct.primary_email) {
+      const booked = await env.DB.prepare("SELECT 1 FROM bookings WHERE lower(email)=lower(?) LIMIT 1").bind(ct.primary_email).first().catch(() => null);
+      if (booked) continue;
+    }
     const replied = await env.DB.prepare("SELECT 1 FROM messages m JOIN conversations c ON c.id=m.conversation_id WHERE c.contact_id=? AND m.direction='in' LIMIT 1").bind(cid).first().catch(() => null);
     if (replied) continue;
     const nudged = await env.DB.prepare("SELECT 1 FROM crm_events WHERE contact_id=? AND type='demo_nudge_sent' LIMIT 1").bind(cid).first().catch(() => null);

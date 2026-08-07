@@ -5,7 +5,7 @@
 //   POST /api/crm/company { id, name?, domain? }
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
-import { ensureCrmV2Schema, addActivityV2, currentUser, adminUserId } from "../_lib/crm-v2.js";
+import { ensureCrmV2Schema, addActivityV2, currentUser, adminUserId, stageKey, stageLabel } from "../_lib/crm-v2.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -25,10 +25,12 @@ export async function onRequestGet({ request, env }) {
   let intel = null;
   try { intel = company.enrichment ? JSON.parse(company.enrichment) : null; } catch (_) {}
 
-  const contacts = await all(
-    "SELECT id, full_name, primary_email, phone, title, tier, lead_score, lifecycle_stage, source, created_at FROM contacts WHERE company_id=? ORDER BY COALESCE(lead_score,0) DESC, updated_at DESC",
+  const contacts = (await all(
+    `SELECT ct.id, ct.full_name, ct.primary_email, ct.phone, ct.title, ct.tier, ct.lead_score, ct.source, ct.created_at,
+            (SELECT d.lead_status FROM deals d WHERE d.primary_contact_id=ct.id ORDER BY d.updated_at DESC LIMIT 1) AS deal_status
+       FROM contacts ct WHERE ct.company_id=? ORDER BY COALESCE(ct.lead_score,0) DESC, ct.updated_at DESC`,
     id
-  );
+  )).map((c) => ({ ...c, stage: stageKey(c.deal_status), stage_label: stageLabel(c.deal_status) }));
   const contactIds = contacts.map((c) => c.id);
 
   const deals = await all(

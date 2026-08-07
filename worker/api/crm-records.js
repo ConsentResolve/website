@@ -5,7 +5,7 @@
 // ~500 conversations the app payload loads. Both gate on the CRM Google session.
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
-import { ensureCrmV2Schema } from "../_lib/crm-v2.js";
+import { ensureCrmV2Schema, stageKey, stageLabel } from "../_lib/crm-v2.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -40,7 +40,8 @@ export async function onRequestGet({ request, env }) {
 
   // default: /api/crm/contacts
   const rows = await all(
-    `SELECT ct.id, ct.full_name, ct.primary_email, ct.phone, ct.tier, ct.lead_score, ct.lifecycle_stage,
+    `SELECT ct.id, ct.full_name, ct.primary_email, ct.phone, ct.tier, ct.lead_score,
+            (SELECT d.lead_status FROM deals d WHERE d.primary_contact_id=ct.id ORDER BY d.updated_at DESC LIMIT 1) AS deal_status,
             co.id AS company_id, co.name AS company,
             (SELECT MAX(cv.last_message_at) FROM conversations cv WHERE cv.contact_id=ct.id) AS last_activity,
             (SELECT COUNT(*) FROM deals d WHERE d.primary_contact_id=ct.id) AS deals
@@ -50,5 +51,6 @@ export async function onRequestGet({ request, env }) {
       LIMIT ?3`,
     q, like, limit
   );
-  return json({ contacts: rows }, {}, cors);
+  const contacts = rows.map((r) => ({ ...r, stage: stageKey(r.deal_status), stage_label: stageLabel(r.deal_status) }));
+  return json({ contacts }, {}, cors);
 }

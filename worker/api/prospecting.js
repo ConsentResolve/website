@@ -423,7 +423,6 @@ async function promoteCore(env, prospectId, actorId) {
     `INSERT INTO contacts (id, company_id, full_name, phone, source, is_provisional, enrichment)
      VALUES (?, ?, ?, ?, 'prospecting', 1, ?)`
   ).bind(contactId, companyId, p.name || p.domain, p.phone || null, JSON.stringify({ _signals: sig, trade: p.trade })).run().catch(() => {});
-  await env.DB.prepare("UPDATE contacts SET lifecycle_stage='prospect' WHERE id=?").bind(contactId).run().catch(() => {});
 
   // Create a conversation so it surfaces in the pipeline/inbox as a workable lead.
   const convId = rid("cv_");

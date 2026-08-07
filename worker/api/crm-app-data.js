@@ -198,7 +198,7 @@ export async function onRequestGet({ request, env }) {
   // sms, chat) — conversations that share an empty key (e.g. prospecting|) are never over-filtered.
   const convRows = (await env.DB.prepare(
     `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until, cv.snooze_note, cv.external_thread_id, cv.created_at, cv.assignee_id,
-            ct.id contact_id, ct.full_name, ct.primary_email, ct.phone, ct.source, ct.lifecycle_stage, ct.lead_score, ct.tier, ct.newsletter_status, co.name company, co.domain co_domain, co.enrichment co_enrichment, au.name assignee_name
+            ct.id contact_id, ct.full_name, ct.primary_email, ct.phone, ct.source, ct.lead_score, ct.tier, ct.newsletter_status, co.name company, co.domain co_domain, co.enrichment co_enrichment, au.name assignee_name
        FROM conversations cv
        LEFT JOIN contacts ct ON ct.id = cv.contact_id
        LEFT JOIN companies co ON co.id = ct.company_id
@@ -280,7 +280,6 @@ export async function onRequestGet({ request, env }) {
     } catch (_) {}
   }
   const srcMap = { meta: "meta", instantly: "instantly", crisp: "chat", chatwoot: "chat", chat: "chat", mack: "chat", site: "site", demo: "demo", claim50: "demo", cal: "demo", apollo: "apollo", partner: "partner", manual: "manual" };
-  const lifeMap = { lead: "Lead", mql: "MQL", sql: "SQL", meeting_booked: "Meeting Booked", opportunity: "Opportunity", customer: "Customer" };
   const srcLabelMap = { meta: "Meta · Lead form", instantly: "Instantly · cold email", chat: "Site chat · Mack", site: "Site · demo signup", demo: "Demo signup", apollo: "Apollo · identified", partner: "🤝 Agency partner", manual: "Manual" };
   const stripHtml = (h) => (h || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   const inits = (n) => (n ? n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase() : "?");
@@ -333,7 +332,7 @@ export async function onRequestGet({ request, env }) {
       live: r.channel === "chat" && r.status === "open",
       name: r.full_name || fmtPhone(phoneByCt.get(r.contact_id)) || "Unknown", company: r.company || null, contact_email: r.primary_email || null,
       contact_phone: fmtPhone(r.phone) || fmtPhone(phoneByCt.get(r.contact_id)) || null,
-      initials: inits(r.full_name) === "?" && phoneByCt.get(r.contact_id) ? "📞" : inits(r.full_name), lifecycle: lifeMap[r.lifecycle_stage] || "Lead",
+      initials: inits(r.full_name) === "?" && phoneByCt.get(r.contact_id) ? "📞" : inits(r.full_name),
       tier, score: r.lead_score || 0, sla_min: slaMin, newsletter: r.newsletter_status || "pending",
       hot: tier === "hot", unread, ts: humanTime(r.last_message_at) || "—",
       age_ts: r.last_message_at ? Date.parse(r.last_message_at) : null,   // last-activity epoch → urgency timer
@@ -581,7 +580,7 @@ async function buildPipeline(env) {
   const rows = (await env.DB.prepare(
     `SELECT d.id, d.title, d.value_cents, d.close_probability, d.lead_status, d.owner_id, d.disqualify_reason,
             d.origin_conversation_id AS conv_id, d.company_id AS company_id, d.primary_contact_id AS contact_pid,
-            ct.full_name, ct.primary_email, ct.lead_score, ct.tier, ct.lifecycle_stage,
+            ct.full_name, ct.primary_email, ct.lead_score, ct.tier,
             co.name AS company, co.domain AS domain, co.enrichment AS enrichment, u.name AS owner_name,
             cv.status AS conv_status, cv.snooze_until, cv.assignee_id,
             cv.last_message_at, cv.last_message_preview, au.name AS assignee_name,

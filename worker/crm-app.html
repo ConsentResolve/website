@@ -2153,7 +2153,7 @@ function renderList(filter){
   const items=DATA.conversations.filter(c=>{
     // When searching, look across ALL folders (find any lead); otherwise honor the bucket filter.
     if(q){
-      const hay=[c.name,c.company,c.contact_email,c.lifecycle,c.last&&c.last.label,
+      const hay=[c.name,c.company,c.contact_email,c.last&&c.last.label,
         ...((c.messages||[]).map(m=>m&&m.body)),
         ...((c.activity||[]).map(a=>a&&a.label))].filter(Boolean).join('  ').toLowerCase();
       return hay.includes(q);
@@ -2179,7 +2179,7 @@ function renderList(filter){
   tickClocks();
   updatePipe();
 }
-/* Live search across every folder — name, company, email, lifecycle, message + note text. */
+/* Live search across every folder — name, company, email, message + note text. */
 function onSearch(v){
   window.__q=v;
   const active=document.querySelector(".filters .on");
@@ -5098,7 +5098,7 @@ function recFetchList(kind){
     }).catch(()=>{ list.innerHTML='<div class="rec-empty">Couldn\'t load.</div>'; });
 }
 function recTierDot(t){ t=(t||'').toLowerCase(); const c=t==='hot'?'var(--bad)':t==='warm'?'var(--warn)':'var(--tx-3)'; return `<span class="rec-tier" style="background:${c}" title="${esc(t||'—')}"></span>`; }
-function recCtRow(c){ return `<button class="rec-row" data-contact="${esc(c.id)}"><span class="rec-av">${esc(recInits(c.full_name))}</span><span class="rec-main"><span class="rec-nm">${recTierDot(c.tier)}${esc(c.full_name||'Unknown')}</span><span class="rec-sub">${esc(c.primary_email||c.phone||'—')}${c.company?' · '+esc(c.company):''}</span></span><span class="rec-meta">${c.deals?`<span class="rec-chip">${c.deals} deal${c.deals>1?'s':''}</span>`:''}<span class="rec-ago">${recAgo(c.last_activity)}</span></span></button>`; }
+function recCtRow(c){ return `<button class="rec-row" data-contact="${esc(c.id)}"><span class="rec-av">${esc(recInits(c.full_name))}</span><span class="rec-main"><span class="rec-nm">${recTierDot(c.tier)}${esc(c.full_name||'Unknown')}</span><span class="rec-sub">${esc(c.primary_email||c.phone||'—')}${c.company?' · '+esc(c.company):''}</span></span><span class="rec-meta">${c.stage_label?`<span class="rec-chip">${esc(c.stage_label)}</span>`:''}${c.deals?`<span class="rec-chip">${c.deals} deal${c.deals>1?'s':''}</span>`:''}<span class="rec-ago">${recAgo(c.last_activity)}</span></span></button>`; }
 function recCoRow(c){ return `<button class="rec-row" data-company="${esc(c.id)}"><span class="rec-av co">${esc((c.name||'?').slice(0,2).toUpperCase())}</span><span class="rec-main"><span class="rec-nm">${esc(c.name||'—')}</span><span class="rec-sub">${esc(c.domain||'no domain')} · ${c.contacts||0} contact${c.contacts==1?'':'s'} · ${c.deals||0} deal${c.deals==1?'':'s'}</span></span><span class="rec-meta">${c.open_value_usd?`<span class="rec-chip">${recMoney(c.open_value_usd)}</span>`:''}<span class="rec-ago">${recAgo(c.last_activity)}</span></span></button>`; }
 
 function recDealItem(d){ const st=(d.lead_status||'').toLowerCase(); const lbl=REC_STAGE[st]||st||'—'; return `<div class="recd-item" data-deal="${esc(d.id)}"><span class="ipill ${st}">${esc(lbl)}</span><span class="ii"><span class="it">${esc(d.title||d.contact_name||'Deal')}</span><span class="is">${d.close_probability!=null?d.close_probability+'% · ':''}${d.owner_name?'Owner: '+esc(d.owner_name):''}</span></span><span class="iv">${d.value_cents?recMoney(Math.round(d.value_cents/100)):'—'}</span></div>`; }
@@ -5115,7 +5115,6 @@ function recCommsCard(cm, contactId){ cm=cm||{}; const nb=recNlBadge(cm.newslett
   return `<div class="recd-card"><h4>Communication status</h4><div class="reccomm">
     <div class="reccomm-row"><span class="rl">Newsletter</span><span class="recnl ${nb[1]}">${esc(nb[0])}</span>${step?`<span style="font-size:11.5px;color:var(--tx-3);font-weight:600">${esc(step.replace(/^ · /,''))}</span>`:''}</div>
     <div class="reccomm-row"><span class="rl">Consent</span><span class="reccons">${recConChip('Email',con.email)}${recConChip('SMS',con.sms)}${recConChip('Voice',con.voice)}</span></div>
-    ${cm.lifecycle_stage?`<div class="reccomm-row"><span class="rl">Lifecycle</span><span class="recnl muted">${esc(cm.lifecycle_stage)}</span></div>`:''}
     ${supp}${optinBtn}
   </div></div>`; }
 
@@ -5127,7 +5126,7 @@ function renderContactDetail(el,id){
     const tier=(ct.tier||'').toLowerCase();
     if(window._rec.editing){ el.querySelector('.recd').innerHTML=`<button class="recd-back" data-back="contacts">← All contacts</button>`+recContactEditForm(ct,co); return; }
     const nb=recNlBadge((d.comms&&d.comms.newsletter_status)||ct.newsletter_status);
-    const badges=[tier?`<span class="recd-badge ${tier}">${esc(tier)}</span>`:'', ct.lifecycle_stage?`<span class="recd-badge">${esc(ct.lifecycle_stage)}</span>`:'', ct.lead_score!=null?`<span class="recd-badge">Score ${ct.lead_score}</span>`:'', `<span class="recd-badge ${nb[1]==='good'?'':nb[1]==='bad'?'':''}" title="Newsletter status">✉ ${esc(nb[0])}</span>`].filter(Boolean).join('');
+    const badges=[tier?`<span class="recd-badge ${tier}">${esc(tier)}</span>`:'', ct.stage_label?`<span class="recd-badge" title="Stage">${esc(ct.stage_label)}</span>`:'', ct.lead_score!=null?`<span class="recd-badge">Score ${ct.lead_score}</span>`:'', `<span class="recd-badge ${nb[1]==='good'?'':nb[1]==='bad'?'':''}" title="Newsletter status">✉ ${esc(nb[0])}</span>`].filter(Boolean).join('');
     const line=[ct.primary_email?`<a href="mailto:${esc(ct.primary_email)}">${esc(ct.primary_email)}</a>`:'', ct.phone?esc(ct.phone):'', co?`<a data-company="${esc(co.id)}">🏢 ${esc(co.name||'company')}</a>`:''].filter(Boolean).join('<span style="color:var(--tx-4)">·</span> ');
     el.querySelector('.recd').innerHTML=`
       <button class="recd-back" data-back="contacts">← All contacts</button>
@@ -5179,7 +5178,7 @@ function renderCompanyDetail(el,id){
       </div>
       <div class="recd-cols">
         <div style="display:flex;flex-direction:column;gap:16px">
-          <div class="recd-card"><h4>Contacts <span class="n">${(d.contacts||[]).length}</span></h4>${(d.contacts||[]).length?(d.contacts||[]).map(c=>`<div class="recd-item" data-contact="${esc(c.id)}">${recTierDot(c.tier)}<span class="ii"><span class="it">${esc(c.full_name||'Unknown')}</span><span class="is">${esc(c.title||c.primary_email||'')}</span></span><span class="rec-ago">${c.lifecycle_stage||''}</span></div>`).join(''):'<div class="recd-empty2">No contacts.</div>'}</div>
+          <div class="recd-card"><h4>Contacts <span class="n">${(d.contacts||[]).length}</span></h4>${(d.contacts||[]).length?(d.contacts||[]).map(c=>`<div class="recd-item" data-contact="${esc(c.id)}">${recTierDot(c.tier)}<span class="ii"><span class="it">${esc(c.full_name||'Unknown')}</span><span class="is">${esc(c.title||c.primary_email||'')}</span></span><span class="rec-ago">${esc(c.stage_label||'')}</span></div>`).join(''):'<div class="recd-empty2">No contacts.</div>'}</div>
           <div class="recd-card"><h4>Deals <span class="n">${(d.deals||[]).length}</span></h4>${(d.deals||[]).length?(d.deals||[]).map(recDealItem).join(''):'<div class="recd-empty2">No deals.</div>'}</div>
           <div class="recd-card"><h4>Communications <span class="n">${(d.conversations||[]).length}</span></h4>${(d.conversations||[]).length?(d.conversations||[]).map(recConvItem).join(''):'<div class="recd-empty2">No conversations.</div>'}</div>
         </div>

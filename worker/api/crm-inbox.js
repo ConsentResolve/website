@@ -178,9 +178,8 @@ async function handleInboundReply(env, { contactId, convId, text, subject }) {
   const s = cls.sentiment;
   await addActivityV2(env, { entityType: "contact", entityId: contactId, action: "reply_classified", meta: { sentiment: s, followup: cls.followup_date || null } }).catch(() => {});
   if (s === "positive") {
-    await env.DB.prepare("UPDATE contacts SET lifecycle_stage='demo_requested', updated_at=datetime('now') WHERE id=?").bind(contactId).run().catch(() => {});
     await createTask(env, { contactId, conversationId: convId, type: "followup", title: "Respond within 15 min — positive reply", body: "Lead replied positively. Reply personally with your booking link (do not automate), then confirm the demo.", dueAt: new Date().toISOString(), source: "automation" });
-    await sysNote(env, convId, "⚡ Positive reply — moved to Demo Requested. Respond within 15 minutes.");
+    await sysNote(env, convId, "⚡ Positive reply — respond within 15 minutes.");
     await logEvent(env, { type: "demo_requested", contactId, conversationId: convId, meta: { via: "reply" } }).catch(() => {});
   } else if (s === "not_interested") {
     try { await handleGoalEvent(env, { contactId, goal: "opted_out" }); } catch (_) {}

@@ -189,14 +189,9 @@ async function run({ request, env }) {
   await batchIgnore(env, conRows);
   await batchIgnore(env, supRows);
 
-  // ---- D. lifecycle_stage ----
-  const r1 = await env.DB.prepare(
-    "UPDATE contacts SET lifecycle_stage='customer' WHERE id IN (SELECT primary_contact_id FROM deals WHERE lead_status='won' AND primary_contact_id IS NOT NULL)"
-  ).run();
-  const r2 = await env.DB.prepare(
-    "UPDATE contacts SET lifecycle_stage='opportunity' WHERE (lifecycle_stage IS NULL OR lifecycle_stage='lead') AND id IN (SELECT primary_contact_id FROM deals WHERE lead_status='active' AND primary_contact_id IS NOT NULL)"
-  ).run();
-  counts.lifecycle = ((r1.meta && r1.meta.changes) || 0) + ((r2.meta && r2.meta.changes) || 0);
+  // ---- D. (retired) lifecycle_stage backfill — Stage is now derived from the deal, so there
+  // is nothing to populate. The dormant contacts.lifecycle_stage column is left untouched.
+  counts.lifecycle = 0;
 
   return json({ ok: true, dry: false, migrated: counts,
     sources: { leads: leads.length, activities: acts.length, messages: msgs.length, deals: deals.length,

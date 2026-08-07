@@ -119,7 +119,6 @@ export async function onRequestPost({ request, env }) {
       await env.DB.prepare("UPDATE deals SET lead_status='active', disqualify_reason=NULL, updated_at=datetime('now') WHERE id=?").bind(dealId).run().catch(() => {});
       await env.DB.prepare("UPDATE conversations SET status='open', updated_at=datetime('now') WHERE id=?").bind(convId).run().catch(() => {});
       if (conv.contact_id) {
-        await env.DB.prepare("UPDATE contacts SET lifecycle_stage='lead', updated_at=datetime('now') WHERE id=?").bind(conv.contact_id).run().catch(() => {});
         await env.DB.prepare("DELETE FROM suppressions WHERE contact_id=? AND source='disqualified'").bind(conv.contact_id).run().catch(() => {});
       }
       await addActivityV2(env, { actorId: actor, entityType: "deal", entityId: dealId, action: "requalified" }).catch(() => {});
@@ -132,7 +131,6 @@ export async function onRequestPost({ request, env }) {
     await env.DB.prepare("UPDATE conversations SET status='archived', updated_at=datetime('now') WHERE id=?").bind(convId).run().catch(() => {});
     if (conv.contact_id) {
       const ct = await env.DB.prepare("SELECT primary_email, phone FROM contacts WHERE id=?").bind(conv.contact_id).first().catch(() => null);
-      await env.DB.prepare("UPDATE contacts SET lifecycle_stage='disqualified', updated_at=datetime('now') WHERE id=?").bind(conv.contact_id).run().catch(() => {});
       await env.DB.prepare(
         `INSERT OR IGNORE INTO suppressions (id, contact_id, email, phone, channel, reason, source) VALUES (?,?,?,?,?,?,?)`
       ).bind(ulid(), conv.contact_id, ct ? ct.primary_email : null, ct ? ct.phone : null, "all", reason, "disqualified").run().catch(() => {});
@@ -186,7 +184,6 @@ export async function onRequestPost({ request, env }) {
       }
       if (d && d.primary_contact_id) {
         const ct = await env.DB.prepare("SELECT primary_email, phone FROM contacts WHERE id=?").bind(d.primary_contact_id).first().catch(() => null);
-        await env.DB.prepare("UPDATE contacts SET lifecycle_stage='disqualified', updated_at=datetime('now') WHERE id=?").bind(d.primary_contact_id).run().catch(() => {});
         await env.DB.prepare(
           `INSERT OR IGNORE INTO suppressions (id, contact_id, email, phone, channel, reason, source)
            VALUES (?,?,?,?,?,?,?)`

@@ -31,6 +31,16 @@ export function normPhone(p) {
   return d.length === 11 && d[0] === "1" ? d.slice(1) : d;
 }
 
+// ---------------------------------------------------------------------------
+// Stage — the ONE classification for a record. Derived from the deal's
+// lead_status; a contact with no deal is "new". (This replaced the old,
+// parallel contacts.lifecycle_stage concept — there is now a single funnel.)
+// ---------------------------------------------------------------------------
+export const STAGE_LABELS = { new: "New", lead: "Lead", trial: "Trial", customer: "Customer", lost: "Lost", disqualified: "Disqualified" };
+const STATUS_TO_STAGE = { new: "new", active: "lead", lead: "lead", contacted: "lead", replied: "lead", trial: "trial", won: "customer", customer: "customer", lost: "lost", disqualified: "disqualified" };
+export function stageKey(leadStatus) { return STATUS_TO_STAGE[String(leadStatus || "").toLowerCase()] || "new"; }
+export function stageLabel(leadStatus) { return STAGE_LABELS[stageKey(leadStatus)]; }
+
 // Seed roster (BUILD-PLAN P0-2 — Andy/Aaron/Tyler/Jason). Idempotent via users.email UNIQUE.
 const SEED_USERS = [
   { name: "Aaron", email: "aaron@consentresolve.com", role: "admin" },

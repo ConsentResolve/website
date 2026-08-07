@@ -228,7 +228,7 @@ export async function mirrorInboundSmsRetell(env, ev) {
     else if (lastUser) lines.push("", "Them: " + lastUser);
     const bodyText = lines.join("\n");
     // Fill the contact's name/trade from extraction when we have them.
-    if (xName || xTrade) await env.DB.prepare("UPDATE contacts SET full_name=COALESCE(NULLIF(full_name,''), ?), lifecycle_stage=lifecycle_stage WHERE id=?").bind(xName || null, contactId).run().catch(() => {});
+    if (xName || xTrade) await env.DB.prepare("UPDATE contacts SET full_name=COALESCE(NULLIF(full_name,''), ?) WHERE id=?").bind(xName || null, contactId).run().catch(() => {});
 
     const extId = "retell-chat:" + (chatId || (isSms ? np : email || Date.now()) + ":session");
     const ins = await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: isSms ? "sms" : "chat", externalMessageId: extId, bodyText, sentAt: now });

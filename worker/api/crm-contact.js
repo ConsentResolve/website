@@ -3,7 +3,7 @@
 //   POST /api/crm/contact { id, company_name?, full_name?, title?, phone? }
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
-import { ensureCrmV2Schema, findOrCreateCompany, addActivityV2, currentUser, adminUserId } from "../_lib/crm-v2.js";
+import { ensureCrmV2Schema, findOrCreateCompany, addActivityV2, currentUser, adminUserId, stageKey, stageLabel } from "../_lib/crm-v2.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -26,6 +26,10 @@ export async function onRequestGet({ request, env }) {
   const conversations = await all("SELECT id, channel, subject, status, unread, last_message_at, last_message_preview FROM conversations WHERE contact_id=? ORDER BY COALESCE(last_message_at, updated_at) DESC", id);
   const convIds = conversations.map((c) => c.id);
   const deals = await all("SELECT id, title, value_cents, close_probability, expected_close_date, lead_status FROM deals WHERE primary_contact_id=? ORDER BY updated_at DESC", id);
+  // Stage — the single classification, derived from the latest deal (no deal → "new").
+  const stageStatus = deals.length ? deals[0].lead_status : null;
+  contact.stage = stageKey(stageStatus);
+  contact.stage_label = stageLabel(stageStatus);
   const placeholders = convIds.map(() => "?").join(",");
   const msgs = convIds.length
     ? await all("SELECT direction, channel, body_text, sent_at, created_at FROM messages WHERE conversation_id IN (" + placeholders + ") ORDER BY COALESCE(sent_at, created_at) DESC", ...convIds)
@@ -47,7 +51,6 @@ export async function onRequestGet({ request, env }) {
   const comms = {
     newsletter_status: contact.newsletter_status || "pending",
     repermission_step: contact.repermission_step != null ? contact.repermission_step : null,
-    lifecycle_stage: contact.lifecycle_stage || null,
     consent,                                   // { email:'granted', sms:'revoked', ... }
     suppressed: suppressions.length > 0,
     suppressions,

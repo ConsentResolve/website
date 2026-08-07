@@ -39,7 +39,8 @@ export async function nurtureTick(env) {
         AND contact_id IN (
           SELECT id FROM contacts
            WHERE COALESCE(tier,'cold')='cold'
-             AND COALESCE(lifecycle_stage,'') NOT IN ('customer'))
+             AND id NOT IN (SELECT primary_contact_id FROM deals
+                             WHERE lower(lead_status) IN ('won','customer') AND primary_contact_id IS NOT NULL))
         AND contact_id NOT IN (
           SELECT contact_id FROM workflow_runs WHERE status='active' AND contact_id IS NOT NULL)
         AND contact_id NOT IN (

@@ -101,8 +101,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
     }
 
     if (isCreated || isRescheduled) {
-      // Booked → advance the lifecycle stage and EXIT the nurture (goal "booked").
-      await env.DB.prepare("UPDATE contacts SET lifecycle_stage='meeting_booked', updated_at=datetime('now') WHERE id=?").bind(contactId).run().catch(() => {});
+      // Booked → EXIT the nurture (goal "booked"). The booking itself (bookings table) is the
+      // record of the meeting; outreach sweeps read that directly.
       await handleGoalEvent(env, { contactId, goal: "booked" }).catch(() => {});
     }
     if (isCreated) {
