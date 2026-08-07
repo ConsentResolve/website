@@ -21,7 +21,7 @@ export const DEFAULTS = {
   enabled: true,                 // master switch for the whole custom launcher
   agentName: "Mack",
   status: "Online",
-  greeting: "Do you want more leads for your existing website? (Yes or No)",
+  greeting: "Do you want more leads for your existing website?",
   phone: "+17279999846",         // tel + display are derived from this on the site
   entranceDelay: 700,            // ms before the orb pops in
   teaser: {
