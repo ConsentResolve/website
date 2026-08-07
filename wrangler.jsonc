@@ -91,6 +91,11 @@
 		// (PAUSED) campaign: "Consent-First · Visitor Recovery — Problem-Unaware (2026)".
 		"INSTANTLY_CAMPAIGN_ID": "44bd0040-5a28-4d38-a469-a73e2eb5ffca",
 		"INDEXNOW_KEY": "0452ce57fb0d3bbfdcb0d12e1ee8b142",
+		// Meta Conversions API target pixel = the pixel ATTACHED TO THE AD ACCOUNT
+		// (act_2252449638861265) and used by the site-conversion ad sets, so server events
+		// (Lead + Schedule) land on the same pixel the ads optimize on. The browser fires
+		// both this and the legacy 1611275646787663 pixel; CAPI now feeds this one.
+		"META_PIXEL_ID": "1045574481147406",
 		// Speed-to-Lead — non-secret config kept here so it survives `wrangler deploy`
 		// (dashboard plain-text vars get wiped on each CI deploy; secrets persist).
 		// TWILIO_FROM_NUMBER is the public business line; the SID/AUTH_TOKEN stay secrets.

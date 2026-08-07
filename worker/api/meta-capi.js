@@ -26,7 +26,9 @@ export async function sendCapi(env, opts) {
     eventName, eventId, email, phone, eventSourceUrl,
     fbp, fbc, ua, ip, actionSource = "website", testCode,
   } = opts || {};
-  const pixel = env.META_PIXEL_ID || "1611275646787663";
+  // Default to the ad-account pixel so server events land where the ads optimize. Overridable
+  // via META_PIXEL_ID (set in wrangler.jsonc vars).
+  const pixel = env.META_PIXEL_ID || "1045574481147406";
   const token = env.META_CAPI_TOKEN || env.META_ACCESS_TOKEN;
   if (!token) return { ok: false, error: "no_token" };
   if (!eventName || !eventId) return { ok: false, error: "missing_event" };
