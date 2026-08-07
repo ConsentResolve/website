@@ -159,9 +159,15 @@ const faqs = [
       if (!link) return;
       Cal("init", "demo", { origin: "https://cal.com" });
       Cal.ns.demo("inline", { elementOrSelector: "#cal-inline", calLink: link, config: { layout: "week_view", theme: "dark" } });
-      // Lock to the dark theme so it always matches the navy hero — never follows the
-      // visitor's OS light/dark preference (which was flipping the widget's colors).
-      Cal.ns.demo("ui", { theme: "dark", hideEventTypeDetails: true, layout: "week_view" });
+      // Lock to the dark theme so it always matches the navy hero (never follows the visitor's
+      // OS light/dark). Brand the accent (selected date, Confirm button, highlights) with our
+      // mint #00e5a0 via cssVarsPerTheme — the only cross-origin-safe way to recolor the embed.
+      Cal.ns.demo("ui", {
+        theme: "dark",
+        cssVarsPerTheme: { dark: { "cal-brand": "#00e5a0" }, light: { "cal-brand": "#00e5a0" } },
+        hideEventTypeDetails: true,
+        layout: "week_view",
+      });
     })();
   </script>
 
