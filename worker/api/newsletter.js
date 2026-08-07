@@ -6,7 +6,8 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { isAdmin } from "../_lib/crm-v2.js";
-import { ensureNewsletterSchema, enrollRepermission, runRepermission, handleOptin, resendSend, decideSend, nlConfig, setNlSettings, handlePoll, sendIssue, runReengagement } from "../_lib/newsletter.js";
+import { crmSessionEmail } from "../_lib/auth.js";
+import { ensureNewsletterSchema, enrollRepermission, runRepermission, handleOptin, resendSend, decideSend, nlConfig, setNlSettings, handlePoll, sendIssue, runReengagement, optInContacts, optInAll } from "../_lib/newsletter.js";
 import { loadIssues, loadIssue, saveIssue } from "../_lib/newsletter-issues.js";
 
 export async function onRequestOptions({ request, env }) {
@@ -77,8 +78,21 @@ export async function onRequestPost({ request, env }) {
   const action = b.action || "";
   // Admin-only = the sensitive, org-wide actions (settings, editing/sending issues, bulk run).
   // Enrolling a single lead in the newsletter is an everyday sales action any CRM user can do.
-  const ADMIN_ONLY = new Set(["set_settings", "run", "save_issue", "send_issue"]);
+  const ADMIN_ONLY = new Set(["set_settings", "run", "save_issue", "send_issue", "opt_in_all"]);
   if (ADMIN_ONLY.has(action) && !(await isAdmin(request, env))) return json({ error: "forbidden" }, { status: 403 }, cors);
+
+  // Pre-consented policy: opt everyone in (retroactive), or a single contact. Records honest
+  // admin-attested consent and never re-subscribes an explicit opt-out.
+  if (action === "opt_in_all") {
+    const actorEmail = await crmSessionEmail(request, env).catch(() => null);
+    return json({ ok: true, ...(await optInAll(env, { actorEmail })) }, {}, cors);
+  }
+  if (action === "opt_in_contact") {
+    const id = String(b.contact_id || b.id || "").trim();
+    if (!id) return json({ error: "need contact_id" }, { status: 400 }, cors);
+    const actorEmail = await crmSessionEmail(request, env).catch(() => null);
+    return json({ ok: true, ...(await optInContacts(env, { contactIds: [id], captureMethod: "admin_marked", actorEmail })) }, {}, cors);
+  }
 
   if (action === "set_settings") {
     const patch = {};

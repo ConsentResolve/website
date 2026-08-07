@@ -513,7 +513,7 @@ async function executeStep(env, run, c, step, idx, out, dry) {
   // Terminal action: drop the lead onto the newsletter track (no send of its own — the
   // re-permission runner handles that separately). Also nudges the thread to Nurture.
   if (step.action === "subscribe_newsletter") {
-    try { const { enrollRepermission } = await import("./newsletter.js"); await enrollRepermission(env, { contactIds: [run.contact_id] }); } catch (_) {}
+    try { const { optInContacts } = await import("./newsletter.js"); await optInContacts(env, { contactIds: [run.contact_id], captureMethod: "workflow_newsletter", source: "workflow" }); } catch (_) {}
     if (run.conversation_id) await env.DB.prepare("UPDATE conversations SET status='nurture', updated_at=datetime('now') WHERE id=?").bind(run.conversation_id).run().catch(() => {});
     await logStep(env, run, idx, null, "subscribe_newsletter", "sent", "");
     await logEvent(env, { type: "newsletter_subscribed", contactId: run.contact_id, workflowRunId: run.id, meta: { step: idx } });

@@ -3978,6 +3978,7 @@ async function renderNewsletter(){
   host.innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
       <div><h2 style="margin:0;font-size:19px">Newsletter</h2><div style="color:var(--tx-3);font-size:13px">12-issue calendar · sends ${chip} · from ${esc((status&&status.from)||'—')}</div></div>
+      <button onclick="nlOptInAll()" title="Treat every emailable contact as consented (admin attestation). Skips anyone who opted out." style="border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent-hi);border-radius:9px;padding:8px 14px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer">✓ Opt in everyone</button>
     </div>
     <div style="display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start">
       <div class="nl-list">${issues.map(i=>`
@@ -3991,6 +3992,12 @@ async function renderNewsletter(){
     </div>`;
 }
 window.renderNewsletter=renderNewsletter;
+async function nlOptInAll(){
+  if(!confirm('Opt in EVERY contact with an email to the newsletter?\n\n• Records your admin attestation as the consent basis (existing relationship / legitimate interest).\n• Will NOT re-subscribe anyone who explicitly unsubscribed or opted out.\n\nProceed?')) return;
+  try{ const r=await nlPost('opt_in_all'); const msg='Opted in: '+(r.opted_in||0)+'\nSkipped (explicit opt-outs, left alone): '+(r.skipped_optout||0)+(r.capped?('\n\nCapped at '+r.scanned+' this run — click again to continue the rest.'):''); if(window.crmToast)crmToast('Opted in '+(r.opted_in||0)+' contacts'); alert(msg); }
+  catch(e){ alert('Could not run: '+e); }
+}
+window.nlOptInAll=nlOptInAll;
 
 async function nlSelectIssue(id){
   const ed=document.getElementById('nlEditor'); if(ed) ed.innerHTML='<div style="color:var(--tx-3)">Loading…</div>';
@@ -5100,13 +5107,16 @@ function recTlRow(e){ const k=e.kind==='message'?(e.direction==='in'?'← in':'�
 const REC_NL={opted_in:['Subscribed','good'],active:['Subscribed','good'],pending:['Pending','muted'],suppressed:['Unsubscribed','bad'],unsubscribed:['Unsubscribed','bad'],optout:['Unsubscribed','bad']};
 function recNlBadge(status){ const s=(status||'pending').toLowerCase(); return REC_NL[s]||[s.replace(/_/g,' '),'muted']; }
 function recConChip(label,val){ const v=(val||'none').toLowerCase(); const cls=v==='granted'?'good':(v==='revoked'||v==='denied'||v==='optout')?'bad':'muted'; const sym=v==='granted'?'✓':(v==='revoked'||v==='denied'||v==='optout')?'✕':'—'; return `<span class="reccon ${cls}" title="${esc(v)}">${label} ${sym}</span>`; }
-function recCommsCard(cm){ cm=cm||{}; const nb=recNlBadge(cm.newsletter_status); const step=(String(cm.newsletter_status||'').toLowerCase()==='pending'&&cm.repermission_step)?` · re-permission ${cm.repermission_step}/4`:''; const con=cm.consent||{};
+function recCommsCard(cm, contactId){ cm=cm||{}; const nb=recNlBadge(cm.newsletter_status); const step=(String(cm.newsletter_status||'').toLowerCase()==='pending'&&cm.repermission_step)?` · re-permission ${cm.repermission_step}/4`:''; const con=cm.consent||{};
+  const optedOut=cm.suppressed&&(cm.suppressions||[]).some(s=>/declin|unsub|optout|opt-out|complain|spam/i.test(s.reason||''));
+  const isOptedIn=String(cm.newsletter_status||'').toLowerCase()==='opted_in';
   const supp=cm.suppressed?`<div class="reccomm-row"><span class="rl">Do-not-contact</span><span class="recdnc">⛔ Suppressed${(cm.suppressions&&cm.suppressions.length)?' · '+esc(cm.suppressions.map(s=>s.channel||s.reason||'').filter(Boolean).join(', ')):''}</span></div>`:'';
+  const optinBtn=(!isOptedIn&&!optedOut&&contactId)?`<div class="reccomm-row"><span class="rl"></span><button class="recd-btn primary" data-optin="${esc(contactId)}" title="Mark this contact as consented (admin attestation)">✓ Mark opted-in</button></div>`:'';
   return `<div class="recd-card"><h4>Communication status</h4><div class="reccomm">
     <div class="reccomm-row"><span class="rl">Newsletter</span><span class="recnl ${nb[1]}">${esc(nb[0])}</span>${step?`<span style="font-size:11.5px;color:var(--tx-3);font-weight:600">${esc(step.replace(/^ · /,''))}</span>`:''}</div>
     <div class="reccomm-row"><span class="rl">Consent</span><span class="reccons">${recConChip('Email',con.email)}${recConChip('SMS',con.sms)}${recConChip('Voice',con.voice)}</span></div>
     ${cm.lifecycle_stage?`<div class="reccomm-row"><span class="rl">Lifecycle</span><span class="recnl muted">${esc(cm.lifecycle_stage)}</span></div>`:''}
-    ${supp}
+    ${supp}${optinBtn}
   </div></div>`; }
 
 function renderContactDetail(el,id){
@@ -5133,7 +5143,7 @@ function renderContactDetail(el,id){
       </div>
       <div class="recd-cols">
         <div style="display:flex;flex-direction:column;gap:16px">
-          ${recCommsCard(d.comms)}
+          ${recCommsCard(d.comms, ct.id)}
           <div class="recd-card"><h4>Deals <span class="n">${(d.deals||[]).length}</span></h4>${(d.deals||[]).length?(d.deals||[]).map(recDealItem).join(''):'<div class="recd-empty2">No deals yet.</div>'}</div>
           <div class="recd-card"><h4>Communications <span class="n">${(d.conversations||[]).length}</span></h4>${(d.conversations||[]).length?(d.conversations||[]).map(recConvItem).join(''):'<div class="recd-empty2">No conversations.</div>'}</div>
         </div>
@@ -5203,6 +5213,7 @@ function recWire(el){
     const editc=e.target.closest('[data-editc]'); if(editc){ window._rec.editing=true; renderContactsView(); return; }
     const editco=e.target.closest('[data-editco]'); if(editco){ window._rec.editing=true; renderCompaniesView(); return; }
     const cancel=e.target.closest('[data-canceledit]'); if(cancel){ window._rec.editing=false; if(window._rec.contactId)renderContactsView(); else renderCompaniesView(); return; }
+    const optin=e.target.closest('[data-optin]'); if(optin){ e.stopPropagation(); const cid=optin.getAttribute('data-optin'); optin.textContent='Saving…'; fetch('/api/newsletter',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'opt_in_contact',contact_id:cid})}).then(r=>r.json()).then(()=>{ if(window.crmToast)crmToast('Marked opted-in'); renderContactsView(); }).catch(()=>{ if(window.crmToast)crmToast('Could not save'); }); return; }
     const savec=e.target.closest('[data-savec]'); if(savec){ recSaveContact(savec.getAttribute('data-savec')); return; }
     const saveco=e.target.closest('[data-saveco]'); if(saveco){ recSaveCompany(saveco.getAttribute('data-saveco')); return; }
     const co=e.target.closest('[data-company]'); if(co){ e.preventDefault(); openCompanyRecord(co.getAttribute('data-company')); return; }

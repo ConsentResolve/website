@@ -929,6 +929,18 @@ export async function onRequestPost({ request, env }) {
   await env.DB.prepare(
     "UPDATE conversations SET status=?, snooze_until=?, snooze_note=?, updated_at=datetime('now') WHERE id=?"
   ).bind(status, snooze, note, b.id).run();
+  // Pre-consented policy: moving a lead onto the newsletter track opts them in directly (honest
+  // admin attestation), instead of starting the re-permission ask. Skips explicit opt-outs.
+  if (status === "nurture") {
+    try {
+      const cv = await env.DB.prepare("SELECT contact_id FROM conversations WHERE id=?").bind(b.id).first();
+      if (cv && cv.contact_id) {
+        const { optInContacts } = await import("../_lib/newsletter.js");
+        let actorEmail = null; try { const { crmSessionEmail } = await import("../_lib/auth.js"); actorEmail = await crmSessionEmail(request, env); } catch (_) {}
+        await optInContacts(env, { contactIds: [cv.contact_id], captureMethod: "moved_to_newsletter", source: "crm", actorEmail });
+      }
+    } catch (_) {}
+  }
   return json({ ok: true, status, snooze_until: snooze, snooze_note: note }, {}, cors);
 }
 

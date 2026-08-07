@@ -172,6 +172,52 @@ export async function enrollRepermission(env, { contactIds } = {}) {
   return { enrolled, count: ids.length };
 }
 
+// ---- Pre-consented opt-in (account policy: contacts are treated as consented) --------------
+// Has this contact EXPLICITLY opted out of email? (declined the newsletter, unsubscribed, filed a
+// complaint, or revoked email consent.) We NEVER re-subscribe these — re-mailing a known opt-out is
+// the one genuinely-illegal move. A plain non-response ('no_repermission') is NOT an opt-out.
+async function isExplicitOptOut(env, id) {
+  if (!id) return false;
+  const s = await env.DB.prepare(
+    "SELECT 1 FROM suppressions WHERE contact_id=? AND channel IN ('all','email') AND (" +
+    "lower(COALESCE(reason,'')) LIKE '%declin%' OR lower(COALESCE(reason,'')) LIKE '%unsub%' OR " +
+    "lower(COALESCE(reason,'')) LIKE '%optout%' OR lower(COALESCE(reason,'')) LIKE '%opt-out%' OR " +
+    "lower(COALESCE(reason,'')) LIKE '%complain%' OR lower(COALESCE(reason,'')) LIKE '%spam%') LIMIT 1"
+  ).bind(id).first().catch(() => null);
+  if (s) return true;
+  const r = await env.DB.prepare("SELECT 1 FROM consent_records WHERE contact_id=? AND channel='email' AND action='revoked' LIMIT 1").bind(id).first().catch(() => null);
+  return !!r;
+}
+// Opt a set of contacts into the newsletter DIRECTLY (no re-permission ask). Records an HONEST
+// consent record (admin / legitimate-interest attestation — never a fabricated click), skips
+// explicit opt-outs, and clears only a prior non-response suppression so lapsed contacts can send.
+export async function optInContacts(env, { contactIds = [], basis = "existing relationship / legitimate interest", captureMethod = "admin_attested", source = "crm", actorEmail = null } = {}) {
+  await ensureRebuildSchema(env); await ensureNewsletterSchema(env);
+  let opted = 0, skipped = 0;
+  for (const id of contactIds) {
+    if (!id) continue;
+    if (await isExplicitOptOut(env, id)) { skipped++; continue; }
+    const c = await env.DB.prepare("SELECT id, primary_email FROM contacts WHERE id=?").bind(id).first().catch(() => null);
+    if (!c) { skipped++; continue; }
+    await env.DB.prepare("UPDATE contacts SET newsletter_status='opted_in', repermission_step=0, repermission_next_at=NULL, updated_at=datetime('now') WHERE id=?").bind(id).run().catch(() => {});
+    await env.DB.prepare("DELETE FROM suppressions WHERE contact_id=? AND channel IN ('all','email') AND lower(COALESCE(reason,''))='no_repermission'").bind(id).run().catch(() => {});
+    if (c.primary_email) await recordConsent(env, { contactId: id, email: c.primary_email, channel: "email", action: "granted", basis, captureMethod, source, proofRef: actorEmail ? ("attested_by:" + actorEmail) : null }).catch(() => {});
+    opted++;
+  }
+  return { opted_in: opted, skipped_optout: skipped, count: contactIds.length };
+}
+// Retroactive bulk: opt in EVERY contact with an email who isn't already opted-in and hasn't
+// explicitly opted out. (The pre-consented policy applied to the existing base — admin action.)
+export async function optInAll(env, { limit = 5000, actorEmail = null } = {}) {
+  await ensureRebuildSchema(env); await ensureNewsletterSchema(env);
+  const rows = (await env.DB.prepare(
+    "SELECT id FROM contacts WHERE primary_email IS NOT NULL AND primary_email!='' AND COALESCE(newsletter_status,'pending')<>'opted_in' LIMIT ?"
+  ).bind(limit).all()).results || [];
+  const ids = rows.map((r) => r.id);
+  const res = await optInContacts(env, { contactIds: ids, basis: "existing relationship / legitimate interest", captureMethod: "admin_bulk_attestation", source: "admin", actorEmail });
+  return { ...res, scanned: ids.length, capped: ids.length >= limit };
+}
+
 // ---- the runner (cron) ----------------------------------------------------
 // Advance every contact whose re-permission step is due. Inert (advances nothing) while the
 // contact is in simulate mode — so the sequence isn't consumed before you go live.

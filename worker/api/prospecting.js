@@ -23,7 +23,7 @@ import { scoreProspect } from "../_lib/prospect-score.js";
 import { fetchSite, parseSite } from "./crm-lookup.js";
 import { peopleAtDomain, enrichPerson, usableEmail, DEFAULT_TITLES } from "./apollo-prospect.js";
 import { enrollContact } from "../_lib/workflow-engine.js";
-import { enrollRepermission } from "../_lib/newsletter.js";
+import { enrollRepermission, optInContacts } from "../_lib/newsletter.js";
 import { pushLeadToInstantly } from "../_lib/instantly.js";
 
 // The paused "Problem-Unaware (2026)" campaign. Override with env.INSTANTLY_CAMPAIGN_ID.
@@ -586,7 +586,7 @@ async function executeDisposition(env, prospectId, disposition, actorId) {
     return { kind: "sequence", meta, conversation_id: pr.conversation_id };
   }
   if (disposition === "newsletter") {
-    await enrollRepermission(env, { contactIds: [pr.contact_id] }).catch(() => {});
+    await optInContacts(env, { contactIds: [pr.contact_id], captureMethod: "moved_to_newsletter", source: "prospecting" }).catch(() => {});
     meta.newsletter = true;
     return { kind: "newsletter", meta, conversation_id: pr.conversation_id };
   }
@@ -764,7 +764,7 @@ async function apolloKeep(env, b, actorId, cors) {
     }
   }
   else if (disp === "sequence") { for (const cid of savedContactIds) await enrollContact(env, { contactId: cid, conversationId: cid === baseContactId ? convId : null, source: "prospect_keep_apollo", workflowId: "cold-to-demo" }).catch(() => {}); kind = "sequence"; }
-  else if (disp === "newsletter") { await enrollRepermission(env, { contactIds: savedContactIds }).catch(() => {}); kind = "newsletter"; }
+  else if (disp === "newsletter") { await optInContacts(env, { contactIds: savedContactIds, captureMethod: "moved_to_newsletter", source: "prospecting" }).catch(() => {}); kind = "newsletter"; }
   else if (disp === "whale") { await flagWhaleCompany(env, companyId, actorId, "flagged from Prospecting"); kind = "whale"; }
 
   const emails = savedPeople.filter((p) => p.email).length;
