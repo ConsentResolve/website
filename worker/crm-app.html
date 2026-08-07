@@ -2439,36 +2439,47 @@ function onAttach(files){for(const f of files)ATTACH.push({name:f.name,size:f.si
 function removeAttach(i){ATTACH.splice(i,1); renderAttachChips();}
 function renderAttachChips(){const el=document.getElementById('attachChips'); if(!el)return; el.innerHTML=ATTACH.map((a,i)=>`<span class="achip">📎 ${esc(a.name)}<span class="ax" onclick="removeAttach(${i})">✕</span></span>`).join('');}
 async function sendReply(){
-  const c=DATA.conversations.find(x=>x.id===sel), ed=document.getElementById('rte');
+  // Resilient by design: the server only needs the conversation id (`sel`) and auto-routes by
+  // the thread's channel, so DON'T depend on the in-memory conversation object — if it's missing
+  // (e.g. a deep-linked thread outside the loaded page) we must still be able to send, and any
+  // failure must be visible rather than throwing silently.
+  const ed=document.getElementById('rte');
+  const c=DATA.conversations.find(x=>x.id===sel);
   const text=ed?ed.innerText.trim():'';
-  // The reply endpoint sends `body` only — attachments aren't wired through the backend yet.
-  if(!text){ alert(ATTACH.length ? 'Type a message to send (attachments aren’t sent yet).' : ''); if(!ATTACH.length) closeReply(); return; }
-  const ch=replyChOf(c);
-  const replyHtml=(ch==='email'&&ed)?buildReplyHtml(ed):null;
+  if(!text){ if(ATTACH.length){ if(window.crmToast)crmToast('Type a message to send (attachments aren’t sent yet).'); } else { closeReply(); } return; }
+  if(!sel){ if(window.crmToast)crmToast('No conversation selected.'); return; }
+  const ch=c?replyChOf(c):null;                        // known channel when we have the object
+  const replyHtml=(ed&&ch!=='sms')?buildReplyHtml(ed):null;  // html is ignored server-side for SMS
+  const sysPush=(body)=>{ if(c){ c.messages=c.messages||[]; c.messages.push({dir:'system',body,ts:'just now'}); try{renderTab(c);}catch(_){} } else if(window.crmToast){ crmToast(body.replace(/^⚠\s*/,'')); } };
+  const restoreDraft=()=>{ openReply(); setTimeout(()=>{const e2=document.getElementById('rte'); if(e2){e2.innerText=text; e2.focus();}},40); };
   const btn=document.querySelector('.rte-send'); const oldLabel=btn?btn.textContent:'';
   if(btn){ btn.disabled=true; btn.textContent='Sending…'; }
   try{
-    const r=await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:sel,reply:text,html:replyHtml,channel:ch})});
+    const payload={id:sel,reply:text,html:replyHtml};
+    if(ch) payload.channel=ch;                          // only override routing when we know it
+    const r=await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const d=await r.json().catch(()=>({}));
     if(!r.ok||d.error){
-      // Show the failure right in the conversation window; keep the draft so they can retry.
-      c.messages.push({dir:'system',body:'⚠ '+(ch==='sms'?'SMS':'Email')+' failed to send — '+(d.message||d.error||('HTTP '+r.status))+'. Not delivered.',ts:'just now'});
-      renderTab(c);
-      openReply(); setTimeout(()=>{const e2=document.getElementById('rte'); if(e2){e2.innerText=text; e2.focus();}},40);
+      sysPush('⚠ Failed to send — '+(d.message||d.error||('HTTP '+r.status))+'. Not delivered.');
+      restoreDraft();
       return;
     }
-    // Reflect the sent message AND a ✓ status line (delivery + cc for email) in the thread.
-    c.messages.push({dir:'out',channel:d.sent||ch,body:text,html:(ch==='email'?replyHtml:null),ts:'just now',meta:'sent'});
-    if(d.status_note) c.messages.push({dir:'system',body:d.status_note,ts:'just now'});
-    if(typeof c.unread!=='undefined') c.unread=false;
-    replyOpen=false; ATTACH=[];
-    renderTab(c);
-    const sc=document.querySelector('#tabbody .msgs, #tabbody .gmail'); if(sc)sc.scrollTop=sc.scrollHeight;
+    if(c){
+      c.messages=c.messages||[];
+      c.messages.push({dir:'out',channel:d.sent||ch,body:text,html:(ch==='email'?replyHtml:null),ts:'just now',meta:'sent'});
+      if(d.status_note) c.messages.push({dir:'system',body:d.status_note,ts:'just now'});
+      if(typeof c.unread!=='undefined') c.unread=false;
+      replyOpen=false; ATTACH=[];
+      try{renderTab(c);}catch(_){}
+      const sc=document.querySelector('#tabbody .msgs, #tabbody .gmail'); if(sc)sc.scrollTop=sc.scrollHeight;
+    } else {
+      replyOpen=false; ATTACH=[];
+      if(window.crmToast)crmToast(d.status_note||'✓ Sent');
+    }
     if(window._focusMode) focusAdvance(); // Single-Task: reply = done, serve the next
   }catch(e){
-    c.messages.push({dir:'system',body:'⚠ '+(ch==='sms'?'SMS':'Email')+' failed to send — network error.',ts:'just now'});
-    renderTab(c);
-    openReply(); setTimeout(()=>{const e2=document.getElementById('rte'); if(e2){e2.innerText=text; e2.focus();}},40);
+    sysPush('⚠ Failed to send — network error.');
+    restoreDraft();
   }
   finally{ if(btn){ btn.disabled=false; btn.textContent=oldLabel; } }
 }
