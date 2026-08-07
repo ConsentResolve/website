@@ -481,9 +481,10 @@ export async function onRequestGet({ request, env }) {
       `SELECT d.id, d.title, d.value_cents, d.close_probability, d.lead_status, d.owner_id, d.disqualify_reason,
               ct.full_name, ct.primary_email, ct.lead_score, ct.tier, ct.lifecycle_stage,
               co.name AS company, co.domain AS domain, co.enrichment AS enrichment, u.name AS owner_name,
-              cv.status AS conv_status, cv.snooze_until, cv.assignee_id, cv.workflow_run_id,
+              cv.status AS conv_status, cv.snooze_until, cv.assignee_id,
               cv.last_message_at, cv.last_message_preview, au.name AS assignee_name,
               (SELECT m.direction FROM messages m WHERE m.conversation_id = cv.id ORDER BY COALESCE(m.sent_at, m.created_at) DESC LIMIT 1) AS last_dir,
+              (SELECT 1 FROM workflow_runs wr WHERE wr.status='active' AND (wr.conversation_id = cv.id OR wr.deal_id = d.id OR wr.contact_id = d.primary_contact_id) LIMIT 1) AS wf_active,
               (SELECT MIN(bk.start_iso) FROM bookings bk WHERE bk.email = ct.primary_email AND substr(bk.start_iso,1,10) >= date('now')) AS meeting_iso
        FROM deals d
        LEFT JOIN contacts ct ON ct.id = d.primary_contact_id
@@ -537,7 +538,7 @@ export async function onRequestGet({ request, env }) {
       else if (snoozed) comm = "snoozed";
       else if (r.last_dir === "in") comm = "replying";           // they replied — ball's in our court
       else if (r.assignee_id || r.owner_id) comm = "open";        // a human owns it, awaiting next move
-      else if (r.workflow_run_id) comm = "auto";                  // sequence running, no human needed
+      else if (r.wf_active) comm = "auto";                        // a workflow_run is active — sequence running
       else comm = "open";
 
       return {
