@@ -110,7 +110,9 @@ export async function onRequestGet({ request, env }) {
     const hit = await cache.match(cacheKey);
     if (hit) return hit;
 
-    const res = await calFetch(env, `/slots?eventTypeId=${encodeURIComponent(env.CALCOM_EVENT_TYPE_ID || "")}` +
+    // cal-api-version 2024-08-13 exposes availability at /slots/available (NOT /slots), with
+    // startTime/endTime and results nested under data.slots keyed by date.
+    const res = await calFetch(env, `/slots/available?eventTypeId=${encodeURIComponent(env.CALCOM_EVENT_TYPE_ID || "")}` +
       `&startTime=${start}T00:00:00.000Z&endTime=${end}T23:59:59.999Z&timeZone=${encodeURIComponent(TZ)}`);
     if (res._noKey) return json({ days: [], _configured: false }, {}, cors);
     if (!res.ok) {
@@ -119,8 +121,10 @@ export async function onRequestGet({ request, env }) {
       return json({ days: [], error: "slots_failed", ...dbg }, {}, cors);
     }
 
-    // v2 /slots returns data keyed by date OR a flat array — handle both.
-    const data = (res.body && res.body.data) || {};
+    // 2024-08-13 nests as data.slots{date:[{time}]}; newer/other shapes are data{date:[{start}]}
+    // or a flat array — handle all three.
+    const rawData = (res.body && res.body.data) || {};
+    const data = (rawData && rawData.slots) ? rawData.slots : rawData;
     const byDay = new Map();
     const push = (iso) => {
       if (!iso) return;
