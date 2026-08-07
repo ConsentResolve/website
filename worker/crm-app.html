@@ -4743,6 +4743,8 @@ const OPS_CSS = `
 .ops-toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
 .ops-refresh{border:1px solid var(--line-2);background:var(--surface-1);color:var(--tx-2);border-radius:var(--r-1);padding:5px 11px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;margin-left:auto}
 .ops-refresh:hover{border-color:var(--accent);color:var(--tx-1)}
+.ops-dqtoggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--tx-2);cursor:pointer;user-select:none;white-space:nowrap}
+.ops-dqtoggle input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
 .opsactcell{display:flex;gap:5px;flex-wrap:wrap}
 .opsactbtn{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:800;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r-1);padding:3px 8px;cursor:pointer;white-space:nowrap}
 .opsactbtn:hover{border-color:var(--accent);color:var(--tx-1)}
@@ -4820,8 +4822,8 @@ function opsRow(d){
   if(d.conv_id) actBtns.push(`<button class="opsactbtn" data-conv="${esc(d.conv_id)}" title="Open the conversation">💬 Chat</button>`);
   if(d.meeting) actBtns.push(`<button class="opsactbtn mtg" data-mtg="${esc(d.meeting.uid||'')}" data-when="${esc(d.meeting.label)}" data-conv2="${esc(d.conv_id||'')}" title="Meeting details">📅 Meeting</button>`);
   const mtg=actBtns.length?`<div class="opsactcell">${actBtns.join('')}</div>`:`<span class="opsmtg-none">—</span>`;
-  const acts=`<div class="opsacts">${(d.owner&&d._att)?`<button class="help" data-act="nudge" data-id="${d.id}">⚑ Nudge</button>`:''}${d._kud?`<button class="kud" data-act="kudos" data-id="${d.id}">★ Kudos</button>`:''}<button data-act="open" data-id="${d.id}">Open →</button></div>`;
-  return `<div class="ops-row ${cls}" data-open="${d.id}">
+  const acts=`<div class="opsacts">${(d.owner&&d._att)?`<button class="help" data-act="nudge" data-id="${d.id}">⚑ Nudge</button>`:''}${d._kud?`<button class="kud" data-act="kudos" data-id="${d.id}">★ Kudos</button>`:''}<button data-act="open" data-id="${d.id}">Deal ↗</button></div>`;
+  return `<div class="ops-row ${cls}" data-open="${d.id}" data-conv-row="${esc(d.conv_id||'')}" title="Open the record">
     <div class="stp"><i></i></div>
     <div class="opsco"><div class="c1">${d.tier==='hot'?'<span class="opsdot" title="Hot"></span>':''}<span class="nm">${esc(d.company||d.name||'—')}</span></div><div class="c2">${esc(d.company?(d.name||d.domain||''):(d.domain||''))||'—'}</div></div>
     ${opsOwnerCell(d)}
@@ -4881,11 +4883,13 @@ window.opsRefresh=opsRefresh;
 function renderPipelineReal(el,P){
   opsCss();
   const st=window._ops=window._ops||{view:'stage',filter:'all',sort:null,dir:1};
+  if(st.showDq===undefined){ try{st.showDq=localStorage.getItem('opsShowDq')==='1';}catch(_){st.showDq=false;} }
   const R=opsDerive(P);
+  const dqCount=R.filter(d=>d.stage==='disqualified').length;
   const groups=st.view==='rep'?opsRepGroups(R):OPS_SGROUPS;
   let body='';
   groups.forEach(g=>{
-    let rows=R.filter(g.test).filter(d=>opsPass(d,st.filter));
+    let rows=R.filter(g.test).filter(d=>opsPass(d,st.filter)).filter(d=>st.showDq||d.stage!=='disqualified');
     rows=opsSort(rows,st);
     if(!rows.length)return;
     const sum=rows.reduce((a,d)=>a+(d.value_usd||0),0);
@@ -4898,6 +4902,7 @@ function renderPipelineReal(el,P){
     <div class="ops-ctl">
       <div class="ops-seg"><button data-ov="stage" class="${st.view==='stage'?'on':''}">By status</button><button data-ov="rep" class="${st.view==='rep'?'on':''}">By rep</button></div>
       ${opsFilters(R,st.filter)}
+      <label class="ops-dqtoggle" title="Disqualified deals are hidden by default"><input type="checkbox" data-dqtoggle ${st.showDq?'checked':''}> Show disqualified${dqCount?` (${dqCount})`:''}</label>
     </div>
     <div class="ops-tbl"><div class="ops-scroll">
       <div class="ops-h">
@@ -4918,6 +4923,7 @@ function renderPipelineReal(el,P){
     el._opsWired=true;
     el.addEventListener('click',e=>{
       const rf=e.target.closest('[data-refresh]'); if(rf){ e.stopPropagation(); opsRefresh(); return; }
+      const dqt=e.target.closest('[data-dqtoggle]'); if(dqt){ window._ops.showDq=!!dqt.checked; try{localStorage.setItem('opsShowDq',dqt.checked?'1':'');}catch(_){} renderPipeline(); return; }
       const ov=e.target.closest('[data-ov]'); if(ov){ window._ops.view=ov.dataset.ov; renderPipeline(); return; }
       const of=e.target.closest('[data-of]'); if(of){ window._ops.filter=of.dataset.of; renderPipeline(); return; }
       const os=e.target.closest('[data-os]'); if(os){ const k=os.dataset.os; window._ops.dir=window._ops.sort===k?-window._ops.dir:1; window._ops.sort=k; renderPipeline(); return; }
@@ -4929,7 +4935,9 @@ function renderPipelineReal(el,P){
         else if(act.dataset.act==='nudge'){ const d=(window.PIPELINE||[]).find(x=>x.id===id); opsToast('Nudged '+((d&&d.owner&&d.owner.name.split(' ')[0])||'the rep')+' about '+((d&&(d.company||d.name))||'this deal')); }
         else if(act.dataset.act==='kudos'){ const d=(window.PIPELINE||[]).find(x=>x.id===id); opsToast('★ Kudos sent for '+((d&&(d.company||d.name))||'a job well done')); }
         return; }
-      const row=e.target.closest('[data-open]'); if(row){ openDealDetail(row.dataset.open); }
+      // Row click → open the record: the conversation (company + contact + comm thread) when there
+      // is one; otherwise the deal detail. The hover "Deal ↗" button always opens the deal detail.
+      const row=e.target.closest('[data-open]'); if(row){ const cv=row.getAttribute('data-conv-row'); if(cv){ showView('inbox'); if(window.select) select(cv); } else { openDealDetail(row.dataset.open); } }
     });
   }
 }
