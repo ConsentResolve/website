@@ -217,11 +217,19 @@ export async function onRequestPost({ request, env }) {
     const company = clean(b.company);
     const leadSources = Array.isArray(b.leadSources) ? b.leadSources.map(clean).filter(Boolean) : [];
     const utm = b.utm || {};
-    const meta = {
-      trade: clean(b.trade), traffic: clean(b.traffic), leadSources: leadSources.join("|"),
-      website, company,
-      utm_source: clean(utm.utm_source || utm.source), utm_medium: clean(utm.utm_medium || utm.medium), utm_campaign: clean(utm.utm_campaign || utm.campaign),
-    };
+    // Cal.com v2 metadata must be a flat map of NON-NULL STRINGS — a null/undefined value (e.g. an
+    // absent website, since we now collect it after booking) makes Cal 400 the whole request. Only
+    // add keys that actually have a string value.
+    const meta = {};
+    const putMeta = (k, v) => { const s = clean(v); if (s) meta[k] = s.slice(0, 480); };
+    putMeta("trade", b.trade);
+    putMeta("traffic", b.traffic);
+    if (leadSources.length) meta.leadSources = leadSources.join("|").slice(0, 480);
+    putMeta("website", website);
+    putMeta("company", company);
+    putMeta("utm_source", utm.utm_source || utm.source);
+    putMeta("utm_medium", utm.utm_medium || utm.medium);
+    putMeta("utm_campaign", utm.utm_campaign || utm.campaign);
     const attendee = { name, email, timeZone: TZ, language: "en" };
     if (phone) attendee.phoneNumber = phone;
     const payload = {
@@ -240,7 +248,8 @@ export async function onRequestPost({ request, env }) {
     if (!res.ok) {
       const blob = JSON.stringify(res.body || {}).toLowerCase();
       const reason = (res.status === 409 || blob.includes("no longer available") || blob.includes("already booked") || blob.includes("slot")) ? "slot_taken" : "api_error";
-      return json({ ok: false, reason }, {}, cors);
+      const dbg = b.debug ? { _status: res.status, _body: res.body } : {};
+      return json({ ok: false, reason, ...dbg }, {}, cors);
     }
     const bk = (res.body && (res.body.data || res.body)) || {};
     const bUid = bk.uid || (bk.booking && bk.booking.uid) || uid();
