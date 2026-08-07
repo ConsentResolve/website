@@ -250,8 +250,7 @@ export async function onRequestPost({ request, env }) {
     if (!res.ok) {
       const blob = JSON.stringify(res.body || {}).toLowerCase();
       const reason = (res.status === 409 || blob.includes("no longer available") || blob.includes("already booked") || blob.includes("slot")) ? "slot_taken" : "api_error";
-      const dbg = b.debug ? { _status: res.status, _body: res.body } : {};
-      return json({ ok: false, reason, ...dbg }, {}, cors);
+      return json({ ok: false, reason }, {}, cors);
     }
     const bk = (res.body && (res.body.data || res.body)) || {};
     const bUid = bk.uid || (bk.booking && bk.booking.uid) || uid();
