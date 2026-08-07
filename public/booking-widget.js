@@ -331,7 +331,7 @@
         '<h2 class="crbw-h">Where should we send it?</h2>' +
         '<div class="crbw-pill">' + ic("clock", 14, 2) + esc(pill) + "</div>" +
         '<div class="crbw-f"><label for="crbw-email">Email <i>(for your calendar invite)</i></label><input id="crbw-email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="you@yourcompany.com" required></div>' +
-        '<div class="crbw-f"><label for="crbw-phone">Mobile <i>(optional — for a text reminder)</i></label><input id="crbw-phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(555) 123-4567"></div>' +
+        '<div class="crbw-f"><label for="crbw-phone">Mobile <i>(we\'ll text your demo link + reminder)</i></label><input id="crbw-phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(555) 123-4567" required></div>' +
         '<button class="crbw-btn" data-submit="1">Confirm my demo ' + ic("arrow", 18, 2.2) + "</button>" +
         '<div class="crbw-note">No pressure, no contracts. Reschedule anytime.</div>';
     }
@@ -404,7 +404,7 @@
       root.querySelectorAll(".crbw-err").forEach(function (e) { e.remove(); });
       var bad = false;
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim())) { email.classList.add("bad"); email.parentNode.appendChild(el('<div class="crbw-err">Enter a valid email so we can send your invite.</div>')); bad = true; }
-      if (phone.value.trim() && phone.value.replace(/\D/g, "").length < 10) { phone.classList.add("bad"); phone.parentNode.appendChild(el('<div class="crbw-err">That mobile number looks short — or leave it blank.</div>')); bad = true; }
+      if (phone.value.replace(/\D/g, "").length < 10) { phone.classList.add("bad"); phone.parentNode.appendChild(el('<div class="crbw-err">Add a mobile number so we can text your demo link and reminder.</div>')); bad = true; }
       if (bad) { var f = root.querySelector(".crbw-f input.bad"); if (f) f.focus(); return; }
 
       state.phone = phone.value.trim();

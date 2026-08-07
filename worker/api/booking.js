@@ -200,7 +200,9 @@ export async function onRequestPost({ request, env }) {
     const email = clean(b.email);
     const website = normWebsite(b.website), phone = normPhoneE164(b.phone);
     const startIso = clean(b.startIso);
-    if (!email || !startIso) {
+    // email + a valid mobile + a time are the hard requirements (mobile is required on the Cal
+    // event type for the SMS reminder). Name/company/website are collected after booking.
+    if (!email || !startIso || !phone) {
       return json({ ok: false, reason: "missing_fields" }, { status: 400 }, cors);
     }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ ok: false, reason: "bad_email" }, { status: 400 }, cors);
