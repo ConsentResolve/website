@@ -67,8 +67,8 @@ const faqs = [
              fixed box on desktop instead of full-bleed. (month_view needs ~768px to go
              side-by-side; in this ~560px column it stacks taller, so column_view stays best.) -->
         <div id="book" class="scroll-mt-24">
-          <div class="mx-auto w-full max-w-[520px] rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg)] p-2 shadow-2xl sm:p-3">
-            <div id="cal-inline" data-cal-link={CAL_LINK} style="width:100%;height:560px;overflow:auto"></div>
+          <div class="cal-card mx-auto w-full max-w-[520px] rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg)] p-2 shadow-2xl sm:p-3">
+            <div class="cal-scale-box"><div id="cal-inline" data-cal-link={CAL_LINK} style="overflow:auto"></div></div>
             <noscript>
               <div class="p-6 text-center">
                 <a href={`https://cal.com/${CAL_LINK}`} class="inline-flex items-center justify-center rounded-lg bg-[color:var(--color-brand)] px-7 py-3.5 text-base font-bold text-[color:var(--color-on-brand)]">Pick a time →</a>
@@ -158,8 +158,23 @@ const faqs = [
       var link = el ? el.getAttribute("data-cal-link") : "";
       if (!link) return;
       Cal("init", "demo", { origin: "https://cal.com" });
-      Cal.ns.demo("inline", { elementOrSelector: "#cal-inline", calLink: link, config: { layout: "week_view" } });
-      Cal.ns.demo("ui", { hideEventTypeDetails: true, layout: "week_view" });
+      Cal.ns.demo("inline", { elementOrSelector: "#cal-inline", calLink: link, config: { layout: "week_view", theme: "dark" } });
+      // Lock to the dark theme so it always matches the navy hero — never follows the
+      // visitor's OS light/dark preference (which was flipping the widget's colors).
+      Cal.ns.demo("ui", { theme: "dark", hideEventTypeDetails: true, layout: "week_view" });
     })();
   </script>
+
+  <!-- Cal embed sizing: fixed box (no layout shift). On desktop, scale the whole widget to
+       75% (25% smaller) — the scale-box clips to the scaled footprint so the card shrinks with
+       it. Mobile keeps the full-size, full-width embed. -->
+  <style>
+    #cal-inline { width: 100%; height: 560px; }
+    .cal-scale-box { width: 100%; }
+    @media (min-width: 1024px) {
+      .cal-card { max-width: max-content; }
+      .cal-scale-box { width: 390px; height: 420px; overflow: hidden; }
+      #cal-inline { width: 520px; height: 560px; transform: scale(0.75); transform-origin: top left; }
+    }
+  </style>
 </BaseLayout>
