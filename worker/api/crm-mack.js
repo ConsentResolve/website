@@ -137,8 +137,11 @@ async function applyMack(env) {
   await env.DB.prepare("INSERT INTO mack_backup (id, llm_id, general_prompt, general_tools) VALUES (?,?,?,?)")
     .bind(crypto.randomUUID(), r.llmId, priorPrompt, JSON.stringify(priorTools)).run().catch(() => {});
 
-  // Keep any existing NON-booking tools; add/replace our two booking tools.
-  const keep = Array.isArray(priorTools) ? priorTools.filter((t) => !["get_demo_times", "book_demo"].includes(t && t.name)) : [];
+  // Drop the in-chat FORM tools (request_contact / capture_email render a pop-up form — we now
+  // collect contact conversationally in the prompt) plus any prior copies of our booking tools;
+  // keep anything else, then add our two booking tools.
+  const DROP = ["get_demo_times", "book_demo", "request_contact", "capture_email", "collect_user_information", "collect_contact"];
+  const keep = Array.isArray(priorTools) ? priorTools.filter((t) => t && !DROP.includes(t.name)) : [];
   const tools = [...keep, ...BOOK_TOOLS];
   const llmUpd = await rt(env, "PATCH", `/update-retell-llm/${r.llmId}`, { general_prompt: MACK_PROMPT, general_tools: tools });
 
