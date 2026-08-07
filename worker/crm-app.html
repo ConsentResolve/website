@@ -3551,6 +3551,8 @@ async function prospPush(btn){
 const _dossCache={};   // session cache of full lookups by domain — re-opening never re-pays
 function prospOpenDossier(id){
   const p=(PROSP.prospects||[]).find(x=>x.id===id); if(!p) return;
+  window.__dossId=id;
+  try{ history.replaceState(null,'','#prospecting/'+id); }catch(e){}   // shareable record URL
   const cid='__prospdoss', s=p.signals||{};
   window.ENRICH=window.ENRICH||{}; window.INTEL=window.INTEL||{}; window.DIRECTORY=window.DIRECTORY||{}; window.PHONES=window.PHONES||{}; window.__autoLook=window.__autoLook||{}; window.__autoLook[cid]=1;
   // INSTANT open — seed the dossier from the prospect's OWN waterfall signals (score, traffic,
@@ -3590,11 +3592,15 @@ function openDossierModal(conv, promoteId){
   let ov=document.getElementById('pdoss-ov'); if(ov)ov.remove();
   ov=document.createElement('div'); ov.id='pdoss-ov'; ov.className='pdoss-ov';
   const promo=promoteId?`<button class="pkeep-btn" onclick="prospKeepChooser('${promoteId}',event)" title="Process this lead — choose what to do">✓ Process</button><button class="pdel-btn" onclick="prospDelete('${promoteId}',event)" title="Remove this lead">✕ Delete</button>`:'';
-  ov.innerHTML='<div class="pdoss-card"><div class="pdoss-top"><b>Dossier <span id="pdoss-load" class="pdoss-load">✦ generating sales insights…</span></b><div class="pdoss-actions">'+promo+'<button class="pdoss-x" onclick="document.getElementById(\'pdoss-ov\').remove()">✕</button></div></div><div class="intel-scroll intel-dash-wrap">'+intelDashboard(conv)+'</div></div>';
-  ov.onclick=(e)=>{ if(e.target===ov) ov.remove(); };
+  const shareBtn=promoteId?'<button class="pdoss-x" title="Copy a shareable link to this record" onclick="shareDoss()">🔗</button>':'';
+  ov.innerHTML='<div class="pdoss-card"><div class="pdoss-top"><b>Dossier <span id="pdoss-load" class="pdoss-load">✦ generating sales insights…</span></b><div class="pdoss-actions">'+promo+shareBtn+'<button class="pdoss-x" onclick="closeDoss()">✕</button></div></div><div class="intel-scroll intel-dash-wrap">'+intelDashboard(conv)+'</div></div>';
+  ov.onclick=(e)=>{ if(e.target===ov) closeDoss(); };
   document.body.appendChild(ov);
   if(typeof d2InitDossier==='function') d2InitDossier(conv);
 }
+function closeDoss(){ var o=document.getElementById('pdoss-ov'); if(o)o.remove(); try{ if(location.hash.indexOf('#prospecting/')===0) history.replaceState(null,'','#prospecting'); }catch(e){} }
+function shareDoss(){ shareLink('prospecting', window.__dossId); }
+window.closeDoss=closeDoss; window.shareDoss=shareDoss;
 function prospPromoteFromDossier(id,btn){ if(btn){btn.disabled=true;btn.textContent='Adding…';}
   prospPost({action:'promote',id}).then(r=>{ if(r&&r.ok){ crmToast&&crmToast('Added to pipeline'); const p=(PROSP.prospects||[]).find(x=>x.id===id); if(p){p.status='promoted';p.promoted_contact_id=r.contact_id;} if(btn){btn.textContent='✓ In pipeline';} }
     else if(btn){btn.disabled=false;btn.textContent='+ Add to pipeline';} });
@@ -4054,47 +4060,74 @@ window.nlSend=nlSend;
 // DEFERRED to a macrotask so every render helper (const/fn defined later in this
 // script) is initialized first — otherwise restoring #sitespy hit a TDZ error and
 // blanked the app. Wrapped so any failure falls back to the default Inbox.
-// Parse the URL hash → {view, lead}. A shared record link is #inbox/<convId> (or #lead/<id>).
+// ===== Deep-links: land anywhere — #<view> opens a view, #<view>/<recordId> opens a record.
+// A pasted link switches to the view and opens the exact record once its data is loaded.
+var VALID_VIEWS={inbox:1,reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1,newsletter:1,prospecting:1,agency:1,settings:1};
+// Per-view "open this record by id". A view not listed just opens (record id ignored).
+var RECORD_OPENERS={
+  inbox:function(id){ if(window.select) select(id); },
+  pipeline:function(id){ if(window.openDealDetail) openDealDetail(id); },
+  prospecting:function(id){ if(window.prospOpenDossier) prospOpenDossier(id); },
+};
+// Is the record's data loaded yet? (Its list must be in memory before the opener can find it.)
+function recordReady(view,id){ try{
+  if(view==='inbox') return !!(window.DATA&&DATA.conversations&&DATA.conversations.some(function(c){return c.id===id;}));
+  if(view==='pipeline') return !!(window.PIPELINE&&window.PIPELINE.some(function(d){return d.id===id;}));
+  if(view==='prospecting') return !!(window.PROSP&&PROSP.prospects&&PROSP.prospects.some(function(x){return x.id===id;}));
+  return true;
+}catch(e){ return true; } }
+// Parse the URL hash → {view, id, lead}. Record links are #<view>/<id> (legacy #lead/<id> = inbox).
 function parseHash(){
   var h=decodeURIComponent(location.hash.slice(1)||'');
-  var m=h.match(/^(?:inbox\/|lead\/)(.+)$/);
-  if(m) return {view:'inbox', lead:m[1]};
-  return {view:h||'', lead:null};
+  var m=h.match(/^([a-z-]+)\/(.+)$/i);
+  if(m){ var v=(m[1]==='lead')?'inbox':m[1]; return {view:v, id:m[2], lead:(v==='inbox'?m[2]:null)}; }
+  return {view:h||'', id:null, lead:null};
 }
-// Select the hash's lead if its conversation is loaded. Returns true if it selected one.
-function applyLeadHash(){
+// Open the hash's record (switch view + open it). If the data isn't in yet, stash it — the
+// live-data bootstrap re-calls this once records land.
+function applyRecordHash(){
   try{
-    var p=parseHash(); if(!p.lead) return false;
-    if(window.DATA && DATA.conversations && DATA.conversations.some(function(c){return c.id===p.lead;})){
-      if(window.__crmView && window.__crmView!=='inbox') showView('inbox');
-      select(p.lead); return true;
-    }
-    window.__deepLead=p.lead; // data not in yet → the live-data bootstrap picks this up
-  }catch(e){}
-  return false;
+    var p=parseHash(); if(!p.id) return false;
+    var view=VALID_VIEWS[p.view]?p.view:'inbox';
+    var opener=RECORD_OPENERS[view];
+    if(window.__crmView!==view){ try{ showView(view); }catch(e){} }  // switch → also triggers the view's data load
+    if(!opener) return false;
+    var tries=0;
+    (function attempt(){
+      if(recordReady(view,p.id)){
+        try{ opener(p.id); }catch(e){}
+        try{ history.replaceState(null,'','#'+view+'/'+p.id); }catch(e){} // keep the record in the URL (showView reset it to the view)
+        return;
+      }
+      if(++tries<25) setTimeout(attempt,200);  // poll ~5s while the view's data streams in
+    })();
+    return true;
+  }catch(e){ return false; }
 }
+// Back-compat alias — the live-data bootstrap calls applyLeadHash() after data lands.
+function applyLeadHash(){ return applyRecordHash(); }
 function restoreView(){
   try{
-    var valid={inbox:1,reminders:1,pipeline:1,nurture:1,sitespy:1,sequences:1,analytics:1,consent:1,newsletter:1,prospecting:1,agency:1,settings:1};
     var p=parseHash();
-    if(p.lead){ applyLeadHash(); return; }  // #inbox/<id> → land on that record
+    if(p.id){ applyRecordHash(); return; }  // #<view>/<id> → land on that record
     var v=p.view;
-    if(!valid[v]){ try{ v=localStorage.getItem('crm_view')||''; }catch(e){ v=''; } }
-    if(valid[v] && v!=='inbox') showView(v);
+    if(!VALID_VIEWS[v]){ try{ v=localStorage.getItem('crm_view')||''; }catch(e){ v=''; } }
+    if(VALID_VIEWS[v] && v!=='inbox') showView(v);
   }catch(e){ if(window.console) console.warn('restoreView failed', e); }
 }
 setTimeout(restoreView,0);
-window.applyLeadHash=applyLeadHash;
+window.applyLeadHash=applyLeadHash; window.applyRecordHash=applyRecordHash;
 // A coworker pasting a new record link mid-session (or back/forward) re-lands on it.
-window.addEventListener('hashchange', function(){ var p=parseHash(); if(p.lead){ applyLeadHash(); } else if(p.view && p.view!==window.__crmView){ try{ showView(p.view); }catch(e){} } });
-/* Copy a shareable link to the currently-open record and toast. */
-function copyRecordLink(){
-  if(!window.sel){ if(window.crmToast)crmToast('Open a conversation first'); return; }
-  var url=location.origin+location.pathname+'#inbox/'+window.sel;
+window.addEventListener('hashchange', function(){ var p=parseHash(); if(p.id){ applyRecordHash(); } else if(p.view && p.view!==window.__crmView){ try{ showView(p.view); }catch(e){} } });
+/* Copy a shareable link to ANY record (view + id) and toast. */
+function shareLink(view,id){
+  if(!id){ if(window.crmToast)crmToast('Open a record first'); return; }
+  var url=location.origin+location.pathname+'#'+view+'/'+encodeURIComponent(id);
   try{ navigator.clipboard.writeText(url); if(window.crmToast)crmToast('🔗 Link copied — share it with a coworker'); }
   catch(e){ window.prompt('Copy this link:', url); }
 }
-window.copyRecordLink=copyRecordLink;
+function copyRecordLink(){ shareLink('inbox', window.sel); }  // inbox conversation Share button
+window.copyRecordLink=copyRecordLink; window.shareLink=shareLink;
 window.renderConsent=renderConsent; // exposed for the live-data bootstrap (fixture→fetch)
 window.renderSequences=renderSequences;
 window.renderList=renderList;
@@ -4444,6 +4477,7 @@ function editDeal(e,id){ e.stopPropagation(); const d=(window.PIPELINE||[]).find
 /* Card click → detail/edit modal (same modal, with a Disqualify/Requalify action). */
 function openDealDetail(id){
   const d=(window.PIPELINE||[]).find(x=>x.id===id); if(!d)return; _dealId=id;
+  try{ history.replaceState(null,'','#pipeline/'+id); }catch(e){}   // shareable record URL
   document.getElementById('dl-title').value=d.name||'';
   document.getElementById('dl-val').value=d.value_usd||0;
   document.getElementById('dl-prob').value=d.prob!=null?d.prob:'';
@@ -4492,7 +4526,9 @@ function populateOwners(sel){
   el.innerHTML='<option value="">Loading…</option>';
   fetch('/api/crm/deals?include=all',{credentials:'same-origin'}).then(r=>r.json()).then(j=>{ window._crmUsers=j.users||[]; build(window._crmUsers); }).catch(()=>{ el.innerHTML='<option value="">Unassigned</option>'; });
 }
-function closeDeal(){ document.getElementById('dealmodal').classList.remove('show'); _dealId=null; }
+function closeDeal(){ document.getElementById('dealmodal').classList.remove('show'); _dealId=null; try{ if(location.hash.indexOf('#pipeline/')===0) history.replaceState(null,'','#pipeline'); }catch(e){} }
+function shareDeal(){ shareLink('pipeline', _dealId); }
+window.shareDeal=shareDeal;
 function saveDeal(){
   const d=(window.PIPELINE||[]).find(x=>x.id===_dealId); if(!d){ closeDeal(); return; }
   const title=document.getElementById('dl-title').value.trim();
@@ -4524,7 +4560,7 @@ window.editDeal=editDeal;window.closeDeal=closeDeal;window.saveDeal=saveDeal;win
 document.body.insertAdjacentHTML('beforeend', `
   <div id="dealmodal" class="am-overlay" role="dialog" aria-modal="true" aria-label="Deal details">
     <div class="am-card">
-      <div class="am-head"><h3>Deal details</h3><button class="am-x" onclick="closeDeal()" aria-label="Cancel">&times;</button></div>
+      <div class="am-head"><h3>Deal details</h3><button class="am-x" title="Copy a shareable link to this deal" onclick="shareDeal()" aria-label="Copy link" style="margin-left:auto;font-size:14px">🔗</button><button class="am-x" onclick="closeDeal()" aria-label="Cancel">&times;</button></div>
       <div class="am-body">
         <div id="dl-ctx" class="dl-ctx"></div>
         <label class="dl-f"><span>Title</span><input id="dl-title" type="text" placeholder="Deal title"></label>
