@@ -5,6 +5,7 @@
 // Wraps the existing native booking (/api/booking/*) so Mack books the SAME calendar, and stamps
 // the website/ad-spend the visitor gave. Public (no auth) — same as the booking widget path.
 import { json, corsHeaders } from "../_lib/http.js";
+import * as booking from "./booking.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -25,8 +26,10 @@ export async function onRequestPost({ request, env }) {
     const end = new Date(today.getTime() + 16 * 86400000).toISOString().slice(0, 10);
     let days = [];
     try {
-      const r = await fetch(`${origin}/api/booking/slots?start=${start}&end=${end}`, { headers: { Accept: "application/json" } });
-      const j = await r.json();
+      // Call the booking slots handler IN-PROCESS (a self-fetch to our own hostname returns empty).
+      const slotReq = new Request(`${origin}/api/booking/slots?start=${start}&end=${end}`, { headers: { Accept: "application/json" } });
+      const res = await booking.onRequestGet({ request: slotReq, env });
+      const j = await res.json();
       days = Array.isArray(j.days) ? j.days : [];
     } catch (_) {}
     // Flatten to the next 6 slots across days so Mack can offer a few concrete options.
@@ -56,8 +59,9 @@ export async function onRequestPost({ request, env }) {
       utm: { utm_source: "chat", utm_medium: "mack" },
     };
     try {
-      const r = await fetch(`${origin}/api/booking/create`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      const j = await r.json();
+      const createReq = new Request(`${origin}/api/booking/create`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const res = await booking.onRequestPost({ request: createReq, env });
+      const j = await res.json();
       if (j && j.ok) return json({ ok: true, when: startIso, say: "You're booked — I've sent a calendar invite and a text reminder. Anything else I can help with?" }, {}, cors);
       if (j && j.reason === "slot_taken") return json({ ok: false, reason: "slot_taken", say: "That time was just taken — want me to grab the next opening?" }, {}, cors);
       return json({ ok: false, reason: (j && j.reason) || "error", say: "I couldn't lock that in just now — you can also call or text (727) 999-9846 and we'll set it up." }, {}, cors);
