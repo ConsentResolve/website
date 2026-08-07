@@ -158,8 +158,8 @@ const faqs = [
       var link = el ? el.getAttribute("data-cal-link") : "";
       if (!link) return;
       Cal("init", "demo", { origin: "https://cal.com" });
-      Cal.ns.demo("inline", { elementOrSelector: "#cal-inline", calLink: link, config: { layout: "column_view" } });
-      Cal.ns.demo("ui", { hideEventTypeDetails: true, layout: "column_view" });
+      Cal.ns.demo("inline", { elementOrSelector: "#cal-inline", calLink: link, config: { layout: "week_view" } });
+      Cal.ns.demo("ui", { hideEventTypeDetails: true, layout: "week_view" });
     })();
   </script>
 </BaseLayout>
