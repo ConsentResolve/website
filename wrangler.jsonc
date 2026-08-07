@@ -94,7 +94,7 @@
 		// Native demo booking (Cal.com v2 proxy). CALCOM_EVENT_TYPE_ID = numeric id of the single
 		// demo event type (set once known). CALCOM_API_KEY is a SECRET (wrangler secret / dashboard),
 		// never in the repo. Booking is inert-graceful until both are set.
-		"CALCOM_EVENT_TYPE_ID": "",
+		"CALCOM_EVENT_TYPE_ID": "6423372",
 		// Meta Conversions API target pixel = the pixel ATTACHED TO THE AD ACCOUNT
 		// (act_2252449638861265) and used by the site-conversion ad sets, so server events
 		// (Lead + Schedule) land on the same pixel the ads optimize on. The browser fires
