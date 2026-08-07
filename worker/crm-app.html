@@ -5082,15 +5082,15 @@ window.renderContactsView=renderContactsView; window.renderCompaniesView=renderC
 
 function renderBrowse(el,kind){
   const isCo=kind==='companies'; const q=isCo?window._rec.coq:window._rec.cq;
-  el.innerHTML=`<div class="recwrap"><div class="rec-head"><h2>${isCo?'Companies':'Contacts'}</h2><input class="rec-search" id="rec-q" type="search" placeholder="Search ${isCo?'name or domain':'name, email, phone, company'}…" value="${esc(q)}"></div><div class="rec-list" id="rec-list"><div class="rec-loading">Searching…</div></div></div>`;
-  const input=el.querySelector('#rec-q');
+  el.innerHTML=`<div class="recwrap"><div class="rec-head"><h2>${isCo?'Companies':'Contacts'}</h2><input class="rec-search" type="search" placeholder="Search ${isCo?'name or domain':'name, email, phone, company'}…" value="${esc(q)}"></div><div class="rec-list" id="rec-list-${kind}"><div class="rec-loading">Searching…</div></div></div>`;
+  const input=el.querySelector('.rec-search');
   if(input){ input.focus(); try{input.setSelectionRange(input.value.length,input.value.length);}catch(_){}
     input.oninput=()=>{ const v=input.value; if(isCo)window._rec.coq=v; else window._rec.cq=v; clearTimeout(window._recTo); window._recTo=setTimeout(()=>recFetchList(kind),220); }; }
   recFetchList(kind);
 }
 function recFetchList(kind){
   const isCo=kind==='companies'; const q=isCo?window._rec.coq:window._rec.cq;
-  const list=document.getElementById('rec-list'); if(!list)return;
+  const list=document.getElementById('rec-list-'+kind); if(!list)return;
   fetch('/api/crm/'+(isCo?'companies':'contacts')+'?q='+encodeURIComponent(q||'')+'&limit=80',{credentials:'same-origin',cache:'no-store'})
     .then(r=>r.json()).then(j=>{
       if(isCo){ const rows=(j&&j.companies)||[]; list.innerHTML=rows.length?rows.map(recCoRow).join(''):'<div class="rec-empty">No companies match.</div>'; }
