@@ -7,6 +7,40 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { ensureCrmV2Schema, ulid, addActivityV2, currentUser, adminUserId } from "../_lib/crm-v2.js";
+import { sendCapi } from "./meta-capi.js";
+
+// Reconstruct Meta's `fbc` click cookie from the first-touch fbclid we stored on the contact
+// (contacts.utm_first JSON) so a Purchase fired days later still attributes to the ad click.
+function fbcFromUtm(utmJson) {
+  try {
+    const u = JSON.parse(utmJson || "{}");
+    if (!u.fbclid) return null;
+    const t = u.at ? Date.parse(u.at) : NaN;
+    const ms = Number.isFinite(t) ? t : Date.now();
+    return `fb.1.${ms}.${u.fbclid}`;
+  } catch { return null; }
+}
+
+// Fire a down-funnel CRM conversion to Meta CAPI (Purchase / StartTrial). Best-effort: never
+// throws into the request path. Skips silently when there's no email/phone to match on.
+async function fireDealCapi(env, dealId, eventName, valueCents) {
+  try {
+    const d = await env.DB.prepare(
+      `SELECT ct.primary_email AS email, ct.phone AS phone, ct.utm_first AS utm
+         FROM deals d LEFT JOIN contacts ct ON ct.id = d.primary_contact_id WHERE d.id = ?`
+    ).bind(dealId).first();
+    if (!d || !(d.email || d.phone)) return null;         // no match key -> unusable, skip
+    const fbc = fbcFromUtm(d.utm);
+    const opts = {
+      eventName, eventId: `crm-${eventName}:${dealId}`,    // stable per deal+event -> Meta dedupes
+      email: d.email || undefined, phone: d.phone || undefined,
+      eventSourceUrl: "https://consentresolve.com/", actionSource: "system_generated",
+      ...(fbc ? { fbc } : {}),
+    };
+    if (eventName === "Purchase" && valueCents != null) { opts.value = Math.round(valueCents) / 100; opts.currency = "USD"; }
+    return await sendCapi(env, opts);
+  } catch (_) { return null; }
+}
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -109,6 +143,13 @@ export async function onRequestPost({ request, env }) {
 
   if (!b.id) return json({ error: "id_required" }, { status: 400 }, cors);
   await env.DB.prepare("ALTER TABLE deals ADD COLUMN disqualify_reason TEXT").run().catch(() => {}); // idempotent
+  // Capture the PRIOR lead_status so we only fire a CRM CAPI conversion on a real transition
+  // into trial/won (not on every re-save of the same stage).
+  let priorStatus = null;
+  if (b.lead_status === "trial" || b.lead_status === "won") {
+    const cur = await env.DB.prepare("SELECT lead_status FROM deals WHERE id=?").bind(b.id).first().catch(() => null);
+    priorStatus = cur ? String(cur.lead_status || "").toLowerCase() : null;
+  }
   const allowed = ["close_probability", "expected_close_date", "value_cents", "lead_status", "title", "owner_id", "disqualify_reason"];
   const sets = [], vals = [];
   for (const k of allowed) if (b[k] !== undefined) { sets.push(k + "=?"); vals.push(b[k]); }
@@ -138,5 +179,21 @@ export async function onRequestPost({ request, env }) {
 
   const action = b.lead_status === "won" ? "won" : b.lead_status === "lost" ? "lost" : b.lead_status === "disqualified" ? "disqualified" : b.close_probability !== undefined ? "prob_changed" : "updated";
   await addActivityV2(env, { actorId: actor, entityType: "deal", entityId: b.id, action, meta: b.lead_status === "disqualified" ? { reason: b.disqualify_reason || "" } : undefined });
+
+  // Meta CAPI down-funnel conversions — fire on a real transition into trial/won so the ad
+  // algorithm optimizes toward trials + paying customers (with revenue value), not form-fills.
+  if ((b.lead_status === "trial" || b.lead_status === "won") && priorStatus !== b.lead_status) {
+    const evName = b.lead_status === "won" ? "Purchase" : "StartTrial";
+    let valueCents = b.value_cents;
+    if (evName === "Purchase" && valueCents == null) {
+      const dv = await env.DB.prepare("SELECT value_cents FROM deals WHERE id=?").bind(b.id).first().catch(() => null);
+      valueCents = dv ? dv.value_cents : null;
+    }
+    const capi = await fireDealCapi(env, b.id, evName, valueCents);
+    await addActivityV2(env, {
+      actorId: actor, entityType: "deal", entityId: b.id, action: "capi_" + evName.toLowerCase(),
+      meta: { received: capi ? (capi.received || 0) : 0, error: capi ? (capi.error || null) : "not_sent", value_cents: valueCents ?? null },
+    }).catch(() => {});
+  }
   return json({ ok: true }, {}, cors);
 }

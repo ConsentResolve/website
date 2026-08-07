@@ -25,6 +25,7 @@ export async function sendCapi(env, opts) {
   const {
     eventName, eventId, email, phone, eventSourceUrl,
     fbp, fbc, ua, ip, actionSource = "website", testCode,
+    value, currency, // Purchase value (number) + ISO currency (e.g. "USD")
   } = opts || {};
   // Default to the ad-account pixel so server events land where the ads optimize. Overridable
   // via META_PIXEL_ID (set in wrangler.jsonc vars).
@@ -49,6 +50,10 @@ export async function sendCapi(env, opts) {
     user_data: userData,
   };
   if (eventSourceUrl) event.event_source_url = eventSourceUrl;
+  // custom_data carries conversion value (e.g. Purchase) so Meta can optimize toward revenue.
+  if (value != null && Number.isFinite(Number(value))) {
+    event.custom_data = { value: Number(value), currency: (currency || "USD") };
+  }
 
   const payload = { data: [event] };
   // Test-events routing: env var (persistent while testing) or a per-call override. When set,
