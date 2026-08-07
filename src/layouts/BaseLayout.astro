@@ -488,7 +488,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <div class="cw" id="cw" aria-hidden="true">
       <div class="cw-teaser" role="status" aria-live="polite">
         <div class="cw-head">
-          <div class="cw-av" id="cwAv" aria-hidden="true">M<img src="/mack.jpg" alt="" onerror="this.remove()"></div>
+          <div class="cw-av" id="cwAv" aria-hidden="true"><span class="cw-av-l">M</span><img src="/mack.jpg" alt="" onerror="this.remove()"></div>
           <div>
             <div class="cw-name" id="cwName">Mack</div>
             <div class="cw-sub"><i></i> <span id="cwStatus">Online</span></div>
@@ -570,7 +570,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
 
         // Fill copy from config.
         var byId=function(id){return document.getElementById(id);};
-        if(C.agentName){byId('cwName').textContent=C.agentName;byId('cwAv').textContent=(C.agentName[0]||'M').toUpperCase();}
+        if(C.agentName){byId('cwName').textContent=C.agentName;var _avl=byId('cwAv')&&byId('cwAv').querySelector('.cw-av-l');if(_avl)_avl.textContent=(C.agentName[0]||'M').toUpperCase();}
         if(C.status)byId('cwStatus').textContent=C.status;
         if(C.greeting)byId('cwMsg').textContent=C.greeting;
         if(C.phone){var call=byId('cwCall');call.href='tel:'+String(C.phone).replace(/[^\d+]/g,'');
@@ -625,7 +625,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
           open=true;cw.classList.remove('teaser-on','badge-on');clearInterval(timer);
           if(navigator.vibrate)try{navigator.vibrate(8);}catch(_){}
           try{ if(window.crOpenChat) window.crOpenChat(); }catch(e){}
-          var SEED={price:"I'd like a price.",time:"I'd like to book a time.",yes:"Yes",no:"No"};
+          var SEED={price:"I'd like a price.",time:"I'd like to book a time.",no:"No"};
           (C.chips||[]).forEach(function(ch){if(ch.seed)SEED[ch.q]=ch.seed;});
           var seed=SEED[q]||"";
           if(seed) seedMessage(seed);

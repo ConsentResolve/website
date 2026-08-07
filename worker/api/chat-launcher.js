@@ -20,8 +20,8 @@ const json = (o, init = {}) => new Response(JSON.stringify(o), {
 export const DEFAULTS = {
   enabled: true,                 // master switch for the whole custom launcher
   agentName: "Mack",
-  status: "AI assistant · a human when you ask",
-  greeting: "Hey — I'm at my desk right now. Want a price, or a time slot?",
+  status: "Online",
+  greeting: "Do you want more leads for your existing website? (Yes or No)",
   phone: "+17279999846",         // tel + display are derived from this on the site
   entranceDelay: 700,            // ms before the orb pops in
   teaser: {
