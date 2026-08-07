@@ -113,7 +113,11 @@ export async function onRequestGet({ request, env }) {
     const res = await calFetch(env, `/slots?eventTypeId=${encodeURIComponent(env.CALCOM_EVENT_TYPE_ID || "")}` +
       `&startTime=${start}T00:00:00.000Z&endTime=${end}T23:59:59.999Z&timeZone=${encodeURIComponent(TZ)}`);
     if (res._noKey) return json({ days: [], _configured: false }, {}, cors);
-    if (!res.ok) return json({ days: [], error: "slots_failed" }, {}, cors);
+    if (!res.ok) {
+      const dbg = url.searchParams.get("debug") === "1"
+        ? { _status: res.status, _body: res.body } : {};
+      return json({ days: [], error: "slots_failed", ...dbg }, {}, cors);
+    }
 
     // v2 /slots returns data keyed by date OR a flat array — handle both.
     const data = (res.body && res.body.data) || {};
