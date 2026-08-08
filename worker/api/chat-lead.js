@@ -6,7 +6,7 @@
 import { json, corsHeaders } from "../_lib/http.js";
 import {
   ensureCrmV2Schema, findOrCreateContactByEmail, findOrCreateContactByIdentifier,
-  linkIdentifier, normPhone, ulid,
+  linkIdentifier, normPhone, ulid, upsertConversationByThread, insertMessageOnce,
 } from "../_lib/crm-v2.js";
 import { ensureRebuildSchema, logEvent } from "../_lib/crm-rebuild.js";
 
@@ -54,10 +54,28 @@ export async function onRequestPost({ request, env }) {
     const prefLabel = pref === "text" ? "text (SMS)" : pref === "call" ? "a call" : "email";
     const noteBody = "💬 Chat capture — wants us to reach out by " + prefLabel + "."
       + (hasEmail ? "  ✉ " + email : "") + (hasPhone ? "  📞 +1" + np : "") + (name ? "  ·  " + name : "");
-    if (live && live.id) {
-      try { await env.DB.prepare("INSERT INTO notes (id, author_id, conversation_id, contact_id, body) VALUES (?, NULL, ?, ?, ?)").bind(ulid(), live.id, contactId, noteBody).run(); } catch (_) {}
+
+    // Land the lead in Open. If they're mid-chat, attach to that live thread; otherwise there is
+    // no chat to attach to, so OPEN a real conversation keyed to their preferred reply channel
+    // (email/SMS). Without this, a card submitted outside an active chat session created a contact
+    // but no conversation — the lead never appeared in Open and was silently dropped.
+    const now = new Date().toISOString();
+    let convId = live && live.id ? live.id : null;
+    if (!convId) {
+      convId = await upsertConversationByThread(env, {
+        contactId, companyId,
+        channel: hasEmail ? "email" : "sms",
+        externalThreadId: hasEmail ? "chat-email:" + email : "chat-phone:" + np,
+        subject: "💬 Chat capture — prefers " + prefLabel,
+        incoming: true, lastAt: now, preview: noteBody.slice(0, 160), sourceDetail: "chat",
+      }).catch(() => null);
+      // Seed the fresh thread with the capture as an inbound message so it isn't empty.
+      if (convId) await insertMessageOnce(env, { conversationId: convId, direction: "in", channel: hasEmail ? "email" : "sms", bodyText: noteBody, externalMessageId: "chatlead:" + contactId + ":" + Date.parse(now), sentAt: now }).catch(() => {});
     }
-    await logEvent(env, { type: "replied", contactId, companyId, conversationId: live ? live.id : null, channel: "chat", source: "chat", meta: { capture: "widget_card", pref, email: email || null, phone: hasPhone ? np : null } }).catch(() => {});
+    if (convId) {
+      try { await env.DB.prepare("INSERT INTO notes (id, author_id, conversation_id, contact_id, body) VALUES (?, NULL, ?, ?, ?)").bind(ulid(), convId, contactId, noteBody).run(); } catch (_) {}
+    }
+    await logEvent(env, { type: "replied", contactId, companyId, conversationId: convId, channel: "chat", source: "chat", meta: { capture: "widget_card", pref, email: email || null, phone: hasPhone ? np : null } }).catch(() => {});
 
     return json({ ok: true, pref }, {}, cors);
   } catch (e) {

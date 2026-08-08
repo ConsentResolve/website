@@ -43,7 +43,6 @@ import * as crmAnalytics from "./api/crm-analytics.js";
 import * as crmSpend from "./api/crm-spend.js";
 import * as crmSocial from "./api/crm-social.js";
 import * as crmGmail from "./api/crm-gmail.js";
-import * as crmCrisp from "./api/crm-crisp.js";
 import * as crmApollo from "./api/crm-apollo.js";
 import * as crmApolloSync from "./api/crm-apollo-sync.js";
 import * as crOwnSync from "./api/cr-own-sync.js";
@@ -179,7 +178,6 @@ const ROUTES = {
   "/api/crm/gmail/disconnect": crmGmail,
   "/api/crm/gmail/thread": crmGmail,
   "/api/crm/gmail/send": crmGmail,
-  "/api/crm/crisp": crmCrisp,
   "/api/crm/apollo": crmApollo,
   "/api/crm/apollo/sync": crmApolloSync,
   "/api/crm/apollo/prospect": apolloProspect,
@@ -572,14 +570,6 @@ export default {
         if (re && re.sent) console.log(`[reengage] ${JSON.stringify(re)}`);
       } catch (err) {
         console.log(`[reengage] error: ${String(err).slice(0, 160)}`);
-      }
-      // Crisp backfill: poll recent chats via REST and ingest any the webhook missed. Self-heals
-      // against a rotated CRM key silently disabling the Crisp webhook. No-op until creds are set.
-      try {
-        const cb = await crmCrisp.pollCrispBackfill(env);
-        if (cb && cb.ingested) console.log(`[crisp] backfilled ${cb.ingested} conv (${cb.messages} msgs)`);
-      } catch (err) {
-        console.log(`[crisp] backfill error: ${String(err).slice(0, 160)}`);
       }
       // Instantly Unibox: ingest campaign replies as channel='instantly'. No-op without key.
       try {
