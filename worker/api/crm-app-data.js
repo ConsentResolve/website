@@ -192,13 +192,16 @@ export async function onRequestGet({ request, env }) {
   // ---- Inbox conversations (DATA.conversations shape) ----
   try { await env.DB.prepare("ALTER TABLE conversations ADD COLUMN snooze_note TEXT").run(); } catch (_) {} // ensure column exists before selecting it
   try { await env.DB.prepare("CREATE TABLE IF NOT EXISTS conversation_tombstones (thread_key TEXT PRIMARY KEY, deleted_at TEXT NOT NULL DEFAULT (datetime('now')))").run(); } catch (_) {} // guarantee the tombstone table before the anti-resurrection filter
+  try { await env.DB.prepare("CREATE TABLE IF NOT EXISTS bookings (id TEXT PRIMARY KEY, uid TEXT, session_id TEXT, name TEXT, company TEXT, website TEXT, phone TEXT, email TEXT, trade TEXT, traffic TEXT, lead_sources TEXT, start_iso TEXT, utm_json TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))").run(); } catch (_) {} // meeting subqueries below reference bookings
   // ANTI-RESURRECTION FILTER — never show a conversation whose thread was deleted. Whatever
   // re-inserts it (Gmail poll, a sync, a stray migration), a tombstoned thread stays hidden.
   // Gated on a NON-EMPTY external_thread_id so it only affects real per-thread channels (email,
   // sms, chat) — conversations that share an empty key (e.g. prospecting|) are never over-filtered.
   const convRows = (await env.DB.prepare(
     `SELECT cv.id, cv.channel, cv.status, cv.unread, cv.subject, cv.last_message_at, cv.last_message_preview, cv.snooze_until, cv.snooze_note, cv.external_thread_id, cv.created_at, cv.assignee_id,
-            ct.id contact_id, ct.full_name, ct.primary_email, ct.phone, ct.source, ct.lead_score, ct.tier, ct.newsletter_status, co.name company, co.domain co_domain, co.enrichment co_enrichment, au.name assignee_name
+            ct.id contact_id, ct.full_name, ct.primary_email, ct.phone, ct.source, ct.lead_score, ct.tier, ct.newsletter_status, co.name company, co.domain co_domain, co.enrichment co_enrichment, au.name assignee_name,
+            (SELECT bk.start_iso FROM bookings bk WHERE bk.email = ct.primary_email AND substr(bk.start_iso,1,10) >= date('now') ORDER BY bk.start_iso ASC LIMIT 1) AS meeting_iso,
+            (SELECT bk.uid FROM bookings bk WHERE bk.email = ct.primary_email AND substr(bk.start_iso,1,10) >= date('now') ORDER BY bk.start_iso ASC LIMIT 1) AS meeting_uid
        FROM conversations cv
        LEFT JOIN contacts ct ON ct.id = cv.contact_id
        LEFT JOIN companies co ON co.id = ct.company_id
@@ -333,6 +336,7 @@ export async function onRequestGet({ request, env }) {
       name: r.full_name || fmtPhone(phoneByCt.get(r.contact_id)) || "Unknown", company: r.company || null, contact_email: r.primary_email || null,
       contact_phone: fmtPhone(r.phone) || fmtPhone(phoneByCt.get(r.contact_id)) || null,
       initials: inits(r.full_name) === "?" && phoneByCt.get(r.contact_id) ? "📞" : inits(r.full_name),
+      meeting: r.meeting_iso ? { iso: r.meeting_iso, label: humanTime(r.meeting_iso), uid: r.meeting_uid || null } : null,
       tier, score: r.lead_score || 0, sla_min: slaMin, newsletter: r.newsletter_status || "pending",
       hot: tier === "hot", unread, ts: humanTime(r.last_message_at) || "—",
       age_ts: r.last_message_at ? Date.parse(r.last_message_at) : null,   // last-activity epoch → urgency timer

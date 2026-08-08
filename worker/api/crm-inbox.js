@@ -745,6 +745,26 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, unsuppressed: true, channel: ch, contact_id: contactId }, {}, cors);
   }
 
+  // Record a MANUAL "meeting booked" for a Lead from the Stage tab (when there's no Cal.com meeting).
+  // Stored in the same bookings table Cal.com writes to (matched by email + future start_iso), so it
+  // surfaces everywhere a real booking does — pipeline Activity, the record, the Stage tab.
+  if (b.book_meeting) {
+    const startIso = String(b.start_iso || "").trim();
+    if (!startIso) return json({ ok: false, error: "need_time", message: "Pick a date and time." }, { status: 400 }, cors);
+    const conv = await env.DB.prepare(
+      "SELECT cv.id, cv.contact_id, c.primary_email, c.full_name, c.phone FROM conversations cv LEFT JOIN contacts c ON c.id=cv.contact_id WHERE cv.id=?"
+    ).bind(b.id).first().catch(() => null);
+    const email = conv && conv.primary_email;
+    if (!email) return json({ ok: false, error: "no_email", message: "No email on file — meetings are matched to a contact by email." }, { status: 400 }, cors);
+    await env.DB.prepare("CREATE TABLE IF NOT EXISTS bookings (id TEXT PRIMARY KEY, uid TEXT, session_id TEXT, name TEXT, company TEXT, website TEXT, phone TEXT, email TEXT, trade TEXT, traffic TEXT, lead_sources TEXT, start_iso TEXT, utm_json TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))").run().catch(() => {});
+    await env.DB.prepare("INSERT INTO bookings (id, email, name, phone, start_iso, lead_sources) VALUES (?,?,?,?,?,?)")
+      .bind(ulid(), email, (conv && conv.full_name) || null, (conv && conv.phone) || null, startIso, JSON.stringify(["Meeting (CRM)"])).run();
+    const me = await currentUser(request, env);
+    if (conv && conv.contact_id) await handleGoalEvent(env, { contactId: conv.contact_id, goal: "booked" }).catch(() => {});  // exit the nurture, same as a Cal.com booking
+    await addActivityV2(env, { actorId: me ? me.id : null, entityType: "contact", entityId: conv && conv.contact_id, action: "meeting_booked_manual", meta: { start_iso: startIso, by: me ? me.name : "CRM" } }).catch(() => {});
+    return json({ ok: true, booked: true, start_iso: startIso }, {}, cors);
+  }
+
   // Seed two real, replyable TEST conversations into Open for manual QA — an inbound SMS from a
   // chosen cell (a reply texts it back via Twilio) and an inbound email (a reply emails back via
   // Gmail). No active sequence, so they sit in Open. crmAuthed; idempotent by thread.

@@ -5823,6 +5823,20 @@ function renderConsent(){
     </div>`;
 }
 window.dealStage=dealStage;window.dealTrial=dealTrial;window.dealUser=dealUser;window.dealTraffic=dealTraffic;
+/* Record a manual "meeting booked" for a Lead (when there's no Cal.com meeting). Writes to the
+   same bookings store, so it then shows as a real meeting everywhere. */
+window.dealBookMeeting=function(id){
+  const inp=document.getElementById('dmtg-'+id); const v=inp&&inp.value;
+  if(!v){ if(window.crmToast)crmToast('Pick a date & time first'); if(inp)inp.focus(); return; }
+  const dt=new Date(v); if(isNaN(dt.getTime())){ if(window.crmToast)crmToast('That date didn’t parse'); return; }
+  const iso=dt.toISOString();
+  const label=dt.toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+  const setLocal=()=>{ const c=DATA.conversations.find(x=>x.id===id); if(c)c.meeting={iso,label,uid:null}; rerenderDeal(id); };
+  if(String(id).startsWith('c0')){ setLocal(); return; }   // demo ids: local only
+  fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({book_meeting:true,id:id,start_iso:iso})})
+    .then(r=>r.json()).then(j=>{ if(j&&j.ok){ if(window.crmToast)crmToast('📅 Meeting booked'); setLocal(); } else { if(window.crmToast)crmToast((j&&j.message)||'Could not save the meeting'); } })
+    .catch(()=>{ if(window.crmToast)crmToast('Could not save the meeting (network)'); });
+};
 function dealTab(c){
   dsyncFromDeal(c);
   const d=dstate(c.id), v=d.visitors, pct=Math.max(0,Math.min(100,100*Math.log10(v/100)/3));
@@ -5836,10 +5850,15 @@ function dealTab(c){
       </div>
       ${dq&&d.disqualify_reason?`<div class="dq-why">Reason: ${esc(d.disqualify_reason)}</div>`:''}
     </div>
-    <div class="dblock"><h5>Trial</h5>
-      <div class="dchk"><span class="tcheck ${d.trial?'on':''}" onclick="dealTrial('${c.id}',${d.trial?'false':'true'})">${d.trial?'✓':''}</span>Signed up for a trial <span class="dsub">via console.consentresolve.com</span></div>
-      ${d.trial?`<div class="duser"><label>Console username</label><input placeholder="e.g. langroofing-tx" value="${esc(d.username)}" onchange="dealUser('${c.id}',this.value)"></div>`:''}
-    </div>
+    ${d.stage==='lead'?`<div class="dblock"><h5>Meeting</h5>
+      ${c.meeting
+        ? `<div style="display:flex;align-items:center;gap:10px;background:var(--brand-soft);border:1px solid var(--line-2);border-radius:var(--r-2);padding:11px 13px"><span style="font-size:18px">📅</span><span style="display:flex;flex-direction:column;line-height:1.35"><b style="color:var(--tx-1)">${esc(c.meeting.label)}</b><span style="color:var(--tx-3);font-size:var(--t-12)">${c.meeting.uid?'Booked via Cal.com':'Meeting booked'}</span></span></div>`
+        : `<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><input type="datetime-local" id="dmtg-${esc(c.id)}" style="background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r-2);padding:8px 11px;color:var(--tx-1);font-family:inherit;font-size:var(--t-14)"><button class="dstage" onclick="dealBookMeeting('${c.id}')">Mark meeting booked</button></div>
+           <div class="dsub" style="margin-top:6px">No Cal.com meeting on file — set the date &amp; time you booked.</div>`}
+    </div>`:''}
+    ${d.stage==='trial'?`<div class="dblock"><h5>Trial</h5>
+      <div class="duser"><label>Console username</label><input placeholder="e.g. langroofing-tx" value="${esc(d.username)}" onchange="dealUser('${c.id}',this.value)"></div>
+    </div>`:''}
     <div class="dblock"><h5>Deal size</h5>
       <div style="display:flex;align-items:center;gap:9px;margin-bottom:13px;flex-wrap:wrap">
         <div style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r-2);padding:8px 12px">
