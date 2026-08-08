@@ -139,7 +139,7 @@ const fieldCls = "w-full rounded-lg border border-[color:var(--color-rule)] bg-w
           if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.message || "Something went wrong. Please try again."); }
           const data = await res.json();
 
-          // Remember name/email first-party (Crisp prefill), same as the demo form.
+          // Remember name/email first-party (chat prefill), same as the demo form.
           try { const _e = String(payload.email || ""), _n = String(payload.name || ""); if (_e) document.cookie = "cr_id=" + encodeURIComponent(JSON.stringify({ n: _n, e: _e })) + "; Path=/; Max-Age=15552000; SameSite=Lax"; } catch {}
 
           // --- Conversions fire HERE (on our page → trackable) ---
