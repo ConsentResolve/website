@@ -3408,7 +3408,7 @@ let _prospPoll=null;
 const DISP_LBL={open:'💬 Open',sequence:'⚡ Sequence',newsletter:'✉ Newsletter',instantly:'→ Instantly',whale:'🐋 Whales',skip:'Skip'};
 const escP=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function prospGet(qs){ const r=await fetch('/api/crm/prospecting'+(qs||''),{headers:{'Accept':'application/json'}}); return r.json(); }
-async function prospPost(body){ const r=await fetch('/api/crm/prospecting',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); return r.json(); }
+async function prospPost(body){ try{ const r=await fetch('/api/crm/prospecting',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); return await r.json(); }catch(e){ return {ok:false,message:'Request failed: '+(e&&e.message||e)}; } }
 
 async function renderProspecting(force){
   const host=document.getElementById('prospectingview'); if(!host) return;

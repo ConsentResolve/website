@@ -100,6 +100,7 @@ export async function claudeFindOwner(env, domain, companyName) {
 
 End your response with EXACTLY one line of strict JSON and nothing else on that line:
 {"name": <string|null>, "title": <string|null>, "email": <string|null>, "source_url": <string|null>}`;
+  const timeout = AbortSignal.timeout(25000);
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -110,6 +111,7 @@ End your response with EXACTLY one line of strict JSON and nothing else on that 
         tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 3 }],
         messages: [{ role: "user", content: prompt }],
       }),
+      signal: timeout,
     });
     const d = await r.json().catch(() => null);
     if (!r.ok || !d) return { used: false, error: (d && d.error && d.error.message) || `HTTP ${r.status}` };
