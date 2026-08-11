@@ -815,6 +815,9 @@ html,body{height:100%}
   .rc-head{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid var(--line);background:var(--surface-2)}
   .rc-head .clabel{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--tx-3)}
   .rc-head .cto{font-size:11px;color:var(--tx-3);font-family:var(--font-mono)}
+  .rc-subjrow{padding:8px 12px;border-bottom:1px solid var(--line)}
+  .rc-subj{width:100%;box-sizing:border-box;border:1px solid var(--line-2);border-radius:7px;padding:7px 9px;font-size:13px;font-family:inherit;color:var(--tx-1);background:var(--surface-1)}
+  .rc-subj:focus{outline:none;border-color:var(--accent,#6ee7b7)}
   .rc-x{margin-left:auto;border:0;background:none;color:var(--tx-3);cursor:pointer;font-size:13px;width:26px;height:26px;border-radius:var(--r-1);display:grid;place-items:center}
   .rc-x:hover{background:var(--hover);color:var(--tx-1)}
   .rc-toolbar{display:flex;align-items:center;gap:2px;padding:6px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
@@ -2329,6 +2332,17 @@ function actBar(c){
 /* No reply channel yet, but the team still needs delete/remind/assign — show the notice
    AND the action bar (this is the "restore functionality on no-consent leads" fix). */
 function noReplyBox(c, banner){ return `<div class="rcollapse nocon">${banner}${actBar(c)}</div>`; }
+// Mirrors crm-inbox.js's looksInternalSubj/subj logic — a prefill guess only. The server always
+// recomputes its own default when the field is left blank, so a mismatch here is cosmetic, not
+// a correctness bug: worst case a rep sees an empty box instead of a prefilled one.
+function guessReplySubj(c){
+  const s=(c&&c.subject)||'';
+  if(!s.trim()) return '';
+  if(/^(re:\s*)?(💬|📞|📱|✉|☎|📧)/u.test(s)) return '';
+  if(/^(re:\s*)?(sms|mms|text|voice|call|calls|chat|identified|visitor|meta lead|lead)\b/i.test(s)) return '';
+  if(/[—\-–]\s*\+?\d[\d\s().\-]{5,}/.test(s) || /^\+?\d[\d\s().\-]{6,}$/.test(s)) return '';
+  return 'Re: '+s.replace(/^re:\s*/i,'');
+}
 function composer(c){
   if(c.sequence.status==='opted_out') return noReplyBox(c, `<div class="banner stop">⛔ Contact opted out of SMS/voice. Only email is permitted. Revocation is on the consent ledger. <button class="undo-optout" onclick="restoreContact('${c.id}')" title="Undo a mistaken / test opt-out">↩ Undo (restore)</button></div>`);
   if(c.sequence.status==='blocked') return noReplyBox(c, `<div class="banner block">⛓ Identified visitor (no consent to contact). Outreach is disabled — retargeting + context only.</div>`);
@@ -2369,6 +2383,7 @@ function composer(c){
   const ph = cur==='email' ? "Write your email reply…" : cur==='chat' ? "Reply in chat…" : "Write a reply… (auto-personalizes {first}/{trade})";
   return `<div class="rcomp">
     <div class="rc-head"><span class="clabel">Reply via</span>${sw}${cur==='email'?`<span class="cto">to ${esc(c.contact_email||'lead')}</span><span class="cto" style="opacity:.7" title="Your team is copied on every email reply">cc team · tyler, jbeyke, aaron</span>`:''}<button class="rc-x" onclick="closeReply()" title="Discard">✕</button></div>
+    ${cur==='email'?`<div class="rc-subjrow"><input type="text" class="rc-subj" id="rcSubj" placeholder="Re: your inquiry with Consent Resolve" value="${esc(guessReplySubj(c))}"></div>`:''}
     <div class="rc-toolbar">${fmtGroup}
       <span class="tmpl" onmousedown="return false" onclick="insertTemplate('demo')">Book a demo</span>
       <span class="tmpl" onmousedown="return false" onclick="insertTemplate('how')">How it works</span>
@@ -2462,6 +2477,7 @@ async function sendReply(){
   try{
     const payload={id:sel,reply:text,html:replyHtml};
     if(ch) payload.channel=ch;                          // only override routing when we know it
+    if(ch==='email'){ const sj=document.getElementById('rcSubj'); const sv=sj?sj.value.trim():''; if(sv) payload.subject=sv; }
     const r=await fetch('/api/crm/inbox',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const d=await r.json().catch(()=>({}));
     if(!r.ok||d.error){

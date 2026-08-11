@@ -547,9 +547,12 @@ export async function onRequestPost({ request, env }) {
       return false;
     };
     const realEmailThread = conv.channel === "email" && !looksInternalSubj(conv.subject);
-    const subj = realEmailThread
+    // A rep can override the computed subject from the composer's subject field — same fallback
+    // as before when left blank, so nothing changes for callers that don't send one.
+    const customSubj = (typeof b.subject === "string" && b.subject.trim()) ? b.subject.trim().slice(0, 300) : null;
+    const subj = customSubj || (realEmailThread
       ? "Re: " + conv.subject.replace(/^re:\s*/i, "")
-      : "Re: your inquiry with Consent Resolve";
+      : "Re: your inquiry with Consent Resolve");
     let externalId = null, sentVia = conv.channel;
 
     // Resolve the contact's reachable addresses once — used by both the explicit-channel
