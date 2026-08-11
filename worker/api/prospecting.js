@@ -21,7 +21,7 @@ import {
 } from "../_lib/dataforseo.js";
 import { scoreProspect } from "../_lib/prospect-score.js";
 import { fetchSite, parseSite } from "./crm-lookup.js";
-import { peopleAtDomain, enrichPerson, usableEmail, DEFAULT_TITLES } from "./apollo-prospect.js";
+import { peopleAtDomain, enrichPerson, usableEmail, claudeFindOwner, DEFAULT_TITLES } from "./apollo-prospect.js";
 import { enrollContact } from "../_lib/workflow-engine.js";
 import { enrollRepermission, optInContacts } from "../_lib/newsletter.js";
 import { pushLeadToInstantly } from "../_lib/instantly.js";
@@ -671,7 +671,7 @@ async function apolloSearch(env, b, cors) {
       message: scope ? "Your Apollo key doesn't have People Search enabled — turn on People Search + People Enrichment for the key in Apollo settings." : ("Apollo: " + s.error) }, { status: 502 }, cors);
   }
   const isDm = (t) => { const x = String(t || "").toLowerCase(); return ["owner", "founder", "co-founder", "ceo", "chief executive", "president", "partner", "principal", "vice president", "vp", "cmo", "chief marketing", "marketing", "general manager", " gm", "operations", "director"].some((k) => x.includes(k)); };
-  const candidates = (s.people || []).map((pp) => ({
+  let candidates = (s.people || []).map((pp) => ({
     apollo_id: pp.id || null,
     name: pp.first_name || pp.name || "(name hidden)",
     title: pp.title || "",
@@ -681,7 +681,33 @@ async function apolloSearch(env, b, cors) {
   })).filter((c) => c.apollo_id);
   candidates.sort((a, b2) => (b2.dm ? 1 : 0) - (a.dm ? 1 : 0)); // decision-makers first
   const org = await apolloOrgSummary(env, p.domain, p.name);
-  return json({ ok: true, domain: p.domain, total: s.total || candidates.length, candidates, org }, {}, cors);
+
+  // FALLBACK — Apollo has nobody at this domain (common for smaller contractors). Ask Claude,
+  // with live web search, to find the owner the way a human would. The email is already in
+  // hand (found on a real page, never a guess), so no Apollo credit is spent revealing it —
+  // flagged distinctly in the UI so a rep can see it didn't come from Apollo.
+  let claudeFallback = null;
+  if (!candidates.length) {
+    const cf = await claudeFindOwner(env, p.domain, p.name).catch(() => null);
+    if (cf && cf.used) {
+      claudeFallback = { used: true, found: !!cf.found, cost_usd: cf.cost_usd || 0 };
+      if (cf.found) {
+        candidates = [{
+          apollo_id: "claude:" + p.domain,
+          name: cf.name || "(name found, unverified)",
+          title: cf.title || "",
+          company: p.name || p.domain,
+          has_email: true,
+          dm: true,
+          source: "claude_websearch",
+          source_url: cf.source_url || null,
+          email: cf.email,
+        }];
+      }
+    }
+  }
+
+  return json({ ok: true, domain: p.domain, total: s.total || candidates.length, candidates, org, claude_fallback: claudeFallback }, {}, cors);
 }
 
 // Company-level Apollo intel: headcount, LOCATIONS (franchise signal), socials, relevant tech.
@@ -758,33 +784,46 @@ async function apolloKeep(env, b, actorId, cors) {
   let credits = 0, revealErr = null, primaryUsed = false;
 
   for (const sel of selected) {
+    // A Claude web-search find (apollo_id "claude:<domain>") already HAS its email — it was
+    // found on a real page during the search step, not masked-then-revealed. Skip the Apollo
+    // enrich call (and the credit) entirely for these.
+    const isClaudeFind = typeof sel.apollo_id === "string" && sel.apollo_id.startsWith("claude:");
     let person = null;
-    try { person = await enrichPerson(env, { id: sel.apollo_id }); credits++; } catch (e) { revealErr = String(e); }
+    if (!isClaudeFind) {
+      try { person = await enrichPerson(env, { id: sel.apollo_id }); credits++; } catch (e) { revealErr = String(e); }
+    }
     const fullName = (person && person.name) || sel.name || null;
     const title = (person && person.title) || sel.title || null;
-    const email = person && usableEmail(person.email) ? person.email : null;
+    const email = isClaudeFind
+      ? (sel.email && usableEmail(sel.email) ? sel.email : null)
+      : (person && usableEmail(person.email) ? person.email : null);
     const phone = person && Array.isArray(person.phone_numbers) && person.phone_numbers[0]
       ? (person.phone_numbers[0].sanitized_number || person.phone_numbers[0].raw_number) : null;
     const linkedin = (person && person.linkedin_url) || null;
-    const enr = JSON.stringify({ _source: "apollo_prospect", apollo_id: sel.apollo_id, linkedin, title, revealed_at: now });
+    const enr = JSON.stringify(isClaudeFind
+      ? { _source: "claude_websearch", source_url: sel.source_url || null, title, revealed_at: now }
+      : { _source: "apollo_prospect", apollo_id: sel.apollo_id, linkedin, title, revealed_at: now });
 
     let contactId;
+    // Honest provenance — a Claude-found contact didn't come from Apollo; say so everywhere
+    // this gets recorded (contact.source, the consent ledger's capture_method, the activity log).
+    const contactSource = isClaudeFind ? "claude_websearch" : "apollo_prospect";
     if (!primaryUsed) {
       contactId = baseContactId;
-      await env.DB.prepare("UPDATE contacts SET full_name=COALESCE(?,full_name), title=COALESCE(?,title), primary_email=COALESCE(?,primary_email), phone=COALESCE(?,phone), apollo_person_id=?, source='apollo_prospect', is_provisional=0, enrichment=?, updated_at=datetime('now') WHERE id=?")
-        .bind(fullName, title, email, phone, sel.apollo_id, enr, contactId).run().catch(() => {});
+      await env.DB.prepare("UPDATE contacts SET full_name=COALESCE(?,full_name), title=COALESCE(?,title), primary_email=COALESCE(?,primary_email), phone=COALESCE(?,phone), apollo_person_id=?, source=?, is_provisional=0, enrichment=?, updated_at=datetime('now') WHERE id=?")
+        .bind(fullName, title, email, phone, isClaudeFind ? null : sel.apollo_id, contactSource, enr, contactId).run().catch(() => {});
       primaryUsed = true;
     } else {
       contactId = rid("ct_");
-      await env.DB.prepare("INSERT INTO contacts (id, company_id, full_name, primary_email, phone, title, apollo_person_id, enrichment, source, is_provisional) VALUES (?,?,?,?,?,?,?,?,'apollo_prospect',0)")
-        .bind(contactId, companyId, fullName, email, phone, title, sel.apollo_id, enr).run().catch(() => {});
+      await env.DB.prepare("INSERT INTO contacts (id, company_id, full_name, primary_email, phone, title, apollo_person_id, enrichment, source, is_provisional) VALUES (?,?,?,?,?,?,?,?,?,0)")
+        .bind(contactId, companyId, fullName, email, phone, title, isClaudeFind ? null : sel.apollo_id, enr, contactSource).run().catch(() => {});
     }
     if (email) {
       await env.DB.prepare("INSERT OR IGNORE INTO contact_identifiers (id, contact_id, type, value, verified) VALUES (?,?,?,?,0)").bind(rid("id_"), contactId, "email", String(email).toLowerCase()).run().catch(() => {});
       // Consent ledger: EMAIL permitted under B2B legitimate interest — NOT an opt-in. SMS/voice omitted → stay off.
       await env.DB.prepare("INSERT INTO consent_records (id, contact_id, email, phone, channel, action, basis, capture_method, proof_ref, occurred_at) VALUES (?,?,?,?,?,?,?,?,?,?)")
-        .bind(rid("cn_"), contactId, email, phone, "email", "granted", "legitimate_interest", "apollo_prospect", "B2B legitimate interest · authorized by " + actorName + " @ " + now, now).run().catch(() => {});
-      await addActivityV2(env, { actorId, entityType: "contact", entityId: contactId, action: "consent_granted", meta: { channel: "email", basis: "legitimate_interest", method: "apollo_prospect", by: actorName } }).catch(() => {});
+        .bind(rid("cn_"), contactId, email, phone, "email", "granted", "legitimate_interest", contactSource, "B2B legitimate interest · authorized by " + actorName + " @ " + now + (isClaudeFind && sel.source_url ? " · found at " + sel.source_url : ""), now).run().catch(() => {});
+      await addActivityV2(env, { actorId, entityType: "contact", entityId: contactId, action: "consent_granted", meta: { channel: "email", basis: "legitimate_interest", method: contactSource, by: actorName } }).catch(() => {});
     }
     savedContactIds.push(contactId);
     savedPeople.push({ contact_id: contactId, name: fullName, title, email, has_email: !!email });

@@ -84,6 +84,59 @@ export async function peopleAtDomain(env, domain, titles, perPage, maxPages) {
 export const usableEmail = (e) =>
   !!e && e.includes("@") && !/^email_not_unlocked/i.test(e) && !/@domain\.com$/i.test(e);
 
+// ── Claude web-search fallback ──────────────────────────────────────────────
+// Apollo's People Search draws a blank for a lot of smaller contractors. When it does, ask
+// Claude — with the live web_search tool — to find the owner/decision-maker's name + email the
+// same way a human would: check the site's About/Contact/Team page, Google, LinkedIn, public
+// registries. No Apollo credit involved; the email is already in hand, not "revealed" later.
+const SONNET5_MODEL = "claude-sonnet-5";
+// Approximate token cost for the lookup_log entry — post-intro Sonnet 5 rates ($3/$15 per 1M).
+// Does NOT include the web_search tool's own per-call fee (not published in our pricing cache).
+const SONNET5_IN = 3 / 1e6, SONNET5_OUT = 15 / 1e6;
+
+export async function claudeFindOwner(env, domain, companyName) {
+  if (!env.ANTHROPIC_API_KEY || !domain) return { used: false };
+  const prompt = `Find the owner or a real decision-maker's name and email for the business at ${domain}${companyName ? ` ("${companyName}")` : ""}. Search their website (About/Contact/Team pages), Google, LinkedIn, and any public business registry. Prefer a named person over a generic info@ address. Never invent or guess an email — only report one you actually found on a real page, and cite where via source_url. If you can't verify a name or email, use null for that field rather than guessing.
+
+End your response with EXACTLY one line of strict JSON and nothing else on that line:
+{"name": <string|null>, "title": <string|null>, "email": <string|null>, "source_url": <string|null>}`;
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({
+        model: SONNET5_MODEL,
+        max_tokens: 1024,
+        tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 3 }],
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+    const d = await r.json().catch(() => null);
+    if (!r.ok || !d) return { used: false, error: (d && d.error && d.error.message) || `HTTP ${r.status}` };
+    const text = (d.content || []).filter((b) => b.type === "text").map((b) => b.text || "").join("\n");
+    // Fast path: the model followed instructions and the JSON is the literal last line. Fallback:
+    // it added trailing prose anyway (common even with explicit "nothing else on that line"
+    // instructions) — scan every {...} blob in the response from the end, accept the first one
+    // that parses AND has an "email" key, so a stray brace elsewhere in the search commentary
+    // can't be mistaken for the answer.
+    const isAnswerShape = (o) => o && typeof o === "object" && !Array.isArray(o) && "email" in o;
+    let parsed = null;
+    try { const p = JSON.parse((text.trim().split("\n").pop() || "")); if (isAnswerShape(p)) parsed = p; } catch (_) {}
+    if (!parsed) {
+      const blobs = text.match(/\{[^{}]*\}/g) || [];
+      for (let i = blobs.length - 1; i >= 0 && !parsed; i--) {
+        try { const p = JSON.parse(blobs[i]); if (isAnswerShape(p)) parsed = p; } catch (_) {}
+      }
+    }
+    const usage = d.usage || {};
+    const cost_usd = Math.round((((usage.input_tokens || 0) * SONNET5_IN) + ((usage.output_tokens || 0) * SONNET5_OUT)) * 10000) / 10000;
+    if (!parsed || !parsed.email || !usableEmail(parsed.email)) return { used: true, cost_usd, found: false };
+    return { used: true, cost_usd, found: true, name: parsed.name || null, title: parsed.title || null, email: parsed.email, source_url: parsed.source_url || null };
+  } catch (e) {
+    return { used: false, error: String(e) };
+  }
+}
+
 export async function enrichPerson(env, person) {
   // reveal full name + email for a person we found via api_search (costs 1 credit)
   const r = await apolloPost(env, "people/match", { id: person.id, reveal_personal_emails: false });
