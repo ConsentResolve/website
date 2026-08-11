@@ -42,6 +42,49 @@ function prospectTierLabel(tier) {
   return LABELS[tier] || "prospect";
 }
 
+// Build the company `enrichment` JSON in the EXACT shape crm-lookup.js's Intel dossier reads and
+// writes — top-level enrich fields + _directory + _intel + _signals + _looked_up_at — from a
+// prospect's waterfall data. Shared by every place a prospect's signals get cached onto a company
+// (promote to Open, queue as whale) so a lookup done ANYWHERE shows up in Intel everywhere,
+// instead of each caller inventing its own bespoke shape the Intel tab can't actually read.
+// MERGES onto whatever enrichment already exists — never overwrites a real Intel synthesis.
+function buildProspectEnrichment(prevRaw, p, sig) {
+  let prev = {}; try { prev = prevRaw ? JSON.parse(prevRaw) : {}; } catch (_) {}
+  const { _directory: pDir, _intel: pInt, _signals: pSig, _looked_up_at: pLu, _last_cost: pLc, ...pEnr } = prev;
+  const reasons = safeJson(p.reasons, []);
+  const signals = {
+    ...pSig,
+    pays_per_lead: (sig.marketplaces || []).length > 0,
+    marketplaces: (sig.marketplaces && sig.marketplaces.length) ? sig.marketplaces : (pSig && pSig.marketplaces) || [],
+    running_ads: sig.running_ads != null ? sig.running_ads : ((pSig && pSig.running_ads) ?? null),
+    call_tracking: sig.call_tracking || (pSig && pSig.call_tracking) || null,
+    field_crm: sig.field_crm || (pSig && pSig.field_crm) || null,
+    competitor_id: sig.competitor_id || (pSig && pSig.competitor_id) || null,
+    trade: p.trade || (pSig && pSig.trade) || null,
+    has_form: sig.has_form != null ? sig.has_form : ((pSig && pSig.has_form) ?? null),
+    traffic_month: sig.traffic_month != null ? sig.traffic_month : ((pSig && pSig.traffic_month) ?? null),
+    // Prospecting only ever has ONE ad-spend estimate (no low/high split) — Intel's chip reads
+    // ad_spend_low/high, so surface the single figure as both rather than fabricating a range.
+    ad_spend_low: sig.ad_spend != null ? sig.ad_spend : ((pSig && pSig.ad_spend_low) ?? null),
+    ad_spend_high: sig.ad_spend != null ? sig.ad_spend : ((pSig && pSig.ad_spend_high) ?? null),
+    rating: p.rating != null ? p.rating : ((pSig && pSig.rating) ?? null),
+    reviews: p.reviews != null ? p.reviews : ((pSig && pSig.reviews) ?? null),
+    phone: p.phone || (pSig && pSig.phone) || null,
+    icp: { score: p.score, tier: p.tier, reasons },
+  };
+  return {
+    ...pEnr,
+    website: { ...((pEnr && pEnr.website) || {}), domain: p.domain || ((pEnr && pEnr.website && pEnr.website.domain) || null), capture: sig.has_form === true ? true : ((pEnr && pEnr.website && pEnr.website.capture) ?? null) },
+    gmb: p.rating != null ? { rating: p.rating, reviews: p.reviews || 0, verified: false, ...((pEnr && pEnr.gmb) || {}) } : ((pEnr && pEnr.gmb) || null),
+    _directory: pDir || {},
+    _intel: { ...(pInt || {}), trade: p.trade || (pInt && pInt.trade) || null },   // NO synthesis — a real Intel lookup still runs to deepen this
+    _signals: signals,
+    _looked_up_at: pLu || p.updated_at || new Date().toISOString(),
+    _last_cost: pLc || 0,
+    _source: (pEnr && pEnr._source) || "prospecting",
+  };
+}
+
 // Queue a prospect as a WHALE — NOTHING else happens (no conversation, no assignment, no
 // Apollo reveal). Creates/updates the company, caches signals so Intel pre-fills, flags it,
 // and marks the prospect done so it leaves the active prospecting list and shows in Whales.
@@ -52,12 +95,7 @@ async function queueWhale(env, prospectId, actorId) {
   const companyId = await findOrCreateCompany(env, { name: p.name || p.domain, domain: p.domain || null, allowNameOnly: true }).catch(() => null);
   if (companyId) {
     const cur = await env.DB.prepare("SELECT enrichment FROM companies WHERE id=?").bind(companyId).first().catch(() => null);
-    let e = {}; try { e = cur && cur.enrichment ? JSON.parse(cur.enrichment) : {}; } catch (_) {}
-    // Same shape promoteCore caches so the Intel dossier pre-fills without re-paying.
-    if (!e.website && p.domain) e.website = { domain: p.domain, capture: sig.has_form === true };
-    if (!e._signals) e._signals = sig;
-    if (!e._intel) e._intel = { trade: p.trade };
-    if (!e._source) e._source = "prospecting";
+    const e = buildProspectEnrichment(cur && cur.enrichment, p, sig);
     try { const org = p.domain ? await apolloOrgSummary(env, p.domain, p.name) : null; if (org) e.apollo = org; } catch (_) {}
     let actorName = "CRM"; if (actorId) { const u = await env.DB.prepare("SELECT name FROM users WHERE id=?").bind(actorId).first().catch(() => null); if (u && u.name) actorName = u.name; }
     e._whale = { flagged: true, reason: "queued from Prospecting for review", by: actorName, at: new Date().toISOString() };
@@ -416,16 +454,15 @@ async function promoteCore(env, prospectId, actorId) {
 
   const sig = safeJson(p.signals, {});
   const companyId = await findOrCreateCompany(env, { name: p.name || p.domain, domain: p.domain || null, allowNameOnly: true }).catch(() => null);
-  // Cache the enrichment on the company in the SAME shape the Intel panel reads,
-  // so promoting a prospect pre-fills the lookup screen (no re-spend needed).
+  // Cache the enrichment on the company in the EXACT shape crm-lookup.js's Intel dossier reads
+  // and writes (buildProspectEnrichment, shared with queueWhale) — a previous version wrote a
+  // bespoke shape (raw `sig` under `_signals`, `{trade}` under `_intel`, no field-name mapping)
+  // that LOOKED right but didn't match what the Intel tab actually destructures (e.g. it reads
+  // `_signals.ad_spend_low/high`, prospecting only ever had a single `ad_spend`), so a promoted
+  // prospect's signal chips + ICP score silently failed to render and Intel looked never-enriched.
   if (companyId) {
-    const enrichment = {
-      website: p.domain ? { domain: p.domain, capture: sig.has_form === true } : null,
-      gmb: p.rating != null ? { rating: p.rating, reviews: p.reviews || 0, verified: false } : null,
-      _signals: sig,
-      _intel: { trade: p.trade },
-      _source: "prospecting",
-    };
+    const existing = await env.DB.prepare("SELECT enrichment FROM companies WHERE id=?").bind(companyId).first().catch(() => null);
+    const enrichment = buildProspectEnrichment(existing && existing.enrichment, p, sig);
     await env.DB.prepare("UPDATE companies SET enrichment=?, domain=COALESCE(domain,?), updated_at=datetime('now') WHERE id=?")
       .bind(JSON.stringify(enrichment), p.domain || null, companyId).run().catch(() => {});
   }
