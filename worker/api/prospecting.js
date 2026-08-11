@@ -142,6 +142,14 @@ export async function ensureProspectingSchema(env) {
   await S(`ALTER TABLE prospects ADD COLUMN disposition_meta TEXT`);
   await S(`ALTER TABLE prospects ADD COLUMN disposition_by TEXT`);
   await S(`ALTER TABLE prospects ADD COLUMN disposition_at TEXT`);
+  // Manual-delete log — a snapshot of every prospect a rep clicked ✕ Delete on, kept even after
+  // the row itself is soft-suppressed. Lets us pull the list for one last-ditch lookup pass
+  // before this flow gets automated, instead of losing the context of why each one was dropped.
+  await S(`CREATE TABLE IF NOT EXISTS prospect_deletions (
+    id TEXT PRIMARY KEY, prospect_id TEXT, domain TEXT, name TEXT, trade TEXT, city TEXT, region TEXT,
+    tier TEXT, score INTEGER, reasons TEXT, actor_id TEXT, actor_name TEXT,
+    deleted_at TEXT DEFAULT (datetime('now')))`);
+  await S(`CREATE INDEX IF NOT EXISTS idx_prospect_deletions_at ON prospect_deletions(deleted_at)`);
 }
 
 export async function onRequestOptions({ request, env }) {
@@ -226,7 +234,7 @@ export async function onRequestPost({ request, env, ctx }) {
   const actorId = (user && user.id) || (await adminUserId(env).catch(() => null));
 
   if (action === "promote") return promote(env, b, actorId, cors);
-  if (action === "suppress") return suppress(env, b, cors);
+  if (action === "suppress") return suppress(env, b, actorId, cors);
   if (action === "process") { // manual kick of the waterfall (also runs on cron)
     const out = await processProspectRuns(env, { maxDomains: Number(b.max || 25) });
     return json({ ok: true, processed: out }, {}, cors);
@@ -504,7 +512,16 @@ async function promoteCore(env, prospectId, actorId) {
   return { ok: true, contact_id: contactId, conversation_id: convId };
 }
 
-async function suppress(env, b, cors) {
+async function suppress(env, b, actorId, cors) {
+  const p = await env.DB.prepare("SELECT domain, name, trade, city, region, tier, score, reasons FROM prospects WHERE id=?").bind(b.id).first().catch(() => null);
+  if (p) {
+    let actorName = "CRM";
+    if (actorId) { const u = await env.DB.prepare("SELECT name FROM users WHERE id=?").bind(actorId).first().catch(() => null); if (u && u.name) actorName = u.name; }
+    await env.DB.prepare(
+      `INSERT INTO prospect_deletions (id, prospect_id, domain, name, trade, city, region, tier, score, reasons, actor_id, actor_name)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`
+    ).bind(rid("pdel_"), b.id, p.domain || null, p.name || null, p.trade || null, p.city || null, p.region || null, p.tier || null, p.score || 0, p.reasons || null, actorId || null, actorName).run().catch(() => {});
+  }
   await env.DB.prepare("UPDATE prospects SET status='suppressed', updated_at=datetime('now') WHERE id=?").bind(b.id).run().catch(() => {});
   return json({ ok: true }, {}, cors);
 }
