@@ -238,6 +238,7 @@ export async function onRequestPost({ request, env, ctx }) {
   if (action === "push_dispositions") return pushDispositions(env, b, actorId, ctx, cors);
   if (action === "keep") return keepProspect(env, b, actorId, cors);
   if (action === "apollo_search") return apolloSearch(env, b, cors);
+  if (action === "apollo_search_fallback") return apolloSearchFallback(env, b, cors);
   if (action === "apollo_keep") return apolloKeep(env, b, actorId, cors);
 
   // action === "sweep" — Stage 0 TAM import.
@@ -664,7 +665,12 @@ async function apolloSearch(env, b, cors) {
   if (!p) return json({ ok: false, error: "not_found" }, { status: 404 }, cors);
   if (!p.domain) return json({ ok: false, error: "no_domain", message: "This prospect has no website domain — nothing to search Apollo with." }, { status: 400 }, cors);
   // ALL people at the company (no title filter → matches Apollo's web count), paginated.
-  const s = await peopleAtDomain(env, p.domain, null, 25, 3).catch((e) => ({ error: String(e) }));
+  // Runs alongside the org summary instead of after it — two independent Apollo calls, no
+  // reason to serialize them; this alone was adding a full extra round-trip to every search.
+  const [s, org] = await Promise.all([
+    peopleAtDomain(env, p.domain, null, 25, 3).catch((e) => ({ error: String(e) })),
+    apolloOrgSummary(env, p.domain, p.name),
+  ]);
   if (s.error) {
     const scope = /not authorized/i.test(s.error || "");
     return json({ ok: false, error: scope ? "no_scope" : "apollo_error",
@@ -680,34 +686,36 @@ async function apolloSearch(env, b, cors) {
     dm: isDm(pp.title),
   })).filter((c) => c.apollo_id);
   candidates.sort((a, b2) => (b2.dm ? 1 : 0) - (a.dm ? 1 : 0)); // decision-makers first
-  const org = await apolloOrgSummary(env, p.domain, p.name);
 
-  // FALLBACK — Apollo has nobody at this domain (common for smaller contractors). Ask Claude,
-  // with live web search, to find the owner the way a human would. The email is already in
-  // hand (found on a real page, never a guess), so no Apollo credit is spent revealing it —
-  // flagged distinctly in the UI so a rep can see it didn't come from Apollo.
-  let claudeFallback = null;
-  if (!candidates.length) {
-    const cf = await claudeFindOwner(env, p.domain, p.name).catch(() => null);
-    if (cf && cf.used) {
-      claudeFallback = { used: true, found: !!cf.found, cost_usd: cf.cost_usd || 0 };
-      if (cf.found) {
-        candidates = [{
-          apollo_id: "claude:" + p.domain,
-          name: cf.name || "(name found, unverified)",
-          title: cf.title || "",
-          company: p.name || p.domain,
-          has_email: true,
-          dm: true,
-          source: "claude_websearch",
-          source_url: cf.source_url || null,
-          email: cf.email,
-        }];
-      }
-    }
+  // Apollo drew a blank — flag it so the frontend can kick off the (slower) Claude web-search
+  // fallback as its own request, instead of blocking this response on a 25s lookup.
+  return json({ ok: true, domain: p.domain, total: s.total || candidates.length, candidates, org, needs_fallback: !candidates.length }, {}, cors);
+}
+
+// Second round-trip, only fired by the frontend when apolloSearch came back empty. Kept
+// separate so the fast Apollo-only response above never waits on this — see claudeFindOwner's
+// own comment for why it can take up to ~25s (live web search + synthesis in one model turn).
+async function apolloSearchFallback(env, b, cors) {
+  const p = await env.DB.prepare("SELECT id, name, domain FROM prospects WHERE id=?").bind(b.id).first().catch(() => null);
+  if (!p) return json({ ok: false, error: "not_found" }, { status: 404 }, cors);
+  if (!p.domain) return json({ ok: false, error: "no_domain" }, { status: 400 }, cors);
+  const cf = await claudeFindOwner(env, p.domain, p.name).catch(() => null);
+  let candidates = [];
+  const claudeFallback = (cf && cf.used) ? { used: true, found: !!cf.found, cost_usd: cf.cost_usd || 0 } : null;
+  if (cf && cf.used && cf.found) {
+    candidates = [{
+      apollo_id: "claude:" + p.domain,
+      name: cf.name || "(name found, unverified)",
+      title: cf.title || "",
+      company: p.name || p.domain,
+      has_email: true,
+      dm: true,
+      source: "claude_websearch",
+      source_url: cf.source_url || null,
+      email: cf.email,
+    }];
   }
-
-  return json({ ok: true, domain: p.domain, total: s.total || candidates.length, candidates, org, claude_fallback: claudeFallback }, {}, cors);
+  return json({ ok: true, domain: p.domain, candidates, claude_fallback: claudeFallback }, {}, cors);
 }
 
 // Company-level Apollo intel: headcount, LOCATIONS (franchise signal), socials, relevant tech.

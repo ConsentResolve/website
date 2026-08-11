@@ -1297,6 +1297,11 @@ html,body{height:100%}
   .papollo-card{width:min(600px,100%)}
   .papollo-body{margin-top:6px}
   .papollo-load,.papollo-empty{padding:22px 6px;text-align:center;color:var(--tx-3);font-size:13px}
+  .papollo-spin{width:20px;height:20px;margin:0 auto 10px;border-radius:50%;border:2px solid var(--bd,rgba(120,130,150,.25));border-top-color:var(--accent,#6ee7b7);animation:papspin .75s linear infinite}
+  @media (prefers-reduced-motion:reduce){.papollo-spin{animation:none;border-top-color:var(--bd,rgba(120,130,150,.25))}}
+  @keyframes papspin{to{transform:rotate(360deg)}}
+  .papollo-stage{transition:opacity .15s}
+  .papollo-elapsed{display:block;margin-top:4px;font-size:11px;color:var(--tx-4,var(--tx-3));font-variant-numeric:tabular-nums}
   .papollo-list{display:flex;flex-direction:column;gap:2px;max-height:46vh;overflow:auto;margin:2px 0 4px}
   .papollo-row{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:10px;padding:9px 10px;border:1px solid transparent;border-radius:9px;cursor:pointer}
   .papollo-row:hover{background:var(--surface-1);border-color:var(--line)}
@@ -3694,10 +3699,22 @@ async function prospApolloPicker(id, disp){
   const p=(PROSP.prospects||[]).find(x=>x.id===id)||{};
   let ov=document.getElementById('papollo-ov'); if(ov)ov.remove();
   ov=document.createElement('div'); ov.id='papollo-ov'; ov.className='pkeep-ov';
-  ov.innerHTML='<div class="pkeep-card papollo-card"><div class="pkeep-top"><b>Find the contact at '+escP(p.name||p.domain||'')+'</b><button class="pdoss-x" onclick="document.getElementById(\'papollo-ov\').remove()">✕</button></div><div class="pkeep-sub">Destination: <b>'+escP(KEEP_DEST_LBL[disp]||disp)+'</b></div><div id="papollo-body" class="papollo-body"><div class="papollo-load">🔎 Searching Apollo for '+escP(p.domain||'')+'…</div></div></div>';
+  ov.innerHTML='<div class="pkeep-card papollo-card"><div class="pkeep-top"><b>Find the contact at '+escP(p.name||p.domain||'')+'</b><button class="pdoss-x" onclick="document.getElementById(\'papollo-ov\').remove()">✕</button></div><div class="pkeep-sub">Destination: <b>'+escP(KEEP_DEST_LBL[disp]||disp)+'</b></div><div id="papollo-body" class="papollo-body"><div class="papollo-load"><div class="papollo-spin"></div><span class="papollo-stage" id="papollo-stage">Searching Apollo for '+escP(p.domain||'')+'…</span><span class="papollo-elapsed" id="papollo-elapsed"></span></div></div></div>';
   ov.onclick=function(e){ if(e.target===ov) ov.remove(); };
   document.body.appendChild(ov);
-  const r=await prospPost({action:'apollo_search',id});
+  const t0=Date.now();
+  const tick=setInterval(function(){
+    const el=document.getElementById('papollo-elapsed'); if(!el){ clearInterval(tick); return; }
+    el.textContent=((Date.now()-t0)/1000).toFixed(0)+'s';
+  },500);
+  const setStage=function(txt){ const s=document.getElementById('papollo-stage'); if(s) s.textContent=txt; };
+  let r=await prospPost({action:'apollo_search',id});
+  if(r&&r.ok&&r.needs_fallback){
+    setStage('Apollo had nobody — checking a live web search…');
+    const fb=await prospPost({action:'apollo_search_fallback',id});
+    if(fb&&fb.ok){ r.candidates=fb.candidates||[]; r.claude_fallback=fb.claude_fallback||null; }
+  }
+  clearInterval(tick);
   const body=document.getElementById('papollo-body'); if(!body) return;
   const failFoot='<div class="papollo-foot"><button class="pdel-btn" onclick="document.getElementById(\'papollo-ov\').remove()">Cancel</button><button class="pkeep-btn" onclick="prospApolloSave(\''+id+'\',\''+disp+'\',true)">Save without a contact →</button></div>';
   if(!r||!r.ok){ body.innerHTML='<div class="papollo-empty">'+escP((r&&r.message)||'Apollo lookup failed.')+'</div>'+failFoot; return; }
