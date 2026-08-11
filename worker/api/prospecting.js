@@ -31,6 +31,17 @@ const DEFAULT_INSTANTLY_CAMPAIGN = "44bd0040-5a28-4d38-a469-a73e2eb5ffca";
 
 const DISPOSITIONS = ["open", "sequence", "newsletter", "instantly", "whale", "skip"];
 
+// Human-readable version of a prospecting SCORE TIER for the Open-inbox preview line. The raw
+// tier ("dead") is scoring-pipeline jargon meaning "our automated web-scan found none of the
+// buying signals it checks for (marketplace listings, ad spend, call tracking, a field CRM, a
+// lead form, ad pixels, reputation, traffic)" — it says nothing about whether the business is
+// real, open, or worth contacting. Left as the literal tier name it reads as a verdict on the
+// LEAD, which is wrong and misleads whoever works Open next.
+function prospectTierLabel(tier) {
+  const LABELS = { hot: "hot prospect", warm: "warm prospect", cold: "cold prospect", no_site: "no-site prospect", dead: "unscored prospect (no signals found)" };
+  return LABELS[tier] || "prospect";
+}
+
 // Queue a prospect as a WHALE — NOTHING else happens (no conversation, no assignment, no
 // Apollo reveal). Creates/updates the company, caches signals so Intel pre-fills, flags it,
 // and marks the prospect done so it leaves the active prospecting list and shows in Whales.
@@ -431,7 +442,7 @@ async function promoteCore(env, prospectId, actorId) {
     `INSERT INTO conversations (id, contact_id, company_id, channel, source_detail, status, unread, subject, last_message_at, last_message_preview, assignee_id)
      VALUES (?, ?, ?, 'prospecting', ?, 'open', 0, ?, datetime('now'), ?, ?)`
   ).bind(convId, contactId, companyId, `Prospecting · ${p.city || ""} ${p.trade || ""}`.trim(),
-    `${p.name || p.domain} — ${p.tier} prospect`, (safeJson(p.reasons, [])[0] || "Prospected lead"), actorId || null).run().catch(() => {});
+    `${p.name || p.domain} — ${prospectTierLabel(p.tier)}`, (safeJson(p.reasons, [])[0] || "Prospected lead"), actorId || null).run().catch(() => {});
 
   await env.DB.prepare("UPDATE prospects SET status='promoted', promoted_contact_id=?, updated_at=datetime('now') WHERE id=?").bind(contactId, p.id).run().catch(() => {});
   await addActivityV2(env, { actorId, entityType: "contact", entityId: contactId, action: "promoted_from_prospect",
