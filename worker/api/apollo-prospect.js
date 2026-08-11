@@ -98,7 +98,7 @@ export async function claudeFindOwner(env, domain, companyName) {
   if (!env.ANTHROPIC_API_KEY || !domain) return { used: false };
   const prompt = `Find the owner or a real decision-maker's name and email for the business at ${domain}${companyName ? ` ("${companyName}")` : ""}. Search their website (About/Contact/Team pages), Google, LinkedIn, and any public business registry. Prefer a named person over a generic info@ address. Never invent or guess an email — only report one you actually found on a real page, and cite where via source_url. If you can't verify a name or email, use null for that field rather than guessing.
 
-End your response with EXACTLY one line of strict JSON and nothing else on that line:
+Do the research silently. Your final reply must be ONLY one line of strict JSON — no preamble, no explanation, no markdown fences, nothing before or after it:
 {"name": <string|null>, "title": <string|null>, "email": <string|null>, "source_url": <string|null>}`;
   const timeout = AbortSignal.timeout(25000);
   try {
@@ -107,7 +107,7 @@ End your response with EXACTLY one line of strict JSON and nothing else on that 
       headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({
         model: SONNET5_MODEL,
-        max_tokens: 1024,
+        max_tokens: 3072,
         tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 3 }],
         messages: [{ role: "user", content: prompt }],
       }),
