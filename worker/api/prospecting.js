@@ -201,16 +201,26 @@ export async function onRequestGet({ request, env }) {
   const runs = (runsRes.results || []).map((r) => ({
     ...r, query: safeJson(r.query, {}), counts: safeJson(r.counts, {}), cost: (r.cost_cents || 0) / 100,
   }));
-  // Real progress for active runs — domains that have finished the whole waterfall (reached the
-  // backlinks stage) vs the total domains in the run. Drives the progress bar (no more polling-blind).
+  // Real progress for active runs. Each domain climbs 4 stages (site → tech → traffic →
+  // backlinks) one at a time — counting only fully-finished (backlinks-reached) domains left
+  // the bar pinned at 0% for most of a run's life, since a domain sitting at "tech" (50% of
+  // its own way through) still counted as zero progress. Weight by stage instead so the bar
+  // moves the moment any work happens, not just when a domain crosses the finish line.
   for (const r of runs) {
     if (r.status === "running" || r.status === "paused") {
       const pr = await env.DB.prepare(
-        "SELECT COUNT(*) total, SUM(CASE WHEN stages_run LIKE '%backlinks%' THEN 1 ELSE 0 END) done FROM prospects WHERE run_id=? AND domain IS NOT NULL"
+        `SELECT COUNT(*) total,
+                SUM(CASE WHEN stages_run LIKE '%backlinks%' THEN 1 ELSE 0 END) done,
+                SUM(CASE WHEN stages_run LIKE '%site%' THEN 1 ELSE 0 END) c_site,
+                SUM(CASE WHEN stages_run LIKE '%tech%' THEN 1 ELSE 0 END) c_tech,
+                SUM(CASE WHEN stages_run LIKE '%traffic%' THEN 1 ELSE 0 END) c_traffic,
+                SUM(CASE WHEN stages_run LIKE '%backlinks%' THEN 1 ELSE 0 END) c_backlinks
+         FROM prospects WHERE run_id=? AND domain IS NOT NULL`
       ).bind(r.id).first().catch(() => null);
       const total = pr ? Number(pr.total || 0) : 0;
       const done = pr ? Number(pr.done || 0) : 0;
-      r.progress = { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
+      const stagesDone = pr ? (Number(pr.c_site || 0) + Number(pr.c_tech || 0) + Number(pr.c_traffic || 0) + Number(pr.c_backlinks || 0)) : 0;
+      r.progress = { done, total, pct: total ? Math.round((stagesDone / (total * 4)) * 100) : 0 };
     }
   }
 
@@ -299,8 +309,20 @@ export async function onRequestPost({ request, env, ctx }) {
   await addActivityV2(env, { actorId, entityType: "prospect_run", entityId: runId, action: "sweep_started",
     meta: { trade, city, found: counts.found, sites: inserted, cost: listing.cost } }).catch(() => {});
 
-  // Kick the first waterfall batch immediately so the user sees movement without waiting for cron.
-  if (inserted > 0 && ctx && ctx.waitUntil) ctx.waitUntil(processProspectRuns(env, { maxDomains: 20 }).catch(() => {}));
+  // Drain the waterfall now instead of leaving it entirely to the 5-min cron tick. Each domain
+  // needs up to 4 stage-passes (site→tech→traffic→backlinks); one processProspectRuns() call
+  // only advances each domain ONE stage, so a batch of any real size used to sit mostly
+  // unenriched for the first several cron cycles — this looked "stuck" even though nothing was
+  // wrong. Loop until a pass does no work (everything finished or budget-capped) or the safety
+  // cap hits; the cron tick still picks up anything left over for a very large import.
+  if (inserted > 0 && ctx && ctx.waitUntil) {
+    ctx.waitUntil((async () => {
+      for (let i = 0; i < 20; i++) {
+        const out = await processProspectRuns(env, { maxDomains: 20 }).catch(() => null);
+        if (!out || !out.touched) break;
+      }
+    })());
+  }
 
   return json({ ok: true, run_id: runId, counts, cost: listing.cost,
     message: `Found ${counts.found} businesses — ${inserted} with sites queued for scoring (${noSite} no-site, ${skipped} already known).` }, {}, cors);
@@ -591,7 +613,20 @@ async function importCsv(env, b, actorId, ctx, cors) {
   ).bind(runId, JSON.stringify({ kind: "csv", filename, total: raw.length }), JSON.stringify(counts),
     maxCostCents, inserted > 0 ? "running" : "done", actorId, `CSV import: ${filename}`).run().catch(() => {});
   await addActivityV2(env, { actorId, entityType: "prospect_run", entityId: runId, action: "csv_import", meta: { filename, found: raw.length, sites: inserted } }).catch(() => {});
-  if (inserted > 0 && ctx && ctx.waitUntil) ctx.waitUntil(processProspectRuns(env, { maxDomains: 20 }).catch(() => {}));
+  // Drain the waterfall now instead of leaving it entirely to the 5-min cron tick. Each domain
+  // needs up to 4 stage-passes (site→tech→traffic→backlinks); one processProspectRuns() call
+  // only advances each domain ONE stage, so a batch of any real size used to sit mostly
+  // unenriched for the first several cron cycles — this looked "stuck" even though nothing was
+  // wrong. Loop until a pass does no work (everything finished or budget-capped) or the safety
+  // cap hits; the cron tick still picks up anything left over for a very large import.
+  if (inserted > 0 && ctx && ctx.waitUntil) {
+    ctx.waitUntil((async () => {
+      for (let i = 0; i < 20; i++) {
+        const out = await processProspectRuns(env, { maxDomains: 20 }).catch(() => null);
+        if (!out || !out.touched) break;
+      }
+    })());
+  }
   return json({ ok: true, run_id: runId, counts,
     message: `Imported ${inserted} new domain(s) — enriching now. ${dupes} already known, ${invalid} without a valid domain.` }, {}, cors);
 }
