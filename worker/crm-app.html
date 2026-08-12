@@ -3744,9 +3744,11 @@ async function prospApolloPicker(id, disp){
   const setStage=function(txt){ const s=document.getElementById('papollo-stage'); if(s) s.textContent=txt; };
   let r=await prospPost({action:'apollo_search',id});
   if(r&&r.ok&&r.needs_fallback){
-    setStage('Apollo had nobody — checking a live web search…');
+    setStage((r.candidates&&r.candidates.length?'No email on file at Apollo — checking a live web search…':'Apollo had nobody — checking a live web search…'));
     const fb=await prospPost({action:'apollo_search_fallback',id});
-    if(fb&&fb.ok){ r.candidates=fb.candidates||[]; r.claude_fallback=fb.claude_fallback||null; }
+    // Merge, don't replace — Apollo's candidates may already have real (emailless) people worth
+    // keeping visible even if the web search does/doesn't turn up a separate contact with one.
+    if(fb&&fb.ok){ r.candidates=[...(fb.candidates||[]),...(r.candidates||[])]; r.claude_fallback=fb.claude_fallback||null; }
   }
   clearInterval(tick);
   const body=document.getElementById('papollo-body'); if(!body) return;

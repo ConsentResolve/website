@@ -753,9 +753,14 @@ async function apolloSearch(env, b, cors) {
   })).filter((c) => c.apollo_id);
   candidates.sort((a, b2) => (b2.dm ? 1 : 0) - (a.dm ? 1 : 0)); // decision-makers first
 
-  // Apollo drew a blank — flag it so the frontend can kick off the (slower) Claude web-search
-  // fallback as its own request, instead of blocking this response on a 25s lookup.
-  return json({ ok: true, domain: p.domain, total: s.total || candidates.length, candidates, org, needs_fallback: !candidates.length }, {}, cors);
+  // Apollo drew a blank OR only returned people it has no email on file for (has_email:false —
+  // nothing a "Keep" will ever be able to reveal). Either way there's no usable contact yet, so
+  // flag it for the (slower) Claude web-search fallback as its own request, instead of blocking
+  // this response on a 25s lookup. Previously this only fired on zero candidates, which silently
+  // skipped the fallback any time Apollo had SOME masked names but none with an email — the most
+  // common way a findable owner slipped through undetected.
+  const hasUsable = candidates.some((c) => c.has_email);
+  return json({ ok: true, domain: p.domain, total: s.total || candidates.length, candidates, org, needs_fallback: !hasUsable }, {}, cors);
 }
 
 // Second round-trip, only fired by the frontend when apolloSearch came back empty. Kept
