@@ -135,6 +135,10 @@ export async function ensureProspectingSchema(env) {
     id TEXT PRIMARY KEY, query TEXT, stage TEXT DEFAULT 'tech', counts TEXT,
     cost_cents INTEGER DEFAULT 0, max_cost_cents INTEGER DEFAULT 500, status TEXT DEFAULT 'running',
     actor TEXT, note TEXT, created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')))`);
+  // User-given name for a sweep/import — overrides the auto-derived "trade · city" / filename
+  // label everywhere the run is shown (recent-sweeps list, live progress card, and each
+  // prospect's "from ..." source line).
+  await S(`ALTER TABLE prospect_runs ADD COLUMN label TEXT`);
   await S(`CREATE INDEX IF NOT EXISTS idx_prospect_runs_status ON prospect_runs(status)`);
   // Batch Triage: per-row disposition (Open / Sequence / Newsletter / Instantly / Skip) and the
   // meta that records the side-effect result (conversation_id, sequence run, etc.) for idempotency.
@@ -195,7 +199,7 @@ export async function onRequestGet({ request, env }) {
   const dispositionCounts = {}; for (const t of (dispRes.results || [])) dispositionCounts[t.d] = t.n;
 
   const runsRes = await env.DB.prepare(
-    `SELECT id, query, stage, counts, cost_cents, max_cost_cents, status, created_at, updated_at, note
+    `SELECT id, query, stage, counts, cost_cents, max_cost_cents, status, created_at, updated_at, note, label
      FROM prospect_runs ORDER BY created_at DESC LIMIT 20`
   ).all().catch(() => ({ results: [] }));
   const runs = (runsRes.results || []).map((r) => ({
@@ -245,6 +249,7 @@ export async function onRequestPost({ request, env, ctx }) {
 
   if (action === "promote") return promote(env, b, actorId, cors);
   if (action === "suppress") return suppress(env, b, actorId, cors);
+  if (action === "rename_run") return renameRun(env, b, cors);
   if (action === "process") { // manual kick of the waterfall (also runs on cron)
     const out = await processProspectRuns(env, { maxDomains: Number(b.max || 25) });
     return json({ ok: true, processed: out }, {}, cors);
@@ -546,6 +551,15 @@ async function suppress(env, b, actorId, cors) {
   }
   await env.DB.prepare("UPDATE prospects SET status='suppressed', updated_at=datetime('now') WHERE id=?").bind(b.id).run().catch(() => {});
   return json({ ok: true }, {}, cors);
+}
+
+// Give a sweep/import a custom name — overrides the auto-derived "trade · city" / filename
+// label everywhere it's shown. An empty string clears it back to the auto-derived label.
+async function renameRun(env, b, cors) {
+  if (!b.id) return json({ ok: false, error: "id_required" }, { status: 400 }, cors);
+  const label = String(b.label || "").trim().slice(0, 80) || null;
+  await env.DB.prepare("UPDATE prospect_runs SET label=?, updated_at=datetime('now') WHERE id=?").bind(label, b.id).run().catch(() => {});
+  return json({ ok: true, id: b.id, label }, {}, cors);
 }
 
 // ── Batch Triage: CSV import ─────────────────────────────────────────────────

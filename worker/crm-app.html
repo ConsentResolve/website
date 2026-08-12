@@ -1228,8 +1228,10 @@ html,body{height:100%}
   .pruns summary{font-size:12.5px;font-weight:700;color:var(--tx-2);cursor:pointer;padding:6px 0}
   .prun{padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-1);margin:8px 0}
   .prun-live .prun{border-color:var(--accent);background:var(--accent-soft)}
-  .prun-t{font-size:13px;color:var(--tx-1)}
+  .prun-t{font-size:13px;color:var(--tx-1);display:flex;align-items:center;gap:2px}
   .prun-m{font-size:12px;color:var(--tx-3);margin-top:2px}
+  .prun-rn{margin-left:auto;font-size:11px;font-weight:700;color:var(--tx-3);background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:6px}
+  .prun-rn:hover{color:var(--accent);background:var(--accent-soft)}
   .pcost{font-family:var(--font-mono);font-weight:700;color:var(--tx-2)}
   .pst{font-size:11px;font-weight:800;padding:1px 8px;border-radius:20px;margin-left:6px}
   .pst.run{background:var(--accent-soft);color:var(--accent)}
@@ -3498,8 +3500,8 @@ function dispFooter(){
 }
 function rpTiers(c){ return `<span class="rp-t hot">🔥 ${c.hot||0}</span><span class="rp-t warm">${c.warm||0} warm</span><span class="rp-t cold">${c.cold||0} cold</span>${c.dead?`<span class="rp-t dead">${c.dead} skip</span>`:''}`; }
 function runProgressCard(r){
-  const c=r.counts||{}, q=r.query||{}, pg=r.progress||{done:0,total:c.sites||0,pct:0};
-  const title=q.kind==='csv'?('📄 '+escP(q.filename||'CSV import')):(`${escP(q.trade||'')} · ${escP(q.city||'')}`);
+  const c=r.counts||{}, pg=r.progress||{done:0,total:c.sites||0,pct:0};
+  const title=r.label?escP(r.label):runAutoLabel(r);
   const paused=r.status==='paused';
   const badge=paused?'<span class="rp-badge pause">⏸ paused · cost cap</span>':'<span class="rp-badge run"><span class="rp-dot"></span>enriching…</span>';
   return `<div class="rp-card${paused?' paused':''}" data-run="${r.id}">
@@ -3515,11 +3517,22 @@ function runProgressCard(r){
 }
 async function prospResume(id){ await prospPost({action:'process',max:25}); crmToast&&crmToast('Resuming enrichment…'); maybePollRuns(); }
 function runRow(r){
-  const c=r.counts||{}; const q=r.query||{};
+  const c=r.counts||{};
   const stat=r.status==='running'?'<span class="pst run">running…</span>':r.status==='paused'?'<span class="pst pause">paused</span>':r.status==='done'?'<span class="pst done">done</span>':`<span class="pst">${escP(r.status)}</span>`;
   const bits=[`${c.found||0} found`,`${c.hot||0} hot`,`${c.warm||0} warm`,`${c.no_site||0} no-site`].join(' · ');
-  return `<div class="prun"><div class="prun-t"><b>${escP(q.trade||'')} · ${escP(q.city||'')}</b> ${stat}</div><div class="prun-m">${bits} · <span class="pcost">$${(r.cost||0).toFixed(2)}</span>${r.note?` · ${escP(r.note)}`:''}</div></div>`;
+  const title=r.label?escP(r.label):runAutoLabel(r);
+  return `<div class="prun"><div class="prun-t"><b>${title}</b> ${stat}<button class="prun-rn" onclick="event.stopPropagation();prospRenameRun('${r.id}')" title="Give this sweep a name">✎ Rename</button></div><div class="prun-m">${bits} · <span class="pcost">$${(r.cost||0).toFixed(2)}</span>${r.note?` · ${escP(r.note)}`:''}</div></div>`;
 }
+async function prospRenameRun(id){
+  const run=(PROSP.runs||[]).find(x=>x.id===id);
+  const name=prompt('Name this sweep', (run&&run.label)||'');
+  if(name===null) return; // cancelled
+  const r=await prospPost({action:'rename_run',id,label:name});
+  if(!r||!r.ok){ crmToast&&crmToast('Could not rename'); return; }
+  if(run) run.label=r.label||null;
+  paintProspecting();
+}
+window.prospRenameRun=prospRenameRun;
 function prospList(){
   let list=PROSP.prospects||[];
   if(!list.length) return '<div class="idash-empty" style="padding:48px;text-align:center;color:var(--tx-3)">No prospects yet. Run a sweep above to build your list.</div>';
@@ -3527,12 +3540,17 @@ function prospList(){
 }
 function tierBadge(t){ const m={hot:'🔥 Hot',warm:'Warm',cold:'Cold',dead:'Dead',no_site:'No site',unscored:'…'}; return `<span class="pbadge ${t}">${m[t]||t}</span>`; }
 /* Where a prospect came from — the run it belongs to (CSV filename, or trade+city sweep). */
-function prospSourceLabel(p){
-  if(!p.run_id) return 'manual add';
-  const r=(PROSP.runs||[]).find(x=>x.id===p.run_id); const q=(r&&r.query)||{};
+function runAutoLabel(r){
+  const q=(r&&r.query)||{};
   if(q.kind==='csv') return '📄 '+escP(q.filename||'CSV upload');
   if(q.trade||q.city) return '🔎 sweep · '+escP([q.trade,q.city].filter(Boolean).join(' · '));
   return r?'a run':'unknown run';
+}
+function prospSourceLabel(p){
+  if(!p.run_id) return 'manual add';
+  const r=(PROSP.runs||[]).find(x=>x.id===p.run_id);
+  if(r&&r.label) return '🏷 '+escP(r.label);
+  return runAutoLabel(r);
 }
 function prospCard(p){
   const s=p.signals||{}; const chips=[];
