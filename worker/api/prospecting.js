@@ -250,6 +250,7 @@ export async function onRequestPost({ request, env, ctx }) {
   if (action === "promote") return promote(env, b, actorId, cors);
   if (action === "suppress") return suppress(env, b, actorId, cors);
   if (action === "rename_run") return renameRun(env, b, cors);
+  if (action === "retry_deleted_today") return retryDeletedToday(env, actorId, cors);
   if (action === "process") { // manual kick of the waterfall (also runs on cron)
     const out = await processProspectRuns(env, { maxDomains: Number(b.max || 25) });
     return json({ ok: true, processed: out }, {}, cors);
@@ -560,6 +561,48 @@ async function renameRun(env, b, cors) {
   const label = String(b.label || "").trim().slice(0, 80) || null;
   await env.DB.prepare("UPDATE prospect_runs SET label=?, updated_at=datetime('now') WHERE id=?").bind(label, b.id).run().catch(() => {});
   return json({ ok: true, id: b.id, label }, {}, cors);
+}
+
+// "Last-ditch" retry — the whole reason prospect_deletions exists. Re-run the owner lookup
+// (free Apollo masked-preview check, then the Claude web-search fallback only if that's still
+// empty) on everything a rep manually deleted TODAY, and un-suppress any prospect where a
+// usable contact now turns up. Capped per click (real API calls, Claude ones cost real tokens)
+// rather than looping over an unbounded backlog — `capped` tells the caller if there's more.
+const RETRY_CAP = 30;
+async function retryDeletedToday(env, actorId, cors) {
+  const totalRow = await env.DB.prepare(
+    `SELECT COUNT(*) n FROM prospect_deletions WHERE date(deleted_at) = date('now') AND domain IS NOT NULL`
+  ).first().catch(() => null);
+  const totalEligible = totalRow ? Number(totalRow.n || 0) : 0;
+  const rows = await env.DB.prepare(
+    `SELECT prospect_id, domain, name FROM prospect_deletions
+     WHERE date(deleted_at) = date('now') AND domain IS NOT NULL
+     ORDER BY deleted_at DESC LIMIT ?`
+  ).bind(RETRY_CAP).all().catch(() => ({ results: [] }));
+  const list = rows.results || [];
+  let checked = 0, restored = 0;
+  const restoredList = [];
+  for (const d of list) {
+    checked++;
+    const p = await env.DB.prepare("SELECT id, status FROM prospects WHERE id=?").bind(d.prospect_id).first().catch(() => null);
+    if (!p || p.status !== "suppressed") continue; // already restored some other way, or gone
+    let source = null, name = null, email = null;
+    const s = await peopleAtDomain(env, d.domain, null, 25, 1).catch(() => ({ people: [] }));
+    const withEmail = (s.people || []).find((pp) => pp.has_email);
+    if (withEmail) { source = "apollo"; name = withEmail.first_name || null; }
+    else {
+      const cf = await claudeFindOwner(env, d.domain, d.name).catch(() => null);
+      if (cf && cf.used && cf.found) { source = "claude_websearch"; name = cf.name || null; email = cf.email || null; }
+    }
+    if (source) {
+      await env.DB.prepare("UPDATE prospects SET status='new', updated_at=datetime('now') WHERE id=?").bind(p.id).run().catch(() => {});
+      await addActivityV2(env, { actorId, entityType: "prospect", entityId: p.id,
+        action: "last_ditch_restored", meta: { domain: d.domain, source, name, email } }).catch(() => {});
+      restored++;
+      restoredList.push({ domain: d.domain, name: name || d.name || null, source });
+    }
+  }
+  return json({ ok: true, total_deleted_today: totalEligible, checked, restored, restoredList, capped: totalEligible > checked }, {}, cors);
 }
 
 // ── Batch Triage: CSV import ─────────────────────────────────────────────────

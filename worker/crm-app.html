@@ -3455,7 +3455,10 @@ function paintProspecting(){
   <div class="prosp">
     <div class="phead">
       <div><h2 class="pttl">Prospecting</h2><p class="psub">Sweep a city + trade → DataForSEO scores who’s already paying for leads. Review, then promote the best into the pipeline.</p></div>
-      <button class="pref" onclick="renderProspecting(true)" title="Refresh">↻</button>
+      <span style="display:flex;gap:8px;align-items:center">
+        <button class="pref" id="prospRetryBtn" onclick="prospRetryDeletedToday(this)" title="Re-run the owner lookup on everything deleted today; restore any that now find a contact">🔁 Retry today's deletes</button>
+        <button class="pref" onclick="renderProspecting(true)" title="Refresh">↻</button>
+      </span>
     </div>
     ${dfsWarn}
     <div class="psweep">
@@ -3533,6 +3536,17 @@ async function prospRenameRun(id){
   paintProspecting();
 }
 window.prospRenameRun=prospRenameRun;
+async function prospRetryDeletedToday(btn){
+  if(btn){ btn.disabled=true; btn.textContent='🔁 Checking…'; }
+  const r=await prospPost({action:'retry_deleted_today'});
+  if(btn){ btn.disabled=false; btn.textContent="🔁 Retry today's deletes"; }
+  if(!r||!r.ok){ crmToast&&crmToast('Retry failed'); return; }
+  if(!r.total_deleted_today){ crmToast&&crmToast('Nothing deleted today to retry.'); return; }
+  const cappedNote=r.capped?` (checked ${r.checked} of ${r.total_deleted_today} — run again for the rest)`:'';
+  crmToast&&crmToast(`✓ Restored ${r.restored} of ${r.checked} checked${cappedNote}`);
+  if(r.restored) await renderProspecting(true);
+}
+window.prospRetryDeletedToday=prospRetryDeletedToday;
 function prospList(){
   let list=PROSP.prospects||[];
   if(!list.length) return '<div class="idash-empty" style="padding:48px;text-align:center;color:var(--tx-3)">No prospects yet. Run a sweep above to build your list.</div>';
