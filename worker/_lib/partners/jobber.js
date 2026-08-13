@@ -221,10 +221,11 @@ export async function fetchAccount(env, accessToken) {
 }
 
 // Auto-provisioning needs the connecting contractor's email. Requires the
-// app's "users read" scope. Field shape (email { raw }, isAccountOwner /
-// isAccountAdmin) needs one GraphiQL verification pass — best-effort by
-// design: any failure returns null and the caller falls back to the
-// unclaimed-connection flow, so a schema mismatch can never break a connect.
+// app's "users read" scope. Field shape verified live in GraphiQL
+// (API 2025-04-16, 2026-08-13): users.nodes[].{ email { raw },
+// isAccountOwner, isAccountAdmin }. Still best-effort by design: any failure
+// returns null and the caller falls back to the unclaimed-connection flow,
+// so a scope or schema problem can never break a connect.
 const USERS_QUERY = "{ users(first: 20) { nodes { email { raw } isAccountOwner isAccountAdmin } } }";
 
 // Pure — exported for offline tests. Owner beats admin beats first user.
