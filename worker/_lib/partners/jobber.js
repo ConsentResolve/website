@@ -220,6 +220,28 @@ export async function fetchAccount(env, accessToken) {
   return out.data.account;
 }
 
+// Auto-provisioning needs the connecting contractor's email. Requires the
+// app's "users read" scope. Field shape (email { raw }, isAccountOwner /
+// isAccountAdmin) needs one GraphiQL verification pass — best-effort by
+// design: any failure returns null and the caller falls back to the
+// unclaimed-connection flow, so a schema mismatch can never break a connect.
+const USERS_QUERY = "{ users(first: 20) { nodes { email { raw } isAccountOwner isAccountAdmin } } }";
+
+// Pure — exported for offline tests. Owner beats admin beats first user.
+export function pickOwnerEmail(nodes) {
+  const list = (nodes || []).filter((u) => u?.email?.raw);
+  const best = list.find((u) => u.isAccountOwner) || list.find((u) => u.isAccountAdmin) || list[0];
+  return best ? String(best.email.raw).toLowerCase() : null;
+}
+
+export async function fetchOwnerEmail(env, accessToken) {
+  try {
+    const out = await gqlRaw(env, accessToken, USERS_QUERY);
+    if (out.unauthorized || out.errors) return null;
+    return pickOwnerEmail(out.data?.users?.nodes);
+  } catch { return null; }
+}
+
 // ── lead push ───────────────────────────────────────────────────────────────
 // GraphQL string literals share JSON's escape rules, so JSON.stringify is a
 // safe quoting function; enums (MAIN) must stay bare. Inline-literal input

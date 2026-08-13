@@ -9,6 +9,8 @@ import {
   accessTokenExpiry, verifyWebhookSignature, jobberAuthUrl,
 } from "../worker/_lib/partners/jobber.js";
 import { participantToLead } from "../worker/_lib/partners/deliver.js";
+import { pickOwnerEmail } from "../worker/_lib/partners/jobber.js";
+import { signPayload } from "../worker/_lib/partners/provision.js";
 
 let passed = 0;
 const test = (name, fn) => Promise.resolve().then(fn).then(() => { passed++; console.log("  ok:", name); });
@@ -103,6 +105,26 @@ await test("webhook HMAC round-trip + tamper rejection", async () => {
   assert.equal(await verifyWebhookSignature(secret, body + " ", sig), false);
   assert.equal(await verifyWebhookSignature(secret, body, "AAAA"), false);
   assert.equal(await verifyWebhookSignature(secret, body, ""), false);
+});
+
+await test("pickOwnerEmail prefers owner, then admin, then first; tolerates junk", () => {
+  const nodes = [
+    { email: { raw: "Tech@x.co" }, isAccountAdmin: true },
+    { email: { raw: "OWNER@x.co" }, isAccountOwner: true },
+    { email: { raw: "crew@x.co" } },
+  ];
+  assert.equal(pickOwnerEmail(nodes), "owner@x.co");
+  assert.equal(pickOwnerEmail(nodes.slice(0, 1)), "tech@x.co");
+  assert.equal(pickOwnerEmail([{ email: { raw: "a@b.c" } }]), "a@b.c");
+  assert.equal(pickOwnerEmail([{ name: "no email" }]), null);
+  assert.equal(pickOwnerEmail([]), null);
+  assert.equal(pickOwnerEmail(undefined), null);
+});
+
+await test("provisioning payload signature matches an independent HMAC", async () => {
+  const body = '{"source":"partner_marketplace","email":"a@b.c"}';
+  const expected = crypto.createHmac("sha256", "shared-secret").update(body).digest("hex");
+  assert.equal(await signPayload("shared-secret", body), expected);
 });
 
 await test("auth URL carries the documented params", () => {

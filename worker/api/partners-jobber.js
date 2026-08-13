@@ -6,7 +6,9 @@
 //   POST /api/partners/jobber/webhook   -> Jobber webhooks (HMAC-verified; APP_DISCONNECT)
 //
 // Setup (Jobber Developer Center, developer.getjobber.com):
-//   1. Create the app; scopes: clients read/write (read needed for CLIENT_* webhooks).
+//   1. Create the app; scopes: clients read/write (read needed for CLIENT_*
+//      webhooks) + users read (auto-provisioning reads the authorizing
+//      admin's email — see _lib/partners/provision.js).
 //   2. OAuth Callback URL:  https://consentresolve.com/api/partners/jobber/callback
 //   3. Webhook URL:         https://consentresolve.com/api/partners/jobber/webhook
 //      Subscribe at minimum to APP_DISCONNECT (required for marketplace review).
@@ -17,9 +19,10 @@ import { crmAuthed, crmKey } from "../_lib/crm.js";
 import { gBase } from "../_lib/gmail.js";
 import {
   jobberConfigured, jobberVersion, jobberAuthUrl, exchangeCode, accessTokenExpiry,
-  fetchAccount, getConnection, listConnections, gql, pushLead, verifyWebhookSignature,
-  handleWebhookEvent, saveConnection,
+  fetchAccount, fetchOwnerEmail, getConnection, listConnections, gql, pushLead,
+  verifyWebhookSignature, handleWebhookEvent, saveConnection, claimConnection,
 } from "../_lib/partners/jobber.js";
+import { provisionCustomer } from "../_lib/partners/provision.js";
 
 const marketplaceEnabled = (env) => env.JOBBER_MARKETPLACE_ENABLED === "true";
 
@@ -66,10 +69,23 @@ export async function onRequestGet({ request, env }) {
         expiresAt: accessTokenExpiry(tok.access_token, tok.expires_in),
         customerKey: internal ? "default" : null,
       });
-      const dest = internal
-        ? "/crm/status?key=" + encodeURIComponent(state) + "&jobber=connected"
-        : "/jobber-connected/?account=" + encodeURIComponent(account.name || "");
-      return Response.redirect(gBase(env) + dest, 302);
+      if (internal) {
+        return Response.redirect(gBase(env) + "/crm/status?key=" + encodeURIComponent(state) + "&jobber=connected", 302);
+      }
+      // Marketplace: auto-provision a dashboard account keyed by the
+      // authorizing admin's email, claim the connection for it, and hand the
+      // contractor to the dashboard's finish-setup link. Every failure along
+      // the way degrades to the concierge flow (unclaimed + landing page) —
+      // a connect must never error on our side of the handshake.
+      const email = await fetchOwnerEmail(env, tok.access_token);
+      const prov = await provisionCustomer(env, {
+        partner: "jobber", email, accountId: account.id, accountName: account.name,
+      });
+      if (prov?.customer_key) {
+        await claimConnection(env, account.id, prov.customer_key);
+        if (prov.finish_url) return Response.redirect(prov.finish_url, 302);
+      }
+      return Response.redirect(gBase(env) + "/jobber-connected/?account=" + encodeURIComponent(account.name || ""), 302);
     } catch (e) {
       return new Response("Jobber connect failed: " + String(e).slice(0, 300), { status: 400 });
     }
