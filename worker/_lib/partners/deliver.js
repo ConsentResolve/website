@@ -27,17 +27,20 @@ export function participantToLead(p, { consentedAt, policyVersion, pages } = {})
 }
 
 /**
- * Fan one RecoveredLead out to every connected partner. Never throws — each
- * adapter already captures its own errors — and returns
+ * Fan one RecoveredLead out to every partner connected for this customer.
+ * customerKey identifies whose connections receive the lead — "default" is
+ * ConsentResolve's own site/demo; customer sites will pass their own key once
+ * the tracking pipeline carries one. Never throws — each adapter already
+ * captures its own errors — and returns
  * [{ partner, skipped? } | { partner, ...adapterResult }] for callers that
  * want to log the outcome (e.g. the participant event timeline).
  */
-export async function deliverLeadToPartners(env, lead) {
+export async function deliverLeadToPartners(env, lead, customerKey = "default") {
   const results = [];
   if (jobberConfigured(env)) {
     try {
-      const conn = await jobberConnection(env);
-      results.push(conn ? { partner: "jobber", ...(await jobberPush(env, lead)) } : { partner: "jobber", skipped: "not_connected" });
+      const conn = await jobberConnection(env, customerKey);
+      results.push(conn ? { partner: "jobber", ...(await jobberPush(env, lead, customerKey)) } : { partner: "jobber", skipped: "not_connected" });
     } catch (e) {
       results.push({ partner: "jobber", ok: false, error: String(e).slice(0, 200) });
     }

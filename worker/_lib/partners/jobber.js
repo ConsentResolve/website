@@ -13,10 +13,15 @@
 //   in X-Jobber-Hmac-SHA256; APP_DISCONNECT handling is required for
 //   marketplace apps; deliveries are at-least-once (dedupe by topic+itemId).
 //
-// Env: JOBBER_CLIENT_ID, JOBBER_CLIENT_SECRET, JOBBER_GRAPHQL_VERSION (optional).
-// V1 is single-connection (our own Jobber account / a design partner's): one
-// row per (partner, account_id) in partner_connections; the newest connected
-// row wins. Multi-tenant keying comes with the customer dashboard.
+// Env: JOBBER_CLIENT_ID, JOBBER_CLIENT_SECRET, JOBBER_GRAPHQL_VERSION (optional),
+// JOBBER_MARKETPLACE_ENABLED ("true" unlocks the stateless marketplace callback).
+//
+// Tenancy: one row per (partner, account_id) in partner_connections, each
+// tagged with a customer_key. Lead delivery looks up the caller's key —
+// "default" is ConsentResolve's own site/demo. Marketplace connects arrive
+// before we know which customer they belong to, so they store with
+// customer_key NULL ("unclaimed") until onboarding claims them; unclaimed
+// connections never receive leads.
 
 const AUTH_URL = "https://api.getjobber.com/api/oauth/authorize";
 const TOKEN_URL = "https://api.getjobber.com/api/oauth/token";
@@ -32,6 +37,7 @@ export async function ensurePartnerSchema(env) {
       partner TEXT NOT NULL,
       account_id TEXT NOT NULL,
       account_name TEXT,
+      customer_key TEXT,
       access_token TEXT,
       refresh_token TEXT,
       expires_at TEXT,
@@ -60,6 +66,12 @@ export async function ensurePartnerSchema(env) {
       PRIMARY KEY (partner, topic, item_id, occurred_at)
     )`),
   ]);
+  // Lazy migration for tables created before multi-tenancy: add customer_key
+  // and claim the pre-existing (pre-marketplace) rows for the default tenant.
+  try {
+    await env.DB.prepare("ALTER TABLE partner_connections ADD COLUMN customer_key TEXT").run();
+    await env.DB.prepare("UPDATE partner_connections SET customer_key = 'default' WHERE customer_key IS NULL").run();
+  } catch { /* column already exists */ }
 }
 
 // ── OAuth ───────────────────────────────────────────────────────────────────
@@ -103,26 +115,48 @@ export async function exchangeCode(env, code, redirectUri) {
   return tokenRequest(env, { grant_type: "authorization_code", code, redirect_uri: redirectUri });
 }
 
-export async function saveConnection(env, { accountId, accountName, accessToken, refreshToken, expiresAt }) {
+// customerKey: "default" for our own site/demo; null for an unclaimed
+// marketplace connect. A re-auth of an existing connection keeps its claim.
+export async function saveConnection(env, { accountId, accountName, accessToken, refreshToken, expiresAt, customerKey }) {
   await ensurePartnerSchema(env);
   await env.DB.prepare(
-    `INSERT INTO partner_connections (partner, account_id, account_name, access_token, refresh_token, expires_at, status, updated_at)
-     VALUES ('jobber', ?, ?, ?, ?, ?, 'connected', datetime('now'))
+    `INSERT INTO partner_connections (partner, account_id, account_name, customer_key, access_token, refresh_token, expires_at, status, updated_at)
+     VALUES ('jobber', ?, ?, ?, ?, ?, ?, 'connected', datetime('now'))
      ON CONFLICT(partner, account_id) DO UPDATE SET
        account_name = excluded.account_name,
+       customer_key = COALESCE(excluded.customer_key, partner_connections.customer_key),
        access_token = excluded.access_token,
        refresh_token = COALESCE(excluded.refresh_token, partner_connections.refresh_token),
        expires_at = excluded.expires_at,
        status = 'connected',
        updated_at = datetime('now')`
-  ).bind(accountId, accountName || null, accessToken, refreshToken || null, expiresAt).run();
+  ).bind(accountId, accountName || null, customerKey ?? null, accessToken, refreshToken || null, expiresAt).run();
 }
 
-export async function getConnection(env) {
+export async function getConnection(env, customerKey = "default") {
   await ensurePartnerSchema(env);
   return env.DB.prepare(
-    "SELECT * FROM partner_connections WHERE partner = 'jobber' AND status = 'connected' ORDER BY connected_at DESC LIMIT 1"
-  ).first();
+    "SELECT * FROM partner_connections WHERE partner = 'jobber' AND status = 'connected' AND customer_key = ? ORDER BY connected_at DESC LIMIT 1"
+  ).bind(customerKey).first();
+}
+
+export async function listConnections(env) {
+  await ensurePartnerSchema(env);
+  const { results } = await env.DB.prepare(
+    "SELECT account_id, account_name, customer_key, status, connected_at, expires_at FROM partner_connections WHERE partner = 'jobber' ORDER BY connected_at DESC"
+  ).all();
+  return results || [];
+}
+
+// Onboarding calls this once we know which customer a marketplace connect
+// belongs to. Only unclaimed rows can be claimed — never silently re-home a
+// connection that already routes another customer's leads.
+export async function claimConnection(env, accountId, customerKey) {
+  await ensurePartnerSchema(env);
+  const res = await env.DB.prepare(
+    "UPDATE partner_connections SET customer_key = ?, updated_at = datetime('now') WHERE partner = 'jobber' AND account_id = ? AND customer_key IS NULL"
+  ).bind(customerKey, accountId).run();
+  return (res.meta?.changes ?? 0) > 0;
 }
 
 export async function markDisconnected(env, accountId) {
@@ -164,8 +198,8 @@ async function gqlRaw(env, accessToken, query, variables) {
 }
 
 // Authenticated query with proactive refresh + one reactive retry on 401.
-export async function gql(env, query, variables) {
-  let conn = await getConnection(env);
+export async function gql(env, query, variables, customerKey = "default") {
+  let conn = await getConnection(env, customerKey);
   if (!conn) throw new Error("jobber not connected");
   if (!conn.expires_at || new Date(conn.expires_at) <= new Date()) conn = await refreshConnection(env, conn);
   let out = await gqlRaw(env, conn.access_token, query, variables);
@@ -258,14 +292,14 @@ export function buildNoteMutation(clientId, message) {
  *         session?: {pages[], firstSeen} }
  * Returns { ok, client_id?, note_ok?, error? } and always logs to partner_deliveries.
  */
-export async function pushLead(env, lead) {
-  const conn = await getConnection(env);
+export async function pushLead(env, lead, customerKey = "default") {
+  const conn = await getConnection(env, customerKey);
   const result = { ok: false };
   try {
     if (!conn) throw new Error("jobber not connected");
     if (!lead || !lead.email) throw new Error("lead.email required");
 
-    const data = await gql(env, buildClientCreateMutation(lead));
+    const data = await gql(env, buildClientCreateMutation(lead), undefined, customerKey);
     const errs = data?.clientCreate?.userErrors || [];
     if (errs.length) throw new Error("clientCreate rejected: " + JSON.stringify(errs).slice(0, 300));
     result.client_id = data?.clientCreate?.client?.id || null;
@@ -273,7 +307,7 @@ export async function pushLead(env, lead) {
 
     // Best-effort consent note — never fails the delivery.
     try {
-      const noteData = await gql(env, buildNoteMutation(result.client_id, buildConsentNote(lead)));
+      const noteData = await gql(env, buildNoteMutation(result.client_id, buildConsentNote(lead)), undefined, customerKey);
       result.note_ok = !(noteData?.clientCreateNote?.userErrors || []).length;
     } catch (e) {
       result.note_ok = false;

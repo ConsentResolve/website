@@ -1,0 +1,58 @@
+---
+/**
+ * /jobber-connected/ — landing page for the Jobber App Marketplace Connect flow.
+ *
+ * A contractor who clicks "Connect" on our marketplace listing authorizes on
+ * Jobber's screen and lands here (worker/api/partners-jobber.js callback,
+ * stateless branch). Their connection is stored but UNCLAIMED — it routes no
+ * leads until onboarding ties it to a ConsentResolve account — so this page's
+ * one job is to move them to that next step. noindex: it's a post-OAuth
+ * destination, not a search landing page.
+ */
+import PageLayout from "~/layouts/PageLayout.astro";
+---
+
+<PageLayout
+  title="Jobber connected | Consent Resolve"
+  description="Your Jobber account is connected to Consent Resolve. One step left: set up your account so recovered leads know where to go."
+  noindex={true}
+>
+  <section class="mx-auto max-w-2xl px-6 py-20 text-center">
+    <p class="mb-4 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-brand-soft)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--color-brand)]">
+      Connection received
+    </p>
+    <h1 class="mb-4 text-4xl font-bold">
+      Jobber is connected<span id="acct-name"></span>
+    </h1>
+    <p class="mb-8 text-lg opacity-80">
+      Consent Resolve can now deliver recovered leads straight into your Jobber
+      account — each one a consented website visitor, with the consent receipt
+      pinned to the client's notes.
+    </p>
+
+    <div class="mx-auto mb-10 max-w-xl rounded-xl border border-[color:var(--color-brand)]/30 bg-[color:var(--color-brand-soft)] p-6 text-left">
+      <p class="mb-2 font-semibold">One step left</p>
+      <p class="opacity-80">
+        Leads only start flowing once your website is set up with Consent
+        Resolve. Create your account and we'll walk you through it — about 10
+        minutes, no developer needed.
+      </p>
+    </div>
+
+    <a href="https://dashboard.consentresolve.com/register" class="btn-primary">Set up my account</a>
+    <p class="mt-6 text-sm opacity-70">
+      Already a customer? Reply to your onboarding email or write
+      <a href="mailto:hello@consentresolve.com" class="underline">hello@consentresolve.com</a>
+      and we'll link this connection to your account.
+    </p>
+  </section>
+
+  <script>
+    // The callback appends ?account=<Jobber company name> — greet with it.
+    const name = new URLSearchParams(location.search).get("account");
+    if (name) {
+      const el = document.getElementById("acct-name");
+      if (el) el.textContent = ` for ${name}`;
+    }
+  </script>
+</PageLayout>

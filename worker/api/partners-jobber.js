@@ -17,9 +17,11 @@ import { crmAuthed, crmKey } from "../_lib/crm.js";
 import { gBase } from "../_lib/gmail.js";
 import {
   jobberConfigured, jobberVersion, jobberAuthUrl, exchangeCode, accessTokenExpiry,
-  fetchAccount, getConnection, gql, pushLead, verifyWebhookSignature, handleWebhookEvent,
-  saveConnection,
+  fetchAccount, getConnection, listConnections, gql, pushLead, verifyWebhookSignature,
+  handleWebhookEvent, saveConnection,
 } from "../_lib/partners/jobber.js";
+
+const marketplaceEnabled = (env) => env.JOBBER_MARKETPLACE_ENABLED === "true";
 
 const redirectUri = (env) => gBase(env) + "/api/partners/jobber/callback";
 
@@ -39,10 +41,18 @@ export async function onRequestGet({ request, env }) {
   const cors = corsHeaders(request, env);
 
   if (path === "/api/partners/jobber/callback") {
-    // Direct-link flows always carry our state; Jobber's marketplace Connect
-    // button sends none. Accept the stateless flow only once we're listed.
+    // Two legitimate arrivals:
+    //  - internal connect: we initiated /auth and state carries our CRM key →
+    //    the connection is ours ("default" tenant).
+    //  - marketplace connect: Jobber's App Marketplace Connect button sends
+    //    the user here with a code and NO state. Gated behind
+    //    JOBBER_MARKETPLACE_ENABLED so it stays off until the listing is live.
+    //    Stored unclaimed (no customer_key) — receives no leads until
+    //    onboarding claims it — and the user lands on /jobber-connected/.
     const state = url.searchParams.get("state") || "";
-    if (state !== crmKey(env)) return new Response("bad state", { status: 403 });
+    const internal = state === crmKey(env);
+    const marketplace = !state && marketplaceEnabled(env);
+    if (!internal && !marketplace) return new Response("bad state", { status: 403 });
     const code = url.searchParams.get("code");
     if (!code) return new Response("missing code", { status: 400 });
     try {
@@ -54,8 +64,12 @@ export async function onRequestGet({ request, env }) {
         accessToken: tok.access_token,
         refreshToken: tok.refresh_token || null,
         expiresAt: accessTokenExpiry(tok.access_token, tok.expires_in),
+        customerKey: internal ? "default" : null,
       });
-      return Response.redirect(gBase(env) + "/crm/status?key=" + encodeURIComponent(state) + "&jobber=connected", 302);
+      const dest = internal
+        ? "/crm/status?key=" + encodeURIComponent(state) + "&jobber=connected"
+        : "/jobber-connected/?account=" + encodeURIComponent(account.name || "");
+      return Response.redirect(gBase(env) + dest, 302);
     } catch (e) {
       return new Response("Jobber connect failed: " + String(e).slice(0, 300), { status: 400 });
     }
@@ -63,16 +77,24 @@ export async function onRequestGet({ request, env }) {
 
   if (path === "/api/partners/jobber/status") {
     if (!(await readAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
-    const conn = await getConnection(env);
-    if (!conn) return json({ connected: false, configured: jobberConfigured(env), redirect_uri: redirectUri(env) }, {}, cors);
+    const customerKey = url.searchParams.get("customer") || "default";
+    const conn = await getConnection(env, customerKey);
+    const connections = await listConnections(env);
+    if (!conn) {
+      return json({
+        connected: false, customer: customerKey, configured: jobberConfigured(env),
+        marketplace_enabled: marketplaceEnabled(env), redirect_uri: redirectUri(env), connections,
+      }, {}, cors);
+    }
     let live = null, error = null;
     try {
-      const d = await gql(env, "{ account { id name } }");
+      const d = await gql(env, "{ account { id name } }", undefined, customerKey);
       live = d.account;
     } catch (e) { error = String(e).slice(0, 200); }
     return json({
-      connected: true, account_id: conn.account_id, account_name: conn.account_name,
-      token_expires_at: conn.expires_at, api_version: jobberVersion(env), live, error,
+      connected: true, customer: customerKey, account_id: conn.account_id, account_name: conn.account_name,
+      token_expires_at: conn.expires_at, api_version: jobberVersion(env),
+      marketplace_enabled: marketplaceEnabled(env), live, error, connections,
     }, {}, cors);
   }
 
@@ -110,7 +132,8 @@ export async function onRequestPost({ request, env, ctx }) {
     if (!(await readAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
     let lead = {};
     try { lead = await request.json(); } catch { return json({ error: "bad_json" }, { status: 400 }, cors); }
-    const result = await pushLead(env, lead);
+    const customerKey = url.searchParams.get("customer") || "default";
+    const result = await pushLead(env, lead, customerKey);
     return json(result, { status: result.ok ? 200 : 422 }, cors);
   }
 

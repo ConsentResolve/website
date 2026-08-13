@@ -129,6 +129,36 @@ exact mutation — including the `clientNote { id }` payload selection and
 notes — executed cleanly. Note failures stay non-fatal to the lead push by
 design.
 
+## Marketplace self-serve (multi-tenant) — landed on the same branch
+
+Tenancy model: every `partner_connections` row carries a `customer_key`.
+`"default"` = our own site/demo (the current live connection). Lead delivery
+(`deliverLeadToPartners(env, lead, customerKey)`) only ever routes to that
+customer's connections — the old "newest connection wins" behavior is gone.
+
+Marketplace connect flow (gated behind `JOBBER_MARKETPLACE_ENABLED=true`;
+leave unset until the listing is approved):
+
+1. Contractor clicks Connect on our Jobber App Marketplace listing → Jobber
+   authorize screen → approve.
+2. Jobber sends them to our callback with a code and **no state** (that's how
+   marketplace connects differ from our internal `/auth` flow, which carries
+   the CRM key as state).
+3. The connection stores **unclaimed** (`customer_key NULL`) — it receives no
+   leads — and the contractor lands on `/jobber-connected/`, which routes them
+   to dashboard registration.
+4. Onboarding calls `claimConnection(env, accountId, customerKey)` to tie the
+   connection to their customer record; only unclaimed rows can be claimed.
+
+Still open before flipping the flag: the customer dashboard needs to exist
+(registration → customer_key), the tracking snippet must carry the customer
+key so recovered leads route, and the Developer Center listing must pass
+review. Submission checklist: app name/description/logo, screenshots (the
+client + pinned consent receipt shot), scopes justification (clients
+read/write), privacy policy URL (/privacy-policy/), support contact
+(hello@consentresolve.com), APP_DISCONNECT webhook (already live), OAuth
+callback (already live, verified end-to-end 2026-08-13).
+
 ## Site-claims drift (flag, don't fix yet)
 
 `src/data/integrations.ts` (the marketing claims spine) lists GoHighLevel,
