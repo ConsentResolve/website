@@ -70,7 +70,7 @@ That's why a cheap exclusive lead can be worth more than an expensive shared one
 
 ## Where the $7 lead comes from
 
-[Consent Resolve](/how-it-works/) doesn't resell. When a visitor on your site accepts a clear consent banner, you get a real contact — a name and a consented, email-grade lead, logged with a timestamp — for a flat **$7**, exclusive to you. No membership fee, no contract, cancel anytime. And because it's [consent-first](/why-consent-first/), it's never a phone number to cold-call; you follow up by email, into the funnel you already run.
+[Consent Resolve](/how-it-works/) doesn't resell. When a visitor on your site accepts a clear consent banner, you get a real contact — a name and a consented, email-grade lead, logged with a timestamp — for a flat **$7**, exclusive to you. No membership fee, no contract, pay-as-you-go. And because it's [consent-first](/why-consent-first/), it's never a phone number to cold-call; you follow up by email, into the funnel you already run.
 
 Stack that against the shared model: roughly the price of a fancy coffee, for a lead that's only yours, versus $25–$100+ for one you'll fight four other shops over. The figures behind both, fully sourced, are on our [stats page](/stats/), and our [comparison guides](/resources/compare/) put the platforms side by side.
 

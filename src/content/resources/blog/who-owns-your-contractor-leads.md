@@ -83,7 +83,7 @@ It also quietly changes what your whole marketing budget is buying. When leads a
 
 ## Where the owned, $7 lead comes from
 
-[Consent Resolve](/why-consent-first/) is built around ownership. When a homeowner on your site accepts a clear consent banner, you receive a real contact — a name and a consented, email-grade lead, logged with a timestamp — for a flat **$7**, exclusive to you and never resold. It lands in the CRM you already run, so it's yours from the moment you get it. No membership, no contract, cancel anytime — and because it's [consent-first](/why-consent-first/), it's never a phone number to cold-call. Every lead you capture this way adds to a list you own, not a subscription you rent.
+[Consent Resolve](/why-consent-first/) is built around ownership. When a homeowner on your site accepts a clear consent banner, you receive a real contact — a name and a consented, email-grade lead, logged with a timestamp — for a flat **$7**, exclusive to you and never resold. It lands in the CRM you already run, so it's yours from the moment you get it. No membership, no contract, pay-as-you-go — and because it's [consent-first](/why-consent-first/), it's never a phone number to cold-call. Every lead you capture this way adds to a list you own, not a subscription you rent.
 
 ## Starting your owned list from scratch
 

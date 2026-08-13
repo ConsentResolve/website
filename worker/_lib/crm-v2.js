@@ -31,6 +31,16 @@ export function normPhone(p) {
   return d.length === 11 && d[0] === "1" ? d.slice(1) : d;
 }
 
+// ---------------------------------------------------------------------------
+// Stage — the ONE classification for a record. Derived from the deal's
+// lead_status; a contact with no deal is "new". (This replaced the old,
+// parallel contacts.lifecycle_stage concept — there is now a single funnel.)
+// ---------------------------------------------------------------------------
+export const STAGE_LABELS = { new: "New", lead: "Lead", trial: "Trial", customer: "Customer", lost: "Lost", disqualified: "Disqualified" };
+const STATUS_TO_STAGE = { new: "new", active: "lead", lead: "lead", contacted: "lead", replied: "lead", trial: "trial", won: "customer", customer: "customer", lost: "lost", disqualified: "disqualified" };
+export function stageKey(leadStatus) { return STATUS_TO_STAGE[String(leadStatus || "").toLowerCase()] || "new"; }
+export function stageLabel(leadStatus) { return STAGE_LABELS[stageKey(leadStatus)]; }
+
 // Seed roster (BUILD-PLAN P0-2 — Andy/Aaron/Tyler/Jason). Idempotent via users.email UNIQUE.
 const SEED_USERS = [
   { name: "Aaron", email: "aaron@consentresolve.com", role: "admin" },
@@ -75,6 +85,9 @@ export async function ensureCrmV2Schema(env) {
     S(`CREATE INDEX IF NOT EXISTS idx_conv_assignee ON conversations(assignee_id)`),
     S(`CREATE INDEX IF NOT EXISTS idx_conv_company ON conversations(company_id)`),
     S(`CREATE INDEX IF NOT EXISTS idx_conv_lastmsg ON conversations(last_message_at)`),
+    // Tombstones: a deleted conversation records its channel|thread key here so automated
+    // re-ingest (Gmail/Instantly polls, Site-Spy re-materialize) can't resurrect it.
+    S(`CREATE TABLE IF NOT EXISTS conversation_tombstones (thread_key TEXT PRIMARY KEY, deleted_at TEXT NOT NULL DEFAULT (datetime('now')))`),
     S(`CREATE TABLE IF NOT EXISTS messages (
       id TEXT PRIMARY KEY, conversation_id TEXT NOT NULL, direction TEXT NOT NULL,
       channel TEXT NOT NULL, author_id TEXT, external_message_id TEXT, in_reply_to_external TEXT,
@@ -103,6 +116,10 @@ export async function ensureCrmV2Schema(env) {
       id TEXT PRIMARY KEY, author_id TEXT, conversation_id TEXT, contact_id TEXT,
       body TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT (datetime('now')))`),
   ]);
+  // `hard` tombstone: a MANUAL delete (the trash button) sets this so the thread NEVER
+  // re-opens, even on genuinely-new activity — "gone forever." Automated tombstones leave it
+  // 0, keeping the timestamp-aware re-open for a real new reply. Guarded ALTER (idempotent).
+  await env.DB.prepare(`ALTER TABLE conversation_tombstones ADD COLUMN hard INTEGER NOT NULL DEFAULT 0`).run().catch(() => {});
   for (const u of SEED_USERS) {
     await env.DB.prepare(
       `INSERT INTO users (id, name, email, role) VALUES (?, ?, ?, ?) ON CONFLICT(email) DO NOTHING`
@@ -138,9 +155,62 @@ export async function addActivityV2(env, { actorId, entityType, entityId, action
   ).bind(ulid(), actorId || null, entityType, entityId, action, meta ? JSON.stringify(meta) : null).run();
 }
 
-// Find or create a company. Prefer domain match (non-free-email); else fall back to a
-// name-keyed company with NULL domain (the common free-email path for this ICP, spec §4).
-export async function findOrCreateCompany(env, { name, domain }) {
+// ── Task entity ──────────────────────────────────────────────────────────────
+// A real, assignable task (call / linkedin / manual / nudge) with a due date and an
+// outcome — distinct from the per-conversation `crm_task_state` checklist. Emitted by
+// sequence `create_task` steps (Days 3/8/14) and by reply automations.
+let _tasksEnsured = false;
+async function ensureTasksTable(env) {
+  if (_tasksEnsured) return;
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS crm_tasks (
+    id TEXT PRIMARY KEY, contact_id TEXT, conversation_id TEXT, company_id TEXT,
+    type TEXT NOT NULL DEFAULT 'manual', title TEXT NOT NULL, body TEXT,
+    due_at TEXT, status TEXT NOT NULL DEFAULT 'open', outcome TEXT,
+    assignee_id TEXT, source TEXT, workflow_run_id TEXT, created_by TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')))`).run().catch(() => {});
+  await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_crm_tasks_status ON crm_tasks(status, due_at)`).run().catch(() => {});
+  await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_crm_tasks_contact ON crm_tasks(contact_id)`).run().catch(() => {});
+  _tasksEnsured = true;
+}
+export async function createTask(env, { contactId, conversationId, companyId, type, title, body, dueAt, assigneeId, source, workflowRunId, createdBy }) {
+  await ensureTasksTable(env);
+  const id = "tk_" + ulid();
+  await env.DB.prepare(
+    `INSERT INTO crm_tasks (id, contact_id, conversation_id, company_id, type, title, body, due_at, assignee_id, source, workflow_run_id, created_by)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`
+  ).bind(id, contactId || null, conversationId || null, companyId || null, type || "manual", title || "Task", body || null,
+    dueAt || null, assigneeId || null, source || "manual", workflowRunId || null, createdBy || null).run().catch(() => {});
+  await addActivityV2(env, { actorId: createdBy || null, entityType: "contact", entityId: contactId || conversationId || id, action: "task_created", meta: { task_id: id, type: type || "manual", title, due_at: dueAt || null } }).catch(() => {});
+  return id;
+}
+export async function listTasks(env, { status = "open", contactId, conversationId, limit = 200 } = {}) {
+  await ensureTasksTable(env);
+  const where = [], bind = [];
+  if (status && status !== "all") { where.push("status=?"); bind.push(status); }
+  if (contactId) { where.push("contact_id=?"); bind.push(contactId); }
+  if (conversationId) { where.push("conversation_id=?"); bind.push(conversationId); }
+  const sql = `SELECT * FROM crm_tasks ${where.length ? "WHERE " + where.join(" AND ") : ""} ORDER BY (due_at IS NULL), due_at ASC, created_at ASC LIMIT ?`;
+  bind.push(Math.min(500, limit));
+  const r = await env.DB.prepare(sql).bind(...bind).all().catch(() => ({ results: [] }));
+  return r.results || [];
+}
+export async function completeTask(env, { id, status = "done", outcome, actorId }) {
+  await ensureTasksTable(env);
+  await env.DB.prepare("UPDATE crm_tasks SET status=?, outcome=COALESCE(?,outcome), updated_at=datetime('now') WHERE id=?")
+    .bind(status, outcome || null, id).run().catch(() => {});
+  const t = await env.DB.prepare("SELECT contact_id, type, title FROM crm_tasks WHERE id=?").bind(id).first().catch(() => null);
+  if (t) await addActivityV2(env, { actorId: actorId || null, entityType: "contact", entityId: t.contact_id || id, action: "task_" + status, meta: { task_id: id, type: t.type, outcome: outcome || null } }).catch(() => {});
+  return { ok: true };
+}
+
+// Find or create a company from a real BUSINESS DOMAIN. A company is a business, and the only
+// thing that reliably identifies one is its domain — so if all we have is a personal email or a
+// bare phone number (no domain), there is NO company and this returns null. The contact simply
+// has no company_id. Name-keyed grouping (a NULL-domain company keyed by a typed business name)
+// is OPT-IN via allowNameOnly, and only the callers that genuinely know a business by name use it
+// (prospecting a listing with no website, legacy import, a human typing the company on a record).
+export async function findOrCreateCompany(env, { name, domain, allowNameOnly = false }) {
   const dom = (domain || "").toLowerCase().trim();
   if (dom && !FREE_EMAIL_DOMAINS.has(dom)) {
     const ex = await env.DB.prepare("SELECT id FROM companies WHERE lower(domain)=?").bind(dom).first();
@@ -149,16 +219,15 @@ export async function findOrCreateCompany(env, { name, domain }) {
     await env.DB.prepare("INSERT INTO companies (id, name, domain) VALUES (?, ?, ?)").bind(id, name || dom, dom).run();
     return id;
   }
-  if (name) {
-    const ex = await env.DB.prepare("SELECT id FROM companies WHERE domain IS NULL AND lower(name)=lower(?)").bind(name).first();
+  const nm = String(name || "").trim();
+  if (allowNameOnly && nm) {
+    const ex = await env.DB.prepare("SELECT id FROM companies WHERE domain IS NULL AND lower(name)=lower(?)").bind(nm).first();
     if (ex) return ex.id;
     const id = ulid();
-    await env.DB.prepare("INSERT INTO companies (id, name) VALUES (?, ?)").bind(id, name).run();
+    await env.DB.prepare("INSERT INTO companies (id, name) VALUES (?, ?)").bind(id, nm).run();
     return id;
   }
-  const id = ulid();
-  await env.DB.prepare("INSERT INTO companies (id, name) VALUES (?, ?)").bind(id, "(unknown)").run();
-  return id;
+  return null;   // no business domain, not an explicit business name → no company
 }
 
 // Identity v0 (P1-6): match an email to a contact via contact_identifiers, else create
@@ -212,9 +281,37 @@ export async function linkIdentifier(env, contactId, type, value) {
 
 // One conversation per (channel, external_thread_id). Updates rollup on each new message.
 export async function upsertConversationByThread(env, c) {
+  const threadKey = c.channel + "|" + (c.externalThreadId || "");
   const ex = await env.DB.prepare(
     "SELECT id FROM conversations WHERE channel=? AND external_thread_id=?"
   ).bind(c.channel, c.externalThreadId || "").first();
+  // PERMANENT durable-delete guard — applies to EVERY channel, timestamp-aware.
+  // A deleted thread stays deleted against re-ingest of the SAME (stale) data — the
+  // minute-by-minute Gmail / Twilio-SMS / Crisp / Site-Spy re-syncs re-read old messages,
+  // and without this they resurrect anything you deleted. It re-opens ONLY on genuinely NEW
+  // activity: a message timestamped AFTER the delete (c.lastAt > deleted_at) or an explicit
+  // c.force re-open. So a person texting/emailing again still starts a fresh thread, but a
+  // stale re-sync never brings a deleted conversation back. (Channel-agnostic on purpose:
+  // meta/sms/demo/phone/voice were previously un-guarded and could all resurrect.)
+  if (!ex) {
+    // SELECT * (not named cols) so a missing `hard` column can never throw — that error was
+    // silently NULLing `dead`, skipping the guard entirely, and resurrecting deleted threads.
+    const dead = await env.DB.prepare("SELECT * FROM conversation_tombstones WHERE thread_key=?").bind(threadKey).first().catch(() => null);
+    if (dead) {
+      // A HARD (manually-deleted) tombstone never re-materializes — "wiped, scrubbed, gone
+      // forever." The primary mechanism is a far-future deleted_at (below), so this works even
+      // if the `hard` column was never added; the flag is just belt-and-suspenders.
+      if (dead.hard) return null;
+      const delTs = Date.parse(dead.deleted_at || "") || 0;
+      const actTs = Date.parse(c.lastAt || "") || 0;
+      if (c.force || (actTs && actTs > delTs)) {
+        // Explicit re-open, or new activity since the delete → clear the tombstone and re-create.
+        await env.DB.prepare("DELETE FROM conversation_tombstones WHERE thread_key=?").bind(threadKey).run().catch(() => {});
+      } else {
+        return null;   // stale re-ingest of pre-delete data → stay deleted (callers null-check)
+      }
+    }
+  }
   if (ex) {
     await env.DB.prepare(
       "UPDATE conversations SET last_message_at=?, last_message_preview=?, contact_id=COALESCE(contact_id, ?), company_id=COALESCE(company_id, ?), unread=CASE WHEN ?=1 THEN 1 ELSE unread END, updated_at=datetime('now') WHERE id=?"
@@ -222,16 +319,22 @@ export async function upsertConversationByThread(env, c) {
     return ex.id;
   }
   const id = ulid();
+  // created_at should reflect when the lead actually came in — i.e. the first message's
+  // timestamp — NOT the ingest moment. Falls back to the DB default (now) only when the
+  // caller has no message time to offer.
   await env.DB.prepare(
-    "INSERT INTO conversations (id, contact_id, company_id, channel, source_detail, channel_account_id, external_thread_id, subject, status, unread, last_message_at, last_message_preview) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open', ?, ?, ?)"
+    "INSERT INTO conversations (id, contact_id, company_id, channel, source_detail, channel_account_id, external_thread_id, subject, status, unread, last_message_at, last_message_preview, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open', ?, ?, ?, COALESCE(?, datetime('now')))"
   ).bind(id, c.contactId || null, c.companyId || null, c.channel, c.sourceDetail || null,
          c.channelAccountId || null, c.externalThreadId || null, c.subject || null,
-         c.incoming ? 1 : 0, c.lastAt || null, c.preview || null).run();
+         c.incoming ? 1 : 0, c.lastAt || null, c.preview || null, c.lastAt || null).run();
   return id;
 }
 
 // Insert a message, deduped on external_message_id (idempotent re-polls).
 export async function insertMessageOnce(env, m) {
+  // Guard: when upsertConversationByThread skipped a tombstoned thread it returns null —
+  // don't create an orphan message. Callers can pass null through safely.
+  if (!m.conversationId) return { id: null, skipped: true };
   if (m.externalMessageId) {
     const ex = await env.DB.prepare("SELECT id FROM messages WHERE external_message_id=?").bind(m.externalMessageId).first();
     if (ex) return { id: ex.id, existed: true };

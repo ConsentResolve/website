@@ -1,4 +1,4 @@
-// POST /api/claim-50 — lead capture for the /claim-50/ "first 50 on us" landing page.
+// POST /api/claim-50 — lead capture for the demo booking form (ClaimForm.astro).
 // Creates a v2 contact + conversation (so it lands in the CRM inbox with the qualifier data),
 // and records email + SMS (PEWC) consent in the ledger. Mirrors register.js minus Turnstile,
 // and carries the extra offer/estimate/attribution fields into the inbox note.
@@ -36,10 +36,10 @@ export async function onRequestPost({ request, env, waitUntil }) {
 
     // Consent records (email required for the normal flow; SMS is the PEWC opt-in).
     if (emailConsent) {
-      await recordConsent(env, { contactId, email, channel: "email", action: "granted", basis: b.type === "exit_report" ? "report request" : "web form", captureMethod: "claim50_form", sourceUrl: "https://consentresolve.com/claim-50/", ip, userAgent: ua, source: "claim50" }).catch(() => {});
+      await recordConsent(env, { contactId, email, channel: "email", action: "granted", basis: b.type === "exit_report" ? "report request" : "web form", captureMethod: "claim50_form", sourceUrl: "https://consentresolve.com/demo/", ip, userAgent: ua, source: "claim50" }).catch(() => {});
     }
     if (smsConsent && phone) {
-      await recordConsent(env, { contactId, phone, channel: "sms", action: "granted", basis: "PEWC", disclosureText: SMS_CONSENT_DISCLOSURE, captureMethod: "claim50_form", sourceUrl: "https://consentresolve.com/claim-50/", ip, userAgent: ua, source: "claim50" }).catch(() => {});
+      await recordConsent(env, { contactId, phone, channel: "sms", action: "granted", basis: "PEWC", disclosureText: SMS_CONSENT_DISCLOSURE, captureMethod: "claim50_form", sourceUrl: "https://consentresolve.com/demo/", ip, userAgent: ua, source: "claim50" }).catch(() => {});
     }
 
     // Inbox conversation + message with all the qualifier/estimate/attribution context.
@@ -54,7 +54,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     ].filter(Boolean).join("\n");
     const convId = await upsertConversationByThread(env, {
       channel: "claim50", externalThreadId: "claim50:" + email, contactId,
-      subject: "Claim 50" + (name ? " — " + name : ""), sourceDetail: [trade && "trade:" + trade, website && "site:" + website, b.segment].filter(Boolean).join("|") || null,
+      subject: "Demo request" + (name ? " — " + name : ""), sourceDetail: [trade && "trade:" + trade, website && "site:" + website, b.segment].filter(Boolean).join("|") || null,
       incoming: true, lastAt: new Date().toISOString(),
       preview: [b.type === "exit_report" ? "📄 report" : "🔥 claim-50", name, email, website].filter(Boolean).join(" · ").slice(0, 160),
     });

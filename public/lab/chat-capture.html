@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Mack chat — contact-capture prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0a1628; --navy2:#0f2237; --mint:#00e5a0; --mint-ink:#043b2e;
+    --ink:#0e1c2e; --ink2:#4a5a6d; --bg:#e9eef4; --panel:#ffffff;
+    --line:rgba(15,32,53,.10); --line2:rgba(15,32,53,.16);
+    --botbub:#ffffff; --userbub:#0a1628; --eo:cubic-bezier(.23,1,.32,1);
+    --shadow:0 26px 60px -22px rgba(10,22,40,.45),0 10px 24px -16px rgba(10,22,40,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:"Hanken Grotesk",ui-sans-serif,system-ui,sans-serif;color:var(--ink);
+    background:
+      radial-gradient(1100px 520px at 82% -10%, rgba(0,229,160,.16), transparent 60%),
+      radial-gradient(900px 500px at 8% 8%, rgba(10,22,40,.06), transparent 55%),
+      var(--bg);
+    -webkit-font-smoothing:antialiased;overflow:hidden}
+
+  /* faint "website behind the widget" so it reads like the live experience */
+  .site{position:fixed;inset:0;padding:64px clamp(20px,7vw,110px);opacity:.5;pointer-events:none;user-select:none}
+  .site .eyebrow{font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--mint-ink)}
+  .site h1{font-size:clamp(30px,5vw,58px);line-height:1.03;letter-spacing:-.02em;max-width:15ch;margin:.4em 0 .3em;color:var(--navy)}
+  .site p{font-size:18px;color:var(--ink2);max-width:44ch;line-height:1.5}
+  .site .row{display:flex;gap:12px;margin-top:26px}
+  .site .btn{height:46px;border-radius:11px;padding:0 22px;display:grid;place-items:center;font-weight:700;font-size:15px}
+  .site .btn.p{background:var(--navy);color:#fff} .site .btn.s{background:#fff;border:1px solid var(--line2);color:var(--navy)}
+  .site .ghost{position:absolute;border-radius:16px;background:rgba(15,32,53,.05)}
+
+  /* prototype control rail */
+  .lab{position:fixed;top:16px;left:16px;z-index:40;width:290px;max-width:calc(100vw - 32px);
+    background:rgba(255,255,255,.86);backdrop-filter:blur(10px);border:1px solid var(--line);
+    border-radius:16px;box-shadow:var(--shadow);padding:14px 15px}
+  .lab h2{margin:0 0 2px;font-size:13.5px;font-weight:800;letter-spacing:.01em}
+  .lab .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mint-ink);background:rgba(0,229,160,.18);padding:2px 7px;border-radius:6px;margin-bottom:8px}
+  .lab .lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink2);margin:12px 0 6px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap}
+  .seg button{flex:1;min-width:0;border:1px solid var(--line2);background:#fff;border-radius:9px;padding:7px 8px;font:inherit;font-size:12px;font-weight:700;color:var(--ink2);cursor:pointer;transition:.15s}
+  .seg button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .toggles{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+  .tog{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600}
+  .sw{width:38px;height:22px;border-radius:999px;background:#cbd5e1;position:relative;cursor:pointer;transition:.18s;flex:0 0 auto}
+  .sw.on{background:var(--mint)} .sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:.18s var(--eo)} .sw.on::after{left:18px}
+  .lab .restart{margin-top:13px;width:100%;height:38px;border:none;border-radius:10px;background:var(--navy);color:#fff;font:inherit;font-weight:700;font-size:13px;cursor:pointer}
+  .lab .hint{font-size:11.5px;color:var(--ink2);margin-top:10px;line-height:1.4}
+
+  /* the chat widget */
+  .fab{position:fixed;right:24px;bottom:24px;width:66px;height:66px;border-radius:21px;background:var(--mint);
+    display:grid;place-items:center;box-shadow:0 14px 32px -6px rgba(0,229,160,.5),0 6px 18px -8px rgba(10,22,40,.4);
+    z-index:30;cursor:pointer;transition:transform .2s var(--eo)}
+  .fab:active{transform:scale(.94)} .fab svg{width:30px;height:30px}
+  .fab .badge{position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#ff4d4f;color:#fff;font-weight:700;font-size:12px;line-height:22px;text-align:center;box-shadow:0 0 0 3px var(--bg)}
+  .win{position:fixed;right:24px;bottom:24px;width:390px;max-width:calc(100vw - 32px);height:min(660px,calc(100vh - 40px));
+    background:var(--panel);border-radius:22px;box-shadow:var(--shadow);z-index:31;display:flex;flex-direction:column;overflow:hidden;
+    transform-origin:bottom right;animation:pop .34s var(--eo) both}
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+
+  /* header */
+  .hd{background:linear-gradient(155deg,var(--navy2),var(--navy));color:#fff;padding:15px 16px;display:flex;align-items:center;gap:11px;position:relative}
+  .av{width:40px;height:40px;border-radius:13px;background:linear-gradient(150deg,#0f3,#00e5a0 55%,#00b7c9);display:grid;place-items:center;font-weight:800;color:#043b2e;font-size:18px;flex:0 0 auto;box-shadow:0 6px 16px -8px rgba(0,229,160,.7)}
+  .hd .who{line-height:1.15;min-width:0}
+  .hd .who b{font-size:16px;font-weight:800}
+  .hd .who span{display:flex;align-items:center;gap:5px;font-size:12px;color:#9fb4c7}
+  .hd .who .grn{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 3px rgba(0,229,160,.22)}
+  .hd .x{margin-left:auto;width:32px;height:32px;border-radius:9px;border:none;background:rgba(255,255,255,.08);color:#cfe;cursor:pointer;font-size:17px}
+
+  /* messages */
+  .msgs{flex:1;min-height:0;overflow-y:auto;padding:16px 14px 10px;background:linear-gradient(#f6f9fc,#eef3f8);display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth}
+  /* msgs is a flex column; without this, flexbox shrinks tall children (the capture card) and
+     their overflow:hidden clips the fields/button. Keep every message at its natural height. */
+  .msgs > *{flex-shrink:0}
+  .row{display:flex;gap:8px;max-width:100%;align-items:flex-end;animation:rise .32s var(--eo) both}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .row.bot{align-self:flex-start} .row.me{align-self:flex-end;flex-direction:row-reverse}
+  .ava{width:26px;height:26px;border-radius:8px;background:linear-gradient(150deg,#0f3,#00e5a0 60%,#00b7c9);display:grid;place-items:center;font-weight:800;color:#043b2e;font-size:12px;flex:0 0 auto}
+  .bub{padding:10px 13px;border-radius:16px;font-size:14.5px;line-height:1.45;max-width:270px;box-shadow:0 4px 14px -10px rgba(10,22,40,.4)}
+  .bot .bub{background:var(--botbub);border:1px solid var(--line);border-bottom-left-radius:5px;color:var(--ink)}
+  .me .bub{background:var(--userbub);color:#fff;border-bottom-right-radius:5px}
+  .me .bub b{color:var(--mint)}
+
+  .typing{display:flex;gap:4px;padding:13px 15px}
+  .typing i{width:7px;height:7px;border-radius:50%;background:#9fb0c3;animation:blink 1.2s infinite}
+  .typing i:nth-child(2){animation-delay:.18s}.typing i:nth-child(3){animation-delay:.36s}
+  @keyframes blink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+  /* quick replies */
+  .chips{display:flex;flex-wrap:wrap;gap:7px;padding:2px 2px 8px 36px;animation:rise .3s var(--eo) both}
+  .chip{border:1px solid var(--mint);background:rgba(0,229,160,.10);color:#046c53;border-radius:999px;padding:7px 13px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
+  .chip:hover{background:var(--mint);color:var(--mint-ink)}
+
+  /* the capture card — compact + integrated */
+  .cap{align-self:stretch;margin:3px 2px 4px 34px;background:#fff;border:1px solid var(--line);border-radius:13px;overflow:hidden;
+    box-shadow:0 10px 24px -20px rgba(10,22,40,.4);animation:rise .3s var(--eo) both}
+  .cap .in{padding:12px 13px}
+  .cap-h{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:var(--ink);line-height:1.25;margin-bottom:10px}
+  .cap-ic{font-size:17px}
+  .cf{width:100%;height:40px;border:1.5px solid var(--line2);border-radius:10px;padding:0 12px;font:inherit;font-size:14px;color:var(--ink);background:#fbfdff;margin-bottom:8px;transition:.15s}
+  .cf:focus{outline:none;border-color:var(--mint);box-shadow:0 0 0 3px rgba(0,229,160,.18)}
+  .cf.bad{border-color:#ff4d4f;box-shadow:0 0 0 3px rgba(255,77,79,.15)}
+  .preflbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);margin:1px 0 6px}
+  .segp{display:flex;gap:6px;margin-bottom:9px}
+  .segp button{flex:1;height:34px;border:1.5px solid var(--line2);background:#fff;border-radius:9px;font:inherit;font-size:12px;font-weight:700;color:var(--ink2);cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:4px}
+  .segp button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .cap .go{width:100%;height:42px;border:none;border-radius:11px;background:var(--mint);color:var(--mint-ink);font:inherit;font-weight:800;font-size:14.5px;cursor:pointer;transition:.15s var(--eo);display:flex;align-items:center;justify-content:center;gap:6px}
+  .cap .go:hover{filter:brightness(1.04);transform:translateY(-1px)} .cap .go:active{transform:translateY(0)}
+  .cap.done .in{text-align:center;padding:22px 16px}
+  .cap .check{width:46px;height:46px;border-radius:50%;background:rgba(0,229,160,.16);display:grid;place-items:center;margin:0 auto 8px;font-size:23px;color:#046c53;animation:pins .4s var(--eo) both}
+  .doneline{font-size:13px;color:var(--ink2);line-height:1.4}
+  @keyframes pins{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
+
+  /* input row */
+  .inp{border-top:1px solid var(--line);background:#fff;padding:11px 12px;display:flex;align-items:center;gap:9px}
+  .inp input{flex:1;height:44px;border:1px solid var(--line2);border-radius:999px;padding:0 16px;font:inherit;font-size:14.5px;background:#f4f7fa}
+  .inp input:focus{outline:none;border-color:var(--mint);background:#fff}
+  .inp .send{width:44px;height:44px;border-radius:50%;border:none;background:var(--navy);color:#fff;cursor:pointer;display:grid;place-items:center;flex:0 0 auto;transition:.15s}
+  .inp .send:hover{background:#12314f} .inp .send svg{width:19px;height:19px}
+  .pw{text-align:center;font-size:10.5px;color:#9aa7b6;padding:0 0 8px}
+
+  @media (max-width:640px){
+    .lab{position:fixed;top:8px;left:8px;right:8px;width:auto}
+    .win{right:0;bottom:0;width:100vw;height:100dvh;max-width:none;border-radius:0}
+    .fab{right:16px;bottom:16px}
+    .site{display:none}
+  }
+</style>
+</head>
+<body>
+
+  <!-- faint mock website behind the widget -->
+  <div class="site" aria-hidden="true">
+    <div class="eyebrow">Ridgeline Roofing · Austin, TX</div>
+    <h1>Storm damage? We inspect free — same week.</h1>
+    <p>Licensed, insured, and local. Get a straight quote on repairs, replacements, and insurance claims.</p>
+    <div class="row"><div class="btn p">Get my free inspection</div><div class="btn s">See our work</div></div>
+    <div class="ghost" style="width:220px;height:150px;right:14%;top:34%"></div>
+    <div class="ghost" style="width:160px;height:110px;right:30%;top:60%"></div>
+  </div>
+
+  <!-- prototype controls -->
+  <div class="lab">
+    <span class="tag">Prototype · not public</span>
+    <h2>Mack live-chat capture</h2>
+    <div class="lbl">Capture style</div>
+    <div class="seg" id="variant">
+      <button data-v="value" class="on">Value swap</button>
+      <button data-v="personal">Name first</button>
+      <button data-v="estimate">Estimate</button>
+    </div>
+    <div class="lbl">Fields</div>
+    <div class="toggles">
+      <div class="tog">Ask first name <div class="sw on" data-t="name"></div></div>
+    </div>
+    <button class="restart" id="restart">↻ Restart conversation</button>
+    <div class="hint">Chat freely, then Mack offers the capture as a value swap. Nothing is gated — the goal is to <b>draw them in</b>, not block the chat.</div>
+  </div>
+
+  <!-- launcher (hidden while open) -->
+  <div class="fab" id="fab" style="display:none" onclick="openWin()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#0a1628" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    <span class="badge">1</span>
+  </div>
+
+  <!-- chat window -->
+  <div class="win" id="win">
+    <div class="hd">
+      <div class="av">M</div>
+      <div class="who"><b>Mack</b><span><i class="grn"></i>Consent Resolve · Online</span></div>
+      <button class="x" onclick="closeWin()" title="Close">✕</button>
+    </div>
+    <div class="msgs" id="msgs"></div>
+    <div class="inp">
+      <input id="text" placeholder="Type a message…" autocomplete="off" onkeydown="if(event.key==='Enter')userSend()">
+      <button class="send" onclick="userSend()" title="Send"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></button>
+    </div>
+    <div class="pw">Prototype — powered by Mack (Retell AI)</div>
+  </div>
+
+<script>
+  var msgs = document.getElementById('msgs');
+  var state = { variant:'value', name:true, phone:false, captured:false, turns:0, offered:false, fbi:0 };
+  var FALLBACKS = [
+    "Short version: we turn the visitors already on your site into leads you own — a name and email, at $7 each.",
+    "Fair question. It's consent-first: they say yes on your banner, then you get a real, exclusive lead.",
+    "Heads up — I'm the scripted preview, so I keep it brief. The live Mack answers anything.",
+  ];
+
+  function el(tag, cls, html){ var e=document.createElement('div'); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
+  function scroll(){ msgs.scrollTop = msgs.scrollHeight; }
+
+  function bot(html, chips){
+    var typing = el('div','row bot'); typing.appendChild(el('div','ava','M'));
+    var t = el('div','bub'); t.innerHTML='<div class="typing"><i></i><i></i><i></i></div>'; typing.appendChild(t);
+    msgs.appendChild(typing); scroll();
+    var delay = Math.min(1100, 380 + html.replace(/<[^>]+>/g,'').length*11);
+    setTimeout(function(){
+      typing.remove();
+      var r = el('div','row bot'); r.appendChild(el('div','ava','M'));
+      r.appendChild(el('div','bub', html)); msgs.appendChild(r);
+      if(chips&&chips.length){
+        var c = el('div','chips');
+        chips.forEach(function(ch){ var b=document.createElement('button'); b.className='chip'; b.textContent=ch.t; b.onclick=function(){ chipClick(ch); }; c.appendChild(b); });
+        msgs.appendChild(c);
+      }
+      scroll();
+    }, delay);
+  }
+  function me(html){ var r=el('div','row me'); r.appendChild(el('div','bub', html)); msgs.appendChild(r); scroll(); }
+  function clearChips(){ msgs.querySelectorAll('.chips').forEach(function(c){c.remove();}); }
+
+  // ---- scripted, on-canon answers ----
+  var ANS = {
+    price: "<b>$7 a lead</b>, pay-as-you-go — no contract. You only pay for real, consented leads.",
+    sample: "It's a real homeowner from your site — name, verified email, and the job they wanted. Want me to email you one?",
+    legit: "Totally — it's consent-first. Nobody's identified until they accept your banner.",
+    angi: "Angi resells the same lead to 4-5 shops. Ours is <b>exclusive</b> — yours alone, never resold.",
+  };
+  var CHIPS = [
+    {t:"How much is it?", k:"price"},
+    {t:"Show me a sample lead", k:"sample"},
+    {t:"Is this legit?", k:"legit"},
+    {t:"How's it different from Angi?", k:"angi"},
+  ];
+
+  function chipClick(ch){
+    clearChips(); me(ch.t); state.turns++;
+    if(ch.k==='sample'){ bot(ANS.sample); setTimeout(offerCapture, 1400); return; }
+    bot(ANS[ch.k], remainingChips(ch.k));
+    maybeOffer();
+  }
+  function remainingChips(used){ return CHIPS.filter(function(c){return c.k!==used;}).slice(0,3); }
+
+  function userSend(){
+    var i=document.getElementById('text'); var v=(i.value||'').trim(); if(!v) return;
+    i.value=''; clearChips(); me(v.replace(/</g,'&lt;')); state.turns++;
+    var low=v.toLowerCase(); var key=null;
+    if(/price|cost|much|\$|fee|pay/.test(low))key='price';
+    else if(/sample|example|look|see|format|what.*lead/.test(low))key='sample';
+    else if(/legal|legit|safe|privacy|consent|complian/.test(low))key='legit';
+    else if(/angi|thumbtack|homeadvisor|differ|vs|compare|resell/.test(low))key='angi';
+    if(key==='sample'){ bot(ANS.sample); setTimeout(offerCapture,1400); return; }
+    if(key){ bot(ANS[key]); maybeOffer(); return; }
+    // unmatched free text — this is a scripted demo, so vary the reply and never loop the offer.
+    if(state.captured){ bot("You're all set — I’ll be in your inbox shortly. Anything else on pricing, a sample, or setup?"); return; }
+    if(state.offered){ bot("Still here 👍 Drop your email in the box above and I’ll send the sample over."); return; }
+    bot(FALLBACKS[state.fbi++ % FALLBACKS.length]);
+    setTimeout(offerCapture, 1600);
+  }
+
+  function maybeOffer(){ if(state.captured||state.offered) return; if(state.turns>=2){ setTimeout(offerCapture, 1500); } }
+
+  // ---- the capture card (varies by prototype settings) ----
+  function copyFor(){
+    if(state.variant==='personal') return {ic:"👋",h:"Who am I chatting with?", btn:"Continue →"};
+    if(state.variant==='estimate') return {ic:"📊",h:"Want your recovery estimate?", btn:"Send it →"};
+    return {ic:"📬",h:"Want a sample lead sent over?", btn:"Send it →"};
+  }
+  function setPref(card,p){
+    state.pref=p;
+    card.querySelectorAll('#prefseg button').forEach(function(b){ b.classList.toggle('on', b.dataset.p===p); });
+    var f=card.querySelector('#cc');
+    if(p==='email'){ f.type='email'; f.placeholder='Best email'; f.setAttribute('inputmode','email'); }
+    else { f.type='tel'; f.placeholder='Mobile number'; f.setAttribute('inputmode','tel'); }
+  }
+  function offerCapture(){
+    if(state.captured||state.offered) return; state.offered=true; clearChips();
+    var c = copyFor(); state.pref = state.pref || 'email';
+    var card = el('div','cap'); card.innerHTML =
+      '<div class="in">'+
+        '<div class="cap-h"><span class="cap-ic">'+c.ic+'</span>'+c.h+'</div>'+
+        (state.name?'<input id="cn" class="cf" placeholder="First name" autocomplete="given-name">':'')+
+        '<div class="preflbl">Reach me by</div>'+
+        '<div class="segp" id="prefseg">'+
+          '<button type="button" data-p="email">✉ Email</button>'+
+          '<button type="button" data-p="text">💬 Text</button>'+
+          '<button type="button" data-p="call">📞 Call</button>'+
+        '</div>'+
+        '<input id="cc" class="cf">'+
+        '<button class="go" id="cgo">'+c.btn+'</button>'+
+      '</div>';
+    msgs.appendChild(card);
+    card.querySelectorAll('#prefseg button').forEach(function(b){ b.onclick=function(){ setPref(card,b.dataset.p); }; });
+    setPref(card, state.pref);
+    // Reliably reveal the WHOLE card (fields + button). Force an instant jump (smooth-behavior
+    // left it mid-animation) and do NOT auto-focus the first field — focusing pulled the view
+    // back to the top of the card and cut the button off.
+    var toBottom=function(){ msgs.style.scrollBehavior='auto'; msgs.scrollTop = msgs.scrollHeight; };
+    requestAnimationFrame(function(){ requestAnimationFrame(toBottom); });
+    setTimeout(toBottom, 60); setTimeout(toBottom, 200); setTimeout(toBottom, 450);
+    document.getElementById('cgo').onclick=function(){ submitCapture(card); };
+    var e=document.getElementById('ce'); if(e) e.addEventListener('keydown',function(ev){ if(ev.key==='Enter') submitCapture(card); });
+  }
+  function submitCapture(card){
+    var f=card.querySelector('#cc'); var v=(f.value||'').trim();
+    var n=card.querySelector('#cn'); var name=n?(n.value||'').trim():'';
+    var ok = state.pref==='email' ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) : (v.replace(/\D/g,'').length>=10);
+    if(!ok){ f.classList.add('bad'); f.focus(); return; }
+    state.captured=true; card.classList.add('done');
+    var how = state.pref==='email'?'email':(state.pref==='text'?'text':'a call');
+    card.querySelector('.in').innerHTML='<div class="check">✓</div><div class="cap-h" style="justify-content:center;margin:0 0 4px">Got it'+(name?', '+name.replace(/</g,'&lt;'):'')+'!</div><div class="doneline">I’ll follow up by '+how+' — <b>'+v.replace(/</g,'&lt;')+'</b></div>';
+    scroll();
+    setTimeout(function(){ bot("On it 📬 Reply right here with any questions. Want a human to walk you through setup too?", [{t:"Yes, have someone reach out", k:"legit"},{t:"I’m good for now", k:"angi"}]); }, 1100);
+  }
+
+  // ---- boot + controls ----
+  function greet(){
+    msgs.innerHTML='';
+    bot("Hey — Mack here, the AI assistant at Consent Resolve. Real AI, not a person. What can I help you figure out?", CHIPS.slice(0,3).concat([CHIPS[3]]));
+  }
+  function restart(){ state.captured=false; state.offered=false; state.turns=0; greet(); }
+  document.getElementById('restart').onclick=restart;
+  document.querySelectorAll('#variant button').forEach(function(b){ b.onclick=function(){
+    document.querySelectorAll('#variant button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on');
+    state.variant=b.dataset.v;
+    // if the card is already showing (not yet captured), re-offer with the new style
+    if(state.offered && !state.captured){ msgs.querySelectorAll('.cap').forEach(function(c){c.remove();}); state.offered=false; offerCapture(); }
+  }; });
+  document.querySelectorAll('.sw').forEach(function(s){ s.onclick=function(){
+    s.classList.toggle('on'); state[s.dataset.t]=s.classList.contains('on');
+    if(state.offered && !state.captured){ msgs.querySelectorAll('.cap').forEach(function(c){c.remove();}); state.offered=false; offerCapture(); }
+  }; });
+  window.openWin=function(){ document.getElementById('win').style.display='flex'; document.getElementById('fab').style.display='none'; };
+  window.closeWin=function(){ document.getElementById('win').style.display='none'; document.getElementById('fab').style.display='grid'; };
+
+  greet();
+</script>
+</body>
+</html>

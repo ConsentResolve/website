@@ -79,7 +79,7 @@ const COMMON_FAQS = [
   { q: "Are the leads exclusive, or will my competitor get the same name?", a: "Exclusive. A lead recovered on your website is yours alone and is never resold. They were on your site looking at your services, not shopping a marketplace." },
   { q: "I get website traffic but barely any calls. Why?", a: "Most home-service sites convert only a small share of visitors; the rest read a service page and leave. This recovers the ones who consent, so a visitor already looking at your services becomes a named lead in your CRM instead of an anonymous bounce." },
   { q: "Does this replace my Google Local Service Ads?", a: "No, it complements them. LSAs bring in searchers; this recovers the visitors who land on your site and would otherwise leave anonymous. Different parts of the same funnel." },
-  { q: "Am I locked into a contract or a monthly minimum?", a: "No long-term contract and no annual membership. It's flat $7 per exclusive lead — card required, cancel anytime." },
+  { q: "Am I locked into a contract or a monthly minimum?", a: "No long-term contract and no annual membership. It's flat $7 per exclusive lead — card required, no contract." },
   { q: "How do the leads reach me so I can follow up fast?", a: "Recovered leads feed straight into your CRM — Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, GoHighLevel — with the name, consented email, and services viewed, so you can follow up while the interest is fresh." },
   { q: "I've wasted money on marketing before. What's different here?", a: "You only pay $7 when an actual visitor on your site consents to become a lead — not for clicks, impressions, or a shared name four competitors also bought. The spend maps to a named, exclusive, consented person who was already looking at your services." },
 ];
@@ -123,8 +123,10 @@ const tradeCpl = getTradeCpl(trade.slug);
 // landing-page demo clicks attribute to the trade; the original ad source is
 // preserved separately in the first-party cr_src cookie (set on first hit),
 // so this never clobbers ad attribution. `trade` prefills the demo form.
+// Internal CTA → /demo/. Carry only ?trade= (prefill) + ?ref= (a plain breadcrumb,
+// NOT a utm_* param) so we never reset GA4's real acquisition source on an internal click.
 const demoHref = (slot: string) =>
-  `/demo/?utm_source=${trade.slug}-leads&utm_medium=landing_page&utm_content=${slot}&trade=${trade.slug}`;
+  `/demo/?trade=${trade.slug}&ref=${trade.slug}-leads-${slot}`;
 
 // Canonical "booked job" math — one comparison used everywhere (demo,
 // landing pages, ads). $7/lead stays the offer; this is the proof.
@@ -436,13 +438,12 @@ const HERO_ANGLES: Record<string, string> = {
   <section class="bg-[color:var(--color-brand-soft)]">
     <div class="container-content py-16">
       <div class="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
-        <h2 class="display-2 text-[color:var(--color-ink)]">See it work on yourself.</h2>
+        <h2 class="display-2 text-[color:var(--color-ink)]">The homeowners already on your site — recovered.</h2>
         <p class="text-[17px] leading-relaxed text-[color:var(--color-ink-2)]">
-          Register, browse a sample {trade.shortName.toLowerCase()} site, accept the banner — and watch the new-lead notification land in your inbox. The lead is you. About 60 seconds, no card required.
+          Real homeowners who visited your {trade.shortName.toLowerCase()} site and said yes — name, email, and the job they were shopping for. A flat $7 a lead, pay-as-you-go — yours alone, never resold, and you only pay for real, consented contacts.
         </p>
-        <Button href={demoHref("cta-band")} target="_blank" rel="noopener" variant="primary" size="lg">
-          <IconEye size={18} stroke={2} />
-          Try the live demo
+        <Button href={demoHref("cta-band")} variant="primary" size="lg">
+          See it live →
         </Button>
       </div>
     </div>
@@ -463,7 +464,12 @@ const HERO_ANGLES: Record<string, string> = {
   />
 
   <AEOAnswer text={trade.aeoAnswer} />
-  <FinalCTA heading={trade.finalCtaH2} />
+  <FinalCTA
+    heading={trade.finalCtaH2}
+    body="Real homeowners who visited your site and said yes — name, email, and the job they were shopping for. A flat $7 a lead, pay-as-you-go, never resold. You only pay for real, consented contacts."
+    ctaLabel="See it live →"
+    ctaHref={demoHref("final-cta")}
+  />
 
   <!-- Demo modal: the consent → click → CRM animation, opened from the steps section. -->
   <div data-demo-modal style="display:none" class="fixed inset-0 z-[100] items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
@@ -487,25 +493,9 @@ const HERO_ANGLES: Record<string, string> = {
       document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeM(); });
     })();
   </script>
-  <!-- Chat with Tyler: open Crisp if consent is given; otherwise re-present the consent
-       banner, then open the chat once the user accepts and Crisp loads. -->
-  <script is:inline>
-    function crOpenChat() {
-      if (window.$crisp) { try { window.$crisp.push(["do", "chat:open"]); return; } catch (e) {} }
-      // Crisp is consent-gated and not loaded → re-show the consent banner.
-      try {
-        if (window.ConsentResolve && ConsentResolve.showBanner) ConsentResolve.showBanner();
-        else if (window.UC_UI && UC_UI.showFirstLayer) UC_UI.showFirstLayer();
-      } catch (e) {}
-      // If they accept, Crisp loads shortly after — open the chat once it's ready (~15s max).
-      var tries = 0;
-      var iv = setInterval(function () {
-        tries++;
-        if (window.$crisp) { try { window.$crisp.push(["do", "chat:open"]); } catch (e) {} clearInterval(iv); }
-        else if (tries > 30) clearInterval(iv);
-      }, 500);
-    }
-  </script>
+  <!-- "Chat with Tyler" uses the global window.crOpenChat (Retell/Mack) from BaseLayout,
+       which prompts the CMP and opens the consent-gated chat. No page-local override. -->
+
 </BaseLayout>
 
 <!-- Message match + Instantly named personalization. Reads the ad/email link params:

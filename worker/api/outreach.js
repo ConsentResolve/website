@@ -20,15 +20,19 @@
 import { ensureCrmV2Schema, findOrCreateContactByEmail, addActivityV2, adminUserId } from "../_lib/crm-v2.js";
 
 const API_BASE = "https://api.consentresolve.com/api/v1/public";
-// TEMPORARY sending domain — see wrangler.jsonc FROM_EMAIL. Reply-to stays on
+// Sending domain: consentresolve.com (verified in Resend). Reply-to stays on
 // hello@consentresolve.com so conversations land in the real inbox.
-const FROM = "Tyler at Consent Resolve <hello@tryconsentresolve.com>";
+const FROM = "Tyler at Consent Resolve <hello@consentresolve.com>";
 // Reply-to is purpose-specific so replies to this campaign are distinguishable from
 // product/demo mail in the shared inbox.
 const REPLY_TO = (env) => env.REPLY_TO_OUTREACH || env.REPLY_TO || "hello@consentresolve.com";
 const BCC = ["tyler@consentresolve.com", "aaron@consentresolve.com", "jason@consentresolve.com", "andy@consentresolve.com"];
 const BCC_LIMIT = 25;
 const SITE = "https://consentresolve.com";
+
+import { sendEmail as gmailSend, gAccessToken } from "../_lib/gmail.js";
+import { trackedUrl } from "../_lib/click-track.js";
+const fromAddr = (env) => (env.STL_EMAIL_ACCOUNT || env.CRM_INBOX_EMAILS || "hello@consentresolve.com").split(/[,\s]+/)[0].trim().toLowerCase();
 
 const json = (o, init = {}) => new Response(JSON.stringify(o), {
   ...init, headers: { "Content-Type": "application/json", ...(init.headers || {}) },
@@ -54,8 +58,13 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 
 // Transparent by design: lead with HOW we got their address. That honesty is the entire
 // demo — if we obscured it we'd be doing the thing we sell against.
-function buildEmail(p) {
-  const u = (path, c) => `${SITE}${path}?utm_source=consent_outreach&utm_medium=email&utm_campaign=identified_visitors&utm_content=${c}`;
+function buildEmail(env, p) {
+  // Each CTA is routed through the tracked redirect (/r) so a click lands in the CRM as a
+  // link_clicked event + activity, and (re)creates the lead — keyed to this recipient's email.
+  const u = (path, c) => trackedUrl(env, {
+    dest: `${path}?utm_source=consent_outreach&utm_medium=email&utm_campaign=identified_visitors&utm_content=${c}`,
+    email: p.email, campaign: "identified_visitors", label: c,
+  });
   const unsub = `${SITE}/api/unsubscribe?e=${encodeURIComponent(p.email)}`;
   const text = `Hi ${firstName(p.name)},
 
@@ -226,8 +235,6 @@ function normalize(v) {
 
 export async function onRequestPost({ request, env }) {
   const u = new URL(request.url);
-  if (u.pathname.endsWith("/webhook")) return handleWebhook(request, env);
-
   if (!env.FEEDBACK_KEY || u.searchParams.get("key") !== env.FEEDBACK_KEY) {
     return json({ error: "unauthorized" }, { status: 401 });
   }
@@ -236,14 +243,13 @@ export async function onRequestPost({ request, env }) {
   // ?probe=1 — discover what this key can actually see. The CMP siteId used in
   // ConsentResolve.init() is not necessarily the same identifier the public API
   // expects in /sites/{siteId}, so list what the key is scoped to.
-  // ?probe=resend — which sending domains are verified? A 403 "domain is not verified"
-  // on send is a DNS/Resend-account issue, not a code issue.
-  if (u.searchParams.get("probe") === "resend") {
-    const r = await fetch("https://api.resend.com/domains", {
-      headers: { Authorization: `Bearer ${String(env.RESEND_API_KEY || "").trim()}` },
-    });
-    const b = await r.text();
-    return json({ resend_domains_status: r.status, body: b.slice(0, 900) });
+  // ?probe=email — is the sending mailbox connected? Sends now go through the connected
+  // Google Workspace mailbox (hello@consentresolve.com), so a failure here is an OAuth
+  // token issue, not a Resend/DNS one.
+  if (u.searchParams.get("probe") === "email" || u.searchParams.get("probe") === "resend") {
+    const acct = fromAddr(env);
+    const tok = await gAccessToken(env, acct).catch(() => null);
+    return json({ provider: "gmail", account: acct, connected: !!tok });
   }
 
   if (u.searchParams.get("probe") === "1") {
@@ -275,24 +281,18 @@ export async function onRequestPost({ request, env }) {
   // no outreach_sends row, no CRM lead, nothing marked as contacted — so the real
   // recipient still gets their first-touch email later.
   if (testTo) {
-    if (!env.RESEND_API_KEY) return json({ error: "RESEND_API_KEY not set" }, { status: 500 });
     const src = rows.length ? normalize(rows[0]) : { email: "sample@example.com", name: "Sam", company: "", domain: "" };
-    const mail = buildEmail(src);
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: FROM, to: [testTo], reply_to: REPLY_TO(env),
-        subject: mail.subject, html: mail.html, text: mail.text,
-      }),
+    const mail = buildEmail(env, src);
+    const g = await gmailSend(env, {
+      account: fromAddr(env), to: testTo, from: FROM, replyTo: REPLY_TO(env),
+      subject: mail.subject, html: mail.html, text: mail.text,
     });
-    const out = await res.json().catch(() => ({}));
     return json({
-      preview_send: true, to: testTo, ok: res.ok && !!out.id, resend_id: out.id || null,
+      preview_send: true, to: testTo, ok: !!g.ok, message_id: g.id || null,
       rendered_for: { name: src.name, company: src.company, domain: src.domain },
       api_contacts_available: rows.length, api_field_shape: shape,
       note: "Nothing recorded. This recipient has NOT been marked as contacted.",
-      error: res.ok ? null : JSON.stringify(out).slice(0, 240),
+      error: g.ok ? null : String(g.error || "gmail_failed").slice(0, 240),
     });
   }
 
@@ -319,81 +319,57 @@ export async function onRequestPost({ request, env }) {
       dry_run: true, api_returned: rows.length, already_mailed: alreadySent,
       api_field_shape: shape,
       would_send: queue.length, bcc_on_first: Math.max(0, BCC_LIMIT - alreadySent),
-      sample: queue.slice(0, 10), preview: buildEmail(queue[0] || { email: "sample@example.com", name: "Sam" }),
+      sample: queue.slice(0, 10), preview: buildEmail(env, queue[0] || { email: "sample@example.com", name: "Sam" }),
     });
   }
-  if (!env.RESEND_API_KEY) return json({ error: "RESEND_API_KEY not set" }, { status: 500 });
+  // Daily send cap — Gmail Workspace allows ~2,000/day, but bursting toward that gets a
+  // sender throttled/flagged. Stay well under it and count what's already gone out since
+  // UTC midnight so repeated runs in one day can't blow the budget. Override with ?cap=.
+  const DAILY_CAP = Math.min(parseInt(u.searchParams.get("cap") || String(env.OUTREACH_DAILY_CAP || 400), 10) || 400, 1500);
+  const sentToday = (await env.DB.prepare(
+    "SELECT COUNT(*) c FROM outreach_sends WHERE sent_at >= datetime('now','start of day')"
+  ).first())?.c || 0;
+  const budget = Math.max(0, DAILY_CAP - sentToday);
+  if (budget <= 0) {
+    return json({ sent: 0, failed: 0, capped: true, sent_today: sentToday, daily_cap: DAILY_CAP, note: "daily send cap reached — try again tomorrow or raise ?cap=" });
+  }
+  const toSend = queue.slice(0, budget);
+  const throttleMs = Math.max(0, parseInt(env.OUTREACH_THROTTLE_MS || "300", 10) || 300); // smooth the burst
 
   const results = [];
   let n = alreadySent;
-  for (const p of queue) {
-    const mail = buildEmail(p);
+  for (let i = 0; i < toSend.length; i++) {
+    const p = toSend[i];
+    const mail = buildEmail(env, p);
     const withBcc = n < BCC_LIMIT;
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: FROM, to: [p.email], ...(withBcc ? { bcc: BCC } : {}),
-        reply_to: REPLY_TO(env),
-        subject: mail.subject, html: mail.html, text: mail.text,
-        headers: { "List-Unsubscribe": `<${mail.unsub}>, <mailto:hello@consentresolve.com?subject=unsubscribe>`,
-                   "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
-        tags: [{ name: "campaign", value: "identified_visitors" }],
-      }),
+    const g = await gmailSend(env, {
+      account: fromAddr(env), to: p.email, from: FROM, replyTo: REPLY_TO(env),
+      ...(withBcc ? { bcc: BCC } : {}),
+      subject: mail.subject, html: mail.html, text: mail.text,
+      headers: { "List-Unsubscribe": `<${mail.unsub}>, <mailto:hello@consentresolve.com?subject=unsubscribe>`,
+                 "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
     });
-    const out = await res.json().catch(() => ({}));
-    const ok = res.ok && out.id;
+    const ok = !!g.ok;
     if (ok) {
       await env.DB.prepare(`INSERT OR IGNORE INTO outreach_sends (email,name,company,domain,visitor_id,resend_id,sent_at,bcc)
         VALUES (?,?,?,?,?,?,datetime('now'),?)`)
-        .bind(p.email, p.name, p.company, p.domain, p.visitor_id, out.id, withBcc ? 1 : 0).run();
+        .bind(p.email, p.name, p.company, p.domain, p.visitor_id, g.id, withBcc ? 1 : 0).run();
       n++;
     }
-    results.push({ email: p.email, ok, id: out.id || null, bcc: withBcc, error: ok ? null : JSON.stringify(out).slice(0, 160) });
+    results.push({ email: p.email, ok, id: g.id || null, bcc: withBcc, error: ok ? null : String(g.error || "gmail_failed").slice(0, 160) });
+    // Space out sends (skip the wait after the last one).
+    if (throttleMs && i < toSend.length - 1) await new Promise((r) => setTimeout(r, throttleMs));
   }
-  return json({ sent: results.filter((r) => r.ok).length, failed: results.filter((r) => !r.ok).length, bcc_remaining: Math.max(0, BCC_LIMIT - n), results });
+  const capped = toSend.length < queue.length;
+  return json({ sent: results.filter((r) => r.ok).length, failed: results.filter((r) => !r.ok).length,
+    bcc_remaining: Math.max(0, BCC_LIMIT - n), capped, sent_today: sentToday, daily_cap: DAILY_CAP,
+    queued_beyond_cap: capped ? queue.length - toSend.length : 0, results });
 }
 
-// Resend event webhook. Click => lead. Open => counted only, never a lead.
-async function handleWebhook(request, env) {
-  await ensureSchema(env);
-  const ev = await request.json().catch(() => ({}));
-  const type = ev.type || "";
-  const id = ev?.data?.email_id || ev?.data?.id;
-  if (!id) return json({ ok: true, ignored: "no email_id" });
-  const row = (await env.DB.prepare("SELECT * FROM outreach_sends WHERE resend_id=?").bind(id).first()) || null;
-  if (!row) return json({ ok: true, ignored: "unknown email_id" });
-
-  if (type === "email.opened") {
-    await env.DB.prepare("UPDATE outreach_sends SET opens=opens+1 WHERE id=?").bind(row.id).run();
-    return json({ ok: true, counted: "open" }); // deliberately NOT a lead
-  }
-  if (type === "email.bounced" || type === "email.complained") {
-    await env.DB.prepare("UPDATE outreach_sends SET status=? WHERE id=?").bind(type.split(".")[1], row.id).run();
-    return json({ ok: true, status: type });
-  }
-  if (type === "email.clicked") {
-    await env.DB.prepare("UPDATE outreach_sends SET clicks=clicks+1 WHERE id=?").bind(row.id).run();
-    if (!row.lead_created) await createLead(env, row, "clicked a link in the consent-outreach email");
-    return json({ ok: true, lead: "created_or_existing" });
-  }
-  return json({ ok: true, ignored: type });
-}
-
-export async function createLead(env, row, why) {
-  await ensureCrmV2Schema(env);
-  const contactId = await findOrCreateContactByEmail(env, row.email, {
-    name: row.name || "", source: "consent_outreach", company: row.company || "",
-  });
-  await env.DB.prepare("UPDATE outreach_sends SET lead_created=1 WHERE id=?").bind(row.id).run();
-  try {
-    await addActivityV2(env, {
-      actorId: await adminUserId(env), entityType: "contact", entityId: contactId,
-      action: "outreach_engaged", meta: JSON.stringify({ why, email: row.email, domain: row.domain }),
-    });
-  } catch (_) {}
-  return contactId;
-}
+// NOTE: the Resend event webhook (email open/click/bounce → lead) was removed when sending
+// moved to the connected Gmail mailbox. Click attribution now runs through /api/click +
+// _lib/click-track.js (privacy-safe, scanner-filtered). The resend_id column on
+// outreach_sends is kept only to avoid a migration; new rows leave it null.
 
 export async function onRequestGet({ request, env }) {
   const u = new URL(request.url);

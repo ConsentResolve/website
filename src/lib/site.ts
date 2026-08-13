@@ -7,8 +7,8 @@ export const SITE = {
   twitter: "@consentresolve",
   // NAP — single source of truth
   email: "hello@consentresolve.com",
-  phone: "(727) 202-5996",
-  phoneE164: "+17272025996",
+  phone: "(727) 999-9846",
+  phoneE164: "+17279999846",
   address: {
     street: "1907 Gulf Way #1",
     city: "St Pete Beach",

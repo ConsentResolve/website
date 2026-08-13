@@ -7,7 +7,12 @@ body{margin:0;background:#0a1628;color:#f5f8fa;font-family:-apple-system,Segoe U
 header{padding:30px 24px 10px;text-align:center}
 h1{margin:0;font-size:24px}
 header p{color:#94a3b8;margin:8px auto 0;font-size:14px;max-width:640px;line-height:1.5}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,280px));justify-content:center;gap:22px;max-width:1300px;margin:26px auto;padding:0 22px}
+.section{max-width:1300px;margin:0 auto;padding:0 22px}
+.section-h{display:flex;align-items:baseline;gap:12px;margin:38px 0 4px}
+.section-h h2{margin:0;font-size:18px}
+.section-h span{color:#64748b;font-size:13px}
+.section p.desc{color:#64748b;margin:2px 0 0;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,280px));justify-content:center;gap:22px;margin:18px auto;padding:0}
 .card{background:#0e1d33;border:1px solid #1e293b;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
 .vidwrap{position:relative;background:#000;aspect-ratio:9/16}
 .vidwrap video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
@@ -18,37 +23,61 @@ header p{color:#94a3b8;margin:8px auto 0;font-size:14px;max-width:640px;line-hei
 footer{text-align:center;color:#64748b;font-size:12px;padding:12px 0 40px}
 </style></head><body>
 <header>
-<h1>UGC Ad Review — Consent Resolve</h1>
-<p>The hype ad set — short FB cuts first, then the full versions. Compliance-cleared: illustrative spokesperson framing, no fabricated testimonials.</p>
+<h1>UGC Video Review — Consent Resolve</h1>
+<p>Two separate batches below: organic social posts, and the Facebook ad set (short cuts first, then full versions). Compliance-cleared: illustrative spokesperson framing, no fabricated testimonials.</p>
 </header>
-<div class="grid" id="grid"></div>
+<div class="section">
+  <div class="section-h"><h2>Organic Social</h2><span>not run as paid ads</span></div>
+  <p class="desc">New content, same proven format/effects/timing as the winning ad below — built for native posting, not Meta spend.</p>
+  <div class="grid" id="grid-organic"></div>
+</div>
+<div class="section">
+  <div class="section-h"><h2>Paid Ads — Facebook Ad Set</h2><span>the hype ad set + earlier UGC cuts</span></div>
+  <p class="desc">Short FB cuts first, then the full versions. "Goldmine (Female)" is the live winner.</p>
+  <div class="grid" id="grid-ads"></div>
+</div>
 <footer>Consent Resolve &middot; internal review &middot; noindex</footer>
 <script>
-// All videos in one group; short FB cuts first. Media on R2 (never committed, per .gitignore).
+// Media on R2 (never committed, per .gitignore).
 var R2="https://pub-27fc71b9070247178d8756a59bef0b33.r2.dev/social/ugc-ads/";
-var VER="7";
-var VIDEOS=[
-  // Hype ad set — short FB cuts first, then the full versions.
-  {slug:"hype-visited-short",   label:"Who Visited (Male)", kind:"FB short · 9:16", short:true},
-  {slug:"hype-goldmine-short",  label:"Goldmine (Female)",  kind:"FB short · 9:16", short:true},
-  {slug:"hype-anon-male",       label:"Anonymous (Male)",   kind:"Full · 9:16"},
-  {slug:"hype-visited-male",    label:"Who Visited (Male)", kind:"Full · 9:16"},
-  {slug:"hype-goldmine-female", label:"Goldmine (Female)",  kind:"Full · 9:16"},
-  // Earlier UGC cuts.
-  {slug:"shared-male",              label:"The Shared Lead", kind:"UGC · 9:16"},
-  {slug:"ugc-01-problem", dir:"testbatch/", label:"Problem",  kind:"UGC · 9:16"},
-  {slug:"ugc-03-goldmine",dir:"testbatch/", label:"Goldmine", kind:"UGC · 9:16"},
-  {slug:"ugc-05-funnel",  dir:"testbatch/", label:"Funnel",   kind:"UGC · 9:16"},
-  {slug:"ugc-10-consent", dir:"testbatch/", label:"Consent",  kind:"UGC · 9:16"}
-];
+var VER="9";
+var GROUPS={
+  organic: [
+    // New content, 2026-08-13 — same proven body/effects/SFX-timing as the Goldmine
+    // winner, new hook + angle per persona. See remotion-studio/scripts/gen_hype_new.py.
+    // Organic social only — not part of the Meta ad set below.
+    {slug:"hype-shared-male",       label:"Shared Leads (Male)",   kind:"Full · 9:16"},
+    {slug:"hype-costperjob-female", label:"Cost Per Job (Female)", kind:"Full · 9:16"},
+    {slug:"hype-splitfour-female",  label:"Split Four Ways (Female)", kind:"Full · 9:16"},
+    {slug:"hype-badodds-male",      label:"Bad Odds (Male)",       kind:"Full · 9:16"},
+  ],
+  ads: [
+    // Hype ad set — short FB cuts first, then the full versions.
+    {slug:"hype-visited-short",   label:"Who Visited (Male)", kind:"FB short · 9:16", short:true},
+    {slug:"hype-goldmine-short",  label:"Goldmine (Female)",  kind:"FB short · 9:16", short:true},
+    {slug:"hype-anon-male",       label:"Anonymous (Male)",   kind:"Full · 9:16"},
+    {slug:"hype-visited-male",    label:"Who Visited (Male)", kind:"Full · 9:16"},
+    {slug:"hype-goldmine-female", label:"Goldmine (Female)",  kind:"Full · 9:16"},
+    // Earlier UGC cuts.
+    {slug:"shared-male",              label:"The Shared Lead", kind:"UGC · 9:16"},
+    {slug:"ugc-01-problem", dir:"testbatch/", label:"Problem",  kind:"UGC · 9:16"},
+    {slug:"ugc-03-goldmine",dir:"testbatch/", label:"Goldmine", kind:"UGC · 9:16"},
+    {slug:"ugc-05-funnel",  dir:"testbatch/", label:"Funnel",   kind:"UGC · 9:16"},
+    {slug:"ugc-10-consent", dir:"testbatch/", label:"Consent",  kind:"UGC · 9:16"},
+  ],
+};
 function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
-var grid=document.getElementById("grid");
-VIDEOS.forEach(function(v){
-  var card=document.createElement("div");card.className="card";
-  card.innerHTML=
-    '<div class="vidwrap"><video src="'+R2+(v.dir||"")+v.slug+'.mp4?v='+VER+'" controls playsinline preload="metadata"></video></div>'+
-    '<div class="meta"><span class="tag'+(v.short?" s":"")+'">'+esc(v.label)+'</span><span class="tag p">'+esc(v.kind)+'</span></div>';
-  grid.appendChild(card);
-});
+function render(gridId, videos){
+  var grid=document.getElementById(gridId);
+  videos.forEach(function(v){
+    var card=document.createElement("div");card.className="card";
+    card.innerHTML=
+      '<div class="vidwrap"><video src="'+R2+(v.dir||"")+v.slug+'.mp4?v='+VER+'" controls playsinline preload="metadata"></video></div>'+
+      '<div class="meta"><span class="tag'+(v.short?" s":"")+'">'+esc(v.label)+'</span><span class="tag p">'+esc(v.kind)+'</span></div>';
+    grid.appendChild(card);
+  });
+}
+render("grid-organic", GROUPS.organic);
+render("grid-ads", GROUPS.ads);
 </script>
 </body></html>

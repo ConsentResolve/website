@@ -7,9 +7,50 @@
 //   POST /api/crm/workflow  {goal:{contactId,goal}}              -> apply a goal exit
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
-import { isAdmin, findOrCreateContactByEmail } from "../_lib/crm-v2.js";
-import { ensureRebuildSchema, recordConsent, isSuppressed } from "../_lib/crm-rebuild.js";
+import { isAdmin, findOrCreateContactByEmail, ensureCrmV2Schema } from "../_lib/crm-v2.js";
+import { ensureRebuildSchema, recordConsent, isSuppressed, ulid, nowIso } from "../_lib/crm-rebuild.js";
 import { seedWorkflows, enrollContact, handleGoalEvent, tick, processDueRuns, sendTelnyxSms, sendResend, placeRetellCall, tpl, enabled } from "../_lib/workflow-engine.js";
+
+// A compressed clone of the Identified Visitor sequence for the internal dry-run: the same
+// three Tyler emails (carrying any CRM edits), fired ~10 minutes apart instead of Day 0/2/5,
+// with no newsletter subscribe at the end. IV gating still applies (IV_LIVE + allowlist), so
+// it only sends to the internal test addresses.
+async function ivTestBlast(env, emails) {
+  await ensureRebuildSchema(env); await ensureCrmV2Schema(env); await seedWorkflows(env);
+  // Build the test definition from the live production definition so it reflects any edits.
+  const prod = await env.DB.prepare("SELECT definition FROM workflows WHERE id='identified-visitor'").first();
+  let pdef = []; try { pdef = JSON.parse(prod?.definition || "[]"); } catch (_) {}
+  const emailSteps = pdef.filter((s) => s.action === "send_email").slice(0, 3);
+  const delays = [0, 10, 10]; // step 1 now, step 2 +10m, step 3 +10m after that (~0/10/20)
+  const testDef = emailSteps.map((s, i) => ({ channel: "email", action: "send_email", delay_minutes: delays[i] != null ? delays[i] : 10, template: s.template, ...(s.subject ? { subject: s.subject } : {}), ...(s.html ? { html: s.html } : {}) }));
+  await env.DB.prepare(
+    `INSERT INTO workflows (id,name,trigger,goal,definition,requires_consent,enabled)
+     VALUES ('identified-visitor-test','Identified Visitor Outreach (test)','identified_visitor',?,?,?,1)
+     ON CONFLICT(id) DO UPDATE SET definition=excluded.definition, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')`
+  ).bind(JSON.stringify(["replied", "booked", "opted_out"]), JSON.stringify(testDef), JSON.stringify([])).run();
+
+  const out = [];
+  for (const raw of emails.slice(0, 20)) {
+    const em = String(raw || "").toLowerCase().trim(); if (!em.includes("@")) continue;
+    const contactId = await findOrCreateContactByEmail(env, em, { name: em.split("@")[0], source: "iv_test" });
+    // A conversation so each sent email attaches to a visible thread.
+    let conv = await env.DB.prepare("SELECT id FROM conversations WHERE contact_id=? AND channel='identified' ORDER BY created_at DESC LIMIT 1").bind(contactId).first();
+    let conversationId = conv?.id;
+    if (!conversationId) {
+      conversationId = ulid();
+      await env.DB.prepare(
+        "INSERT INTO conversations (id, contact_id, channel, source_detail, external_thread_id, subject, status, unread, last_message_at, last_message_preview, created_at) VALUES (?,?,?,?,?,?,?,0,?,?,datetime('now'))"
+      ).bind(conversationId, contactId, "identified", "iv_test", "iv-test|" + contactId, "Identified Visitor Outreach (test)", "open", nowIso(), "Sequence starting…").run();
+    }
+    // Make the run re-runnable: clear any prior test run for this contact.
+    await env.DB.prepare("DELETE FROM workflow_runs WHERE workflow_id='identified-visitor-test' AND contact_id=?").bind(contactId).run();
+    const r = await enrollContact(env, { contactId, conversationId, source: "iv_test", workflowId: "identified-visitor-test" });
+    out.push({ email: em, conversationId, ...r });
+  }
+  // Fire step 1 (delay 0) right now; the */5 cron carries steps 2 & 3.
+  const processed = await processDueRuns(env, {});
+  return { enrolled: out, processed };
+}
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -40,7 +81,7 @@ export async function onRequestGet({ request, env }) {
     note: enabled(env) ? "engine is LIVE" : "engine is DORMANT — set WORKFLOW_ENGINE_ENABLED=true to activate",
     workflows, runs_by_status: byStatus, due_now: dueNow, steps: recentSteps,
     providers: {
-      email: env.RESEND_API_KEY ? "configured" : "missing_resend_key",
+      email: "gmail (hello@consentresolve.com)",
       sms: env.TELNYX_API_KEY ? "configured" : "HOLD: TELNYX_API_KEY + 10DLC",
       voice: env.RETELL_API_KEY ? "configured" : "HOLD: RETELL_API_KEY",
     },
@@ -50,9 +91,89 @@ export async function onRequestGet({ request, env }) {
 export async function onRequestPost({ request, env }) {
   const cors = corsHeaders(request, env);
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
-  if (!(await isAdmin(request, env))) return json({ error: "forbidden" }, { status: 403 }, cors);
   const body = await request.json().catch(() => ({}));
   await ensureRebuildSchema(env); await seedWorkflows(env);
+
+  // Edit an editable sequence's cadence (delay per step). Any CRM user can tune timing;
+  // the code-owned action/channel/template are preserved — only delay_minutes is accepted.
+  if (body.save_definition && body.workflow_id) {
+    if (body.workflow_id !== "identified-visitor") return json({ error: "not_editable" }, { status: 400 }, cors);
+    const cur = await env.DB.prepare("SELECT definition FROM workflows WHERE id=?").bind(body.workflow_id).first();
+    let def = []; try { def = JSON.parse(cur?.definition || "[]"); } catch (_) {}
+    const inc = Array.isArray(body.definition) ? body.definition : [];
+    // Accept delay (all steps) + subject/html (email steps only). Preserve the code-owned
+    // action/channel/template. HTML is the operator's own outbound email (they're the sender);
+    // capped to a sane size.
+    const merged = def.map((s, i) => {
+      const c = inc[i] || {};
+      const out = { ...s, delay_minutes: Math.max(0, Math.min(43200, Math.round(Number(c.delay_minutes) || 0))) };
+      if (s.action === "send_email") {
+        if (typeof c.subject === "string") out.subject = c.subject.slice(0, 300);
+        if (typeof c.html === "string") out.html = c.html.slice(0, 60000);
+      }
+      return out;
+    });
+    await env.DB.prepare("UPDATE workflows SET definition=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?").bind(JSON.stringify(merged), body.workflow_id).run();
+    return json({ ok: true, saved: merged.length }, {}, cors);
+  }
+
+  // Enroll internal test addresses into the IV sequence so the IV_TEST_EMAILS allowlist can
+  // send to them (a first live send lands in your own inbox). Any CRM user; capped.
+  if (Array.isArray(body.enroll_iv_test) && body.enroll_iv_test.length) {
+    const out = [];
+    for (const email of body.enroll_iv_test.slice(0, 20)) {
+      const em = String(email || "").toLowerCase().trim(); if (!em.includes("@")) continue;
+      const contactId = await findOrCreateContactByEmail(env, em, { name: body.name || "", source: "iv_test" });
+      const r = await enrollContact(env, { contactId, source: "iv_test", workflowId: "identified-visitor" });
+      out.push({ email: em, ...r });
+    }
+    return json({ ok: true, enrolled: out }, {}, cors);
+  }
+
+  // Internal dry-run: send all 3 IV emails ~10 min apart to the given addresses (any CRM user).
+  if (Array.isArray(body.iv_test_blast) && body.iv_test_blast.length) {
+    return json({ ok: true, ...(await ivTestBlast(env, body.iv_test_blast)) }, {}, cors);
+  }
+
+  if (!(await isAdmin(request, env))) return json({ error: "forbidden" }, { status: 403 }, cors);
+
+  // One-time maintenance: strip stored subject/html overrides from the editable IV sequences
+  // (identified-visitor + its test clone) so the CODE templates in worker/_lib/iv-sequence.js
+  // become authoritative again. Needed after a template rewrite that stale DB overrides —
+  // saved by an earlier CRM edit — would otherwise shadow on every send. In-flight runs pick
+  // up the change immediately because the engine re-reads the definition each tick.
+  if (body.iv_reset_templates) {
+    const cleared = [];
+    for (const wid of ["identified-visitor", "identified-visitor-test"]) {
+      const row = await env.DB.prepare("SELECT definition FROM workflows WHERE id=?").bind(wid).first();
+      if (!row) continue;
+      let def = []; try { def = JSON.parse(row.definition || "[]"); } catch (_) {}
+      const next = def.map((s) => { const { subject, html, ...rest } = s; return rest; });
+      await env.DB.prepare("UPDATE workflows SET definition=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?").bind(JSON.stringify(next), wid).run();
+      cleared.push({ workflow: wid, steps: next.length });
+    }
+    return json({ ok: true, cleared }, {}, cors);
+  }
+
+  // Remove email suppressions for the given addresses and re-grant email consent, so the
+  // consent gate allows sending again — the mirror-image of the unsubscribe flow. Owner-
+  // authorized re-subscribe of internal review addresses. Clears both the new `suppressions`
+  // store and the legacy email-only `crm_suppressions` table, and records a fresh granted
+  // consent so the latest action isn't the prior 'revoked'.
+  if (Array.isArray(body.iv_unsuppress) && body.iv_unsuppress.length) {
+    const out = [];
+    for (const raw of body.iv_unsuppress.slice(0, 20)) {
+      const em = String(raw || "").toLowerCase().trim(); if (!em.includes("@")) continue;
+      const contact = await env.DB.prepare("SELECT id FROM contacts WHERE lower(primary_email)=? LIMIT 1").bind(em).first().catch(() => null);
+      const contactId = contact?.id || null;
+      const d1 = await env.DB.prepare("DELETE FROM suppressions WHERE lower(email)=?").bind(em).run().catch(() => ({}));
+      let d2 = {}; try { d2 = await env.DB.prepare("DELETE FROM crm_suppressions WHERE lower(email)=?").bind(em).run(); } catch (_) {}
+      await recordConsent(env, { contactId, email: em, channel: "email", action: "granted", basis: "internal test re-subscribe (owner-authorized)", captureMethod: "admin_unsuppress", source: "admin" });
+      out.push({ email: em, contactId, removed_new: d1?.meta?.changes ?? null, removed_legacy: d2?.meta?.changes ?? null });
+    }
+    return json({ ok: true, unsuppressed: out }, {}, cors);
+  }
+
   if (body.enroll?.contactId) return json({ ok: true, result: await enrollContact(env, body.enroll) }, {}, cors);
   if (body.goal?.contactId) return json({ ok: true, exited: await handleGoalEvent(env, body.goal) }, {}, cors);
   // CONTROLLED SINGLE SEND: fire one real SMS to a chosen number to verify delivery, WITHOUT
@@ -73,7 +194,7 @@ export async function onRequestPost({ request, env }) {
     if (await isSuppressed(env, { email: to.toLowerCase(), channel: "email" })) return json({ ok: false, error: "suppressed", note: "this address opted out" }, {}, cors);
     const template = String(body.testEmail.template || "earn_1"); // earn_1|earn_2|earn_3|stl_email
     const c = { id: "test", full_name: body.testEmail.name || "there", email: to, owner: "Andy" };
-    const t = tpl(template, c);
+    const t = tpl(env, template, c);
     const result = await sendResend(env, { to, subject: t.subject, html: t.html, text: t.text, unsubUrl: "https://consentresolve.com/api/unsubscribe?c=test" });
     return json({ ok: result.ok === true, template, subject: t.subject, result }, {}, cors);
   }
@@ -83,7 +204,7 @@ export async function onRequestPost({ request, env }) {
   if (body.testCall?.to) {
     const to = String(body.testCall.to).trim();
     if (await isSuppressed(env, { phone: to, channel: "voice" })) return json({ ok: false, error: "suppressed" }, {}, cors);
-    const script = body.testCall.script || tpl("stl_call", { full_name: body.testCall.name || "there", owner: "Andy" }).script;
+    const script = body.testCall.script || tpl(env, "stl_call", { full_name: body.testCall.name || "there", owner: "Andy" }).script;
     const result = await placeRetellCall(env, { to, script });
     return json({ ok: result.ok === true, script, result, note: result.hold ? "Retell not configured yet — set RETELL_API_KEY + RETELL_AGENT_ID + RETELL_FROM_NUMBER" : undefined }, {}, cors);
   }

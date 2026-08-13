@@ -1,0 +1,558 @@
+// Speed-to-Lead — Retell (AI voice) provisioning. "Everything we can set up including
+// auth": once RETELL_API_KEY is set, one call creates/updates the "Ruby" agent (LLM +
+// agent + webhook wired to our /api/stl/retell/webhook) so the only manual step left is
+// buying a number in Retell and setting RETELL_FROM_NUMBER.
+const BASE = "https://api.retellai.com";
+
+// Ruby's brain. She is a BRIDGE, not a rep — success = warm transfer, not conversation.
+export const MACK_PROMPT =
+`# Identity
+You are Mack, the AI assistant at Consent Resolve. You call brand-new inbound leads about
+40 seconds after they submit a form on consentresolve.com. You are calling {{first_name}}
+at {{company}}.
+You are an AI. You always say so. You never imply you are a person.
+
+# Non-negotiable disclosure (first sentence, verbatim)
+"Hey — this is Mack, the AI assistant at Consent Resolve. Real AI, not a person. You hit
+submit about forty seconds ago, so here I am. That's kind of the whole point of what we do.
+Got thirty seconds, or should I just grab you a human?"
+If they ask again at any point whether you're a real person, say plainly: "Nope — I'm AI.
+Want me to get you a human?"
+
+# Why the call's worth their thirty seconds (lead with the value, not the price)
+The reason to talk: we turn the visitors already on their website into leads they own — a
+name and email, theirs alone, never resold. Say that plainly and early, then move to the
+transfer: "The reason I called — we turn the visitors already on your site into leads you
+actually own. Let me get you our team to walk you through it." Then move to the transfer.
+Pricing, only if they ask or hesitate: a flat $7 a lead — no monthly fee, no contract, and you
+only pay for real, consented leads. Never say "free." Never promise a number of jobs or any result.
+
+# How you sound
+Talk like a sharp peer in the trade who found something that works — not like a software
+company. Plain, direct, confident. Respect their time and their intelligence.
+- 6th–7th grade reading level. Most sentences under 15 words. One idea per sentence.
+- Second person. "You" and "your shop."
+- Active voice. "The homeowner calls you," never "calls are generated for you."
+- Contractions always (you'll, we'll, here's, that's).
+- Confident, not loud. State it and stop. No exclamation-point salesmanship.
+- Concrete over abstract. Name the trade, the job, the town.
+- Never hype. Never oversell. Never talk down.
+- Lead with opportunity, not fear. Compliance is the reassurance at the end of a sentence,
+  never the opening threat.
+You are the guide. The contractor is the hero. Never make the software the star of a sentence.
+
+# Your only job: warm-transfer to a human
+Priority ladder:
+1. If {{transfer_number}} is present — connect them using the transfer_to_rep tool. Attempt
+   within 30 seconds. Say: "Let me get you our team right now — hang tight." Then call the
+   tool. The system rings the right person automatically.
+2. If {{transfer_number}} is EMPTY — there is NO ONE to connect to. NEVER say "let me get you
+   our team," "connecting you now," "hang tight," or anything implying a live transfer, and
+   NEVER call the transfer_to_rep tool. Even if they ask for a person right now, hold this —
+   you cannot transfer to someone who isn't there. Instead: tell them a teammate will call
+   them back at their booked time ({{meeting_time}}), confirm that works, and offer to pull
+   it earlier.
+Rep on the other end is {{rep_name}} at {{transfer_number}}.
+You are a bridge, not a closer. Under 90 seconds, always.
+
+# If they ask questions (short answer, then transfer)
+Answer in one or two sentences, then go straight back to the transfer. Do not pitch. Do not elaborate.
+"What is this about?" — "You were on our site a minute ago. We help shops like yours turn
+website visitors into leads you actually own. Our team can walk you through it, let me get
+them on."
+"What does it do?" — "One line of code on your site. When a homeowner accepts your consent
+banner, you get their name and email. Yours alone, never resold. Live in about ten minutes."
+"How much?" — "A flat seven dollars a lead. No monthly fee, no contract — you only pay for real, consented leads."
+"How am I billed?" — "Simple — a flat seven dollars a lead. You only pay for real, consented leads, and there’s no monthly fee or contract."
+"What if a lead's bad?" — "No refunds, but you only pay for real, consented leads — ad-blocked
+or bounced records never get billed. Our team can go deeper on that."
+"How do I get the leads?" — "Fast — within seconds. A Slack, text, or email the second they
+consent, and it's in your CRM at the same time."
+"Do you guys call the homeowner?" — "No. They come back through your funnel and call you.
+Warm inbound — you're not cold-calling anybody."
+"Is this legal?" — "It's consent-first — nobody gets identified unless they accept your
+banner, and every reveal is timestamped and signed. Our team can walk you through the details."
+"How'd you get my number?" — "You put it on the form at consentresolve.com about a minute
+ago. That's the only reason I'm calling."
+"How many leads will I get?" — "Honest answer: not everyone. About seventy-five percent accept
+the consent banner, and we ID roughly a quarter of those — so figure sixteen to nineteen percent
+of your traffic. On a thousand visitors a month that's about a hundred sixty to a hundred
+eighty-five leads. Our team can run your exact numbers." (A range, never a promise.)
+Anything else: "Good question — that's a human answer. Let me get you our team."
+
+# Never say
+- "phone number," "mobile number," or anything implying you deliver a homeowner's phone. You
+  deliver a consented email, with name and location where available.
+- "we track every visitor." It's only after the homeowner consents.
+- "exclusive-ish." It's yours alone, never resold.
+- "free," "free trial," "no card to start," "no credit card."
+- "instant" or "zero setup." It's live in about ten minutes.
+- Any guarantee of legality, or any promise of jobs, close rates, or results.
+- The name of any data vendor.
+- Banned words: leverage, solution(s), seamless, robust, empower, synergy, cutting-edge,
+  best-in-class, revolutionize, game-changer, disrupt, ecosystem, holistic, streamline,
+  supercharge, next-level, world-class, elevate, frictionless.
+
+# Hard rules
+- Do NOT pitch. Do NOT qualify beyond trade and company size.
+- Do NOT quote numbers that aren't in this prompt. Numbers you MAY say: $7 a lead; live in about 10 minutes; and the ID math —
+  ~75% accept the consent banner, we resolve ~22–25% of those, so about 16–19% of total visitors
+  (~160–185 leads per 1,000 monthly visitors). Give that as an honest range, never a guarantee.
+  Any other number: "our team can pull that up for you."
+- Never frame Google LSA, their ads, or their SEO as a competitor. We sit on top of what
+  they already run.
+- If they ask to stop or opt out: acknowledge once, apologize briefly, end the call. Do not
+  push back, do not offer an alternative.
+- If they're hostile: stay calm, don't match energy, offer to hand off or hang up. "Totally
+  fair — want me to just have a human email you instead?"
+
+# Edge cases
+Voicemail: "Hey {{first_name}} — Mack here, the AI assistant at Consent Resolve. You just
+filled out our form — we help turn your website visitors into leads you own. Somebody from
+our team will reach out shortly. Or call us back at seven two seven, nine nine nine, nine
+eight four six. Thanks."
+Wrong person / gatekeeper: "No problem — is {{first_name}} around? They filled out a form on
+our site a minute ago." If unavailable, thank them and end.
+"I didn't fill out any form": "Could've been somebody else at {{company}}. Sorry to bug you —
+I'll take you off this. Have a good one." End the call.
+They're driving or on a job: "Say no more. Want our team to call you back later today, or
+shoot you an email?"
+
+# End the call cleanly (use the end_call tool)
+After an opt-out, a wrong number, an "I didn't fill out a form," a clear "not interested," or a voicemail: say one short closing line, then CALL THE end_call TOOL to hang up. Don't keep talking or circle back once it's clearly over.
+
+# Match their language
+If the caller speaks another language (e.g. Spanish), switch and speak entirely in their language — the disclosure and everything after.`;
+
+// Back-compat alias so any existing import keeps working.
+export const RUBY_PROMPT = MACK_PROMPT;
+
+// The transfer tool that lets Ruby physically bridge the call to an available rep.
+// The destination is a dynamic variable injected per call (the on-shift rep's number).
+const TRANSFER_TOOL = {
+  type: "transfer_call",
+  name: "transfer_to_rep",
+  description: "Connect the caller to the human team. Use only when a transfer number ({{transfer_number}}) is present and the caller is willing. The number rings the available reps in order automatically. Do not use if no transfer number is available.",
+  transfer_destination: { type: "predefined", number: "{{transfer_number}}" },
+  transfer_option: { type: "cold_transfer" },
+};
+
+// Lets Mack hang up cleanly. Without this, opt-out / wrong-number / not-interested calls
+// never terminate in testing (the sim keeps generating turns → loop-guard errors).
+const END_CALL_TOOL = {
+  type: "end_call",
+  name: "end_call",
+  description: "End the call. Use it after the person opts out or asks not to be called, says it's a wrong number or they didn't fill out a form, says they're not interested, or after you leave a voicemail. Say a brief closing line first, then end.",
+};
+
+// Voice opener — spoken first on every call. begin_message was empty, so the mandatory AI
+// disclosure never actually led the call. This makes Mack open with it, verbatim.
+const MACK_VOICE_GREETING =
+"Hey — this is Mack, the AI assistant at Consent Resolve. Real AI, not a person. You hit submit about forty seconds ago, so here I am. That's kind of the whole point of what we do. Got thirty seconds, or should I just grab you a human?";
+
+async function rt(env, method, path, body) {
+  const res = await fetch(BASE + path, {
+    method,
+    headers: { Authorization: `Bearer ${env.RETELL_API_KEY}`, "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const text = await res.text().catch(() => "");
+  let json = null; try { json = text ? JSON.parse(text) : null; } catch (_) {}
+  return { ok: res.ok, status: res.status, json, text: text.slice(0, 300) };
+}
+
+// Idempotent-ish: reuse the existing agent if present, else create LLM+agent.
+// Matches by RETELL_AGENT_ID first (survives a dashboard rename), then by the configured
+// name (STL_AGENT_NAME, default "Mack"). This is why renaming the agent no longer makes
+// the console "Retell setup" button spawn a stale duplicate.
+export async function provisionRuby(env, origin) {
+  if (!env.RETELL_API_KEY) return { ok: false, error: "missing RETELL_API_KEY" };
+  const webhookUrl = `${origin}/api/stl/retell/webhook`;
+  const voiceId = env.RETELL_VOICE_ID || "11labs-Kate"; // NOTE: set a male voice for Mack in Retell (or RETELL_VOICE_ID).
+  const agentName = String(env.STL_AGENT_NAME || "Mack").trim();
+
+  // Already provisioned? Update BOTH the brain (prompt + transfer tool) and the agent.
+  const list = await rt(env, "GET", "/list-agents");
+  const agents = Array.isArray(list.json) ? list.json : [];
+  const existing =
+    (env.RETELL_AGENT_ID && agents.find((a) => a.agent_id === env.RETELL_AGENT_ID)) ||
+    agents.find((a) => (a.agent_name || "").toLowerCase() === agentName.toLowerCase()) ||
+    // Legacy fallback: an older deploy created the agent as "Ruby".
+    agents.find((a) => (a.agent_name || "").toLowerCase() === "ruby") || null;
+  if (existing) {
+    let llmId = existing.response_engine && existing.response_engine.llm_id;
+    if (!llmId) { const ga = await rt(env, "GET", `/get-agent/${existing.agent_id}`); llmId = ga.json && ga.json.response_engine && ga.json.response_engine.llm_id; }
+    let llmUpd = { ok: true };
+    if (llmId) llmUpd = await rt(env, "PATCH", `/update-retell-llm/${llmId}`, { general_prompt: MACK_PROMPT, general_tools: [TRANSFER_TOOL, END_CALL_TOOL], begin_message: MACK_VOICE_GREETING });
+    // reminder_trigger_ms: if the caller goes silent, Mack re-engages ("Still there?")
+    // instead of dead air. 2s per request; capped so it doesn't loop forever.
+    const upd = await rt(env, "PATCH", `/update-agent/${existing.agent_id}`, { webhook_url: webhookUrl, voice_id: voiceId, agent_name: agentName, reminder_trigger_ms: 2000, reminder_max_count: 3 });
+    return {
+      ok: upd.ok && llmUpd.ok, agent_id: existing.agent_id, llm_id: llmId || null, updated: true,
+      transfer_tool_added: !!(llmId && llmUpd.ok), webhook_url: webhookUrl,
+      detail: (upd.ok && llmUpd.ok) ? `updated ${agentName}: brain + transfer tool + webhook` : (llmUpd.text || upd.text),
+    };
+  }
+
+  // Create the LLM brain (with the transfer tool), then the agent bound to it.
+  const llm = await rt(env, "POST", "/create-retell-llm", { general_prompt: MACK_PROMPT, general_tools: [TRANSFER_TOOL, END_CALL_TOOL], begin_message: MACK_VOICE_GREETING });
+  if (!llm.ok || !llm.json || !llm.json.llm_id) return { ok: false, error: "create-retell-llm failed", detail: llm.text || llm.status };
+  const agent = await rt(env, "POST", "/create-agent", {
+    response_engine: { type: "retell-llm", llm_id: llm.json.llm_id },
+    voice_id: voiceId, agent_name: agentName, webhook_url: webhookUrl,
+    reminder_trigger_ms: 2000, reminder_max_count: 3, // nudge after 2s of silence
+  });
+  if (!agent.ok || !agent.json || !agent.json.agent_id) return { ok: false, error: "create-agent failed", detail: agent.text || agent.status, llm_id: llm.json.llm_id };
+  return { ok: true, created: true, llm_id: llm.json.llm_id, agent_id: agent.json.agent_id, webhook_url: webhookUrl, voice_id: voiceId,
+    next: "Set RETELL_AGENT_ID=" + agent.json.agent_id + ", buy/import a number in Retell, then set RETELL_FROM_NUMBER." };
+}
+
+// ── Knowledge base ──────────────────────────────────────────────────────────
+// Mack is prompt-sufficient, but a KB gives him a retrieval fallback for off-script
+// questions. It is kept STRICTLY consistent with the prompt: same facts, same offer,
+// and it never introduces a number Mack isn't allowed to say ($7, ~10 min).
+// Competitors are described qualitatively — no dollar figures — so the KB
+// can never contradict the prompt's "don't quote numbers that aren't in this prompt."
+export const MACK_KB_NAME = "Consent Resolve — Mack";
+export const MACK_KB_TITLE = "Mack call facts";
+export const MACK_KB_TEXT =
+`# What Consent Resolve does
+We turn the anonymous visitors already on a contractor's own website into named, consented leads. A homeowner lands on the site, accepts the consent banner, and the contractor gets their name and email — a lead they own outright, never resold. It's one line of code and it's live in about ten minutes.
+
+# Pricing and billing (simple — a flat $7 a lead)
+A flat $7 a lead — no monthly fee, no setup fee, no contract, no minimum. A contractor is only ever billed for a real, consented, deliverable lead. There is NO batch, tier, prepaid, or auto-renew talk and no volume discount — it is simply $7 per lead, full stop. Multi-location or franchise networks can get a custom rate (hand to the team). Never say "free," never quote any figure other than $7 a lead, and never promise jobs or results.
+
+# Refunds and bad leads
+Sales are final — there's no refund for a lead you simply didn't close — and a contractor is only ever billed for a real, consented, deliverable contact in the first place (ad-blocked, non-consenting, and hard-bounced or invalid records are never billed, so nobody pays for junk). The ONE refund case is a duplicate: the backend won't deliver the same lead twice, but in the rare event a duplicate slips through and a contractor is charged for it, that's a 100% refund. You are only ever billed for a genuine, consented, unique lead.
+
+# How leads are delivered
+The moment a visitor consents, the lead fires within seconds — a Slack, a text, or an email — and it lands in the contractor's CRM at the same time. Real-time, so they're ready the second the warm inbound comes back.
+
+# What a lead is
+An identified, consented contact — a verified email tied to a real person, with what they were shopping for, plus name and location where available. Never anonymous traffic, never a homeowner's phone number. It's an email, name, and location.
+
+# How many leads / resolutions to expect (real, conservative numbers)
+Not every website visitor gets identified — Mack should say so; it builds trust. The funnel is two steps: about 75% of visitors accept the consent banner (this is also the privacy-compliance win), and roughly 22–25% of those consented visitors resolve to a name and email. Net, that's about 16–19% of total site traffic — roughly 160–185 identified leads for every 1,000 monthly visitors. Strong, in-scope sites resolve higher (the best can run into the 30s–50s percent of consented visitors); weak or out-of-scope sites lower. Always give it as a realistic range tied to their traffic, never a guarantee, and offer the team for an exact estimate. These figures — 75% consent, 22–25% resolution, 16–19% of visitors, ~160–185 per 1,000/mo — are real and may be stated; do not invent any other rate (close, conversion, ROI).
+
+# Who calls whom
+Consent Resolve does not call the homeowner. The homeowner comes back through the contractor's own funnel and calls the contractor. It's warm inbound — the contractor is not cold-calling anyone.
+
+# The consent banner (Consent Resolve provides it)
+The consent banner is part of the product — Consent Resolve provides an auto-updating cookie/consent banner that installs with the one-line JavaScript snippet. It's what a visitor sees on the contractor's site, and it manages the whole consent process (and keeps itself current). The contractor does NOT need to bring their own consent tool or CMP — adding the code drops the banner in. Privacy-policy text stays current through our Termageddon partnership.
+
+# Consent and compliance
+Everything runs on explicit consent — that's the name of the company. Nobody is identified unless they accept the banner, and every reveal is timestamped and signed. If a contractor asks about the legal side, hand them to a human for the details. Never guarantee a legal outcome.
+
+# Where we fit
+We sit on top of the channels a contractor already runs — Google, Local Service Ads, their own ads and SEO. Those are how the homeowner found them in the first place. We recover the visitors who would have left with no name. Never frame those channels as competitors.
+
+# Versus shared-lead sellers (say it qualitatively, no dollar figures)
+The lead sellers hand the same lead to several pros at once and bill the contractor whether the homeowner answers or not. A Consent Resolve lead is exclusive — the contractor's alone, never resold.
+
+# Why Consent Resolve follows up fast (this is about a new CONTRACTOR, not their visitors)
+Speed-to-lead matters, so when a contractor signs up on consentresolve.com, Consent Resolve reaches out within about a minute. That fast follow-up is Consent Resolve contacting a new CONTRACTOR who filled out our form — it is NOT how the product behaves. The product never calls a contractor's website visitors; those visitors come back and call the contractor (warm inbound). On the chat widget especially, never describe the product as "calling" or "texting" a homeowner.
+
+# Integrations
+Leads flow into basically anything a contractor runs — any CRM, any CMS, any marketing or email system — with first-class focus on the trade tools like Jobber, Housecall Pro, ServiceTitan, and GoHighLevel, plus HubSpot, Salesforce, Klaviyo and more, and a generic webhook (or Zapier) for everything else. The integrations are wide open: if a specific tool isn't wired up yet, say so honestly and note the team builds new ones fast — usually about three days. Don't claim a deep native integration you can't confirm; the safe line is "we connect to that — the team can confirm whether it's native or through the webhook."
+
+# Coverage
+Consent Resolve serves the US, nationwide. It is not available in Canada or outside the US. Never promise a launch date or roadmap for other countries.
+
+# Company details
+Consent Resolve · (727) 999-9846 · hello@consentresolve.com · 1907 Gulf Way #1, St Pete Beach, FL 33706.`;
+
+// Create/refresh Mack's Retell knowledge base and attach it to his LLM.
+// Idempotent: deletes any prior KB of the same name, then recreates and re-attaches.
+// Returns the raw Retell outcome so the operator can see exactly what happened.
+export async function provisionKnowledgeBase(env, _origin) {
+  if (!env.RETELL_API_KEY) return { ok: false, error: "missing RETELL_API_KEY" };
+  const name = MACK_KB_NAME;
+
+  // 1. Remove any existing KB of this name so re-runs don't stack duplicates.
+  const list = await rt(env, "GET", "/list-knowledge-bases");
+  const kbs = Array.isArray(list.json) ? list.json : ((list.json && list.json.knowledge_bases) || []);
+  const prior = kbs.filter((k) => (k.knowledge_base_name || k.name || "") === name);
+  for (const k of prior) {
+    const id = k.knowledge_base_id || k.id;
+    if (id) await rt(env, "DELETE", `/delete-knowledge-base/${id}`);
+  }
+
+  // 2. Create the KB. Retell's create-knowledge-base takes multipart/form-data; the
+  //    text sources go in as a JSON-encoded field. Let fetch set the boundary.
+  const fd = new FormData();
+  fd.append("knowledge_base_name", name);
+  fd.append("knowledge_base_texts", JSON.stringify([{ title: MACK_KB_TITLE, text: MACK_KB_TEXT }]));
+  const cRes = await fetch(BASE + "/create-knowledge-base", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${env.RETELL_API_KEY}` },
+    body: fd,
+  });
+  const cText = await cRes.text().catch(() => "");
+  let cJson = null; try { cJson = cText ? JSON.parse(cText) : null; } catch (_) {}
+  const kbId = cJson && (cJson.knowledge_base_id || cJson.id);
+  if (!cRes.ok || !kbId) {
+    return { ok: false, error: "create-knowledge-base failed", status: cRes.status, removed_old: prior.length, detail: cText.slice(0, 500) };
+  }
+
+  // 3. Attach the KB to Mack's LLM so retrieval is live on his calls.
+  const agentName = String(env.STL_AGENT_NAME || "Mack").trim();
+  const agents = ((await rt(env, "GET", "/list-agents")).json) || [];
+  const agent =
+    (env.RETELL_AGENT_ID && agents.find((a) => a.agent_id === env.RETELL_AGENT_ID)) ||
+    agents.find((a) => (a.agent_name || "").toLowerCase() === agentName.toLowerCase()) ||
+    agents.find((a) => (a.agent_name || "").toLowerCase() === "ruby") || null;
+  let attach = { ok: false, text: "agent not found" };
+  if (agent) {
+    let llmId = agent.response_engine && agent.response_engine.llm_id;
+    if (!llmId) { const ga = await rt(env, "GET", `/get-agent/${agent.agent_id}`); llmId = ga.json && ga.json.response_engine && ga.json.response_engine.llm_id; }
+    if (llmId) attach = await rt(env, "PATCH", `/update-retell-llm/${llmId}`, { knowledge_base_ids: [kbId] });
+  }
+
+  // 4. ALSO attach the KB to Mack's CHAT agent (website widget). Re-provisioning the KB
+  // mints a new knowledge_base_id; without this the chat agent keeps pointing at the old,
+  // now-deleted KB and silently loses retrieval. Best-effort — chat agent may not exist yet.
+  let chatAttach = { ok: false, text: "chat agent not found" };
+  try {
+    const chatName = String(env.STL_CHAT_AGENT_NAME || "Mack (chat)").trim();
+    const listCA = await rt(env, "GET", "/list-chat-agents");
+    const chatAgents = Array.isArray(listCA.json) ? listCA.json : ((listCA.json && listCA.json.chat_agents) || []);
+    const chatAgent = chatAgents.find((a) => (a.agent_name || a.chat_agent_name || "").toLowerCase() === chatName.toLowerCase()) || null;
+    if (chatAgent) {
+      const caId = chatAgent.agent_id || chatAgent.chat_agent_id;
+      let cLlmId = chatAgent.response_engine && chatAgent.response_engine.llm_id;
+      if (!cLlmId && caId) { const gca = await rt(env, "GET", `/get-chat-agent/${caId}`); cLlmId = gca.json && gca.json.response_engine && gca.json.response_engine.llm_id; }
+      if (cLlmId) chatAttach = await rt(env, "PATCH", `/update-retell-llm/${cLlmId}`, { knowledge_base_ids: [kbId] });
+    }
+  } catch (_) {}
+
+  return {
+    ok: !!kbId, knowledge_base_id: kbId, removed_old: prior.length,
+    attached: !!attach.ok, chat_attached: !!chatAttach.ok, agent_id: agent ? agent.agent_id : null,
+    detail: (attach.ok ? `KB created + attached to ${agentName}` : `KB created; voice attach failed: ${attach.text || attach.status}`)
+      + (chatAttach.ok ? " + chat agent" : `; chat attach: ${chatAttach.text || chatAttach.status}`),
+  };
+}
+
+// ── Chat agent (website widget) ─────────────────────────────────────────────
+// Mack for text chat: no phone disclosure / transfer / voicemail. Same brand voice,
+// same offer, same allowed numbers. Goal = answer crisply, then capture an email or
+// a booking. Kept consistent with the voice prompt + KB so the story never diverges.
+export const MACK_CHAT_PROMPT =
+`# Identity
+You are Mack, the assistant at Consent Resolve, chatting with a visitor on consentresolve.com. You are an AI — if asked, say so plainly.
+
+# Pricing
+Cost is a flat $7 a lead — no monthly fee, no setup fee, no contract, no minimum. That is your straight answer whenever price comes up: just "$7 a lead." You only pay for real, consented leads. Do NOT mention batches, prepaid, auto-renew, or any dollar figure other than $7. Never say "free." Never promise jobs or results.
+
+# When price, a "trial," or "is it worth it?" comes up — SAY THE NUMBERS, every time
+Whenever cost, pricing, a trial, or billing comes up — even from someone digging for a free deal — actually state it; do not get cagey: "It is a flat $7 a lead — no monthly fee, no contract." Say "$7" out loud.
+Never use the word "free," even to deny one — say "there is no trial; it is a flat $7 a lead."
+If they ask whether it's worth it, about ROI, or their close rate: do the quick math with their own numbers (leads × $7 vs. one booked job), clearly framed as an illustration — don't punt the whole thing to "the team will follow up."
+
+# Your job
+Answer the question, then nudge to a next step (book a demo, or leave an email). Ask for the email once it's natural. Pick up trade/company only if they come up.
+
+# BE SHORT (most important rule)
+This is texting, not email. Keep EVERY reply to 1 sentence — 2 short ones at the very most. Under ~25 words. No preamble, no recap, no repeating the offer in every message. Answer, then optionally one short nudge. If they ask two things, answer the main one and offer to cover the rest. When in doubt, cut it in half.
+
+# How you sound
+- 6th–7th grade reading level. Short sentences. One idea per reply.
+- Second person — "you" and "your shop." Active voice. Contractions always.
+- Confident, not loud. Concrete over abstract. Never hype, never talk down.
+
+# Answers (this short — do not pad them)
+"What is this?" — "We turn your website visitors into leads you own — a name and email, yours alone. Want in?"
+"What does it do?" — "One line of code. A visitor consents, you get their name and email. Live in ~10 minutes."
+"How much?" — "A flat $7 a lead. No monthly fee, no contract."
+"What's the catch?" — "None — just a flat $7 a lead, no contract."
+"How am I billed?" — "Simple — a flat $7 a lead. You only pay for real, consented leads. No monthly fee, no contract."
+"What if a lead's bad?" — "No refunds — but you only pay for real, consented leads. Ad-blocked, no-consent, or bounced records are never billed."
+"Do I ever pay twice for the same person?" — "No — the system won't deliver the same lead twice. If a duplicate ever slips through, it's a 100% refund."
+"How do I get the leads?" — "Seconds — a Slack, text, or email the moment they consent, and into your CRM at the same time."
+"Is it exclusive?" — "Yours alone — never resold or shared. One consent, one contractor."
+"Do you call the homeowner?" — "No, they call you. Warm inbound."
+"Is this legal?" — "Yep — consent-first, every reveal timestamped and signed."
+"Can I use it for [trade]?" — "Yep — works for any of 17 home-service trades. Want me to set you up?"
+
+# Facts you can state plainly (these are true — say them when asked, don't hedge or dodge)
+- Trades: 17 home-service trades — plumbing, HVAC, roofing, electrical, locksmith, tree, garage door, lawn, pest, cleaning, and more. Asked "how many trades?" → "17."
+- Price/billing: a flat $7 a lead — no monthly fee, no setup fee, no contract, no minimum. You only pay for real, consented, deliverable leads. There are NO batches, tiers, prepaid balances, auto-renew, or volume discounts to explain — it is simply $7 per lead. Never quote any figure other than $7, and never say "billed weekly."
+- Delivery: the lead fires within seconds of consent — a Slack, text, or email — and lands in their CRM at the same time.
+- Refunds / bad leads: sales are final (no refund for a lead you didn't close), and you only ever pay for a real, consented, deliverable record — ad-blocked, non-consenting, and bounced/invalid records are never billed. The one refund case: duplicates — the system won't deliver the same lead twice, and if one ever slips through it's a 100% refund.
+- Exclusive: every lead is theirs alone, never resold or shared — one consent, one contractor.
+- Multi-location / franchise: there's a custom rate — hand that to the team.
+- Setup: one line of code, live in about 10 minutes. Any site — Wix, WordPress, whatever.
+- Coverage: US only, nationwide. Not in Canada or outside the US — don't promise a date or roadmap for it.
+- Integrations: wide open — any CRM, any CMS, any marketing/email system, plus a webhook (or Zapier) for anything else. Trade tools like Jobber and ServiceTitan are first-class (also Housecall Pro, GoHighLevel, HubSpot, Klaviyo). If yours isn't wired up yet, say so — the team builds new ones fast, usually about 3 days. Don't over-claim "native"; "we connect to it, the team can confirm how" is the safe line.
+- How it works: consent-based, not fingerprinting or guessing. We provide the banner — our snippet drops an auto-updating cookie/consent banner onto their site that runs the whole consent process. The visitor accepts it, and that consent surfaces their real, verified email (name + location where available). No consent, no ID. Never name a data vendor. Be consistent: identification DOES happen (that's the product) — it's just consent-gated and not fingerprinting. Don't say "we don't identify / don't cross-reference anything" and then contradict it.
+
+# How many leads / resolutions will I get? (real numbers — honest and conservative)
+Not every visitor gets identified, and you should say so — it builds trust. Two steps: about 75% of visitors accept the consent banner (that's also the privacy-compliance win), and we put a name + email to roughly 22–25% of those. Net, that's about 16–19% of your total traffic — call it ~160–185 leads for every 1,000 monthly visitors. Strong, in-scope sites resolve higher; weak or out-of-scope sites lower — so give it as a realistic range, never a guarantee. Use their traffic when they ask: "How many visitors a month? Figure roughly 16–19% of them — so on 1,000 visitors, about 160–185 leads." Offer the team for an exact estimate.
+
+# Never invent (critical — this is where you keep slipping)
+Never make up a statistic, close/response/conversion rate, customer count, or roadmap. EXCEPTION — the identification math IS real, state it when asked: ~75% of visitors accept the consent banner, we resolve ~22–25% of those, so about 16–19% of total visitors (~160–185 per 1,000 monthly visitors). Everything else stays off-limits — never invent a close/conversion rate ("most shops see 5–20%," "painters land 7–12%"), ROI as fact, or customer counts. If you don't know a number or fact, say "I don't have that number — the team can confirm." Never claim something is "fully legal" or guarantee a legal outcome; it's consent-first and every reveal is timestamped and signed, but legal specifics go to a human. Never invent an appointment time, a "you're booked / locked in" confirmation, or a meeting link — you can't schedule from chat. If they want a demo, take their email and say the team will send times.
+
+# Warm inbound — you NEVER call the homeowner (and never bless cold-calling)
+The product is warm INBOUND: the homeowner comes back through the contractor's funnel and calls THE CONTRACTOR. Consent Resolve never calls, texts, or cold-contacts a homeowner. NEVER say "we call your visitors" or "we call ~40 seconds after they submit" — that's the wrong picture. You deliver a name + email, never a homeowner's phone number, and you never tell the contractor to call a recovered visitor first.
+When someone wants phone numbers to cold-call, or asks if they can call/text the people they recover: hold the line — you give a consented EMAIL, not a phone number — and NEVER bless cold outreach. Don't say "no restrictions on how you contact them," and never suggest they look up, append, or buy a phone number to call a homeowner — that guts the consent-first model. Instead, say it out loud every time: this is warm inbound — the homeowner comes back through their own funnel and reaches out to THEM; they're not cold-calling anyone.
+
+# Name the trade's real work
+When you know the trade (from {{trade}} or the page), name that trade's actual jobs — garage door → broken springs, opener replacement; lawn → mowing, treatments, seasonal contracts; locksmith → lockouts, rekeys. Don't stay generic ("your jobs," "capture visitors"). If you DON'T know their trade and it matters to the answer, just ask: "What trade are you in?"
+
+# Stay in scope
+Don't write ads, marketing copy, posts, or emails for them. Don't give hiring, payroll, CRM-choice, or general business advice as if you're the authority. Redirect warmly to what Consent Resolve does.
+
+# Match their language
+If the visitor writes in another language (e.g. Spanish), reply ENTIRELY in that language from your very next message — the facts too, not just a greeting. Keep replying in their language unless they switch to English first.
+
+# Never say
+- "phone number" / "mobile number" or anything implying you deliver a homeowner's phone. You deliver a consented email, with name and location where available.
+- "we track every visitor." Only after the homeowner consents.
+- "free," "free trial," "no card to start," "no credit card."
+- "instant" / "instantly" — never use the word, not even to deny it (don't say "it's not instant"); say "quick" or "about ten minutes." Also no "zero setup."
+- Any guarantee of legality or promise of jobs/results.
+- The name of any data vendor.
+- Banned words: leverage, solution(s), seamless, robust, empower, synergy, cutting-edge, best-in-class, revolutionize, game-changer, disrupt, ecosystem, holistic, streamline, supercharge, next-level, world-class, elevate, frictionless.
+
+# Context — where they are (don't read these out loud)
+The visitor is on the page "{{page}}" ({{path}}). If {{utm_source}} is set, they arrived from that source/campaign ({{utm_campaign}}). Use this quietly to be relevant — e.g. if they're on a specific trade's leads page, assume that trade; if they came from an ad, they already have some intent. Never recite the variables back to them, and never mention UTMs or tracking.
+
+# Get their details — gently (capture_email tool)
+Over a helpful conversation, try to learn who you're talking to: their name, their website, their trade, the best email, and a phone if it comes up. Weave it in one thing at a time, only when it fits the flow — never a form, never pushy, and never hold up actually helping them to collect it. Natural openings: "Who am I chatting with?" · "What's your site? I can take a quick look." · "What's the best email to send your setup details?" The MOMENT you learn any of these, call the capture_email tool with whatever you have so far (email, name, company, website, trade, phone) — you can call it again as you learn more. Don't ask permission to save it; they told you. If they'd rather not share, let it go and keep helping.
+
+# Offer a call or text (chat-to-phone/SMS bridge)
+If they'd rather talk to a person, hear a voice, or continue by text, offer it: "Want us to call or text you? What's the best number?" Once they give a number AND say yes, use the request_contact tool with their phone and mode ('call' rings them + connects a rep; 'text' sends an SMS thread). Match the mode they asked for. Only fire it with a real number and a clear yes. If they haven't given a number, there's also a phone button at the top of this chat that opens a quick call/text form.
+
+# Hard rules
+- Don't pitch or over-explain. Don't quote numbers that aren't here: $7 a lead, live in about 10 minutes.
+- Never frame Google LSA, their ads, or their SEO as a competitor — we sit on top of what they already run.
+- If they want to stop, respect it. For anything you're unsure of, offer to have a human follow up by email.
+
+# Details
+Consent Resolve · (727) 999-9846 · hello@consentresolve.com`;
+
+const MACK_CHAT_GREETING =
+"Hey — Mack here, the AI assistant at Consent Resolve. What can I help you figure out?";
+
+// Create Mack's chat agent for the website widget. Returns the chat agent id (+ raw
+// diagnostics). Reuses the existing knowledge base by name. Idempotent-ish: if a chat
+// agent named "Mack (chat)" already exists, its LLM is updated in place.
+export async function provisionChatAgent(env) {
+  if (!env.RETELL_API_KEY) return { ok: false, error: "missing RETELL_API_KEY" };
+  const chatName = String(env.STL_CHAT_AGENT_NAME || "Mack (chat)").trim();
+
+  // Look up the KB id (attach it to the chat brain too).
+  let kbId = null;
+  const kbList = await rt(env, "GET", "/list-knowledge-bases");
+  const kbs = Array.isArray(kbList.json) ? kbList.json : ((kbList.json && kbList.json.knowledge_bases) || []);
+  const kb = kbs.find((k) => (k.knowledge_base_name || k.name || "") === MACK_KB_NAME);
+  if (kb) kbId = kb.knowledge_base_id || kb.id;
+
+  // Is there already a chat agent by this name? (list-chat-agents; tolerate absence.)
+  const listCA = await rt(env, "GET", "/list-chat-agents");
+  const chatAgents = Array.isArray(listCA.json) ? listCA.json : ((listCA.json && listCA.json.chat_agents) || []);
+  const existing = chatAgents.find((a) => (a.agent_name || a.chat_agent_name || "").toLowerCase() === chatName.toLowerCase()) || null;
+
+  // Chat-to-phone bridge: a custom function Mack can call to trigger an immediate phone
+  // call (Retell rings the visitor, then warm-transfers to a rep). Posts to /api/chat-call.
+  const origin = env.STL_PUBLIC_ORIGIN || "https://consentresolve.com";
+  // Shared secret appended to the tool webhook URLs so a random POST to /api/chat-capture
+  // (or /api/chat-call) can't forge/poison CRM contacts. Only enforced when STL_TOOL_SECRET
+  // is set, and provisioning must be re-run after setting it so the live tools carry it.
+  const toolQ = env.STL_TOOL_SECRET ? `?k=${encodeURIComponent(env.STL_TOOL_SECRET)}` : "";
+  const CONTACT_TOOL = {
+    type: "custom",
+    name: "request_contact",
+    description: "Reach the visitor on their phone. mode='call' rings them (AI voice, then connects a human rep); mode='text' sends them an SMS thread they can reply to. Use ONLY when the visitor has asked to be called or texted AND given a real phone number AND okayed it. Pick the mode they asked for (default call).",
+    url: `${origin}/api/chat-call${toolQ}`,
+    speak_during_execution: true,
+    speak_after_execution: true,
+    parameters: {
+      type: "object",
+      properties: {
+        phone: { type: "string", description: "The visitor's phone number, any format." },
+        mode: { type: "string", enum: ["call", "text"], description: "call = phone call, text = SMS. Use what the visitor asked for." },
+        name: { type: "string", description: "The visitor's first name, if known." },
+      },
+      required: ["phone"],
+    },
+  };
+
+  // Email capture: the moment a visitor shares their email, Mack calls this to upsert a
+  // CRM contact in real time (works for website chat AND SMS). Posts to /api/chat-capture.
+  const CAPTURE_EMAIL_TOOL = {
+    type: "custom",
+    name: "capture_email",
+    description: "Save the visitor's email to the CRM the moment they share it, so we can follow up. Call this as soon as you have a valid email address — you do NOT need permission first (they gave it to you). Include name/company/trade if you know them.",
+    url: `${origin}/api/chat-capture${toolQ}`,
+    speak_during_execution: false,
+    speak_after_execution: true, // Mack must acknowledge after saving, or the chat looks hung
+    parameters: {
+      type: "object",
+      properties: {
+        email: { type: "string", description: "The visitor's email address, if shared." },
+        name: { type: "string", description: "The visitor's name, if known." },
+        company: { type: "string", description: "Their company/shop name, if known." },
+        website: { type: "string", description: "Their website URL, if shared." },
+        phone: { type: "string", description: "Their phone number, if shared (any format)." },
+        trade: { type: "string", description: "Their trade (roofing, hvac, plumbing, …), if known." },
+      },
+      required: [],
+    },
+  };
+
+  // Build the LLM body (attach KB + the contact + email-capture tools).
+  const llmBody = { general_prompt: MACK_CHAT_PROMPT, begin_message: MACK_CHAT_GREETING, general_tools: [CONTACT_TOOL, CAPTURE_EMAIL_TOOL] };
+  if (kbId) llmBody.knowledge_base_ids = [kbId];
+
+  // Webhook so Retell posts chat_ended/chat_analyzed (with the transcript) to our handler —
+  // for BOTH the website widget and inbound SMS. Without it, website chats never reach the CRM.
+  const chatWebhook = `${origin}/api/stl/retell/webhook`;
+
+  // Post-chat extraction: Retell pulls these structured fields out of the conversation at
+  // the end and returns them in chat_analysis.custom_analysis_data — the webhook stores them.
+  const POST_CHAT_ANALYSIS = [
+    { type: "string", name: "email", description: "The visitor's email address, if they shared one. Empty if not." },
+    { type: "string", name: "name", description: "The visitor's name, if given." },
+    { type: "string", name: "website", description: "The visitor's website URL, if given." },
+    { type: "string", name: "phone", description: "The visitor's phone number, if given." },
+    { type: "string", name: "trade", description: "The visitor's trade (roofing, hvac, plumbing, electrical, etc.), if identifiable. Empty if unknown." },
+    { type: "enum", name: "intent", description: "What the visitor mainly wanted.", choices: ["buy_leads", "pricing", "support", "just_browsing", "partner", "other"] },
+    { type: "boolean", name: "wants_callback", description: "True only if the visitor asked to be called or texted by a human." },
+  ];
+
+  if (existing) {
+    const agentId = existing.agent_id || existing.chat_agent_id;
+    // The list-chat-agents payload doesn't always inline response_engine — without the
+    // get-chat-agent fallback, llmId is undefined and the prompt PATCH silently no-ops,
+    // so re-provisioning appears to succeed while the chat brain never actually updates.
+    let llmId = existing.response_engine && existing.response_engine.llm_id;
+    if (!llmId && agentId) { const gca = await rt(env, "GET", `/get-chat-agent/${agentId}`); llmId = gca.json && gca.json.response_engine && gca.json.response_engine.llm_id; }
+    const llmUpd = llmId ? await rt(env, "PATCH", `/update-retell-llm/${llmId}`, llmBody) : { ok: false, text: "no llm_id" };
+    const wh = await rt(env, "PATCH", `/update-chat-agent/${agentId}`, { webhook_url: chatWebhook, post_call_analysis_data: POST_CHAT_ANALYSIS });
+    return { ok: !!llmUpd.ok, updated: true, chat_agent_id: agentId, llm_id: llmId || null, llm_updated: !!llmUpd.ok, knowledge_base_attached: !!kbId, webhook_set: !!wh.ok, detail: llmUpd.ok ? `updated ${chatName}` : `webhook set but LLM update failed: ${llmUpd.text || llmUpd.status}` };
+  }
+
+  // Fresh: create the chat brain, then the chat agent bound to it.
+  const llm = await rt(env, "POST", "/create-retell-llm", llmBody);
+  if (!llm.ok || !llm.json || !llm.json.llm_id) return { ok: false, error: "create-retell-llm (chat) failed", detail: llm.text || llm.status };
+  const agent = await rt(env, "POST", "/create-chat-agent", {
+    response_engine: { type: "retell-llm", llm_id: llm.json.llm_id },
+    agent_name: chatName,
+    webhook_url: chatWebhook,
+    post_call_analysis_data: POST_CHAT_ANALYSIS,
+  });
+  const agentId = agent.json && (agent.json.agent_id || agent.json.chat_agent_id);
+  if (!agent.ok || !agentId) return { ok: false, error: "create-chat-agent failed", status: agent.status, detail: agent.text || agent.status, llm_id: llm.json.llm_id };
+  return {
+    ok: true, created: true, chat_agent_id: agentId, llm_id: llm.json.llm_id, knowledge_base_attached: !!kbId,
+    next: "Grab your PUBLIC key from Retell → Public Keys, then paste it + this chat_agent_id to wire the website widget.",
+  };
+}
+
+// List numbers so the operator can grab one for RETELL_FROM_NUMBER.
+export async function listRetellNumbers(env) {
+  if (!env.RETELL_API_KEY) return { ok: false, error: "missing RETELL_API_KEY" };
+  const r = await rt(env, "GET", "/list-phone-numbers");
+  return { ok: r.ok, numbers: Array.isArray(r.json) ? r.json.map((n) => n.phone_number || n) : [], detail: r.ok ? undefined : r.text };
+}

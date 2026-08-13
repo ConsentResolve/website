@@ -75,7 +75,7 @@ export const INDUSTRIES: Industry[] = [
     faqs: [
       { q: "How do general contractors get exclusive leads?", a: "You identify homeowners already pricing a project on your site. When they consent, you get a recovered record — yours alone, never shared." },
       { q: "Will I know what project they want?", a: "Yes. You see what they were shopping for, so when they call you already know it's a kitchen, a bath, or an addition." },
-      { q: "What does it cost?", a: "Flat $7 a lead — a rounding error against one signed remodel. Card required, cancel anytime." },
+      { q: "What does it cost?", a: "Flat $7 a lead — a rounding error against one signed remodel. Card required, no contract." },
     ],
     finalCtaH2: "Your next remodel is already pricing the job on your site.",
   },
@@ -125,7 +125,7 @@ export const INDUSTRIES: Industry[] = [
     faqs: [
       { q: "How do tree removal companies get more local jobs after a storm?", a: "You see the homeowners pricing removal in your area in real time. When they consent, the recovered record drops into your retargeting and CRM so they come back through your funnel — inbound, not cold-call." },
       { q: "Can I see which neighborhoods are shopping?", a: "Yes. Every lead drops a pin on your service-area map." },
-      { q: "What's the cost?", a: "Flat $7 a lead — one big removal covers months of leads. Card required, cancel anytime." },
+      { q: "What's the cost?", a: "Flat $7 a lead — one big removal covers months of leads. Card required, no contract." },
     ],
     finalCtaH2: "That downed tree is already being priced on your site.",
   },
@@ -175,7 +175,7 @@ export const INDUSTRIES: Industry[] = [
     faqs: [
       { q: "What if it's an emergency, like a burst pipe?", a: "You get the alert in seconds, and the recovered contact feeds your funnel so you stay in front of them before they settle on another plumber." },
       { q: "Will I know what the job is?", a: "Yes — you see what they were shopping for, so your follow-up speaks to the exact job." },
-      { q: "How much does it cost?", a: "Flat $7 a lead, no contract. Card required, cancel anytime." },
+      { q: "How much does it cost?", a: "Flat $7 a lead, no contract. Card required, no contract." },
     ],
     finalCtaH2: "Your next plumbing job is already shopping your site.",
   },
@@ -225,7 +225,7 @@ export const INDUSTRIES: Industry[] = [
     faqs: [
       { q: "Are these leads ready to buy?", a: "They were on your site pricing the work. Your funnel keeps you in front of them while it's still top of mind." },
       { q: "Will I know if it's a panel job or a small fix?", a: "Yes — you see what they were shopping for." },
-      { q: "What does it cost?", a: "Flat $7 a lead, no contract. Card required, cancel anytime." },
+      { q: "What does it cost?", a: "Flat $7 a lead, no contract. Card required, no contract." },
     ],
     finalCtaH2: "Your next panel job is already pricing it on your site.",
   },
@@ -250,7 +250,7 @@ export const INDUSTRIES: Industry[] = [
     faqs: [
       { q: "Do these work for storm and insurance jobs?", a: "Yes. You see who's pricing roof repairs right after a storm, and your retargeting and email keep you in front of them until they call — so you're not racing the chasers on the phone." },
       { q: "How do I beat out-of-town storm chasers?", a: "Stay in front of the homeowner. The recovered visitor drops into your retargeting and CRM, so they keep seeing you long after the chaser packs up the parking lot." },
-      { q: "What's the cost?", a: "Flat $7 a lead — one re-roof pays for a year of leads. Card required, cancel anytime." },
+      { q: "What's the cost?", a: "Flat $7 a lead — one re-roof pays for a year of leads. Card required, no contract." },
     ],
     finalCtaH2: "Your next roof is already shopping your site.",
   },
@@ -300,7 +300,7 @@ export const INDUSTRIES: Industry[] = [
     faqs: [
       { q: "How do deck and fence builders get leads in the busy season?", a: "You identify the homeowners already pricing a build on your site and stay in front of them through your funnel, so you land the bid while your calendar still has room." },
       { q: "Will I know the project type?", a: "Yes — you see what they were shopping for, so your follow-up fits the job." },
-      { q: "What's the cost?", a: "Flat $7 a lead — one deck covers a full season of leads. Card required, cancel anytime." },
+      { q: "What's the cost?", a: "Flat $7 a lead — one deck covers a full season of leads. Card required, no contract." },
     ],
     finalCtaH2: "Your next build is already being priced on your site.",
   },
@@ -350,7 +350,7 @@ export const INDUSTRIES: Industry[] = [
     faqs: [
       { q: "How do appliance repair techs get more local calls?", a: "You identify the homeowners already on your site and stay in front of them through your funnel, before they book someone else." },
       { q: "Will I know which appliance?", a: "Yes — you see what they were shopping for, so you bring the right parts." },
-      { q: "What's the cost?", a: "Flat $7 a lead — one repair covers a week of them. Card required, cancel anytime." },
+      { q: "What's the cost?", a: "Flat $7 a lead — one repair covers a week of them. Card required, no contract." },
     ],
     finalCtaH2: "A dead appliance is on your site right now.",
   },
@@ -400,7 +400,7 @@ export const INDUSTRIES: Industry[] = [
     faqs: [
       { q: "How do pest control companies get more local jobs?", a: "You identify the homeowners already shopping your site and stay in front of them through your funnel, while the problem's still driving them crazy." },
       { q: "Will I know the pest type?", a: "Yes — you see what they were shopping for, so you're prepared when they reach out." },
-      { q: "What's the cost?", a: "Flat $7 a lead — one recurring plan pays for many. Card required, cancel anytime." },
+      { q: "What's the cost?", a: "Flat $7 a lead — one recurring plan pays for many. Card required, no contract." },
     ],
     finalCtaH2: "Someone's fighting an infestation on your site right now.",
   },
@@ -450,7 +450,7 @@ export const INDUSTRIES: Industry[] = [
     faqs: [
       { q: "How do lawn care companies get recurring customers?", a: "You identify the homeowners already shopping your site and stay in front of them through your funnel — recurring routes go to whoever stays top of mind." },
       { q: "Can I keep my route tight?", a: "Yes — every lead is mapped, so you can build by neighborhood." },
-      { q: "What's the cost?", a: "Flat $7 a lead — one season of one client covers a lot of leads. Card required, cancel anytime." },
+      { q: "What's the cost?", a: "Flat $7 a lead — one season of one client covers a lot of leads. Card required, no contract." },
     ],
     finalCtaH2: "Your next route stop is shopping your site today.",
   },

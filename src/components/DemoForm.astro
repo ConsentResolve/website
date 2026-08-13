@@ -80,7 +80,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 
     <p class="cr-demo-error hidden text-sm font-medium text-[color:var(--color-danger)]" role="alert"></p>
 
-    <p class="text-[13px] font-medium text-[color:var(--color-ink-2)]">Seeing the demo costs nothing. You only pay <strong class="text-[color:var(--color-ink)]">$7 per exclusive lead</strong> once you activate — no contract, cancel anytime.</p>
+    <p class="text-[13px] font-medium text-[color:var(--color-ink-2)]">Seeing the demo costs nothing. You only pay <strong class="text-[color:var(--color-ink)]">$7 per exclusive lead</strong> once you activate — no contract, pay-as-you-go.</p>
 
     <button type="submit"
       class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--color-brand)] px-5 py-3 text-[15px] font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
@@ -171,7 +171,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
             throw new Error(data.message || "Something went wrong. Please try again.");
           }
           const data = await res.json();
-          // Remember name/email (first-party) so the Crisp chat pre-fills next time.
+          // Remember name/email (first-party) so the chat pre-fills next time.
           // Only read back inside the consent-gated chat block, so it's processed post-consent.
           try {
             const _e = String(payload.email || ""); const _n = String(payload.name || "");
@@ -193,12 +193,10 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
             }
           } catch {}
           try { (window as any).ttq?.track?.("CompleteRegistration"); } catch {}
-          // GA4 lead event (works with the existing G-6JTD5SZNFY config).
+          // GA4 lead event (works with the existing G-6JTD5SZNFY config). Watching the demo is a
+          // LEAD, not a booking — so we fire generate_lead only. The "book_meeting" booking
+          // conversion is reserved for an actual Cal.com booking (see ClaimForm / BookMeeting).
           try { (window as any).gtag?.("event", "generate_lead", { method: "demo_form" }); } catch {}
-          // Google Ads conversion (new gtag named-event format). The Ads account AW-18263188422
-          // is configured in BaseLayout, so firing this event records the "Book appointment"
-          // conversion. Only fires post-consent (gtag is CMP-gated), keeping us consent-first.
-          try { (window as any).gtag?.("event", "ads_conversion_book_appointment_a"); } catch {}
           if (data.redirect_url) {
             if (demoTab) {
               demoTab.location.href = data.redirect_url;   // demo opens in the new tab; this page stays

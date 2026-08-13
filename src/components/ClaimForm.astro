@@ -10,7 +10,7 @@ const CAL_LINK = import.meta.env.PUBLIC_CAL_LINK || "aaron-phillips-xl2cpq/30min
 const inp = "w-full rounded-lg border border-[color:var(--color-rule)] bg-white px-3.5 py-3 text-[15px] text-[color:var(--color-ink)] outline-none transition focus:border-[color:var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-brand-soft)]";
 ---
 <div class="cr-claim rounded-2xl border border-[color:var(--color-rule)] bg-[color:var(--color-bg-alt)] p-6 shadow-lg sm:p-7" data-cal-link={CAL_LINK}>
-  <h3 class="cr-claim-title font-display text-xl font-bold text-[color:var(--color-ink)]">Claim your 50 leads</h3>
+  <h3 class="cr-claim-title font-display text-xl font-bold text-[color:var(--color-ink)]">See it on your own site</h3>
   <p class="cr-claim-sub2 mt-1 text-sm text-[color:var(--color-ink-2)]">Two quick things, then pick a time. Takes about a minute.</p>
 
   <form class="cr-claim-form mt-5" novalidate>
@@ -38,17 +38,13 @@ const inp = "w-full rounded-lg border border-[color:var(--color-rule)] bg-white 
       {siteKey && (<div class="cf-turnstile" data-sitekey={siteKey}></div>)}
 
       <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--color-brand)] px-5 py-3.5 text-base font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)] disabled:opacity-60"><span class="cr-claim-btn">See my available times →</span></button>
-      <p class="text-center text-[13px] text-[color:var(--color-ink-2)]"><strong class="text-[color:var(--color-ink)]">No card to claim.</strong> First 50 on us, then a flat $7 — cancel anytime.</p>
+      <p class="text-center text-[13px] text-[color:var(--color-ink-2)]"><strong class="text-[color:var(--color-ink)]">No card to book a demo.</strong> Leads are a flat $7 each, pay-as-you-go — no contract.</p>
     </div>
 
     <!-- Step 2 — Cal.com -->
     <div data-step="2" hidden>
-      <div class="rounded-xl bg-[color:var(--color-bg-inverse)] p-5 text-center text-[color:var(--color-on-inverse)]">
-        <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-brand)]">You're on the list</p>
-        <p class="mt-1 text-[15px]">Your 50 are reserved. Grab 15 minutes and we'll install it with you.</p>
-      </div>
-      <div class="cr-claim-cal mt-4" style="min-height:440px"></div>
-      <p class="mt-3 text-center text-[13px] text-[color:var(--color-ink-2)]">Rather just talk? <a href="tel:+17272025996" class="font-semibold text-[color:var(--color-brand-pressed)]">Call (727) 202-5996</a></p>
+      <div class="cr-claim-cal overflow-y-auto rounded-xl" style="height:520px"></div>
+      <p class="mt-3 text-center text-[13px] text-[color:var(--color-ink-2)]">Rather just talk? <a href="tel:+17279999846" class="font-semibold text-[color:var(--color-brand-pressed)]">Call (727) 999-9846</a></p>
     </div>
 
     <input type="hidden" name="trade" /><input type="hidden" name="segment" value="claim50" />
@@ -92,19 +88,20 @@ const inp = "w-full rounded-lg border border-[color:var(--color-rule)] bg-white 
         const payload:Record<string,unknown>={ offer:"FIRST50" }; new FormData(f).forEach((v,k)=>payload[k]=v);
         payload.turnstileToken=(new FormData(f).get("cf-turnstile-response") as string)||"";
         try { await fetch("/api/claim-50",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}); } catch(_){}
-        try{ (window as any).gtag?.("event","generate_lead",{method:"claim50"}); }catch(_){}
+        try{ (window as any).gtag?.("event","generate_lead",{method:"claim50",trade:el("trade").value||"unknown",ref:new URLSearchParams(location.search).get("ref")||""}); }catch(_){}
 
         const box=$(".cr-claim-cal"); const Cal=(window as any).Cal;
         if(calLink && box && Cal){
           if(!box.id) box.id="cr-claim-cal-el";
           Cal("init",{origin:"https://cal.com"});
-          Cal("inline",{elementOrSelector:"#"+box.id,calLink,config:{name:el("name").value,email:el("email").value,theme:"light",layout:"column_view"}});
+          Cal("ui",{hideEventTypeDetails:true,layout:"column_view",theme:"light"});
+          Cal("inline",{elementOrSelector:"#"+box.id,calLink,config:{name:el("name").value,email:el("email").value}});
           // Accurate conversion: fire the Google Ads booking conversion only when they actually book.
-          Cal("on",{action:"bookingSuccessful",callback:()=>{ try{ (window as any).gtag?.("event","ads_conversion_book_appointment_a"); }catch(_){}}});
+          Cal("on",{action:"bookingSuccessful",callback:()=>{ try{ (window as any).gtag?.("event","book_meeting",{method:"claim50",trade:el("trade").value||"unknown"}); }catch(_){} }});
         }
         f.querySelector<HTMLElement>('[data-step="1"]')!.hidden=true;
         f.querySelector<HTMLElement>('[data-step="2"]')!.hidden=false;
-        root.querySelector(".cr-claim-title")!.textContent="Pick your 15 minutes";
+        const t=root.querySelector(".cr-claim-title"); if(t) (t as HTMLElement).style.display="none";
         const sub=root.querySelector(".cr-claim-sub2"); if(sub) (sub as HTMLElement).style.display="none";
         root.scrollIntoView({block:"start",behavior:"smooth"});
       });

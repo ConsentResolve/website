@@ -51,7 +51,7 @@ When mentioning the HomeAdvisor FTC action, copy MUST say "settled" or "ordered 
 Every appearance of any address fragment must match exactly:
 - `1907 Gulf Way #1`
 - `St Pete Beach, FL 33706`
-- `(727) 202-5996` or `+1-727-202-5996`
+- `(727) 999-9846` or `+1-727-999-9846` (retired 202-5996 on 2026-07-31 — flag any lingering 202-5996 as an error)
 - `hello@consentresolve.com`
 
 Single source of truth: `src/lib/site.ts` `SITE.address` + `SITE.phone` + `SITE.email`.

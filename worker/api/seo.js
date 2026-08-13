@@ -9,6 +9,7 @@ import { isAuthed, crmSessionEmail } from "../_lib/auth.js";
 import { crmKey } from "./crm-leads.js";
 import { gscConfigured, ga4Configured, gscQuery, ga4Report, ymd } from "../_lib/google-sa.js";
 import { aeoSummary } from "../_lib/aeo.js";
+import { sendEmail as gmailSend } from "../_lib/gmail.js";
 
 async function gate(request, env) {
   const url = new URL(request.url);
@@ -154,7 +155,6 @@ const strip = (u) => ((u || "").replace("https://consentresolve.com", "") || "/"
 
 export async function sendWeeklyDigest(env) {
   if (!gscConfigured(env)) return { ok: false, error: "gsc_not_configured" };
-  if (!env.RESEND_API_KEY) return { ok: false, error: "no_resend_key" };
   const ov = await overview(env), qs = await queries(env), pg = await pages(env);
   const g = ov.gsc || {}, p = g.prev || {};
   const q = (qs.rows || []).slice(0, 10);
@@ -184,11 +184,9 @@ export async function sendWeeklyDigest(env) {
   </div>`;
   const to = env.SEO_DIGEST_TO || env.QUOTE_TO || "hello@consentresolve.com";
   const from = env.FROM_EMAIL || "Consent Resolve <hello@consentresolve.com>";
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST", headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to: [to], subject: `SEO weekly — ${fmt(g.clicks)} clicks (${arrow(g.clicks, p.clicks).replace(/<[^>]+>/g, "")}) · ${fmt(g.impressions)} impressions`, html }),
-  });
-  return { ok: res.ok, status: res.status, to };
+  const subject = `SEO weekly — ${fmt(g.clicks)} clicks (${arrow(g.clicks, p.clicks).replace(/<[^>]+>/g, "")}) · ${fmt(g.impressions)} impressions`;
+  const r = await gmailSend(env, { to, subject, html, from });
+  return { ok: !!r.ok, error: r.ok ? undefined : `gmail_${r.error || "failed"}`, to };
 }
 
 export async function onRequestGet({ request, env }) {

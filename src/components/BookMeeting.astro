@@ -73,7 +73,7 @@ const fieldCls = "w-full rounded-lg border border-[color:var(--color-rule)] bg-w
       <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--color-brand)] px-5 py-3 text-[15px] font-bold text-[color:var(--color-on-brand)] transition-colors hover:bg-[color:var(--color-brand-pressed)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
         <span class="cr-book-btn-label">Continue to pick a time →</span>
       </button>
-      <p class="text-xs text-[color:var(--color-ink-muted)]">No-cost walkthrough. You only pay <strong class="text-[color:var(--color-ink)]">$7 per exclusive lead</strong> if you activate — no contract, cancel anytime.</p>
+      <p class="text-xs text-[color:var(--color-ink-muted)]">No-cost walkthrough. You only pay <strong class="text-[color:var(--color-ink)]">$7 per exclusive lead</strong> if you activate — no contract, pay-as-you-go.</p>
     </form>
   </div>
 
@@ -139,13 +139,12 @@ const fieldCls = "w-full rounded-lg border border-[color:var(--color-rule)] bg-w
           if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.message || "Something went wrong. Please try again."); }
           const data = await res.json();
 
-          // Remember name/email first-party (Crisp prefill), same as the demo form.
+          // Remember name/email first-party (chat prefill), same as the demo form.
           try { const _e = String(payload.email || ""), _n = String(payload.name || ""); if (_e) document.cookie = "cr_id=" + encodeURIComponent(JSON.stringify({ n: _n, e: _e })) + "; Path=/; Max-Age=15552000; SameSite=Lax"; } catch {}
 
           // --- Conversions fire HERE (on our page → trackable) ---
           const g = (window as any).gtag;
-          try { g?.("event", "ads_conversion_book_appointment_a"); } catch {}      // Google Ads "Book appointment"
-          try { g?.("event", "generate_lead", { method: "book_meeting" }); } catch {} // GA4
+          try { g?.("event", "generate_lead", { method: "book_meeting" }); } catch {} // GA4 lead (intake). Booking conversion fires on Cal bookingSuccessful below — not here.
           try {
             const _fbq = (window as any).fbq;
             if (_fbq) {
@@ -166,13 +165,16 @@ const fieldCls = "w-full rounded-lg border border-[color:var(--color-rule)] bg-w
           const Cal = (window as any).Cal;
           if (calLink && calBox && Cal) {
             if (!calBox.id) calBox.id = "cr-cal-inline";
-            calBox.style.minHeight = "440px";
+            calBox.style.height = "520px"; calBox.style.overflowY = "auto"; calBox.style.borderRadius = "12px";
             Cal("init", { origin: "https://cal.com" });
+            Cal("ui", { hideEventTypeDetails: true, layout: "column_view", theme: "light" });
             Cal("inline", {
               elementOrSelector: "#" + calBox.id,
               calLink: calLink,
-              config: { name: String(payload.name || ""), email: String(payload.email || ""), theme: "light", layout: "column_view" },
+              config: { name: String(payload.name || ""), email: String(payload.email || "") },
             });
+            // Booking conversion fires only when they actually book (not on intake submit).
+            Cal("on", { action: "bookingSuccessful", callback: () => { try { (window as any).gtag?.("event", "book_meeting", { method: "book_meeting", trade: String(payload.trade || "unknown") }); } catch {} } });
           } else if (fallback) {
             fallback.classList.remove("hidden");
           }

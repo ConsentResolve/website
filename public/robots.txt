@@ -12,6 +12,7 @@ Disallow: /demo/
 Disallow: /screenshot-demo/
 Disallow: /crm
 Disallow: /admin
+Disallow: /signup
 Disallow: /api/
 
 # AI crawlers — explicitly welcomed for citation, same off-limits areas.
@@ -21,6 +22,7 @@ Disallow: /demo/
 Disallow: /screenshot-demo/
 Disallow: /crm
 Disallow: /admin
+Disallow: /signup
 Disallow: /api/
 
 User-agent: OAI-SearchBot
@@ -29,6 +31,7 @@ Disallow: /demo/
 Disallow: /screenshot-demo/
 Disallow: /crm
 Disallow: /admin
+Disallow: /signup
 Disallow: /api/
 
 User-agent: ChatGPT-User
@@ -37,6 +40,7 @@ Disallow: /demo/
 Disallow: /screenshot-demo/
 Disallow: /crm
 Disallow: /admin
+Disallow: /signup
 Disallow: /api/
 
 User-agent: PerplexityBot
@@ -45,6 +49,7 @@ Disallow: /demo/
 Disallow: /screenshot-demo/
 Disallow: /crm
 Disallow: /admin
+Disallow: /signup
 Disallow: /api/
 
 User-agent: Google-Extended
@@ -53,6 +58,7 @@ Disallow: /demo/
 Disallow: /screenshot-demo/
 Disallow: /crm
 Disallow: /admin
+Disallow: /signup
 Disallow: /api/
 
 User-agent: ClaudeBot
@@ -61,6 +67,7 @@ Disallow: /demo/
 Disallow: /screenshot-demo/
 Disallow: /crm
 Disallow: /admin
+Disallow: /signup
 Disallow: /api/
 
 User-agent: anthropic-ai
@@ -69,6 +76,7 @@ Disallow: /demo/
 Disallow: /screenshot-demo/
 Disallow: /crm
 Disallow: /admin
+Disallow: /signup
 Disallow: /api/
 
 User-agent: CCBot
@@ -77,6 +85,7 @@ Disallow: /demo/
 Disallow: /screenshot-demo/
 Disallow: /crm
 Disallow: /admin
+Disallow: /signup
 Disallow: /api/
 
 Sitemap: https://consentresolve.com/sitemap-index.xml

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>See your missed leads · Consent Resolve</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-950:#081120; --navy-900:#0b1830; --navy-800:#10203d; --navy-700:#16294b;
+  --line:rgba(120,160,220,.14); --line-strong:rgba(120,160,220,.24);
+  --ink:#eef4ff; --ink-dim:#9fb0cc; --ink-faint:#67789a;
+  --green:#17e88f; --green-deep:#0bbf72; --green-glow:rgba(23,232,143,.16);
+  --amber:#ffc866; --red:#ff7a7a; --radius:14px;
+  --font-display:'Sora',sans-serif; --font-body:'Inter',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:var(--font-body);
+  background:
+    radial-gradient(1100px 600px at 15% -10%, rgba(23,232,143,.07), transparent 60%),
+    radial-gradient(900px 700px at 110% 110%, rgba(40,110,255,.08), transparent 55%),
+    var(--navy-950);
+  color:var(--ink); min-height:100vh; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--green);text-decoration:none}
+
+.topbar{display:flex;justify-content:center;padding:26px 24px 4px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;font-size:24px;letter-spacing:-.02em}
+.logo .mark{width:31px;height:31px;flex:0 0 auto}
+.logo .a{color:var(--green)} .logo .b{color:var(--ink)}
+.badge-test{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);border:1px solid rgba(255,200,102,.35);border-radius:100px;padding:2px 8px;margin-left:4px}
+
+.wrap{max-width:640px;margin:22px auto 70px;padding:0 22px}
+
+/* dots progress */
+.dots{display:flex;gap:8px;justify-content:center;margin-bottom:26px}
+.dots i{width:26px;height:4px;border-radius:4px;background:var(--navy-700);transition:background .3s}
+.dots i.on{background:linear-gradient(90deg,var(--green-deep),var(--green))}
+
+.screen{display:none;animation:fade .45s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green);background:rgba(23,232,143,.09);border:1px solid rgba(23,232,143,.25);padding:6px 12px;border-radius:100px;margin-bottom:16px}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+h1{font-family:var(--font-display);font-weight:800;font-size:33px;line-height:1.12;letter-spacing:-.025em;margin-bottom:12px;text-wrap:balance}
+h1 em{font-style:normal;color:var(--green)}
+.lede{color:var(--ink-dim);font-size:15.5px;line-height:1.6;margin-bottom:26px}
+.lede strong{color:var(--ink)}
+
+.card{background:var(--navy-900);border:1px solid var(--line);border-radius:20px;padding:30px 30px 26px}
+
+/* domain input */
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.dom-wrap{display:flex;align-items:stretch;background:var(--navy-800);border:1px solid var(--line-strong);border-radius:12px;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.dom-wrap:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(23,232,143,.14)}
+.dom-wrap .pre{display:flex;align-items:center;padding:0 4px 0 15px;color:var(--ink-faint);font-size:15px}
+.dom-wrap input{flex:1;background:none;border:none;color:var(--ink);font-family:var(--font-body);font-size:16px;padding:15px 14px 15px 4px}
+.dom-wrap input:focus{outline:none}
+.dom-wrap input::placeholder{color:var(--ink-faint)}
+.hint{font-size:12.5px;color:var(--ink-faint);margin-top:9px;line-height:1.5}
+.err{display:none;font-size:12.5px;color:var(--red);margin-top:9px;font-weight:500}
+.err.show{display:block}
+
+.cta{width:100%;margin-top:18px;font-family:var(--font-display);font-weight:700;font-size:16.5px;letter-spacing:-.01em;color:var(--navy-950);background:linear-gradient(90deg,var(--green-deep),var(--green) 55%,#4ef2b0);border:none;border-radius:100px;padding:16px 20px;cursor:pointer;transition:transform .12s,box-shadow .15s,filter .15s,opacity .15s;box-shadow:0 10px 30px rgba(23,232,143,.22);display:flex;align-items:center;justify-content:center;gap:10px}
+.cta:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.cta:active{transform:translateY(0)}
+.cta:disabled{opacity:.8;cursor:default;transform:none}
+.cta.ghost{background:none;color:var(--ink);border:1px solid var(--line-strong);box-shadow:none;font-weight:600;font-size:14.5px;padding:13px 18px;margin-top:12px}
+.cta.ghost:hover{border-color:var(--green);color:var(--green)}
+.spinner{width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(8,17,32,.25);border-top-color:var(--navy-950);animation:spin .7s linear infinite;display:none}
+.cta.loading .spinner{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fine{text-align:center;font-size:12px;color:var(--ink-faint);margin-top:14px;line-height:1.55}
+.fine strong{color:var(--ink-dim)}
+
+/* scan */
+.scan-ring{width:70px;height:70px;margin:6px auto 20px;border-radius:50%;border:3px solid var(--navy-700);border-top-color:var(--green);animation:spin 1s linear infinite}
+.scan-lines{max-width:340px;margin:0 auto}
+.scan-line{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-faint);padding:7px 0;opacity:.3;transition:opacity .3s,color .3s}
+.scan-line.done{opacity:1;color:var(--ink-dim)}
+.scan-line .tick{width:18px;height:18px;flex:0 0 auto;border-radius:50%;border:1.5px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--green)}
+.scan-line.done .tick{border-color:var(--green);background:rgba(23,232,143,.12)}
+
+/* reveal */
+.reveal-domain{font-family:var(--font-display);font-weight:700;color:var(--green);font-size:15px}
+.stat-row{display:flex;align-items:baseline;gap:12px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.stat-row .n{font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;min-width:0}
+.stat-row .n.dim{color:var(--ink-faint);font-size:24px}
+.stat-row .lbl{font-size:13.5px;color:var(--ink-dim);line-height:1.4}
+.hero-num{text-align:center;padding:22px 0 14px}
+.hero-num .big{font-family:var(--font-display);font-weight:800;font-size:64px;line-height:1;letter-spacing:-.03em;color:var(--green);font-variant-numeric:tabular-nums;text-shadow:0 0 40px var(--green-glow)}
+.hero-num .cap{font-size:14px;color:var(--ink-dim);margin-top:8px}
+.hero-num .cap b{color:var(--ink)}
+.value-line{display:flex;gap:12px;align-items:center;background:rgba(23,232,143,.06);border:1px solid rgba(23,232,143,.22);border-radius:var(--radius);padding:14px 16px;margin-top:16px}
+.value-line .seven{font-family:var(--font-display);font-weight:800;font-size:24px;color:var(--green);white-space:nowrap;line-height:1}
+.value-line p{font-size:13px;color:var(--ink-dim);line-height:1.5}
+.value-line p strong{color:var(--ink)}
+.value-line p s{color:var(--ink-faint)}
+.reveal-note{font-size:12px;color:var(--ink-faint);margin-top:14px;line-height:1.55;text-align:center}
+
+/* manual fallback */
+.manual{margin-top:6px}
+.manual input{width:100%;background:var(--navy-800);border:1px solid var(--line-strong);border-radius:10px;color:var(--ink);font-family:var(--font-body);font-size:16px;padding:13px 15px;text-align:center}
+.manual input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(23,232,143,.14)}
+
+/* ladder (Better Together) */
+.ladder{position:relative;margin:8px 0 6px;padding-left:26px}
+.ladder::before{content:"";position:absolute;left:8px;top:14px;bottom:16px;width:2px;background:linear-gradient(180deg,var(--green) 0%,rgba(23,232,143,.35) 60%,rgba(23,232,143,.12));border-radius:2px}
+.rung{position:relative;padding:11px 0;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.rung::before{content:"";position:absolute;left:-24px;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;background:var(--navy-900);border:2px solid var(--green)}
+.rung.top::before{border-color:var(--amber)}
+.rung .what{font-family:var(--font-display);font-weight:700;font-size:15px;line-height:1.25}
+.rung.top .what{color:var(--amber)}
+.rung .sub{font-size:12px;color:var(--ink-faint);margin-top:2px}
+.rung .eta{font-size:12.5px;font-weight:700;color:var(--green);white-space:nowrap;text-align:right}
+.rung.top .eta{color:var(--amber)}
+
+/* claim */
+.field2{margin-bottom:15px}
+.field2 label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:7px}
+.field2 input{width:100%;background:var(--navy-800);border:1px solid var(--line-strong);border-radius:10px;color:var(--ink);font-family:var(--font-body);font-size:15px;padding:13px 15px;transition:border-color .15s,box-shadow .15s}
+.field2 input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(23,232,143,.14)}
+.field2.error input{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,122,122,.12)}
+.field2 input::placeholder{color:var(--ink-faint)}
+.recap{display:flex;gap:12px;align-items:center;background:var(--navy-800);border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;margin-bottom:20px}
+.recap .r-num{font-family:var(--font-display);font-weight:800;font-size:26px;color:var(--green);white-space:nowrap;line-height:1}
+.recap p{font-size:12.5px;color:var(--ink-dim);line-height:1.45}
+.recap p strong{color:var(--ink)}
+
+.back{display:inline-block;margin-top:16px;font-size:13px;color:var(--ink-faint);cursor:pointer}
+.back:hover{color:var(--green)}
+@media (max-width:560px){ .card{padding:24px 20px 22px} h1{font-size:27px} .hero-num .big{font-size:52px} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="logo" aria-label="Consent Resolve">
+    <svg class="mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <path d="M6 22l8 9L34 8" stroke="#17e88f" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="30" cy="27" r="4.5" fill="#17e88f" opacity=".55"/>
+    </svg>
+    <span><span class="a">Consent</span><span class="b">Resolve</span></span>
+    <span class="badge-test">Beta</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="dots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
+
+  <!-- ============ SCREEN 1 · DOMAIN ============ -->
+  <section class="screen active" id="s-domain">
+    <span class="eyebrow"><span class="dot"></span>60-second reality check</span>
+    <h1>How many leads is your website <em>quietly losing?</em></h1>
+    <p class="lede">Drop in your address and we'll pull your real traffic, then show you how many <strong>exclusive leads</strong> you could be capturing every month — with names, at $7 each.</p>
+    <div class="card">
+      <div class="field">
+        <label for="domain">Your website</label>
+        <div class="dom-wrap">
+          <span class="pre">https://</span>
+          <input id="domain" type="text" placeholder="yourcompany.com" autocomplete="url" inputmode="url" autofocus>
+        </div>
+        <p class="hint">Just the domain — we'll read it in a couple of seconds. No login, nothing to install.</p>
+        <p class="err" id="dom-err">Enter your website address (like yourcompany.com).</p>
+      </div>
+      <button class="cta" id="go" type="button"><span class="spinner"></span><span id="go-label">Show me my missed leads</span></button>
+      <p class="fine"><strong>$7 a lead. No setup fee, no monthly, no contract.</strong> This just shows you the number.</p>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 2 · SCAN ============ -->
+  <section class="screen" id="s-scan">
+    <div class="card" style="text-align:center">
+      <div class="scan-ring"></div>
+      <h1 style="font-size:22px;margin-bottom:6px">Reading <span class="reveal-domain" id="scan-domain">your site</span>…</h1>
+      <p class="lede" style="margin-bottom:18px">Pulling your live traffic and running the lead math.</p>
+      <div class="scan-lines" style="text-align:left">
+        <div class="scan-line" id="sl-1"><span class="tick">✓</span> Finding your site</div>
+        <div class="scan-line" id="sl-2"><span class="tick">✓</span> Estimating monthly visitors</div>
+        <div class="scan-line" id="sl-3"><span class="tick">✓</span> Calculating resolvable leads</div>
+        <div class="scan-line" id="sl-4"><span class="tick">✓</span> Pricing it against Angi &amp; HomeAdvisor</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 3 · REVEAL ============ -->
+  <section class="screen" id="s-reveal">
+    <span class="eyebrow"><span class="dot"></span>Here's your number, <span class="reveal-domain" id="rev-domain">&nbsp;</span></span>
+    <h1 style="font-size:27px" id="rev-head">This is what your site is worth in leads.</h1>
+    <div class="card">
+      <!-- when we have data -->
+      <div id="rev-data">
+        <div class="stat-row"><span class="n" id="n-visitors">0</span><span class="lbl">visitors a month find you — the traffic you already paid for</span></div>
+        <div class="stat-row"><span class="n dim" id="n-lost">0</span><span class="lbl">leave without a call or a form. You never got to meet them.</span></div>
+        <div class="hero-num">
+          <div class="big" id="n-leads">0</div>
+          <div class="cap"><b>new exclusive leads a month</b> — real people who'd say yes to being introduced</div>
+        </div>
+        <div class="value-line">
+          <div class="seven" id="v-cost">$0<span style="font-size:12px;font-weight:700;color:var(--ink-dim)">/mo</span></div>
+          <p><strong>Your whole bill, at $7 a lead.</strong> The same leads on Angi &amp; HomeAdvisor run <s id="v-angi">$0</s> — and they sell each one to four of your competitors. Yours are exclusive.</p>
+        </div>
+        <p class="reveal-note" id="rev-note">That's your Google search traffic alone — your real visitor count (ads, Google Business, direct) is higher, so the number above is a floor.</p>
+      </div>
+      <!-- manual fallback (no reliable data) -->
+      <div id="rev-manual" style="display:none">
+        <p class="lede" style="margin-bottom:14px">We couldn't get a clean read on <span class="reveal-domain" id="man-domain">your site</span>'s traffic — that's common for local sites. Give us a rough number and we'll do the math with you.</p>
+        <div class="manual">
+          <label class="field2" style="margin:0"><span style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:7px">About how many visitors a month?</span>
+            <input id="man-visitors" type="number" min="0" step="50" value="800" inputmode="numeric"></label>
+        </div>
+        <p class="hint" style="text-align:center;margin-top:10px">Most contractor sites see 500–3,000. Not sure? 800 is a fair guess.</p>
+      </div>
+      <button class="cta" id="to-together" type="button">Show me how I earn it &rarr;</button>
+      <span class="back" id="back-1">&larr; try a different site</span>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 4 · BETTER TOGETHER ============ -->
+  <section class="screen" id="s-together">
+    <span class="eyebrow"><span class="dot"></span>Better Together — included free</span>
+    <h1 style="font-size:27px">And every lead earns you <em>free marketing.</em></h1>
+    <p class="lede">You only ever pay $7 a lead. As they stack up, we design, print, and ship real marketing with <strong>your brand on it</strong> — no charge. At <b id="tg-rate">~40</b> leads a month, here's how fast you'd unlock each one:</p>
+    <div class="card">
+      <div class="ladder" id="ladder"><!-- built by JS --></div>
+      <button class="cta" id="to-claim" type="button">I want in &mdash; lock in $7 leads &rarr;</button>
+      <p class="fine">Your logo, your number, a tracking code on every piece. You never get billed for any of it.</p>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 5 · CLAIM ============ -->
+  <section class="screen" id="s-claim">
+    <span class="eyebrow"><span class="dot"></span>Last step</span>
+    <h1 style="font-size:27px">Lock in your exclusive leads.</h1>
+    <div class="card">
+      <div class="recap">
+        <div class="r-num" id="c-leads">0</div>
+        <p><strong>leads a month</strong> waiting on <span id="c-domain">your site</span>, at $7 each. Two minutes to switch it on.</p>
+      </div>
+      <form id="claim-form" novalidate>
+        <div class="field2" id="cf-name"><label for="c-name">Full name</label><input id="c-name" type="text" placeholder="John Doe" autocomplete="name"></div>
+        <div class="field2" id="cf-email"><label for="c-email">Work email</label><input id="c-email" type="email" placeholder="you@yourcompany.com" autocomplete="email"></div>
+        <button class="cta" type="submit">Create my account &rarr;</button>
+        <p class="fine"><strong>No setup fee · No monthly · No contract.</strong> $7 per consented lead is the only thing you'll ever pay.</p>
+      </form>
+      <span class="back" id="back-2">&larr; back</span>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+  // ---- config / model --------------------------------------------------
+  var YES_RATE = 0.17;     // ~16-19% of visitors resolve to an ID (~75% accept the banner x ~22-25% resolution); 1000 -> ~170
+  var LOST_RATE = 0.98;    // leave without contacting
+  var PRICE = 7;           // $ per lead
+  var ANGI = 65;           // $ per shared lead elsewhere
+  var TIERS = [
+    {leads:25,   what:'Yard Signs & Stickers',        sub:'Your logo, your number — printed that week.'},
+    {leads:100,  what:'Door Hangers & Review Cards',  sub:'Leave-behinds for every job you run.'},
+    {leads:250,  what:'Truck Magnets',                sub:'A billboard everywhere your truck parks.'},
+    {leads:1000, what:'2,000-Home Neighborhood Mailer', sub:'Pick the streets you want to own.', top:true}
+  ];
+
+  var state = { domain:'', visitors:null, leads:0, manual:false };
+
+  var $ = function(id){ return document.getElementById(id); };
+  function fmt(n){ return Math.round(n).toLocaleString('en-US'); }
+  function show(id){
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    $(id).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  function setDots(i){ var d=document.querySelectorAll('.dots i'); d.forEach(function(x,k){ x.classList.toggle('on', k<=i); }); }
+
+  function countUp(el, to, dur){
+    var from = 0, start = null;
+    function tick(ts){ if(!start) start=ts; var p=Math.min(1,(ts-start)/dur); var e=1-Math.pow(1-p,3);
+      el.textContent = fmt(from + (to-from)*e); if(p<1) requestAnimationFrame(tick); }
+    requestAnimationFrame(tick);
+  }
+  function normDomain(v){
+    return String(v||'').trim().toLowerCase()
+      .replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/[\/?#].*$/,'').trim();
+  }
+
+  // ---- screen 1: domain -> scan ---------------------------------------
+  var domain = $('domain'), go = $('go'), goLabel = $('go-label'), domErr = $('dom-err');
+  domain.addEventListener('input', function(){ domErr.classList.remove('show'); });
+  domain.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); go.click(); } });
+
+  go.addEventListener('click', function(){
+    var d = normDomain(domain.value);
+    if(!/^[a-z0-9-]+\.[a-z]{2,}/.test(d)){ domErr.classList.add('show'); domain.focus(); return; }
+    state.domain = d;
+    go.disabled = true; go.classList.add('loading'); goLabel.textContent = 'Reading ' + d + '…';
+    runScan(d);
+  });
+
+  function runScan(d){
+    // move to the scan screen and animate the checklist while the fetch runs
+    $('scan-domain').textContent = d; setDots(1); show('s-scan');
+    var lines = ['sl-1','sl-2','sl-3','sl-4'], li = 0;
+    var iv = setInterval(function(){ if(li<lines.length){ $(lines[li]).classList.add('done'); li++; } }, 550);
+
+    var started = Date.now();
+    fetch('/api/crm/signup/site-check?domain=' + encodeURIComponent(d), {headers:{'Accept':'application/json'}})
+      .then(function(r){ return r.json(); })
+      .catch(function(){ return null; })
+      .then(function(res){
+        // ensure the scan animation gets at least ~2.4s to feel real
+        var wait = Math.max(0, 2400 - (Date.now()-started));
+        setTimeout(function(){ clearInterval(iv); lines.forEach(function(l){ $(l).classList.add('done'); });
+          go.disabled=false; go.classList.remove('loading'); goLabel.textContent='Show me my missed leads';
+          finishReveal(res); }, wait);
+      });
+  }
+
+  // ---- screen 3: reveal ------------------------------------------------
+  function computeFrom(visitors){
+    state.visitors = visitors;
+    state.leads = Math.max(1, Math.round(visitors * YES_RATE));
+  }
+  function paintReveal(){
+    var v = state.visitors, L = state.leads;
+    $('n-visitors').textContent = '0'; $('n-lost').textContent='0'; $('n-leads').textContent='0';
+    countUp($('n-visitors'), v, 900);
+    setTimeout(function(){ countUp($('n-lost'), Math.round(v*LOST_RATE), 900); }, 350);
+    setTimeout(function(){ countUp($('n-leads'), L, 1100); }, 800);
+    $('v-cost').innerHTML = '$' + fmt(L*PRICE) + '<span style="font-size:12px;font-weight:700;color:var(--ink-dim)">/mo</span>';
+    $('v-angi').textContent = '$' + fmt(L*ANGI);
+  }
+
+  function finishReveal(res){
+    var t = res && typeof res.traffic === 'number' ? res.traffic : null;
+    $('rev-domain').textContent = state.domain;
+    $('c-domain').textContent = state.domain; $('man-domain').textContent = state.domain;
+    setDots(2); show('s-reveal');
+
+    if(t != null && t >= 100){
+      state.manual = false;
+      $('rev-data').style.display='block'; $('rev-manual').style.display='none';
+      $('rev-head').textContent = 'This is what your site is worth in leads.';
+      computeFrom(t); paintReveal();
+    } else {
+      // no reliable read -> manual estimate path
+      state.manual = true;
+      $('rev-data').style.display='none'; $('rev-manual').style.display='block';
+      $('rev-head').textContent = "Let's size it up together.";
+      var mv = $('man-visitors');
+      var recompute = function(){ var val = Math.max(0, parseInt(mv.value,10)||0); computeFrom(val); };
+      mv.addEventListener('input', recompute);
+      recompute();
+    }
+  }
+
+  $('back-1').addEventListener('click', function(){ setDots(0); show('s-domain'); domain.focus(); });
+
+  // ---- screen 4: better together --------------------------------------
+  function weeksFor(tierLeads){
+    var L = state.leads; if(L<=0) return '—';
+    var months = tierLeads / L;
+    if(months <= 1.05) return 'this month';
+    var weeks = Math.round(months * 4.345);
+    if(weeks < 8) return '~' + weeks + ' weeks';
+    var mo = Math.round(months);
+    return '~' + mo + ' months';
+  }
+  function buildLadder(){
+    $('tg-rate').textContent = '~' + fmt(state.leads);
+    var html = TIERS.map(function(t){
+      return '<div class="rung' + (t.top?' top':'') + '">' +
+        '<div><div class="what">' + t.what + '</div><div class="sub">' + t.leads.toLocaleString() + ' leads · ' + t.sub + '</div></div>' +
+        '<div class="eta">' + weeksFor(t.leads) + '</div></div>';
+    }).join('');
+    $('ladder').innerHTML = html;
+  }
+
+  $('to-together').addEventListener('click', function(){
+    if(state.manual){ var val=Math.max(0, parseInt($('man-visitors').value,10)||0); computeFrom(val); }
+    if(state.leads<=0) state.leads = 1;
+    buildLadder(); setDots(3); show('s-together');
+  });
+
+  // ---- screen 5: claim -------------------------------------------------
+  $('to-claim').addEventListener('click', function(){
+    $('c-leads').textContent = fmt(state.leads);
+    setDots(4); show('s-claim'); $('c-name').focus();
+  });
+  $('back-2').addEventListener('click', function(){ setDots(3); show('s-together'); });
+
+  var claim = $('claim-form'), cName=$('c-name'), cEmail=$('c-email');
+  [cName,cEmail].forEach(function(el){ el.addEventListener('input', function(){ el.closest('.field2').classList.remove('error'); }); });
+  claim.addEventListener('submit', function(e){
+    e.preventDefault();
+    var bad=false;
+    if(!cName.value.trim()){ $('cf-name').classList.add('error'); bad=true; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cEmail.value.trim())){ $('cf-email').classList.add('error'); bad=true; }
+    if(bad){ (claim.querySelector('.field2.error input')||{}).focus && claim.querySelector('.field2.error input').focus(); return; }
+    // Hand off to the existing onboarding (Step 2), carrying what we know.
+    try {
+      sessionStorage.setItem('cr_first', (cName.value.trim().split(/\s+/)[0]||''));
+      sessionStorage.setItem('cr_domain', state.domain);
+      sessionStorage.setItem('cr_email', cEmail.value.trim());
+      sessionStorage.setItem('cr_leads', String(state.leads));
+    } catch(err){}
+    window.location.href = '/signup/onboarding';
+  });
+})();
+</script>
+</body>
+</html>

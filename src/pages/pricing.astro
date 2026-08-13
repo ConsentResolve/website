@@ -17,13 +17,13 @@ import { breadcrumbSchema, faqSchema } from "~/lib/seo";
 
 const billingFaqs = [
   { question: "What counts as a lead?", answer: "An identified, consented contact — a verified email tied to a real person, with what they were shopping for, enriched with name and location where available. You're never billed for anonymous traffic, non-consenting visitors, or ad-blocked records." },
-  { question: "How am I billed?", answer: "$7 per delivered lead. We bill at the end of each week for the leads delivered that week." },
-  { question: "Are there setup fees?", answer: "No. No setup fees, no implementation fees, no \"onboarding\" surcharge. You install the snippet, you start receiving leads, you pay $7 each." },
-  { question: "Is there a contract or minimum?", answer: "No. No annual contract. No monthly minimum. No volume commitment. You pay only for the leads you receive." },
+  { question: "How am I billed?", answer: "A flat $7 per lead. You’re only ever billed for a real, consented, deliverable lead — no monthly fee, no platform fee, no setup fee. Just $7 for each lead you get." },
+  { question: "Are there setup fees?", answer: "No. No setup fees, no implementation fees, no \"onboarding\" surcharge, and no monthly platform fee. You install the snippet and pay a flat $7 for each real, consented lead — that's it." },
+  { question: "Is there a contract or minimum?", answer: "No annual contract, no monthly minimum, no volume commitment. It's a flat $7 per lead — you only pay for the leads you actually get, and every lead is the same $7." },
   { question: "Do you bill for ad-blocked records?", answer: "No. Ad-blocked or zero-engagement records are never billed. You only pay for a consented, deliverable contact." },
-  { question: "What if a lead is bad?", answer: "All sales are final — we don't issue refunds. You're only ever billed for a consented, deliverable contact: ad-blocked, non-consenting, and hard-bounced or invalid records are never billed in the first place. The homeowner saw your site, raised their hand, and consented to be reached." },
-  { question: "How do I cancel?", answer: "From your dashboard, one click. You'll be charged for any leads already delivered that week and that's the last bill." },
-  { question: "Do you offer enterprise / multi-location pricing?", answer: "Yes — multi-location operators and franchise networks get a custom rate. Email hello@consentresolve.com or call (727) 202-5996." },
+  { question: "What if a lead is bad?", answer: "Sales are final — we don't refund a lead you simply didn't close — and you're only ever billed for a consented, deliverable contact in the first place: ad-blocked, non-consenting, and hard-bounced or invalid records are never billed. The one exception is a duplicate: our backend won't deliver the same lead twice, but in the rare event one slips through, that's a 100% refund." },
+  { question: "How do I cancel?", answer: "There's nothing to cancel — no contract. Stop whenever you want and you're only ever charged $7 for the real, consented leads you already received." },
+  { question: "Do you offer enterprise / multi-location pricing?", answer: "Yes — multi-location operators and franchise networks get a custom rate. Email hello@consentresolve.com or call (727) 999-9846." },
 ];
 
 // Mirrors the /features/ page — same capabilities, same groups, so the
@@ -143,7 +143,7 @@ const schemas = [
               <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-soft)]">
                 <IconCheck size={14} stroke={3} color="#00A86E" />
               </span>
-              <span><strong>Cancel anytime</strong> — one click, from your dashboard</span>
+              <span><strong>No contract</strong> — stop anytime, one click from your dashboard</span>
             </li>
           </ul>
 
@@ -155,7 +155,7 @@ const schemas = [
 
           <p class="mt-4 flex items-center justify-center gap-1.5 text-xs text-[color:var(--color-ink-muted)]">
             <IconLock size={12} stroke={1.75} />
-            Encrypted in transit and at rest · Card required for billing · Cancel anytime
+            Encrypted in transit and at rest · Card required to buy leads · Pay-as-you-go, no contract
           </p>
         </div>
 
@@ -206,7 +206,7 @@ const schemas = [
           </a>
         </div>
         <p class="mt-6 text-[11px] leading-relaxed text-[color:var(--color-ink-muted)]">
-          Illustrative only. We don't publish recovery or close rates — set your own assumptions in the calculator. The only fixed number is the flat $7 per recovered lead. Sourced industry data lives on /stats/.
+          A typical site resolves about 16–19% of its visitors to an identified lead (~160–185 per 1,000/month) — roughly 75% accept the consent banner and we identify about a quarter of those. Close rates are your own — set your assumptions in the calculator. The only fixed number is the flat $7 per recovered lead. Sourced industry data lives on /stats/.
         </p>
       </div>
     </div>
@@ -220,7 +220,7 @@ const schemas = [
   />
 
   <AEOAnswer
-    text="Consent Resolve costs a flat $7 per recovered lead — a consented homeowner identified from a website visitor who would otherwise have bounced. There's no setup fee, no monthly minimum, no contract. Recovered leads are incremental on top of your existing ad channels, so the right way to measure us is cost-per-booked-job, not cost-per-lead. Card required at signup; cancel anytime. All sales are final — no refunds."
+    text="Consent Resolve costs a flat $7 per recovered lead — a consented homeowner identified from a website visitor who would otherwise have bounced. There's no setup fee, no monthly minimum, no contract — you're simply billed a flat $7 for each real, consented lead. A typical site resolves about 16–19% of its visitors to a lead (~160–185 per 1,000/month). Recovered leads are incremental on top of your existing ad channels, so the right way to measure us is cost-per-booked-job, not cost-per-lead. Sales are final — the only refund is a duplicate lead, which the system prevents and refunds 100% if one ever slips through."
   />
 
   <!-- Custom Final CTA: $7-focused, matches sitewide canon -->
@@ -254,7 +254,7 @@ const schemas = [
           <MetricRow label="Monthly minimum"    value="$0" surface="dark" tone="brand" />
           <div class="flex items-center justify-center gap-1.5 pt-4 text-xs text-slate-400">
             <IconLock size={12} stroke={1.75} />
-            Encrypted in transit and at rest · No contract · Cancel anytime
+            Encrypted in transit and at rest · No contract · Pay-as-you-go
           </div>
         </div>
       </div>

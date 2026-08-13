@@ -20,12 +20,21 @@ function decodeJwt(idToken) {
 // At least one gate must be configured, and email must be verified.
 function allowed(env, claims) {
   if (!claims.email || claims.email_verified === false) return false;
+  const email = String(claims.email).toLowerCase();
   const domain = (env.CRM_ALLOWED_DOMAIN || "").toLowerCase().trim();
   const list = (env.CRM_ALLOWED_EMAILS || "").toLowerCase().split(/[,\s]+/).filter(Boolean);
-  if (!domain && !list.length) return false;                               // must configure a gate
-  if (domain && (claims.hd || "").toLowerCase() !== domain) return false;  // org/domain lock
-  if (list.length && !list.includes(claims.email.toLowerCase())) return false;
-  return true;
+  if (!domain && !list.length) return false;                 // must configure at least one gate
+  // Explicit allowlist is an absolute ALLOW — it bypasses the hosted-domain check, so a
+  // listed user gets in even from an alias / secondary-domain Workspace / non-Workspace account.
+  if (list.includes(email)) return true;
+  if (domain) {
+    // Accept a VERIFIED email whose own domain is the org domain (Google already proved they
+    // own the mailbox). This covers secondary-domain Workspaces where `hd` is the PRIMARY
+    // domain, not the email's domain — the case that was silently locking everyone out.
+    if ((email.split("@")[1] || "") === domain) return true;
+    if ((claims.hd || "").toLowerCase() === domain) return true;  // classic Workspace hd match
+  }
+  return false;
 }
 
 const origin = (request, env) => env.SITE_URL || new URL(request.url).origin;

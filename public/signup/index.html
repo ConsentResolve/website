@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Create your account · Consent Resolve</title>
+<script>if(new URLSearchParams(location.search).get('version')==='2'){location.replace('/signup/v2/'+location.hash);}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-950:#081120;
+  --navy-900:#0b1830;
+  --navy-800:#10203d;
+  --navy-700:#16294b;
+  --line:rgba(120,160,220,.14);
+  --line-strong:rgba(120,160,220,.24);
+  --ink:#eef4ff;
+  --ink-dim:#9fb0cc;
+  --ink-faint:#67789a;
+  --green:#17e88f;
+  --green-deep:#0bbf72;
+  --green-glow:rgba(23,232,143,.16);
+  --amber:#ffc866;
+  --red:#ff7a7a;
+  --radius:14px;
+  --font-display:'Sora',sans-serif;
+  --font-body:'Inter',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:var(--font-body);
+  background:
+    radial-gradient(1100px 600px at 15% -10%, rgba(23,232,143,.07), transparent 60%),
+    radial-gradient(900px 700px at 110% 110%, rgba(40,110,255,.08), transparent 55%),
+    var(--navy-950);
+  color:var(--ink);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--green);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.topbar{display:flex;justify-content:center;padding:30px 24px 4px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;font-size:25px;letter-spacing:-.02em}
+.logo .mark{width:32px;height:32px;flex:0 0 auto}
+.logo .a{color:var(--green)}
+.logo .b{color:var(--ink)}
+
+.shell{
+  max-width:1080px;margin:26px auto 70px;padding:0 24px;
+  display:grid;grid-template-columns:1fr 460px;gap:28px;align-items:start;
+}
+
+/* ---------- pitch ---------- */
+.pitch{
+  position:sticky;top:26px;
+  background:linear-gradient(160deg, var(--navy-800), var(--navy-900) 70%);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:32px 30px 28px;
+  overflow:hidden;
+}
+.pitch::before{
+  content:"";position:absolute;inset:-1px;border-radius:20px;pointer-events:none;
+  background:radial-gradient(420px 220px at 20% 0%, var(--green-glow), transparent 70%);
+}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--green);background:rgba(23,232,143,.09);
+  border:1px solid rgba(23,232,143,.25);
+  padding:6px 12px;border-radius:100px;margin-bottom:16px;
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.pitch h1{
+  font-family:var(--font-display);font-weight:800;font-size:31px;line-height:1.14;
+  letter-spacing:-.02em;margin-bottom:11px;
+}
+.pitch h1 em{font-style:italic;color:var(--green)}
+.pitch .sub{color:var(--ink-dim);font-size:14.5px;line-height:1.55;margin-bottom:22px}
+.pitch .sub strong{color:var(--ink)}
+
+/* ladder with visuals */
+.ladder{position:relative;margin:0 0 20px;padding-left:24px}
+.ladder::before{
+  content:"";position:absolute;left:7px;top:12px;bottom:14px;width:2px;
+  background:linear-gradient(180deg, var(--green) 0%, rgba(23,232,143,.35) 60%, rgba(23,232,143,.12));
+  border-radius:2px;
+}
+.rung{position:relative;padding:8px 0;display:flex;gap:12px;align-items:center}
+.rung::before{
+  content:"";position:absolute;left:-22px;top:50%;transform:translateY(-50%);
+  width:11px;height:11px;border-radius:50%;
+  background:var(--navy-900);border:2px solid var(--green);
+}
+.rung.day1::before{background:var(--green);box-shadow:0 0 10px rgba(23,232,143,.6)}
+.rung .thumb{
+  flex:0 0 62px;width:62px;height:46px;border-radius:8px;overflow:hidden;
+  border:1px solid var(--line-strong);background:var(--navy-700);
+  display:flex;align-items:center;justify-content:center;
+}
+.rung .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.rung .thumb svg{width:36px;height:32px}
+.rung .txt{min-width:0}
+.rung .at{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
+.rung.day1 .at{color:var(--ink);background:rgba(23,232,143,.15);border:1px solid rgba(23,232,143,.35);padding:1px 7px;border-radius:100px;display:inline-block}
+.rung .what{font-family:var(--font-display);font-weight:700;font-size:14.5px;margin-top:2px;line-height:1.25}
+.rung .how{font-size:12px;color:var(--ink-faint);margin-top:2px;line-height:1.4}
+.rung.top .what{color:var(--amber)}
+.rung.top::before{border-color:var(--amber)}
+
+.price-line{
+  display:flex;align-items:center;gap:14px;
+  background:rgba(23,232,143,.06);border:1px solid rgba(23,232,143,.22);
+  border-radius:var(--radius);padding:13px 15px;
+}
+.price-line .seven{
+  font-family:var(--font-display);font-weight:800;font-size:28px;color:var(--green);
+  line-height:1;white-space:nowrap;
+}
+.price-line .seven small{font-size:12px;font-weight:700;color:var(--ink-dim);display:block;letter-spacing:.02em;margin-top:3px}
+.price-line p{font-size:12.5px;color:var(--ink-dim);line-height:1.5}
+.price-line p strong{color:var(--ink)}
+.price-line p s{color:var(--ink-faint)}
+
+/* mobile compact pitch */
+.pitch-compact{display:none}
+
+/* ---------- form card ---------- */
+.card{
+  background:var(--navy-900);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:36px 38px 32px;
+}
+.step-ind{
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;
+  font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
+}
+.step-ind .bar{flex:1;height:4px;border-radius:4px;background:var(--navy-700);overflow:hidden}
+.step-ind .bar i{display:block;height:100%;width:50%;border-radius:4px;background:linear-gradient(90deg,var(--green-deep),var(--green))}
+.step-ind .sec{color:var(--green)}
+.card h2{font-family:var(--font-display);font-weight:800;font-size:26px;letter-spacing:-.02em}
+.card .lede{color:var(--ink-dim);font-size:14.5px;margin-top:6px;line-height:1.5;margin-bottom:26px}
+.card .lede strong{color:var(--green)}
+
+.field{margin-bottom:16px;position:relative}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:7px}
+.field input{
+  width:100%;
+  background:var(--navy-800);
+  border:1px solid var(--line-strong);
+  border-radius:10px;
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:15px;
+  padding:13px 15px;
+  transition:border-color .15s, box-shadow .15s;
+}
+.field input::placeholder{color:var(--ink-faint)}
+.field input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(23,232,143,.14)}
+.field.error input{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,122,122,.12)}
+.hint{font-size:12px;color:var(--ink-faint);margin-top:6px;line-height:1.45}
+.err-msg{display:none;font-size:12px;color:var(--red);margin-top:6px;font-weight:500}
+.field.error .err-msg{display:block}
+.field.error .hint{display:none}
+
+/* submit + site-check states */
+.cta{
+  width:100%;margin-top:8px;
+  font-family:var(--font-display);font-weight:700;font-size:16.5px;letter-spacing:-.01em;
+  color:var(--navy-950);
+  background:linear-gradient(90deg, var(--green-deep), var(--green) 55%, #4ef2b0);
+  border:none;border-radius:100px;
+  padding:16px 20px;cursor:pointer;
+  transition:transform .12s, box-shadow .15s, filter .15s, opacity .15s;
+  box-shadow:0 10px 30px rgba(23,232,143,.22);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.cta:hover{filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 14px 36px rgba(23,232,143,.3)}
+.cta:active{transform:translateY(0)}
+.cta:focus-visible{outline:3px solid #4ef2b0;outline-offset:3px}
+.cta:disabled{cursor:default;opacity:.85;transform:none}
+.cta .spinner{
+  width:16px;height:16px;border-radius:50%;flex:0 0 auto;
+  border:2.5px solid rgba(8,17,32,.25);border-top-color:var(--navy-950);
+  animation:spin .7s linear infinite;display:none;
+}
+.cta.checking .spinner{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cta.success{background:linear-gradient(90deg,#0bbf72,#17e88f);}
+
+/* verify fallback panel */
+.verify-panel{
+  display:none;
+  margin-top:16px;
+  background:var(--navy-800);
+  border:1px solid rgba(255,200,102,.35);
+  border-radius:var(--radius);
+  padding:18px 18px 16px;
+}
+.verify-panel.open{display:block;animation:panelIn .25s ease}
+@keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.verify-panel .vp-head{
+  display:flex;align-items:center;gap:9px;
+  font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--amber);
+}
+.verify-panel .vp-head svg{width:18px;height:18px;flex:0 0 auto}
+.verify-panel .vp-body{font-size:13px;color:var(--ink-dim);line-height:1.55;margin:8px 0 14px}
+.verify-panel .vp-body strong{color:var(--ink)}
+.vp-btn{
+  display:flex;align-items:center;justify-content:center;width:100%;
+  font-family:var(--font-display);font-weight:700;font-size:14.5px;
+  border-radius:100px;padding:13px 16px;cursor:pointer;
+  transition:filter .15s, transform .12s;
+  text-align:center;
+}
+.vp-btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.vp-btn.primary{
+  color:var(--navy-950);border:none;
+  background:linear-gradient(90deg, var(--green-deep), var(--green) 55%, #4ef2b0);
+  margin-bottom:10px;
+}
+.vp-btn.ghost{
+  color:var(--ink);background:none;
+  border:1px solid var(--line-strong);
+  font-weight:600;font-size:13.5px;
+}
+.vp-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+.fine{text-align:center;font-size:12px;color:var(--ink-faint);margin-top:12px;line-height:1.55}
+.fine strong{color:var(--ink-dim)}
+
+/* social proof */
+.proof{
+  display:flex;gap:12px;align-items:flex-start;
+  background:var(--navy-800);border:1px solid var(--line);
+  border-radius:var(--radius);padding:14px 16px;margin-top:20px;
+}
+.proof .avatar{
+  flex:0 0 38px;width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green-deep),var(--green));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:800;font-size:15px;color:var(--navy-950);
+}
+.proof q{font-size:13px;color:var(--ink-dim);line-height:1.55;quotes:"\201C" "\201D"}
+.proof .who{font-size:11.5px;color:var(--ink-faint);margin-top:4px;font-weight:600}
+.proof .stars{color:var(--amber);font-size:11px;letter-spacing:2px}
+
+.signin{text-align:center;font-size:14px;color:var(--ink-dim);margin-top:20px}
+
+@media (max-width:960px){
+  .shell{grid-template-columns:1fr;max-width:560px;gap:18px}
+  .pitch{display:none}
+  .pitch-compact{
+    display:block;
+    background:linear-gradient(160deg, var(--navy-800), var(--navy-900) 70%);
+    border:1px solid var(--line);border-radius:16px;padding:20px 20px 16px;
+  }
+  .pitch-compact h1{font-family:var(--font-display);font-weight:800;font-size:21px;letter-spacing:-.02em;line-height:1.2}
+  .pitch-compact h1 em{font-style:italic;color:var(--green)}
+  .pitch-compact .strip{
+    display:flex;align-items:center;gap:10px;margin-top:10px;
+    font-size:12.5px;color:var(--ink-dim);line-height:1.45;
+  }
+  .pitch-compact .strip .seven{
+    font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--green);white-space:nowrap;
+  }
+  .pitch-compact details{margin-top:12px}
+  .pitch-compact summary{
+    cursor:pointer;font-size:13px;font-weight:600;color:var(--green);
+    list-style:none;display:flex;align-items:center;gap:6px;
+  }
+  .pitch-compact summary::-webkit-details-marker{display:none}
+  .pitch-compact summary::after{content:"▾";transition:transform .15s}
+  .pitch-compact details[open] summary::after{transform:rotate(180deg)}
+  .pitch-compact .ladder{margin-top:14px;margin-bottom:4px}
+  .card{padding:28px 22px 26px}
+}
+/* Compact spacing so Step 1 fits above the fold on desktop (mobile keeps its own rules). */
+@media (min-width:961px){
+  .topbar{padding:16px 24px 2px}
+  .shell{margin:14px auto 30px;gap:24px}
+  .pitch{padding:22px 26px 20px}
+  .eyebrow{margin-bottom:12px}
+  .pitch h1{font-size:26px;margin-bottom:8px}
+  .pitch .sub{font-size:13.5px;line-height:1.5;margin-bottom:14px}
+  .ladder{margin:0 0 12px}
+  .ladder::before{top:10px;bottom:12px}
+  .rung{padding:5px 0}
+  .rung .thumb{height:42px}
+  .price-line{padding:11px 14px}
+  .price-line .seven{font-size:25px}
+  .card{padding:24px 30px 22px}
+  .step-ind{margin-bottom:10px}
+  .card h2{font-size:22px}
+  .card .lede{margin-top:4px;margin-bottom:14px;font-size:13.5px}
+  .field{margin-bottom:12px}
+  .field label{margin-bottom:5px}
+  .field input{padding:11px 15px}
+  .cta{margin-top:6px;padding:14px 20px}
+  .fine{margin-top:8px}
+  .signin{margin-top:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="logo" aria-label="Consent Resolve">
+    <svg class="mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <path d="M6 22l8 9L34 8" stroke="#17e88f" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="30" cy="27" r="4.5" fill="#17e88f" opacity=".55"/>
+    </svg>
+    <span><span class="a">Consent</span><span class="b">Resolve</span></span>
+  </div>
+</header>
+
+<main class="shell">
+
+  <!-- ===== MOBILE compact pitch (hidden on desktop) ===== -->
+  <div class="pitch-compact">
+    <h1>Own the neighborhood, <em>online</em> and <em>offline</em>.</h1>
+    <div class="strip">
+      <span class="seven">$7</span>
+      <span><strong style="color:var(--ink)">a lead — the only thing you pay.</strong> Signs, hangers &amp; mailers with your brand ship free as leads stack up.</span>
+    </div>
+    <details>
+      <summary>See what ships to you</summary>
+      <div class="ladder">
+        <div class="rung day1"><div class="txt"><span class="at">25 leads</span><div class="what">Yard Signs &amp; Stickers</div></div></div>
+        <div class="rung"><div class="txt"><div class="at">100 leads</div><div class="what">Door Hangers &amp; Review Cards</div></div></div>
+        <div class="rung"><div class="txt"><div class="at">250 leads</div><div class="what">Truck Magnets</div></div></div>
+        <div class="rung top"><div class="txt"><div class="at">1,000 leads</div><div class="what">2,000-Home Mailer</div></div></div>
+      </div>
+    </details>
+  </div>
+
+  <!-- ===== DESKTOP pitch ===== -->
+  <aside class="pitch" aria-labelledby="bt-head">
+    <span class="eyebrow"><span class="dot"></span>Better Together — included free</span>
+    <h1 id="bt-head">Own the neighborhood,<br><em>online</em> and <em>offline</em>.</h1>
+    <p class="sub">Ads, SEO, Thumbtack — you've paid for it all and broke even. So we send you what actually works: <strong>signs, hangers, and mailers with your brand on them.</strong> Designed, delivered, done.</p>
+
+    <div class="ladder" role="list" aria-label="Better Together rewards — your account starts the counter">
+      <div class="rung day1" role="listitem">
+        <div class="thumb" aria-hidden="true">
+          <svg viewBox="0 0 40 34" fill="none"><rect x="8" y="6" width="24" height="15" rx="2" fill="#17e88f" opacity=".16" stroke="#17e88f" stroke-width="1.5"/><path d="M14 21v6.5M26 21v6.5" stroke="#17e88f" stroke-width="1.5" stroke-linecap="round"/><path d="M13 11.5h14M13 15.5h9" stroke="#17e88f" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="txt">
+          <span class="at">25 leads</span>
+          <div class="what">Yard Signs &amp; Stickers</div>
+          <div class="how">Your logo, your number — printed that week.</div>
+        </div>
+      </div>
+      <div class="rung" role="listitem">
+        <div class="thumb" aria-hidden="true">
+          <svg viewBox="0 0 40 34" fill="none"><path d="M15 4h10a2 2 0 012 2v22a2 2 0 01-2 2H15a2 2 0 01-2-2V6a2 2 0 012-2z" fill="#17e88f" opacity=".14" stroke="#9fb0cc" stroke-width="1.5"/><circle cx="20" cy="9" r="2.3" stroke="#9fb0cc" stroke-width="1.5"/><path d="M16 16h8M16 20h6" stroke="#17e88f" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="txt">
+          <div class="at">100 leads</div>
+          <div class="what">Door Hangers &amp; Review Cards</div>
+          <div class="how">Leave-behinds for every job you run.</div>
+        </div>
+      </div>
+      <div class="rung" role="listitem">
+        <div class="thumb" aria-hidden="true">
+          <svg viewBox="0 0 40 34" fill="none"><rect x="3" y="11" width="26" height="14" rx="3" fill="#17e88f" opacity=".15" stroke="#9fb0cc" stroke-width="1.5"/><circle cx="9" cy="27" r="3.5" stroke="#9fb0cc" stroke-width="1.5"/><circle cx="23" cy="27" r="3.5" stroke="#9fb0cc" stroke-width="1.5"/><path d="M29 15h5l3 5v5h-3" stroke="#9fb0cc" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="txt">
+          <div class="at">250 leads</div>
+          <div class="what">Truck Magnets</div>
+          <div class="how">A billboard everywhere your truck parks.</div>
+        </div>
+      </div>
+      <div class="rung top" role="listitem">
+        <div class="thumb" aria-hidden="true">
+          <svg viewBox="0 0 40 34" fill="none"><path d="M5 13l15-9 15 9v14a3 3 0 01-3 3H8a3 3 0 01-3-3V13z" stroke="#ffc866" stroke-width="1.5" fill="rgba(255,200,102,.1)"/><path d="M5 13l15 10 15-10" stroke="#ffc866" stroke-width="1.5"/></svg>
+        </div>
+        <div class="txt">
+          <div class="at">1,000 leads · top reward</div>
+          <div class="what">2,000-Home Neighborhood Mailer</div>
+          <div class="how">Pick the streets you want to own. We mail every door.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="price-line">
+      <div class="seven">$7<small>a lead</small></div>
+      <p><strong>The only thing you ever pay.</strong> Angi &amp; HomeAdvisor charge <s>$30–$100</s> for the same lead — sold to four of your competitors. Yours is exclusive, and everything above ships free.</p>
+    </div>
+  </aside>
+
+  <!-- ===== FORM (Step 1 of 2) ===== -->
+  <section class="card" aria-labelledby="form-head">
+    <div class="step-ind">
+      <span><span class="sec">Step 1</span> of 2</span>
+      <span class="bar"><i></i></span>
+      <span>30 seconds</span>
+    </div>
+    <h2 id="form-head">Generate your first lead.</h2>
+    <p class="lede">Drop in one line of code, generate your first 25 leads, post 25 yard signs at your next job — and get <strong>twice the marketing</strong>.</p>
+
+    <form id="reg-form" action="/register" method="post" novalidate>
+
+      <div class="field" id="f-fname">
+        <label for="fname">Full name</label>
+        <input id="fname" name="full_name" type="text" placeholder="John Doe" autocomplete="name" required>
+        <p class="err-msg">Tell us your name so we know what to call you.</p>
+      </div>
+
+      <div class="field" id="f-email">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" placeholder="you@yourcompany.com" autocomplete="email" required>
+        <p class="err-msg">That email doesn't look complete — check it and try again.</p>
+      </div>
+
+      <div class="field" id="f-website">
+        <label for="website">Website</label>
+        <input id="website" name="website" type="text" placeholder="yourcompany.com" autocomplete="url" required>
+        <p class="hint">Works best with 500+ monthly visitors — not sure? We'll check your site for you.</p>
+        <p class="err-msg">Drop in your website, Facebook page, or Google Business link — any of them works.</p>
+      </div>
+
+      <button class="cta" type="submit" id="cta-btn">
+        <span class="spinner" aria-hidden="true"></span>
+        <span id="cta-label">Check My Site</span>
+      </button>
+      <p class="fine" id="cta-fine"><strong>No setup fee · No monthly · No contract.</strong> You only ever pay $7 per consented lead. Pay-as-you-go, no phone call required.</p>
+
+      <!-- Fallback panel: shown when the automated traffic check can't confirm 500+ visitors -->
+      <div class="verify-panel" id="verify-panel" role="status" aria-live="polite">
+        <div class="vp-head">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2L1.5 17h17L10 2z" stroke="#ffc866" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 8v4M10 14.5v.5" stroke="#ffc866" stroke-width="1.8" stroke-linecap="round"/></svg>
+          We couldn't confirm your traffic
+        </div>
+        <p class="vp-body">Our quick scan couldn't verify 500+ monthly visitors for <strong id="vp-domain">your site</strong>. That's common — most contractor traffic comes from Google Business, ads, and word of mouth that scans can't see. <strong>You know your numbers better than any scan does.</strong></p>
+        <button class="vp-btn primary" type="button" id="vp-affirm">My site gets 500+ visitors a month — let's continue</button>
+        <button class="vp-btn ghost" type="button" id="vp-unsure">Not sure? Continue anyway — you'll see your real numbers after the free install</button>
+      </div>
+
+      <p class="signin">Already have an account? <a href="/login">Sign in</a></p>
+    </form>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  var form = document.getElementById('reg-form');
+  var fname = document.getElementById('fname');
+  var email = document.getElementById('email');
+  var website = document.getElementById('website');
+
+  // Inline validation on blur
+  function setError(input){ input.closest('.field').classList.add('error'); }
+  function clearError(input){ input.closest('.field').classList.remove('error'); }
+
+  [fname, email, website].forEach(function(el){
+    el.addEventListener('input', function(){ clearError(el); });
+  });
+
+  fname.addEventListener('blur', function(){ fname.value.trim() ? clearError(fname) : setError(fname); });
+  email.addEventListener('blur', function(){
+    var ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim());
+    (ok || !email.value) ? clearError(email) : setError(email);
+  });
+  // Loose website validation: accept bare domains, FB pages, GBP links — normalize server-side
+  website.addEventListener('blur', function(){
+    var v = website.value.trim();
+    (!v || /[a-z0-9-]+\.[a-z]{2,}/i.test(v)) ? clearError(website) : setError(website);
+  });
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var bad = false;
+    if(!fname.value.trim()){ setError(fname); bad = true; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())){ setError(email); bad = true; }
+    if(!/[a-z0-9-]+\.[a-z]{2,}/i.test(website.value.trim())){ setError(website); bad = true; }
+    if(bad){
+      var first = form.querySelector('.field.error input');
+      if(first) first.focus();
+      return;
+    }
+    runSiteCheck();
+  });
+
+  // ---------- LIVE site check ----------
+  // Calls /api/crm/signup/site-check, which runs the shared DataForSEO traffic
+  // estimate (worker/_lib/dataforseo.js -> dataforseoLookup) and returns
+  // { qualified: true|false|null }. `null` (unknown / DFS unconfigured / network
+  // error) falls through to the self-affirm panel -- we never hard-block a signup
+  // on a scan the copy itself admits is imperfect.
+  var btn = document.getElementById('cta-btn');
+  var btnLabel = document.getElementById('cta-label');
+  var panel = document.getElementById('verify-panel');
+  var vpDomain = document.getElementById('vp-domain');
+
+  function getDomain(){
+    return website.value.trim()
+      .replace(/^https?:\/\//i,'').replace(/^www\./i,'').split('/')[0];
+  }
+
+  function showFallback(domain){
+    btn.classList.remove('checking');
+    btn.disabled = false;
+    btnLabel.textContent = 'Check My Site';
+    vpDomain.textContent = domain;
+    panel.classList.add('open');
+    panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function runSiteCheck(){
+    var domain = getDomain();
+    panel.classList.remove('open');
+    btn.disabled = true;
+    btn.classList.add('checking');
+    btnLabel.textContent = 'Checking ' + domain + '…';
+
+    fetch('/api/crm/signup/site-check?domain=' + encodeURIComponent(domain), { headers:{ 'Accept':'application/json' } })
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+      if(res && res.qualified === true){
+        // PASS → brief success state, then on to Step 2
+        btn.classList.remove('checking');
+        btn.classList.add('success');
+        btnLabel.textContent = '✓ ' + domain + ' looks good — let\u2019s go';
+        setTimeout(function(){ proceed('verified'); }, 900);
+      }else{
+        // FAIL or UNKNOWN → hand the verdict back to them (self-affirm panel)
+        showFallback(domain);
+      }
+      })
+      .catch(function(){ showFallback(domain); });
+  }
+
+  // Fallback choices — both continue to Step 2, tagged differently
+  document.getElementById('vp-affirm').addEventListener('click', function(){ proceed('self_affirmed'); });
+  document.getElementById('vp-unsure').addEventListener('click', function(){ proceed('unverified'); });
+
+  function proceed(trafficStatus){
+    // In production: POST the form + trafficStatus to /register,
+    // then redirect into onboarding. Mockup just navigates.
+    var tag = document.createElement('input');
+    tag.type = 'hidden'; tag.name = 'traffic_status'; tag.value = trafficStatus;
+    form.appendChild(tag);
+    // Carry the first name + domain into Step 2 for a personalized greeting.
+    try {
+      sessionStorage.setItem('cr_first', (fname.value.trim().split(/\s+/)[0] || ''));
+      sessionStorage.setItem('cr_domain', getDomain());
+    } catch(e){}
+    window.location.href = 'onboarding';
+  }
+
+  // Editing the website resets the check
+  website.addEventListener('input', function(){
+    panel.classList.remove('open');
+    btn.disabled = false;
+    btn.classList.remove('success','checking');
+    btnLabel.textContent = 'Check My Site';
+  });
+})();
+</script>
+
+</body>
+</html>

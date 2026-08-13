@@ -10,6 +10,7 @@
 
 import * as register from "./api/register.js";
 import * as claim50 from "./api/claim-50.js";
+import * as calWebhook from "./api/cal-webhook.js";
 import * as tradeLookup from "./api/trade-lookup.js";
 import * as visit from "./api/visit.js";
 import * as consent from "./api/consent.js";
@@ -19,8 +20,11 @@ import * as unsubscribe from "./api/unsubscribe.js";
 import * as socialQueue from "./api/social-queue.js";
 import * as feedback from "./api/feedback.js";
 import * as outreach from "./api/outreach.js";
+import * as click from "./api/click.js";
+import * as chatLauncher from "./api/chat-launcher.js";
 import * as queue from "./api/queue.js";
 import * as hit from "./api/hit.js";
+import * as ping from "./api/ping.js";
 import * as identify from "./api/identify.js";
 import * as analytics from "./api/analytics.js";
 import * as liStatus from "./api/li-status.js";
@@ -32,14 +36,43 @@ import * as gbpStatus from "./api/gbp-status.js";
 import * as admin from "./admin.js";
 import * as crm from "./crm.js";
 import * as crmApp from "./crm-app.js";
+import * as crmChangelog from "./crm-changelog.js";
+import * as signupSiteCheck from "./api/signup-site-check.js";
 import * as crmLeads from "./api/crm-leads.js";
 import * as crmAnalytics from "./api/crm-analytics.js";
 import * as crmSpend from "./api/crm-spend.js";
 import * as crmSocial from "./api/crm-social.js";
 import * as crmGmail from "./api/crm-gmail.js";
-import * as crmCrisp from "./api/crm-crisp.js";
 import * as crmApollo from "./api/crm-apollo.js";
 import * as crmApolloSync from "./api/crm-apollo-sync.js";
+import * as crOwnSync from "./api/cr-own-sync.js";
+import * as apolloProspect from "./api/apollo-prospect.js";
+import * as crmSpy from "./api/crm-spy.js";
+import * as crmLive from "./api/crm-live.js";
+import * as crmAnalyticsRange from "./api/crm-analytics-range.js";
+import * as crmProfile from "./api/crm-profile.js";
+import * as crmVisitor from "./api/crm-visitor.js";
+// Speed-to-Lead engine
+import * as stlLead from "./api/stl-lead.js";
+import * as chatCall from "./api/chat-call.js";
+import * as partnerApply from "./api/partner-apply.js";
+import * as chatCapture from "./api/chat-capture.js";
+import * as chatLead from "./api/chat-lead.js";
+import * as crmChatLive from "./api/crm-chat-live.js";
+import * as stlRevoke from "./api/stl-revoke.js";
+import * as stlTwilio from "./api/stl-twilio.js";
+import * as stlRetell from "./api/stl-retell.js";
+import * as stlCalcom from "./api/stl-calcom.js";
+import * as stlVoiceCascade from "./api/stl-voice-cascade.js";
+import * as stlAdmin from "./api/stl-admin.js";
+import * as stlConsole from "./stl-console.js";
+import * as stlDemo from "./stl-demo.js";
+import * as stlTry from "./stl-try.js";
+import { tick as stlTick } from "./_lib/stl/runner.js";
+import { sweepLiveChats, sweepTwilioSms } from "./_lib/stl/crm-bridge.js";
+import * as instantlyVisitors from "./api/instantly-visitors.js";
+import * as leadfeeder from "./api/leadfeeder.js";
+import * as rb2bEmail from "./api/rb2b-email.js";
 import * as crmSocialScores from "./api/crm-social-scores.js";
 import * as crmSocialPromote from "./api/crm-social-promote.js";
 import * as crmGbpAuth from "./api/crm-gbp-auth.js";
@@ -47,26 +80,51 @@ import * as crmGadsAuth from "./api/crm-gads-auth.js";
 import * as crmStatus from "./api/crm-status.js";
 import * as crmAuth from "./api/crm-auth.js";
 import * as crmMigrate from "./api/crm-migrate.js";
+import * as crmImportLegacy from "./api/crm-import-legacy.js";
+import * as crmFixDates from "./api/crm-fix-dates.js";
+import { fixConversationDates } from "./api/crm-fix-dates.js";
+import { nurtureTick } from "./_lib/nurture-sweep.js";
+import * as newsletter from "./api/newsletter.js";
+import * as founderVoice from "./api/founder-voice.js";
+import * as crmConsent from "./api/crm-consent.js";
+import * as crmTask from "./api/crm-task.js";
+import * as crmSeqReport from "./api/crm-seq-report.js";
+import * as stlTemplates from "./api/stl-templates.js";
+import * as crmActivity from "./api/crm-activity.js";
+import * as crmSingleTask from "./api/crm-single-task.js";
+import * as crmLookup from "./api/crm-lookup.js";
+import * as crmTasks from "./api/crm-tasks.js";
+import * as crmProspecting from "./api/prospecting.js";
+import { processProspectRuns } from "./api/prospecting.js";
+import * as crmAgency from "./api/crm-agency.js";
+import { runRepermission, runReengagement } from "./_lib/newsletter.js";
 import * as crmInbox from "./api/crm-inbox.js";
 import * as crmInstantly from "./api/crm-instantly.js";
 import * as crmInstantlyCampaign from "./api/crm-instantly-campaign.js";
 import * as crmLeadTokens from "./api/crm-lead-tokens.js";
 import * as leadPrefill from "./api/lead-prefill.js";
 import * as metaCapi from "./api/meta-capi.js";
+import * as booking from "./api/booking.js";
 import * as crmDeals from "./api/crm-deals.js";
 import * as crmEnrich from "./api/crm-enrich.js";
 import * as crmAnalytics2 from "./api/crm-analytics2.js";
 import * as crmMeta from "./api/crm-meta.js";
 import * as crmPresence from "./api/crm-presence.js";
 import * as crmContact from "./api/crm-contact.js";
+import * as crmCompany from "./api/crm-company.js";
+import * as crmRecords from "./api/crm-records.js";
+import * as crmCleanupCompanies from "./api/crm-cleanup-companies.js";
+import * as crmMack from "./api/crm-mack.js";
+import * as chatBook from "./api/chat-book.js";
 import * as crmMerge from "./api/crm-merge.js";
 import * as crmDemoNotify from "./api/crm-demo-notify.js";
 import * as crmRebuildMigrate from "./api/crm-rebuild-migrate.js";
 import * as crmWorkflow from "./api/crm-workflow.js";
+import * as dataRecord from "./api/data-record.js";
 import * as telnyxInbound from "./api/telnyx-inbound.js";
 import * as crmAppData from "./api/crm-app-data.js";
 import * as crmSources from "./api/crm-sources.js";
-import { tick as workflowTick } from "./_lib/workflow-engine.js";
+import { tick as workflowTick, runReplyTimers, runNurture } from "./_lib/workflow-engine.js";
 import { syncSiteVisits } from "./_lib/sitespy.js";
 import { sweepDemoNotifications } from "./_lib/demo-notify.js";
 import { autoEnrichSweep } from "./_lib/apollo.js";
@@ -79,13 +137,14 @@ import * as partnersJobber from "./api/partners-jobber.js";
 import * as seoApi from "./api/seo.js";
 import * as seoDash from "./seo.js";
 import { logAeoTelemetry } from "./_lib/aeo.js";
-import { BLOG_REDIRECTS } from "./_lib/redirects.js";
+import { BLOG_REDIRECTS, PATH_REDIRECTS } from "./_lib/redirects.js";
 import { lastPublishedAt } from "./_lib/queue.js";
 import { publishNextLive, LAUNCH_PLATFORMS, PLATFORM_CADENCE_DAYS } from "./_lib/publish.js";
 
 const ROUTES = {
   "/api/register": register,
   "/api/claim-50": claim50,
+  "/api/cal/webhook": calWebhook,
   "/api/trade-lookup": tradeLookup,
   "/api/visit": visit,
   "/api/consent": consent,
@@ -96,9 +155,11 @@ const ROUTES = {
   "/api/feedback": feedback,
   "/api/outreach": outreach,
   "/api/outreach/run": outreach,
-  "/api/outreach/webhook": outreach,
+  "/api/chat-launcher": chatLauncher,
+  "/r": click,
   "/api/queue": queue,
   "/api/hit": hit,
+  "/api/ping": ping,
   "/api/identify": identify,
   "/api/analytics": analytics,
   "/api/li-status": liStatus,
@@ -117,9 +178,18 @@ const ROUTES = {
   "/api/crm/gmail/disconnect": crmGmail,
   "/api/crm/gmail/thread": crmGmail,
   "/api/crm/gmail/send": crmGmail,
-  "/api/crm/crisp": crmCrisp,
   "/api/crm/apollo": crmApollo,
   "/api/crm/apollo/sync": crmApolloSync,
+  "/api/crm/apollo/prospect": apolloProspect,
+  "/api/crm/cr/sync": crOwnSync,
+  "/api/crm/rb2b/poll": rb2bEmail,
+  "/api/crm/instantly/visitors": instantlyVisitors,
+  "/api/crm/leadfeeder": leadfeeder,
+  "/api/crm/spy": crmSpy,
+  "/api/crm/live": crmLive,
+  "/api/crm/analytics/range": crmAnalyticsRange,
+  "/api/crm/profile": crmProfile,
+  "/api/crm/visitor": crmVisitor,
   "/api/crm/social/scores": crmSocialScores,
   "/api/crm/social/promote": crmSocialPromote,
   "/api/crm/gbp/auth": crmGbpAuth,
@@ -132,12 +202,32 @@ const ROUTES = {
   "/api/crm/gads/conversions": crmGadsAuth,
   "/api/crm/status": crmStatus,
   "/api/crm/migrate": crmMigrate,
+  "/api/crm/import-legacy": crmImportLegacy,
+  "/api/crm/fix-dates": crmFixDates,
+  "/api/newsletter": newsletter,
+  "/api/newsletter/optin": newsletter,
+  "/founder-voice": founderVoice,
+  "/api/crm/consent": crmConsent,
+  "/api/crm/lookup": crmLookup,
+  "/api/crm/tasks": crmTasks,
+  "/api/crm/task": crmTask,
+  "/api/crm/seq-report": crmSeqReport,
+  "/api/crm/stl-templates": stlTemplates,
+  "/api/crm/activity": crmActivity,
+  "/api/crm/single-task": crmSingleTask,
+  "/api/crm/prospecting": crmProspecting,
+  "/api/crm/agency": crmAgency,
   "/api/crm/inbox": crmInbox,
   "/api/crm/instantly": crmInstantly,
   "/api/crm/instantly/campaign": crmInstantlyCampaign,
   "/api/crm/instantly/leadtokens": crmLeadTokens,
   "/api/lead-prefill": leadPrefill,
   "/api/meta-capi": metaCapi,
+  "/api/booking/slots": booking,
+  "/api/booking/create": booking,
+  "/api/booking/update": booking,
+  "/api/booking/event": booking,
+  "/api/booking/ics": booking,
   "/api/crm/deals": crmDeals,
   "/api/crm/enrich": crmEnrich,
   "/api/crm/analytics2": crmAnalytics2,
@@ -147,10 +237,20 @@ const ROUTES = {
   "/api/crm/meta/launch": crmMetaLaunch,
   "/api/crm/presence": crmPresence,
   "/api/crm/contact": crmContact,
+  "/api/crm/company": crmCompany,
+  "/api/crm/contacts": crmRecords,
+  "/api/crm/companies": crmRecords,
+  "/api/crm/cleanup-companies": crmCleanupCompanies,
+  "/api/crm/mack": crmMack,
+  "/api/chat-book/times": chatBook,
+  "/api/chat-book/create": chatBook,
   "/api/crm/merge": crmMerge,
   "/api/crm/demo-notify": crmDemoNotify,
   "/api/crm/rebuild/migrate": crmRebuildMigrate,
   "/api/crm/workflow": crmWorkflow,
+  "/api/crm/data-record": dataRecord,
+  "/api/crm/data-delete": dataRecord,
+  "/api/crm/signup/site-check": signupSiteCheck,
   "/api/telnyx/inbound": telnyxInbound,
   "/api/crm/app": crmAppData,
   "/api/crm/sources": crmSources,
@@ -170,10 +270,26 @@ const ROUTES = {
   "/api/seo/indexnow": seoApi,
   "/api/seo/digest": seoApi,
   "/api/seo/aeo": seoApi,
+  // ── Speed-to-Lead engine ──────────────────────────────────────────────────
+  "/api/lead": stlLead,
+  "/api/chat-call": chatCall,
+  "/api/partner-apply": partnerApply,
+  "/api/chat-capture": chatCapture,
+  "/api/chat-lead": chatLead,
+  "/api/crm/chat-live": crmChatLive,
+  "/consent/revoke": stlRevoke,
+  "/api/stl/twilio/inbound": stlTwilio,
+  "/api/stl/twilio/status": stlTwilio,
+  "/api/stl/twilio/voice-cascade": stlVoiceCascade,
+  "/api/stl/twilio/voicemail": stlVoiceCascade,
+  "/api/stl/twilio/voicemail-transcription": stlVoiceCascade,
+  "/api/stl/retell/webhook": stlRetell,
+  "/api/stl/calcom/webhook": stlCalcom,
+  "/api/stl/admin": stlAdmin,
 };
 
 // Routes that don't need the D1 binding (so they work even before it's enabled).
-const NO_DB = new Set(["/api/preview", "/api/meta-capi"]);
+const NO_DB = new Set(["/api/preview", "/api/meta-capi", "/api/crm/signup/site-check"]);
 
 export default {
   async fetch(request, env, ctx) {
@@ -219,8 +335,37 @@ export default {
     // Worker (not public/_redirects) because Cloudflare caps _redirects at 100 rules.
     {
       const norm = url.pathname.replace(/\/+$/, "") || "/";
-      const to = BLOG_REDIRECTS[norm];
+      const to = PATH_REDIRECTS[norm] || BLOG_REDIRECTS[norm];
       if (to) return Response.redirect(new URL(to, url.origin).toString(), 301);
+    }
+
+    // Speed-to-Lead public TEST demo form (noindex). Posts to /api/lead.
+    if (url.pathname === "/try") {
+      try { return await stlTry.handle({ request, env, ctx }); }
+      catch (err) { return new Response("try error", { status: 500 }); }
+    }
+    if (url.pathname === "/speed-demo") {
+      try { return await stlDemo.handle({ request, env, ctx }); }
+      catch (err) { return new Response("demo error", { status: 500 }); }
+    }
+
+    // Speed-to-Lead internal test console (cr_crm-gated). Before the generic /crm/.
+    if (url.pathname === "/crm/speed" || url.pathname.startsWith("/crm/speed/")) {
+      try {
+        return await stlConsole.handle({ request, env, ctx });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: "stl_console_error", detail: String(err).slice(0, 300) }),
+          { status: 500, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+      }
+    }
+
+    // Chat-style CRM changelog (cr_crm-gated) — every feature, fix, and change.
+    if (url.pathname === "/crm/changelog") {
+      try {
+        return await crmChangelog.handle({ request, env, ctx });
+      } catch (err) {
+        return new Response("changelog error: " + String(err).slice(0, 200), { status: 500, headers: { "Content-Type": "text/plain" } });
+      }
     }
 
     // CRM rebuild app (frozen design, cr_crm-gated). Served before the legacy /crm
@@ -298,6 +443,22 @@ export default {
   // missing). On success the row is marked published with the live post URL; on
   // error it stays ready_to_publish and retries next eligible run.
   async scheduled(event, env, ctx) {
+    // Speed-to-Lead cadence ticker — every minute. Gates + dispatches every due
+    // touchpoint. Cheap when idle (indexed status/scheduled_for scan). Safe in
+    // simulate mode (default): records intended sends without touching a provider.
+    if (event.cron === "* * * * *") {
+      if (!env.DB) return;
+      try { const s = await stlTick(env); if (s && s.processed) console.log(`[stl] ${JSON.stringify(s)}`); }
+      catch (e) { console.log(`[stl] tick error: ${String(e).slice(0, 200)}`); }
+      // Pull live website-chat transcripts from Retell so they fill in near-real-time
+      // (chat_ended is unreliable for widget chats). Cheap: only recent open chats.
+      try { const lc = await sweepLiveChats(env); if (lc && lc.updated) console.log(`[chat] live sweep: ${JSON.stringify(lc)}`); }
+      catch (e) { console.log(`[chat] live sweep error: ${String(e).slice(0, 160)}`); }
+      // Mirror SMS straight from Twilio (Retell doesn't reliably webhook SMS to us).
+      try { const sm = await sweepTwilioSms(env); if (sm && sm.mirrored) console.log(`[sms] twilio sweep: ${JSON.stringify(sm)}`); }
+      catch (e) { console.log(`[sms] twilio sweep error: ${String(e).slice(0, 160)}`); }
+      return;
+    }
     // Apollo visitor sync — frequent cron. Incremental (only new emails), so it's
     // cheap to run often. No-op until APOLLO_API_KEY + APOLLO_CONTACTS_LABEL are set.
     if (event.cron === "*/5 * * * *") {
@@ -308,21 +469,107 @@ export default {
       } catch (err) {
         console.log(`[apollo] sync error: ${String(err).slice(0, 160)}`);
       }
+      // Our own Consent Resolve visitor-ID API -> CRM. No-op until CR_API_KEY is set.
+      try {
+        const out = await crOwnSync.runScheduledSync(env);
+        if (out && out.synced) console.log(`[cr-own] synced ${out.synced} new (${out.skipped} skipped)`);
+      } catch (err) {
+        console.log(`[cr-own] sync error: ${String(err).slice(0, 160)}`);
+      }
+      // RB2B daily CSV — pull the attachment from the connected Gmail inbox and import
+      // it. No-op until a Gmail account (default hello@) is connected. Idempotent.
+      try {
+        const out = await rb2bEmail.pollRb2bGmail(env);
+        if (out && out.ingested) console.log(`[rb2b] imported ${out.ingested} from ${out.processed} CSV email(s)`);
+      } catch (err) {
+        console.log(`[rb2b] gmail poll error: ${String(err).slice(0, 160)}`);
+      }
+      // Prospecting waterfall — advance any `running` sweep one bounded batch
+      // (tech → traffic → backlinks → score). Bounded per tick to respect the
+      // subrequest/time budget; a run pauses itself at its cost ceiling. No-op
+      // when no run is active or DataForSEO creds are unset.
+      try {
+        const out = await processProspectRuns(env, { maxDomains: 25 });
+        if (out && out.touched) console.log(`[prospecting] scored ${out.touched} domain-steps across ${out.runs.length} run(s)`);
+      } catch (err) {
+        console.log(`[prospecting] waterfall error: ${String(err).slice(0, 160)}`);
+      }
+      // Auto-intel drip — bring every lead's dossier up to date. Enriches a bounded batch of
+      // leads whose enrichment is missing / pre-synthesis / stale (>30d), running BOTH lookups.
+      // Also enriches new inbound leads (domain captured at ingest) within a tick or two.
+      try {
+        const out = await crmLookup.enrichDueLeads(env, { limit: 8 });
+        if (out && out.enriched) console.log(`[intel] auto-enriched ${out.enriched}/${out.scanned} lead(s) · $${out.cost_usd}`);
+      } catch (err) {
+        console.log(`[intel] drip error: ${String(err).slice(0, 160)}`);
+      }
+      // Phase 2: cold-to-demo no-reply/no-booking timers (engaged-no-reply → call task;
+      // demo-link-clicked-no-booking-24h → one nudge email). No-op until the engine is on.
+      try {
+        const out = await runReplyTimers(env);
+        if (out && (out.clickNoReply?.made || out.calNoBooking?.sent)) console.log(`[timers] call-tasks ${out.clickNoReply?.made || 0}, nudges ${out.calNoBooking?.sent || 0}`);
+      } catch (err) {
+        console.log(`[timers] error: ${String(err).slice(0, 160)}`);
+      }
+      // Instantly Website Visitors ingest DISABLED (2026-07-29): the Instantly
+      // "Website Visitors" list turned out to be the HVAC cold-campaign's
+      // (mostly-unsubscribed) leads, not real visitors. Left off the cron; the
+      // endpoint stays for manual purge/inspection only.
       // Unified inbox: pull new mail for the configured mailbox(es). No-op until a
       // CRM_INBOX_EMAILS account (default hello@) is Gmail-OAuth connected.
       try {
         const polled = await crmInbox.pollAllInboxes(env);
-        for (const p of polled) if (p && p.ingested) console.log(`[inbox] ${p.account}: +${p.ingested} of ${p.seen}`);
+        for (const p of polled) if (p && (p.ingested || p.bounced)) console.log(`[inbox] ${p.account}: +${p.ingested} of ${p.seen}${p.bounced ? `, ${p.bounced} bounced→suppressed` : ""}`);
       } catch (err) {
         console.log(`[inbox] poll error: ${String(err).slice(0, 160)}`);
       }
-      // Crisp backfill: poll recent chats via REST and ingest any the webhook missed. Self-heals
-      // against a rotated CRM key silently disabling the Crisp webhook. No-op until creds are set.
+      // ANTI-RESURRECTION SWEEP — hard-delete any conversation whose thread is tombstoned. If
+      // ANY path (the poll above, a sync, a stray migration) re-created a deleted thread, this
+      // removes it right after, so it never lingers in D1. The app already hides them; this keeps
+      // the row count honest. Gated on a non-empty external_thread_id (never touches prospecting|).
       try {
-        const cb = await crmCrisp.pollCrispBackfill(env);
-        if (cb && cb.ingested) console.log(`[crisp] backfilled ${cb.ingested} conv (${cb.messages} msgs)`);
+        const sw = await env.DB.prepare(
+          "DELETE FROM conversations WHERE external_thread_id IS NOT NULL AND external_thread_id != '' AND (channel || '|' || external_thread_id) IN (SELECT thread_key FROM conversation_tombstones)"
+        ).run();
+        const n = sw && sw.meta ? sw.meta.changes : 0;
+        if (n) console.log(`[tombstone-sweep] removed ${n} resurrected conversation(s)`);
+      } catch (err) { console.log(`[tombstone-sweep] error: ${String(err).slice(0, 160)}`); }
+      // ONE-TIME: correct historical conversation arrival dates (created_at was defaulting to
+      // the ingest moment, not when the lead came in). Runs once, marks a flag, never repeats.
+      try {
+        await env.DB.prepare("CREATE TABLE IF NOT EXISTS crm_flags (k TEXT PRIMARY KEY, v TEXT, at TEXT)").run();
+        const done = await env.DB.prepare("SELECT 1 x FROM crm_flags WHERE k='dates_backfilled_v1'").first().catch(() => null);
+        if (!done) {
+          const r = await fixConversationDates(env);
+          await env.DB.prepare("INSERT OR IGNORE INTO crm_flags (k,v,at) VALUES ('dates_backfilled_v1',?,datetime('now'))")
+            .bind(JSON.stringify({ updated: r.updated, total: r.total, noSignal: r.noSignal })).run();
+          console.log(`[dates] one-time backfill: corrected ${r.updated}/${r.total} conversations (${r.noSignal} had no signal)`);
+        }
       } catch (err) {
-        console.log(`[crisp] backfill error: ${String(err).slice(0, 160)}`);
+        console.log(`[dates] backfill error: ${String(err).slice(0, 160)}`);
+      }
+      // Lead scoring + cold→nurture→warm lifecycle mover (playbook Part 3). Rescores changed
+      // contacts, promotes Warm/Hot or repliers back to Open, cools 30-day-silent leads to Nurture.
+      try {
+        const nt = await nurtureTick(env);
+        if (nt && (nt.warmed_to_open || nt.cooled_to_nurture || nt.promoted)) console.log(`[nurture] ${JSON.stringify(nt)}`);
+      } catch (err) {
+        console.log(`[nurture] error: ${String(err).slice(0, 160)}`);
+      }
+      // Re-permission sequence runner (Part 5). Inert until NEWSLETTER_ENABLED=true (and honors
+      // the NEWSLETTER_TEST_EMAILS allowlist) — advances/consumes nothing while simulating.
+      try {
+        const rp = await runRepermission(env, {});
+        if (rp && (rp.sent || rp.suppressed)) console.log(`[repermission] ${JSON.stringify(rp)}`);
+      } catch (err) {
+        console.log(`[repermission] error: ${String(err).slice(0, 160)}`);
+      }
+      // Interested-tier personal re-engagement (playbook Part 3). Inert until newsletter is live.
+      try {
+        const re = await runReengagement(env, {});
+        if (re && re.sent) console.log(`[reengage] ${JSON.stringify(re)}`);
+      } catch (err) {
+        console.log(`[reengage] error: ${String(err).slice(0, 160)}`);
       }
       // Instantly Unibox: ingest campaign replies as channel='instantly'. No-op without key.
       try {
@@ -408,6 +655,12 @@ export default {
           console.log(`[seo-digest] ${d && d.ok ? "sent to " + d.to : "skip: " + (d && d.error)}`);
         } catch (err) { console.log(`[seo-digest] error: ${String(err).slice(0, 160)}`); }
       }
+      // Phase 3: Long-Term Nurture — once/day, quarterly value touches + seasonal sprints
+      // + hygiene archive. No-op until the engine is on.
+      try {
+        const n = await runNurture(env);
+        if (n && (n.sent || n.sprinted || n.archived)) console.log(`[nurture] sent ${n.sent || 0}, sprinted ${n.sprinted || 0}, archived ${n.archived || 0}`);
+      } catch (err) { console.log(`[nurture] error: ${String(err).slice(0, 160)}`); }
     }
 
     // Daily social drip.
@@ -461,5 +714,14 @@ export default {
         console.log(`[social] ${platform} fatal: ${String(err).slice(0, 160)}`);
       }
     }
+  },
+
+  // Inbound email (Cloudflare Email Routing). RB2B's free tier only emails a daily
+  // CSV of identified visitors — route that address (e.g. rb2b@consentresolve.com)
+  // to this worker in the Email Routing dashboard and we parse it into CRM leads.
+  async email(message, env, ctx) {
+    ctx.waitUntil(rb2bEmail.handleRb2bEmail(message, env).catch((e) =>
+      console.log(`[rb2b-email] fatal: ${String(e).slice(0, 160)}`)
+    ));
   },
 };

@@ -73,8 +73,17 @@
     scroll-behavior: smooth;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+    /* Lock the page: no rubber-band bounce / pull-to-refresh (the "slide" on mobile),
+       and never allow horizontal drift. overflow-x:clip keeps position:sticky working. */
+    overscroll-behavior: none;
+    overflow-x: clip;
   }
-  body { @apply antialiased; }
+  body {
+    @apply antialiased;
+    overscroll-behavior: none;
+    overflow-x: clip;
+    max-width: 100vw;
+  }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
     letter-spacing: -0.02em;

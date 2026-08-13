@@ -1,0 +1,376 @@
+// Speed-to-Lead — internal test console, served at /crm/speed (cr_crm-gated).
+// A self-contained operator page for internally testing the engine before go-live:
+// flip simulate↔live + per-channel + allowlists, inject test leads, run the cron
+// tick on demand, and watch every touchpoint pass/blocked through the consent gate.
+import { crmAuthed } from "./_lib/crm.js";
+
+const LOGIN = `<!doctype html><meta charset=utf-8><title>Speed-to-Lead — sign in</title>
+<body style="font-family:system-ui;display:grid;place-items:center;height:100vh;margin:0;background:#0e1c2e;color:#eaf2f8">
+<div style="text-align:center"><h1>Speed-to-Lead console</h1><p>Sign in with your Consent Resolve account.</p>
+<a href="/api/crm/auth/login?next=/crm/speed" style="color:#00e5a0">Sign in with Google →</a></div>`;
+
+export async function handle({ request, env }) {
+  if (!(await crmAuthed(request, env))) {
+    return new Response(LOGIN, { status: 401, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
+  }
+  return new Response(PAGE, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
+}
+
+const PAGE = `<!doctype html><html><head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1"><title>Speed-to-Lead — console</title>
+<style>
+:root{--bg:#0e1c2e;--sf:#14263c;--sf2:#1b3049;--ln:rgba(255,255,255,.1);--tx:#eaf2f8;--tx2:#9fb3c6;--ac:#00e5a0;--ok:#39d98a;--bad:#ff6b6b;--warn:#ffcc66}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.45}
+a{color:var(--ac)}.wrap{max-width:1180px;margin:0 auto;padding:22px}
+h1{font-size:22px;margin:0 0 2px}h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--tx2);margin:26px 0 10px}
+.sub{color:var(--tx2);margin:0 0 6px}
+.mode{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-weight:800;font-size:12.5px}
+.mode.sim{background:rgba(255,204,102,.16);color:var(--warn)}.mode.live{background:rgba(57,217,138,.16);color:var(--ok)}
+.mode.paused{background:rgba(255,107,107,.16);color:var(--bad)}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.grid{display:grid;gap:12px}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:820px){.g4,.g3{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+.kpi{background:var(--sf2);border:1px solid var(--ln);border-radius:11px;padding:12px 14px}
+.kpi .v{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}.kpi .l{font-size:11.5px;color:var(--tx2);margin-top:2px}
+.kpi.alarm .v{color:var(--bad)}.kpi.good .v{color:var(--ok)}
+label{display:block;font-size:12px;color:var(--tx2);margin:8px 0 4px;font-weight:600}
+input,select,textarea{width:100%;padding:8px 10px;background:var(--bg);border:1px solid var(--ln);border-radius:8px;color:var(--tx);font-size:13.5px;font-family:inherit}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sw{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--sf2);border:1px solid var(--ln);border-radius:9px;font-weight:600}
+.sw input{width:auto}
+button{background:var(--ac);color:#04120b;border:0;border-radius:9px;padding:9px 15px;font-weight:800;cursor:pointer;font-size:13px}
+button.ghost{background:transparent;border:1px solid var(--ln);color:var(--tx)}
+button.danger{background:transparent;border:1px solid var(--bad);color:var(--bad)}
+button:disabled{opacity:.5;cursor:not-allowed}
+table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--ln);vertical-align:top}
+th{color:var(--tx2);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.pA{background:rgba(159,179,198,.18);color:var(--tx2)}.pB{background:rgba(0,229,160,.16);color:var(--ac)}
+.s-sent{color:var(--ok)}.s-blocked{color:var(--bad)}.s-pending{color:var(--warn)}.s-canceled,.s-skipped{color:var(--tx2)}.s-failed{color:var(--bad)}
+.tp{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--tx2)}
+.muted{color:var(--tx2)}.mono{font-family:ui-monospace,monospace}
+details{border:1px solid var(--ln);border-radius:9px;margin:6px 0;background:var(--sf2)}summary{padding:9px 12px;cursor:pointer;font-weight:700}
+.note{font-size:12px;color:var(--tx2)}#msg{font-weight:800}
+</style></head><body><div class=wrap>
+<div class=row style="justify-content:space-between">
+  <div><h1>Speed-to-Lead</h1><p class=sub>Internal test console — exercise the whole engine before go-live.</p></div>
+  <div id=modeBadge></div>
+</div>
+<div id=alarm></div>
+
+<h2>Dispatch mode <span class=note>— simulate records intended sends; live actually dispatches (allowlist still applies)</span></h2>
+<div class=card>
+  <div class=row>
+    <div class=sw><input type=radio name=mode value=simulate id=mSim><label for=mSim style="margin:0">Simulate (safe)</label></div>
+    <div class=sw><input type=radio name=mode value=live id=mLive><label for=mLive style="margin:0">Live</label></div>
+    <div class=sw><input type=checkbox id=paused><label for=paused style="margin:0">Pause all (kill switch)</label></div>
+  </div>
+  <div class="grid g4" style="margin-top:12px">
+    <div class=sw><input type=checkbox id=live_email><label for=live_email style="margin:0">Live: Email</label></div>
+    <div class=sw><input type=checkbox id=live_sms><label for=live_sms style="margin:0">Live: SMS</label></div>
+    <div class=sw><input type=checkbox id=live_call_ai><label for=live_call_ai style="margin:0">Live: AI voice</label></div>
+    <div class=sw><input type=checkbox id=live_call_human><label for=live_call_human style="margin:0">Live: Human dial</label></div>
+  </div>
+  <div class="grid g2" style="margin-top:6px">
+    <div><label>Test email allowlist (csv — only these get real email when live; blank = all)</label><input id=test_emails placeholder="you@consentresolve.com"></div>
+    <div><label>Test phone allowlist (csv E.164)</label><input id=test_phones placeholder="+15555550123"></div>
+  </div>
+  <div class=row style="margin-top:12px"><button onclick=saveSettings()>Save mode</button><span id=msg class=muted></span></div>
+</div>
+
+<h2>Metrics</h2>
+<div class="grid g4" id=kpis></div>
+
+<h2>Integrations &amp; go-live</h2>
+<div class=card>
+  <div id=readiness class="grid g4"></div>
+  <div id=twilioDebug class="note mono" style="margin-top:8px"></div>
+  <div class=row style="margin-top:14px;gap:10px">
+    <button onclick=provisionRetell()>⚡ Provision Mack (Retell)</button>
+    <button onclick=provisionKb()>📚 Set up / update knowledge base</button>
+    <button onclick=provisionChat()>💬 Create chat agent (website widget)</button>
+    <button class=ghost onclick=listNumbers()>List Retell numbers</button>
+    <a href="/speed-demo" target="_blank"><button class=ghost type=button>Open test demo form ↗</button></a>
+  </div>
+  <div class=row style="margin-top:10px">
+    <button class=ghost onclick=verifyTwilio()>Verify Twilio</button>
+    <button class=ghost onclick=listTwilioNums()>List Twilio numbers</button>
+    <button class=ghost onclick=findNumberOwner()>Which account owns the From #?</button>
+    <button class=ghost onclick=listMsgServices()>List Messaging Services (A2P)</button>
+    <button class=ghost onclick=attachNumber()>Attach From # to Messaging Service</button>
+    <button class=ghost onclick=setupCascade()>Set up voice cascade (rep transfer)</button>
+    <button class=ghost onclick=createSipTrunk()>Create SIP trunk (Retell ← 727 SMS number)</button>
+  </div>
+  <div class=row style="margin-top:10px">
+    <input id=sipUri placeholder="Retell SIP URI (sip:…) — paste after connecting in Retell" style="max-width:360px">
+    <button class=ghost onclick=addSipOrigination()>Add SIP origination (inbound)</button>
+  </div>
+  <div class=row style="margin-top:10px">
+    <input id=testEmail placeholder="you@consentresolve.com" style="max-width:260px">
+    <button class=ghost onclick=sendTestEmail()>Send test email</button>
+    <input id=testSms placeholder="+15555550123" style="max-width:200px">
+    <button class=ghost onclick=sendTestSms()>Send test SMS</button>
+  </div>
+  <div class=row style="margin-top:10px">
+    <input id=msgSid placeholder="SM… message SID to check delivery" style="max-width:340px">
+    <button class=ghost onclick=checkSms()>Check SMS delivery status</button>
+  </div>
+  <div id=intgOut class="note mono" style="margin-top:10px"></div>
+</div>
+
+<h2>Chat launcher <span class=note>— the orb + teaser + nudge that front Mack on the website. Saves live, no redeploy.</span></h2>
+<div class=card>
+  <div class=row>
+    <div class=sw><input type=checkbox id=cl_enabled><label for=cl_enabled style="margin:0"><b>Launcher on</b> (uncheck = use Retell's plain bubble)</label></div>
+    <div class=sw><label style="margin:0">Badge</label>
+      <select id=cl_badge style="max-width:150px"><option value=honest>Honest (on teaser)</option><option value=always>Always</option><option value=off>Off</option></select></div>
+  </div>
+  <div class="grid g2" style="margin-top:10px">
+    <div><label>Agent name</label><input id=cl_agentName placeholder="Mack"></div>
+    <div><label>Status line</label><input id=cl_status placeholder="AI assistant · a human when you ask"></div>
+    <div><label>Phone (E.164 — powers the “call” link)</label><input id=cl_phone placeholder="+17279999846"></div>
+    <div><label>Orb entrance delay (seconds)</label><input id=cl_entrance type=number step=.1 min=0 max=60></div>
+    <div style="grid-column:1/-1"><label>Teaser greeting</label><input id=cl_greeting placeholder="Hey — I'm at my desk right now. Want a price, or a time slot?"></div>
+  </div>
+
+  <div style="margin-top:14px"><b>Teaser</b> <span class=note>— the little message card that slides up</span></div>
+  <div class=row style="margin-top:6px"><div class=sw><input type=checkbox id=cl_teaser_enabled><label for=cl_teaser_enabled style="margin:0">Show teaser</label></div>
+    <div class=sw><input type=checkbox id=cl_teaser_exit><label for=cl_teaser_exit style="margin:0">Exit-intent trigger (desktop)</label></div></div>
+  <div class="grid g2" style="margin-top:6px">
+    <div><label>Show after (seconds) — 0 disables the time trigger</label><input id=cl_teaser_delay type=number step=.5 min=0 max=600></div>
+    <div><label>…or after scrolling (% of page) — 0 disables</label><input id=cl_teaser_scroll type=number step=1 min=0 max=100></div>
+  </div>
+
+  <div style="margin-top:14px"><b>Nudge</b> <span class=note>— the orb’s periodic wiggle</span></div>
+  <div class=row style="margin-top:6px"><div class=sw><input type=checkbox id=cl_nudge_enabled><label for=cl_nudge_enabled style="margin:0">Enable nudge</label></div></div>
+  <div class="grid g2" style="margin-top:6px">
+    <div><label>Wiggle every (seconds)</label><input id=cl_nudge_every type=number step=1 min=0 max=600></div>
+    <div><label>Stop after (times)</label><input id=cl_nudge_max type=number step=1 min=0 max=50></div>
+  </div>
+
+  <div class=row style="margin-top:14px"><button onclick=saveLauncher()>Save launcher</button>
+    <a href="/" target="_blank"><button class=ghost type=button>Preview on site ↗</button></a>
+    <span id=clMsg class=muted></span></div>
+</div>
+
+<h2>Test drive</h2>
+<div class="grid g2">
+  <div class=card>
+    <b>Inject a test lead</b>
+    <div class="grid g2">
+      <div><label>Population</label><select id=inPop><option value=A>A — cookie banner only (email + human dial)</option><option value=B>B — full consent (all channels)</option></select></div>
+      <div><label>Trade</label><select id=inTrade><option>roofing</option><option>plumbing</option><option>hvac</option><option>electrical</option><option>other</option></select></div>
+      <div><label>First name</label><input id=inFirst value="Test"></div>
+      <div><label>Company</label><input id=inCo value="Acme Roofing"></div>
+      <div><label>Email</label><input id=inEmail value="test@example.com"></div>
+      <div><label>Phone (E.164)</label><input id=inPhone value="+15555550123"></div>
+      <div><label>Timezone</label><input id=inTz value="America/Chicago"></div>
+      <div><label>State</label><input id=inState value="TX"></div>
+    </div>
+    <div class=row style="margin-top:10px"><button onclick=inject()>Inject lead</button><span class=note>B1 is scheduled T+45s — click "Run tick" to fire it now.</span></div>
+  </div>
+  <div class=card>
+    <b>Run the engine</b>
+    <p class=note>The cron ticks every minute in production. Here you can fire it on demand to dispatch every due touchpoint through the consent gate.</p>
+    <div class=row><button onclick=runTick()>▶ Run Now</button></div>
+    <div style="margin-top:12px"><b>Reps</b> <span class=note>— Ruby warm-transfers to an available rep. Add yourself so a B1 call can bridge to you.</span></div>
+    <div class=row style="margin-top:6px">
+      <input id=repName placeholder="Rep name" style="max-width:120px">
+      <input id=repPhone placeholder="+17135551234" style="max-width:170px">
+      <select id=repPriority style="max-width:130px"><option value=1>Primary</option><option value=2>Backup 1</option><option value=3>Backup 2</option></select>
+      <button class=ghost onclick=seedRep()>+ Add rep</button>
+    </div>
+    <div id=reps style="margin-top:8px;font-size:12.5px"></div>
+    <p class=note style="margin-top:14px"><b>Reset:</b> remove all test leads + their data.</p>
+    <button class=danger onclick=resetTests()>Delete test data</button>
+    <div id=tickOut class="note mono" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<h2>Gate violations <span class=note>— target: zero. Any row is a bug or a real block.</span></h2>
+<div class=card id=violations><span class=muted>none</span></div>
+
+<h2>Recent errors <span class=note>— live send failures with the provider's exact code (catch via GET /api/stl/admin → errors[])</span></h2>
+<div class=card id=errors><span class=muted>none</span></div>
+
+<h2>Leads &amp; touchpoints</h2>
+<div id=leads></div>
+
+<script>
+const $=s=>document.querySelector(s);
+let STATE=null;
+async function api(method,body){const r=await fetch('/api/stl/admin',{method,credentials:'same-origin',headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});return r.json();}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function ts(t){return t?new Date(t).toLocaleString():'—';}
+function fmtDelta(t){if(!t)return '';const s=Math.round((t-Date.now())/1000);if(Math.abs(s)<90)return s>=0?'in '+s+'s':Math.abs(s)+'s ago';const m=Math.round(s/60);return m>=0?'in '+m+'m':Math.abs(m)+'m ago';}
+
+async function load(){
+  const d=await api('GET');if(!d.ok){$('#msg').textContent='load failed';return;}
+  STATE=d;
+  // mode
+  const s=d.settings;
+  document.querySelector('input[name=mode][value='+(s.mode==='live'?'live':'simulate')+']').checked=true;
+  $('#paused').checked=s.paused==='1';
+  ['live_email','live_sms','live_call_ai','live_call_human'].forEach(k=>$('#'+k).checked=s[k]==='1');
+  $('#test_emails').value=s.test_emails||'';$('#test_phones').value=s.test_phones||'';
+  renderMode(s);
+  // metrics
+  const m=d.metrics;
+  const K=(v,l,cls)=>'<div class="kpi '+(cls||'')+'"><div class=v>'+(v==null?'—':v)+'</div><div class=l>'+l+'</div></div>';
+  $('#kpis').innerHTML=
+    K(m.leads_total+' ('+m.leads_A+'A/'+m.leads_B+'B)','Leads')+
+    K(m.speed_to_first_ring_p95_s==null?'—':m.speed_to_first_ring_p95_s+'s','Speed to first ring p95', m.speed_to_first_ring_p95_s>60?'alarm':'good')+
+    K(m.sla_breach_rate_pct==null?'—':m.sla_breach_rate_pct+'%','SLA breach (>5m)')+
+    K(m.identified_contacted_60m_pct==null?'—':m.identified_contacted_60m_pct+'%','A contacted <60m')+
+    K(m.gate_violations, 'Gate violations', m.gate_violations>0?'alarm':'good')+
+    K(m.cookie_leak_flags,'Cookie-banner leaks', m.cookie_leak_flags>0?'alarm':'good')+
+    K(m.window_compliance_dials_sent,'Dials sent (in-window)')+
+    K(m.transfer_accept_rate_pct==null?'—':m.transfer_accept_rate_pct+'%','Transfer accept rate', (m.transfer_accept_rate_pct!=null&&m.transfer_accept_rate_pct<60)?'alarm':(m.transfer_accepts?'good':''))+
+    K((m.dispatch_by_mode&&(m.dispatch_by_mode.live||0))+' / '+(m.dispatch_by_mode&&(m.dispatch_by_mode.simulate||0)),'Live / simulated sends');
+  // readiness
+  renderReadiness(d.readiness||{});
+  renderReps(d.reps||[]);
+  // recent errors (live send failures with the provider code)
+  const errs=d.errors||[];
+  $('#errors').innerHTML=errs.length? '<table><tr><th>When</th><th>Kind</th><th>Detail</th><th>Lead</th></tr>'+
+    errs.map(e=>{let dt='';try{dt=e.detail?JSON.stringify(JSON.parse(e.detail)):''}catch(_){dt=e.detail||''}return '<tr><td>'+ts(e.at)+'</td><td class=s-failed>'+esc(e.kind)+'</td><td class=mono>'+esc(dt)+'</td><td class=tp>'+esc((e.lead_id||'').slice(0,8))+'</td></tr>';}).join('')+'</table>' : '<span class=muted>none</span>';
+  // violations
+  $('#violations').innerHTML=d.violations.length? '<table><tr><th>When</th><th>Channel</th><th>Reason</th><th>Caller</th><th>Lead</th></tr>'+
+    d.violations.map(v=>'<tr><td>'+ts(v.attempted_at)+'</td><td>'+esc(v.channel)+'</td><td class=s-blocked>'+esc(v.reason)+'</td><td class=tp>'+esc(v.caller)+'</td><td class=tp>'+esc(v.lead_id.slice(0,8))+'</td></tr>').join('')+'</table>' : '<span class=muted>none — clean</span>';
+  // leads + touchpoints
+  const byLead={};d.touchpoints.forEach(t=>{(byLead[t.lead_id]=byLead[t.lead_id]||[]).push(t);});
+  $('#leads').innerHTML=d.leads.map(l=>{
+    const tps=(byLead[l.id]||[]).sort((a,b)=>a.scheduled_for-b.scheduled_for);
+    const DISPO=['connected_dm','connected_gk','voicemail','no_answer','busy','callback_requested','not_interested','bad_number','do_not_call'];
+    const rows=tps.map(t=>{
+      const detail=(t.status==='failed'||t.outcome==='sms_failed')&&t.notes?' <span class=s-failed>('+esc(t.notes)+')</span>':(t.notes?' <span class=muted>'+esc(t.notes)+'</span>':'');
+      const isCall=t.channel==='call_human'||t.channel==='call_ai';
+      const outcomeCell=isCall
+        ? '<select onchange="setDisposition(\\''+t.id+'\\',this.value)" style="font-size:11px;padding:2px 4px;max-width:130px"><option value="">'+(t.outcome?esc(t.outcome):'— set outcome —')+'</option>'+DISPO.map(o=>'<option'+(o===t.outcome?' selected':'')+'>'+o+'</option>').join('')+'</select>'
+        : esc(t.outcome||'')+detail;
+      return '<tr><td class=tp>'+esc(t.sequence_step)+'</td><td>'+esc(t.channel)+'</td><td class=s-'+esc(t.status)+'>'+esc(t.status)+'</td><td>'+outcomeCell+'</td><td>'+(t.consent_check==='blocked'?'<span class=s-blocked>blocked: '+esc(t.block_reason)+'</span>':(t.consent_check||''))+'</td><td>'+(t.dispatch_mode||'')+'</td><td class=tp>'+(t.attempted_at?ts(t.attempted_at):esc(fmtDelta(t.scheduled_for)))+'</td></tr>';
+    }).join('');
+    return '<details><summary><span class="pill p'+l.population+'">'+l.population+'</span> '+esc(l.first_name||'')+' '+esc(l.company?'· '+l.company:'')+' <span class=muted>'+esc(l.email||'')+' · '+esc(l.phone||'')+'</span> — <span class=muted>'+esc(l.status)+'</span> '+(l.is_test?'<span class=note>[test]</span>':'')+' <button class=ghost style="float:right;padding:3px 9px" onclick="event.preventDefault();revokeLead(\\''+l.id+'\\')">Revoke</button>'+(l.population==='B'?' <button class=ghost style="float:right;padding:3px 9px;margin-right:6px" onclick="event.preventDefault();markTransfer(\\''+l.id+'\\')">Mark B1 transfer</button>':'')+'</summary>'+
+      '<div style="padding:0 12px 10px"><table><tr><th>Step</th><th>Channel</th><th>Status</th><th>Outcome</th><th>Gate</th><th>Mode</th><th>When</th></tr>'+(rows||'<tr><td colspan=7 class=muted>no touchpoints</td></tr>')+'</table></div></details>';
+  }).join('')||'<span class=muted>No leads yet — inject one above.</span>';
+}
+function renderMode(s){
+  const paused=s.paused==='1';const live=s.mode==='live';
+  const b=$('#modeBadge');b.innerHTML='<span class="mode '+(paused?'paused':live?'live':'sim')+'">'+(paused?'⏸ PAUSED':live?'● LIVE':'◐ SIMULATE')+'</span>';
+  $('#alarm').innerHTML=live&&!paused?'<div class=card style="border-color:var(--warn)"><b style="color:var(--warn)">Live mode is ON.</b> Channels toggled Live will send for real. Recipients outside the allowlist are still simulated.</div>':'';
+}
+async function saveSettings(){
+  const settings={mode:document.querySelector('input[name=mode]:checked').value,paused:$('#paused').checked?'1':'0',test_emails:$('#test_emails').value.trim(),test_phones:$('#test_phones').value.trim()};
+  ['live_email','live_sms','live_call_ai','live_call_human'].forEach(k=>settings[k]=$('#'+k).checked?'1':'0');
+  $('#msg').textContent='saving…';const d=await api('POST',{action:'set_settings',settings});$('#msg').textContent=d.ok?'saved ✓':'error';await load();
+}
+async function inject(){
+  const lead={first_name:$('#inFirst').value,company:$('#inCo').value,trade:$('#inTrade').value,email:$('#inEmail').value,phone:$('#inPhone').value,timezone:$('#inTz').value,state:$('#inState').value};
+  const d=await api('POST',{action:'inject',population:$('#inPop').value,lead});$('#tickOut').textContent=d.ok?('Injected '+d.population+' lead '+d.lead_id.slice(0,8)):('error: '+(d.error||''));await load();
+}
+async function runTick(){$('#tickOut').textContent='ticking…';const d=await api('POST',{action:'tick'});$('#tickOut').textContent=d.ok?('tick: '+JSON.stringify(d.summary)):('error: '+(d.error||JSON.stringify(d)));await load();}
+const REP_RANK={1:'Primary',2:'Backup 1',3:'Backup 2'};
+async function seedRep(){ const name=$('#repName').value.trim()||'Rep', phone=$('#repPhone').value.trim(), priority=$('#repPriority').value; if(!phone){$('#tickOut').textContent='enter the rep phone (E.164, e.g. +17135551234)';return;} const d=await api('POST',{action:'seed_rep',name,phone,priority}); $('#tickOut').textContent=d.ok?('added '+name+' as '+(REP_RANK[priority]||('P'+priority))):('error: '+(d.error||'')); $('#repName').value='';$('#repPhone').value=''; await load(); }
+async function removeRep(id){ await api('POST',{action:'delete_rep',rep_id:id}); await load(); }
+async function repState(id,state){ await api('POST',{action:'set_rep_state',rep_id:id,state}); await load(); }
+async function repPriority(id,priority){ await api('POST',{action:'set_rep_priority',rep_id:id,priority}); await load(); }
+function renderReps(reps){
+  const el=document.getElementById('reps'); if(!el) return;
+  if(!reps||!reps.length){ el.innerHTML='<span style="color:var(--warn)">No reps yet — add your primary + backups above so Ruby can warm-transfer.</span>'; return; }
+  el.innerHTML='<table style="width:auto"><tr><th>Rank</th><th>Rep</th><th>Phone</th><th>On shift</th><th></th></tr>'+
+    reps.map(r=>{ const rank=REP_RANK[r.priority]||('P'+r.priority);
+      const avail=r.available? '<span style="color:var(--ok);font-weight:700">● available</span>' : '<span style="color:var(--tx2)">○ away</span>';
+      const toggle='<a href="#" onclick="repState(\\''+r.id+'\\',\\''+(r.available?'away':'available')+'\\');return false">'+(r.available?'set away':'set available')+'</a>';
+      return '<tr><td>'+esc(rank)+'</td><td>'+esc(r.name)+'</td><td class=mono>'+esc(r.phone)+'</td><td>'+avail+' · '+toggle+'</td><td><a href="#" onclick="removeRep(\\''+r.id+'\\');return false" style="color:var(--bad)">remove</a></td></tr>';
+    }).join('')+'</table><div class=note style="margin-top:4px">Ruby transfers to the highest-rank rep who is on shift. If the primary is away, it rolls to the next available backup; if all are away, she confirms the slot instead.</div>';
+}
+async function resetTests(){if(!confirm('Delete ALL test leads and their data?'))return;const d=await api('POST',{action:'reset_tests'});$('#tickOut').textContent=d.ok?('deleted '+d.deleted):'error';await load();}
+function renderReadiness(r){
+  const chip=(ok,label,note)=>'<div class="kpi '+(ok?'good':'')+'"><div class=v style="font-size:15px">'+(ok?'● ready':'○ not set')+'</div><div class=l>'+label+(note?' <span class=muted>'+note+'</span>':'')+'</div></div>';
+  document.getElementById('readiness').innerHTML=
+    chip(r.email_gmail,'Email (Gmail: '+(r.email_gmail||'—')+')')+
+    chip(r.retell_key,'Retell key')+
+    chip(r.retell_agent&&r.retell_from,'Retell agent + number')+
+    chip(r.twilio&&r.twilio_from,'Twilio (SMS)','partner')+
+    chip(r.calcom,'Cal.com secret')+
+    chip(r.alert_url,'Alerts / paging')+
+    chip(!!r.booking_link,'Booking link')+
+    chip(r.verify_webhooks,'Webhook signatures');
+  const d=r._debug||{};
+  const dbg=document.getElementById('twilioDebug');
+  if(dbg) dbg.textContent='Twilio env → From='+JSON.stringify(d.from_value)+' (len '+d.from_len+') · SID='+(d.sid||'—')+' (len '+d.sid_len+') · auth_token len '+d.auth_token_len+' · MsgService='+(d.messaging_service||'—');
+}
+async function provisionRetell(){ $('#intgOut').textContent='provisioning Mack…'; const d=await api('POST',{action:'retell_setup'}); $('#intgOut').textContent=JSON.stringify(d); await load(); }
+async function provisionKb(){ $('#intgOut').textContent='creating + attaching knowledge base…'; const d=await api('POST',{action:'retell_kb'}); $('#intgOut').textContent=JSON.stringify(d); }
+async function provisionChat(){ $('#intgOut').textContent='creating chat agent…'; const d=await api('POST',{action:'retell_chat_agent'}); $('#intgOut').textContent=JSON.stringify(d); }
+async function listNumbers(){ $('#intgOut').textContent='fetching numbers…'; const d=await api('POST',{action:'retell_numbers'}); $('#intgOut').textContent=JSON.stringify(d); }
+async function sendTestEmail(){ const to=$('#testEmail').value.trim(); if(!to){$('#intgOut').textContent='enter a to-address';return;} $('#intgOut').textContent='sending…'; const d=await api('POST',{action:'test_email',to}); $('#intgOut').textContent=JSON.stringify(d); }
+async function verifyTwilio(){ $('#intgOut').textContent='checking Twilio…'; const d=await api('POST',{action:'twilio_status'}); $('#intgOut').textContent=JSON.stringify(d); }
+async function listTwilioNums(){ $('#intgOut').textContent='fetching…'; const d=await api('POST',{action:'twilio_numbers'}); $('#intgOut').textContent=JSON.stringify(d); }
+async function findNumberOwner(){ $('#intgOut').textContent='searching this account + subaccounts…'; const d=await api('POST',{action:'twilio_find_number'}); $('#intgOut').textContent=JSON.stringify(d); }
+async function listMsgServices(){ $('#intgOut').textContent='listing Messaging Services + their numbers…'; const d=await api('POST',{action:'twilio_messaging_services'}); $('#intgOut').textContent=JSON.stringify(d); }
+async function attachNumber(){ $('#intgOut').textContent='attaching From # to the Messaging Service…'; const d=await api('POST',{action:'twilio_attach_number'}); $('#intgOut').textContent=JSON.stringify(d); }
+async function setupCascade(){ $('#intgOut').textContent='pointing the hunt number at the cascade endpoint…'; const d=await api('POST',{action:'twilio_setup_cascade'}); $('#intgOut').textContent=JSON.stringify(d); }
+async function createSipTrunk(){ $('#intgOut').textContent='creating SIP trunk + credentials…'; const d=await api('POST',{action:'twilio_create_sip_trunk'}); $('#intgOut').textContent=JSON.stringify(d,null,2); }
+async function addSipOrigination(){ const sip=$('#sipUri').value.trim(); if(!sip){$('#intgOut').textContent='paste Retell\\'s SIP URI (sip:…)';return;} $('#intgOut').textContent='adding origination…'; const d=await api('POST',{action:'twilio_add_sip_origination',sip_uri:sip}); $('#intgOut').textContent=JSON.stringify(d); }
+async function sendTestSms(){ const to=$('#testSms').value.trim(); if(!to){$('#intgOut').textContent='enter a to-number (E.164)';return;} $('#intgOut').textContent='sending…'; const d=await api('POST',{action:'test_sms',to}); $('#intgOut').textContent=JSON.stringify(d); if(d&&d.sid){$('#msgSid').value=d.sid;} }
+async function checkSms(){ const sid=$('#msgSid').value.trim(); if(!sid){$('#intgOut').textContent='paste a message SID (SM…)';return;} $('#intgOut').textContent='checking delivery…'; const d=await api('POST',{action:'twilio_message_status',sid}); $('#intgOut').textContent=JSON.stringify(d); }
+async function revokeLead(id){const d=await api('POST',{action:'revoke',lead_id:id});await load();}
+async function markTransfer(id){const d=await api('POST',{action:'mark_transfer',lead_id:id});await load();}
+async function setDisposition(tpId,outcome){ if(!outcome)return; const d=await api('POST',{action:'set_disposition',touchpoint_id:tpId,outcome}); if(d&&d.textback)$('#tickOut').textContent='outcome saved — missed-dial text-back queued'; await load(); }
+
+/* ---- Chat launcher config (public GET, gated POST → /api/chat-launcher) ---- */
+/* UI is in seconds / percent; stored config is ms / 0-1, converted here. */
+async function loadLauncher(){
+  try{
+    const c=await (await fetch('/api/chat-launcher',{credentials:'same-origin'})).json();
+    $('#cl_enabled').checked=c.enabled!==false;
+    $('#cl_badge').value=c.badge||'honest';
+    $('#cl_agentName').value=c.agentName||'';
+    $('#cl_status').value=c.status||'';
+    $('#cl_phone').value=c.phone||'';
+    $('#cl_greeting').value=c.greeting||'';
+    $('#cl_entrance').value=((c.entranceDelay||0)/1000);
+    const t=c.teaser||{}, n=c.nudge||{};
+    $('#cl_teaser_enabled').checked=t.enabled!==false;
+    $('#cl_teaser_exit').checked=t.exitIntent!==false;
+    $('#cl_teaser_delay').value=((t.delay||0)/1000);
+    $('#cl_teaser_scroll').value=Math.round((t.scroll||0)*100);
+    $('#cl_nudge_enabled').checked=n.enabled!==false;
+    $('#cl_nudge_every').value=((n.every||0)/1000);
+    $('#cl_nudge_max').value=(n.max==null?3:n.max);
+  }catch(e){ $('#clMsg').textContent='load failed'; }
+}
+async function saveLauncher(){
+  const num=(id)=>{const v=parseFloat($('#'+id).value);return isFinite(v)?v:0;};
+  const config={
+    enabled:$('#cl_enabled').checked,
+    badge:$('#cl_badge').value,
+    agentName:$('#cl_agentName').value.trim(),
+    status:$('#cl_status').value.trim(),
+    phone:$('#cl_phone').value.trim(),
+    greeting:$('#cl_greeting').value.trim(),
+    entranceDelay:Math.round(num('cl_entrance')*1000),
+    teaser:{
+      enabled:$('#cl_teaser_enabled').checked,
+      exitIntent:$('#cl_teaser_exit').checked,
+      delay:Math.round(num('cl_teaser_delay')*1000),
+      scroll:Math.min(1,Math.max(0,num('cl_teaser_scroll')/100)),
+    },
+    nudge:{
+      enabled:$('#cl_nudge_enabled').checked,
+      every:Math.round(num('cl_nudge_every')*1000),
+      max:Math.round(num('cl_nudge_max')),
+    },
+  };
+  $('#clMsg').textContent='saving…';
+  try{
+    const r=await fetch('/api/chat-launcher',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({config})});
+    const d=await r.json();
+    $('#clMsg').textContent=d.ok?'saved ✓ — live within ~1 min (60s cache)':('error: '+(d.error||r.status));
+    if(d.ok) loadLauncher();
+  }catch(e){ $('#clMsg').textContent='error'; }
+}
+
+load();loadLauncher();setInterval(load,15000);
+</script></div></body></html>`;

@@ -51,7 +51,15 @@ async function computeSources(env) {
   const idVids = num(await one("SELECT COUNT(DISTINCT t.vid) n FROM traffic t JOIN visitor_links vl ON vl.vid=t.vid WHERE t.created_at>?", since30), "n");
   const matchRate = totalVids ? Math.round((idVids / totalVids) * 100) : 0;
   const clk = await one("SELECT COUNT(*) n, MAX(occurred_at) last FROM crm_events WHERE type='link_clicked' AND occurred_at>?", since30);
-  const apolloN = num(await one("SELECT COUNT(*) n FROM contacts WHERE source='apollo'"), "n");
+  // Lead-ingest sources write to crm_leads via upsertLead — count each by source so
+  // Site Spy shows them LIVE (rows appear the moment real leads land).
+  const bySource = (src) => one("SELECT COUNT(*) n, MAX(COALESCE(last_activity, created_at)) last FROM crm_leads WHERE source=?", src);
+  const apolloRow = await bySource("apollo");
+  const rb2bRow = await bySource("rb2b");
+  const crOwnRow = await bySource("consentresolve");
+  const gmailConnected = num(await one("SELECT COUNT(*) n FROM social_tokens WHERE provider LIKE 'gmail:%' AND refresh_token IS NOT NULL"), "n") > 0;
+  // status: LIVE (leads landed) > READY (configured, none yet) > NEEDS_SETUP.
+  const liveStatus = (n, configured) => (n > 0 ? "connected" : configured ? "ready" : "needs_setup");
 
   const sources = [
     { id: "first_party", name: "First-party site tracking", category: "core",
@@ -62,14 +70,24 @@ async function computeSources(env) {
       boost: matchRate < 60 ? "Match rate is low — add a de-anonymization source below to identify more visitors." : null },
     { id: "email_clicks", name: "Email link clicks", category: "intent",
       provides: "Intent — a lead clicked a link in one of our emails",
-      status: num(clk, "n") > 0 ? "connected" : (env.RESEND_API_KEY ? "ready" : "needs_setup"),
+      status: num(clk, "n") > 0 ? "connected" : "needs_setup",
       events30d: num(clk, "n"), lastSeen: clk.last || null,
-      howToEnable: "Turn on Resend click tracking, or route the engine's email links through a CR redirect that logs the click → link_clicked events." },
-    { id: "apollo", name: "Apollo / Leadsy company ID", category: "deanon",
-      provides: "Company-level de-anonymization of anonymous visitors (identified — intel/retargeting only, never outreach)",
-      status: env.APOLLO_API_KEY ? "connected" : "needs_setup",
-      contribution: `${apolloN} identified contacts`,
-      howToEnable: "Set APOLLO_API_KEY (integration already scaffolded). Raises the first-party match rate." },
+      howToEnable: "Route the engine's email links through a CR redirect that logs the click → link_clicked events." },
+    { id: "apollo", name: "Apollo (API)", category: "deanon",
+      provides: "Company + contact de-anonymization via the Apollo API (identified — intel/retargeting only, never cold outreach)",
+      status: liveStatus(num(apolloRow, "n"), !!env.APOLLO_API_KEY),
+      contribution: `${num(apolloRow, "n")} leads imported`, lastSeen: apolloRow.last || null,
+      howToEnable: "Set APOLLO_API_KEY + APOLLO_CONTACTS_LABEL (Cloudflare secrets). Pulls your Apollo visitors list every 5 min." },
+    { id: "rb2b", name: "RB2B (daily CSV → Gmail)", category: "deanon",
+      provides: "Person-level website-visitor ID. Free tier emails a daily CSV to hello@; we import the attachment automatically.",
+      status: liveStatus(num(rb2bRow, "n"), gmailConnected),
+      contribution: `${num(rb2bRow, "n")} leads imported`, lastSeen: rb2bRow.last || null,
+      howToEnable: "Point RB2B's daily CSV export at hello@consentresolve.com (Gmail-connected). Cron imports it every 5 min; no DNS needed." },
+    { id: "cr_own", name: "Consent Resolve (own visitor API)", category: "deanon",
+      provides: "Our own consent-first visitor identification, pulled from the Consent Resolve public API.",
+      status: liveStatus(num(crOwnRow, "n"), !!env.CR_API_KEY),
+      contribution: `${num(crOwnRow, "n")} leads imported`, lastSeen: crOwnRow.last || null,
+      howToEnable: "Set CR_API_KEY (Cloudflare secret). Pulls identified visitors from api.consentresolve.com every 5 min." },
     { id: "ga4", name: "Google Analytics 4", category: "aggregate",
       provides: "Aggregate traffic trends — dashboard only, does NOT identify individual visitors",
       status: env.GA4_PROPERTY_ID ? "connected" : "available",

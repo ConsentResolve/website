@@ -70,7 +70,7 @@ Privacy + Terms. Keep all of them.
 | EIN / Tax ID | **41-4076608** |
 | Business contact name | **[Aaron / Andy]** |
 | Contact email | hello@consentresolve.com |
-| Contact phone | +1 (727) 202-5996 |
+| Contact phone | +1 (727) 999-9846 |
 | Use-case category | **Low-Volume Mixed** (lead follow-up + account/service) |
 | Toll-free number | **[buy in Telnyx first; paste the TFN]** |
 | Estimated volume | Low — texts go only to PEWC-consented leads. **[est. e.g. <500/day, <5k/mo]** |
@@ -92,7 +92,7 @@ Attach the **screenshot of that form** (with the checkbox + disclosure visible) 
 1. `Hi {name}, Andy at Consent Resolve — we turn your website visitors into exclusive $7 leads. Want the 2-min version? Reply STOP to opt out.`
 2. `{name}, still happy to show you how Consent Resolve recovers the 98% of site visitors who leave without filling a form. Reply YES for a quick look. STOP to opt out.`
 3. **STOP reply:** `You're unsubscribed from Consent Resolve texts and won't receive more. Reply HELP for help.`
-4. **HELP reply:** `Consent Resolve: email hello@consentresolve.com or call (727) 202-5996. Msg & data rates may apply. Reply STOP to unsubscribe.`
+4. **HELP reply:** `Consent Resolve: email hello@consentresolve.com or call (727) 999-9846. Msg & data rates may apply. Reply STOP to unsubscribe.`
 
 (Messages 1–2 are the live engine templates `stl_sms1`/`stl_sms2` in
 `worker/_lib/workflow-engine.js`. STOP/HELP auto-replies are configured Telnyx-side.)

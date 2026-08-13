@@ -60,7 +60,7 @@ export const organizationSchema = {
   },
   numberOfEmployees: { "@type": "QuantitativeValue", value: 5 },
   email: "hello@consentresolve.com",
-  telephone: "+1-727-202-5996",
+  telephone: "+1-727-999-9846",
   address: {
     "@type": "PostalAddress",
     streetAddress: "1907 Gulf Way #1",
@@ -70,12 +70,12 @@ export const organizationSchema = {
     addressCountry: "US",
   },
   contactPoint: [
-    { "@type": "ContactPoint", telephone: "+1-727-202-5996", email: "hello@consentresolve.com", contactType: "sales", areaServed: "US", availableLanguage: "English" },
-    { "@type": "ContactPoint", telephone: "+1-727-202-5996", email: "hello@consentresolve.com", contactType: "customer support", areaServed: "US", availableLanguage: "English" },
+    { "@type": "ContactPoint", telephone: "+1-727-999-9846", email: "hello@consentresolve.com", contactType: "sales", areaServed: "US", availableLanguage: "English" },
+    { "@type": "ContactPoint", telephone: "+1-727-999-9846", email: "hello@consentresolve.com", contactType: "customer support", areaServed: "US", availableLanguage: "English" },
   ],
   areaServed: { "@type": "Country", name: "United States" },
   makesOffer: [
-    { "@type": "Offer", name: "Exclusive consented lead", description: "One consented, exclusive lead identified from the customer's own website traffic. Never resold. Includes a timestamped consent record. Flat $7, no contract, cancel anytime.", price: "7.00", priceCurrency: "USD", url: `${SITE.url}/pricing/` },
+    { "@type": "Offer", name: "Exclusive consented lead", description: "One consented, exclusive lead identified from the customer's own website traffic. Never resold. Includes a timestamped consent record. Flat $7, no contract, pay-as-you-go.", price: "7.00", priceCurrency: "USD", url: `${SITE.url}/pricing/` },
   ],
   knowsAbout: [
     "Website visitor identification", "Identity resolution", "Consent management",
@@ -126,7 +126,7 @@ export const softwareApplicationSchema = {
       priceCurrency: "USD",
       unitText: "per recovered lead",
     },
-    description: "Flat $7 per recovered lead. Card required. No contract, cancel anytime.",
+    description: "Flat $7 per recovered lead. Card required. No contract, pay-as-you-go.",
   },
   provider: { "@id": `${SITE.url}/#organization` },
 };
@@ -303,7 +303,7 @@ export function industryServiceSchema(opts: {
         priceCurrency: "USD",
         unitText: "per lead",
       },
-      description: `Exclusive ${opts.tradeName.toLowerCase()} leads. Flat $7 per lead, never resold. Card required, cancel anytime.`,
+      description: `Exclusive ${opts.tradeName.toLowerCase()} leads. Flat $7 per lead, never resold. Card required, no contract.`,
     },
     url: `${SITE.url}/${opts.tradeSlug}-leads/`,
   };

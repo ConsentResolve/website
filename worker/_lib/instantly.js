@@ -26,6 +26,25 @@ async function instPost(env, path, body) {
   return { ok: res.ok, status: res.status, body: j };
 }
 
+// Push a single lead into a campaign (used by prospecting Keep → "Add to Instantly").
+// customVars become {{website}}, {{city}}, {{trade}} etc. in the sequence copy. The
+// target campaign is PAUSED, so this stages the lead — it sends only when launched.
+export async function pushLeadToInstantly(env, { campaignId, email, firstName, lastName, company, customVars }) {
+  if (!env.INSTANTLY_API_KEY) return { ok: false, error: "no_api_key" };
+  if (!campaignId) return { ok: false, error: "no_campaign_id" };
+  if (!email) return { ok: false, error: "no_email" };
+  const body = {
+    campaign: campaignId,
+    email,
+    first_name: firstName || "",
+    last_name: lastName || "",
+    company_name: company || "",
+    custom_variables: customVars || {},
+  };
+  const r = await instPost(env, "/leads", body);
+  return { ok: r.ok, status: r.status, id: (r.body && r.body.id) || null, error: r.ok ? null : ((r.body && (r.body.error || r.body.message)) || ("http_" + r.status)) };
+}
+
 // #5 — deliverability health per sending inbox. Surfaces Instantly's warmup score, setup
 // state, and daily cap so an unhealthy mailbox is caught before it tanks a wave.
 export async function accountHealth(env) {

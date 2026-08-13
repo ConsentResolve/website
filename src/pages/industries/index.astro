@@ -33,7 +33,7 @@ const HUB_FAQS = [
   { q: "Isn't this the creepy kind of tracking that emails people who never opted in?", a: "No. Nobody becomes a lead here unless they accept the consent banner first. No consent, no data. You get a name and a consented email to follow up by email — not a number to cold-call and not a name that was scraped." },
   { q: "Are the leads exclusive, or will my competitor get the same name?", a: "Exclusive. A lead recovered on your website is yours alone and is never resold. They were on your site looking at your services, not shopping a marketplace." },
   { q: "I get website traffic but barely any calls. Why?", a: "Most home-service sites convert only a small share of visitors; the rest read a service page and leave. This recovers the ones who consent, so a visitor already looking at your services becomes a named lead in your CRM instead of an anonymous bounce." },
-  { q: "Am I locked into a contract or a monthly minimum?", a: "No long-term contract and no annual membership. It's flat $7 per exclusive lead — card required, cancel anytime." },
+  { q: "Am I locked into a contract or a monthly minimum?", a: "No long-term contract and no annual membership. It's flat $7 per exclusive lead — card required, no contract." },
   { q: "How do the leads reach me so I can follow up?", a: "Recovered leads feed straight into your CRM — Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, GoHighLevel — with the name, consented email, and services viewed, so you can follow up by email while the interest is fresh." },
 ];
 const faqItems = HUB_FAQS.map((f) => ({ question: f.q, answer: f.a }));
@@ -159,8 +159,8 @@ const demoSlug = "water-heater-replacement";
             <!-- Custom "karaoke" caption overlay (word-by-word, bouncy) — renders from the word-timing JSON. -->
             <div data-cap aria-hidden="true" class="cr-cap pointer-events-none absolute inset-x-0 bottom-[7%] z-20 px-4 text-center"></div>
           </div>
-          <!-- Chat with Tyler (below the video). Re-prompts the cookie/consent banner if the
-               visitor previously declined, then opens Crisp once they accept. -->
+          <!-- Chat with Mack (below the video). Re-prompts the cookie/consent banner if the
+               visitor previously declined, then opens the chat once they accept. -->
           <button type="button" onclick="crOpenChat()" class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white ring-1 ring-inset ring-white/25 transition-all hover:bg-white/5">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"></path><path d="M8 9h8M8 13h5"></path></svg>
             Chat with Tyler
@@ -192,9 +192,8 @@ const demoSlug = "water-heater-replacement";
 
   <!-- How it works (shared five-step section) -->
   <HowItWorks>
-    <Button href="/demo/" variant="primary" size="lg">
-      <IconEye size={18} stroke={2} />
-      Try the live demo
+    <Button href="/demo/?ref=industries-hub-hiw" variant="primary" size="lg">
+      See it live →
     </Button>
   </HowItWorks>
 
@@ -276,13 +275,12 @@ const demoSlug = "water-heater-replacement";
   <section class="bg-[color:var(--color-brand-soft)]">
     <div class="container-content py-16">
       <div class="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
-        <h2 class="display-2 text-[color:var(--color-ink)]">See it work on yourself.</h2>
+        <h2 class="display-2 text-[color:var(--color-ink)]">The homeowners already on your site — recovered.</h2>
         <p class="text-[17px] leading-relaxed text-[color:var(--color-ink-2)]">
-          Register, browse a sample site, accept the banner — and watch the new-lead notification land in your inbox. The lead is you. About 60 seconds, no card required.
+          Real homeowners who visited your site and said yes — name, email, and the job they were shopping for. A flat $7 a lead, pay-as-you-go — yours alone, never resold, and you only pay for real, consented contacts.
         </p>
-        <Button href="/demo/" variant="primary" size="lg">
-          <IconEye size={18} stroke={2} />
-          Try the live demo
+        <Button href="/demo/?ref=industries-hub-band" variant="primary" size="lg">
+          See it live →
         </Button>
       </div>
     </div>
@@ -435,24 +433,9 @@ const demoSlug = "water-heater-replacement";
   })();
 </script>
 
-<!-- Chat with Tyler: opens Crisp if consent is given; if the visitor previously declined the
-     cookie/consent banner (so Crisp never loaded), it re-prompts the banner and opens the chat
-     once they accept. -->
-<script is:inline>
-  function crOpenChat() {
-    if (window.$crisp) { try { window.$crisp.push(["do", "chat:open"]); return; } catch (e) {} }
-    try {
-      if (window.ConsentResolve && ConsentResolve.showBanner) ConsentResolve.showBanner();
-      else if (window.UC_UI && UC_UI.showFirstLayer) UC_UI.showFirstLayer();
-    } catch (e) {}
-    var tries = 0;
-    var iv = setInterval(function () {
-      tries++;
-      if (window.$crisp) { try { window.$crisp.push(["do", "chat:open"]); } catch (e) {} clearInterval(iv); }
-      else if (tries > 30) clearInterval(iv);
-    }, 500);
-  }
-</script>
+<!-- "Chat with Tyler" uses the global window.crOpenChat (Retell/Mack) from BaseLayout,
+     which prompts the CMP and opens the consent-gated chat. No page-local override. -->
+
 
 <style>
   /* Big flashing arrow that "slams in" over the trade selector, then keeps flashing. */

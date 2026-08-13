@@ -5,6 +5,7 @@ import Nav from "~/components/sections/Nav.astro";
 import Footer from "~/components/sections/Footer.astro";
 import MobileStickyCTA from "~/components/sections/MobileStickyCTA.astro";
 import MobileProductStory from "~/components/sections/MobileProductStory.astro";
+import DemoWidget from "~/components/DemoWidget.astro";
 
 interface Props {
   title: string;
@@ -15,8 +16,16 @@ interface Props {
   ogImage?: string;
   ogType?: "website" | "article";
   schema?: unknown[];
+  /** Site-wide "See it live" demo widget (links to /demo/sample/ in a new tab). On by
+   *  default; pass false on the /demo/* pages themselves so it isn't self-referential. */
+  demoWidget?: boolean;
+  /** Suppress the Retell "Mack" chat launcher on this page (e.g. /demo, where we want a
+   *  single focused CTA — book a time — with no competing chat bubble). */
+  noChat?: boolean;
 }
 const props = Astro.props as Props;
+const showDemoWidget = props.demoWidget !== false;
+const noChat = props.noChat === true;
 
 // Ad-platform pixels — only emitted when the ID env var is set (no-op otherwise).
 // Set in Cloudflare Pages env: PUBLIC_META_PIXEL_ID, PUBLIC_TIKTOK_PIXEL_ID.
@@ -32,7 +41,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
@@ -71,6 +80,14 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
          ConsentResolve/Usercentrics dashboard, or the script never loads. -->
     <script is:inline type="text/plain" data-usercentrics="Leadsy" id="vtag-ai-js" async src="https://r2.leadsy.ai/tag.js" data-pid="1a05vWNgmDU1HfyCP" data-version="062024"></script>
 
+    <!-- RB2B (GetEmails) website-visitor identification — CONSENT-GATED via the
+         ConsentResolve/Usercentrics autoblocker: type=text/plain keeps it inert until the
+         visitor consents to the "RB2B" service (Termageddon built-in, template 22sYxVE_5GTFil).
+         Fires only after consent — consistent with our consent-first stance. key=9NMMZHRE54NW. -->
+    <script is:inline type="text/plain" data-usercentrics="RB2B">
+      !function(key){if(window.reb2b)return;window.reb2b={loaded:true};var s=document.createElement("script");s.async=true;s.src="https://b2bjsstore.s3.us-west-2.amazonaws.com/b/"+key+"/"+key+".js.gz";document.getElementsByTagName("script")[0].parentNode.insertBefore(s,document.getElementsByTagName("script")[0]);}("9NMMZHRE54NW");
+    </script>
+
     <!-- Apollo.io website visitor tracker (visitor identification; replaced RB2B) —
          CONSENT-GATED via ConsentResolve/Usercentrics autoblocker: type=text/plain keeps
          it inert until the user consents to the "Apollo" service. data-usercentrics MUST
@@ -78,6 +95,16 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <script is:inline type="text/plain" data-usercentrics="Apollo">
       function initApollo(){var n=Math.random().toString(36).substring(7),o=document.createElement("script");o.src="https://assets.apollo.io/micro/website-tracker/tracker.iife.js?nocache="+n,o.async=!0,o.defer=!0,o.onload=function(){window.trackingFunctions.onLoad({appId:"6a398efaaa2d0a001467ff7f"})},document.head.appendChild(o)}initApollo();
     </script>
+
+    <!-- Leadfeeder / Dealfront website-visitor tracker (COMPANY-level identification) —
+         CONSENT-GATED via ConsentResolve/Usercentrics autoblocker: type=text/plain keeps
+         it inert until the visitor consents to the "Leadfeeder" service. data-usercentrics
+         MUST match the EXACT service name configured in Termageddon, or it never loads.
+         Site id kn9Eq4R0mJk8RlvP. -->
+    <script is:inline type="text/plain" data-usercentrics="Leadfeeder">
+      (function(ss,ex){window.ldfdr=window.ldfdr||function(){(ldfdr._q=ldfdr._q||[]).push([].slice.call(arguments));};(function(d,s){fs=d.getElementsByTagName(s)[0];function ce(src){var cs=d.createElement(s);cs.src=src;cs.async=1;fs.parentNode.insertBefore(cs,fs);};ce('https://sc.lfeeder.com/lftracker_v1_'+ss+(ex?'_'+ex:'')+'.js');})(document,'script');})('kn9Eq4R0mJk8RlvP');
+    </script>
+
 
 
     <!-- First-party pageview beacon (no PII) → /api/hit, powers the campaign dashboard Clicks KPI -->
@@ -95,21 +122,59 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       }catch(e){}})();
     </script>
 
-    <!-- Google Analytics (GA4) + Google Ads remarketing (AW-) — CONSENT-GATED via
-         ConsentResolve/Usercentrics autoblocker. Both ride one gtag.js loader, so they are
-         gated together under the "Google Analytics" service: type=text/plain keeps the loader
-         AND the config inert until consent, then the CMP flips them to executable. The loader
-         must be gated too — otherwise gtag.js fetches (and can set _ga/_gcl cookies) pre-consent.
-         data-usercentrics MUST match the configured service name. (For separate Analytics vs.
-         Ads consent, switch to Google Consent Mode v2 — a larger change.) -->
-    <script is:inline type="text/plain" data-usercentrics="Google Analytics" async src="https://www.googletagmanager.com/gtag/js?id=G-6JTD5SZNFY"></script>
-    <script is:inline type="text/plain" data-usercentrics="Google Analytics">
+    <!-- First-party presence heartbeat (no PII) → /api/ping. Powers Site Spy's real-time
+         "on the site now" — pings while the tab is visible so live presence is accurate. -->
+    <script is:inline>
+      (function(){try{
+        function vid(){return (document.cookie.match(/(?:^|;\s*)cr_vid=([^;]+)/)||[])[1]||"";}
+        // Best-effort consent read from the CMP (Usercentrics API the CR CMP wraps).
+        function consent(){ try{ if(window.UC_UI&&UC_UI.getServicesBaseInfo){ var svc=UC_UI.getServicesBaseInfo()||[];
+          if(!svc.length) return "unknown";
+          return svc.some(function(s){return s&&s.consent&&s.consent.status===true;})?"granted":"denied"; } }catch(e){} return "unknown"; }
+        function ping(){ if(document.visibilityState!=="visible") return; var v=vid(); if(!v) return;
+          var s=JSON.stringify({vid:v,path:location.pathname,consent:consent()});
+          if(navigator.sendBeacon){navigator.sendBeacon("/api/ping",new Blob([s],{type:"application/json"}));}
+          else{fetch("/api/ping",{method:"POST",headers:{"Content-Type":"application/json"},body:s,keepalive:true});}
+        }
+        ping();
+        setInterval(ping,20000);
+        document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible") ping(); });
+        // Video-view beacon — fire once per <video> on first play so Site Spy can show
+        // which videos a visitor consumed. Recorded as a traffic hit with a "video:" path.
+        var _seenVid={};
+        document.addEventListener("play",function(e){ try{
+          var el=e.target; if(!el||el.tagName!=="VIDEO") return;
+          var key=(el.currentSrc||el.getAttribute("data-vid-name")||el.id||"video"); if(_seenVid[key]) return; _seenVid[key]=1;
+          var name=(el.getAttribute("data-vid-name")||(el.currentSrc||"").split("/").pop()||el.id||"video").split("?")[0];
+          var v=vid(); if(!v) return;
+          var s=JSON.stringify({vid:v,path:"video:"+name,ref:location.pathname});
+          if(navigator.sendBeacon){navigator.sendBeacon("/api/hit",new Blob([s],{type:"application/json"}));}
+        }catch(e){} },true);
+      }catch(e){}})();
+    </script>
+
+    <!-- Google Analytics (GA4) + Google Ads (AW-) via GOOGLE CONSENT MODE v2.
+         Consent Mode is enabled in the ConsentResolve/Usercentrics (Termageddon) CMP, which
+         fires gtag('consent','update',…) on the user's choice. VERIFIED 2026-07-28 (real
+         browser): Accept All grants all four signals — analytics_storage (Google Analytics
+         service → Statistics) + ad_storage/ad_user_data/ad_personalization (Google Ads service
+         → Marketing). We set all four DENIED by default here (before gtag), so the tag boots
+         cookieless and sends only anonymous modeled pings until the CMP upgrades to granted.
+         The loader is intentionally NOT type=text/plain — Consent Mode needs gtag present to
+         model declined conversions. No _ga/_gcl cookies are set while denied. -->
+    <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied', analytics_storage: 'denied',
+        ad_user_data: 'denied', ad_personalization: 'denied',
+        wait_for_update: 500
+      });
       gtag('js', new Date());
       gtag('config', 'G-6JTD5SZNFY');
       gtag('config', 'AW-18263188422');
     </script>
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-6JTD5SZNFY"></script>
 
     <!-- Meta Pixel is consent-gated above (PUBLIC_META_PIXEL_ID). The old un-gated
          duplicate was removed — it double-counted PageViews and bypassed consent. -->
@@ -125,29 +190,176 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       })(window, document, "clarity", "script", "vgfli9rxb5");
     </script>
 
-    <!-- Crisp live chat — CONSENT-GATED via ConsentResolve/Usercentrics autoblocker:
-         type=text/plain keeps it inert until the user consents to the "Crisp Chat" service.
-         data-usercentrics MUST match the EXACT service name in the CMP/Termageddon
-         ("Crisp Chat"), or the chat stays blocked forever. Consistent with consent-first. -->
-    <script is:inline type="text/plain" data-usercentrics="Crisp Chat">window.$crisp=[];window.CRISP_WEBSITE_ID="0f8e9b05-1b94-4781-904d-2abef252374d";
-      /* Debug panel (append ?crispdebug=1) — surfaces each pre-fill step on-screen + console. */
-      var _DBG=/[?&]crispdebug=1/.test(location.search);
-      function _dbg(m){if(!_DBG)return;try{console.log("[crispdebug]",m);var el=document.getElementById("__crispdbg");if(!el&&document.body){el=document.createElement("div");el.id="__crispdbg";el.style.cssText="position:fixed;z-index:2147483647;left:8px;bottom:8px;max-width:380px;background:#0b1220;color:#5cff9d;font:12px/1.4 monospace;padding:10px;border-radius:8px;white-space:pre-wrap;box-shadow:0 8px 30px rgba(0,0,0,.4)";document.body.appendChild(el);}if(el)el.textContent+=m+"\n";}catch(_){}}
-      /* Crisp loader — deferred so any identity is set BEFORE the chatbox boots (Crisp only pre-fills from user:email if set before load). */
-      /* No default launcher bubble — chat is opened only from our own "Chat with us" controls (window.crOpenChat). Hide on load, and re-hide whenever the visitor closes the box. */
-      window.$crisp.push(["do","chat:hide"]);
-      if(!window.__crHideWired){window.__crHideWired=1;window.$crisp.push(["on","chat:closed",function(){window.$crisp.push(["do","chat:hide"]);}]);}
-      function _loadCrisp(){if(window.__crispLoaded)return;window.__crispLoaded=1;_dbg("loadCrisp()");var d=document,s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);if(_DBG)setTimeout(function(){try{_dbg("after 1.6s: $crisp.get(user:email)="+(window.$crisp.get?JSON.stringify(window.$crisp.get("user:email")):"no get()"));}catch(e){_dbg("get err "+e);}},1600);}
-      _dbg("block ran (post-consent)");
-      /* Pre-fill from a prior first-party identity (cr_id), set synchronously before load. Consent-gated: this whole block only runs post-consent. */
-      var _raw=(document.cookie.match(/(?:^|;\s*)cr_id=([^;]+)/)||[])[1];
-      try{if(_raw){var _d=JSON.parse(decodeURIComponent(_raw));if(_d&&_d.e)window.$crisp.push(["set","user:email",[_d.e]]);if(_d&&_d.n)window.$crisp.push(["set","user:nickname",[_d.n]]);}}catch(e){}
-      /* On email entry: remember it (pre-fill next time) + stitch cr_vid -> contact. */
-      window.$crisp.push(["on","user:email",function(em){try{var nm="";try{nm=window.$crisp.get("user:nickname")||"";}catch(_){}document.cookie="cr_id="+encodeURIComponent(JSON.stringify({n:nm,e:em}))+"; Path=/; Max-Age=15552000; SameSite=Lax";var vid=(document.cookie.match(/(?:^|;\s*)cr_vid=([^;]+)/)||[])[1]||"";if(vid){var s=JSON.stringify({vid:vid,email:em,name:nm});if(navigator.sendBeacon){navigator.sendBeacon("/api/identify",new Blob([s],{type:"application/json"}));}else{fetch("/api/identify",{method:"POST",headers:{"Content-Type":"application/json"},body:s,keepalive:true});}}}catch(e){}}]);
-      /* Cold-email link carried an opaque token (?ld=): resolve it server-side (email NEVER in the URL), set the email, THEN load Crisp so the pre-chat form is pre-filled. Fallback loads the chat anyway if the lookup is slow/fails. */
-      var _ld=(location.search.match(/[?&]ld=([^&]+)/)||[])[1];
-      _dbg("cr_id="+(_raw?"present":"none")+" | ld="+(_ld||"none"));
-      if(_ld&&!_raw){var _done=false,_go=function(t){if(_done)return;_done=true;_dbg("boot via "+t);_loadCrisp();};fetch("/api/lead-prefill?ld="+encodeURIComponent(_ld)).then(function(r){_dbg("resolve http "+r.status);return r.json();}).then(function(d){_dbg("resolve ok="+(d&&d.ok)+" e="+(d&&d.e));if(d&&d.ok&&d.e){window.$crisp.push(["set","user:email",[d.e]]);if(d.n)window.$crisp.push(["set","user:nickname",[d.n]]);document.cookie="cr_id="+encodeURIComponent(JSON.stringify({n:d.n||"",e:d.e}))+"; Path=/; Max-Age=15552000; SameSite=Lax";_dbg("pushed user:email="+d.e);}_go("resolve");}).catch(function(e){_dbg("fetch err "+e);_go("catch");});setTimeout(function(){_go("timeout")},2500);}else{_dbg("no-ld path -> load now");_loadCrisp();}</script>
+    <!-- Retell AI chat (Mack). Speeds up the handshake (widget JS + chat API host). -->
+    <link rel="preconnect" href="https://dashboard.retellai.com" crossorigin />
+    <link rel="preconnect" href="https://api.retellai.com" crossorigin />
+    <!-- Retell FAB polish: a mint edge + drop shadow so the navy launcher pops on BOTH
+         light and dark sections; nudge it up on mobile so it clears the sticky CTA bar. -->
+    <!-- FOUC gate: keep the widget invisible until our shadow-DOM styling is applied
+         (crRetellReady), so clicking a chat control never flashes Retell's default icon.
+         On mobile, neutralize any filter on the root — filter creates a containing block
+         that would otherwise stop the full-screen window from pinning to the viewport. -->
+    <style is:inline>#retell-widget-root{opacity:0}#retell-widget-root.cr-ready{opacity:1;transition:opacity .16s ease}@media (max-width:640px){#retell-widget-root{filter:none!important}#retell-widget-root:not(.cr-ready){bottom:76px!important}html.cr-chat-open,html.cr-chat-open body{overflow:hidden!important;height:100%!important;overscroll-behavior:none!important}}</style>
+    <!-- Shared Retell config + boot helper (NOT gated — only defines functions, loads
+         nothing). Branded: navy panel, mint accents, "Mack" avatar. data-white-label is
+         omitted — add it here once Retell issues a token to hide "Powered by Retell". -->
+    <script is:inline>
+      window.__retellCfg={
+        "data-public-key":"public_key_c635ded46e18e33c6b219",
+        "data-agent-id":"agent_53dfb7733266901d4989695004",
+        "data-title":"Chat with Mack","data-bot-name":"Mack","data-fab-text":"Chat with us",
+        "data-theme-color":"#0e1c2e","data-component-color":"#00e5a0",
+        "data-logo-url":"https://consentresolve.com/mack.jpg"};
+      // Injected into the widget's OPEN shadow root to restyle what Retell's data-attrs
+      // can't reach. Class hashes can change on Retell updates, so target stable prefixes.
+      // Product-grade chat: navy identity header, tailed bubbles, Hanken Grotesk, motion.
+      var _ic="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3C6.48 3 2 6.58 2 11c0 2.2 1.12 4.19 2.95 5.62L4 21l4.5-2.02c1.1.34 2.28.52 3.5.52 5.52 0 10-3.58 10-8s-4.48-8-10-8z'/%3E%3C/svg%3E\")";
+      var _ipn="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 15.5c-1.25 0-2.45-.2-3.57-.57-.35-.11-.74-.03-1.02.24l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.59l2.2-2.21c.28-.26.36-.65.25-1C8.7 6.45 8.5 5.25 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM12 3v10l3-3h6V3z'/%3E%3C/svg%3E\")";
+      window.__retellCSS=":host{--font-family:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--eo:cubic-bezier(0.23,1,0.32,1)}"
+        +"@keyframes crPop{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}@keyframes crIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes crBounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}"
+        // Window: no border (soft floating shadow only), origin-aware punchy entrance, flex column so the header/input stay pinned and only the message list scrolls.
+        +'[class*="_window_"]{max-height:min(640px,calc(100dvh - 120px))!important;height:auto!important;width:384px!important;max-width:calc(100vw - 32px)!important;border-radius:20px!important;border:none!important;outline:none!important;padding:0!important;background:#fff!important;box-shadow:0 24px 60px -20px rgba(10,22,40,.38),0 12px 28px -16px rgba(10,22,40,.24)!important;overflow:hidden!important;transform-origin:bottom right!important;animation:crPop .26s var(--eo) both!important;display:flex!important;flex-direction:column!important}'
+        // Flatten the inner shell corners so its white fills to the window edge — otherwise
+        // its 21px radius (vs the window\'s 20px) let the navy window bg peek at the corners.
+        +'[class*="_innerShell_"]{border-radius:0!important;background:#fff!important}'
+        // Glassy header (frosted navy) with Mack identity; nav/brand cells hidden.
+        +'[class*="_header_"]{background:rgba(10,22,40,.82)!important;-webkit-backdrop-filter:blur(16px) saturate(1.3)!important;backdrop-filter:blur(16px) saturate(1.3)!important;color:#fff!important;border-bottom:1px solid rgba(255,255,255,.06)!important;padding:12px 14px!important;min-height:0!important;display:flex!important;align-items:center!important;gap:8px!important;flex:0 0 auto!important}'
+        +'[class*="_navButton_"],[class*="_headerBrand_"]{display:none!important}'
+        +'.cr-ident{display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-left:2px}.cr-av{width:34px;height:34px;border-radius:50%;background:#00e5a0;color:#04231a;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 auto;overflow:hidden;position:relative;box-shadow:0 0 0 3px rgba(0,229,160,.22)}.cr-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.cr-idtext{display:flex;flex-direction:column;line-height:1.2;min-width:0}.cr-idtext b{font-size:15px;font-weight:700;color:#fff}.cr-idtext i{font-style:normal;font-size:11.5px;color:#a7bacf;display:flex;align-items:center;gap:5px;margin-top:2px}.cr-dot{width:7px;height:7px;border-radius:50%;background:#00e5a0;box-shadow:0 0 0 2px rgba(0,229,160,.3)}'
+        // Clean close button — no box/outline, subtle hover circle, press feedback.
+        +'[class*="_closeButton_"]{background:transparent!important;border:none!important;box-shadow:none!important;width:30px!important;height:30px!important;border-radius:9px!important;color:rgba(255,255,255,.72)!important;display:flex!important;align-items:center!important;justify-content:center!important;margin-left:auto!important;transition:background .16s ease,color .16s ease,transform .12s var(--eo)!important}[class*="_closeButton_"] svg,[class*="_closeButton_"] path{fill:currentColor!important;stroke:currentColor!important}[class*="_closeButton_"]:hover{background:rgba(255,255,255,.14)!important;color:#fff!important}[class*="_closeButton_"]:active{transform:scale(.9)!important}[class*="_closeButton_"]:focus-visible{outline:2px solid #00e5a0!important;outline-offset:2px!important}'
+        // conversationPanel WRAPS the scroller + input — leave it structural; _messages_ is the real scroller.
+        +'[class*="_conversationPanel_"]{overflow:visible!important;padding:0!important;gap:0!important;background:#fff!important;flex:1 1 auto!important;min-height:0!important;display:flex!important;flex-direction:column!important}'
+        +'[class*="_messages_"]{overflow-y:auto!important;overflow-x:hidden!important;padding:18px 16px!important;display:flex!important;flex-direction:column!important;gap:10px!important;flex:1 1 auto!important;min-height:0!important;scroll-behavior:smooth!important;overscroll-behavior:contain!important}'
+        +'[class*="_message_"]{animation:crIn .24s var(--eo) both;max-width:82%!important;font-size:14.5px!important;line-height:1.5!important;padding:10px 13px!important}'
+        +'[class*="_agent_"]{background:#f1f5f9!important;color:#0a1628!important;border-radius:16px 16px 16px 5px!important;box-shadow:0 1px 2px rgba(10,22,40,.05)!important}[class*="_user_"]{background:#00e5a0!important;color:#04231a!important;border-radius:16px 16px 5px 16px!important;font-weight:500!important}'
+        // Stagger the first few bubbles on initial render.
+        +'[class*="_messages_"] [class*="_message_"]:nth-child(2){animation-delay:.04s}[class*="_messages_"] [class*="_message_"]:nth-child(3){animation-delay:.08s}[class*="_messages_"] [class*="_message_"]:nth-child(4){animation-delay:.12s}'
+        // First-open: hide the greeting (whole agent group) + any messages until the typing beat clears.
+        +':host(.cr-firstopen) [class*="_message_"],:host(.cr-firstopen) [class*="_agentGroup_"]{display:none!important}'
+        +'.cr-typing{align-self:flex-start;background:#f1f5f9;border-radius:16px 16px 16px 5px;padding:14px 16px;display:flex;gap:5px;align-items:center;box-shadow:0 1px 2px rgba(10,22,40,.05);animation:crIn .24s var(--eo) both}.cr-typing i{width:7px;height:7px;border-radius:50%;background:#94a3b8;animation:crBounce 1.15s infinite ease-in-out}.cr-typing i:nth-child(2){animation-delay:.15s}.cr-typing i:nth-child(3){animation-delay:.3s}'
+        // Input field: smooth centered focus ring on the field wrapper (not the raw textarea).
+        +'[class*="_inputRow_"]{flex:0 0 auto!important;padding:12px 14px 14px!important;border-top:1px solid #eef2f7!important;background:#fff!important}[class*="_inputShell_"]{border-radius:14px!important;border:1px solid #e2e8f0!important;background:#fff!important;transition:border-color .18s ease,box-shadow .18s ease!important}[class*="_inputShell_"]:focus-within{border-color:#00e5a0!important;box-shadow:0 0 0 3px rgba(0,229,160,.18)!important}'
+        +'textarea,input[type="text"]{font-family:inherit!important;font-size:14.5px!important;color:#0a1628!important;outline:none!important;border:none!important;box-shadow:none!important}'
+        +'[class*="_sendButton"]{background:#00e5a0!important;color:#04231a!important;transition:background .16s ease,transform .12s var(--eo)!important}[class*="_sendButton"]:hover{background:#00c489!important}[class*="_sendButton"]:active{transform:scale(.9)!important}'
+        // Launcher: rounded rectangle (not a circle), press feedback, hover gated to fine pointers.
+        // Launcher: rounded rectangle, ~25% bigger, WHITE icon, Intercom-style unread badge
+        // (shown only while closed). overflow:visible so the badge isn't clipped.
+        +'[class*="_fabWrap"]{overflow:visible!important}'
+        +'[class*="_fabChat"]{background:#00e5a0!important;color:#0a1628!important;width:75px!important;height:75px!important;min-width:0!important;padding:0!important;border-radius:23px!important;border:none!important;box-shadow:0 14px 32px -6px rgba(0,229,160,.5),0 6px 18px -8px rgba(10,22,40,.4)!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:visible!important;position:relative!important;transition:transform .2s var(--eo),box-shadow .2s ease!important}[class*="_fabChat"] > *{display:none!important}[class*="_fabChat"]::after{content:"";width:34px;height:34px;background:#ffffff;-webkit-mask:'+_ic+' center/contain no-repeat;mask:'+_ic+' center/contain no-repeat}[class*="_fabChat"]:active{transform:scale(.94)!important}@media (hover:hover) and (pointer:fine){[class*="_fabChat"]:hover{transform:translateY(-2px) scale(1.05)!important}}'
+        +'@keyframes crBadge{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}[class*="_container_"]:not(:has([class*="_windowOpen_"])) [class*="_fabChat"]::before{content:"1";position:absolute;top:-4px;right:-4px;min-width:23px;height:23px;padding:0 6px;border-radius:12px;background:#ff4d4f;color:#fff;font-family:\'Hanken Grotesk\',sans-serif;font-weight:700;font-size:12.5px;line-height:23px;text-align:center;box-shadow:0 3px 8px rgba(10,22,40,.4),0 0 0 3px #fff;animation:crBadge .3s var(--eo) both;z-index:2}'
+        // Typing hold: while cr-holding, hide the newest agent bubble (the dots bubble is
+        // kept as the last child, so the reply is :nth-last-child(2)) — so every reply is
+        // preceded by an animated "…" for a minimum beat instead of popping in instantly.
+        +':host(.cr-holding) [class*="_messages_"] > [class*="_agentGroup_"]:nth-last-child(2){display:none!important}'
+        // Chat-to-phone bridge: a phone button in the header opens an inline consent form
+        // overlaying the window; submitting fires an immediate Retell call (/api/chat-call).
+        +'.cr-callbtn{background:transparent;border:none;width:30px;height:30px;border-radius:9px;color:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;transition:background .16s,color .16s,transform .12s var(--eo)}.cr-callbtn::after{content:"";width:18px;height:18px;background:currentColor;-webkit-mask:'+_ipn+' center/contain no-repeat;mask:'+_ipn+' center/contain no-repeat}.cr-callbtn:hover{background:rgba(255,255,255,.14);color:#fff}.cr-callbtn:active{transform:scale(.9)}'
+        // In-widget contact-capture card — a compact anchored overlay above the input row.
+        +'.cr-cap{position:absolute;left:12px;right:12px;bottom:72px;z-index:6;background:#fff;border:1px solid #e6ebf1;border-radius:14px;box-shadow:0 20px 46px -20px rgba(10,22,40,.55);padding:13px 14px;animation:crIn .26s var(--eo) both}'
+        +'.cr-caph{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:#0a1628;line-height:1.25;margin-bottom:10px}.cr-capx{margin-left:auto;background:none;border:none;color:#98a6b6;font-size:16px;line-height:1;cursor:pointer;padding:0 2px}.cr-capx:hover{color:#0a1628}'
+        +'.cr-capf{width:100%;height:40px;border:1.5px solid #e2e8f0;border-radius:10px;padding:0 12px;font:inherit;font-size:14px;color:#0a1628;background:#fbfdff;margin-bottom:8px;box-sizing:border-box}.cr-capf:focus{outline:none;border-color:#00e5a0;box-shadow:0 0 0 3px rgba(0,229,160,.18)}.cr-capf.bad{border-color:#ff4d4f;box-shadow:0 0 0 3px rgba(255,77,79,.15)}'
+        +'.cr-caplbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin:1px 0 6px}'
+        +'.cr-capseg{display:flex;gap:6px;margin-bottom:9px}.cr-capseg button{flex:1;height:34px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;font:inherit;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px}.cr-capseg button.on{background:#0a1628;color:#fff;border-color:#0a1628}'
+        +'.cr-capgo{width:100%;height:42px;border:none;border-radius:11px;background:#00e5a0;color:#04231a;font:inherit;font-weight:800;font-size:14.5px;cursor:pointer;transition:filter .15s}.cr-capgo:hover{filter:brightness(1.05)}.cr-capgo:disabled{opacity:.6;cursor:default}'
+        +'.cr-capnote{font-size:10.5px;color:#94a3b8;text-align:center;margin-top:7px;line-height:1.35}.cr-capnote:empty{display:none}'
+        +'.cr-capdone{text-align:center;padding:6px 4px 2px}.cr-capdone .k{width:44px;height:44px;border-radius:50%;background:rgba(0,229,160,.16);display:grid;place-items:center;margin:0 auto 8px;font-size:22px;color:#046c53}.cr-capdone .t{font-size:15px;font-weight:800;color:#0a1628}.cr-capdone .s{font-size:13px;color:#64748b;margin-top:3px}'
+        // (The header call+text button now just sends a chat message — no inline form.)
+        // Mobile: full-screen panel that slides up from the bottom, with safe-area insets;
+        // hide the launcher while the window is open so it doesn't float over the input.
+        +'@media (max-width:640px){@keyframes crPop{from{opacity:.5;transform:translateY(100%)}to{opacity:1;transform:none}}[class*="_window_"]{position:fixed!important;top:var(--cr-top,0)!important;left:0!important;right:0!important;bottom:auto!important;width:100vw!important;height:var(--cr-vh,100dvh)!important;max-width:none!important;max-height:none!important;border-radius:0!important;transform-origin:bottom!important;animation:crPop .3s cubic-bezier(0.32,0.72,0,1) both!important}[class*="_header_"]{padding-top:calc(14px + env(safe-area-inset-top))!important;border-radius:0!important}[class*="_inputRow_"]{padding-bottom:calc(14px + env(safe-area-inset-bottom))!important}[class*="_fabChat"],[class*="_fabWrap"]{display:none!important}}'
+        +'@media (prefers-reduced-motion:reduce){[class*="_window_"],[class*="_message_"],.cr-typing{animation:none!important}.cr-typing i{animation:none!important}[class*="_fabChat"],[class*="_closeButton_"],[class*="_sendButton"]{transition:none!important}[class*="_fabChat"]:active,[class*="_closeButton_"]:active,[class*="_sendButton"]:active{transform:none!important}}'
+        // When the custom launcher owns the bubble, hide Retell's own FAB entirely. Toggled
+        // by adding class "cr-hidefab" to the widget host (see __retellEnhance + the launcher).
+        +':host(.cr-hidefab) [class*="_fabChat"],:host(.cr-hidefab) [class*="_fabWrap"]{display:none!important}';
+      // Restyle + inject Mack's identity header + a "typing…" beat before the first greeting.
+      // Runs against the OPEN shadow root; hides the greeting via a class on the light-DOM
+      // host (:host(.cr-firstopen)) so React can't undo it, and keeps the typing bubble alive
+      // with a MutationObserver (React re-renders would otherwise wipe an injected child).
+      window.__retellEnhance=function(){try{
+        var host=null;document.querySelectorAll("*").forEach(function(el){if(!host&&el.shadowRoot&&el.shadowRoot.querySelector('[class*="_fab"],button[aria-label*="Assistant" i]'))host=el;});
+        if(!host)return false;var sr=host.shadowRoot;
+        if(!sr.getElementById("cr-tune")){var st=document.createElement("style");st.id="cr-tune";st.textContent=window.__retellCSS;sr.appendChild(st);}
+        if(window.__crHideFab)host.classList.add("cr-hidefab"); // custom launcher owns the bubble → kill Retell's FAB
+        try{var _root=document.getElementById("retell-widget-root");if(_root)_root.classList.add("cr-ready");}catch(e){} // reveal once styled (kills the default-icon flash)
+        function ident(){var h=sr.querySelector('[class*="_header_"]');if(h&&!h.querySelector(".cr-ident")){var d=document.createElement("div");d.className="cr-ident";d.innerHTML='<span class="cr-av">M<img src="/mack.jpg" alt="Mack" onerror="this.remove()"></span><span class="cr-idtext"><b>Mack</b><i><span class="cr-dot"></span>Online · replies instantly</i></span>';h.insertBefore(d,h.firstChild);}}
+        // First-open "Mack is typing…" beat before the greeting (once per session).
+        function firstTyping(){if(window.__crTyped)return;var m=sr.querySelector('[class*="_messages_"]');if(!m)return;window.__crTyped=1;host.classList.add("cr-firstopen");var add=function(){if(m&&!m.querySelector(".cr-first")){var t=document.createElement("div");t.className="cr-typing cr-first";t.innerHTML="<i></i><i></i><i></i>";m.appendChild(t);}};add();var mo=new MutationObserver(add);mo.observe(m,{childList:true});setTimeout(function(){mo.disconnect();var t=m.querySelector(".cr-first");if(t)t.remove();host.classList.remove("cr-firstopen");},1600);}
+        // Mid-conversation typing: Retell shows none, so we add dots after the user sends
+        // and remove them the instant Mack's reply lands.
+        function convo(){var m=sr.querySelector('[class*="_messages_"]');if(!m||m.__crWired)return;m.__crWired=1;
+          var MIN=1500,pA=m.querySelectorAll('[class*="_agentGroup_"]').length,pU=m.querySelectorAll('[class*="_user_"]').length,sendAt=0,timer=null;
+          function dots(){var t=m.querySelector(".cr-convo");if(!t){t=document.createElement("div");t.className="cr-typing cr-convo";t.innerHTML="<i></i><i></i><i></i>";}m.appendChild(t);m.scrollTop=m.scrollHeight;}
+          function rm(){var t=m.querySelector(".cr-convo");if(t)t.remove();}
+          var mo=new MutationObserver(function(){
+            if(host.classList.contains("cr-firstopen"))return;
+            var a=m.querySelectorAll('[class*="_agentGroup_"]').length,u=m.querySelectorAll('[class*="_user_"]').length;
+            if(u>pU){sendAt=Date.now();host.classList.add("cr-holding");dots();}                 // user sent -> dots
+            if(a>pA){dots();if(!timer){var w=Math.max(500,MIN-(Date.now()-sendAt));timer=setTimeout(function(){timer=null;host.classList.remove("cr-holding");rm();m.scrollTop=m.scrollHeight;},w);}} // reply held for a min beat
+            pA=a;pU=u;
+            if(host.classList.contains("cr-holding")){var t=m.querySelector(".cr-convo");if(t&&m.lastElementChild!==t)m.appendChild(t);} // keep dots last so the reply is :nth-last-child(2)
+          });
+          mo.observe(m,{childList:true,subtree:true});}
+        // While the mobile full-screen chat is open, lock the page (no background scroll/
+        // slide) and size the window to the VISUAL viewport so the keyboard never covers
+        // the input. Toggled off on close.
+        function lock(){var de=document.documentElement;var open=!!sr.querySelector('[class*="_windowOpen_"]');de.classList.toggle("cr-chat-open",open);
+          if(open){if(!window.__crVV&&window.visualViewport){window.__crVV=function(){var vv=window.visualViewport;de.style.setProperty("--cr-vh",vv.height+"px");de.style.setProperty("--cr-top",(vv.offsetTop||0)+"px");};window.visualViewport.addEventListener("resize",window.__crVV);window.visualViewport.addEventListener("scroll",window.__crVV);window.__crVV();}}
+          else{if(window.__crVV&&window.visualViewport){window.visualViewport.removeEventListener("resize",window.__crVV);window.visualViewport.removeEventListener("scroll",window.__crVV);window.__crVV=null;}de.style.removeProperty("--cr-vh");de.style.removeProperty("--cr-top");}}
+        // Chat-to-phone/SMS bridge: the header call+text button just SENDS a chat message —
+        // Mack then asks for the number + call/text in conversation and fires request_contact.
+        function callUI(){var h=sr.querySelector('[class*="_header_"]');if(!h)return;
+          if(!h.querySelector(".cr-callbtn")){var b=document.createElement("button");b.type="button";b.className="cr-callbtn";b.title="Ask for a call or text";b.setAttribute("aria-label","Ask for a call or text");
+            b.onclick=function(){var ta=sr.querySelector('textarea,input[type="text"]');if(!ta)return;var proto=ta.tagName==="TEXTAREA"?window.HTMLTextAreaElement.prototype:window.HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,"value").set.call(ta,"Can you call or text me?");ta.dispatchEvent(new Event("input",{bubbles:true}));var snd=sr.querySelector('[class*="_sendButton"]');if(snd)snd.click();else ta.dispatchEvent(new KeyboardEvent("keydown",{bubbles:true,key:"Enter",code:"Enter",keyCode:13,which:13}));};
+            var cx=h.querySelector('[class*="_closeButton_"]');if(cx)h.insertBefore(b,cx);else h.appendChild(b);}
+        }
+        // In-widget contact-capture card: after Mack has answered at least once, slide up a
+        // compact overlay (name + preferred channel + email/phone). Submits to /api/chat-lead
+        // (capture-only, no auto-dial) and attaches to THIS live chat. Once per session,
+        // dismissable, and re-attached on React re-renders so any typed values survive.
+        function crBuildCap(){
+          var c=document.createElement("div");c.className="cr-cap";
+          c.innerHTML='<div class="cr-caph"><span>📬</span><span>Want a sample lead sent over?</span><button type="button" class="cr-capx" aria-label="Dismiss">✕</button></div>'
+            +'<input class="cr-capf cr-capname" placeholder="First name" autocomplete="given-name">'
+            +'<div class="cr-caplbl">Reach me by</div>'
+            +'<div class="cr-capseg"><button type="button" data-p="email" class="on">✉ Email</button><button type="button" data-p="text">💬 Text</button><button type="button" data-p="call">📞 Call</button></div>'
+            +'<input class="cr-capf cr-capcontact" type="email" inputmode="email" placeholder="Best email" autocomplete="email">'
+            +'<button type="button" class="cr-capgo">Send it →</button><div class="cr-capnote"></div>';
+          var pref="email",seg=c.querySelector(".cr-capseg"),field=c.querySelector(".cr-capcontact"),note=c.querySelector(".cr-capnote"),go=c.querySelector(".cr-capgo");
+          function setP(p){pref=p;seg.querySelectorAll("button").forEach(function(b){b.classList.toggle("on",b.dataset.p===p);});
+            if(p==="email"){field.type="email";field.setAttribute("inputmode","email");field.placeholder="Best email";note.textContent="";}
+            else{field.type="tel";field.setAttribute("inputmode","tel");field.placeholder="Mobile number";note.textContent="By sharing your number you agree Consent Resolve may "+(p==="text"?"text":"call")+" you about this.";}}
+          seg.querySelectorAll("button").forEach(function(b){b.onclick=function(){setP(b.dataset.p);field.classList.remove("bad");};});
+          c.querySelector(".cr-capx").onclick=function(){try{sessionStorage.setItem("cr_cap_done","1");}catch(e){}c.remove();};
+          go.onclick=function(){var v=(field.value||"").trim(),name=(c.querySelector(".cr-capname").value||"").trim();
+            var ok=pref==="email"?/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v):(v.replace(/\D/g,"").length>=10);
+            if(!ok){field.classList.add("bad");field.focus();return;}
+            go.disabled=true;go.textContent="Sending…";
+            var payload={name:name,pref:pref};if(pref==="email")payload.email=v;else payload.phone=v;
+            fetch("/api/chat-lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(){
+              try{sessionStorage.setItem("cr_cap_done","1");}catch(e){}
+              var how=pref==="email"?"email":(pref==="text"?"text":"a call");
+              c.innerHTML='<div class="cr-capdone"><div class="k">✓</div><div class="t">Got it'+(name?", "+name.replace(/</g,"&lt;"):"")+'!</div><div class="s">We’ll follow up by '+how+" — "+v.replace(/</g,"&lt;")+"</div></div>";
+              setTimeout(function(){c.remove();},2600);
+            }).catch(function(){go.disabled=false;go.textContent="Send it →";field.classList.add("bad");});};
+          return c;}
+        // Contact-capture card REMOVED — Mack now collects email/phone conversationally, so this
+        // no longer injects the pop-up form. (crBuildCap is left defined but unused.)
+        function captureUI(){ try { var old = window.__crCapNode; if (old && old.parentNode) old.remove(); window.__crCapNode = null; } catch(e){} }
+        ident();firstTyping();convo();lock();callUI();captureUI();
+        if(!host.__crObs){host.__crObs=new MutationObserver(function(){ident();firstTyping();convo();lock();callUI();captureUI();});host.__crObs.observe(sr,{childList:true,subtree:true});}
+        return true;
+      }catch(e){return false;}};
+      window.__retellBoot=function(open){try{if(window.__retellChatLoaded)return;window.__retellChatLoaded=1;var s=document.createElement("script");s.id="retell-widget";s.type="module";s.src="https://dashboard.retellai.com/retell-widget-v2.js";var A=window.__retellCfg;try{var u=new URLSearchParams(location.search);A["data-dynamic-variables"]=JSON.stringify({page:(document.title||"").slice(0,120),path:location.pathname,url:location.href.slice(0,200),utm_source:u.get("utm_source")||"",utm_campaign:u.get("utm_campaign")||"",utm_medium:u.get("utm_medium")||"",referrer:(document.referrer||"").slice(0,200)});}catch(e){}for(var k in A)s.setAttribute(k,A[k]);if(open)s.setAttribute("data-auto-open","true");(document.head||document.getElementsByTagName("head")[0]).appendChild(s);var p=0,pi=setInterval(function(){if(window.__retellEnhance()||++p>100)clearInterval(pi);},120);setTimeout(function(){var r=document.getElementById("retell-widget-root");if(r)r.classList.add("cr-ready");},2500);}catch(e){}};
+      // Open Mack's launcher — his FAB lives in an OPEN shadow root (verified), so we can
+      // click it. If he isn't booted yet, an explicit click is intent to chat: boot + open.
+      window.crRetellOpen=function(){var f=null;try{document.querySelectorAll("*").forEach(function(el){if(!f&&el.shadowRoot){var b=el.shadowRoot.querySelector('button[aria-label="Open Assistant"],button[aria-label*="Assistant" i]');if(b)f=b;}});}catch(e){}if(f){f.click();return true;}return false;};
+    </script>
+    <!-- CONSENT-GATED passive load via ConsentResolve/Usercentrics autoblocker:
+         type=text/plain keeps it inert until the visitor consents to the "Retell Chat"
+         service. data-usercentrics MUST match the EXACT service name configured in the CMP,
+         or the passive FAB stays blocked — same requirement every other pixel here has. -->
+    {!noChat && <script is:inline type="text/plain" data-usercentrics="Retell Chat">window.__retellBoot(!!window.__retellOpenOnLoad);</script>}
 
     <!-- Conversion tracking helper. ONE call site for every ad-measurable action so
          campaigns have something to optimize toward besides PageView (which was all
@@ -170,12 +382,93 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       })();
     </script>
 
-    <!-- Non-gated Crisp opener used by our own "Chat with us" controls.
-         Clicking a chat button is explicit, user-initiated intent, so we boot
-         Crisp on demand if the consent-gated passive load hasn't already. Then
-         show + open the chatbox. The launcher bubble stays suppressed (re-hidden
-         on close). mailto is only a last-resort fallback if injection throws. -->
-    <script is:inline>window.crOpenChat=function(){try{if(!window.$crisp){window.$crisp=[];window.CRISP_WEBSITE_ID="0f8e9b05-1b94-4781-904d-2abef252374d";}if(!window.__crHideWired){window.__crHideWired=1;window.$crisp.push(["on","chat:closed",function(){window.$crisp.push(["do","chat:hide"]);}]);}if(!window.__crispLoaded){window.__crispLoaded=1;var d=document,s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;(d.head||d.getElementsByTagName("head")[0]).appendChild(s);}window.$crisp.push(["do","chat:show"]);window.$crisp.push(["do","chat:open"]);}catch(e){try{window.location.href="mailto:hello@consentresolve.com";}catch(_){}}};</script>
+    <!-- Chat opener for our own "Chat with us" / "Chat with Tyler" controls. If Mack is
+         already booted (consented visitor), open his launcher. Otherwise an explicit click
+         is intent to chat — same stance the prior chat opener took — so boot + auto-open,
+         then click the FAB once it mounts. mailto is the last-resort fallback. -->
+    <script is:inline>window.crOpenChat=function(){try{if(window.crRetellOpen&&window.crRetellOpen())return;window.__retellBoot(true);var n=0,iv=setInterval(function(){if((window.crRetellOpen&&window.crRetellOpen())||++n>28)clearInterval(iv);},250);}catch(e){try{window.location.href="mailto:hello@consentresolve.com";}catch(_){}}};</script>
+    {noChat && <style is:inline>{`#retell-widget-root,#retell-widget,[class*="_fabChat"],#cw,.cw{display:none!important;visibility:hidden!important;pointer-events:none!important}`}</style>}
+    {noChat && <script is:inline>{`(function(){try{window.__retellBoot=function(){};window.crOpenChat=function(){};window.crRetellOpen=function(){return false;};var kill=function(){["retell-widget-root","retell-widget","cw"].forEach(function(id){var e=document.getElementById(id);if(e)e.remove();});};kill();document.addEventListener("DOMContentLoaded",kill);setTimeout(kill,600);setTimeout(kill,2000);setTimeout(kill,5000);}catch(e){}})();`}</script>}
+
+    <!-- ============================================================
+         CUSTOM CHAT LAUNCHER — the orb + teaser + nudge that front Mack.
+         Desktop only (>=1024px) where Retell's own FAB lives; on smaller
+         screens the MobileStickyCTA stays the launcher (Retell FAB already
+         hidden there). Timing/on-off is served from /api/chat-launcher and
+         editable in the /crm/speed console. Pure UI — clicking boots Retell.
+         ============================================================ -->
+    <style is:inline>
+      .cw,.cw *{box-sizing:border-box}
+      .cw{
+        --cr-navy:#0A1628;--cr-mint:#00E5A0;--cr-slate:#1E293B;--cr-white:#F8FAFC;
+        --cr-font:var(--font-sans,ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif);
+        --cr-page:#0A1628;--cr-spring:cubic-bezier(.34,1.56,.64,1);--cr-ease:cubic-bezier(.22,.61,.36,1);
+        position:fixed;z-index:50;right:26px;bottom:calc(26px + env(safe-area-inset-bottom,0px));
+        display:none;flex-direction:column;align-items:flex-end;gap:13px;font-family:var(--cr-font);
+      }
+      @media(min-width:1024px){.cw.cw-live{display:flex}}
+      html.cr-chat-open .cw{opacity:0!important;pointer-events:none!important;visibility:hidden!important;transition:opacity .18s ease}
+      .cw-teaser{position:relative;width:min(300px,calc(100vw - 46px));color:var(--cr-navy);
+        background:linear-gradient(152deg,rgba(0,229,160,.16) 0%,rgba(0,229,160,.04) 38%,rgba(0,229,160,0) 62%),var(--cr-white);
+        border-radius:16px 16px 5px 16px;padding:13px 15px 14px;
+        box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 16px 40px -12px rgba(0,0,0,.7),0 0 30px -14px rgba(0,229,160,.5);
+        transform:translateY(14px) scale(.95);opacity:0;pointer-events:none;transform-origin:100% 100%;
+        transition:transform .44s var(--cr-spring),opacity .28s var(--cr-ease)}
+      .cw.teaser-on .cw-teaser{transform:none;opacity:1;pointer-events:auto}
+      .cw-teaser::after{content:"";position:absolute;right:13px;bottom:-6px;width:15px;height:15px;background:var(--cr-white);border-radius:0 0 4px 0;transform:rotate(45deg) skew(6deg,6deg)}
+      .cw-head{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+      .cw-av{width:38px;height:38px;border-radius:50%;flex:none;overflow:hidden;position:relative;background:var(--cr-mint);color:#04231a;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 0 2px var(--cr-white),0 0 0 3.5px rgba(0,229,160,.45)}
+      .cw-av img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover}
+      .cw-name{font-size:13px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+      .cw-sub{font-size:10px;color:rgba(10,22,40,.52);margin-top:2px;display:flex;align-items:center;gap:5px}
+      .cw-sub i{width:5px;height:5px;border-radius:50%;background:var(--cr-mint);flex:none}
+      .cw-x{margin-left:auto;align-self:flex-start;background:none;border:0;cursor:pointer;color:rgba(10,22,40,.35);font-size:17px;line-height:1;padding:1px 2px 4px 8px;border-radius:5px}
+      .cw-x:hover{color:var(--cr-navy)}
+      .cw-x:focus-visible{outline:2px solid var(--cr-navy);outline-offset:2px}
+      .cw-typing{display:flex;gap:4px;padding:4px 0 3px}
+      .cw-typing i{width:6px;height:6px;border-radius:50%;background:rgba(10,22,40,.28);animation:cw-type 1.25s ease-in-out infinite}
+      .cw-typing i:nth-child(2){animation-delay:.16s}
+      .cw-typing i:nth-child(3){animation-delay:.32s}
+      .cw-typing[hidden]{display:none}
+      .cw-msg{margin:0;font-size:13.5px;line-height:1.45;opacity:0;transform:translateY(5px);transition:.32s var(--cr-ease)}
+      .cw-msg.on{opacity:1;transform:none}
+      .cw-chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+      .cw-chip{font:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;background:var(--cr-navy);color:var(--cr-white);border:0;border-radius:99px;padding:7px 13px;opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s var(--cr-spring),background .15s}
+      .cw-chip:hover{background:var(--cr-slate)}
+      .cw-chip:focus-visible{outline:2px solid var(--cr-navy);outline-offset:2px}
+      .cw-chip.on{opacity:1;transform:none}
+      .cw-call{display:block;margin-top:9px;font-size:11px;font-weight:600;text-decoration:none;color:rgba(10,22,40,.55);opacity:0;transition:opacity .3s,color .15s}
+      .cw-call b{color:var(--cr-navy)}
+      .cw-call:hover{color:var(--cr-navy)}
+      .cw-call.on{opacity:1}
+      .cw-magnet{position:relative;transform:translate(var(--mx,0),var(--my,0));transition:transform .3s var(--cr-ease)}
+      .cw-btn{position:relative;z-index:2;width:66px;height:66px;border-radius:50%;border:1px solid rgba(0,229,160,.28);cursor:pointer;padding:0;overflow:hidden;background:radial-gradient(120% 100% at 50% 0%,var(--cr-slate) 0%,var(--cr-navy) 64%);display:grid;place-items:center;box-shadow:0 1px 0 rgba(0,229,160,.22) inset,0 -18px 30px -18px rgba(0,229,160,.75) inset,0 14px 30px -8px rgba(0,0,0,.65),0 0 34px -8px rgba(0,229,160,.4);transform:scale(.5);opacity:0;transition:transform .42s var(--cr-spring),box-shadow .3s var(--cr-ease),opacity .26s;-webkit-tap-highlight-color:transparent}
+      .cw.in .cw-btn{transform:scale(1);opacity:1}
+      .cw.in .cw-btn:hover{transform:translateY(-4px) scale(1.06);box-shadow:0 1px 0 rgba(0,229,160,.38) inset,0 -22px 34px -16px rgba(0,229,160,1) inset,0 20px 38px -10px rgba(0,0,0,.7),0 0 44px -6px rgba(0,229,160,.6)}
+      .cw.in .cw-btn:active{transform:translateY(-1px) scale(.95);transition-duration:.09s}
+      .cw-btn:focus-visible{outline:3px solid var(--cr-mint);outline-offset:4px}
+      .cw-filament{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 50% 120%,rgba(0,229,160,.85) 0%,rgba(0,229,160,.32) 28%,rgba(0,229,160,0) 60%);opacity:.6;animation:cw-breathe 4.6s ease-in-out infinite}
+      .cw-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(0,229,160,.5);opacity:0;pointer-events:none;animation:cw-ring 4.4s cubic-bezier(.16,.7,.3,1) infinite}
+      .cw-ring:nth-of-type(2){animation-delay:2.2s}
+      .cw-icon{position:absolute;display:grid;place-items:center}
+      .cw-ripple{position:absolute;border-radius:50%;pointer-events:none;z-index:3;background:radial-gradient(circle,rgba(0,229,160,.5),rgba(0,229,160,0) 70%);transform:translate(-50%,-50%) scale(0);animation:cw-ripple .6s var(--cr-ease) forwards}
+      .cw-badge{position:absolute;top:-3px;right:-3px;z-index:5;min-width:22px;height:22px;padding:0 6px;border-radius:99px;display:grid;place-items:center;pointer-events:none;background:var(--cr-mint);color:var(--cr-navy);font-size:11.5px;font-weight:800;border:2.5px solid var(--cr-page);transform:scale(0);transition:transform .38s var(--cr-spring)}
+      .cw.badge-on .cw-badge{transform:scale(1)}
+      @keyframes cw-breathe{0%,100%{opacity:.52;transform:scale(1)}50%{opacity:.85;transform:scale(1.05)}}
+      @keyframes cw-ring{0%{opacity:0;transform:scale(.85)}14%{opacity:.5}100%{opacity:0;transform:scale(1.75)}}
+      @keyframes cw-type{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-4px);opacity:1}}
+      @keyframes cw-ripple{to{transform:translate(-50%,-50%) scale(3.2);opacity:0}}
+      @keyframes cw-nudge{0%{transform:scale(1) translateY(0)}18%{transform:scale(1.08,.94) translateY(0)}42%{transform:scale(.98,1.04) translateY(-10px)}68%{transform:scale(1.02,.99) translateY(0)}84%{transform:translateY(-3px)}100%{transform:scale(1) translateY(0)}}
+      .cw.nudging .cw-btn{animation:cw-nudge .9s var(--cr-ease)}
+      @media(prefers-reduced-motion:reduce){
+        .cw *{transition-duration:.01ms !important}
+        .cw-filament,.cw-ring,.cw-typing i{animation:none !important}
+        .cw-ring{display:none}
+        .cw.nudging .cw-btn{animation:none}
+        .cw-magnet{transition:none}
+        .cw.in .cw-btn:hover{transform:none}
+      }
+    </style>
   </head>
   <body class="bg-[color:var(--color-bg)] text-[color:var(--color-ink)]">
     <a href="#main" class="skip-link">Skip to content</a>
@@ -186,5 +479,191 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <Footer />
     <MobileStickyCTA />
     <MobileProductStory />
+    {showDemoWidget && <DemoWidget />}
+
+    <!-- Custom chat launcher (desktop). Hidden until JS confirms it's enabled in config.
+         Omitted entirely on noChat pages (e.g. /demo) so there's no #cw to render or animate —
+         the activation script below early-returns when #cw is absent. -->
+    {!noChat && (
+    <div class="cw" id="cw" aria-hidden="true">
+      <div class="cw-teaser" role="status" aria-live="polite">
+        <div class="cw-head">
+          <div class="cw-av" id="cwAv" aria-hidden="true"><span class="cw-av-l">M</span><img src="/mack.jpg" alt="" onerror="this.remove()"></div>
+          <div>
+            <div class="cw-name" id="cwName">Mack</div>
+            <div class="cw-sub"><i></i> <span id="cwStatus">Online</span></div>
+          </div>
+          <button class="cw-x" id="cwX" aria-label="Dismiss message">&times;</button>
+        </div>
+        <div class="cw-typing" id="cwTyping" aria-hidden="true"><i></i><i></i><i></i></div>
+        <p class="cw-msg" id="cwMsg">Do you want more leads for your existing website?</p>
+        <div class="cw-chips" id="cwChips">
+          <button class="cw-chip" data-q="yes">Yes</button>
+          <button class="cw-chip" data-q="no">No</button>
+        </div>
+        <a class="cw-call" id="cwCall" href="tel:+17279999846">Rather talk? Call <b>(727) 999-9846</b></a>
+      </div>
+      <div class="cw-magnet" id="cwMagnet">
+        <span class="cw-ring" aria-hidden="true"></span>
+        <span class="cw-ring" aria-hidden="true"></span>
+        <button class="cw-btn" id="cwBtn" aria-label="Open chat" aria-expanded="false">
+          <span class="cw-filament" aria-hidden="true"></span>
+          <span class="cw-icon" aria-hidden="true">
+            <svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="#F8FAFC" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.9 9.9 0 0 1-2.9-.4L4 21l1.4-3.6A8.2 8.2 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5Z"/>
+              <path d="M8.6 11.6l2.2 2.2 4.4-4.4" stroke="#00E5A0" stroke-width="2.3"/>
+            </svg>
+          </span>
+        </button>
+        <span class="cw-badge" id="cwBadge" aria-hidden="true">1</span>
+      </div>
+    </div>
+    )}
+
+    <script is:inline>
+    (function(){
+      var DEF={enabled:true,agentName:"Mack",status:"Online",
+        greeting:"Do you want more leads for your existing website?",phone:"+17279999846",
+        entranceDelay:700,teaser:{enabled:true,delay:8000,scroll:0.45,exitIntent:true},
+        nudge:{enabled:true,every:16000,max:3},badge:"honest"};
+      // Per-path launcher overrides (merged on top of the API/DEF config). Empty = every page,
+      // including /better-together, uses the standard calm-Mack launcher.
+      var PATHCFG={};
+      var cw=document.getElementById('cw');
+      if(!cw) return;
+      var calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Format a +1XXXXXXXXXX number as (XXX) XXX-XXXX for the display line.
+      function fmtPhone(p){var d=String(p||'').replace(/\D/g,'');if(d.length===11&&d[0]==='1')d=d.slice(1);
+        return d.length===10?'('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6):p;}
+
+      // Hide Retell's own FAB so our orb is the ONLY launcher — never both. The hide rule
+      // (:host(.cr-hidefab) …) lives in __retellCSS, which is a SHADOW-DOM stylesheet, so it can
+      // only take effect once it's injected into Retell's shadow root. __retellEnhance normally
+      // does that (#cr-tune) and re-tags the host each cycle. To avoid a double-FAB if enhance's
+      // host-detection ever drifts, this sweep independently (a) finds any Retell shadow host,
+      // (b) injects the #cr-tune stylesheet itself if missing, and (c) tags .cr-hidefab — so the
+      // hide does not depend on the rest of enhance succeeding.
+      function hideRetellFab(){
+        window.__crHideFab=true;
+        var n=0,iv=setInterval(function(){
+          var got=false;
+          try{document.querySelectorAll('*').forEach(function(el){
+            var sr=el.shadowRoot; if(!sr||!sr.querySelector('[class*="_fab"],[class*="_window_"]'))return;
+            el.classList.add('cr-hidefab');
+            if(!sr.getElementById('cr-tune')&&window.__retellCSS){var st=document.createElement('style');st.id='cr-tune';st.textContent=window.__retellCSS;sr.appendChild(st);}
+            got=true;
+          });}catch(e){}
+          if(got||++n>60)clearInterval(iv);
+        },200);
+      }
+
+      function start(cfg){
+        var C=Object.assign({},DEF,cfg||{});
+        C.teaser=Object.assign({},DEF.teaser,(cfg&&cfg.teaser)||{});
+        C.nudge=Object.assign({},DEF.nudge,(cfg&&cfg.nudge)||{});
+        // Merge any per-path test override on top (nested teaser/nudge kept intact).
+        var ov=null;for(var _p in PATHCFG){if(location.pathname.indexOf(_p)===0){ov=PATHCFG[_p];break;}}
+        if(ov){var _t=Object.assign({},C.teaser,ov.teaser||{}),_n=Object.assign({},C.nudge,ov.nudge||{});
+          C=Object.assign({},C,ov);C.teaser=_t;C.nudge=_n;}
+        if(C.enabled===false) return;                 // disabled → leave Retell's own bubble
+
+        // Fill copy from config.
+        var byId=function(id){return document.getElementById(id);};
+        if(C.agentName){byId('cwName').textContent=C.agentName;var _avl=byId('cwAv')&&byId('cwAv').querySelector('.cw-av-l');if(_avl)_avl.textContent=(C.agentName[0]||'M').toUpperCase();}
+        if(C.status)byId('cwStatus').textContent=C.status;
+        if(C.greeting)byId('cwMsg').textContent=C.greeting;
+        if(C.phone){var call=byId('cwCall');call.href='tel:'+String(C.phone).replace(/[^\d+]/g,'');
+          call.innerHTML='Rather talk? Call <b>'+fmtPhone(C.phone)+'</b>';}
+
+        hideRetellFab();
+        cw.classList.add('cw-live');cw.setAttribute('aria-hidden','false');
+
+        var btn=byId('cwBtn'),magnet=byId('cwMagnet'),typing=byId('cwTyping'),
+            msg=byId('cwMsg'),chips=byId('cwChips'),call=byId('cwCall');
+        var shown=false,dismissed=false,nudges=0,timer,open=false;
+
+        // Config-driven chips (label + intent seed). Falls back to the HTML default (price/time).
+        if(C.chips&&C.chips.length){chips.innerHTML='';C.chips.forEach(function(ch){
+          var b=document.createElement('button');b.className='cw-chip';b.setAttribute('data-q',ch.q);b.textContent=ch.label;chips.appendChild(b);});}
+
+        setTimeout(function(){cw.classList.add('in');if(C.badge==='always')cw.classList.add('badge-on');},C.entranceDelay);
+
+        function showTeaser(){
+          if(!C.teaser.enabled||shown||dismissed||open) return; shown=true;
+          cw.classList.add('teaser-on');
+          typing.hidden=false;msg.classList.remove('on');call.classList.remove('on');
+          [].forEach.call(chips.children,function(c){c.classList.remove('on');});
+          setTimeout(function(){
+            typing.hidden=true;msg.classList.add('on');
+            if(C.badge!=='off')cw.classList.add('badge-on');
+            [].forEach.call(chips.children,function(c,i){setTimeout(function(){c.classList.add('on');},80+i*70);});
+            setTimeout(function(){call.classList.add('on');},240);
+          },calm?0:1600);
+        }
+        if(C.teaser.enabled){
+          if(C.teaser.delay>0) setTimeout(showTeaser,C.teaser.delay);
+          if(C.teaser.scroll>0) addEventListener('scroll',function(){
+            if(scrollY/Math.max(1,document.body.scrollHeight-innerHeight)>C.teaser.scroll)showTeaser();
+          },{passive:true});
+          if(C.teaser.exitIntent) document.addEventListener('mouseout',function(e){if(!e.relatedTarget&&e.clientY<12)showTeaser();});
+        }
+
+        byId('cwX').addEventListener('click',function(){dismissed=true;cw.classList.remove('teaser-on');clearInterval(timer);});
+        chips.addEventListener('click',function(e){var c=e.target.closest('.cw-chip');if(!c)return;
+          cw.classList.remove('teaser-on');openChat(c.dataset.q);});
+
+        btn.addEventListener('pointerdown',function(e){
+          if(calm)return;var r=btn.getBoundingClientRect(),s=document.createElement('span');
+          s.className='cw-ripple';s.style.cssText='left:'+(e.clientX-r.left)+'px;top:'+(e.clientY-r.top)+'px;width:58px;height:58px';
+          btn.appendChild(s);setTimeout(function(){s.remove();},620);
+        });
+        btn.addEventListener('click',function(){openChat('');});
+
+        // Open Mack (boot + open Retell), optionally seeding a first message for the chip.
+        function openChat(q){
+          open=true;cw.classList.remove('teaser-on','badge-on');clearInterval(timer);
+          if(navigator.vibrate)try{navigator.vibrate(8);}catch(_){}
+          try{ if(window.crOpenChat) window.crOpenChat(); }catch(e){}
+          var SEED={price:"I'd like a price.",time:"I'd like to book a time.",no:"No"};
+          (C.chips||[]).forEach(function(ch){if(ch.seed)SEED[ch.q]=ch.seed;});
+          var seed=SEED[q]||"";
+          if(seed) seedMessage(seed);
+        }
+        // Best-effort: drop the chip's intent into Retell's input + send, once it mounts.
+        function seedMessage(text){
+          var tries=0,iv=setInterval(function(){
+            if(++tries>40)return clearInterval(iv);
+            var host=null;document.querySelectorAll('*').forEach(function(el){if(!host&&el.shadowRoot&&el.shadowRoot.querySelector('textarea,input[type="text"]'))host=el;});
+            if(!host)return;var sr=host.shadowRoot,ta=sr.querySelector('textarea,input[type="text"]');if(!ta)return;
+            clearInterval(iv);
+            try{var proto=ta.tagName==='TEXTAREA'?window.HTMLTextAreaElement.prototype:window.HTMLInputElement.prototype;
+              Object.getOwnPropertyDescriptor(proto,'value').set.call(ta,text);
+              ta.dispatchEvent(new Event('input',{bubbles:true}));
+              var snd=sr.querySelector('[class*="_sendButton"]');
+              if(snd)snd.click();else ta.dispatchEvent(new KeyboardEvent('keydown',{bubbles:true,key:'Enter',code:'Enter',keyCode:13,which:13}));
+            }catch(e){}
+          },160);
+        }
+
+        // Periodic nudge.
+        function nudge(){if(open||dismissed||calm)return;cw.classList.add('nudging');setTimeout(function(){cw.classList.remove('nudging');},920);}
+        if(C.nudge.enabled&&C.nudge.every>0&&C.nudge.max>0&&!calm)
+          timer=setInterval(function(){if(++nudges>C.nudge.max)return clearInterval(timer);nudge();},C.nudge.every);
+
+        // Cursor magnet (desktop pointers only).
+        if(!calm&&matchMedia('(pointer:fine)').matches){
+          addEventListener('mousemove',function(e){
+            var r=btn.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),d=Math.hypot(dx,dy);
+            if(d<140){var f=(1-d/140)*9;magnet.style.setProperty('--mx',(dx/d*f).toFixed(2)+'px');magnet.style.setProperty('--my',(dy/d*f).toFixed(2)+'px');}
+            else{magnet.style.setProperty('--mx','0px');magnet.style.setProperty('--my','0px');}
+          },{passive:true});
+        }
+      }
+
+      // Pull config, then start. Falls back to defaults if the endpoint is unreachable.
+      fetch('/api/chat-launcher').then(function(r){return r.json();}).then(start).catch(function(){start(DEF);});
+    })();
+    </script>
   </body>
 </html>

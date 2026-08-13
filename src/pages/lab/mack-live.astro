@@ -1,0 +1,52 @@
+---
+// Private, non-indexed test page for chatting the REAL Mack (the live Retell agent).
+// BaseLayout ships the actual Mack widget on every page, so this is the genuine agent —
+// just isolated on an unlinked, noindex URL so test chatter stays off the public pages.
+import BaseLayout from "~/layouts/BaseLayout.astro";
+---
+<BaseLayout
+  title="Mack — private test"
+  description="Private test page for the live Mack chat agent."
+  noindex
+  demoWidget={false}
+>
+  <section class="wrap">
+    <div class="card">
+      <p class="eyebrow">Private test page · not indexed, not linked</p>
+      <h1>This is the <span>real</span> Mack.</h1>
+      <p class="lede">The live Retell agent — same one that runs on the real site. Type anything and he'll answer for real (short, like he's tuned to). Your test chat stays here, off the public pages.</p>
+      <div class="hint">
+        <span class="arrow">↘</span>
+        <span>Open the <b>chat bubble</b> in the bottom-right corner to start.</span>
+      </div>
+      <ul class="tries">
+        <li>“how much is it?”</li>
+        <li>“what exactly do I get in a lead?”</li>
+        <li>“is this legal?”</li>
+        <li>“can I get a sample emailed to me?”</li>
+      </ul>
+      <p class="foot">Comparing designs? The scripted capture prototype lives at <code>/lab/chat-capture</code>.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .wrap{min-height:78vh;display:grid;place-items:center;padding:64px 20px;
+    background:radial-gradient(900px 460px at 80% -10%, rgba(0,229,160,.14), transparent 60%);}
+  .card{max-width:620px;text-align:center}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--color-brand-pressed);background:rgba(0,229,160,.12);display:inline-block;
+    padding:5px 12px;border-radius:999px;margin:0 0 20px}
+  h1{font-size:clamp(34px,6vw,58px);line-height:1.04;letter-spacing:-.02em;margin:0 0 16px;color:var(--color-ink)}
+  h1 span{color:var(--color-brand)}
+  .lede{font-size:18px;line-height:1.55;color:var(--color-ink-2);max-width:52ch;margin:0 auto 28px}
+  .hint{display:inline-flex;align-items:center;gap:10px;background:var(--color-ink);color:#fff;
+    padding:13px 20px;border-radius:14px;font-size:15px;font-weight:600;box-shadow:0 16px 34px -20px rgba(10,22,40,.6)}
+  .hint .arrow{color:var(--color-brand);font-size:20px;font-weight:800}
+  .tries{list-style:none;padding:0;margin:30px auto 0;display:flex;flex-wrap:wrap;gap:9px;justify-content:center;max-width:520px}
+  .tries li{font-size:14px;color:var(--color-ink-2);border:1px solid var(--color-rule);
+    background:var(--color-bg-alt);border-radius:999px;padding:8px 15px}
+  .foot{margin-top:34px;font-size:13px;color:var(--color-ink-muted)}
+  .foot code{font-family:var(--font-mono,ui-monospace,monospace);background:var(--color-bg-alt);
+    padding:2px 7px;border-radius:6px;border:1px solid var(--color-rule)}
+</style>

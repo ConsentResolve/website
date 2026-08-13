@@ -9,6 +9,9 @@ import { nowIso } from "./db.js";
 const SCOPES = [
   "https://www.googleapis.com/auth/gmail.readonly",
   "https://www.googleapis.com/auth/gmail.send",
+  // modify: lets a deleted conversation be moved to Trash AT SOURCE so the in:inbox poll can't
+  // re-ingest it. Requires a one-time reconnect of the Gmail mailbox to grant the new scope.
+  "https://www.googleapis.com/auth/gmail.modify",
   "openid",
   "email",
 ].join(" ");
@@ -100,24 +103,88 @@ export async function searchThread(env, account, leadEmail, max) {
   return { messages: msgs, threadId: msgs.length ? msgs[msgs.length - 1].threadId : null, lastSubject: msgs.length ? msgs[msgs.length - 1].subject : "" };
 }
 
-// Send (or reply, if threadId) as the connected account. `opts.headers` adds extra RFC-822
-// headers (e.g. List-Unsubscribe) — values must be ASCII.
+// Send (or reply, if threadId) as the connected account.
+//   opts.headers  — extra RFC-822 headers (e.g. List-Unsubscribe); values must be ASCII.
+//   opts.html     — HTML body. When set, sends multipart/alternative (plain `body` as the
+//                   text part, opts.html as the HTML part) so every client renders correctly.
+//   opts.from     — friendly From (e.g. "Consent Resolve <hello@consentresolve.com>"); must
+//                   still resolve to the authenticated mailbox. Defaults to bare `account`.
+//   opts.replyTo  — Reply-To header.
 export async function sendMessage(env, account, to, subject, body, threadId, opts) {
   const tok = await gAccessToken(env, account);
   if (!tok) return { error: "no_token" };
+  opts = opts || {};
   // Strip CR/LF from any value interpolated into the header block — `to` can come
   // from unvalidated lead data, so a crafted address must not inject headers.
   const noCrlf = (v) => String(v == null ? "" : v).replace(/[\r\n]+/g, " ").trim();
-  const extra = opts && opts.headers
-    ? Object.keys(opts.headers).map((k) => noCrlf(k) + ": " + noCrlf(opts.headers[k]) + "\r\n").join("") : "";
-  const raw = b64url("To: " + noCrlf(to) + "\r\nSubject: " + encodeHeader(subject) + "\r\n" + extra + "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + body);
-  const payload = { raw }; if (threadId) payload.threadId = threadId;
+  // Address headers can carry a non-ASCII display name (e.g. "José's HVAC <hello@…>"). RFC 2047
+  // encode the display-name phrase while leaving the <addr> ASCII, so accents don't ship as raw
+  // UTF-8 (a spam signal). Non-address headers pass through noCrlf unchanged.
+  const ADDR = new Set(["to", "from", "reply-to", "cc", "bcc"]);
+  const encodeAddr = (v) => String(v == null ? "" : v).split(",").map((a) => {
+    a = noCrlf(a);
+    const m = /^(.*?)\s*<([^>]+)>$/.exec(a);
+    return (m && m[1]) ? encodeHeader(m[1]) + " <" + m[2].trim() + ">" : a;
+  }).join(", ");
+  const hdrs = { ...(opts.headers || {}) };
+  if (opts.from) hdrs.From = opts.from;
+  if (opts.replyTo || opts.reply_to) hdrs["Reply-To"] = opts.replyTo || opts.reply_to;
+  // Bcc header is honored by the Gmail API and stripped from the delivered message.
+  if (opts.bcc) hdrs.Bcc = Array.isArray(opts.bcc) ? opts.bcc.join(", ") : opts.bcc;
+  if (opts.cc) hdrs.Cc = Array.isArray(opts.cc) ? opts.cc.join(", ") : opts.cc;
+  const extra = Object.keys(hdrs).map((k) => noCrlf(k) + ": " + (ADDR.has(k.toLowerCase()) ? encodeAddr(hdrs[k]) : noCrlf(hdrs[k])) + "\r\n").join("");
+  const head = "To: " + encodeAddr(to) + "\r\nSubject: " + encodeHeader(subject) + "\r\n" + extra + "MIME-Version: 1.0\r\n";
+
+  let mime;
+  if (opts.html) {
+    const boundary = "crb_" + crypto.randomUUID().replace(/-/g, "");
+    const textPart = body != null && String(body).length ? String(body) : htmlToText(opts.html);
+    mime = head + `Content-Type: multipart/alternative; boundary="${boundary}"\r\n\r\n` +
+      `--${boundary}\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n${textPart}\r\n` +
+      `--${boundary}\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n${opts.html}\r\n` +
+      `--${boundary}--`;
+  } else {
+    mime = head + "Content-Type: text/plain; charset=UTF-8\r\n\r\n" + (body || "");
+  }
+  const payload = { raw: b64url(mime) }; if (threadId) payload.threadId = threadId;
   const r = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
     method: "POST", headers: { Authorization: "Bearer " + tok, "Content-Type": "application/json" }, body: JSON.stringify(payload),
   });
   const j = await r.json();
   if (j.error) return { error: (j.error && j.error.message) || "send_failed" };
   return { ok: true, id: j.id, threadId: j.threadId };
+}
+
+// Scrub a thread AT SOURCE: move the whole Gmail thread to Trash so the `in:inbox` ingest
+// poll can never re-materialize a deleted conversation. Reversible (Gmail Trash keeps it ~30
+// days) — we deliberately don't permanently destroy the mailbox. Used by conversation delete.
+export async function trashThread(env, account, threadId) {
+  if (!threadId) return { skipped: "no_thread" };
+  const tok = await gAccessToken(env, account);
+  if (!tok) return { error: "no_token" };
+  const r = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/threads/" + encodeURIComponent(threadId) + "/trash", {
+    method: "POST", headers: { Authorization: "Bearer " + tok },
+  });
+  if (!r.ok) { const t = await r.text().catch(() => ""); return { error: "trash_failed", detail: String(t).slice(0, 120) }; }
+  return { ok: true };
+}
+
+// Crude HTML→text fallback for the plain-text alternative when a caller passes only HTML.
+function htmlToText(html) {
+  return String(html || "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "").replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<\/(p|div|tr|h[1-6]|li)>/gi, "\n").replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+// Convenience wrapper for app senders: send an HTML email (with text fallback) as the
+// connected Workspace mailbox. Returns { ok, id } | { error }. Replaces Resend for
+// customer-facing, triggered, low-volume sends — no sending-domain DNS to verify.
+export async function sendEmail(env, { account, to, subject, html, text, from, replyTo, headers }) {
+  const acct = String(account || env.STL_EMAIL_ACCOUNT || env.CRM_INBOX_EMAILS || "hello@consentresolve.com")
+    .split(/[,\s]+/)[0].trim().toLowerCase();
+  return sendMessage(env, acct, to, subject, text || "", null, { html, from, replyTo, headers });
 }
 
 export async function gAccessToken(env, email) {

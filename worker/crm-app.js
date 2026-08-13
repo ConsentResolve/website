@@ -33,47 +33,70 @@ export async function handle({ request, env }) {
 // keys we can back with real data are overridden; every other screen keeps its
 // fixtures (graceful, incremental). Fails silent → app still works on fixtures.
 const BOOTSTRAP = `<script>
+window.CRM_LIVE_PENDING = true; // set before restoreView runs → data views show a loader, not fixtures
 (async () => {
   var snap = {
     convs: window.DATA && window.DATA.conversations, counts: window.DATA && window.DATA.counts,
-    CL: window.CONSENT_LEDGER, CS: window.CONSENT_STATS, SEQ: window.SEQUENCES, SS: window.SITE_SOURCES, SPY: window.SITESPY, NUR: window.NURTURE, PIPE: window.PIPELINE, AN: window.ANALYTICS
+    CL: window.CONSENT_LEDGER, CS: window.CONSENT_STATS, SEQ: window.SEQUENCES, SS: window.SITE_SOURCES, SPY: window.SITESPY, SPYL: window.SPY_LEADS, NUR: window.NURTURE, PIPE: window.PIPELINE, AN: window.ANALYTICS
+  };
+  // Clear the loader flag and re-render whatever view is active (with live data on
+  // success, or fixtures on failure) so a data view never stays stuck on "Loading…".
+  var finish = function () {
+    window.CRM_LIVE_PENDING = false;
+    try { if (window.__crmView && window.showView) window.showView(window.__crmView); } catch (_) {}
   };
   var d;
   try {
     var r = await fetch('/api/crm/app', { credentials: 'same-origin' });
-    if (!r.ok) return;                 // not signed in / error -> keep fixtures
+    if (!r.ok) { finish(); return; }   // not signed in / error -> keep fixtures
     d = await r.json();
-  } catch (e) { return; }
+  } catch (e) { finish(); return; }
+  window.CRM_LIVE_PENDING = false;      // live data in hand → renders below use it, not fixtures
   try {
     if (d.CONSENT_LEDGER) window.CONSENT_LEDGER = d.CONSENT_LEDGER;
     if (d.CONSENT_STATS)  window.CONSENT_STATS = d.CONSENT_STATS;
-    if (d.SEQUENCES && d.SEQUENCES.length) window.SEQUENCES = d.SEQUENCES;
+    // Assign whenever the server RETURNS the key (even empty) so live-but-empty tables replace
+    // the inline demo fixtures with honest empty states — never show fabricated leads/visitors.
+    if (d.SEQUENCES) window.SEQUENCES = d.SEQUENCES;
     if (d.SITE_SOURCES) window.SITE_SOURCES = d.SITE_SOURCES;
-    if (d.SITESPY && d.SITESPY.visitors && d.SITESPY.visitors.length) window.SITESPY = d.SITESPY;
-    if (d.NURTURE && d.NURTURE.pool && d.NURTURE.pool.length) window.NURTURE = d.NURTURE;
-    if (d.PIPELINE && d.PIPELINE.length) window.PIPELINE = d.PIPELINE;
+    if (d.SITESPY) window.SITESPY = d.SITESPY;
+    if (d.SPY_LEADS) window.SPY_LEADS = d.SPY_LEADS;
+    if (d.NURTURE) window.NURTURE = d.NURTURE;
+    if (d.PIPELINE) window.PIPELINE = d.PIPELINE;
+    // Persisted intel lookups — merge over the demo maps so real, looked-up companies win.
+    if (d.ENRICH && Object.keys(d.ENRICH).length) window.ENRICH = Object.assign({}, window.ENRICH, d.ENRICH);
+    if (d.DIRECTORY && Object.keys(d.DIRECTORY).length) window.DIRECTORY = Object.assign({}, window.DIRECTORY, d.DIRECTORY);
+    if (d.INTEL && Object.keys(d.INTEL).length) window.INTEL = Object.assign({}, window.INTEL, d.INTEL);
+    // Persisted Task-tab state — rehydrate found{} + done Set so a refresh keeps the work.
+    if (d.TASKSTATE && window.TASKSTATE) { for (const k in d.TASKSTATE) { const s = d.TASKSTATE[k] || {}; window.TASKSTATE[k] = { found: s.found || {}, done: new Set(s.done || []) }; } }
     if (d.ANALYTICS && d.ANALYTICS.kpis) window.ANALYTICS = d.ANALYTICS;
-    if (d.me && window.DATA) window.DATA.me = d.me;
+    if (d.me && window.DATA) { window.DATA.me = d.me; if (window.applyMe) window.applyMe(); }
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.DATA) {
       window.DATA.conversations = d.DATA_CONVERSATIONS;
       if (d.DATA_COUNTS) window.DATA.counts = d.DATA_COUNTS;
     }
     if (window.renderConsent) window.renderConsent();
     if (window.renderSequences) window.renderSequences();
-    if ((d.SITE_SOURCES || d.SITESPY) && window.renderSiteSpy) window.renderSiteSpy();
+    if ((d.SITE_SOURCES || d.SITESPY || d.SPY_LEADS) && window.renderSiteSpy) window.renderSiteSpy();
     if (d.NURTURE && window.renderNurture) window.renderNurture();
-    if (d.PIPELINE && d.PIPELINE.length && window.renderPipeline) window.renderPipeline();
+    if (d.PIPELINE && window.renderPipeline) window.renderPipeline();
     if (d.ANALYTICS && d.ANALYTICS.kpis && window.renderAnalytics) window.renderAnalytics();
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.renderList) {
-      window.renderList('open');
+      // Return to the last filter + open lead (survives refresh) instead of always
+      // resetting to Open + the first conversation.
+      if (window.restoreInbox) { window.restoreInbox(); }
+      else { window.renderList('open'); if (window.select && window.DATA.conversations[0]) window.select(window.DATA.conversations[0].id); }
+      if (window.applyLeadHash) window.applyLeadHash();   // a shared #inbox/<id> deep-link wins over the last-open lead
       if (window.recount) window.recount();
-      if (window.select && window.DATA.conversations[0]) window.select(window.DATA.conversations[0].id);
     }
+    if (window.__crmView) try { window.showView(window.__crmView); } catch (_) {}  // re-render active view with live data
+    try { if (window.enterForcedFocus) window.enterForcedFocus(0); } catch (_) {}  // Single-Task: force focus once real data is in
   } catch (e) {
     // FAIL-SAFE: any render error -> restore the demo fixtures so the app never breaks
+    window.CRM_LIVE_PENDING = false;
     try {
       if (window.DATA) { window.DATA.conversations = snap.convs; window.DATA.counts = snap.counts; }
-      window.CONSENT_LEDGER = snap.CL; window.CONSENT_STATS = snap.CS; window.SEQUENCES = snap.SEQ; window.SITE_SOURCES = snap.SS; window.SITESPY = snap.SPY; window.NURTURE = snap.NUR; window.PIPELINE = snap.PIPE; window.ANALYTICS = snap.AN;
+      window.CONSENT_LEDGER = snap.CL; window.CONSENT_STATS = snap.CS; window.SEQUENCES = snap.SEQ; window.SITE_SOURCES = snap.SS; window.SITESPY = snap.SPY; window.SPY_LEADS = snap.SPYL; window.NURTURE = snap.NUR; window.PIPELINE = snap.PIPE; window.ANALYTICS = snap.AN;
       if (window.renderList) window.renderList('open');
       if (window.recount) window.recount();
       if (window.select && window.DATA && window.DATA.conversations[0]) window.select(window.DATA.conversations[0].id);

@@ -1,0 +1,247 @@
+// Consent Resolve — "our own" visitor-ID -> CRM ingest.
+//
+// Pulls identity-resolved contacts from OUR OWN Consent Resolve public API
+// (the same api.consentresolve.com/api/v1/public that outreach.js reads) and
+// writes them into the CRM as leads (source "consentresolve", identified).
+//
+// Endpoints (gated by the CRM session/key):
+//   GET /api/crm/cr/sync?test=1  -> verify CR_API_KEY + show the contact shape
+//   GET /api/crm/cr/sync?run=1   -> import new identified visitors as leads
+//
+// Also runs on the */5 cron via runScheduledSync(). No-op until CR_API_KEY is set.
+import { json, corsHeaders } from "../_lib/http.js";
+import { crmAuthed, upsertLead, addActivity, ensureCrmSchema } from "../_lib/crm.js";
+import { ensureCrmV2Schema, findOrCreateCompany, addActivityV2, adminUserId } from "../_lib/crm-v2.js";
+import { apolloMatch } from "../_lib/apollo.js";
+
+const API_BASE = "https://api.consentresolve.com/api/v1/public";
+// Site id the public API expects for consentresolve.com (verified 200 w/ live contacts
+// in outreach.js). Override per-site with CR_SITE_ID.
+const SITE_ID_DEFAULT = "d037027c-3647-43ed-b069-5126df08faec";
+
+async function fetchContacts(env, want) {
+  const key = String(env.CR_API_KEY || "").trim();
+  if (!key) return { error: "CR_API_KEY not set on the worker" };
+  const siteId = env.CR_SITE_ID || SITE_ID_DEFAULT;
+  const rows = [];
+  let cursor = null;
+  // Page until we have enough (dedupe happens after), capped to stay well inside
+  // the 60 req/min public-API limit.
+  for (let page = 0; page < 5; page++) {
+    const qs = new URLSearchParams({ limit: String(Math.min(200, Math.max(want, 50))) });
+    if (cursor) qs.set("cursor", cursor);
+    const r = await fetch(`${API_BASE}/sites/${siteId}/contacts?${qs}`, {
+      headers: { "X-API-Key": key, Accept: "application/json" },
+    });
+    const body = await r.text();
+    if (!r.ok) return { error: `API ${r.status}: ${body.slice(0, 200)}`, status: r.status };
+    let d; try { d = JSON.parse(body); } catch { return { error: "non-JSON from API" }; }
+    const batch = d.contacts || d.data || d.results || (Array.isArray(d) ? d : []);
+    rows.push(...batch);
+    cursor = d.cursor || d.next_cursor || (d.meta && d.meta.cursor) || null;
+    if (!cursor || !batch.length || rows.length >= want) break;
+  }
+  return { rows };
+}
+
+// First non-empty scalar among the given key variants (the CR API uses several spellings —
+// mirrors CR_Visitor_Record::from_contact in the WordPress plugin, the canonical field map).
+function pick(v, ...keys) {
+  for (const k of keys) { const x = v[k]; if (x !== undefined && x !== null && x !== "" && typeof x !== "object") return x; }
+  return null;
+}
+function norm(v) {
+  const email = String(pick(v, "email", "contact_email", "primary_email", "work_email") || "").toLowerCase().trim();
+  const name = v.name || v.full_name || [v.first_name, v.last_name].filter(Boolean).join(" ") || "";
+  const companyRaw = pick(v, "company_name", "organization") || (v.company && v.company.name) || v.company;
+  const company = typeof companyRaw === "string" ? companyRaw : "";
+  const source_url = pick(v, "source_url", "landing_page", "url") || "";
+  const referrer = pick(v, "referrer", "referrer_url", "referring_url", "referring_domain", "ref") || "";
+  let domain = pick(v, "domain", "company_domain", "website") || "";
+  if (!domain && source_url) { try { domain = new URL(source_url).hostname.replace(/^www\./, ""); } catch (_) {} }
+  return {
+    email, name, company, domain,
+    phone: pick(v, "phone", "phone_number") || null,
+    city: pick(v, "city") || "", region: pick(v, "region", "state") || "", country: pick(v, "country", "country_code", "ip_country") || "",
+    visits: pick(v, "total_visits", "visits", "visit_count", "sessions_count"),
+    page_views: pick(v, "page_views", "pageviews", "page_view_count", "page_views_count"),
+    first_seen: pick(v, "first_seen_at", "first_seen", "created_at") || "",
+    last_seen: pick(v, "last_seen_at", "last_seen", "updated_at") || "",
+    source_url, referrer,
+    consent_method: pick(v, "method", "consent_method") || "",
+    consent_status: pick(v, "status", "consent_status") || "",
+  };
+}
+// Human-readable engagement summary stored on the lead (Last Seen · Referrer · Visits · Page Views · …).
+function crNote(c) {
+  const bits = [];
+  if (c.company) bits.push(c.company);
+  const loc = [c.city, c.region, c.country].filter(Boolean).join(", "); if (loc) bits.push(loc);
+  if (c.visits != null) bits.push(c.visits + " visit" + (c.visits === 1 ? "" : "s"));
+  if (c.page_views != null) bits.push(c.page_views + " page view" + (c.page_views === 1 ? "" : "s"));
+  if (c.last_seen) bits.push("last seen " + c.last_seen);
+  if (c.referrer || c.source_url) bits.push("via " + (c.referrer || c.source_url));
+  return "Identified via Consent Resolve — " + (bits.join(" · ") || c.domain || "");
+}
+
+// Incremental: insert ONLY new emails, so a frequent cron adds no activity churn
+// and doesn't re-float known leads.
+export async function runScheduledSync(env) {
+  if (!env.DB) return { skipped: "no_db" };
+  if (!env.CR_API_KEY) return { skipped: "no_cr_api_key" };
+  await ensureCrmSchema(env);
+  const got = await fetchContacts(env, 200);
+  if (got.error) return { error: got.error };
+  const rows = got.rows || [];
+  let synced = 0, skipped = 0;
+  for (const v of rows) {
+    const c = norm(v);
+    if (!c.email || !c.email.includes("@")) { skipped++; continue; }
+    const existing = await env.DB.prepare("SELECT id FROM crm_leads WHERE email=?").bind(c.email).first();
+    if (existing) { skipped++; continue; }
+    const id = await upsertLead(env, {
+      source: "consentresolve", email: c.email, name: c.name || null,
+      company: c.company || null, domain: c.domain || null, phone: c.phone || null,
+      consent_status: "identified", notes: crNote(c),
+    });
+    // Persist last-seen as the lead's activity time so the CRM sorts by real recency.
+    if (c.last_seen) {
+      const ls = /^\d+$/.test(String(c.last_seen)) ? new Date(Number(c.last_seen) * (String(c.last_seen).length <= 10 ? 1000 : 1)).toISOString() : c.last_seen;
+      await env.DB.prepare("UPDATE crm_leads SET last_activity=? WHERE id=?").bind(ls, id).run().catch(() => {});
+    }
+    await addActivity(env, id, "identified", crNote(c), "consentresolve");
+    synced++;
+  }
+  // Also push the visitor data onto the V2 /crm/app leads (reuse the fetched rows — no
+  // extra API calls). Enriches every non-archived matching lead, so the app stays current.
+  let v2 = null;
+  try { v2 = await backfillV2(env, { openOnly: false, rows }); } catch (_) {}
+  return { synced, skipped, scanned: rows.length, v2 };
+}
+
+// Enrich the V2 leads (the /crm/app inbox) with Consent Resolve visitor data. Matches
+// each Open conversation's contact to a CR contact by email, then writes a `_visitor`
+// block (Last Seen · Referrer · Total Visits · Page Views · location) onto the company's
+// enrichment — which flows straight to the lead's Intel panel. Idempotent.
+export async function backfillV2(env, { openOnly = true, rows: pre } = {}) {
+  if (!env.DB || !env.CR_API_KEY) return { skipped: "not_configured" };
+  await ensureCrmV2Schema(env);
+  let rows = pre;
+  if (!rows) { const got = await fetchContacts(env, 500); if (got.error) return { error: got.error }; rows = got.rows || []; }
+  const byEmail = new Map();
+  for (const v of rows) { const c = norm(v); if (c.email && c.email.includes("@")) byEmail.set(c.email, c); }
+  if (!byEmail.size) return { open_leads: 0, matched: 0, enriched: 0 };
+
+  const leads = (await env.DB.prepare(
+    `SELECT cv.id conv_id, ct.id contact_id, ct.company_id, ct.phone, lower(ct.primary_email) email
+       FROM conversations cv JOIN contacts ct ON ct.id = cv.contact_id
+      WHERE ${openOnly ? "cv.status='open'" : "cv.status != 'archived'"} AND ct.primary_email IS NOT NULL`
+  ).all().catch(() => ({ results: [] }))).results || [];
+
+  const actor = await adminUserId(env).catch(() => null);
+  // Apollo auto-enrich budget for this run — each identified visitor is matched at most
+  // once (gated by _person / _person_nomatch on the company enrichment), and we cap the
+  // number of NEW Apollo credits spent per run so a big backlog drips over several ticks.
+  const apolloBudget = env.APOLLO_API_KEY ? Number(env.APOLLO_ENRICH_PER_RUN || 12) : 0;
+  let apolloSpent = 0, apolloMatched = 0;
+  let matched = 0, enriched = 0, enrolled = 0;
+  for (const r of leads) {
+    const c = byEmail.get(r.email);
+    if (!c) continue;
+    matched++;
+    let companyId = r.company_id;
+    if (!companyId) {
+      companyId = await findOrCreateCompany(env, { name: c.company || c.email, domain: c.domain || null }).catch(() => null);
+      if (companyId) await env.DB.prepare("UPDATE contacts SET company_id=?, updated_at=datetime('now') WHERE id=?").bind(companyId, r.contact_id).run().catch(() => {});
+    }
+    if (!companyId) continue;
+    const co = await env.DB.prepare("SELECT enrichment FROM companies WHERE id=?").bind(companyId).first().catch(() => null);
+    let en = {}; try { en = co && co.enrichment ? JSON.parse(co.enrichment) : {}; } catch (_) {}
+    en._visitor = {
+      visits: c.visits, page_views: c.page_views, last_seen: c.last_seen || null, first_seen: c.first_seen || null,
+      referrer: c.referrer || c.source_url || null, source_url: c.source_url || null,
+      city: c.city || null, region: c.region || null, country: c.country || null,
+      consent_status: c.consent_status || null, consent_method: c.consent_method || null,
+      synced_at: new Date().toISOString(),
+    };
+    if (c.domain && !en.website) en.website = { domain: c.domain };
+
+    // Apollo auto-enrich: resolve the anonymous-looking email to a real person once.
+    if (apolloSpent < apolloBudget && !en._person && !en._person_nomatch) {
+      apolloSpent++;
+      const m = await apolloMatch(env, r.email).catch(() => ({ ok: false }));
+      const p = m && m.ok ? m.person : null;
+      // Treat a stub (no name / title / company / LinkedIn) as a non-match so we don't
+      // store an empty _person that renders a blank "Identified person" card.
+      const usable = p && (p.name || p.title || (p.organization && p.organization.name) || p.linkedin_url);
+      if (usable) {
+        const org = p.organization || {};
+        const phone = (p.phone_numbers && p.phone_numbers[0] && (p.phone_numbers[0].sanitized_number || p.phone_numbers[0].raw_number)) || null;
+        en._person = {
+          name: p.name || null, first_name: p.first_name || null, last_name: p.last_name || null,
+          title: p.title || null, headline: p.headline || null,
+          company: org.name || null, company_domain: org.primary_domain || null,
+          city: p.city || null, state: p.state || null, country: p.country || null,
+          linkedin: p.linkedin_url || null, photo: p.photo_url || null, phone,
+          apollo_id: p.id || null, at: new Date().toISOString(),
+        };
+        // Fill blanks on the contact so the header/name shows the resolved person.
+        await env.DB.prepare(
+          "UPDATE contacts SET full_name=COALESCE(NULLIF(full_name,''),?), title=COALESCE(NULLIF(title,''),?), phone=COALESCE(NULLIF(phone,''),?), apollo_person_id=COALESCE(apollo_person_id,?), updated_at=datetime('now') WHERE id=?"
+        ).bind(p.name || null, p.title || null, phone, p.id || null, r.contact_id).run().catch(() => {});
+        await addActivityV2(env, { actorId: actor, entityType: "contact", entityId: r.contact_id, action: "enriched", meta: { source: "apollo", name: p.name, title: p.title, company: org.name } }).catch(() => {});
+        apolloMatched++;
+      } else {
+        en._person_nomatch = true;   // don't re-spend a credit on this email
+      }
+    }
+
+    await env.DB.prepare("UPDATE companies SET enrichment=?, updated_at=datetime('now') WHERE id=?").bind(JSON.stringify(en), companyId).run().catch(() => {});
+    if (c.phone && !r.phone) await env.DB.prepare("UPDATE contacts SET phone=?, updated_at=datetime('now') WHERE id=?").bind(c.phone, r.contact_id).run().catch(() => {});
+    await addActivityV2(env, { actorId: actor, entityType: "contact", entityId: r.contact_id, action: "cr_visitor_enriched", meta: { visits: c.visits, page_views: c.page_views, last_seen: c.last_seen } }).catch(() => {});
+    // Enroll into the Identified Visitor Outreach sequence — moves the lead out of Open
+    // into Auto (an active run = 'auto' bucket). Idempotent; sends stay simulated until
+    // IV_LIVE is set (per-sequence live switch), so enrolling now sends nothing.
+    if (c.email) {
+      try { const { enrollContact } = await import("../_lib/workflow-engine.js"); const er = await enrollContact(env, { contactId: r.contact_id, conversationId: r.conv_id, source: "consentresolve", workflowId: "identified-visitor" }); if (er && er.runId && !er.skipped) enrolled++; } catch (_) {}
+    }
+    enriched++;
+  }
+  return { open_leads: leads.length, matched, enriched, apollo_matched: apolloMatched, apollo_spent: apolloSpent, enrolled };
+}
+
+export async function onRequestOptions({ request, env }) {
+  return new Response(null, { status: 204, headers: corsHeaders(request, env) });
+}
+
+export async function onRequestGet({ request, env }) {
+  const cors = corsHeaders(request, env);
+  if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);
+  if (!env.CR_API_KEY) {
+    return json({ ok: false, error: "no_api_key", message: "Set CR_API_KEY as a Cloudflare secret (your Consent Resolve public API key)." }, { status: 400 }, cors);
+  }
+  const u = new URL(request.url);
+  if (u.searchParams.get("test")) {
+    const got = await fetchContacts(env, 3);
+    if (got.error) return json({ ok: false, error: got.error }, {}, cors);
+    const rows = got.rows || [];
+    return json({
+      ok: true, sample: rows.length,
+      available_fields: rows[0] ? Object.keys(rows[0]) : [],   // EVERY field the live API returns
+      raw_contact: rows[0] || null,                             // the full first contact, verbatim
+      mapped: rows[0] ? norm(rows[0]) : null,                   // how we normalize it into the CRM
+      message: "Consent Resolve API key works.",
+    }, {}, cors);
+  }
+  if (u.searchParams.get("run")) {
+    const out = await runScheduledSync(env);
+    return json({ ok: !out.error, ...out }, out.error ? { status: 502 } : {}, cors);
+  }
+  if (u.searchParams.get("backfill")) {
+    // Enrich the /crm/app leads with CR visitor data. ?all=1 covers every non-archived
+    // lead; default is Open only.
+    const out = await backfillV2(env, { openOnly: !u.searchParams.get("all") });
+    return json({ ok: !out.error, ...out }, out.error ? { status: 502 } : {}, cors);
+  }
+  return json({ ok: true, usage: "?test=1 verify key + see fields · ?run=1 import identified visitors · ?backfill=1 enrich /crm/app Open leads (&all=1 for all)" }, {}, cors);
+}

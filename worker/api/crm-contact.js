@@ -3,7 +3,7 @@
 //   POST /api/crm/contact { id, company_name?, full_name?, title?, phone? }
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
-import { ensureCrmV2Schema, findOrCreateCompany, addActivityV2, currentUser, adminUserId } from "../_lib/crm-v2.js";
+import { ensureCrmV2Schema, findOrCreateCompany, addActivityV2, currentUser, adminUserId, stageKey, stageLabel } from "../_lib/crm-v2.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -26,11 +26,35 @@ export async function onRequestGet({ request, env }) {
   const conversations = await all("SELECT id, channel, subject, status, unread, last_message_at, last_message_preview FROM conversations WHERE contact_id=? ORDER BY COALESCE(last_message_at, updated_at) DESC", id);
   const convIds = conversations.map((c) => c.id);
   const deals = await all("SELECT id, title, value_cents, close_probability, expected_close_date, lead_status FROM deals WHERE primary_contact_id=? ORDER BY updated_at DESC", id);
+  // Stage — the single classification, derived from the latest deal (no deal → "new").
+  const stageStatus = deals.length ? deals[0].lead_status : null;
+  contact.stage = stageKey(stageStatus);
+  contact.stage_label = stageLabel(stageStatus);
   const placeholders = convIds.map(() => "?").join(",");
   const msgs = convIds.length
     ? await all("SELECT direction, channel, body_text, sent_at, created_at FROM messages WHERE conversation_id IN (" + placeholders + ") ORDER BY COALESCE(sent_at, created_at) DESC", ...convIds)
     : [];
   const notes = await all("SELECT n.body, n.created_at, u.name AS author FROM notes n LEFT JOIN users u ON u.id=n.author_id WHERE n.contact_id=? ORDER BY n.created_at DESC", id);
+
+  // ---- Communication status: newsletter, per-channel consent, do-not-contact ----
+  const email = contact.primary_email || "";
+  const consentRows = await all(
+    "SELECT channel, action FROM consent_records WHERE contact_id=? OR (email IS NOT NULL AND email!='' AND email=?) ORDER BY COALESCE(occurred_at, created_at) ASC",
+    id, email
+  );
+  const consent = {};
+  for (const c of consentRows) if (c.channel) consent[c.channel] = c.action; // ordered asc → latest wins
+  const suppressions = await all(
+    "SELECT channel, reason, source, created_at FROM suppressions WHERE contact_id=? OR (email IS NOT NULL AND email!='' AND email=?)",
+    id, email
+  );
+  const comms = {
+    newsletter_status: contact.newsletter_status || "pending",
+    repermission_step: contact.repermission_step != null ? contact.repermission_step : null,
+    consent,                                   // { email:'granted', sms:'revoked', ... }
+    suppressed: suppressions.length > 0,
+    suppressions,
+  };
   const acts = await all("SELECT a.action, a.created_at, u.name AS actor FROM activities a LEFT JOIN users u ON u.id=a.actor_id WHERE a.entity_type='contact' AND a.entity_id=? ORDER BY a.created_at DESC LIMIT 50", id);
 
   // Session-stitched pageviews: the visitor's pre-identification browsing (via cr_vid).
@@ -67,7 +91,7 @@ export async function onRequestGet({ request, env }) {
     deals: deals.length, messages: msgs.length, speed_to_lead_hours: stl, pageviews: pageviews.length,
   };
 
-  return json({ contact, company, conversations, deals, timeline, stats }, {}, cors);
+  return json({ contact, company, conversations, deals, timeline, stats, comms }, {}, cors);
 }
 
 export async function onRequestPost({ request, env }) {
@@ -82,7 +106,7 @@ export async function onRequestPost({ request, env }) {
 
   const sets = [], vals = [];
   if (b.company_name !== undefined) {
-    const companyId = await findOrCreateCompany(env, { name: String(b.company_name || "").trim() });
+    const companyId = await findOrCreateCompany(env, { name: String(b.company_name || "").trim(), allowNameOnly: true });
     sets.push("company_id=?"); vals.push(companyId);
     // keep any conversations' denormalized company_id in sync
     await env.DB.prepare("UPDATE conversations SET company_id=? WHERE contact_id=?").bind(companyId, b.id).run();

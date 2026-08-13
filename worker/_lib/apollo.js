@@ -4,10 +4,14 @@
 // contacts.enrichment / companies.enrichment so we never pay for the same record twice.
 import { FREE_EMAIL_DOMAINS, emailDomain, addActivityV2 } from "./crm-v2.js";
 
+// Trailing newline in the secret (common with `security ... -w | wrangler secret put`)
+// makes a valid Apollo key 401 — always trim before use.
+const apolloKey = (env) => String(env.APOLLO_API_KEY || "").trim();
+
 export async function apolloMatch(env, email) {
   const res = await fetch("https://api.apollo.io/api/v1/people/match", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json", "Cache-Control": "no-cache", "X-Api-Key": env.APOLLO_API_KEY },
+    headers: { "Content-Type": "application/json", Accept: "application/json", "Cache-Control": "no-cache", "X-Api-Key": apolloKey(env) },
     body: JSON.stringify({ email, reveal_personal_emails: false }),
   });
   let j = {}; try { j = await res.json(); } catch (_) {}
@@ -16,7 +20,7 @@ export async function apolloMatch(env, email) {
 
 export async function apolloOrgEnrich(env, domain) {
   const res = await fetch("https://api.apollo.io/api/v1/organizations/enrich?domain=" + encodeURIComponent(domain), {
-    headers: { Accept: "application/json", "Cache-Control": "no-cache", "X-Api-Key": env.APOLLO_API_KEY },
+    headers: { Accept: "application/json", "Cache-Control": "no-cache", "X-Api-Key": apolloKey(env) },
   });
   let j = {}; try { j = await res.json(); } catch (_) {}
   return { ok: res.ok, status: res.status, organization: j.organization || null };
