@@ -1,0 +1,21 @@
+name: Diagnose Snooze
+on:
+  workflow_dispatch: {}
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: 7caa0c227ac2d290437ecf6932b2806d
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: social_queue current state
+        run: |
+          npx wrangler d1 execute consentresolve-demo --remote --command "SELECT platform, status, COUNT(*) as n FROM social_queue GROUP BY platform, status ORDER BY platform, status"
+      - name: social_queue upcoming rows
+        run: |
+          npx wrangler d1 execute consentresolve-demo --remote --command "SELECT id, platform, status, resource_slug, scheduled_for, created_at FROM social_queue WHERE status IN ('ready_to_publish','scheduled') ORDER BY scheduled_for ASC LIMIT 30"
