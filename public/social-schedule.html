@@ -9,6 +9,7 @@
   --mint:#00e5a0; --mint-soft:rgba(0,229,160,.12); --mint-line:rgba(0,229,160,.32);
   --blue:#7cc4ff; --blue-soft:rgba(124,196,255,.12);
   --amber:#fbbf24; --amber-soft:rgba(251,191,36,.12);
+  --red:#f6708a; --red-soft:rgba(246,112,138,.12);
   --shadow: 0 18px 40px -20px rgba(0,0,0,.6);
 }
 *{box-sizing:border-box}
@@ -19,9 +20,7 @@ body{
 }
 ::selection{background:var(--mint-soft); color:var(--mint)}
 
-header{
-  max-width:1180px; margin:0 auto; padding:52px 28px 20px;
-}
+header{max-width:1180px; margin:0 auto; padding:52px 28px 20px}
 .eyebrow{
   display:inline-flex; align-items:center; gap:8px;
   font-size:11.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
@@ -34,59 +33,70 @@ h1{
   text-wrap:balance; font-weight:800;
 }
 h1 em{color:var(--mint); font-style:normal}
-header p.lede{
-  max-width:640px; color:var(--ink-dim); font-size:16px; margin:0 0 26px;
-}
+header p.lede{max-width:680px; color:var(--ink-dim); font-size:16px; margin:0 0 26px}
 
 .statrow{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:6px}
-.stat{
-  background:var(--surface); border:1px solid var(--line); border-radius:12px;
-  padding:14px 18px; min-width:132px;
-}
+.stat{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 18px; min-width:132px}
 .stat .n{font-size:24px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.01em}
 .stat .l{font-size:12px; color:var(--muted); margin-top:2px}
 
-.gap-note{
-  max-width:1180px; margin:22px auto 0; padding:0 28px;
+/* ---- track overview ---- */
+.tracks{max-width:1180px; margin:34px auto 0; padding:0 28px}
+.tracks h2{font-size:15px; margin:0 0 14px; letter-spacing:-.005em}
+.trackrow{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px}
+.tchip{
+  background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:14px 16px; display:flex; flex-direction:column; gap:6px;
 }
-.gap-note .box{
+.tchip .th{display:flex; align-items:center; justify-content:space-between; gap:8px}
+.tchip .name{font-weight:700; font-size:13.5px}
+.tchip .badge{
+  font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  border-radius:999px; padding:2px 8px;
+}
+.badge.live{color:var(--mint); background:var(--mint-soft); border:1px solid var(--mint-line)}
+.badge.gap{color:var(--amber); background:var(--amber-soft); border:1px solid rgba(251,191,36,.3)}
+.badge.parked{color:var(--red); background:var(--red-soft); border:1px solid rgba(246,112,138,.3)}
+.tchip .desc{font-size:12px; color:var(--muted); line-height:1.5}
+
+/* ---- gap / callout boxes ---- */
+.notebox{max-width:1180px; margin:22px auto 0; padding:0 28px}
+.notebox .box{
   display:flex; gap:12px; align-items:flex-start;
-  background:var(--amber-soft); border:1px solid rgba(251,191,36,.32);
   border-radius:12px; padding:14px 16px; font-size:13.5px; color:var(--ink-dim);
 }
-.gap-note .box b{color:var(--amber); font-weight:700}
-.gap-note svg{flex:0 0 auto; margin-top:1px; color:var(--amber)}
+.notebox .box.amber{background:var(--amber-soft); border:1px solid rgba(251,191,36,.32)}
+.notebox .box.red{background:var(--red-soft); border:1px solid rgba(246,112,138,.32)}
+.notebox .box b{font-weight:700}
+.notebox .box.amber b{color:var(--amber)}
+.notebox .box.red b{color:var(--red)}
+.notebox svg{flex:0 0 auto; margin-top:1px}
+.notebox .box.amber svg{color:var(--amber)}
+.notebox .box.red svg{color:var(--red)}
 
-main{max-width:1180px; margin:0 auto; padding:36px 28px 80px}
+main{max-width:1180px; margin:0 auto; padding:36px 28px 40px}
 
-.week{margin-bottom:52px}
+.week{margin-bottom:44px}
 .week-head{
   display:flex; align-items:baseline; justify-content:space-between; gap:12px;
   margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--line);
 }
 .week-head h2{font-size:19px; margin:0; letter-spacing:-.01em}
 .week-head .range{color:var(--muted); font-size:13px; font-variant-numeric:tabular-nums}
-.week-head .count{
-  font-size:11.5px; font-weight:700; letter-spacing:.04em; color:var(--muted-2);
-  text-transform:uppercase;
-}
+.week-head .count{font-size:11.5px; font-weight:700; letter-spacing:.04em; color:var(--muted-2); text-transform:uppercase}
 
-.days{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:18px}
+.days{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:18px; margin-bottom:22px}
 
 .card{
   background:var(--surface); border:1px solid var(--line); border-radius:16px;
   overflow:hidden; box-shadow:var(--shadow); display:flex; flex-direction:column;
 }
-.card-top{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:13px 16px 11px; border-bottom:1px solid var(--line-soft);
-}
+.card-top{display:flex; align-items:center; justify-content:space-between; padding:13px 16px 11px; border-bottom:1px solid var(--line-soft)}
 .date{font-weight:800; font-size:14.5px; letter-spacing:-.01em}
 .date .wd{color:var(--muted); font-weight:600; font-size:12px; margin-left:6px; text-transform:uppercase; letter-spacing:.04em}
 .slot{
   font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-  color:var(--muted-2); background:var(--surface-2); border:1px solid var(--line);
-  border-radius:999px; padding:3px 9px;
+  color:var(--muted-2); background:var(--surface-2); border:1px solid var(--line); border-radius:999px; padding:3px 9px;
 }
 
 .vidwrap{position:relative; background:#000; aspect-ratio:9/16}
@@ -111,57 +121,127 @@ main{max-width:1180px; margin:0 auto; padding:36px 28px 80px}
 }
 .plat svg{width:11px;height:11px}
 
-.caption{
-  font-size:12.5px; color:var(--ink-dim); line-height:1.55;
-  max-height:5.6em; overflow:hidden; position:relative;
-}
+.caption{font-size:12.5px; color:var(--ink-dim); line-height:1.55; max-height:5.6em; overflow:hidden; position:relative}
 .caption.expanded{max-height:none}
-.caption::after{
-  content:""; position:absolute; left:0; right:0; bottom:0; height:1.6em;
-  background:linear-gradient(transparent, var(--surface));
-  pointer-events:none;
-}
+.caption::after{content:""; position:absolute; left:0; right:0; bottom:0; height:1.6em; background:linear-gradient(transparent, var(--surface)); pointer-events:none}
 .caption.expanded::after{display:none}
-.cap-toggle{
-  align-self:flex-start; background:none; border:none; color:var(--mint);
-  font-size:11.5px; font-weight:700; cursor:pointer; padding:0; font-family:inherit;
-}
+.cap-toggle{align-self:flex-start; background:none; border:none; color:var(--mint); font-size:11.5px; font-weight:700; cursor:pointer; padding:0; font-family:inherit}
 .cap-toggle:hover{text-decoration:underline}
 
-.yt{
-  font-size:11.5px; color:var(--muted); border-top:1px solid var(--line-soft);
-  padding-top:10px; display:flex; gap:6px;
-}
+.yt{font-size:11.5px; color:var(--muted); border-top:1px solid var(--line-soft); padding-top:10px; display:flex; gap:6px}
 .yt b{color:var(--muted-2); font-weight:700; flex:0 0 auto}
 
-footer{
-  max-width:1180px; margin:0 auto; padding:0 28px 60px; color:var(--muted-2); font-size:12.5px;
+/* ---- gap state for weeks with no new reel ---- */
+.gapcard{
+  background:var(--surface-2); border:1px dashed var(--line); border-radius:16px;
+  padding:24px; text-align:center; color:var(--muted); font-size:13.5px; margin-bottom:22px;
+}
+.gapcard b{color:var(--amber); display:block; font-size:14px; margin-bottom:6px; font-weight:700}
+
+/* ---- parallel / automated tracks per week ---- */
+.parallel{
+  background:var(--surface-2); border:1px solid var(--line-soft); border-radius:14px; padding:16px 18px;
+}
+.parallel .ph{
+  display:flex; align-items:center; gap:8px; margin-bottom:12px;
+  font-size:11.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted-2);
+}
+.parallel .ph svg{width:13px;height:13px}
+.plist{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px}
+.pitem{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:11px 13px}
+.pitem .pplat{
+  font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--blue); margin-bottom:5px;
+}
+.pitem .ptitle{font-size:12.5px; font-weight:700; margin-bottom:4px; line-height:1.35}
+.pitem .phook{font-size:11.5px; color:var(--muted); line-height:1.45}
+
+footer{max-width:1180px; margin:0 auto; padding:0 28px 60px; color:var(--muted-2); font-size:12.5px; line-height:1.7}
+
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f3f6f9; --surface:#ffffff; --surface-2:#eef2f6; --line:#dbe2ea; --line-soft:#e7ecf1;
+    --ink:#0e1c2e; --ink-dim:#3c4a5c; --muted:#64748b; --muted-2:#8a97a8;
+    --mint:#00a877; --mint-soft:rgba(0,168,119,.08); --mint-line:rgba(0,168,119,.3);
+    --blue:#1d6fb8; --blue-soft:rgba(29,111,184,.08);
+    --amber:#a06a0a; --amber-soft:rgba(251,191,36,.14);
+    --red:#c23854; --red-soft:rgba(194,56,84,.1);
+    --shadow: 0 14px 30px -18px rgba(15,32,53,.28);
+  }
+}
+:root[data-theme="light"]{
+  --bg:#f3f6f9; --surface:#ffffff; --surface-2:#eef2f6; --line:#dbe2ea; --line-soft:#e7ecf1;
+  --ink:#0e1c2e; --ink-dim:#3c4a5c; --muted:#64748b; --muted-2:#8a97a8;
+  --mint:#00a877; --mint-soft:rgba(0,168,119,.08); --mint-line:rgba(0,168,119,.3);
+  --blue:#1d6fb8; --blue-soft:rgba(29,111,184,.08);
+  --amber:#a06a0a; --amber-soft:rgba(251,191,36,.14);
+  --red:#c23854; --red-soft:rgba(194,56,84,.1);
+  --shadow: 0 14px 30px -18px rgba(15,32,53,.28);
 }
 </style>
 </head><body>
 
 <header>
   <span class="eyebrow"><span class="dot"></span>Consent Resolve &middot; organic social</span>
-  <h1>10 videos, <em>one a day</em>, four platforms at once</h1>
-  <p class="lede">Proposed posting queue for the new hype-reel batch &mdash; review the order, captions, and dates below.</p>
+  <h1>The next 30 days, <em>every track</em></h1>
+  <p class="lede">Not just the new reels &mdash; everything that touches the social channels between now and mid-September: the daily hype-reel drop, what's already running on autopilot (LinkedIn, GBP), and the tracks that have quietly gone stale and need a decision.</p>
   <div class="statrow">
-    <div class="stat"><div class="n">10</div><div class="l">videos queued</div></div>
-    <div class="stat"><div class="n">10</div><div class="l">days, Aug 15&ndash;24</div></div>
-    <div class="stat"><div class="n">4</div><div class="l">platforms / post</div></div>
-    <div class="stat"><div class="n">5</div><div class="l">angles &times; 2 personas</div></div>
+    <div class="stat"><div class="n">10</div><div class="l">new reels, confirmed</div></div>
+    <div class="stat"><div class="n">20</div><div class="l">days with no reel queued</div></div>
+    <div class="stat"><div class="n">2</div><div class="l">tracks running on autopilot</div></div>
+    <div class="stat"><div class="n">2</div><div class="l">tracks gone stale</div></div>
   </div>
 </header>
 
-<div class="gap-note">
-  <div class="box">
+<div class="tracks">
+  <h2>Every track, at a glance</h2>
+  <div class="trackrow">
+    <div class="tchip">
+      <div class="th"><span class="name">Reels (TikTok/YT/IG/FB)</span><span class="badge live">Partial</span></div>
+      <div class="desc">10 new videos queued Aug 15&ndash;24. Nothing queued past that &mdash; needs a decision (repost the older catalog, or produce more).</div>
+    </div>
+    <div class="tchip">
+      <div class="th"><span class="name">FB static image cards</span><span class="badge gap">Stale</span></div>
+      <div class="desc">Last card posted Aug 1. Nothing new since &mdash; this track needs fresh production if you want it back.</div>
+    </div>
+    <div class="tchip">
+      <div class="th"><span class="name">LinkedIn Company</span><span class="badge live">Automated</span></div>
+      <div class="desc">Posts Mon/Thu via Buffer, drawn from a backlog of ~120 resource-guide articles. Running now, no action needed.</div>
+    </div>
+    <div class="tchip">
+      <div class="th"><span class="name">LinkedIn Personal</span><span class="badge gap">Human-only</span></div>
+      <div class="desc">Deliberately not automated &mdash; the founder voice doc calls for hand-written posts, ~3&times;/week. Nothing queued unless you write it.</div>
+    </div>
+    <div class="tchip">
+      <div class="th"><span class="name">Google Business Profile</span><span class="badge live">Automated</span></div>
+      <div class="desc">Posting from the same resource backlog, capped at 2/day. Running now, no action needed.</div>
+    </div>
+    <div class="tchip">
+      <div class="th"><span class="name">X / Twitter</span><span class="badge parked">Parked</span></div>
+      <div class="desc">Adapter is built but posting is on hold pending API approval. Nothing will actually go out.</div>
+    </div>
+  </div>
+</div>
+
+<div class="notebox">
+  <div class="box amber">
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-    <div><b>Queue gap:</b> the live auto-poster's schedule currently ends Aug&nbsp;1 &mdash; nothing new has gone out in about two weeks. Aug 15 is the earliest this batch can pick up.</div>
+    <div><b>Reel queue gap:</b> the auto-poster's schedule currently ends Aug 24 (after this batch). Weeks 3&ndash;4 below have no new reel content &mdash; that's a real gap, not an oversight, and needs a call: repost from the older 97-video catalog, or produce a new batch.</div>
+  </div>
+</div>
+<div class="notebox">
+  <div class="box red">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+    <div><b>FB static cards stopped Aug 1:</b> that's the original "1 image post/day" track from the plan &mdash; it was never rebuilt after the last batch ran out. Needs new card production to bring back, separate from the reels above.</div>
   </div>
 </div>
 
 <main id="weeks"></main>
 
-<footer>Auto-posts via the existing GitHub Actions scheduler (3&times;/day) to TikTok (Buffer), YouTube Shorts, Instagram Reels &amp; Facebook Reels. Slot: mid-day. FB static image posts and LinkedIn/X are separate tracks, not covered here.</footer>
+<footer>
+  Reels auto-post via the existing GitHub Actions scheduler (3&times;/day) to TikTok (via Buffer), YouTube Shorts, Instagram Reels &amp; Facebook Reels.<br>
+  LinkedIn Company &amp; GBP posts shown under "also going out this week" are real, upcoming items pulled from the live resource-guide backlog &mdash; exact day depends on the automation's own cadence, not a fixed date.<br>
+  LinkedIn Personal, X, and FB static cards are not covered by any automation right now &mdash; see the track list above.
+</footer>
 
 <script>
 const ICONS = {
@@ -206,37 +286,44 @@ const VIDEOS = [
    yt:"Own your traffic — $7 exclusive leads #Shorts"},
 ];
 
+// Real, currently-queued resource-guide posts (LinkedIn Company + GBP pull from this same
+// backlog). These are genuinely next in line — exact day depends on the automation's cadence
+// (LinkedIn Company: Mon/Thu; GBP: ~daily, capped 2/day), not a date I've assigned.
+const PARALLEL_POOL = [
+  {plat:"LinkedIn Company", title:"How to Stop Losing Jobs to Missed Calls",
+   hook:"A homeowner with a broken AC calls three companies and books the first one that answers. Every missed call is a booked job for a competitor."},
+  {plat:"Google Business Profile", title:"The Map Pack is three slots. Here's how contractors win one.",
+   hook:"Three local results capture most of the clicks in any service area. Most contractors never crack them."},
+  {plat:"LinkedIn Company", title:"How to Get More Google Reviews on Autopilot",
+   hook:"Reviews are both your top local ranking factor and the thing buyers trust most, but ‘leave us a review’ never works."},
+  {plat:"Google Business Profile", title:"How to Quote and Close More Jobs Without Dropping Your Price",
+   hook:"Racing to the bottom on price wins cheap customers who leave for the next low bidder."},
+  {plat:"LinkedIn Company", title:"How to Identify Anonymous Website Visitors the Consent-First Way",
+   hook:"Even a great website loses the visitors who never fill out the form."},
+  {plat:"Google Business Profile", title:"How to Market to the Neighbors After Every Job",
+   hook:"Every job site sits in front of 20 homes with the same roof, pipes, or HVAC age."},
+];
+
 function fmtDate(iso){
   const parts = iso.split("-").map(Number);
   return new Date(parts[0], parts[1]-1, parts[2]).toLocaleDateString("en-US", {month:"short", day:"numeric"});
 }
-
 function platChips(){
-  return ["tk","yt","ig","fb"].map(function(p){
-    return '<span class="plat">' + ICONS[p] + PLATNAMES[p] + '</span>';
-  }).join("");
+  return ["tk","yt","ig","fb"].map(function(p){ return '<span class="plat">'+ICONS[p]+PLATNAMES[p]+'</span>'; }).join("");
 }
-
 function dayCard(v){
-  return '<div class="card">' +
-    '<div class="card-top">' +
-      '<span class="date">' + fmtDate(v.date) + '<span class="wd">' + v.wd + '</span></span>' +
-      '<span class="slot">mid slot</span>' +
-    '</div>' +
-    '<div class="vidwrap">' +
-      '<span class="angle-chip">' + v.angle + '</span>' +
-      '<video src="' + R2 + v.slug + '.mp4" controls playsinline preload="metadata"></video>' +
-    '</div>' +
-    '<div class="meta">' +
-      '<div class="title-row"><span class="name">' + v.name + '</span><span class="persona">' + v.persona + '</span></div>' +
-      '<div class="platforms">' + platChips() + '</div>' +
-      '<div class="caption" id="cap-' + v.slug + '">' + v.caption.replace(/\n/g,"<br>") + '</div>' +
-      '<button class="cap-toggle" onclick="toggleCap(\'' + v.slug + '\', this)">Show full caption</button>' +
-      '<div class="yt"><b>YT title</b><span>' + v.yt + '</span></div>' +
-    '</div>' +
-  '</div>';
+  return '<div class="card">'+
+    '<div class="card-top"><span class="date">'+fmtDate(v.date)+'<span class="wd">'+v.wd+'</span></span><span class="slot">mid slot</span></div>'+
+    '<div class="vidwrap"><span class="angle-chip">'+v.angle+'</span>'+
+      '<video src="'+R2+v.slug+'.mp4" controls playsinline preload="metadata"></video></div>'+
+    '<div class="meta">'+
+      '<div class="title-row"><span class="name">'+v.name+'</span><span class="persona">'+v.persona+'</span></div>'+
+      '<div class="platforms">'+platChips()+'</div>'+
+      '<div class="caption" id="cap-'+v.slug+'">'+v.caption.replace(/\n/g,"<br>")+'</div>'+
+      '<button class="cap-toggle" onclick="toggleCap(\''+v.slug+'\', this)">Show full caption</button>'+
+      '<div class="yt"><b>YT title</b><span>'+v.yt+'</span></div>'+
+    '</div></div>';
 }
-
 function toggleCap(slug, btn){
   var el = document.getElementById('cap-'+slug);
   var now = el.classList.toggle('expanded');
@@ -244,20 +331,37 @@ function toggleCap(slug, btn){
 }
 window.toggleCap = toggleCap;
 
+function parallelBlock(items){
+  return '<div class="parallel">'+
+    '<div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>Also going out this week (automated, real backlog items)</div>'+
+    '<div class="plist">'+items.map(function(it){
+      return '<div class="pitem"><div class="pplat">'+it.plat+'</div><div class="ptitle">'+it.title+'</div><div class="phook">'+it.hook+'</div></div>';
+    }).join("")+
+    '</div></div>';
+}
+
+function gapCard(msg){
+  return '<div class="gapcard"><b>No new reel scheduled</b>'+msg+'</div>';
+}
+
 function render(){
   var weeks = [
-    {label:"Week 1", range:"Aug 15 – 21", items: VIDEOS.slice(0,7)},
-    {label:"Week 2", range:"Aug 22 – 24", items: VIDEOS.slice(7,10)},
+    {label:"Week 1", range:"Aug 15 – 21", videos: VIDEOS.slice(0,7), parallel: PARALLEL_POOL.slice(0,2)},
+    {label:"Week 2", range:"Aug 22 – 28", videos: VIDEOS.slice(7,10), parallel: PARALLEL_POOL.slice(2,4), gapAfter:true},
+    {label:"Week 3", range:"Aug 29 – Sep 4", videos: [], parallel: PARALLEL_POOL.slice(4,6), gap:true},
+    {label:"Week 4", range:"Sep 5 – 11", videos: [], parallel: PARALLEL_POOL.slice(0,2), gap:true},
   ];
   var root = document.getElementById('weeks');
   root.innerHTML = weeks.map(function(w){
-    return '<section class="week">' +
-      '<div class="week-head">' +
-        '<h2>' + w.label + '</h2>' +
-        '<span class="range">' + w.range + '</span>' +
-        '<span class="count">' + w.items.length + ' post' + (w.items.length===1?'':'s') + '</span>' +
-      '</div>' +
-      '<div class="days">' + w.items.map(dayCard).join("") + '</div>' +
+    var reelSection = w.videos.length
+      ? '<div class="days">'+w.videos.map(dayCard).join("")+'</div>'
+      : gapCard(w.gap ? " — the batch of 10 runs out before this week. Repost the older catalog or produce more to fill it." : "");
+    var gapNote = w.gapAfter ? gapCard(" for the rest of this week (Aug 25–28) — the batch of 10 runs out mid-week.") : "";
+    return '<section class="week">'+
+      '<div class="week-head"><h2>'+w.label+'</h2><span class="range">'+w.range+'</span>'+
+      '<span class="count">'+(w.videos.length ? w.videos.length+' new reel'+(w.videos.length===1?'':'s') : 'no new reels')+'</span></div>'+
+      reelSection + gapNote +
+      parallelBlock(w.parallel) +
     '</section>';
   }).join("");
 }
