@@ -984,10 +984,21 @@ export async function onRequestPost({ request, env }) {
 }
 
 // Snooze sweep (BUILD-PLAN P1-10): resurface due conversations. Called from the cron.
+//
+// snooze_until is stored via `new Date(...).toISOString()` (applyStatus, above), which is JS ISO
+// 8601: "2026-08-14T16:00:00.000Z" (T separator, milliseconds, Z suffix). SQLite's datetime('now')
+// returns its own native format: "2026-08-14 16:00:00" (space separator, no ms, no Z). Comparing
+// those two as raw strings is a lexicographic compare, and 'T' (0x54) sorts AFTER ' ' (0x20) — so
+// on any snooze due the SAME UTC calendar day, snooze_until<=datetime('now') is false regardless
+// of the actual time, and only starts matching once the date digits themselves roll past midnight.
+// julianday() parses both sides into a real numeric Julian day value first, so the comparison is
+// numeric time, not string order.
+export const SWEEP_SNOOZED_SQL =
+  "UPDATE conversations SET status='open', unread=1, updated_at=datetime('now') " +
+  "WHERE status='snoozed' AND snooze_until IS NOT NULL AND julianday(snooze_until)<=julianday('now')";
+
 export async function sweepSnoozed(env) {
   await ensureCrmV2Schema(env);
-  const r = await env.DB.prepare(
-    "UPDATE conversations SET status='open', unread=1, updated_at=datetime('now') WHERE status='snoozed' AND snooze_until IS NOT NULL AND snooze_until<=datetime('now')"
-  ).run();
+  const r = await env.DB.prepare(SWEEP_SNOOZED_SQL).run();
   return (r.meta && r.meta.changes) || 0;
 }
