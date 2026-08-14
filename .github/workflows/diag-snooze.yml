@@ -13,9 +13,12 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - name: Overdue snoozed conversations right now
+      - name: Before - open conversations with stale snooze_until
         run: |
-          npx wrangler d1 execute consentresolve-demo --remote --command "SELECT id, status, snooze_until, unread, updated_at, datetime('now') as now_dt, (julianday(snooze_until) <= julianday('now')) as should_be_due FROM conversations WHERE status='snoozed' AND snooze_until IS NOT NULL AND julianday(snooze_until)<=julianday('now') ORDER BY snooze_until ASC LIMIT 20"
-      - name: All currently snoozed (for context)
+          npx wrangler d1 execute consentresolve-demo --remote --command "SELECT id, status, snooze_until, snooze_note, updated_at FROM conversations WHERE status='open' AND snooze_until IS NOT NULL"
+      - name: One-time backfill - clear stale snooze fields on already-open conversations
         run: |
-          npx wrangler d1 execute consentresolve-demo --remote --command "SELECT id, status, snooze_until, updated_at FROM conversations WHERE status='snoozed' ORDER BY snooze_until ASC LIMIT 30"
+          npx wrangler d1 execute consentresolve-demo --remote --command "UPDATE conversations SET snooze_until=NULL, snooze_note=NULL WHERE status='open' AND snooze_until IS NOT NULL"
+      - name: After - confirm none remain
+        run: |
+          npx wrangler d1 execute consentresolve-demo --remote --command "SELECT COUNT(*) as remaining FROM conversations WHERE status='open' AND snooze_until IS NOT NULL"
