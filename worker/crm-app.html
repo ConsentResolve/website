@@ -3780,7 +3780,14 @@ async function prospApolloPicker(id, disp){
       +'</div></div>' : '';
   const cf=r.claude_fallback||null;
   if(!r.candidates||!r.candidates.length){
-    const emptyMsg=(cf&&cf.used)?('Apollo had nobody at '+escP(r.domain||'')+', and a live web search couldn\'t verify an owner or email either.'):('No contacts came back for '+escP(r.domain||'')+'.');
+    // Distinguish "we searched and found nobody" from "the web-search fallback never ran" —
+    // collapsing these into one generic message is exactly what made a missing ANTHROPIC_API_KEY
+    // silent and undiagnosable from the UI.
+    let emptyMsg;
+    if(cf&&cf.used){ emptyMsg='Apollo had nobody at '+escP(r.domain||'')+', and a live web search couldn\'t verify an owner or email either.'; }
+    else if(cf&&cf.reason==='no_api_key'){ emptyMsg='Apollo had nobody at '+escP(r.domain||'')+'. The web-search fallback didn\'t run — ANTHROPIC_API_KEY isn\'t configured on the server.'; }
+    else if(cf&&cf.reason&&cf.reason!=='no_domain'){ emptyMsg='Apollo had nobody at '+escP(r.domain||'')+'. The web-search fallback tried to run but hit an error: '+escP(String(cf.reason)); }
+    else { emptyMsg='No contacts came back for '+escP(r.domain||'')+'.'; }
     body.innerHTML=franchise+orgStats+'<div class="papollo-empty">'+emptyMsg+'</div>'+failFoot; return;
   }
   const total=r.total||r.candidates.length, dmCount=r.candidates.filter(c=>c.dm&&c.has_email).length;

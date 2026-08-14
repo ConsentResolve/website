@@ -95,7 +95,8 @@ const SONNET5_MODEL = "claude-sonnet-5";
 const SONNET5_IN = 3 / 1e6, SONNET5_OUT = 15 / 1e6;
 
 export async function claudeFindOwner(env, domain, companyName) {
-  if (!env.ANTHROPIC_API_KEY || !domain) return { used: false };
+  if (!domain) return { used: false, reason: "no_domain" };
+  if (!env.ANTHROPIC_API_KEY) return { used: false, reason: "no_api_key" };
   const prompt = `Find the owner or a real decision-maker's name and email for the business at ${domain}${companyName ? ` ("${companyName}")` : ""}. Search their website (About/Contact/Team pages), Google, LinkedIn, and any public business registry. Prefer a named person over a generic info@ address. Never invent or guess an email — only report one you actually found on a real page, and cite where via source_url. If you can't verify a name or email, use null for that field rather than guessing.
 
 Do the research silently. Your final reply must be ONLY one line of strict JSON — no preamble, no explanation, no markdown fences, nothing before or after it:

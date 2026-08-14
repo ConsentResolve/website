@@ -813,9 +813,14 @@ async function apolloSearchFallback(env, b, cors) {
   const p = await env.DB.prepare("SELECT id, name, domain FROM prospects WHERE id=?").bind(b.id).first().catch(() => null);
   if (!p) return json({ ok: false, error: "not_found" }, { status: 404 }, cors);
   if (!p.domain) return json({ ok: false, error: "no_domain" }, { status: 400 }, cors);
-  const cf = await claudeFindOwner(env, p.domain, p.name).catch(() => null);
+  const cf = await claudeFindOwner(env, p.domain, p.name).catch((e) => ({ used: false, error: String(e) }));
   let candidates = [];
-  const claudeFallback = (cf && cf.used) ? { used: true, found: !!cf.found, cost_usd: cf.cost_usd || 0 } : null;
+  // Keep the not-used case visible to the frontend too — otherwise "never ran" (missing
+  // ANTHROPIC_API_KEY, a network error) and "ran but found nobody" both collapse to the same
+  // generic empty state, which is exactly what made this silent to diagnose.
+  const claudeFallback = (cf && cf.used)
+    ? { used: true, found: !!cf.found, cost_usd: cf.cost_usd || 0 }
+    : { used: false, reason: (cf && (cf.reason || cf.error)) || "unknown" };
   if (cf && cf.used && cf.found) {
     candidates = [{
       apollo_id: "claude:" + p.domain,
