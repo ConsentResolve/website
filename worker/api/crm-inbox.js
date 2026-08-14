@@ -1000,8 +1000,14 @@ export async function onRequestPost({ request, env }) {
 // of the actual time, and only starts matching once the date digits themselves roll past midnight.
 // julianday() parses both sides into a real numeric Julian day value first, so the comparison is
 // numeric time, not string order.
+// Also clears snooze_until/snooze_note on resurface. The frontend's "⏰ DUE" reminder badge
+// (crm-app.html remOverdue()) is computed client-side purely from whether snooze_until is SET
+// and in the past — it does not check status. Leaving the old timestamp in place after flipping
+// status to 'open' meant a correctly-resurfaced conversation kept showing a permanent, stuck
+// "overdue" badge forever, which is exactly what reads as "the sweep isn't working" even though
+// status genuinely did flip.
 export const SWEEP_SNOOZED_SQL =
-  "UPDATE conversations SET status='open', unread=1, updated_at=datetime('now') " +
+  "UPDATE conversations SET status='open', unread=1, snooze_until=NULL, snooze_note=NULL, updated_at=datetime('now') " +
   "WHERE status='snoozed' AND snooze_until IS NOT NULL AND julianday(snooze_until)<=julianday('now')";
 
 export async function sweepSnoozed(env) {

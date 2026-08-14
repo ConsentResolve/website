@@ -17,19 +17,20 @@ function freshDb() {
     id TEXT PRIMARY KEY,
     status TEXT NOT NULL DEFAULT 'open',
     snooze_until TEXT,
+    snooze_note TEXT,
     unread INTEGER DEFAULT 0,
     updated_at TEXT
   )`);
   return db;
 }
 
-function insertConvo(db, { id, status, snoozeUntil }) {
-  db.prepare("INSERT INTO conversations (id, status, snooze_until, unread, updated_at) VALUES (?,?,?,0,'2020-01-01')")
-    .run(id, status, snoozeUntil);
+function insertConvo(db, { id, status, snoozeUntil, snoozeNote }) {
+  db.prepare("INSERT INTO conversations (id, status, snooze_until, snooze_note, unread, updated_at) VALUES (?,?,?,?,0,'2020-01-01')")
+    .run(id, status, snoozeUntil, snoozeNote || null);
 }
 
 function statusOf(db, id) {
-  return db.prepare("SELECT status, unread FROM conversations WHERE id=?").get(id);
+  return db.prepare("SELECT status, unread, snooze_until, snooze_note FROM conversations WHERE id=?").get(id);
 }
 
 test("a snooze due in the past (same UTC calendar day) resurfaces to Open", () => {
@@ -44,6 +45,24 @@ test("a snooze due in the past (same UTC calendar day) resurfaces to Open", () =
 
   assert.equal(row.status, "open", "a same-day past-due snooze must resurface to Open");
   assert.equal(row.unread, 1, "resurfacing should mark it unread again");
+});
+
+test("resurfacing clears snooze_until/snooze_note so the reminder badge doesn't stick forever", () => {
+  // Real bug found live: the frontend's overdue "⏰ DUE" badge (crm-app.html remOverdue()) is
+  // computed client-side from whether snooze_until is set and in the past — NOT from status.
+  // The original fix flipped status to open but left the old timestamp in place, so a
+  // correctly-resurfaced conversation kept showing a permanent stuck "overdue" badge, which
+  // read as "the sweep still isn't working" even though status genuinely did flip.
+  const db = freshDb();
+  const dueAnHourAgo = new Date(Date.now() - 3600_000).toISOString();
+  insertConvo(db, { id: "c1", status: "snoozed", snoozeUntil: dueAnHourAgo, snoozeNote: "call back about pricing" });
+
+  db.exec(SWEEP_SNOOZED_SQL);
+  const row = statusOf(db, "c1");
+
+  assert.equal(row.status, "open");
+  assert.equal(row.snooze_until, null, "snooze_until must be cleared, not just status flipped");
+  assert.equal(row.snooze_note, null, "snooze_note must be cleared too");
 });
 
 test("a snooze due in the future stays snoozed", () => {
