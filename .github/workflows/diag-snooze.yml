@@ -13,9 +13,6 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - name: social_queue current state
+      - name: sample upcoming rows per platform
         run: |
-          npx wrangler d1 execute consentresolve-demo --remote --command "SELECT platform, status, COUNT(*) as n FROM social_queue GROUP BY platform, status ORDER BY platform, status"
-      - name: social_queue upcoming rows
-        run: |
-          npx wrangler d1 execute consentresolve-demo --remote --command "SELECT id, platform, status, resource_slug, scheduled_for, created_at FROM social_queue WHERE status IN ('ready_to_publish','scheduled') ORDER BY scheduled_for ASC LIMIT 30"
+          npx wrangler d1 execute consentresolve-demo --remote --command "SELECT platform, resource_slug, resource_type, status, scheduled_at, payload FROM social_queue WHERE platform IN ('linkedin_company','linkedin_personal','google_business_profile','x') AND status IN ('scheduled') ORDER BY scheduled_at ASC LIMIT 15"
