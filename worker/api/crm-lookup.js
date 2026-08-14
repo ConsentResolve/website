@@ -17,8 +17,11 @@ import { normDomain, dataforseoLookup, dfsBacklinks, dfsTech, dfsGmb, MARKETPLAC
 import { scoreProspect } from "../_lib/prospect-score.js";
 
 const APOLLO_COST = (env) => Number(env.APOLLO_COST_PER_LOOKUP || 0.03);
-// Claude Haiku pricing (USD per token) — cheap extraction model.
-const CLAUDE_IN = 1 / 1e6, CLAUDE_OUT = 5 / 1e6, CLAUDE_MODEL = "claude-haiku-4-5-20251001";
+// Sonnet 5 + live web_search — same model/tool combo apollo-prospect.js's claudeFindOwner
+// already proves works for this data (owner name/email off-site). Haiku with zero web access
+// was the old approach here; it could only see 1-3 pre-fetched pages of the domain's own site,
+// so anything not on those pages (owner name, socials, directories, agency credit) was a guess.
+const CLAUDE_IN = 3 / 1e6, CLAUDE_OUT = 15 / 1e6, CLAUDE_MODEL = "claude-sonnet-5";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -131,9 +134,9 @@ async function gatherInbound(env, contactId) {
 // hours, license, and whether the site is run by a marketing agency (#3).
 async function claudeEnrich(env, domain, siteText, inboundText) {
   if (!env.ANTHROPIC_API_KEY) return { used: false, cost: 0 };
-  const prompt = `You are a B2B sales researcher enriching a home-service contractor lead for "${domain}". Use the WEBSITE PAGES and the lead's own INBOUND MESSAGES below. Extract everything a salesperson could act on. Prefer facts stated in the messages over guesses. If a field is unknown, use null (or [] for lists). Do NOT invent data.
+  const prompt = `You are a B2B sales researcher enriching a home-service contractor lead for "${domain}". Start from the WEBSITE PAGES and the lead's own INBOUND MESSAGES below — they're already fetched and free. Use the web_search tool for anything NOT covered there: the owner/decision-maker's name, socials, directory listings (Yelp/BBB/Nextdoor), reviews/rating count, or who built/runs the site. Search the way a human researcher would — the business's own About/Contact/Team page, Google, LinkedIn, Facebook, BBB, and public registries. Extract everything a salesperson could act on. Prefer facts stated in the messages over guesses, and never invent or guess a name/email/phone you didn't actually find on a real page — cite nothing you can't verify. If a field is unknown after searching, use null (or [] for lists). Do NOT invent data.
 
-Return STRICT JSON only, no prose:
+Do any web searching FIRST, silently. Once you're done researching, your final reply must be STRICT JSON only — no prose, no markdown fences, nothing before or after it:
 {
   "company_name": "<official business name or null>",
   "trade": "<primary trade, e.g. HVAC, roofing, plumbing, or null>",
@@ -172,18 +175,43 @@ ${(siteText || "").slice(0, 14000)}
 
 INBOUND MESSAGES FROM THIS LEAD:
 ${(inboundText || "(none)").slice(0, 8000)}`;
+  const timeout = AbortSignal.timeout(45000); // web_search rounds take longer than a plain completion
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 3200, messages: [{ role: "user", content: prompt }] }),
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: 4096,
+        tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 4 }],
+        messages: [{ role: "user", content: prompt }],
+      }),
+      signal: timeout,
     });
     const j = await r.json();
     const usage = j.usage || {};
     const cost = (usage.input_tokens || 0) * CLAUDE_IN + (usage.output_tokens || 0) * CLAUDE_OUT;
+    // With web_search enabled the response interleaves server_tool_use / web_search_tool_result
+    // blocks before the final text block, so the answer is no longer reliably content[0]. Collect
+    // every text block, then extract the JSON object out of it rather than assuming the whole
+    // string is clean JSON — the model sometimes narrates its search before the object.
+    const text = ((j.content || []).filter((b) => b && b.type === "text").map((b) => b.text || "").join("\n")).trim();
     let data = {};
-    try { data = JSON.parse((j.content && j.content[0] && j.content[0].text || "{}").replace(/^```json\s*|\s*```$/g, "")); } catch (_) {}
-    return { used: true, cost, data };
+    try { data = JSON.parse(text.replace(/^```json\s*|\s*```$/g, "")); } catch (_) {
+      // Fallback: scan for the largest brace-balanced {...} blob in the text (same technique
+      // apollo-prospect.js's claudeFindOwner uses) rather than silently returning {}.
+      let best = null;
+      for (let i = 0; i < text.length; i++) {
+        if (text[i] !== "{") continue;
+        let depth = 0;
+        for (let k = i; k < text.length; k++) {
+          if (text[k] === "{") depth++;
+          else if (text[k] === "}") { depth--; if (depth === 0) { const cand = text.slice(i, k + 1); if (!best || cand.length > best.length) best = cand; break; } }
+        }
+      }
+      if (best) { try { data = JSON.parse(best); } catch (_) {} }
+    }
+    return { used: true, cost, data, error: r.ok ? null : ((j.error && j.error.message) || `HTTP ${r.status}`) };
   } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
 }
 
