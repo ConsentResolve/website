@@ -15,6 +15,7 @@ import { enrichContactById } from "../_lib/apollo.js";
 // Prospecting sweep use one implementation and can never drift (see worker/api/prospecting.js).
 import { normDomain, dataforseoLookup, dfsBacklinks, dfsTech, dfsGmb, MARKETPLACES, TECH_BUCKETS } from "../_lib/dataforseo.js";
 import { scoreProspect } from "../_lib/prospect-score.js";
+import { reportAiOutcome } from "../_lib/ai-credits.js";
 
 const APOLLO_COST = (env) => Number(env.APOLLO_COST_PER_LOOKUP || 0.03);
 // Sonnet 5 + live web_search — same model/tool combo apollo-prospect.js's claudeFindOwner
@@ -225,7 +226,9 @@ ${(inboundText || "(none)").slice(0, 8000)}`;
       }
       if (best) { try { data = JSON.parse(best); } catch (_) {} }
     }
-    return { used: true, cost, data, error: r.ok ? null : ((j.error && j.error.message) || `HTTP ${r.status}`) };
+    const errMsg = r.ok ? null : ((j.error && j.error.message) || `HTTP ${r.status}`);
+    await reportAiOutcome(env, { ok: r.ok, error: errMsg, source: "crm-lookup.claudeEnrich" });
+    return { used: true, cost, data, error: errMsg };
   } catch (e) { return { used: false, cost: 0, error: String(e).slice(0, 120) }; }
 }
 

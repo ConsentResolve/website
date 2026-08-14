@@ -71,6 +71,13 @@ body { margin:0; background:var(--surface-0); color:var(--tx-1);
 html,body{height:100%}
   body{display:flex;flex-direction:column;overflow:hidden}
   .top{display:flex;align-items:center;gap:14px;height:52px;padding:0 16px;background:var(--surface-1);border-bottom:1px solid var(--line);flex:0 0 auto}
+  .aicredits-bar{display:none;align-items:center;gap:10px;padding:8px 16px;background:var(--bad);color:#fff;font-size:var(--t-13,13px);font-weight:600;flex:0 0 auto}
+  .aicredits-bar.show{display:flex}
+  .aicredits-bar .aic-ico{font-size:16px;line-height:1}
+  .aicredits-bar .aic-msg{flex:1}
+  .aicredits-bar .aic-since{font-weight:500;opacity:.85}
+  .aicredits-bar button{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:var(--r-full,999px);padding:3px 10px;font-size:12px;font-weight:700;cursor:pointer}
+  .aicredits-bar button:hover{background:rgba(255,255,255,.28)}
   .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-family:var(--font-display);letter-spacing:-.01em}
   .brand .mk{width:22px;height:22px;border-radius:6px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-size:13px}
   .brand small{color:var(--tx-3);font-weight:600;font-family:var(--font-sans)}
@@ -1515,6 +1522,12 @@ html,body{height:100%}
 </style>
 </head>
 <body>
+  <div class="aicredits-bar" id="aicredits-bar">
+    <span class="aic-ico">⚠</span>
+    <span class="aic-msg">AI search is broken — Claude API credits are exhausted. Ask someone to add more Claude credits ASAP.</span>
+    <span class="aic-since" id="aicredits-since"></span>
+    <button onclick="dismissAiCreditsBar()" title="Dismiss for this session">Dismiss</button>
+  </div>
   <div class="top">
     <div class="brand"><span class="mk">✓</span>Consent Resolve <small>CRM</small></div>
     <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="crmsearch" class="searchin" type="search" autocomplete="off" placeholder="Search name, company, email, message…" oninput="onSearch(this.value)"><kbd>⌘K</kbd></div>
@@ -4981,6 +4994,28 @@ function opsRepGroups(R){
 }
 function opsSort(rows,st){ if(!st.sort)return rows; const g={company:d=>(d.company||d.name||'').toLowerCase(),owner:d=>d.owner?d.owner.name:'zz',comm:d=>d._comm,prob:d=>d.prob||0,value:d=>d.value_usd||0,intel:d=>d.est_spend||(d.intel&&d.intel.visits)||d.score||0,age:d=>d._a.h||0}; const f=g[st.sort]; if(!f)return rows; return [...rows].sort((a,b)=>{const x=f(a),y=f(b);return (x>y?1:x<y?-1:0)*st.dir;}); }
 
+// Persistent top-nav alert when any Claude API call has hit "credit balance too low" (see
+// worker/_lib/ai-credits.js). Self-clears the next time window.AI_CREDITS.low comes back
+// false from a bootstrap refresh (i.e. once credits are topped up and a call succeeds) —
+// the session-only Dismiss button just hides it locally without touching that server state.
+var _aiCreditsDismissed = false;
+function renderAiCreditsBar(){
+  var el = document.getElementById('aicredits-bar');
+  if (!el) return;
+  var ac = window.AI_CREDITS;
+  var low = !!(ac && ac.low);
+  if (low && !_aiCreditsDismissed) {
+    el.classList.add('show');
+    var s = document.getElementById('aicredits-since');
+    // ac.since is SQLite's datetime('now') format ("YYYY-MM-DD HH:MM:SS", space, UTC, no
+    // offset) — needs the 'T' + 'Z' JS Date() actually parses reliably.
+    if (s) { try { s.textContent = ac.since ? ('since ' + new Date(ac.since.replace(' ', 'T') + 'Z').toLocaleTimeString([], {hour:'numeric', minute:'2-digit'})) : ''; } catch(_) { s.textContent = ''; } }
+  } else {
+    el.classList.remove('show');
+    if (!low) _aiCreditsDismissed = false; // credits recovered — re-arm for next time
+  }
+}
+function dismissAiCreditsBar(){ _aiCreditsDismissed = true; renderAiCreditsBar(); }
 function opsToast(msg){ let t=document.getElementById('ops-toast'); if(!t){ t=document.createElement('div'); t.id='ops-toast'; t.className='ops-toast'; document.body.appendChild(t);} t.textContent=msg; t.classList.add('show'); clearTimeout(t._to); t._to=setTimeout(()=>t.classList.remove('show'),2200); }
 function opsMeetingPopover(btn){
   document.querySelectorAll('.ops-pop').forEach(x=>x.remove());

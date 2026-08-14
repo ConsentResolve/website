@@ -7,6 +7,7 @@ import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed } from "../_lib/crm.js";
 import { currentUser, addActivityV2 } from "../_lib/crm-v2.js";
 import { waveFunnel } from "../_lib/instantly.js";
+import { reportAiOutcome } from "../_lib/ai-credits.js";
 
 const MODEL = "claude-haiku-4-5-20251001";
 const ENGINE_WF = "('cold-to-demo','reengage')";
@@ -95,7 +96,13 @@ Keep it under 180 words. No preamble, no restating the numbers back.`;
       headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({ model: MODEL, max_tokens: 700, messages: [{ role: "user", content: prompt }] }),
     });
-    const j = await r.json();
+    const j = await r.json().catch(() => null);
+    if (!r.ok || !j) {
+      const errMsg = (j && j.error && j.error.message) || `HTTP ${r.status}`;
+      await reportAiOutcome(env, { ok: false, error: errMsg, source: "crm-seq-report.aiCompare" });
+      return "Analysis failed: " + errMsg;
+    }
+    await reportAiOutcome(env, { ok: true, source: "crm-seq-report.aiCompare" });
     return (j.content && j.content[0] && j.content[0].text) || "No analysis returned.";
   } catch (e) { return "Analysis failed: " + String(e).slice(0, 100); }
 }

@@ -15,6 +15,7 @@ import { getByEmail } from "../_lib/db.js";
 import { progressFor } from "../_lib/demo-notify.js";
 import { addSuppression, isSuppressed, logEvent, recordConsent } from "../_lib/crm-rebuild.js";
 import { getUserSettings } from "../_lib/user-settings.js";
+import { reportAiOutcome } from "../_lib/ai-credits.js";
 
 // Recognize a delivery-failure (DSN / bounce) email so we can suppress the dead address
 // instead of ingesting the mailer-daemon notice as a normal inbound conversation.
@@ -148,7 +149,13 @@ ${String(text).slice(0, 4000)}`;
       headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({ model: REPLY_MODEL, max_tokens: 200, messages: [{ role: "user", content: prompt }] }),
     });
-    const j = await r.json();
+    const j = await r.json().catch(() => null);
+    if (!r.ok || !j) {
+      const errMsg = (j && j.error && j.error.message) || `HTTP ${r.status}`;
+      await reportAiOutcome(env, { ok: false, error: errMsg, source: "crm-inbox.classifyReply" });
+      return { sentiment: "neutral", followup_date: null };
+    }
+    await reportAiOutcome(env, { ok: true, source: "crm-inbox.classifyReply" });
     let d = {}; try { d = JSON.parse(((j.content && j.content[0] && j.content[0].text) || "{}").replace(/^```json\s*|\s*```$/g, "")); } catch (_) {}
     const s = ["positive", "not_interested", "bad_timing", "neutral"].includes(d.sentiment) ? d.sentiment : "neutral";
     return { sentiment: s, followup_date: d.followup_date || null };

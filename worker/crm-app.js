@@ -70,6 +70,7 @@ window.CRM_LIVE_PENDING = true; // set before restoreView runs → data views sh
     // Persisted Task-tab state — rehydrate found{} + done Set so a refresh keeps the work.
     if (d.TASKSTATE && window.TASKSTATE) { for (const k in d.TASKSTATE) { const s = d.TASKSTATE[k] || {}; window.TASKSTATE[k] = { found: s.found || {}, done: new Set(s.done || []) }; } }
     if (d.ANALYTICS && d.ANALYTICS.kpis) window.ANALYTICS = d.ANALYTICS;
+    if (d.AI_CREDITS) { window.AI_CREDITS = d.AI_CREDITS; if (window.renderAiCreditsBar) window.renderAiCreditsBar(); }
     if (d.me && window.DATA) { window.DATA.me = d.me; if (window.applyMe) window.applyMe(); }
     if (d.DATA_CONVERSATIONS && d.DATA_CONVERSATIONS.length && window.DATA) {
       window.DATA.conversations = d.DATA_CONVERSATIONS;
@@ -110,4 +111,25 @@ window.CRM_LIVE_PENDING = true; // set before restoreView runs → data views sh
     if (window.console) console.warn('crm/app: live-data swap failed, reverted to fixtures', e);
   }
 })();
+
+// Live refresh: the inbox list was otherwise NEVER re-fetched after the initial load, so
+// server-side changes that happen while a tab sits open (snoozes resurfacing, new inbound
+// messages) never appeared without a manual reload — that's what made the Snooze/Remind fix
+// look "still broken" even after it started working correctly on the backend. Polls every
+// 60s, only touches the list + counts + the AI-credits banner (never the open detail pane),
+// so it can't interrupt whatever Tyler's actually reading.
+setInterval(async () => {
+  try {
+    var r = await fetch('/api/crm/app', { credentials: 'same-origin', cache: 'no-store' });
+    if (!r.ok) return;
+    var d = await r.json();
+    if (d.AI_CREDITS) { window.AI_CREDITS = d.AI_CREDITS; if (window.renderAiCreditsBar) window.renderAiCreditsBar(); }
+    if (d.DATA_CONVERSATIONS && window.DATA) {
+      window.DATA.conversations = d.DATA_CONVERSATIONS;
+      if (d.DATA_COUNTS) window.DATA.counts = d.DATA_COUNTS;
+      if (window.recount) window.recount();
+      if (window.renderList && window.curFilter) window.renderList(window.curFilter());
+    }
+  } catch (_) { /* a missed refresh just tries again in 60s */ }
+}, 60000);
 </script>`;

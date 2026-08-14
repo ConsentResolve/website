@@ -15,6 +15,7 @@ import { computeSources } from "../_lib/sitespy.js";
 import { listSpyLeads } from "./crm-spy.js";
 import { IV_RAW } from "../_lib/iv-sequence.js";
 import { buildAnalytics } from "../_lib/analytics.js";
+import { getAiCreditsStatus } from "../_lib/ai-credits.js";
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -515,6 +516,8 @@ export async function onRequestGet({ request, env }) {
     }
   } catch (_) {}
 
+  const AI_CREDITS = await getAiCreditsStatus(env);
+
   return json({
     ok: true,
     me: meOut,
@@ -525,6 +528,7 @@ export async function onRequestGet({ request, env }) {
     SITESPY, NURTURE, SITE_SOURCES, SPY_LEADS, PIPELINE, ANALYTICS,
     inbox: { buckets },
     funnel,
+    AI_CREDITS,
     generated_at: new Date().toISOString(),
     _note: "real-data slices for the rebuild UI + migration verification; growing per screen",
   }, {}, cors);

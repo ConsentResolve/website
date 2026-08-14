@@ -17,6 +17,7 @@
 // Requires the API key to have People Search + People Enrichment in its scope.
 import { json, corsHeaders } from "../_lib/http.js";
 import { crmAuthed, upsertLead, addActivity, ensureCrmSchema } from "../_lib/crm.js";
+import { reportAiOutcome } from "../_lib/ai-credits.js";
 
 const KEY = (env) => String(env.APOLLO_API_KEY || "").trim();
 
@@ -115,7 +116,12 @@ Do the research silently. Your final reply must be ONLY one line of strict JSON 
       signal: timeout,
     });
     const d = await r.json().catch(() => null);
-    if (!r.ok || !d) return { used: false, error: (d && d.error && d.error.message) || `HTTP ${r.status}` };
+    if (!r.ok || !d) {
+      const errMsg = (d && d.error && d.error.message) || `HTTP ${r.status}`;
+      await reportAiOutcome(env, { ok: false, error: errMsg, source: "apollo-prospect.claudeFindOwner" });
+      return { used: false, error: errMsg };
+    }
+    await reportAiOutcome(env, { ok: true, source: "apollo-prospect.claudeFindOwner" });
     const text = (d.content || []).filter((b) => b.type === "text").map((b) => b.text || "").join("\n");
     // Fast path: the model followed instructions and the JSON is the literal last line. Fallback:
     // it added trailing prose anyway (common even with explicit "nothing else on that line"
