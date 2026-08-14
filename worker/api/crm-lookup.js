@@ -93,14 +93,28 @@ export function parseSite(domain, html) {
 // ---- fetch a few high-signal pages (home + contact/about) -------------------
 // The old lookup read ONE page; a "tell me everything" answer needs the pages
 // where humans actually put names, phones, hours, and service areas.
-const EXTRA_PATHS = ["/contact", "/contact-us", "/about", "/about-us", "/our-team", "/team"];
+// Grouped by CATEGORY, not a flat list: "/contact" is a substring of "/contact-us", so a flat
+// list + slice(0,2) let two variants of the SAME category (e.g. both contact paths matching a
+// "/contact-us/" href) burn the whole page budget, starving the about-us fetch entirely — which
+// is exactly where an owner's name/bio usually lives. One pick per category guarantees contact
+// AND about both get a shot whenever the homepage links to both, regardless of which suffix style
+// (bare vs "-us") the site happens to use.
+const EXTRA_CATEGORIES = [["/contact-us", "/contact"], ["/about-us", "/about"], ["/our-team", "/team"]];
+function pickExtraPaths(low) {
+  const picked = [];
+  for (const group of EXTRA_CATEGORIES) {
+    const hit = group.find((p) => low.includes(p.replace(/^\//, "")));
+    if (hit) picked.push(hit);
+  }
+  return picked;
+}
 async function fetchPages(domain) {
   const home = await fetchSite(domain);
   const pages = [{ path: "/", html: home.html }];
   if (home.ok && home.html) {
     // Only chase links the homepage actually references, so we don't burn time on 404s.
     const low = home.html.toLowerCase();
-    const wanted = EXTRA_PATHS.filter((p) => low.includes(p.replace(/^\//, "")) ).slice(0, 2);
+    const wanted = pickExtraPaths(low);
     for (const p of wanted) {
       const r = await fetchSite(domain + p).catch(() => null);
       if (r && r.ok && r.html) pages.push({ path: p, html: r.html });
