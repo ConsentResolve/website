@@ -2,12 +2,15 @@ name: Deploy to Cloudflare
 
 # A reliable deploy that runs on GitHub's own runners — independent of the Cloudflare
 # Workers Builds pipeline (which can stall when its monthly build-minute quota is spent).
-# Trigger it from the Actions tab → "Run workflow", or with `gh workflow run deploy.yml`.
+# Runs automatically on every push to main; also triggerable from the Actions tab →
+# "Run workflow", or with `gh workflow run deploy.yml`, for a manual re-deploy.
 #
 # One-time setup: add a repo secret CLOUDFLARE_API_TOKEN (Settings → Secrets and variables →
 # Actions), a token scoped to the Consent Resolve account with Edit Workers + D1:Edit + R2:Edit.
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch: {}
 
 permissions:
