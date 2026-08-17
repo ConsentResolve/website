@@ -3561,7 +3561,7 @@ async function prospRetryDeletedToday(btn){
 }
 window.prospRetryDeletedToday=prospRetryDeletedToday;
 function prospList(){
-  let list=PROSP.prospects||[];
+  let list=(PROSP.prospects||[]).filter(p=>!(p.score!=null&&p.score<=10));
   if(!list.length) return '<div class="idash-empty" style="padding:48px;text-align:center;color:var(--tx-3)">No prospects yet. Run a sweep above to build your list.</div>';
   return list.map(prospCard).join('');
 }
