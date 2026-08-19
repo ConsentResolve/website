@@ -91,8 +91,34 @@ async function markBounced(env, email) {
     try { const row = await env.DB.prepare("SELECT contact_id FROM contact_identifiers WHERE type='email' AND value=? LIMIT 1").bind(email).first(); contactId = row && row.contact_id; } catch (_) {}
     await logEvent(env, { type: "email_bounced", contactId: contactId || undefined, channel: "email", meta: { email, kind: "hard" } }).catch(() => {});
     if (contactId) await addActivityV2(env, { entityType: "contact", entityId: contactId, action: "email_bounced", meta: { email } }).catch(() => {});
+    // Surfacing: suppression alone is silent — nobody sees a dead lead unless it shows up
+    // somewhere they're already looking. Land it in the inbox (open, so it's in the normal
+    // flow, not a separate archive) with an unmissable subject + system message.
+    if (contactId) await flagBouncedInInbox(env, { contactId, email }).catch(() => {});
     return true;
   } catch (_) { return false; }
+}
+
+async function flagBouncedInInbox(env, { contactId, email }) {
+  const c = await env.DB.prepare("SELECT full_name, company_id FROM contacts WHERE id=?").bind(contactId).first();
+  if (!c) return;
+  const existing = await env.DB.prepare(
+    "SELECT id FROM conversations WHERE contact_id=? ORDER BY created_at LIMIT 1"
+  ).bind(contactId).first();
+  const noteText = `⛔ Email bounced — ${email} — address not found. This lead is dead; don't continue outreach to this address.`;
+  if (existing) {
+    await env.DB.prepare(
+      "UPDATE conversations SET subject='⛔ Bounced — ' || COALESCE(subject, ?), status='open', unread=1, last_message_at=datetime('now'), last_message_preview=?, updated_at=datetime('now') WHERE id=?"
+    ).bind(c.full_name || email, noteText, existing.id).run().catch(() => {});
+    await sysNote(env, existing.id, noteText);
+  } else {
+    const convId = ulid();
+    await env.DB.prepare(
+      `INSERT INTO conversations (id, contact_id, company_id, channel, source_detail, status, unread, subject, last_message_at, last_message_preview, assignee_id)
+       VALUES (?, ?, ?, 'email', 'bounce', 'open', 1, ?, datetime('now'), ?, NULL)`
+    ).bind(convId, contactId, c.company_id || null, `⛔ Bounced — ${c.full_name || email}`, noteText).run().catch(() => {});
+    await sysNote(env, convId, noteText);
+  }
 }
 
 // Ingest recent inbox mail for one connected account into conversations/messages.
