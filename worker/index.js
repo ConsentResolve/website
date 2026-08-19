@@ -96,6 +96,7 @@ import * as crmLookup from "./api/crm-lookup.js";
 import * as crmTasks from "./api/crm-tasks.js";
 import * as crmProspecting from "./api/prospecting.js";
 import { processProspectRuns } from "./api/prospecting.js";
+import * as prospectingGojiberry from "./api/prospecting-gojiberry.js";
 import * as crmAgency from "./api/crm-agency.js";
 import { runRepermission, runReengagement } from "./_lib/newsletter.js";
 import * as crmInbox from "./api/crm-inbox.js";
@@ -216,6 +217,7 @@ const ROUTES = {
   "/api/crm/activity": crmActivity,
   "/api/crm/single-task": crmSingleTask,
   "/api/crm/prospecting": crmProspecting,
+  "/api/crm/prospecting/gojiberry": prospectingGojiberry,
   "/api/crm/agency": crmAgency,
   "/api/crm/inbox": crmInbox,
   "/api/crm/instantly": crmInstantly,
