@@ -552,13 +552,16 @@ export async function onRequestPost({ request, env }) {
     if (!conv) return json({ error: "not_found" }, { status: 404 }, cors);
     const me = await currentUser(request, env);
     const authorId = me ? me.id : null;
-    // FROM identity for outbound email. Leads should see the responding rep (e.g. "Tyler
-    // Spurlock") over the shared hello@ mailbox — never the mailbox's default send-as, which
-    // was rendering as "Aaron <aaron@consentresolve.com>". We set From explicitly (the same
-    // trick the IV sequence uses) so display name = who's replying and the address is hello@.
+    // FROM identity for outbound email. Each rep now has their OWN connected mailbox
+    // (aaron@/andy@/tyler@/jason@getconsentresolve.com) — a reply should send as the person
+    // actually replying, both the display name AND the address, not a shared hello@ mailbox
+    // with just the name swapped (that was the old workaround, before individual mailboxes
+    // existed, and it meant every reply physically sent via whichever account was first in
+    // CRM_INBOX_EMAILS regardless of who clicked send — e.g. Tyler's replies going out as Aaron).
     let repName = (me && me.name) || "";
     if (!repName) { const _a = await env.DB.prepare("SELECT name FROM users WHERE role='admin' AND active=1 ORDER BY created_at LIMIT 1").first(); repName = (_a && _a.name) || "Consent Resolve"; }
-    const fromEmail = `${repName.replace(/["<>\r\n,]/g, " ").trim()} <hello@consentresolve.com>`;
+    const senderAccount = (me && me.email) || conv.channel_account_id || inboxAccounts(env)[0];
+    const fromEmail = `${repName.replace(/["<>\r\n,]/g, " ").trim()} <${senderAccount}>`;
     // Personal email signature from the sending rep's Account settings (Settings → Account →
     // "Email signature"). Appended to the EMAIL body only — never to SMS. It's plain text from a
     // textarea, so escape it and convert newlines to <br> for the HTML part.
@@ -608,7 +611,7 @@ export async function onRequestPost({ request, env }) {
     if (want === "email") {
       if (!email) return json({ error: "no_recipient", message: "No email address on file for this contact." }, { status: 400 }, cors);
       if (await isSuppressed(env, { contactId: conv.contact_id, email, channel: "email" })) return json({ error: "suppressed", message: "This contact opted out of email." }, { status: 400 }, cors);
-      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, emailText, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail, ...(emailHtmlSig ? { html: emailHtmlSig } : {}) });
+      const res = await sendMessage(env, senderAccount, email, subj, emailText, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail, ...(emailHtmlSig ? { html: emailHtmlSig } : {}) });
       if (res.error) return await failSend(env, conv.id, "email", res.error, res.error, cors);
       externalId = res.id; sentVia = "email";
     } else if (want === "sms") {
@@ -620,7 +623,7 @@ export async function onRequestPost({ request, env }) {
     } else if (conv.channel === "email" || conv.channel === "identified") {
       // Native default: identified visitors + email threads reply by email to the address on file.
       if (!email) return json({ error: "no_recipient" }, { status: 400 }, cors);
-      const res = await sendMessage(env, conv.channel_account_id || inboxAccounts(env)[0], email, subj, emailText, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail, ...(emailHtmlSig ? { html: emailHtmlSig } : {}) });
+      const res = await sendMessage(env, senderAccount, email, subj, emailText, conv.channel === "email" ? conv.external_thread_id : null, { cc: CC_TEAM, from: fromEmail, ...(emailHtmlSig ? { html: emailHtmlSig } : {}) });
       if (res.error) return await failSend(env, conv.id, "email", res.error, res.error, cors);
       externalId = res.id; sentVia = "email";
     } else if (conv.channel === "meta_lead" || conv.channel === "demo_form") {
