@@ -295,6 +295,15 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
+    // crm.consentresolve.com — same Worker/deployment as the marketing site for now
+    // (see docs/crm/PARTNER-INTEGRATIONS.md-era note: full split to its own Worker
+    // is a later project). Root "/" is a convenience redirect into the CRM app shell;
+    // everything else (API routes, /crm/app/* sub-routes) already works unmodified
+    // since crm-app.js only ever fetches same-origin relative paths.
+    if (url.hostname === "crm.consentresolve.com" && url.pathname === "/") {
+      return Response.redirect(new URL("/crm/app", url.origin).toString(), 302);
+    }
+
     // AEO telemetry — fire-and-forget. No-ops unless the request is an AI bot
     // crawl or an AI-answer-engine referral, so normal traffic pays nothing.
     ctx.waitUntil(logAeoTelemetry(env, request).catch(() => {}));

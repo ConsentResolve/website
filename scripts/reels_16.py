@@ -19,7 +19,17 @@ from video_scripts import VOICE, LOOK
 
 LEAH_VOICE = "1d92f4e36247492d9ad806b59fd3434a"
 LEAH_LOOK = "de4dc68d9cb249219aa96287c458bae4"
+# The ONLY two characters approved for /ugc-ads content (illustrative spokesperson
+# framing, no fabricated testimonials — see docs/creative/ugc-review-2026-07-20.md).
+# Same avatar/voice ids as scripts/gen_ugc_ads.py's PERSONAS — "female" is the exact
+# talent used in the winning "hype-goldmine" ad. Do not use the named-employee cast
+# below (aaron/jason/tyler/leah) for anything destined for /ugc-ads or paid social —
+# those are a separate, older reel library (01-16) with different personas.
 CAST = {
+    "female": ("4539ede585ef4bc9acaf5507cc0caca5", "cnba46Sxk9eo8IxAVZPB", "Female spokesperson (Goldmine)"),
+    "male":   ("6730bfaabcff4ae7b1f3a084d02d7220", "urkfEElESZnoxkPYMPiq", "Male spokesperson"),
+    # --- older, employee-cast library (01-16 + this session's 17-20 test) — NOT for
+    # /ugc-ads or paid social use per the 2026-08-13 correction above.
     "aaron": (LOOK["aaron_office"], VOICE["aaron"], "Aaron · Co-Founder & CMO"),
     "jason": (LOOK["jason_truck"],  VOICE["jason"], "Jason · COO"),
     "tyler": (LOOK["tyler_lawn"],   VOICE["tyler"], "Tyler · Account Manager"),
@@ -185,6 +195,64 @@ REELS = {
  (15,18,"ASSET","spin",N,"Their name! What they wanted! Right in your inbox!","name + intent"),
  (18,22,"ASSET","slash",N,"And how much? NOT a hundred-plus... seven bucks. Flat. Yours alone!","$7 · yours alone"),
  (22,26,"AVATAR",N,N,"And no, we will NOT cold-call 'em. They call you. Wild, I know.","warm inbound"),
+]},
+# --- 2026-08-13 speed test: same proven hook ("You're already paying for the
+# clicks") as the live winning ad, new supporting copy, reusing already-
+# illustrated assets from reels 01/02/03 (no new Recraft art for this batch —
+# isolates video-assembly time from asset-design time).
+"17": {"avatar":"tyler","title":"Seven Bucks Beats Free","hook":"You're already paying for the clicks.","scenes":[
+ (0,3,"HOOK","hookcard",N,"You're already paying for the clicks that hit your site. So why are 98 of them worth nothing?","You're already paying for the clicks."),
+ (3,6,"ASSET","ghosts",N,"Ninety-eight out of a hundred visitors just leave. No name, nothing to follow up on.","98 = ghosts"),
+ (6,9,"AVATAR",N,N,"That's not a traffic problem. It's a follow-up problem.",""),
+ (9,13,"ASSET","gate",N,"The second someone accepts your consent banner, that's permission to reach out.","consent = the gate"),
+ (13,17,"ASSET","leadcard",N,"We hand you their name and email back — a real, consented lead.","real name + email"),
+ (17,20,"AVATAR",N,N,"Exclusive. Never resold. Seven bucks flat.","$7 · exclusive"),
+ (20,24,"ASSET","code",N,"One line of code, about three minutes to set up.","one line of code"),
+ (24,27,"AVATAR",N,N,"Tap the link and see who you're already missing.","consentresolve.com/demo"),
+]},
+"18": {"avatar":"jason","title":"The Receipt Nobody Asks For","hook":"Where'd that lead actually come from?","scenes":[
+ (0,3,"HOOK","hookcard",N,"Ever get a lead and just trust it was legit? Here's why you shouldn't have to.","Where'd that lead actually come from?"),
+ (3,7,"AVATAR",N,N,"Every lead we hand you starts with them tapping Accept on your own consent banner.","consent first"),
+ (7,10,"ASSET","banner",N,"Nothing happens until they say yes. Not a guess. Not a scrape.","consent first"),
+ (10,14,"ASSET","receipt",N,"Every reveal is timestamped and signed. You get a receipt.","timestamped + signed"),
+ (14,18,"AVATAR",N,N,"So when someone says they never asked for this, you've got the record.","on the record"),
+ (18,21,"ASSET","accept",N,"That's the whole difference between a lead and a real introduction.",""),
+ (21,25,"AVATAR",N,N,"Consent-first isn't the slow way. It's the only way that holds up.","consentresolve.com/demo"),
+]},
+"19": {"avatar":"leah","title":"Ad Spend, Then Nothing","hook":"You already paid for that click.","scenes":[
+ (0,3,"HOOK","hookcard",N,"You already paid for that click. So what actually happened after they landed?","You already paid for that click."),
+ (3,6,"AVATAR",N,N,"Say a hundred people land on your site this month from that spend.","100 visitors"),
+ (6,9,"ASSET","ghosts",N,"Ninety-eight of them leave without a trace. No name, no way to follow up.","98 = ghosts"),
+ (9,12,"AVATAR",N,N,"You already paid for every one of those visits. Every one.",""),
+ (12,16,"ASSET","gate",N,"A visitor's only anonymous until they accept your own consent banner.","consent = the gate"),
+ (16,19,"ASSET","leadcard",N,"The second they do, you get a real name and a real email.","real name + email"),
+ (19,22,"AVATAR",N,N,"Exclusive to you. Never resold. Seven bucks, flat.","$7 · exclusive"),
+ (22,25,"AVATAR",N,N,"Stop asking how much traffic you get. Ask how many you can call back.","consentresolve.com/demo"),
+]},
+# --- 2026-08-13 speed test, one-at-a-time: fresh mechanic (quiz format, not yet
+# used in this batch) + untested persona (Aaron). Reuses card1/card2/card3/reveal
+# from reel 09 — same generic numbered-card assets, new statements.
+"20": {"avatar":"aaron","title":"Two Truths and a Lie: Pricing","hook":"Two truths and a lie about what this costs you.","scenes":[
+ (0,3,"HOOK","hookcard",N,"Two truths and a lie about what this actually costs you. Can you spot the lie?","Two truths and a lie about what this costs you."),
+ (3,7,"ASSET","card1",N,"One. It's a flat seven bucks a lead. No monthly fee, no setup fee.","#1"),
+ (7,11,"ASSET","card2",N,"Two. Every lead is exclusive to you. Never resold to a competitor.","#2"),
+ (11,15,"ASSET","card3",N,"Three. We guarantee every lead books the job.","#3"),
+ (15,18,"AVATAR",N,N,"Take a second. Which one's the lie?","which one?"),
+ (18,22,"ASSET","reveal",N,"It's three. We never guarantee a booking. Just a real, consented lead.","#3 = the lie"),
+ (22,26,"AVATAR",N,N,"What they do with it is on them. What you get from us is real. Seven bucks, flat.","consentresolve.com/demo"),
+]},
+# --- 2026-08-13 CORRECTED remake of reel 17: identical script, only the character
+# changes — tyler (wrong, employee cast) -> female (right, the actual /ugc-ads +
+# winning-ad persona). This is the "did I understand" check.
+"21": {"avatar":"female","title":"Seven Bucks Beats Free (v2 — correct persona)","hook":"You're already paying for the clicks.","scenes":[
+ (0,3,"HOOK","hookcard",N,"You're already paying for the clicks that hit your site. So why are 98 of them worth nothing?","You're already paying for the clicks."),
+ (3,6,"ASSET","ghosts",N,"Ninety-eight out of a hundred visitors just leave. No name, nothing to follow up on.","98 = ghosts"),
+ (6,9,"AVATAR",N,N,"That's not a traffic problem. It's a follow-up problem.",""),
+ (9,13,"ASSET","gate",N,"The second someone accepts your consent banner, that's permission to reach out.","consent = the gate"),
+ (13,17,"ASSET","leadcard",N,"We hand you their name and email back — a real, consented lead.","real name + email"),
+ (17,20,"AVATAR",N,N,"Exclusive. Never resold. Seven bucks flat.","$7 · exclusive"),
+ (20,24,"ASSET","code",N,"One line of code, about three minutes to set up.","one line of code"),
+ (24,27,"AVATAR",N,N,"Tap the link and see who you're already missing.","consentresolve.com/demo"),
 ]},
 }
 

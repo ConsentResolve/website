@@ -15,6 +15,11 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 from reels_16 import REELS, CAST, CTA
+# female/male (the only /ugc-ads-approved personas) use ElevenLabs-cloned voices, which
+# HeyGen can't resolve as a native voice_id — same reason gen_ugc_ads.py generates VO on
+# the ElevenLabs side first, then uploads it as an audio asset for HeyGen to animate over.
+from gen_ugc_ads import el_tts, hg_upload_audio
+ELEVENLABS_PERSONAS = {"female", "male"}
 KEY = open("/tmp/heygen_key.txt").read().strip()
 FF, FP = "/opt/homebrew/bin/ffmpeg", "/opt/homebrew/bin/ffprobe"
 DISP = str(ROOT / "scripts/.fonts/Bricolage.ttf"); SANS = str(ROOT / "scripts/.fonts/Hanken.ttf")
@@ -40,18 +45,53 @@ def fit(d, t, fp, hi, lo, mw):
     while s > lo and d.textlength(t, font=ImageFont.truetype(fp, s)) > mw: s -= 2
     return ImageFont.truetype(fp, max(14, s))
 
-def render_heygen(reel, d):
-    look, voice, _name = CAST[REELS[reel]["avatar"]]
-    src = str(d / "src.mp4"); srt = str(d / "cap.srt")
-    if Path(src).exists() and Path(srt).exists() and Path(src).stat().st_size > 80000:
-        print("  (cached HeyGen render)", flush=True); return src, srt
+def _full_vo_text(reel):
     parts = []
     for sc in REELS[reel]["scenes"]:
         t = (sc[5] or "").strip()
         if not t: continue
         if t[-1] not in ".!?…": t += "."   # guarantee a sentence pause between lines
         parts.append(t)
-    full = "  ".join(parts)
+    return "  ".join(parts)
+
+def render_heygen(reel, d):
+    avatar_key = REELS[reel]["avatar"]
+    look, voice, _name = CAST[avatar_key]
+    src = str(d / "src.mp4"); srt = str(d / "cap.srt")
+    if Path(src).exists() and Path(srt).exists() and Path(src).stat().st_size > 80000:
+        print("  (cached HeyGen render)", flush=True); return src, srt
+    full = _full_vo_text(reel)
+
+    if avatar_key in ELEVENLABS_PERSONAS:
+        # ElevenLabs VO first (word-timed SRT comes from here, not HeyGen), then upload
+        # the audio and have HeyGen animate the avatar over it — talking_photo_id first,
+        # falling back to avatar_id, matching gen_ugc_ads.py's own retry order.
+        mp3 = str(d / "vo.mp3")
+        el_tts(voice, full, mp3, srt)
+        audio_asset_id = hg_upload_audio(mp3)
+        if not audio_asset_id: raise RuntimeError("heygen audio upload failed")
+        vurl = None
+        for ctype in ("talking_photo", "avatar"):
+            char = {"type": ctype, ("talking_photo_id" if ctype == "talking_photo" else "avatar_id"): look,
+                    "use_avatar_iv_model": True, "talking_style": "expressive", "super_resolution": True}
+            if ctype == "avatar": char["avatar_style"] = "normal"
+            body = {"caption": False, "video_inputs": [{"character": char,
+                    "voice": {"type": "audio", "audio_asset_id": audio_asset_id}}],
+                    "dimension": {"width": W, "height": H}}
+            vid = (api("https://api.heygen.com/v2/video/generate", body).get("data") or {}).get("video_id")
+            if not vid: continue
+            for _ in range(120):
+                st = api(f"https://api.heygen.com/v1/video_status.get?video_id={vid}").get("data") or {}
+                if st.get("status") == "completed": vurl = st.get("video_url"); break
+                if st.get("status") == "failed": break
+                time.sleep(10)
+            if vurl: break
+        if not vurl: raise RuntimeError("no video_url (tried talking_photo + avatar)")
+        urllib.request.urlretrieve(vurl, src)
+        return src, srt
+
+    # Native HeyGen TTS path — the older employee-cast personas (aaron/jason/tyler/leah),
+    # which use real HeyGen voice_ids, not ElevenLabs ones.
     body = {"caption": True, "video_inputs": [{"character": {"type": "talking_photo", "talking_photo_id": look,
             "use_avatar_iv_model": True, "talking_style": "expressive", "super_resolution": True,
             "expressiveness": "high", "custom_motion_prompt": MOTION},
