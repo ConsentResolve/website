@@ -7,8 +7,11 @@
 // that target — Gojiberry pushes one lead per call, we land it in the SAME
 // `prospects` table as a DataForSEO sweep or CSV import, tagged to a single
 // standing "Gojiberry" run so it shows up in the Prospecting tab unchanged.
-// Existing dispositions (Open/Sequence/Newsletter/Instantly/Whales/Skip) work on
-// these leads exactly like any other prospect — nothing about that flow changes.
+// Every lead that lands here is pushed straight into the Open pipeline (a real
+// contact + conversation in the CRM inbox, auto-assigned to "gojiberry" as the
+// actor) — Gojiberry has already done the qualifying, so these skip the manual
+// Process/triage step the rest of the Prospecting tab uses. DataForSEO scoring
+// still runs in the background for context, it just doesn't gate the promotion.
 //
 // Auth: X-CR-Automation-Key header (or ?key= query param, since some webhook
 // senders can't set custom headers) must equal env CR_AUTOMATION_KEY — the SAME
@@ -21,7 +24,9 @@
 // inspection. Tighten the field mapping once real payloads are seen.
 import { json, corsHeaders } from "../_lib/http.js";
 import { normDomain } from "../_lib/dataforseo.js";
-import { ensureProspectingSchema, processProspectRuns } from "./prospecting.js";
+import { ensureProspectingSchema, processProspectRuns, executeDisposition } from "./prospecting.js";
+
+const GOJIBERRY_ACTOR = "gojiberry";
 
 const GOJIBERRY_RUN_ID = "pr_run_gojiberry_inbound";
 
@@ -130,8 +135,32 @@ export async function onRequestPost({ request, env, ctx }) {
       JSON.stringify({ has_site: true, gojiberry: gojiberrySignal }), JSON.stringify(["tam"])).run().catch(() => {});
   }
 
-  // Drain the waterfall immediately (same pattern as CSV import) so this lead is
-  // scored right away instead of sitting unenriched until the next 5-min cron tick.
+  await env.DB.prepare("UPDATE prospects SET disposition='open', disposition_by=?, disposition_at=datetime('now') WHERE id=?")
+    .bind(GOJIBERRY_ACTOR, prospectId).run().catch(() => {});
+  const promoted = await executeDisposition(env, prospectId, "open", GOJIBERRY_ACTOR).catch((e) => ({ kind: "failed", error: String(e) }));
+  if (promoted.kind !== "failed") {
+    await env.DB.prepare("UPDATE prospects SET disposition_meta=?, updated_at=datetime('now') WHERE id=?")
+      .bind(JSON.stringify(promoted.meta || {}), prospectId).run().catch(() => {});
+    // The conversation note from promoteCore doesn't know about Gojiberry's specific
+    // contact — attach that context (who to actually reach out to, and why they're hot)
+    // so whoever opens this conversation isn't just staring at a bare company name.
+    if (promoted.conversation_id) {
+      const contactBits = [
+        contactName ? `Contact: ${contactName}${title ? ` (${title})` : ""}` : null,
+        email ? `Email: ${email}` : null,
+        linkedin ? `LinkedIn: ${linkedin}` : null,
+        intentReason ? `Signal: ${intentReason}` : null,
+      ].filter(Boolean);
+      if (contactBits.length) {
+        await env.DB.prepare("INSERT INTO notes (id, author_id, conversation_id, contact_id, body) VALUES (?,?,?,?,?)")
+          .bind(rid("nt_"), null, promoted.conversation_id, (promoted.meta && promoted.meta.contact_id) || null,
+            `🔗 Gojiberry lead — ${contactBits.join(" · ")}`).run().catch(() => {});
+      }
+    }
+  }
+
+  // Drain the waterfall in the background so this lead's score/tier fill in for
+  // context — it's informational only now, it doesn't gate the Open promotion above.
   ctx.waitUntil((async () => {
     for (let i = 0; i < 4; i++) {
       const out = await processProspectRuns(env, { maxDomains: 5 }).catch(() => null);
@@ -140,5 +169,8 @@ export async function onRequestPost({ request, env, ctx }) {
   })());
 
   return json({ ok: true, prospect_id: prospectId, domain, existing: !!existing,
-    message: existing ? "Matched an existing prospect — Gojiberry signal attached." : "New prospect created — enriching now." }, {}, cors);
+    conversation_id: promoted.conversation_id || null, contact_id: (promoted.meta && promoted.meta.contact_id) || null,
+    opened: promoted.kind !== "failed",
+    message: promoted.kind === "failed" ? "Prospect saved, but couldn't open a conversation: " + (promoted.error || "unknown error")
+      : "Landed in Open." }, {}, cors);
 }

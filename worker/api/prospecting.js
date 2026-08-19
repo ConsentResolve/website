@@ -730,7 +730,7 @@ async function pushDispositions(env, b, actorId, ctx, cors) {
 // Open/Sequence/Newsletter run live; Instantly is STAGED (recorded, not sent). Returns
 // { kind, meta, conversation_id } — `kind` is an `out`-counter key (open|sequence|newsletter|
 // instantly_staged|skip|failed).
-async function executeDisposition(env, prospectId, disposition, actorId) {
+export async function executeDisposition(env, prospectId, disposition, actorId) {
   if (disposition === "skip") return { kind: "skip", meta: { skipped: true } };
   if (disposition === "instantly") return { kind: "instantly_staged", meta: { staged: "instantly", note: "Instantly push staged — not sent" } };
   if (disposition === "whale") return await queueWhale(env, prospectId, actorId); // queue only — no conversation
