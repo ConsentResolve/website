@@ -14,6 +14,8 @@ jobs:
       - run: npm install
       - name: Check bounce state for sarah.scholl@frisbyconstruction.com
         run: |
+          echo "=== conversation(s) for this contact ==="
+          npx wrangler d1 execute consentresolve-demo --remote --command "SELECT id, status, channel, subject, unread, last_message_preview, updated_at FROM conversations WHERE contact_id='ct_abb3msnpmsp5bwtn'" --json
           echo "=== suppressions table ==="
           npx wrangler d1 execute consentresolve-demo --remote --command "SELECT * FROM suppressions WHERE email='sarah.scholl@frisbyconstruction.com'" --json
           echo "=== legacy crm_suppressions ==="
