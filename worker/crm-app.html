@@ -1606,6 +1606,7 @@ html,body{height:100%}
         <button data-f="auto">Auto <span class="n">5</span></button>
         <button data-f="nurture" title="Cold leads on ongoing newsletter touchpoints">Nurture <span class="n">0</span></button>
         <button data-f="snoozed">Snoozed <span class="n">1</span></button>
+        <button data-f="suppressed" title="Reviewed and archived — out of Open for good">Archived <span class="n">0</span></button>
         <button data-f="all">All <span class="n">14</span></button>
         <select id="sortsel" class="sortsel" title="Sort the list" onchange="setSort(this.value)">
           <option value="newest">Newest</option>
@@ -2361,9 +2362,13 @@ let replyOpen=false, ATTACH=[];
 function actBar(c){
   const o=ownerOf(c);
   const asg = o ? '👤 '+esc(o.name.split(' ')[0]) : '＋ Assign';
+  const archBtn = c.bucket==='suppressed'
+    ? `<button class="rc-act" onclick="restoreArchive('${c.id}')" title="Bring back into Open">↩ Restore</button>`
+    : `<button class="rc-act" onclick="archiveConv('${c.id}')" title="Reviewed, fine as-is — out of Open for good (not a timer like Remind)">🗄 Archive</button>`;
   return `<span class="rc-actbar">
     <button class="rc-act" onclick="openRemind('${c.id}')" title="Set a reminder / callback">⏰ Remind</button>
     <button class="rc-act" onclick="assignConv('${c.id}',event)" title="Assign a rep">${asg}</button>
+    ${archBtn}
     <button class="rc-act danger" onclick="deleteConv('${c.id}')" title="Delete conversation">🗑 Delete</button>
   </span>`;
 }
@@ -2390,16 +2395,10 @@ function composer(c){
     ? `<div class="chswitch">${avail.map(ch=>`<button class="chseg ${ch===cur?'on':''}" onclick="event.stopPropagation();setReplyCh('${c.id}','${ch}')"><span class="ci">${CHICON[ch]}</span>${CHWORD[ch]}</button>`).join('')}</div>`
     : `<span class="rvia-chip"><span class="ci">${CHICON[cur]}</span>${CHWORD[cur]}</span>`;
   if(!replyOpen){
-    const o=ownerOf(c);
-    const asg = o ? '👤 '+esc(o.name.split(' ')[0]) : '＋ Assign';
     return `<div class="rcollapse">
       <button class="rbtn-reply" onclick="openReply()">${IC.reply}&nbsp;Reply</button>
       <span class="rvia-lbl">Send via</span>${chToggle}
-      <span class="rc-actbar">
-        <button class="rc-act" onclick="openRemind('${c.id}')" title="Set a reminder / callback">⏰ Remind</button>
-        <button class="rc-act" onclick="assignConv('${c.id}',event)" title="Assign a rep">${asg}</button>
-        <button class="rc-act danger" onclick="deleteConv('${c.id}')" title="Delete conversation">🗑 Delete</button>
-      </span>
+      ${actBar(c)}
     </div>`;
   }
   const sw = chToggle;
@@ -2607,13 +2606,14 @@ const ANOTE = {
   off:   `<b>Automation off.</b> Outreach isn't permitted for this contact.`
 };
 function recount(){
-  const n={open:0,auto:0,snoozed:0,nurture:0};
+  const n={open:0,auto:0,snoozed:0,nurture:0,suppressed:0};
   DATA.conversations.forEach(c=>{ if(c.bucket in n) n[c.bucket]++; });
-  DATA.counts.open=n.open; DATA.counts.auto=n.auto; DATA.counts.snoozed=n.snoozed; DATA.counts.nurture=n.nurture;
+  DATA.counts.open=n.open; DATA.counts.auto=n.auto; DATA.counts.snoozed=n.snoozed; DATA.counts.nurture=n.nurture; DATA.counts.suppressed=n.suppressed;
   document.querySelector('.filters [data-f=open] .n').textContent=n.open;
   document.querySelector('.filters [data-f=auto] .n').textContent=n.auto;
   const nu=document.querySelector('.filters [data-f=nurture] .n'); if(nu) nu.textContent=n.nurture;
   document.querySelector('.filters [data-f=snoozed] .n').textContent=n.snoozed;
+  const ar=document.querySelector('.filters [data-f=suppressed] .n'); if(ar) ar.textContent=n.suppressed;
   document.querySelector('.filters [data-f=all] .n').textContent=DATA.conversations.length;
 }
 /* snooze / delete a conversation */
@@ -2728,6 +2728,33 @@ function deleteConv(id){
   if(!document.getElementById('pipelineview').hidden) renderPipeline();
 }
 window.deleteConv=deleteConv;
+/* Archive — permanently out of Open, unlike Snooze (no wake-up timer). Reviewed & fine
+   (e.g. a Gojiberry lead you're happy letting Gojiberry keep working on its own) but you
+   never want it cluttering Open again. Unlike Delete, nothing is destroyed and a real
+   reply from the contact still flips it back to Open automatically (crm-inbox.js resets
+   status='open' on inbound) — this only suppresses it from YOUR side. */
+function archiveConv(id){
+  const c=DATA.conversations.find(x=>x.id===id); if(!c) return;
+  c._prevBucket=c.bucket; c.bucket='suppressed'; c.snooze_until=null; c.snooze_note=null;
+  postStatus(id,{status:'archived'});
+  recount();
+  const f=curFilter();
+  if(sel===id){ const nx=DATA.conversations.find(x=>x.id!==id&&(f==='all'?true:x.bucket===f));
+    if(nx) select(nx.id); else renderList(f); }
+  else renderList(f);
+  if(window.crmToast) crmToast('Archived — out of Open. Restore anytime from the Archived filter.');
+  if(window._focusMode) focusAdvance();
+}
+window.archiveConv=archiveConv;
+function restoreArchive(id){
+  const c=DATA.conversations.find(x=>x.id===id); if(!c) return;
+  c.bucket=c._prevBucket||'open';
+  postStatus(id,{status:'open'});
+  recount(); renderList(curFilter());
+  if(sel===id) select(id);
+  if(window.crmToast) crmToast('Restored to '+(c.bucket==='open'?'Open':c.bucket)+'.');
+}
+window.restoreArchive=restoreArchive;
 /* Undo a mistaken / test opt-out — clears the workflow opt-out, the all-channel suppression, and
    the manual revoke rows, then reloads. Deliberate + confirmed + logged server-side. */
 async function restoreContact(id){
