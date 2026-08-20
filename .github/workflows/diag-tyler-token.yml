@@ -10,12 +10,14 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - name: Check all 4 users vs their connected gmail tokens
+      - name: Update all 4 users' CRM identity to the new domain
         run: |
-          echo "=== all users ==="
-          npx wrangler d1 execute consentresolve-demo --remote --command "SELECT id, email, name, role, active FROM users" --json
-          echo "=== all connected gmail tokens ==="
-          npx wrangler d1 execute consentresolve-demo --remote --command "SELECT provider FROM social_tokens WHERE provider LIKE 'gmail:%'" --json
+          npx wrangler d1 execute consentresolve-demo --remote --command "UPDATE users SET email='aaron@getconsentresolve.com' WHERE email='aaron@consentresolve.com'"
+          npx wrangler d1 execute consentresolve-demo --remote --command "UPDATE users SET email='andy@getconsentresolve.com' WHERE email='andy@consentresolve.com'"
+          npx wrangler d1 execute consentresolve-demo --remote --command "UPDATE users SET email='tyler@getconsentresolve.com' WHERE email='tyler@consentresolve.com'"
+          npx wrangler d1 execute consentresolve-demo --remote --command "UPDATE users SET email='jason@getconsentresolve.com' WHERE email='jason@consentresolve.com'"
+          echo "=== verify ==="
+          npx wrangler d1 execute consentresolve-demo --remote --command "SELECT id, email, name, role FROM users" --json
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: 7caa0c227ac2d290437ecf6932b2806d
