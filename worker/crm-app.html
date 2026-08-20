@@ -386,6 +386,16 @@ html,body{height:100%}
   .gj-links{display:flex;gap:14px;margin-top:8px}
   .gj-links a{font-size:12px;font-weight:600;color:#0a66c2;text-decoration:none}
   .gj-links a:hover{text-decoration:underline}
+  .gjq-list{display:flex;flex-direction:column;gap:1px;background:var(--line)}
+  .gjq-row{background:var(--surface-1);padding:10px 14px;display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center}
+  .gjq-who{font-size:13px}
+  .gjq-co{color:var(--tx-3);font-weight:500}
+  .gjq-reason{font-size:12.5px;color:var(--tx-2)}
+  .gjq-meta{font-size:11px;color:var(--tx-3)}
+  .gjq-acts{grid-row:1/4;display:flex;flex-direction:column;gap:6px;align-self:center}
+  .gjq-b{font-size:11px;font-weight:600;border-radius:var(--r-full);padding:4px 10px;cursor:pointer;border:1px solid var(--line);background:var(--surface-2);color:var(--tx-2);white-space:nowrap}
+  .gjq-b.push:hover{color:#00a37a;border-color:#00a37a}
+  .gjq-b.dismiss:hover{color:var(--tx-1)}
   .sig{font-size:12px;font-weight:600;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:4px 11px}
   .sig.hot{background:var(--bad-soft,rgba(239,68,68,.12));color:var(--bad);border-color:var(--bad);font-weight:800}
   .idash-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:12px;margin:18px 0}
@@ -3468,6 +3478,46 @@ async function renderProspecting(force){
   }
   paintProspecting();
   maybePollRuns();
+  loadGojiFlags();
+}
+/* Gojiberry mismatch review queue — every 🚩 Flag mismatch from the Reply screen lands
+   here. pending = flagged, not yet reviewed. Review it, then either "Pushed" (you sent
+   the out-of-scope update to Gojiberry by hand — no auto-push wired yet, see
+   crm-goji-flag.js) or "Dismiss" (reviewed, it's actually fine, leave it as a live lead). */
+let GOJI_FLAGS={items:[],counts:{},loaded:false};
+async function loadGojiFlags(){
+  try{ const d=await fetch('/api/crm/prospecting/gojiberry-flag?status=pending',{credentials:'same-origin'}).then(r=>r.json());
+    GOJI_FLAGS={items:(d&&d.flags)||[],counts:(d&&d.counts)||{},loaded:true};
+  }catch(_){ GOJI_FLAGS={items:[],counts:{},loaded:true}; }
+  paintGojiFlags();
+}
+function paintGojiFlags(){
+  const host=document.getElementById('gojiFlagsPanel'); if(!host) return;
+  const n=GOJI_FLAGS.items.length;
+  const pushedTotal=GOJI_FLAGS.counts.pushed||0, dismissedTotal=GOJI_FLAGS.counts.dismissed||0;
+  if(!n && !pushedTotal && !dismissedTotal){ host.innerHTML=''; return; }
+  const rows=GOJI_FLAGS.items.map(f=>`
+    <div class="gjq-row">
+      <div class="gjq-who"><b>${escP(f.full_name||f.gojiberry_email||'Unknown contact')}</b>${f.company_name?` <span class="gjq-co">· ${escP(f.company_name)}</span>`:''}</div>
+      <div class="gjq-reason">${escP(f.reason||'no reason given')}</div>
+      <div class="gjq-meta">flagged by ${escP(f.flagged_by||'—')} · ${escP(String(f.flagged_at||'').slice(0,16))}</div>
+      <div class="gjq-acts">
+        <button class="gjq-b push" onclick="resolveGojiFlag('${f.id}','pushed',this)" title="You sent the out-of-scope update to Gojiberry">✓ Pushed to Gojiberry</button>
+        <button class="gjq-b dismiss" onclick="resolveGojiFlag('${f.id}','dismissed',this)" title="Reviewed — actually fine, leave it as a live lead">Dismiss</button>
+      </div>
+    </div>`).join('');
+  host.innerHTML=`<details class="pruns" ${n?'open':''}>
+    <summary>🚩 Gojiberry mismatches — ${n} pending${(pushedTotal||dismissedTotal)?` <span style="color:var(--tx-3);font-weight:500">(${pushedTotal} pushed, ${dismissedTotal} dismissed)</span>`:''}</summary>
+    ${n?`<div class="gjq-list">${rows}</div>`:'<div class="idash-empty" style="padding:16px">Nothing pending review.</div>'}
+  </details>`;
+}
+async function resolveGojiFlag(id,resolution,btn){
+  if(btn) btn.disabled=true;
+  try{
+    const r=await fetch('/api/crm/prospecting/gojiberry-flag',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'resolve',id,resolution})}).then(x=>x.json());
+    if(r&&r.ok){ if(window.crmToast) crmToast(resolution==='pushed'?'Marked pushed to Gojiberry.':'Dismissed.'); loadGojiFlags(); }
+    else { if(btn) btn.disabled=false; if(window.crmToast) crmToast('Could not update — try again'); }
+  }catch(_){ if(btn) btn.disabled=false; if(window.crmToast) crmToast('Could not update — network error'); }
 }
 function paintProspecting(){
   const host=document.getElementById('prospectingview'); if(!host) return;
@@ -3502,6 +3552,7 @@ function paintProspecting(){
     </div>
     ${running.length?`<div class="prun-live" id="prun-live">${running.map(runProgressCard).join('')}</div>`:''}
     ${(PROSP.runs||[]).length?`<details class="pruns"><summary>Recent sweeps (${PROSP.runs.length})</summary>${PROSP.runs.map(runRow).join('')}</details>`:''}
+    <div id="gojiFlagsPanel"></div>
     <div class="ptiers">${pill('all','All')}${pill('hot','🔥 Hot','hot')}${pill('warm','Warm','warm')}${pill('cold','Cold','cold')}${pill('no_site','No site','dead')}</div>
     ${bulkBar()}
     <div class="plist" id="plist">${prospList()}</div>
