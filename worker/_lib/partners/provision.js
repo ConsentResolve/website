@@ -5,7 +5,9 @@
 // side lives in docs/crm/JOBBER-MARKETPLACE-PROVISIONING.md.
 //
 // Env (wrangler secrets):
-//   DASHBOARD_PROVISION_URL     e.g. https://dashboard.consentresolve.com/api/provision/partner
+//   DASHBOARD_PROVISION_URL     https://api.consentresolve.com/api/v1/provision/partner
+//                               (the API worker mounts it outside the JWT chain;
+//                               it is NOT on the dashboard origin)
 //   DASHBOARD_PROVISION_SECRET  shared HMAC key (long random; same value on both sides)
 //
 // Both unset → provisioning is off and marketplace connects park as
@@ -24,6 +26,22 @@ export async function signPayload(secret, body) {
 export const provisioningConfigured = (env) =>
   Boolean(env.DASHBOARD_PROVISION_URL && env.DASHBOARD_PROVISION_SECRET);
 
+// Pure — exported so the wire shape can be asserted offline (provision.test.js).
+export function buildProvisionPayload({ partner, email, accountId, accountName }) {
+  return {
+    source: "partner_marketplace",
+    partner,                       // "jobber"
+    email,                         // authorizing admin's email (linking key)
+    partner_account_id: accountId, // e.g. Jobber account EncodedId
+    // `string | undefined` on the receiver — an absent name must be OMITTED,
+    // not sent as null. JSON.stringify drops undefined keys, which is the point.
+    account_name: accountName || undefined,
+    // NUMBER, not an ISO string. The receiver disambiguates seconds vs ms by
+    // magnitude and rejects anything outside a 5-minute replay window.
+    ts: Date.now(),
+  };
+}
+
 /**
  * Ask the dashboard to create-or-match a customer for a marketplace connect.
  * Returns { customer_key, finish_url } or null (not configured / any failure).
@@ -33,14 +51,9 @@ export const provisioningConfigured = (env) =>
 export async function provisionCustomer(env, { partner, email, accountId, accountName }) {
   if (!provisioningConfigured(env) || !email) return null;
   try {
-    const body = JSON.stringify({
-      source: "partner_marketplace",
-      partner,                       // "jobber"
-      email,                         // authorizing admin's email (linking key)
-      partner_account_id: accountId, // e.g. Jobber account EncodedId
-      account_name: accountName || null,
-      ts: new Date().toISOString(),
-    });
+    const body = JSON.stringify(
+      buildProvisionPayload({ partner, email, accountId, accountName })
+    );
     const res = await fetch(env.DASHBOARD_PROVISION_URL, {
       method: "POST",
       headers: {

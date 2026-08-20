@@ -25,8 +25,17 @@ hand. The contractor never sees an error from our side.
 
 ## Endpoint the dashboard must expose
 
+> **Status (2026-08-20).** The receiving half now exists in crmono as
+> `cr-app/packages/api/src/routes/provision.ts` (PR #4, `fix/jobber-provisioning`).
+> It returns the user id as `customer_key` and a `/reset-password` magic link
+> as `finish_url`. The request shape below has been corrected to match what
+> that implementation actually validates.
+
 `POST` at a URL of its choosing (the worker reads it from
-`DASHBOARD_PROVISION_URL`).
+`DASHBOARD_PROVISION_URL`). As implemented in crmono this is
+`https://api.consentresolve.com/api/v1/provision/partner` — the **API**
+worker, mounted outside the JWT chain alongside the other signed webhooks,
+not the dashboard origin.
 
 Request body (JSON, exactly what is HMAC-signed):
 
@@ -37,9 +46,16 @@ Request body (JSON, exactly what is HMAC-signed):
   "email": "owner@acme-roofing.com",
   "partner_account_id": "Z2lkOi8vSm9iYmVyL0FjY291bnQvMTIzNDU2Nw==",
   "account_name": "Acme Roofing",
-  "ts": "2026-08-13T20:00:00.000Z"
+  "ts": 1755115200000
 }
 ```
+
+`ts` is a **number** (epoch milliseconds), not an ISO-8601 string — the
+receiver validates `z.number()` and answers 400 otherwise. `account_name` is
+optional and typed `string | undefined`: when the partner account has no
+name, **omit the key** rather than sending `null`, which also fails
+validation. Both shapes are pinned by
+`worker/_lib/partners/provision.test.js`.
 
 Header: `X-CR-Signature` — lowercase hex `HMAC-SHA256(secret, raw_body)`.
 Verify against the raw request body **before** parsing; reject mismatches
