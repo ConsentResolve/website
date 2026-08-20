@@ -373,6 +373,19 @@ html,body{height:100%}
   .lk-tag{font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-left:6px;padding:1px 5px;border-radius:4px;background:var(--good-soft,rgba(0,168,110,.16));color:var(--good)}
   .lk-tag.paid{background:var(--warn-soft,rgba(245,158,11,.16));color:var(--warn)}
   .idash-signals{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 2px}
+  .gj-banner{margin:12px 16px 0;padding:12px 14px;background:var(--surface-2);border:1px solid var(--line);border-left:3px solid #0a66c2;border-radius:var(--r-2)}
+  .gj-hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .gj-src{font-size:11px;font-weight:800;letter-spacing:.02em;color:#0a66c2}
+  .gj-type{font-size:11px;font-weight:600;color:var(--tx-2);background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-full);padding:2px 9px;text-transform:capitalize}
+  .gj-score{font-size:11px;font-weight:800;color:var(--tx-1);background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-full);padding:2px 9px}
+  .gj-flag{margin-left:auto;font-size:11px;font-weight:600;color:var(--tx-2);background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-full);padding:3px 10px;cursor:pointer}
+  .gj-flag:hover{color:var(--bad);border-color:var(--bad)}
+  .gj-reason{margin-top:8px;font-size:13px;color:var(--tx-1);line-height:1.45}
+  .gj-fields{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;font-size:12px;color:var(--tx-2)}
+  .gj-fields .gj-f b{display:block;font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--tx-3)}
+  .gj-links{display:flex;gap:14px;margin-top:8px}
+  .gj-links a{font-size:12px;font-weight:600;color:#0a66c2;text-decoration:none}
+  .gj-links a:hover{text-decoration:underline}
   .sig{font-size:12px;font-weight:600;color:var(--tx-2);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-full);padding:4px 11px}
   .sig.hot{background:var(--bad-soft,rgba(239,68,68,.12));color:var(--bad);border-color:var(--bad);font-weight:800}
   .idash-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:12px;margin:18px 0}
@@ -6045,6 +6058,44 @@ function setWebsiteAndLookup(id,domain){
   if(window.__autoLook) delete window.__autoLook[id];
   runLookup(id,'all');   // both lookups at once: persists the domain + full intel, shows cost
 }
+/* Gojiberry's LinkedIn-intent signal, shown right on the Reply screen (not buried in
+   Intel) so a rep sees WHO they're emailing and WHY the moment a conversation opens.
+   c.goji is set server-side from prospects.signals.gojiberry (see crm-app-data.js). */
+function gojiBanner(c){
+  const g=c&&c.goji; if(!g) return '';
+  const scorePct = g.total_score!=null ? Math.round(Math.min(100,Math.max(0,parseFloat(g.total_score)*20))) : null;
+  const rows=[
+    g.contact_title?`<span class="gj-f"><b>Title</b>${esc(g.contact_title)}</span>`:'',
+    g.industry?`<span class="gj-f"><b>Industry</b>${esc(g.industry)}</span>`:'',
+    g.company_size?`<span class="gj-f"><b>Company size</b>${esc(g.company_size)}</span>`:'',
+    g.location?`<span class="gj-f"><b>Location</b>${esc(g.location)}</span>`:'',
+  ].filter(Boolean).join('');
+  const links=[
+    g.linkedin_url?`<a href="${esc(g.linkedin_url)}" target="_blank" rel="noopener">👤 LinkedIn profile</a>`:'',
+    g.company_linkedin?`<a href="${esc(g.company_linkedin)}" target="_blank" rel="noopener">🏢 Company page</a>`:'',
+  ].filter(Boolean).join('');
+  return `<div class="gj-banner">
+    <div class="gj-hd">
+      <span class="gj-src">📡 Gojiberry signal</span>
+      ${g.intent_type?`<span class="gj-type">${esc(g.intent_type.replace(/_/g,' '))}</span>`:''}
+      ${scorePct!=null?`<span class="gj-score" title="Gojiberry intent score ${esc(String(g.total_score))}">${scorePct}%</span>`:''}
+      <button class="gj-flag" onclick="flagGojiMismatch('${c.id}')" title="Tell Gojiberry this lead doesn't fit our ICP">🚩 Flag mismatch</button>
+    </div>
+    ${g.intent_reason?`<div class="gj-reason">${esc(g.intent_reason)}</div>`:''}
+    ${rows?`<div class="gj-fields">${rows}</div>`:''}
+    ${links?`<div class="gj-links">${links}</div>`:''}
+  </div>`;
+}
+async function flagGojiMismatch(convId){
+  const c=DATA.conversations.find(x=>x.id===convId); if(!c) return;
+  const reason=prompt("Why doesn't this lead fit? (sent back to Gojiberry as an out-of-scope signal)","Not a home-service trade");
+  if(reason===null) return;
+  try{
+    const r=await fetch('/api/crm/prospecting/gojiberry-flag',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact_id:c.contact_id,conversation_id:c.id,reason})}).then(x=>x.json());
+    if(r&&r.ok){ if(window.crmToast) crmToast('Flagged — Gojiberry will see this lead marked out-of-scope.'); }
+    else if(window.crmToast) crmToast('Could not flag — '+((r&&r.error)||'try again'));
+  }catch(_){ if(window.crmToast) crmToast('Could not flag — network error'); }
+}
 /* The most-important intel, distilled into a strip at the top of the dashboard. */
 function signalsCard(e){
   const S=(e&&e._signals)||{}; const chips=[];
@@ -6398,7 +6449,7 @@ function renderTab(c){
   const b=document.getElementById("tabbody"); if(!b) return;
   if(curTab==="reply"){
     b.className="tabbody acttab";
-    b.innerHTML = (c.channel==="email"?gmailThread(c):bubbleThread(c)) + `<div class="composer-wrap" id="composerhost">${composer(c)}</div>`;
+    b.innerHTML = gojiBanner(c) + (c.channel==="email"?gmailThread(c):bubbleThread(c)) + `<div class="composer-wrap" id="composerhost">${composer(c)}</div>`;
     renderAttachChips();
   } else if(curTab==="activity"){
     b.className="tabbody";

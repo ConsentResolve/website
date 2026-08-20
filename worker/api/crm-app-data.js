@@ -242,7 +242,7 @@ export async function onRequestGet({ request, env }) {
       for (const n of notes) { const a = notesByConv.get(n.conversation_id) || []; a.push(n); notesByConv.set(n.conversation_id, a); }
     } catch (_) {}
   }
-  const consentByCt = new Map(), dealByCt = new Map(), runByCt = new Map(), geoByCt = new Map(), phoneByCt = new Map(), actByCt = new Map();
+  const consentByCt = new Map(), dealByCt = new Map(), runByCt = new Map(), geoByCt = new Map(), phoneByCt = new Map(), actByCt = new Map(), gojiByCt = new Map();
   if (contactIds.length) {
     // Phone identifier per contact → used as the display name for nameless (provisional)
     // contacts (e.g. inbound callers/texters) instead of a bare "Unknown".
@@ -280,6 +280,15 @@ export async function onRequestGet({ request, env }) {
           : "Visited " + (m.path || "the site");
         list.push({ kind: a.type, label, ts: humanTime(a.occurred_at) || "—" });
         actByCt.set(a.contact_id, list);
+      }
+    } catch (_) {}
+    // Gojiberry LinkedIn-intent signal per contact — surfaced directly on the Reply screen
+    // (not buried in Intel) so a rep sees who they're emailing and why the moment the
+    // conversation opens. `prospects.promoted_contact_id` is the join key back to `contacts`.
+    try {
+      for (const p of await selectIn(contactIds, `SELECT promoted_contact_id, signals FROM prospects WHERE promoted_contact_id IN __IN__ AND signals LIKE '%gojiberry%'`)) {
+        let sig = {}; try { sig = JSON.parse(p.signals || "{}"); } catch (_) {}
+        if (sig.gojiberry) gojiByCt.set(p.promoted_contact_id, { ...sig.gojiberry, ...(sig.gojiberry_extra || {}) });
       }
     } catch (_) {}
   }
@@ -359,6 +368,7 @@ export async function onRequestGet({ request, env }) {
       sla: { min: mins, level: unread ? (mins > 15 ? "bad" : mins > 5 ? "warn" : "none") : "none" },
       intel: (() => { const g = geoByCt.get(r.contact_id); return { fit: "unknown", time_on_site: "—", pages: 0, first_seen: humanTime(r.last_message_at) || "—", speed_to_lead_h: null, cost_per_lead: null, src_label: srcLabelMap[src] || "Lead", site_status: "—", pages_viewed: [], ip: g ? (g.ip || null) : null, location: g ? ([g.city, g.region, g.country].filter(Boolean).join(", ") || null) : null }; })(),
       deal: deal ? { title: deal.title || r.company || r.full_name || "Deal", value_usd: Math.round((deal.value_cents || 0) / 100), prob: deal.close_probability || 63, status: (deal.lead_status || "active").toLowerCase() } : null,
+      goji: gojiByCt.get(r.contact_id) || null,
       messages: cmsgs.length ? cmsgs : [{ dir: "system", body: "No messages on this conversation yet.", ts: humanTime(r.last_message_at) || "" }],
     };
   });
