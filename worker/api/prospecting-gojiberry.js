@@ -94,21 +94,33 @@ export async function onRequestPost({ request, env, ctx }) {
   await ensureRunRow(env);
   ctx.waitUntil(logRawPayload(env, b));
 
+  // Field names confirmed from Gojiberry's REAL payload (captured live in
+  // gojiberry_webhook_log 2026-08-20) — fullName/jobTitle/company/profileUrl/intent,
+  // not the guessed names this originally shipped with. Both are kept: real names
+  // first, guessed names as a fallback in case a different event type differs.
   const email = pick(b, ["email", "contact_email", "person_email", "work_email"]).toLowerCase();
-  const explicitDomain = pick(b, ["domain", "company_domain", "website", "company_website", "url"]);
+  const explicitDomain = pick(b, ["website", "domain", "company_domain", "company_website", "url"]);
   const domain = normDomain(explicitDomain) || domainFromEmail(email);
   if (!domain) {
     return json({ ok: false, error: "no_domain", message: "Payload had no usable domain or email to derive one from." }, { status: 400 }, cors);
   }
 
   const company = pick(b, ["company", "company_name", "organization", "account_name"]) || domain;
-  const contactName = pick(b, ["name", "full_name", "contact_name", "person_name"]);
-  const title = pick(b, ["title", "job_title", "person_title"]);
-  const linkedin = pick(b, ["linkedin_url", "linkedin", "profile_url", "person_linkedin_url"]);
-  const intentReason = pick(b, ["intent_reason", "reason", "signal", "signal_reason", "trigger"]);
-  const city = pick(b, ["city"]);
+  const contactName = pick(b, ["fullName", "name", "full_name", "contact_name", "person_name"]);
+  const title = pick(b, ["jobTitle", "title", "job_title", "person_title"]);
+  const linkedin = pick(b, ["profileUrl", "linkedin_url", "linkedin", "profile_url", "person_linkedin_url"]);
+  // Gojiberry's `intent` is an HTML fragment (has an <a> tag around the trigger link) —
+  // strip tags so it reads clean in the conversation note. `score_reasoning` is the
+  // plainer, always-present companion field; prefer whichever is populated.
+  const rawIntent = pick(b, ["intent", "score_reasoning", "intent_reason", "reason", "signal", "signal_reason", "trigger"]);
+  const intentReason = rawIntent.replace(/<[^>]+>/g, "").trim();
+  const intentType = pick(b, ["intent_type"]);
+  const totalScore = pick(b, ["total_scoring"]);
+  const companySize = pick(b, ["companySize", "company_size"]);
+  const industry = pick(b, ["industry"]);
+  const city = pick(b, ["city"]) || (pick(b, ["location"]).split(",")[0] || "").trim();
   const region = pick(b, ["state", "region"]);
-  const trade = pick(b, ["trade", "industry", "category"]).toLowerCase() || null;
+  const trade = pick(b, ["trade", "category"]).toLowerCase() || (industry ? industry.toLowerCase() : null);
 
   const gojiberrySignal = {
     source: "gojiberry",
@@ -117,6 +129,10 @@ export async function onRequestPost({ request, env, ctx }) {
     contact_title: title || null,
     linkedin_url: linkedin || null,
     intent_reason: intentReason || null,
+    intent_type: intentType || null,
+    total_score: totalScore || null,
+    company_size: companySize || null,
+    industry: industry || null,
   };
 
   const existing = await env.DB.prepare("SELECT id, signals FROM prospects WHERE domain=?").bind(domain).first().catch(() => null);
