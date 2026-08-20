@@ -81,6 +81,24 @@ cslide("li25-2", cmp_slide("Coverage", MINT3, "17", "trades supported — roofin
 cslide("li25-3", step(1, "Nationwide, US", "Same mechanism, no matter the market."))
 cslide("li25-4", cta_slide(*CTA))
 
+# Day 12 — GDPR/compliance (was going to reuse hookP, which was never finished)
+cslide("li12-1", cover("ENGINEERED TO THE STRICTEST STANDARD", "So the US patchwork is covered by design"))
+cslide("li12-2", step(1, "GDPR is the ceiling", "The strictest privacy standard in the world — not a US requirement, a global one."))
+cslide("li12-3", step(2, "Build to the ceiling, not the floor", "TCPA, CIPA, Texas's TDPSA — all covered by default, not bolted on after a lawsuit."))
+cslide("li12-4", cta_slide(*CTA))
+
+# Day 26 — Cheapest lead ≠ best lead (was going to reuse hookQ, which was never finished)
+cslide("li26-1", cover("CHEAPEST ≠ BEST", "Do the actual math before you compare prices"))
+cslide("li26-2", cmp_slide("A $75 shared lead", RED, "÷ 5", "split with four other contractors quoting the same job."))
+cslide("li26-3", cmp_slide("A $7 exclusive lead", MINT3, "× 1", "yours alone — nobody else is calling this homeowner."))
+cslide("li26-4", cta_slide("Run your own numbers.", "consentresolve.com/lead-math"))
+
+# Day 29 — Bad incentives (was going to reuse hookS, which was never finished)
+cslide("li29-1", cover("WHO ACTUALLY WINS", "When the lead seller gets paid either way"))
+cslide("li29-2", step(1, "Shared-lead sellers profit on volume", "Sold once, sold again — they get paid whether you book the job or not."))
+cslide("li29-3", step(2, "We only make sense if it's worth calling", "One consent, one contractor. The incentive lines up with your outcome, not just the sale."))
+cslide("li29-4", cta_slide(*CTA))
+
 # Day 30 — Month recap
 cslide("li30-1", cover("ONE MONTH OF MATH", "The four numbers that actually matter"))
 cslide("li30-2", cmp_slide("Stay anonymous", RED, "98%", "of visitors leave without a name, even after you paid for the click."))
