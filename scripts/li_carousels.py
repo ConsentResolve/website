@@ -41,6 +41,13 @@ cslide("li14-3", step(1, "What happens after second 88", "They leave anonymous �
 cslide("li14-4", step(2, "The fix", "Catch the ones who'd say yes, the moment they say it."))
 cslide("li14-5", cta_slide(*CTA))
 
+# Day 15 — Easy setup, 3-step install
+cslide("li15-1", cover("LIVE IN ABOUT 10 MINUTES", "One script, no developer, no IT bill"))
+cslide("li15-2", step(1, "Copy the script", "One small snippet, given to you when you sign up."))
+cslide("li15-3", step(2, "Paste it on your site", "WordPress, Wix, Squarespace, ServiceTitan-hosted — most others too."))
+cslide("li15-4", step(3, "You're live", "Identification starts immediately. No config, no waiting."))
+cslide("li15-5", cta_slide(*CTA))
+
 # Day 16 — Lead scoring
 cslide("li16-1", cover("LEAD SCORING", "Know who to call first"))
 cslide("li16-2", step(1, "Every visitor gets scored", "Fit and intent, calculated automatically."))
