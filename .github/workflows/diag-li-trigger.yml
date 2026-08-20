@@ -1,0 +1,17 @@
+name: diag-li-trigger
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'set to "post" to actually publish, anything else = dry run'
+        required: false
+        default: 'dry'
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dry run (always)
+        run: curl -s "https://consentresolve.com/api/x-trigger?key=${{ secrets.FEEDBACK_KEY }}&platform=linkedin_company&dry=1"
+      - name: Real publish (only if confirm=post)
+        if: ${{ github.event.inputs.confirm == 'post' }}
+        run: curl -s "https://consentresolve.com/api/x-trigger?key=${{ secrets.FEEDBACK_KEY }}&platform=linkedin_company&confirm=post"
