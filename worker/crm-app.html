@@ -2733,7 +2733,7 @@ window.deleteConv=deleteConv;
    never want it cluttering Open again. Unlike Delete, nothing is destroyed and a real
    reply from the contact still flips it back to Open automatically (crm-inbox.js resets
    status='open' on inbound) — this only suppresses it from YOUR side. */
-function archiveConv(id){
+function archiveConv(id, silent){
   const c=DATA.conversations.find(x=>x.id===id); if(!c) return;
   c._prevBucket=c.bucket; c.bucket='suppressed'; c.snooze_until=null; c.snooze_note=null;
   postStatus(id,{status:'archived'});
@@ -2742,7 +2742,7 @@ function archiveConv(id){
   if(sel===id){ const nx=DATA.conversations.find(x=>x.id!==id&&(f==='all'?true:x.bucket===f));
     if(nx) select(nx.id); else renderList(f); }
   else renderList(f);
-  if(window.crmToast) crmToast('Archived — out of Open. Restore anytime from the Archived filter.');
+  if(!silent && window.crmToast) crmToast('Archived — out of Open. Restore anytime from the Archived filter.');
   if(window._focusMode) focusAdvance();
 }
 window.archiveConv=archiveConv;
@@ -6170,7 +6170,7 @@ async function flagGojiMismatch(convId){
   if(reason===null) return;
   try{
     const r=await fetch('/api/crm/prospecting/gojiberry-flag',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact_id:c.contact_id,conversation_id:c.id,reason})}).then(x=>x.json());
-    if(r&&r.ok){ if(window.crmToast) crmToast('Flagged — Gojiberry will see this lead marked out-of-scope.'); }
+    if(r&&r.ok){ archiveConv(convId,true); if(window.crmToast) crmToast('Flagged as mismatch and archived.'); }
     else if(window.crmToast) crmToast('Could not flag — '+((r&&r.error)||'try again'));
   }catch(_){ if(window.crmToast) crmToast('Could not flag — network error'); }
 }
