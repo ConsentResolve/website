@@ -38,7 +38,7 @@ export const PLATFORM_CADENCE_DAYS = {
   facebook: 2, // every other day — harmonizes with FB Reels (video track) so the
                // Page never posts a feed link AND a Reel the same day (the algo
                // suppresses same-account posts in one session). See .docs/posting-system.md
-  linkedin_company: 2, // every other day
+  linkedin_company: 1, // daily — the 30-day company calendar (2026-08) needs consistent daily posting
   linkedin_personal: 7, // once per week
   x: 1,
   google_business_profile: 1,
@@ -158,7 +158,15 @@ async function postLinkedInBuffer(env, p) {
     ... on PostActionSuccess{ post{ id status } }
     ... on RestProxyError{ message } ... on InvalidInputError{ message }
     ... on UnauthorizedError{ message } ... on NotFoundError{ message } ... on UnexpectedError{ message } } }`;
-  const input = { channelId: channel, text, schedulingType: "automatic", mode: "shareNow" };
+  // Media: p.media_type is "video" | "document" | "image" (set by whatever enqueued this
+  // row), p.media_url must be a publicly reachable URL (R2). Buffer's `assets` field takes
+  // an ordered list where each entry sets exactly one of image/video/document — never post
+  // text-only when a real asset exists, that silently drops the entire creative.
+  const assets = [];
+  if (p.media_type === "video" && p.media_url) assets.push({ video: { url: p.media_url } });
+  else if (p.media_type === "document" && p.media_url) assets.push({ document: { url: p.media_url } });
+  else if (p.media_type === "image" && p.media_url) assets.push({ image: { url: p.media_url } });
+  const input = { channelId: channel, text, schedulingType: "automatic", mode: "shareNow", ...(assets.length ? { assets } : {}) };
   const res = await fetch("https://api.buffer.com", {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
