@@ -560,7 +560,7 @@ export async function onRequestPost({ request, env }) {
     // CRM_INBOX_EMAILS regardless of who clicked send — e.g. Tyler's replies going out as Aaron).
     let repName = (me && me.name) || "";
     if (!repName) { const _a = await env.DB.prepare("SELECT name FROM users WHERE role='admin' AND active=1 ORDER BY created_at LIMIT 1").first(); repName = (_a && _a.name) || "Consent Resolve"; }
-    const senderAccount = (me && me.email) || conv.channel_account_id || inboxAccounts(env)[0];
+    const senderAccount = (me && (me.send_as_email || me.email)) || conv.channel_account_id || inboxAccounts(env)[0];
     const fromEmail = `${repName.replace(/["<>\r\n,]/g, " ").trim()} <${senderAccount}>`;
     // Personal email signature from the sending rep's Account settings (Settings → Account →
     // "Email signature"). Appended to the EMAIL body only — never to SMS. It's plain text from a

@@ -120,6 +120,10 @@ export async function ensureCrmV2Schema(env) {
   // re-opens, even on genuinely-new activity — "gone forever." Automated tombstones leave it
   // 0, keeping the timestamp-aware re-open for a real new reply. Guarded ALTER (idempotent).
   await env.DB.prepare(`ALTER TABLE conversation_tombstones ADD COLUMN hard INTEGER NOT NULL DEFAULT 0`).run().catch(() => {});
+  // A user's CRM LOGIN email and their connected Gmail SENDING mailbox can legitimately
+  // differ (e.g. Tyler logs into /crm as tyler@consentresolve.com but sends as
+  // tyler@getconsentresolve.com) — never assume they're the same address. Guarded ALTER.
+  await env.DB.prepare(`ALTER TABLE users ADD COLUMN send_as_email TEXT`).run().catch(() => {});
   for (const u of SEED_USERS) {
     await env.DB.prepare(
       `INSERT INTO users (id, name, email, role) VALUES (?, ?, ?, ?) ON CONFLICT(email) DO NOTHING`
