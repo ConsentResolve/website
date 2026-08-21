@@ -20,7 +20,7 @@ import { gBase } from "../_lib/gmail.js";
 import {
   jobberConfigured, jobberVersion, jobberAuthUrl, exchangeCode, accessTokenExpiry,
   fetchAccount, fetchOwnerEmail, getConnection, listConnections, gql, pushLead,
-  verifyWebhookSignature, handleWebhookEvent, saveConnection, claimConnection,
+  verifyWebhookSignature, handleWebhookEvent, saveConnection, claimConnection, connectionState,
 } from "../_lib/partners/jobber.js";
 import { provisionCustomer } from "../_lib/partners/provision.js";
 
@@ -70,7 +70,7 @@ export async function onRequestGet({ request, env }) {
         customerKey: internal ? "default" : null,
       });
       if (internal) {
-        return Response.redirect(gBase(env) + "/crm/status?key=" + encodeURIComponent(state) + "&jobber=connected", 302);
+        return Response.redirect(gBase(env) + "/crm/app?jobber=connected#settings", 302);
       }
       // Marketplace: auto-provision a dashboard account keyed by the
       // authorizing admin's email, claim the connection for it, and hand the
@@ -96,10 +96,23 @@ export async function onRequestGet({ request, env }) {
     const customerKey = url.searchParams.get("customer") || "default";
     const conn = await getConnection(env, customerKey);
     const connections = await listConnections(env);
-    if (!conn) {
+    const state = connectionState(conn);
+    const base = {
+      customer: customerKey, state, configured: jobberConfigured(env),
+      marketplace_enabled: marketplaceEnabled(env), redirect_uri: redirectUri(env), connections,
+    };
+    if (!conn) return json({ ...base, connected: false }, {}, cors);
+
+    const identity = {
+      account_id: conn.account_id, account_name: conn.account_name,
+      token_expires_at: conn.expires_at, api_version: jobberVersion(env),
+    };
+    // Don't probe a connection we already know is dead: the call would only
+    // fail, and the reauth prompt is the answer either way.
+    if (state === "needs_reauth") {
       return json({
-        connected: false, customer: customerKey, configured: jobberConfigured(env),
-        marketplace_enabled: marketplaceEnabled(env), redirect_uri: redirectUri(env), connections,
+        ...base, ...identity, connected: false, live: null,
+        error: "reauth required — the stored refresh token was rejected by Jobber",
       }, {}, cors);
     }
     let live = null, error = null;
@@ -107,11 +120,7 @@ export async function onRequestGet({ request, env }) {
       const d = await gql(env, "{ account { id name } }", undefined, customerKey);
       live = d.account;
     } catch (e) { error = String(e).slice(0, 200); }
-    return json({
-      connected: true, customer: customerKey, account_id: conn.account_id, account_name: conn.account_name,
-      token_expires_at: conn.expires_at, api_version: jobberVersion(env),
-      marketplace_enabled: marketplaceEnabled(env), live, error, connections,
-    }, {}, cors);
+    return json({ ...base, ...identity, connected: true, live, error }, {}, cors);
   }
 
   if (!(await crmAuthed(request, env))) return json({ error: "unauthorized" }, { status: 401 }, cors);

@@ -4040,6 +4040,7 @@ async function renderSettings(force){
   if(!d||!d.ok){ host.innerHTML='<div class="prosp"><div class="phead"><h2 class="pttl">Settings</h2></div><div class="idash-empty" style="padding:40px">Couldn’t load the Speed-to-Lead engine.</div></div>'; return; }
   STL=d;
   paintSettings(d, lc||{});
+  renderJobber().catch(()=>{});
   try{ if(window.stCheck && window.renderSingleTaskSetting){ await stCheck(); renderSingleTaskSetting(document.getElementById('settingsview')); } }catch(_){}
 }
 function paintSettings(d, lc){
@@ -4118,6 +4119,11 @@ function paintSettings(d, lc){
       <pre id="st_intg" class="set-out"></pre>
     </div>
 
+    <div class="set-card" id="jobberCard">
+      <h3 class="set-h">Partner CRMs <span class="set-note">&mdash; where recovered leads land</span></h3>
+      <div style="color:var(--tx-3);font-size:12.5px">Loading&hellip;</div>
+    </div>
+
     <div class="set-card">
       <h3 class="set-h">Website chat launcher <span class="set-note">— the orb + teaser that front Mack. Saves live, no redeploy.</span></h3>
       <div class="set-row">
@@ -4185,6 +4191,68 @@ async function stlSaveLauncher(){
   const msg=g('cl_msg'); if(msg)msg.textContent='saving…';
   try{ const r=await fetch('/api/chat-launcher',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({config})}); const d=await r.json(); if(msg)msg.textContent=d.ok?'saved ✓ — live within ~1 min':('error: '+(d.error||r.status)); }catch(e){ if(msg)msg.textContent='error'; }
 }
+/* ---- Settings: Jobber connection ----------------------------------------
+   The lead pipe has no other surface in this app: before this card the only
+   way to know whether Jobber was alive was to curl a JSON endpoint. A dead
+   refresh token now shows up here as "needs reauth" instead of as leads that
+   quietly stop arriving. Rendered separately from paintSettings so a slow or
+   failing Jobber probe can never block the rest of Settings. */
+async function renderJobber(){
+  const host=document.getElementById('jobberCard'); if(!host) return;
+  const head='<h3 class="set-h">Partner CRMs <span class="set-note">&mdash; where recovered leads land</span></h3>';
+  let d=null;
+  try{ d=await (await fetch('/api/partners/jobber/status',{credentials:'same-origin'})).json(); }catch(e){}
+  if(!d||d.error==='unauthorized'){
+    host.innerHTML=head+'<div style="color:var(--tx-3);font-size:12.5px">Couldn\u2019t read the Jobber connection.</div>';
+    return;
+  }
+  // Fresh back from the OAuth round trip — the connect had no visible outcome before.
+  let banner='';
+  try{ if(new URLSearchParams(location.search).get('jobber')==='connected'){
+    banner='<div class="set-warn" style="border-color:var(--good);color:var(--good)">\u2713 Jobber connected.</div>';
+  } }catch(_){}
+
+  const state=d.state||(d.connected?'connected':'none');
+  const PILL={
+    connected:   ['good','\u25cf connected'],
+    needs_reauth:['alarm','\u25b2 needs reauth'],
+    disconnected:['',     '\u25cb disconnected'],
+    none:        ['',     '\u25cb not connected'],
+  }[state]||['','\u25cb unknown'];
+  // A live probe that failed is a real fault even when the row says connected.
+  const degraded=state==='connected'&&d.error;
+  const cls=degraded?'alarm':PILL[0];
+  const label=degraded?'\u25b2 error':PILL[1];
+
+  const rows=[];
+  if(d.account_name||d.account_id) rows.push(['Account', d.account_name||d.account_id]);
+  if(d.token_expires_at) rows.push(['Token expires', d.token_expires_at]);
+  if(d.api_version) rows.push(['API version', d.api_version]);
+  rows.push(['Marketplace', d.marketplace_enabled?'enabled':'off \u2014 listing not live yet']);
+  const detail=rows.map(([k,v])=>
+    `<div class="set-kpi"><div class="v" style="font-size:13px">${escP(String(v))}</div><div class="l">${escP(k)}</div></div>`
+  ).join('');
+
+  const needsAction=state!=='connected'||!!d.error;
+  const cta=state==='connected'&&!d.error
+    ? '<a class="set-ghost" style="text-decoration:none" href="/api/partners/jobber/auth">Reconnect</a>'
+    : '<a class="pgo" style="text-decoration:none;line-height:38px;display:inline-block" href="/api/partners/jobber/auth">'+(state==='none'?'Connect Jobber':'Reconnect Jobber')+'</a>';
+  const why=d.error
+    ? `<div class="set-out" style="color:var(--bad)">${escP(String(d.error))}</div>`
+    : '';
+  const hint=needsAction
+    ? '<div style="color:var(--tx-3);font-size:12px;margin-top:8px">Recovered leads are not reaching Jobber until this is reconnected.</div>'
+    : '';
+
+  host.innerHTML=head+banner
+    +`<div class="set-row" style="align-items:center;gap:10px;margin-bottom:12px">
+        <span class="set-kpi ${cls}" style="padding:4px 10px"><span class="v" style="font-size:13px">Jobber</span></span>
+        <strong style="font-size:13px">${label}</strong>
+        <span style="margin-left:auto">${cta}</span>
+      </div>`
+    +`<div class="set-grid4">${detail}</div>${why}${hint}`;
+}
+window.renderJobber=renderJobber;
 window.renderSettings=renderSettings; window.stlSaveMode=stlSaveMode; window.stlProvision=stlProvision; window.stlAddRep=stlAddRep; window.stlRemoveRep=stlRemoveRep; window.stlRepState=stlRepState; window.stlPurgeTests=stlPurgeTests; window.stlSaveLauncher=stlSaveLauncher;
 
 /* ---- Newsletter: view + edit the 12 issues, preview, send (hold-for-approval) ---- */

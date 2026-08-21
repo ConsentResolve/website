@@ -133,11 +133,28 @@ export async function saveConnection(env, { accountId, accountName, accessToken,
   ).bind(accountId, accountName || null, customerKey ?? null, accessToken, refreshToken || null, expiresAt).run();
 }
 
+// Returns the row for a customer unless it has been hard-disconnected. A
+// 'needs_reauth' row is deliberately still returned: callers surface a precise
+// error and the UI can show the account name it needs to be reconnected. Only
+// gql() decides whether a row is actually usable.
 export async function getConnection(env, customerKey = "default") {
   await ensurePartnerSchema(env);
   return env.DB.prepare(
-    "SELECT * FROM partner_connections WHERE partner = 'jobber' AND status = 'connected' AND customer_key = ? ORDER BY connected_at DESC LIMIT 1"
+    "SELECT * FROM partner_connections WHERE partner = 'jobber' AND status != 'disconnected' AND customer_key = ? ORDER BY connected_at DESC LIMIT 1"
   ).bind(customerKey).first();
+}
+
+/**
+ * Pure — the single place that decides what a connection row means, so the API
+ * and the CRM tile can never disagree. 'needs_reauth' is the one that matters:
+ * it is the difference between "your leads are flowing" and "every push has
+ * been failing silently since the refresh token died".
+ */
+export function connectionState(conn) {
+  if (!conn) return "none";
+  if (conn.status === "disconnected") return "disconnected";
+  if (conn.status === "needs_reauth") return "needs_reauth";
+  return "connected";
 }
 
 export async function listConnections(env) {
@@ -159,6 +176,17 @@ export async function claimConnection(env, accountId, customerKey) {
   return (res.meta?.changes ?? 0) > 0;
 }
 
+// A refresh that Jobber rejects is terminal — the token is gone and no amount
+// of retrying brings it back. Record that, so the connection stops claiming to
+// be healthy. Tokens are cleared (they are dead weight) but the row and its
+// account name survive for the reconnect prompt.
+export async function markNeedsReauth(env, accountId) {
+  await ensurePartnerSchema(env);
+  await env.DB.prepare(
+    "UPDATE partner_connections SET status = 'needs_reauth', access_token = NULL, refresh_token = NULL, updated_at = datetime('now') WHERE partner = 'jobber' AND account_id = ?"
+  ).bind(accountId).run();
+}
+
 export async function markDisconnected(env, accountId) {
   await ensurePartnerSchema(env);
   await env.DB.prepare(
@@ -169,7 +197,17 @@ export async function markDisconnected(env, accountId) {
 // Refresh rotation: the response may carry a NEW refresh token — persist it
 // immediately, or the connection dies on the next refresh.
 async function refreshConnection(env, conn) {
-  const data = await tokenRequest(env, { grant_type: "refresh_token", refresh_token: conn.refresh_token });
+  let data;
+  try {
+    data = await tokenRequest(env, { grant_type: "refresh_token", refresh_token: conn.refresh_token });
+  } catch (err) {
+    // Rotation is on, so a rejected refresh means the whole chain is dead.
+    // Without this the row stays status='connected' with a token that can
+    // never work again — the connection reports healthy while every lead push
+    // fails, and nobody finds out.
+    await markNeedsReauth(env, conn.account_id).catch(() => {});
+    throw err;
+  }
   const expiresAt = accessTokenExpiry(data.access_token, data.expires_in);
   await saveConnection(env, {
     accountId: conn.account_id,
@@ -201,6 +239,9 @@ async function gqlRaw(env, accessToken, query, variables) {
 export async function gql(env, query, variables, customerKey = "default") {
   let conn = await getConnection(env, customerKey);
   if (!conn) throw new Error("jobber not connected");
+  if (conn.status === "needs_reauth") {
+    throw new Error("jobber reauth required — reconnect at /api/partners/jobber/auth");
+  }
   if (!conn.expires_at || new Date(conn.expires_at) <= new Date()) conn = await refreshConnection(env, conn);
   let out = await gqlRaw(env, conn.access_token, query, variables);
   if (out.unauthorized) {
