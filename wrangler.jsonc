@@ -129,6 +129,20 @@
 		"STL_TRANSFER_NUMBER": "+17279999864",
 		// AI agent's name (renamed Ruby -> Mack). Drives the disclosure-verification check
 		// (transcript must contain this name + an AI phrase) and Retell provisioning.
-		"STL_AGENT_NAME": "Mack"
+		"STL_AGENT_NAME": "Mack",
+		// Unlocks the STATELESS marketplace branch of the Jobber OAuth callback.
+		// Jobber's App Marketplace "Connect" button sends the contractor to our
+		// callback with a code and NO `state`; with this off that arrival is a
+		// bare 403 "bad state" — which is exactly what an app reviewer would
+		// have hit. Our own /api/partners/jobber/auth connects carry
+		// state=CRM_KEY and were never affected, which is why this never
+		// surfaced in internal testing.
+		//
+		// With it on, a connect carrying no state provisions a ConsentResolve
+		// account for the authorizing Jobber admin (_lib/partners/provision.js)
+		// and parks the connection unclaimed until onboarding claims it. It is
+		// also the only way to exercise that path at all — the internal connect
+		// route never calls provisionCustomer.
+		"JOBBER_MARKETPLACE_ENABLED": "true"
 	}
 }
