@@ -386,6 +386,15 @@ html,body{height:100%}
   .gj-links{display:flex;gap:14px;margin-top:8px}
   .gj-links a{font-size:12px;font-weight:600;color:#0a66c2;text-decoration:none}
   .gj-links a:hover{text-decoration:underline}
+  .soc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:8px}
+  .soc-card{padding:14px 16px;background:var(--surface-1);border:1px solid var(--line)}
+  .soc-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .soc-hd h5{margin:0;font-size:13.5px;font-weight:700}
+  .soc-live{font-size:10px;font-weight:700;color:#00a37a;letter-spacing:.03em}
+  .soc-snap{font-size:10px;font-weight:700;color:var(--tx-3);letter-spacing:.03em;text-transform:uppercase;cursor:help}
+  .soc-card .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:8px 0}
+  .soc-card .kpi{padding:0}
+  .soc-card .kpi-v{font-size:20px}
   .gjq-list{display:flex;flex-direction:column;gap:1px;background:var(--line)}
   .gjq-row{background:var(--surface-1);padding:10px 14px;display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center}
   .gjq-who{font-size:13px}
@@ -5747,6 +5756,10 @@ function renderAnalytics(){
       <div class="atable-note">Est. ROAS assumes $${A.avgDealYr.toLocaleString()}/yr average value per activation. “Organic” = no ad spend attributed.</div>
     </div>
     ${idBlock}
+    <div class="card an-card">
+      <h4>Social Media <span class="atable-note" style="font-weight:400">— content + lead-gen performance, one card per channel as you connect them</span></h4>
+      <div class="soc-grid" id="social-analytics-grid"><div class="ev-load">Loading channels…</div></div>
+    </div>
     <div class="an-grid">
       <div class="card an-card"><h4>Ad spend by channel</h4><div class="sbchart">${spend}</div></div>
       <div class="card an-card"><h4>Sequence performance</h4>
@@ -5767,7 +5780,28 @@ function renderAnalytics(){
       <div id="ra-body" class="ev-body"><div class="ev-hint">Replies sent and everything a rep did in the window — pulled live from the activity log.</div></div>
     </div>`;
   loadRepActivity();
+  loadSocialAnalytics();
 }
+/* Social Media Analytics — one card per connected channel. Each channel returns the same
+   {label, live, stats[], rows[], note} shape from /api/crm/analytics/social, so this loop
+   doesn't change as more channels (Instagram, TikTok, GBP, ...) get added server-side. */
+function socialChannelCard(ch){
+  const stats=(ch.stats||[]).map(s=>`<div class="kpi"><div class="kpi-v">${s.value}</div><div class="kpi-l">${esc(s.label)}</div>${s.sub?`<div class="kpi-s">${esc(String(s.sub))}</div>`:''}</div>`).join('');
+  const rows=(ch.rows||[]).length?`<table class="atable"><thead><tr><th>Campaign</th><th class="num">Sent</th><th class="num">Accepted</th><th class="num">Replies</th></tr></thead><tbody>${ch.rows.map(r=>`<tr><td>${esc(r.name||'')}</td><td class="num">${r.sent||0}</td><td class="num">${r.accepted||0}</td><td class="num">${r.replied||0}</td></tr>`).join('')}</tbody></table>`:'';
+  return `<div class="card soc-card">
+    <div class="soc-hd"><h5>${esc(ch.label)}</h5>${ch.live?'<span class="soc-live">● live</span>':`<span class="soc-snap" title="Last synced ${esc(ch.updated_at||'never')}">snapshot</span>`}</div>
+    <div class="kpis">${stats||'<div class="ev-hint">No data yet.</div>'}</div>
+    ${rows}
+    ${ch.note?`<div class="atable-note">${esc(ch.note)}</div>`:''}
+  </div>`;
+}
+async function loadSocialAnalytics(){
+  const host=document.getElementById('social-analytics-grid'); if(!host) return;
+  let d; try{ d=await fetch('/api/crm/analytics/social',{credentials:'same-origin'}).then(r=>r.json()); }catch(_){}
+  if(!d||!d.ok){ host.innerHTML='<div class="ev-hint">Could not load social analytics.</div>'; return; }
+  host.innerHTML=(d.channels||[]).map(socialChannelCard).join('') || '<div class="ev-hint">No channels connected yet.</div>';
+}
+window.loadSocialAnalytics=loadSocialAnalytics;
 function raFmt(ts){ // "2026-08-06 14:03:22" (UTC) -> local short
   try{ const d=new Date(String(ts).replace(' ','T')+'Z'); return d.toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }catch(_){ return ts; }
 }
