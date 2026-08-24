@@ -151,7 +151,25 @@ export async function sendMessage(env, account, to, subject, body, threadId, opt
     method: "POST", headers: { Authorization: "Bearer " + tok, "Content-Type": "application/json" }, body: JSON.stringify(payload),
   });
   const j = await r.json();
-  if (j.error) return { error: (j.error && j.error.message) || "send_failed" };
+  if (j.error) {
+    // Gmail thread IDs are per-mailbox. Each rep now sends from their OWN connected account
+    // (aaron@/andy@/tyler@/jason@…), but a conversation's stored external_thread_id was minted
+    // by whichever mailbox's poll first ingested it — not necessarily the mailbox the replying
+    // rep sends from. Continuing that threadId from a different mailbox 404s with "Requested
+    // entity was not found." Rather than hard-failing the send, retry once as a fresh thread —
+    // still delivered, just not visually nested under the original Gmail thread.
+    const msg = (j.error && j.error.message) || "send_failed";
+    if (threadId && /not found/i.test(msg)) {
+      const retryPayload = { raw: payload.raw };
+      const rr = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+        method: "POST", headers: { Authorization: "Bearer " + tok, "Content-Type": "application/json" }, body: JSON.stringify(retryPayload),
+      });
+      const jj = await rr.json();
+      if (jj.error) return { error: (jj.error && jj.error.message) || "send_failed" };
+      return { ok: true, id: jj.id, threadId: jj.threadId, newThread: true };
+    }
+    return { error: msg };
+  }
   return { ok: true, id: j.id, threadId: j.threadId };
 }
 
