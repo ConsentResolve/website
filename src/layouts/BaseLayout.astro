@@ -190,14 +190,15 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       })(window, document, "clarity", "script", "vgfli9rxb5");
     </script>
 
-    <!-- GetEmails (visitor identification / email capture pixel) — CONSENT-GATED via
-         ConsentResolve/Usercentrics autoblocker, same pattern as Clarity above: type=text/plain
-         keeps it inert until the visitor consents to the "GetEmails" service. This blocks by
-         default until that service name is added to the CMP config (Usercentrics/Termageddon
-         dashboard) — without a matching entry there, the autoblocker never activates it, which
-         is the safe failure mode. Confirm the exact service name in the CMP matches this
-         data-usercentrics value once it's configured. -->
-    <script is:inline type="text/plain" data-usercentrics="GetEmails">
+    <!-- GetEmails (visitor identification / email capture pixel) — TEMPORARILY UN-GATED
+         (fires for every visitor, no consent check) at Aaron's explicit request, 2026-08-25,
+         to test resolution rates. This is NOT the site's normal pattern — every other
+         third-party tracker (Clarity, Meta Pixel, Google Consent Mode) is consent-gated via
+         the Usercentrics/Termageddon autoblocker (type=text/plain + data-usercentrics), and
+         this one runs live/unconsented in direct tension with that. Re-gate it the same way
+         (see the Clarity block above for the pattern) once testing is done — don't leave this
+         running unconsented in production. -->
+    <script is:inline>
       !function(){var geq=window.geq=window.geq||[];if(geq.initialize) return;if (geq.invoked){if (window.console && console.error) {console.error("GE snippet included twice.");}return;}geq.invoked = true;geq.methods = ["page", "suppress", "track", "doNotTrack", "trackOrder", "identify", "addToCart", "callBack", "event"];geq.factory = function(method){return function(){var args = Array.prototype.slice.call(arguments);args.unshift(method);geq.push(args);return geq;};};for (var i = 0; i < geq.methods.length; i++) {var key = geq.methods[i];geq[key] = geq.factory(key);} geq.load = function(key){var script = document.createElement("script");script.type = "text/javascript";script.async = true; if (location.href.includes("vge=true")) {script.src = "https://s3-us-west-2.amazonaws.com/jsstore/a/" + key + "/ge.js?v=" + Math.random();} else {script.src = "https://s3-us-west-2.amazonaws.com/jsstore/a/" + key + "/ge.js";} var first = document.getElementsByTagName("script")[0];first.parentNode.insertBefore(script, first);};geq.SNIPPET_VERSION = "1.6.1";
       geq.load("X2JH9K1Z");}();
     </script>
