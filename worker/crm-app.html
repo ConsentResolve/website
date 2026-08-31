@@ -3868,15 +3868,7 @@ async function prospApolloPicker(id, disp){
     const el=document.getElementById('papollo-elapsed'); if(!el){ clearInterval(tick); return; }
     el.textContent=((Date.now()-t0)/1000).toFixed(0)+'s';
   },500);
-  const setStage=function(txt){ const s=document.getElementById('papollo-stage'); if(s) s.textContent=txt; };
   let r=await prospPost({action:'apollo_search',id});
-  if(r&&r.ok&&r.needs_fallback){
-    setStage((r.candidates&&r.candidates.length?'No email on file at Apollo — checking a live web search…':'Apollo had nobody — checking a live web search…'));
-    const fb=await prospPost({action:'apollo_search_fallback',id});
-    // Merge, don't replace — Apollo's candidates may already have real (emailless) people worth
-    // keeping visible even if the web search does/doesn't turn up a separate contact with one.
-    if(fb&&fb.ok){ r.candidates=[...(fb.candidates||[]),...(r.candidates||[])]; r.claude_fallback=fb.claude_fallback||null; }
-  }
   clearInterval(tick);
   const body=document.getElementById('papollo-body'); if(!body) return;
   const failFoot='<div class="papollo-foot"><button class="pdel-btn" onclick="document.getElementById(\'papollo-ov\').remove()">Cancel</button><button class="pkeep-btn" onclick="prospApolloSave(\''+id+'\',\''+disp+'\',true)">Save without a contact →</button></div>';
@@ -3891,34 +3883,17 @@ async function prospApolloPicker(id, disp){
       +'<div class="pom-line">'+[o.employees?('<b>'+o.employees.toLocaleString()+'</b> employees'):'',o.industry?escP(o.industry):'',o.founded?('est. '+o.founded):''].filter(Boolean).join(' · ')+'</div>'
       +((o.tech_relevant&&o.tech_relevant.length)?'<div class="papollo-tech"><span class="ptech-h">Relevant tech</span>'+o.tech_relevant.map(t=>'<span class="ptech on">'+escP(t)+'</span>').join('')+'</div>':'')
       +'</div></div>' : '';
-  const cf=r.claude_fallback||null;
   if(!r.candidates||!r.candidates.length){
-    // Distinguish "we searched and found nobody" from "the web-search fallback never ran" —
-    // collapsing these into one generic message is exactly what made a missing ANTHROPIC_API_KEY
-    // silent and undiagnosable from the UI.
-    let emptyMsg;
-    if(cf&&cf.used){ emptyMsg='Apollo had nobody at '+escP(r.domain||'')+', and a live web search couldn\'t verify an owner or email either.'; }
-    else if(cf&&cf.reason==='no_api_key'){ emptyMsg='Apollo had nobody at '+escP(r.domain||'')+'. The web-search fallback didn\'t run — ANTHROPIC_API_KEY isn\'t configured on the server.'; }
-    else if(cf&&cf.reason&&cf.reason!=='no_domain'){ emptyMsg='Apollo had nobody at '+escP(r.domain||'')+'. The web-search fallback tried to run but hit an error: '+escP(String(cf.reason)); }
-    else { emptyMsg='No contacts came back for '+escP(r.domain||'')+'.'; }
-    body.innerHTML=franchise+orgStats+'<div class="papollo-empty">'+emptyMsg+'</div>'+failFoot; return;
+    body.innerHTML=franchise+orgStats+'<div class="papollo-empty">No contacts came back for '+escP(r.domain||'')+'.</div>'+failFoot; return;
   }
   const total=r.total||r.candidates.length, dmCount=r.candidates.filter(c=>c.dm&&c.has_email).length;
-  const isSoleClaudeFind=r.candidates.length===1&&r.candidates[0].source==='claude_websearch';
   body.innerHTML=franchise+orgStats
-    +(isSoleClaudeFind
-      ? '<div class="papollo-count">Apollo had nobody here — found this contact via a live web search instead.</div>'
-      : '<div class="papollo-count">Showing <b>'+r.candidates.length+'</b>'+(total>r.candidates.length?(' of '+total):'')+' contact'+(total===1?'':'s')+' · ★ = decision-maker. Only decision-makers are pre-ticked (each reveal ≈1 credit).</div>')
+    +'<div class="papollo-count">Showing <b>'+r.candidates.length+'</b>'+(total>r.candidates.length?(' of '+total):'')+' contact'+(total===1?'':'s')+' · ★ = decision-maker. Only decision-makers are pre-ticked (each reveal ≈1 credit).</div>'
     +'<div class="papollo-list">'+r.candidates.map(function(c,i){
-        const viaClaude=c.source==='claude_websearch';
-        const mailIcon=viaClaude
-          ? '<span class="papollo-mail" title="Found via live web search'+(c.source_url?(': '+escP(c.source_url)):'')+' — no Apollo credit used">🔎</span>'
-          : '<span class="papollo-mail" title="Apollo has an email on file">✉</span>';
+        const mailIcon='<span class="papollo-mail" title="Apollo has an email on file">✉</span>';
         return '<label class="papollo-row"><input type="checkbox" class="papollo-ck" data-i="'+i+'" '+((c.has_email&&c.dm)?'checked':'')+(c.has_email?'':' disabled')+'><span class="papollo-nm">'+(c.dm?'<span class="papollo-dm" title="Decision-maker">★</span>':'')+escP(c.name)+(c.has_email?mailIcon:'<span class="papollo-nomail" title="No email on file">no email</span>')+'</span><span class="papollo-ttl">'+escP(c.title||'')+'</span></label>';
       }).join('')+'</div>'
-    +(isSoleClaudeFind
-      ? '<div class="papollo-consent">This email was found on a live page (no Apollo credit spent) and logged as <b>email permitted under B2B legitimate interest</b>, authorized by you. SMS &amp; voice stay off.<label class="papollo-att"><input type="checkbox" id="papollo-att" checked> I authorize B2B email outreach to the selected contact.</label></div>'
-      : '<div class="papollo-consent">On save we reveal the email for each ticked person (≈1 Apollo credit each) and log <b>email permitted under B2B legitimate interest</b>, authorized by you. SMS &amp; voice stay off.<label class="papollo-att"><input type="checkbox" id="papollo-att" checked> I authorize B2B email outreach to the selected contacts.</label></div>')
+    +'<div class="papollo-consent">On save we reveal the email for each ticked person (≈1 Apollo credit each) and log <b>email permitted under B2B legitimate interest</b>, authorized by you. SMS &amp; voice stay off.<label class="papollo-att"><input type="checkbox" id="papollo-att" checked> I authorize B2B email outreach to the selected contacts.</label></div>'
     +'<div class="papollo-foot"><button class="pdel-btn" onclick="document.getElementById(\'papollo-ov\').remove()">Cancel</button><button class="pkeep-btn" id="papollo-save" onclick="prospApolloSave(\''+id+'\',\''+disp+'\',false)">Save → '+escP(KEEP_DEST_LBL[disp]||disp)+'</button></div>';
 }
 async function prospApolloSave(id, disp, skip){
@@ -3927,7 +3902,7 @@ async function prospApolloSave(id, disp, skip){
     const att=document.getElementById('papollo-att');
     if(att&&!att.checked){ if(window.crmToast)crmToast('Tick the authorization box first'); return; }
     const cand=window._apolloCand||[];
-    selected=[...document.querySelectorAll('.papollo-ck:checked')].map(ck=>cand[+ck.dataset.i]).filter(Boolean).map(c=>({apollo_id:c.apollo_id,name:c.name,title:c.title,email:c.email||undefined,source_url:c.source_url||undefined}));
+    selected=[...document.querySelectorAll('.papollo-ck:checked')].map(ck=>cand[+ck.dataset.i]).filter(Boolean).map(c=>({apollo_id:c.apollo_id,name:c.name,title:c.title}));
     if(!selected.length){ if(window.crmToast)crmToast('Pick at least one contact, or use “Save without a contact”'); return; }
   }
   const btn=document.getElementById('papollo-save'); if(btn){btn.disabled=true;btn.textContent='Saving…';}

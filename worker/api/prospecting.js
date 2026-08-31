@@ -21,7 +21,7 @@ import {
 } from "../_lib/dataforseo.js";
 import { scoreProspect } from "../_lib/prospect-score.js";
 import { fetchSite, parseSite } from "./crm-lookup.js";
-import { peopleAtDomain, enrichPerson, usableEmail, claudeFindOwner, DEFAULT_TITLES } from "./apollo-prospect.js";
+import { peopleAtDomain, enrichPerson, usableEmail, DEFAULT_TITLES } from "./apollo-prospect.js";
 import { enrollContact } from "../_lib/workflow-engine.js";
 import { enrollRepermission, optInContacts } from "../_lib/newsletter.js";
 import { pushLeadToInstantly } from "../_lib/instantly.js";
@@ -262,7 +262,6 @@ export async function onRequestPost({ request, env, ctx }) {
   if (action === "push_dispositions") return pushDispositions(env, b, actorId, ctx, cors);
   if (action === "keep") return keepProspect(env, b, actorId, cors);
   if (action === "apollo_search") return apolloSearch(env, b, cors);
-  if (action === "apollo_search_fallback") return apolloSearchFallback(env, b, cors);
   if (action === "apollo_keep") return apolloKeep(env, b, actorId, cors);
 
   // action === "sweep" — Stage 0 TAM import.
@@ -563,11 +562,10 @@ async function renameRun(env, b, cors) {
   return json({ ok: true, id: b.id, label }, {}, cors);
 }
 
-// "Last-ditch" retry — the whole reason prospect_deletions exists. Re-run the owner lookup
-// (free Apollo masked-preview check, then the Claude web-search fallback only if that's still
-// empty) on everything a rep manually deleted TODAY, and un-suppress any prospect where a
-// usable contact now turns up. Capped per click (real API calls, Claude ones cost real tokens)
-// rather than looping over an unbounded backlog — `capped` tells the caller if there's more.
+// "Last-ditch" retry — the whole reason prospect_deletions exists. Re-run the free Apollo
+// masked-preview check on everything a rep manually deleted TODAY, and un-suppress any
+// prospect where a usable contact now turns up. Capped per click rather than looping over
+// an unbounded backlog — `capped` tells the caller if there's more.
 const RETRY_CAP = 30;
 async function retryDeletedToday(env, actorId, cors) {
   const totalRow = await env.DB.prepare(
@@ -590,10 +588,6 @@ async function retryDeletedToday(env, actorId, cors) {
     const s = await peopleAtDomain(env, d.domain, null, 25, 1).catch(() => ({ people: [] }));
     const withEmail = (s.people || []).find((pp) => pp.has_email);
     if (withEmail) { source = "apollo"; name = withEmail.first_name || null; }
-    else {
-      const cf = await claudeFindOwner(env, d.domain, d.name).catch(() => null);
-      if (cf && cf.used && cf.found) { source = "claude_websearch"; name = cf.name || null; email = cf.email || null; }
-    }
     if (source) {
       await env.DB.prepare("UPDATE prospects SET status='new', updated_at=datetime('now') WHERE id=?").bind(p.id).run().catch(() => {});
       await addActivityV2(env, { actorId, entityType: "prospect", entityId: p.id,
@@ -796,45 +790,7 @@ async function apolloSearch(env, b, cors) {
   })).filter((c) => c.apollo_id);
   candidates.sort((a, b2) => (b2.dm ? 1 : 0) - (a.dm ? 1 : 0)); // decision-makers first
 
-  // Apollo drew a blank OR only returned people it has no email on file for (has_email:false —
-  // nothing a "Keep" will ever be able to reveal). Either way there's no usable contact yet, so
-  // flag it for the (slower) Claude web-search fallback as its own request, instead of blocking
-  // this response on a 25s lookup. Previously this only fired on zero candidates, which silently
-  // skipped the fallback any time Apollo had SOME masked names but none with an email — the most
-  // common way a findable owner slipped through undetected.
-  const hasUsable = candidates.some((c) => c.has_email);
-  return json({ ok: true, domain: p.domain, total: s.total || candidates.length, candidates, org, needs_fallback: !hasUsable }, {}, cors);
-}
-
-// Second round-trip, only fired by the frontend when apolloSearch came back empty. Kept
-// separate so the fast Apollo-only response above never waits on this — see claudeFindOwner's
-// own comment for why it can take up to ~25s (live web search + synthesis in one model turn).
-async function apolloSearchFallback(env, b, cors) {
-  const p = await env.DB.prepare("SELECT id, name, domain FROM prospects WHERE id=?").bind(b.id).first().catch(() => null);
-  if (!p) return json({ ok: false, error: "not_found" }, { status: 404 }, cors);
-  if (!p.domain) return json({ ok: false, error: "no_domain" }, { status: 400 }, cors);
-  const cf = await claudeFindOwner(env, p.domain, p.name).catch((e) => ({ used: false, error: String(e) }));
-  let candidates = [];
-  // Keep the not-used case visible to the frontend too — otherwise "never ran" (missing
-  // ANTHROPIC_API_KEY, a network error) and "ran but found nobody" both collapse to the same
-  // generic empty state, which is exactly what made this silent to diagnose.
-  const claudeFallback = (cf && cf.used)
-    ? { used: true, found: !!cf.found, cost_usd: cf.cost_usd || 0 }
-    : { used: false, reason: (cf && (cf.reason || cf.error)) || "unknown" };
-  if (cf && cf.used && cf.found) {
-    candidates = [{
-      apollo_id: "claude:" + p.domain,
-      name: cf.name || "(name found, unverified)",
-      title: cf.title || "",
-      company: p.name || p.domain,
-      has_email: true,
-      dm: true,
-      source: "claude_websearch",
-      source_url: cf.source_url || null,
-      email: cf.email,
-    }];
-  }
-  return json({ ok: true, domain: p.domain, candidates, claude_fallback: claudeFallback }, {}, cors);
+  return json({ ok: true, domain: p.domain, total: s.total || candidates.length, candidates, org }, {}, cors);
 }
 
 // Company-level Apollo intel: headcount, LOCATIONS (franchise signal), socials, relevant tech.
@@ -911,45 +867,33 @@ async function apolloKeep(env, b, actorId, cors) {
   let credits = 0, revealErr = null, primaryUsed = false;
 
   for (const sel of selected) {
-    // A Claude web-search find (apollo_id "claude:<domain>") already HAS its email — it was
-    // found on a real page during the search step, not masked-then-revealed. Skip the Apollo
-    // enrich call (and the credit) entirely for these.
-    const isClaudeFind = typeof sel.apollo_id === "string" && sel.apollo_id.startsWith("claude:");
     let person = null;
-    if (!isClaudeFind) {
-      try { person = await enrichPerson(env, { id: sel.apollo_id }); credits++; } catch (e) { revealErr = String(e); }
-    }
+    try { person = await enrichPerson(env, { id: sel.apollo_id }); credits++; } catch (e) { revealErr = String(e); }
     const fullName = (person && person.name) || sel.name || null;
     const title = (person && person.title) || sel.title || null;
-    const email = isClaudeFind
-      ? (sel.email && usableEmail(sel.email) ? sel.email : null)
-      : (person && usableEmail(person.email) ? person.email : null);
+    const email = person && usableEmail(person.email) ? person.email : null;
     const phone = person && Array.isArray(person.phone_numbers) && person.phone_numbers[0]
       ? (person.phone_numbers[0].sanitized_number || person.phone_numbers[0].raw_number) : null;
     const linkedin = (person && person.linkedin_url) || null;
-    const enr = JSON.stringify(isClaudeFind
-      ? { _source: "claude_websearch", source_url: sel.source_url || null, title, revealed_at: now }
-      : { _source: "apollo_prospect", apollo_id: sel.apollo_id, linkedin, title, revealed_at: now });
+    const enr = JSON.stringify({ _source: "apollo_prospect", apollo_id: sel.apollo_id, linkedin, title, revealed_at: now });
 
     let contactId;
-    // Honest provenance — a Claude-found contact didn't come from Apollo; say so everywhere
-    // this gets recorded (contact.source, the consent ledger's capture_method, the activity log).
-    const contactSource = isClaudeFind ? "claude_websearch" : "apollo_prospect";
+    const contactSource = "apollo_prospect";
     if (!primaryUsed) {
       contactId = baseContactId;
       await env.DB.prepare("UPDATE contacts SET full_name=COALESCE(?,full_name), title=COALESCE(?,title), primary_email=COALESCE(?,primary_email), phone=COALESCE(?,phone), apollo_person_id=?, source=?, is_provisional=0, enrichment=?, updated_at=datetime('now') WHERE id=?")
-        .bind(fullName, title, email, phone, isClaudeFind ? null : sel.apollo_id, contactSource, enr, contactId).run().catch(() => {});
+        .bind(fullName, title, email, phone, sel.apollo_id, contactSource, enr, contactId).run().catch(() => {});
       primaryUsed = true;
     } else {
       contactId = rid("ct_");
       await env.DB.prepare("INSERT INTO contacts (id, company_id, full_name, primary_email, phone, title, apollo_person_id, enrichment, source, is_provisional) VALUES (?,?,?,?,?,?,?,?,?,0)")
-        .bind(contactId, companyId, fullName, email, phone, title, isClaudeFind ? null : sel.apollo_id, enr, contactSource).run().catch(() => {});
+        .bind(contactId, companyId, fullName, email, phone, title, sel.apollo_id, enr, contactSource).run().catch(() => {});
     }
     if (email) {
       await env.DB.prepare("INSERT OR IGNORE INTO contact_identifiers (id, contact_id, type, value, verified) VALUES (?,?,?,?,0)").bind(rid("id_"), contactId, "email", String(email).toLowerCase()).run().catch(() => {});
       // Consent ledger: EMAIL permitted under B2B legitimate interest — NOT an opt-in. SMS/voice omitted → stay off.
       await env.DB.prepare("INSERT INTO consent_records (id, contact_id, email, phone, channel, action, basis, capture_method, proof_ref, occurred_at) VALUES (?,?,?,?,?,?,?,?,?,?)")
-        .bind(rid("cn_"), contactId, email, phone, "email", "granted", "legitimate_interest", contactSource, "B2B legitimate interest · authorized by " + actorName + " @ " + now + (isClaudeFind && sel.source_url ? " · found at " + sel.source_url : ""), now).run().catch(() => {});
+        .bind(rid("cn_"), contactId, email, phone, "email", "granted", "legitimate_interest", contactSource, "B2B legitimate interest · authorized by " + actorName + " @ " + now, now).run().catch(() => {});
       await addActivityV2(env, { actorId, entityType: "contact", entityId: contactId, action: "consent_granted", meta: { channel: "email", basis: "legitimate_interest", method: contactSource, by: actorName } }).catch(() => {});
     }
     savedContactIds.push(contactId);
