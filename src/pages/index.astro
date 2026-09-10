@@ -3,7 +3,7 @@
  * / — Live homepage (StoryBrand SB7).
  *
  * Spine:
- *   1. CHARACTER       — the contractor (the hero of the story)
+ *   1. CHARACTER       — the reader's business (the hero of the story)
  *   2. PROBLEM         — external (98% bounce), internal (paying twice),
  *                        philosophical (ad budget shouldn't evaporate)
  *   3. GUIDE           — Consent Resolve, with empathy + authority
@@ -37,7 +37,7 @@ import {
 
 import {
   IconArrowRight, IconCheck, IconLock, IconUserCheck, IconBolt,
-  IconUserOff, IconCoin, IconAlertTriangle,
+  IconUserOff, IconAlertTriangle,
   IconShieldCheck, IconPlugConnected, IconClipboardCheck,
   IconRefresh, IconMessage, IconBellRinging,
   IconX, IconCircleCheck, IconEye, IconBuilding,
@@ -55,7 +55,7 @@ const schemas = [
 ];
 
 const aeoText =
-  "Consent Resolve is a consent-first ad-spend recovery layer for home-service contractors. It identifies the 98 out of 100 website visitors who would otherwise bounce — only after they accept your consent banner — and feeds them back into the retargeting audiences, email/SMS sequences, and CRM you already run. Same ad budget, more inbound calls. Flat $7 per recovered lead, exclusive, never resold.";
+  "Consent Resolve is a consent-first visitor-identification layer for any website. It identifies visitors who would otherwise bounce anonymous — only after they accept your consent banner — and feeds them back into the retargeting audiences, email sequences, and CRM you already run. Same marketing spend, more pipeline. Exclusive, never resold.";
 
 // Tiny illustrative spark for the compact product peek (NOT a claim)
 const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
@@ -63,9 +63,9 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
 
 <BaseLayout
   ogImage="/og/home.png"
-  title="Consent Resolve · Identify Site Visitors, Win the Job"
+  title="Consent Resolve · Identify Site Visitors, Recover Pipeline"
   ogTitle="98% of your site visitors leave without a name. Fix that."
-  description="Recover the ~98% of homeowners who visit your site and leave without calling — with consent — into the retargeting, email, and CRM you already run."
+  description="Recover the ~98% of visitors who leave your site without a name — with consent — into the retargeting, email, and CRM you already run."
   schema={schemas}
 >
   <!-- ============================================================== -->
@@ -74,10 +74,10 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
   <!--    the win. Direct CTA + transitional CTA.                    -->
   <!-- ============================================================== -->
   <Hero
-    eyebrow="For ad-buying home-service contractors"
-    title="Turn Anonymous Homeowners"
-    titleAccent="Into New Jobs."
-    subhead="Most of the homeowners you pay for bounce without a trace. Consent Resolve recovers them — name and email, only after they consent — and feeds them straight into the retargeting, email, and CRM you already run. Same ad budget. More booked jobs. Flat $7 a lead, yours alone, never resold."
+    eyebrow="For teams running real traffic"
+    title="Turn Anonymous Visitors"
+    titleAccent="Into Real Pipeline."
+    subhead="Most of the visitors you pay for bounce without a trace. Consent Resolve recovers them — name and email, only after they consent — and feeds them straight into the retargeting, email, and CRM you already run. Same spend. More pipeline. Yours alone, never resold."
     ctaLabel="Activate your account"
     panelKind="illustration"
     panelSrc="/illustrations/hero/protagonist.svg"
@@ -104,11 +104,11 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
       <div class="mx-auto mb-12 max-w-2xl text-center">
         <Badge tone="warning" variant="soft" surface="dark" size="md" uppercase>The leak you're paying for</Badge>
         <h2 class="display-2 mt-5 text-white">
-          Your ad budget hits the site.<br/>
+          Your traffic costs real money.<br/>
           <span class="text-[color:var(--color-mint-400)]">Then most of it walks away.</span>
         </h2>
         <p class="mt-5 text-lg leading-relaxed text-slate-300">
-          Every channel you run — Google, LSA, Meta, SEO — drops people on your site. Almost all of them leave without saying a word. Then you pay again to find them on Thumbtack.
+          Every channel you run — search, social, SEO — drops visitors on your site. Almost all of them leave without saying a word, and whatever you spent to bring them is gone with them.
         </p>
       </div>
 
@@ -119,26 +119,29 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
           surface="dark"
           stat={98}
           statSuffix="%"
-          label="Walk away anonymous"
-          body="Of every 100 homeowners your ads send to your site, roughly 98 leave without contacting you. They call the next guy instead."
+          label="Leave without a trace"
+          body="Of every 100 visitors your marketing sends, roughly 98 leave without giving you any way to reach them again."
           sourceHref="/stats/#anonymous-traffic"
         />
         <StakeCard
-          Icon={IconCoin}
+          Icon={IconAlertTriangle}
           tone="neutral"
           surface="dark"
-          stat="~$46"
-          label="Per Thumbtack lead"
-          body="You already paid Google to drive them to your site. Then you pay Thumbtack to find the same shopper — shared with 4 other shops."
-          sourceHref="/stats/#lead-trap"
+          stat="87"
+          statSuffix="s"
+          label="Average time before they leave"
+          body="That's the window. Miss it, and whatever you spent to bring them is gone — no name, no email, no second chance."
+          sourceHref="/stats/#anonymous-traffic"
         />
         <StakeCard
-          Icon={IconAlertTriangle}
+          Icon={IconRefresh}
           tone="brand"
           surface="dark"
-          stat="2x"
-          label="You pay for the same shopper"
-          body="Once on the ad. Once on the reseller. Ad budget isn't supposed to evaporate — and shared leads aren't a fix for the leak. They're a tax on it."
+          stat={26}
+          statSuffix="%"
+          label="Better with fast follow-up"
+          body="Visitors who get a timely, relevant follow-up convert at dramatically higher rates than a cold first touch. The recovery has to happen fast."
+          sourceHref="/stats/#recovery-works"
         />
       </div>
     </div>
@@ -158,10 +161,10 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
               <span class="text-[color:var(--color-brand-pressed)]">The plumbing is.</span>
             </h2>
             <p class="mt-5 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
-              We've watched roofers spend on Google ads, then spend again on Thumbtack to fight for the same shoppers their own ads already drove to their site — say a few thousand a month on each. That's broken. So we built the layer that fixes it.
+              We've watched marketing teams spend on paid acquisition, then lose most of that traffic the moment it bounces anonymous — no way to follow up, retarget, or even know it happened. That's broken. So we built the layer that fixes it.
             </p>
             <p class="mt-4 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
-              Consent Resolve sits on top of every channel you already run. We don't compete with your ads — we rescue the visitors they paid to send you.
+              Consent Resolve sits on top of every channel you already run. We don't compete with your marketing — we rescue the visitors it already paid to send you.
             </p>
           </div>
 
@@ -177,22 +180,22 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
               <span class="inline-flex size-9 items-center justify-center rounded-lg bg-[color:var(--color-brand-soft)]">
                 <IconClipboardCheck size={18} stroke={1.75} color="#0A1628" />
               </span>
-              <p class="mt-3 font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">17 trades supported</p>
-              <p class="mt-1 text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">Roofing, HVAC, plumbing, GC, electrical, and more.</p>
+              <p class="mt-3 font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">Works with any traffic</p>
+              <p class="mt-1 text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">B2B, e-commerce, local — if you have a website, it works.</p>
             </li>
             <li class="rounded-xl bg-[color:var(--color-bg-alt)] p-5 ring-1 ring-inset ring-[color:var(--color-rule)]">
               <span class="inline-flex size-9 items-center justify-center rounded-lg bg-[color:var(--color-brand-soft)]">
                 <IconPlugConnected size={18} stroke={1.75} color="#0A1628" />
               </span>
               <p class="mt-3 font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">Drops into your stack</p>
-              <p class="mt-1 text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo.</p>
+              <p class="mt-1 text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">HubSpot, Salesforce, Pipedrive, Klaviyo, or any webhook.</p>
             </li>
             <li class="rounded-xl bg-[color:var(--color-bg-alt)] p-5 ring-1 ring-inset ring-[color:var(--color-rule)]">
               <span class="inline-flex size-9 items-center justify-center rounded-lg bg-[color:var(--color-brand-soft)]">
                 <IconLock size={18} stroke={1.75} color="#0A1628" />
               </span>
-              <p class="mt-3 font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">$7 per lead, flat</p>
-              <p class="mt-1 text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">Exclusive. Never resold. Pay-as-you-go — no contract.</p>
+              <p class="mt-3 font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">Exclusive, always</p>
+              <p class="mt-1 text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">Never resold. Never shared. One consent, one company — you.</p>
             </li>
           </ul>
         </div>
@@ -217,17 +220,17 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
         <div class="rounded-2xl bg-white p-6 ring-1 ring-inset ring-[color:var(--color-rule)] shadow-[0_18px_36px_-22px_rgba(10,22,40,0.18)]">
           <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Real name. Real email.</p>
           <div class="mt-4 flex items-center gap-3">
-            <span class="inline-flex size-11 items-center justify-center rounded-full bg-[color:var(--color-brand)] font-display text-sm font-black text-[color:var(--color-navy-900)]">MR</span>
+            <span class="inline-flex size-11 items-center justify-center rounded-full bg-[color:var(--color-brand)] font-display text-sm font-black text-[color:var(--color-navy-900)]">JK</span>
             <div class="flex-1">
-              <p class="font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">Maria R.</p>
-              <p class="text-[12px] text-[color:var(--color-ink-muted)]">Roof replacement · 77584</p>
+              <p class="font-display text-sm font-bold tracking-tight text-[color:var(--color-ink)]">Jordan K.</p>
+              <p class="text-[12px] text-[color:var(--color-ink-muted)]">Enterprise plan inquiry · Austin, TX</p>
             </div>
             <span class="rounded-full bg-[color:var(--color-brand-soft)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-pressed)]">Consented</span>
           </div>
           <div class="mt-5 grid grid-cols-2 gap-2 border-t border-[color:var(--color-rule)] pt-4 text-[12px]">
             <div class="min-w-0">
               <p class="text-[color:var(--color-ink-muted)]">Email</p>
-              <p class="truncate font-mono text-[color:var(--color-ink)]">m****r@gmail.com</p>
+              <p class="truncate font-mono text-[color:var(--color-ink)]">j****k@gmail.com</p>
             </div>
             <div>
               <p class="text-[color:var(--color-ink-muted)]">Last seen</p>
@@ -235,14 +238,14 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
             </div>
           </div>
           <p class="mt-4 text-[12px] leading-relaxed text-[color:var(--color-ink-2)]">
-            Read your "Storm damage" page twice. Lingered on the financing FAQ.
+            Read your Pricing page twice. Lingered on the FAQ.
           </p>
         </div>
 
         <div class="rounded-2xl bg-[color:var(--color-navy-900)] p-6 text-white ring-1 ring-inset ring-white/10 shadow-[0_18px_36px_-22px_rgba(0,0,0,0.4)]">
           <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">Recovered this month</p>
           <p class="mt-4 font-display text-6xl font-black leading-none tracking-tight tabular-nums text-white">147</p>
-          <p class="mt-3 text-[13px] text-slate-300">Across Google, LSA, Meta and SEO traffic.</p>
+          <p class="mt-3 text-[13px] text-slate-300">Across Google, Meta, and SEO traffic.</p>
           <div class="mt-5 rounded-xl bg-white/5 p-3 ring-1 ring-inset ring-white/10">
             <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Last 14 days</p>
             <div class="mt-2 [&_svg]:!w-full [&_svg]:!h-12">
@@ -255,7 +258,7 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
           <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-muted)]">Lands in the stack you run</p>
           <ul class="mt-4 space-y-2.5">
             {[
-              { name: "Jobber",         status: "Pushed · 6m ago" },
+              { name: "Salesforce",     status: "Pushed · 6m ago" },
               { name: "HubSpot",        status: "Pushed · 6m ago" },
               { name: "Klaviyo",        status: "Synced · 6m ago" },
               { name: "Meta ads audience", status: "Added · 6m ago" },
@@ -276,7 +279,7 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
       </div>
 
       <p class="mx-auto mt-6 max-w-2xl text-center text-[12px] text-[color:var(--color-ink-muted)]">
-        Names and emails shown are illustrative — your dashboard fills with real homeowners from your traffic.
+        Names and emails shown are illustrative — your dashboard fills with real visitors from your traffic.
       </p>
     </div>
   </section>
@@ -290,7 +293,7 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
         <Badge tone="brand" variant="soft" size="md" uppercase>What you get</Badge>
         <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">
           Three jobs. One layer.<br/>
-          <span class="text-[color:var(--color-brand-pressed)]">Same ad budget, more booked work.</span>
+          <span class="text-[color:var(--color-brand-pressed)]">Same spend, more pipeline.</span>
         </h2>
       </div>
 
@@ -299,7 +302,7 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
           Icon={IconRefresh}
           eyebrow="Recovery"
           title="Recover the 98% that bounce."
-          body="The traffic your ads already paid for — Google, LSA, Meta, SEO. We identify the consented ones who'd otherwise leave with no trace."
+          body="The traffic you already paid for — Google, Meta, SEO, and more. We identify the consented visitors who'd otherwise leave with no trace."
           href="/features/#ad-recovery"
           cta="See the recovery features"
         />
@@ -307,15 +310,15 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
           Icon={IconMessage}
           eyebrow="Into your funnel"
           title="Drop into the funnel you already run."
-          body="Recovered visitors flow into your retargeting audiences, email/SMS sequences, and CRM. No new app to babysit."
+          body="Recovered visitors flow into your retargeting audiences, email sequences, and CRM. No new app to babysit."
           href="/features/#funnel-insertion"
           cta="See the funnel features"
         />
         <PillarCard
           Icon={IconBellRinging}
-          eyebrow="Inbound calls"
-          title="Turn the bounce into an inbound call."
-          body="The recovered homeowner comes back on their time — through your funnel — and calls you warm. Not a cold outbound."
+          eyebrow="Warm inbound"
+          title="Turn the bounce into a warm inbound."
+          body="The recovered visitor comes back on their own time — through your funnel — and reaches out warm. Not a cold outbound."
           href="/features/#inbound-call"
           cta="See the inbound features"
         />
@@ -356,20 +359,20 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
           <h3 class="mt-3 font-display text-xl font-bold tracking-tight text-white">Same leak, more bills.</h3>
           <ul class="mt-5 space-y-3 text-[14px] text-slate-300">
             <li class="flex items-start gap-2.5"><IconX size={18} stroke={2.5} color="#fca5a5" class="mt-0.5 shrink-0" /> 98 out of every 100 visitors still walk off anonymous.</li>
-            <li class="flex items-start gap-2.5"><IconX size={18} stroke={2.5} color="#fca5a5" class="mt-0.5 shrink-0" /> Thumbtack invoice keeps growing for shared leads.</li>
+            <li class="flex items-start gap-2.5"><IconX size={18} stroke={2.5} color="#fca5a5" class="mt-0.5 shrink-0" /> Your CAC keeps climbing while conversion stays flat.</li>
             <li class="flex items-start gap-2.5"><IconX size={18} stroke={2.5} color="#fca5a5" class="mt-0.5 shrink-0" /> Your retargeting audiences sit underfed.</li>
-            <li class="flex items-start gap-2.5"><IconX size={18} stroke={2.5} color="#fca5a5" class="mt-0.5 shrink-0" /> You race 4–5 other shops to the phone, every time.</li>
+            <li class="flex items-start gap-2.5"><IconX size={18} stroke={2.5} color="#fca5a5" class="mt-0.5 shrink-0" /> You have no idea who almost converted and left.</li>
           </ul>
         </div>
 
         <div class="rounded-2xl bg-[color:var(--color-brand-soft)]/10 p-7 ring-1 ring-inset ring-[color:var(--color-brand)]/40">
           <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">With Consent Resolve</p>
-          <h3 class="mt-3 font-display text-xl font-bold tracking-tight text-white">More booked jobs, same spend.</h3>
+          <h3 class="mt-3 font-display text-xl font-bold tracking-tight text-white">More pipeline, same spend.</h3>
           <ul class="mt-5 space-y-3 text-[14px] text-slate-200">
             <li class="flex items-start gap-2.5"><IconCircleCheck size={18} stroke={2.25} color="#00E5A0" class="mt-0.5 shrink-0" /> Recovered visitors flow into the funnel you already run.</li>
-            <li class="flex items-start gap-2.5"><IconCircleCheck size={18} stroke={2.25} color="#00E5A0" class="mt-0.5 shrink-0" /> Flat $7 a lead — exclusive, never resold to a competitor.</li>
+            <li class="flex items-start gap-2.5"><IconCircleCheck size={18} stroke={2.25} color="#00E5A0" class="mt-0.5 shrink-0" /> Exclusive, always — never resold, never shared.</li>
             <li class="flex items-start gap-2.5"><IconCircleCheck size={18} stroke={2.25} color="#00E5A0" class="mt-0.5 shrink-0" /> Retargeting audiences and email lists stay fed.</li>
-            <li class="flex items-start gap-2.5"><IconCircleCheck size={18} stroke={2.25} color="#00E5A0" class="mt-0.5 shrink-0" /> Warm inbound calls instead of cold outbound chases.</li>
+            <li class="flex items-start gap-2.5"><IconCircleCheck size={18} stroke={2.25} color="#00E5A0" class="mt-0.5 shrink-0" /> Warm inbound instead of cold outbound chases.</li>
           </ul>
         </div>
       </div>
@@ -384,11 +387,11 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
       <div class="mx-auto max-w-3xl text-center">
         <Badge tone="brand" variant="soft" size="md" uppercase>What success looks like</Badge>
         <h2 class="mx-auto mt-6 max-w-3xl font-display text-4xl font-black leading-[1.05] tracking-tight text-[color:var(--color-ink)] md:text-6xl">
-          Same ad budget.<br/>
-          <span class="text-[color:var(--color-brand-pressed)]">More inbound calls.</span>
+          Same spend.<br/>
+          <span class="text-[color:var(--color-brand-pressed)]">More pipeline.</span>
         </h2>
         <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-          You stop paying twice for the same shopper. You stop racing 4–5 other shops to the phone. You spend your morning on warm inbounds — homeowners who already saw you in their inbox and on their feed.
+          You stop losing the traffic you already paid for. You stop guessing who almost converted. You spend your time on warm inbound — people who already saw you in their inbox and on their feed.
         </p>
       </div>
     </div>
@@ -408,26 +411,25 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
             <div>
               <Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Activate today</Badge>
               <h2 class="display-2 mt-5 text-white">
-                Flat $7 per lead.<br/>
+                Custom pricing.<br/>
                 <span class="text-[color:var(--color-mint-400)]">Yours alone. Never resold.</span>
               </h2>
               <p class="mt-5 text-[15px] leading-relaxed text-slate-300">
-                Card on file, no contract, pay-as-you-go. Paste one line of code. Live in about 10 minutes.
+                No contract, built around your traffic. Paste one line of code. Live in about 10 minutes.
               </p>
 
               <ul class="mt-6 space-y-2.5 text-[14px] text-slate-200">
-                <li class="flex items-start gap-2.5"><IconCheck size={18} stroke={2.5} color="#00E5A0" class="mt-0.5 shrink-0" /> Exclusive — one consent, one contractor.</li>
-                <li class="flex items-start gap-2.5"><IconCheck size={18} stroke={2.5} color="#00E5A0" class="mt-0.5 shrink-0" /> Lands in Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, GHL.</li>
+                <li class="flex items-start gap-2.5"><IconCheck size={18} stroke={2.5} color="#00E5A0" class="mt-0.5 shrink-0" /> Exclusive — one consent, one company.</li>
+                <li class="flex items-start gap-2.5"><IconCheck size={18} stroke={2.5} color="#00E5A0" class="mt-0.5 shrink-0" /> Lands in HubSpot, Salesforce, Pipedrive, Klaviyo, or any webhook.</li>
                 <li class="flex items-start gap-2.5"><IconCheck size={18} stroke={2.5} color="#00E5A0" class="mt-0.5 shrink-0" /> Consent-first by design — your privacy policy stays handled.</li>
               </ul>
             </div>
 
             <div class="rounded-2xl bg-[color:var(--color-navy-900)] p-7 ring-1 ring-inset ring-white/10 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)]">
-              <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">Pay per recovered lead</p>
-              <div class="mt-3 flex items-baseline gap-2">
-                <span class="font-display text-7xl font-black tracking-tight text-white">$7</span>
-                <span class="text-sm font-semibold uppercase tracking-[0.14em] text-slate-400">/ lead</span>
-              </div>
+              <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-mint-400)]">Priced around your traffic</p>
+              <p class="mt-4 text-[15px] leading-relaxed text-slate-200">
+                No public per-unit rate — pricing scales with your traffic and needs.
+              </p>
               <p class="mt-3 text-[13px] leading-relaxed text-slate-300">
                 Only billed when a consented visitor becomes a real, identified record in your funnel.
               </p>
@@ -454,7 +456,7 @@ const peekSpark = [3, 5, 4, 7, 6, 9, 8, 11, 10, 14, 13, 17, 18];
               <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/10 pt-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                 <span class="inline-flex items-center gap-1.5"><IconLock size={12} stroke={2} color="#00E5A0" /> Exclusive</span>
                 <span class="inline-flex items-center gap-1.5"><IconUserCheck size={12} stroke={2} color="#00E5A0" /> Consent-first</span>
-                <span class="inline-flex items-center gap-1.5"><IconBuilding size={12} stroke={2} color="#00E5A0" /> 17 trades</span>
+                <span class="inline-flex items-center gap-1.5"><IconBuilding size={12} stroke={2} color="#00E5A0" /> Any industry</span>
               </div>
             </div>
           </div>

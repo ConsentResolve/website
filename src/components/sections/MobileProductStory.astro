@@ -3,7 +3,7 @@
  * MobileProductStory — "Meet Consent Resolve": a mobile-only, Tinder-style
  * swipe deck that pitches a first-time visitor who's never heard of us.
  *
- * Structure follows StoryBrand (SB7): the contractor is the HERO with a
+ * Structure follows StoryBrand (SB7): the reader's business is the HERO with a
  * PROBLEM (anonymous visitors leaking away), Consent Resolve is the GUIDE with
  * empathy + authority, offers a PLAN (3 steps), the signature "it's a match"
  * reveal is the TRANSFORMATION, and the last card is the call to ACTION.
@@ -80,9 +80,9 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
         <div class="mcr-meta">
           <h2>Consent Resolve <span class="mcr-age">est. permission</span></h2>
           <p class="mcr-tag">Turns anonymous website visitors into consented leads</p>
-          <p class="mcr-bio">I help home-service pros actually meet the homeowners already on their site — only when they say yes. 100% legal. $7 a lead, never resold.</p>
-          <div class="mcr-tags"><span>Consent-first</span><span>$7 a lead</span><span>Never resold</span></div>
-          <p class="mcr-swipe-hint">Swipe to meet the pros we're for →</p>
+          <p class="mcr-bio">I help teams actually meet the visitors already on their site — only when they say yes. 100% legal, never resold.</p>
+          <div class="mcr-tags"><span>Consent-first</span><span>Custom pricing</span><span>Never resold</span></div>
+          <p class="mcr-swipe-hint">Swipe to see how it works →</p>
         </div>
       </div>
     </section>
@@ -100,14 +100,14 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
               <div class="mcr-fb-who"><b>Your Company</b><small>Sponsored · <span aria-hidden="true">🌐</span></small></div>
               <span class="mcr-fb-dots" aria-hidden="true">•••</span>
             </div>
-            <p class="mcr-fb-copy">Same-day service, done right. Book online in 60 seconds. 👇</p>
+            <p class="mcr-fb-copy">See results fast. Book a demo in 60 seconds. 👇</p>
             <div class="mcr-fb-img">
               <span class="mcr-fb-badge">LIMITED SPOTS</span>
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" aria-hidden="true"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-5h6v5" stroke-linejoin="round"/></svg>
-              <span class="mcr-fb-imgcap">Trusted by 500+ local homeowners</span>
+              <span class="mcr-fb-imgcap">Trusted by 500+ growing companies</span>
             </div>
             <div class="mcr-fb-bar">
-              <div><span class="mcr-fb-url">yoursite.com</span><span class="mcr-fb-head">Book Your Service Today</span></div>
+              <div><span class="mcr-fb-url">yoursite.com</span><span class="mcr-fb-head">Book Your Demo Today</span></div>
               <span class="mcr-fb-btn">Learn more</span>
             </div>
             <div class="mcr-fb-eng">
@@ -135,7 +135,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
     {/* 2 — PROBLEM / stakes: blurred anonymous faces */}
     <section class="mcr-card" data-card="2">
       <div class="mcr-problem">
-        {/* Same visitor-grid story as the trade landing pages: 100 ghosts land, the 2
+        {/* Same visitor-grid story used elsewhere on the site: 100 ghosts land, the 2
             who fill a form turn ghost -> check -> person, then the other 98 get X'd
             out and vanish. Replays each time the card becomes active. */}
         <div class="leakgrid mcr-leak" data-leak aria-hidden="true">
@@ -176,7 +176,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <h2>We think that's a rip-off.</h2>
-        <p class="mcr-bio">So we built the fix — the only visitor-ID layer that asks the homeowner first. You meet the people already raising their hand, and you stay compliant doing it.</p>
+        <p class="mcr-bio">So we built the fix — the only visitor-ID layer that asks the visitor first. You meet the people already raising their hand, and you stay compliant doing it.</p>
         <div class="mcr-badges">
           <span>⚖️ 100% Legal</span>
           <span>🛡️ Bank-Level Consent</span>
@@ -193,7 +193,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
         <h2>How we get you introduced.</h2>
         <ol>
           <li><span class="mcr-step">1</span><div><b>Add one line</b><small>Drop our snippet on your site. Live in ~10 minutes.</small></div></li>
-          <li><span class="mcr-step">2</span><div><b>A homeowner says yes</b><small>Your consent banner asks. They accept.</small></div></li>
+          <li><span class="mcr-step">2</span><div><b>A visitor says yes</b><small>Your consent banner asks. They accept.</small></div></li>
           <li><span class="mcr-step">3</span><div><b>You get their email address</b><small>Plus their name and what they were looking at.</small></div></li>
         </ol>
       </div>
@@ -219,7 +219,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
             <span class="mcr-crm-ava">J</span>
             <div class="mcr-crm-info">
               <b>Jordan M. <span class="mcr-consent">✓ consented</span></b>
-              <small>jordan.m@gmail.com · AC replacement</small>
+              <small>jordan.m@gmail.com · Enterprise plan inquiry</small>
             </div>
           </div>
 
@@ -240,7 +240,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
             </div>
             <div class="mcr-crm-row is-old">
               <span class="mcr-crm-ava sm alt">M</span>
-              <div class="mcr-crm-info"><b>Marcus T.</b><small>Booked $6,400 job</small></div>
+              <div class="mcr-crm-info"><b>Marcus T.</b><small>Closed $6,400 deal</small></div>
               <span class="mcr-crm-stage won">Won</span>
             </div>
           </div>
@@ -257,7 +257,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
           <svg width="38" height="38" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" stroke="var(--color-mint-400,#2ee6a6)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <h2>Ready for New Leads?</h2>
-        <p>Pick whichever's easiest. Most pros are live in about 10 minutes.</p>
+        <p>Pick whichever's easiest. Most teams are live in about 10 minutes.</p>
 
         {/* Call — real tel: link with the number on show. */}
         <div class="mcr-contact">
@@ -278,7 +278,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
           Live Chat
         </button>
 
-        <a class="mcr-cta-primary" href={REGISTER} onclick="window.crTrack&&window.crTrack('StartSignup',{source:'meet_story'})">Get Started — $7 a lead →</a>
+        <a class="mcr-cta-primary" href={REGISTER} onclick="window.crTrack&&window.crTrack('StartSignup',{source:'meet_story'})">Get Started — see your pricing →</a>
         <button type="button" class="mcr-cta-restart" onclick="window.crStoryGo&&window.crStoryGo(0)">↺ Start over</button>
       </div>
     </section>
@@ -380,7 +380,7 @@ const CARDS = 7; // keep in sync with the <section data-card> count below
   /* Top-anchored so the first grid row never clips at the top; sized so the full
      10x10 grid + copy + the solve hint all fit inside the card. */
   .mcr-problem { display: flex; flex-direction: column; height: 100%; padding: 1.05rem 1.15rem 1.6rem; justify-content: flex-start; gap: 0.65rem; }
-  /* Visitor grid — same story as the trade landing pages: ghost (anonymous) ->
+  /* Visitor grid — same story used elsewhere on the site: ghost (anonymous) ->
      check (consented) -> person (identified lead); the 98 get X'd out and vanish. */
   .mcr-leak { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.26rem; width: 100%; max-width: 252px; margin-inline: auto; }
   /* Resting state is VISIBLE — never depend on an animation's fill-mode to hold a

@@ -51,7 +51,7 @@ export const organizationSchema = {
   },
   image: `${SITE.url}/og-default.png`,
   description:
-    "Consent Resolve is a consent-first website visitor identification layer. It identifies anonymous website visitors as sales leads only after each visitor gives explicit, logged consent — eliminating the wiretapping and privacy-law exposure created by traditional visitor-ID and pixel-tracking tools. Leads come from the customer's own website traffic, are sold exclusively, never resold, at a flat $7 per lead. Not a shared-lead marketplace.",
+    "Consent Resolve is a consent-first website visitor identification layer. It identifies anonymous website visitors as sales leads only after each visitor gives explicit, logged consent — eliminating the wiretapping and privacy-law exposure created by traditional visitor-ID and pixel-tracking tools. Leads come from the customer's own website traffic, are sold exclusively and never resold. Custom pricing based on traffic and needs.",
   slogan: "Consent-first by design. Audit trail on every lead.",
   foundingDate: "2025-12-01",
   foundingLocation: {
@@ -75,12 +75,12 @@ export const organizationSchema = {
   ],
   areaServed: { "@type": "Country", name: "United States" },
   makesOffer: [
-    { "@type": "Offer", name: "Exclusive consented lead", description: "One consented, exclusive lead identified from the customer's own website traffic. Never resold. Includes a timestamped consent record. Flat $7, no contract, pay-as-you-go.", price: "7.00", priceCurrency: "USD", url: `${SITE.url}/pricing/` },
+    { "@type": "Offer", name: "Exclusive consented lead", description: "One consented, exclusive lead identified from the customer's own website traffic. Never resold. Includes a timestamped consent record. Custom pricing, no contract, pay-as-you-go.", url: `${SITE.url}/pricing/` },
   ],
   knowsAbout: [
     "Website visitor identification", "Identity resolution", "Consent management",
     "Data privacy compliance", "California Invasion of Privacy Act (CIPA)",
-    "Wiretapping litigation risk", "Lead generation for home service contractors",
+    "Wiretapping litigation risk", "B2B and B2C lead generation",
     "GDPR", "CCPA", "First-party data",
   ],
   founder: [
@@ -111,22 +111,15 @@ export const softwareApplicationSchema = {
   "@type": "SoftwareApplication",
   name: SITE.name,
   description:
-    "Consent-first ad-spend recovery layer for home-service contractors. Identifies the ~98% of website visitors who would otherwise bounce after they accept a consent banner, then feeds them back into the retargeting, email/SMS, and CRM funnels the contractor already runs. Same ad budget, more inbound calls. Flat $7 per recovered lead, exclusive, never resold.",
+    "Consent-first visitor-identification layer for any website. Identifies the ~98% of website visitors who would otherwise bounce anonymous after they accept a consent banner, then feeds them back into the retargeting, email, and CRM funnels already in use. Same marketing spend, more pipeline. Exclusive, never resold.",
   applicationCategory: "BusinessApplication",
   applicationSubCategory: "Marketing Recovery / Visitor Identification",
   operatingSystem: "Web",
   url: SITE.url,
   offers: {
     "@type": "Offer",
-    price: "7.00",
-    priceCurrency: "USD",
-    priceSpecification: {
-      "@type": "UnitPriceSpecification",
-      price: "7.00",
-      priceCurrency: "USD",
-      unitText: "per recovered lead",
-    },
-    description: "Flat $7 per recovered lead. Card required. No contract, pay-as-you-go.",
+    description: "Custom pricing, built around traffic and needs. No contract, pay-as-you-go.",
+    url: `${SITE.url}/pricing/`,
   },
   provider: { "@id": `${SITE.url}/#organization` },
 };

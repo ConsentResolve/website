@@ -10,8 +10,8 @@ interface Props {
   ctaHref?: string;
 }
 const {
-  heading = "Your next job is already shopping your site.",
-  body = "Go get it. Flat $7 per lead — yours alone, never resold. Feed your funnel, book the jobs, and see what consented leads are worth. Consent-first from the first click. Pay-as-you-go.",
+  heading = "Your next deal is already on your site.",
+  body = "Go get it. Custom pricing, yours alone, never resold. Feed your funnel, close the deals, and see what consented leads are worth. Consent-first from the first click, no contract.",
   ctaLabel = "Get Started",
   ctaHref = "https://dashboard.consentresolve.com/register",
 } = Astro.props as Props;
@@ -41,9 +41,9 @@ const {
         <div class="flex items-center justify-between rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
           <span class="flex items-center gap-3 text-[15px] text-slate-300">
             <IconCash size={20} stroke={1.5} color="#00E5A0" />
-            Per lead — flat
+            Pricing
           </span>
-          <span class="font-display text-3xl font-bold tracking-tight text-[color:var(--color-mint-400)]">$7</span>
+          <span class="font-display text-xl font-bold tracking-tight text-[color:var(--color-mint-400)]">Custom</span>
         </div>
         <div class="flex items-center justify-between rounded-2xl bg-white/[0.04] p-6 ring-1 ring-inset ring-white/10">
           <span class="flex items-center gap-3 text-[15px] text-slate-300">
@@ -54,7 +54,7 @@ const {
         </div>
         <div class="flex items-center justify-center gap-1.5 pt-5 text-xs text-slate-400">
           <IconLock size={12} stroke={1.75} />
-          Encrypted in transit and at rest · Card required · Pay-as-you-go
+          Encrypted in transit and at rest · No contract
         </div>
       </div>
     </div>

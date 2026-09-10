@@ -12,14 +12,14 @@ export interface HomepageFaq {
 export const HOMEPAGE_FAQS: HomepageFaq[] = [
   {
     question: "Is this legal?",
-    answer: "Here's what actually gets contractors sued: calling or texting people who never opted in (TCPA), and websites that track visitors without asking (CIPA and state privacy laws like the Texas TDPSA, which the Texas AG actively enforces). Consent Resolve is built the other way. A homeowner is identified only after an affirmative yes on your consent banner. Every consent is timestamped with a signed audit ID. Recovered contacts are re-engaged only through the channels that consent covers — your funnel, your tools. And we never hand you a number to cold-call. The tools that track people in secret are the ones writing settlement checks. We built the opposite.",
+    answer: "Here's what actually gets companies sued: calling or texting people who never opted in (TCPA), and websites that track visitors without asking (CIPA and state privacy laws like the Texas TDPSA, which the Texas AG actively enforces). Consent Resolve is built the other way. A visitor is identified only after an affirmative yes on your consent banner. Every consent is timestamped with a signed audit ID. Recovered contacts are re-engaged only through the channels that consent covers — your funnel, your tools. And we never hand you a number to cold-call. The tools that track people in secret are the ones writing settlement checks. We built the opposite.",
   },
   {
     question: "Do I have to change my privacy policy?",
     answer: "We handle it. Termageddon generates and updates the policies for you, so you stay covered without the legwork.",
   },
   {
-    question: "What if a homeowner doesn't consent?",
+    question: "What if a visitor doesn't consent?",
     answer: "Then you get nothing on them — and that's the point. No consent, no data. That's what keeps you safe.",
   },
   {
@@ -28,10 +28,10 @@ export const HOMEPAGE_FAQS: HomepageFaq[] = [
   },
   {
     question: "Which CRMs do you work with?",
-    answer: "On the trade side: Jobber, Housecall Pro, ServiceTitan, and GoHighLevel. Plus Salesforce, HubSpot, Pipedrive, Zoho CRM, Microsoft Dynamics, ActiveCampaign, Mailchimp, Klaviyo, Marketo, Pardot, Intercom, Segment, Google Sheets, Slack, Zapier, and any tool through a custom API or webhook. Don't see your CRM? We build custom integrations for enterprise customers.",
+    answer: "Salesforce, HubSpot, Pipedrive, Zoho CRM, Microsoft Dynamics, ActiveCampaign, Mailchimp, Klaviyo, Marketo, Pardot, Intercom, Segment, Google Sheets, Slack, Zapier, and any tool through a custom API or webhook. Don't see your CRM? We build custom integrations for enterprise customers.",
   },
   {
     question: "How does billing work?",
-    answer: "Yes. Flat $7 a lead — card required, no contract, pay-as-you-go.",
+    answer: "Custom pricing, built around your traffic — no contract, pay-as-you-go.",
   },
 ];
