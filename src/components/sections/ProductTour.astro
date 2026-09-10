@@ -32,30 +32,30 @@ const stages: Stage[] = [
   {
     id: "wt-install", num: 1, eyebrow: "Install", visual: "install",
     headline: "Paste one line. Your banner does the asking.",
-    body: "Drop the Consent Resolve snippet into your site once. Your existing consent banner asks for permission — and the moment a homeowner says yes, identification begins. No developer, no new banner, live in about 10 minutes.",
-    bullets: ["Works on WordPress, Wix, Squarespace, GHL, ServiceTitan", "Nothing happens until the homeowner consents"],
+    body: "Drop the Consent Resolve snippet into your site once. Your existing consent banner asks for permission — and the moment a visitor says yes, identification begins. No developer, no new banner, live in about 10 minutes.",
+    bullets: ["Works on WordPress, Webflow, Shopify, a custom stack", "Nothing happens until the visitor consents"],
     next: { label: "See who shows up", href: "#wt-identify" },
   },
   {
     id: "wt-identify", num: 2, eyebrow: "Identify", visual: "identify",
     headline: "Anonymous visitors become a named list.",
-    body: "Every consented homeowner turns from an anonymous hit into a real record — a name, a deliverable email, the pages they viewed, and a signed consent receipt. You know who they are and what job they came for.",
-    bullets: ["A real name + consented email, not an anonymous visit", "The pages they viewed — so you already know the job", "A signed, timestamped consent record on every one"],
+    body: "Every consented visitor turns from an anonymous hit into a real record — a name, a deliverable email, the pages they viewed, and a signed consent receipt. You know who they are and what they came for.",
+    bullets: ["A real name + consented email, not an anonymous visit", "The pages they viewed — so you already know the intent", "A signed, timestamped consent record on every one"],
     next: { label: "Send them to your tools", href: "#wt-connect" },
   },
   {
     id: "wt-connect", num: 3, eyebrow: "Connect", visual: "connect",
     headline: "Feed the funnel you already run.",
-    body: "Each recovered lead flows straight into your retargeting audiences, email/SMS, and CRM — Jobber, Housecall Pro, ServiceTitan, HubSpot, GoHighLevel, or anything custom via webhook. Consent Resolve is an input to your marketing, not a replacement.",
+    body: "Each recovered lead flows straight into your retargeting audiences, email, and CRM — HubSpot, Salesforce, Pipedrive, Klaviyo, or anything custom via webhook. Consent Resolve is an input to your marketing, not a replacement.",
     bullets: ["One-click connect to the tools you already use", "Webhook for anything custom"],
     next: { label: "Watch it add up", href: "#wt-measure" },
   },
   {
     id: "wt-measure", num: 4, eyebrow: "Measure", visual: "measure",
     headline: "Watch recovery add up.",
-    body: "The dashboard ties recovered visitors to the trend over time — same ad budget, more inbound calls, a lower blended cost per booked job. The homeowners you were losing become the ones calling you back.",
+    body: "The dashboard ties recovered visitors to the trend over time — same marketing spend, more pipeline, a lower blended cost per closed deal. The visitors you were losing become the ones reaching back out.",
     bullets: ["Recovered + enriched counts at a glance", "Ad-blocked traffic detected and never billed"],
-    next: { label: "Get started — $7 a lead", href: "https://dashboard.consentresolve.com/register", cta: true },
+    next: { label: "Get started — see your pricing", href: "https://dashboard.consentresolve.com/register", cta: true },
   },
 ];
 ---
@@ -67,7 +67,7 @@ const stages: Stage[] = [
     <header class="wt-header">
       <div class="mb-5 flex justify-center"><Badge tone="brand" variant="soft" size="md" uppercase>The walkthrough</Badge></div>
       <h2 class="wt-title">See it work, step by step.</h2>
-      <p class="wt-sub">The actual product, in the order you'll use it — from one line of code to the homeowners calling you back.</p>
+      <p class="wt-sub">The actual product, in the order you'll use it — from one line of code to the visitors reaching back out.</p>
     </header>
 
     <div class="wt-steps">
@@ -131,7 +131,7 @@ const stages: Stage[] = [
                       <p class="wv-name">Jordan M.</p>
                       <p class="wv-row"><IconMail size={13} stroke={1.9} /> jordan.m@gmail.com</p>
                       <div class="wv-tags">
-                        <span class="wv-tag wv-tag-mint">Viewed: AC replacement</span>
+                        <span class="wv-tag wv-tag-mint">Viewed: Pricing page</span>
                         <span class="wv-tag"><IconDeviceMobile size={12} stroke={1.9} /> Mobile</span>
                         <span class="wv-tag"><IconClock size={12} stroke={1.9} /> 2 min ago</span>
                       </div>
@@ -148,12 +148,12 @@ const stages: Stage[] = [
 
               {s.visual === "connect" && (
                 <div class="wv">
-                  <div class="wv-lead"><span class="wv-av">J</span> New lead · Jordan M. <span class="wv-lead-badge">$7</span></div>
+                  <div class="wv-lead"><span class="wv-av">J</span> New lead · Jordan M. <span class="wv-lead-badge">✓</span></div>
                   <div class="wv-conn wv-conn-mint"><IconArrowDown size={16} stroke={2.25} /> <span>flows into</span></div>
                   <div class="wv-tiles">
                     {[
-                      { n: "Jobber", on: true }, { n: "Housecall Pro", on: true }, { n: "ServiceTitan", on: false },
-                      { n: "HubSpot", on: true }, { n: "GoHighLevel", on: false }, { n: "Webhook", on: true },
+                      { n: "HubSpot", on: true }, { n: "Salesforce", on: true }, { n: "Pipedrive", on: false },
+                      { n: "Klaviyo", on: true }, { n: "Slack", on: false }, { n: "Webhook", on: true },
                     ].map((t) => (
                       <div class:list={["wv-tile", t.on && "is-on"]}>
                         <span class="wv-tile-ic"><IconPlugConnected size={16} stroke={1.8} /></span>
@@ -182,7 +182,7 @@ const stages: Stage[] = [
                     <path d="M0 78 L40 70 L80 66 L120 52 L160 55 L200 40 L240 34 L280 22 L320 12 L320 90 L0 90 Z" fill="url(#wvg)"/>
                     <path d="M0 78 L40 70 L80 66 L120 52 L160 55 L200 40 L240 34 L280 22 L320 12" fill="none" stroke="#00e5a0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <div class="wv-note"><IconBolt size={14} stroke={2} /> Same ad budget · lower cost per booked job</div>
+                  <div class="wv-note"><IconBolt size={14} stroke={2} /> Same marketing spend · lower cost per closed deal</div>
                 </div>
               )}
             </div>

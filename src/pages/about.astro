@@ -7,8 +7,8 @@
  * canonical Organization (#organization) defined in src/lib/seo.ts. Person
  * @ids (/about/#slug) are referenced by the org's founder/employee arrays.
  *
- * Voice: contractor-first, "receipts not slogans". Pricing is the canonical
- * flat $7 per exclusive lead (no contract, pay-as-you-go; never "free").
+ * Voice: buyer-first, "receipts not slogans". Pricing is custom per
+ * exclusive lead (no contract, pay-as-you-go; never "free").
  */
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Badge from "~/components/ui/Badge.astro";
@@ -27,7 +27,7 @@ const stats = [
   { n: "25+",  l: "Years building internet companies" },
   { n: "50+",  l: "Acquisitions led in hosting & SaaS" },
   { n: "1999", l: "Year our engineer started shipping web code" },
-  { n: "$7",   l: "Flat per lead — exclusive, never resold" },
+  { n: "0",    l: "Leads ever resold to a competitor" },
   { n: "100%", l: "Of leads carry a timestamped consent log" },
 ];
 
@@ -36,31 +36,31 @@ const factRows = [
   { k: "Headquarters", v: "1907 Gulf Way #1, St Pete Beach, FL 33706" },
   { k: "Leadership",   v: "Andy Mentges (CEO) · Jason Beyke (COO) · Aaron Phillips (CMO)" },
   { k: "What we do",   v: "Consent-based website visitor identification & lead resolution" },
-  { k: "Who we serve", v: "Home-service contractors, US-wide — 17+ trades" },
-  { k: "Pricing",      v: "$7 flat per exclusive lead · no contract, pay-as-you-go" },
+  { k: "Who we serve", v: "Any business with a website and real traffic, US-wide" },
+  { k: "Pricing",      v: "Custom per exclusive lead · no contract, pay-as-you-go" },
 ];
 
 const notList = [
-  { Icon: IconShieldOff, title: "Not a shared-lead marketplace.", body: "We don't sell the same homeowner to you and three competitors. Leads come from your own website traffic and go to you alone." },
+  { Icon: IconShieldOff, title: "Not a shared-lead marketplace.", body: "We don't sell the same visitor to you and other buyers. Leads come from your own website traffic and go to you alone." },
   { Icon: IconEyeOff,    title: "Not a covert tracking pixel.",   body: "No fingerprinting, no shadow identity matching. Nobody gets identified without a logged, timestamped yes." },
-  { Icon: IconFileText,  title: "Not a contract trap.",          body: "No contracts, no setup fees, no monthly minimums. $7 per lead, pay-as-you-go. If the math stops working, leaving is one click." },
+  { Icon: IconFileText,  title: "Not a contract trap.",          body: "No contracts, no setup fees, no monthly minimums. Custom pricing, pay-as-you-go. If the math stops working, leaving is one click." },
 ];
 
 const commitments = [
   { title: "Consent before identification. Always.", body: "No visitor is ever identified without an explicit, affirmative opt-in. Not \"implied consent.\" Not a banner nobody reads. A logged yes." },
   { title: "A timestamped audit trail on every lead.", body: "Every lead we deliver includes a record of when and how the person consented. If you're ever asked to prove it, you can." },
-  { title: "Exclusive leads, never resold.", body: "A lead goes to one business. We don't sell the same homeowner to you and three competitors. $7 flat, yours alone." },
-  { title: "Plain-English pricing, no contracts.", body: "$7 per lead, flat. No setup fees, no monthly minimums, pay-as-you-go. If the math stops working for you, leaving is one click." },
+  { title: "Exclusive leads, never resold.", body: "A lead goes to one business. We don't sell the same visitor to you and other buyers. Custom pricing, yours alone." },
+  { title: "Plain-English pricing, no contracts.", body: "Custom pricing, built around your traffic. No setup fees, no monthly minimums, pay-as-you-go. If the math stops working for you, leaving is one click." },
   { title: "Our names on the company.", body: "Five real people with public track records run Consent Resolve. When we make a claim, you can check it against our LinkedIn profiles — and we link them right on this page." },
 ];
 
 const aboutFaqs = [
-  { question: "What is Consent Resolve?", answer: "Consent Resolve is a consent-first website visitor identification layer. It turns anonymous visitors on your own website into named, contactable sales leads — but only after each visitor gives explicit consent, which is logged with a timestamp. Leads cost a flat $7 each and are exclusive to one business, never resold." },
-  { question: "Is Consent Resolve a lead marketplace like Angi or HomeAdvisor?", answer: "No. Marketplaces sell the same homeowner to multiple contractors and own the customer relationship. Consent Resolve identifies visitors already on your own website — people who found you — and delivers each one exclusively to you. You are recovering your own traffic, not bidding against four competitors for a stranger." },
+  { question: "What is Consent Resolve?", answer: "Consent Resolve is a consent-first website visitor identification layer. It turns anonymous visitors on your own website into named, contactable sales leads — but only after each visitor gives explicit consent, which is logged with a timestamp. Leads carry custom pricing and are exclusive to one business, never resold." },
+  { question: "Is Consent Resolve a lead marketplace?", answer: "No. Marketplaces sell the same visitor to multiple buyers and own the customer relationship. Consent Resolve identifies visitors already on your own website — people who found you — and delivers each one exclusively to you. You are recovering your own traffic, not bidding against other buyers for a stranger." },
   { question: "Is website visitor identification legal?", answer: "It depends entirely on consent. Identifying visitors without their knowledge has triggered wiretapping lawsuits under laws like the California Invasion of Privacy Act. Consent Resolve only identifies visitors who explicitly opt in, and logs every consent with a timestamp — so each lead carries its own proof of lawful collection." },
   { question: "Who founded Consent Resolve?", answer: "Consent Resolve was founded in December 2025 by Andy Mentges (CEO, also CEO of VerticalResponse), Jason Beyke (COO, also COO of VerticalResponse), and Aaron Phillips (CMO, former cPanel executive). The team has 25+ years of experience building internet companies, including 50+ acquisitions and Capitol Hill testimony on internet policy." },
-  { question: "Who does Consent Resolve serve?", answer: "Consent Resolve serves home-service contractors — plumbers, roofers, HVAC companies, electricians, and more than a dozen other trades across the United States. Any contractor losing anonymous website visitors who never call or fill out a form can recover those visitors as consented leads." },
-  { question: "How much does Consent Resolve cost?", answer: "Consent Resolve charges a flat $7 per lead. Every lead is exclusive — sold to one business only, never resold to competitors. There are no contracts, no setup fees, and no monthly minimums; customers can pay-as-you-go." },
+  { question: "Who does Consent Resolve serve?", answer: "Consent Resolve serves any business with a website and real traffic — B2B or B2C, any industry, across the United States. Any business losing anonymous website visitors who never call or fill out a form can recover those visitors as consented leads." },
+  { question: "How much does Consent Resolve cost?", answer: "Consent Resolve charges custom pricing per lead, built around your traffic. Every lead is exclusive — sold to one business only, never resold to competitors. There are no contracts, no setup fees, and no monthly minimums; customers can pay-as-you-go." },
   { question: "Where is Consent Resolve located?", answer: "Consent Resolve is headquartered at 1907 Gulf Way #1, St Pete Beach, Florida 33706. The team works from Florida, Texas, Ohio, and Europe, and serves customers throughout the United States. Reach the company at (727) 999-9846 or hello@consentresolve.com." },
   { question: "How do I talk to a real person at Consent Resolve?", answer: "Call or text (727) 999-9846, or email hello@consentresolve.com. Mack — our AI assistant — answers instantly, day or night, and connects you straight to a named member of the team, usually Tyler Spurlock, our Account Manager. No phone tree, no offshore script. Every person who works here is listed on this page with a public LinkedIn profile." },
 ];
@@ -97,7 +97,7 @@ const personNodes = [
     "@type": "Person", "@id": `${SITE.url}/about/#tyler-spurlock`, name: "Tyler Spurlock",
     jobTitle: "Account Manager", worksFor: { "@id": ORG },
     workLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: "Cincinnati", addressRegion: "OH", addressCountry: "US" } },
-    description: "Account Manager at Consent Resolve. University of Cincinnati graduate with a background in consultative sales and financial analytics, including financial reporting for the $92M-per-year food and beverage division of the Hotel del Coronado. Talks with contractors every day.",
+    description: "Account Manager at Consent Resolve. University of Cincinnati graduate with a background in consultative sales and financial analytics, including financial reporting for the $92M-per-year food and beverage division of the Hotel del Coronado. Talks with customers every day.",
     url: `${SITE.url}/about/#tyler-spurlock`, image: `${SITE.url}/team/tyler-spurlock.jpg`, sameAs: ["https://www.linkedin.com/in/tylerspurlock-478660276/"],
     alumniOf: [{ "@type": "CollegeOrUniversity", name: "University of Cincinnati" }],
     knowsAbout: ["Account management", "Consultative sales", "Customer success"],
@@ -117,7 +117,7 @@ const aboutPageNode = {
   "@id": `${SITE.url}/about/#webpage`,
   url: `${SITE.url}/about/`,
   name: "About Consent Resolve — The Consent-First Visitor Identification Company",
-  description: "Who Consent Resolve is, why the company exists, and the team behind the consent-first visitor identification layer for home-service contractors.",
+  description: "Who Consent Resolve is, why the company exists, and the team behind the consent-first visitor identification layer for any website.",
   inLanguage: "en-US",
   isPartOf: { "@id": `${SITE.url}/#website` },
   about: { "@id": ORG },
@@ -142,7 +142,7 @@ const schemas = [aboutPageNode, breadcrumbNode, ...personNodes, faqSchema(aboutF
   ogImage="/og/about.png"
   title="About Consent Resolve — Consent-First Visitor Identification"
   ogTitle="Why we built a consent-first way to recover site visitors."
-  description="The consent-first visitor-identification company for contractors — 25+ years building internet companies and a flat $7 exclusive lead. Meet the team."
+  description="The consent-first visitor-identification company for any website — 25+ years building internet companies and custom-priced exclusive leads. Meet the team."
   canonical="https://consentresolve.com/about/"
   schema={schemas}
 >
@@ -160,7 +160,7 @@ const schemas = [aboutPageNode, breadcrumbNode, ...personNodes, faqSchema(aboutF
         Real people. Real track records. <span class="text-[color:var(--color-brand)]">Real consent.</span>
       </h1>
       <p class="mt-7 max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-        We're the team that helps contractors turn their own website visitors into exclusive $7 leads — without the sketchy tracking that gets businesses sued. Every name below links to a public LinkedIn profile. Check our work.
+        We're the team that helps businesses turn their own website visitors into exclusive leads — without the sketchy tracking that gets businesses sued. Every name below links to a public LinkedIn profile. Check our work.
       </p>
       <ul class="mt-8 flex flex-wrap items-center gap-x-7 gap-y-2 font-mono text-[13px] text-[color:var(--color-ink-muted)]">
         <li><strong class="text-[color:var(--color-ink)]">Founded Dec 2025</strong> · St Pete Beach, FL</li>
@@ -193,7 +193,7 @@ const schemas = [aboutPageNode, breadcrumbNode, ...personNodes, faqSchema(aboutF
             <strong class="text-white">Consent Resolve is a consent-first website visitor identification layer.</strong> It turns the anonymous visitors already on your website into named, contactable sales leads — but only after each visitor explicitly says yes. Every consent is logged with a timestamp, every lead carries its own audit trail, and every lead is exclusive: sold to one business, never resold.
           </p>
           <p class="mt-4 text-[15px] leading-relaxed text-slate-300">
-            Traditional visitor-ID tools match people against identity databases without their knowledge. That practice has fueled a wave of wiretapping lawsuits under laws like the California Invasion of Privacy Act. We built Consent Resolve so home-service contractors can recover lost website traffic <strong class="text-white">without carrying that legal risk</strong> — at a flat <a href="/pricing/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">$7 per lead</a>, pay-as-you-go. See exactly <a href="/how-it-works/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">how it works</a> or read <a href="/why-consent-first/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">why consent-first matters</a>.
+            Traditional visitor-ID tools match people against identity databases without their knowledge. That practice has fueled a wave of wiretapping lawsuits under laws like the California Invasion of Privacy Act. We built Consent Resolve so any business can recover lost website traffic <strong class="text-white">without carrying that legal risk</strong> — at <a href="/pricing/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">custom pricing per lead</a>, pay-as-you-go. See exactly <a href="/how-it-works/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">how it works</a> or read <a href="/why-consent-first/" class="font-semibold text-[color:var(--color-mint-400)] underline underline-offset-2">why consent-first matters</a>.
           </p>
         </div>
         <dl class="self-start overflow-hidden rounded-xl font-mono text-[13px] ring-1 ring-inset ring-white/15">
@@ -231,7 +231,7 @@ const schemas = [aboutPageNode, breadcrumbNode, ...personNodes, faqSchema(aboutF
       </h2>
       <div class="mt-7 space-y-5 text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
         <p>If you run a service business, you know the math: you spend real money on ads, SEO, and a decent website — and most of the people who visit never call, never fill out a form, never come back. The lead-gen industry's answer was a new kind of tool that secretly identifies those visitors by fingerprinting them and matching them against massive identity databases. No opt-in. No disclosure. No record.</p>
-        <p>Plaintiffs' attorneys noticed. Lawsuits invoking decades-old wiretapping statutes — like the California Invasion of Privacy Act — started landing on small businesses that thought they'd just bought a marketing tool. The contractor gets the demand letter; the tracking vendor shrugs.</p>
+        <p>Plaintiffs' attorneys noticed. Lawsuits invoking decades-old wiretapping statutes — like the California Invasion of Privacy Act — started landing on small businesses that thought they'd just bought a marketing tool. The business owner gets the demand letter; the tracking vendor shrugs.</p>
         <p class="border-l-[3px] border-[color:var(--color-brand)] py-1.5 pl-6 font-display text-2xl font-bold leading-snug text-[color:var(--color-ink)]">
           The industry's answer was to track harder and disclose less. Ours was to ask permission.
         </p>
@@ -319,13 +319,13 @@ const schemas = [aboutPageNode, breadcrumbNode, ...personNodes, faqSchema(aboutF
     <div aria-hidden="true" class="pointer-events-none absolute -right-32 top-1/2 size-[480px] -translate-y-1/2 rounded-full bg-[color:var(--color-mint-400)]/15 blur-[120px]"></div>
     <div class="container-content section relative text-center">
       <div class="mb-6 flex justify-center"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase>Get started today</Badge></div>
-      <h2 class="display-2 mx-auto max-w-2xl text-white">Your next job is already shopping your site.</h2>
+      <h2 class="display-2 mx-auto max-w-2xl text-white">Your next deal is already on your site.</h2>
       <p class="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-slate-300">
-        Go get it. Flat $7 per lead — yours alone, never resold. No contract, pay-as-you-go — judge it for yourself.
+        Go get it. Custom pricing per lead — yours alone, never resold. No contract, pay-as-you-go — judge it for yourself.
       </p>
       <div class="mt-9 flex flex-wrap justify-center gap-3">
         <a href="https://dashboard.consentresolve.com/register" class="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-mint-400)] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[color:var(--color-navy-900)] transition-all hover:-translate-y-0.5 hover:bg-[color:var(--color-mint-300)]">
-          Get Started — $7/lead <IconArrowRight size={16} stroke={2.25} />
+          Get Started <IconArrowRight size={16} stroke={2.25} />
         </a>
         <a href="tel:+17279999846" class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white ring-1 ring-inset ring-white/25 transition-all hover:bg-white/5">
           <IconPhone size={16} stroke={2} /> Talk to Tyler — (727) 999-9846

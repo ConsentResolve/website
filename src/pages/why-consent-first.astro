@@ -4,11 +4,11 @@
  * "is website visitor identification legal." Linked from every compliance
  * block ("How we think about the law →") and the footer company column.
  *
- * Positioning (June 2026, LOCKED): reframed around the U.S. contractor risk
+ * Positioning (June 2026, LOCKED): reframed around the U.S. business risk
  * map — TCPA/DNC, CIPA/wiretap web-tracking litigation, and state privacy
  * enforcement led by Texas. GDPR is a single supporting line. Consent
- * Resolve never contacts homeowners and never hands over a number to
- * cold-call. Voice locked to /style-guide/voice/.
+ * Resolve never contacts visitors directly and never hands over a number
+ * to cold-call. Voice locked to /style-guide/voice/.
  *
  * FLAG: counsel must sign off on this page before launch (see launch
  * checklist).
@@ -32,14 +32,14 @@ const breadcrumbs = breadcrumbSchema([
 const faqs = [
   {
     question: "Is website visitor identification legal?",
-    answer: "It depends entirely on how it's done. What gets contractors sued is reaching people who never opted in (TCPA) and tracking website visitors who never agreed (CIPA and state privacy laws like the Texas TDPSA). Consent Resolve identifies a visitor only after an affirmative yes on your consent banner, logs a signed and timestamped consent record, and never hands you a number to cold-call. Built that way, it's the opposite of the secret-tracking tools writing settlement checks.",
+    answer: "It depends entirely on how it's done. What gets companies sued is reaching people who never opted in (TCPA) and tracking website visitors who never agreed (CIPA and state privacy laws like the Texas TDPSA). Consent Resolve identifies a visitor only after an affirmative yes on your consent banner, logs a signed and timestamped consent record, and never hands you a number to cold-call. Built that way, it's the opposite of the secret-tracking tools writing settlement checks.",
   },
   {
     question: "What is the difference between this and the tracking tools getting sued?",
     answer: "Those tools fire before anyone agrees and identify people who never said yes — that's the conduct behind the CIPA wiretap suits and state privacy actions. Consent Resolve fires only after a consented yes, keeps an audit receipt on every record, and re-engages people only through channels their consent covers.",
   },
   {
-    question: "Do you call or text homeowners on my behalf?",
+    question: "Do you call or text visitors on my behalf?",
     answer: "No. Consent Resolve is a data layer, never a sender. You re-engage recovered contacts through your own email, SMS, retargeting, and CRM tools, where your consent covers it. That keeps the CAN-SPAM and TCPA posture in your hands, on your terms.",
   },
   {
@@ -55,7 +55,7 @@ const faqs = [
 const schemas = [breadcrumbs, faqSchema(faqs)];
 
 const aeoText =
-  "Website visitor identification is legal when it happens only after consent. What exposes contractors is calling or texting people who never opted in (TCPA) and tracking visitors who never agreed (CIPA and state privacy laws like the Texas TDPSA). Consent Resolve identifies a homeowner only after an affirmative yes, logs a signed consent record, and never provides a number to cold-call — recovered contacts re-engage through the contractor's own consented channels.";
+  "Website visitor identification is legal when it happens only after consent. What exposes companies is calling or texting people who never opted in (TCPA) and tracking visitors who never agreed (CIPA and state privacy laws like the Texas TDPSA). Consent Resolve identifies a visitor only after an affirmative yes, logs a signed consent record, and never provides a number to cold-call — recovered contacts re-engage through your own consented channels.";
 
 const risks = [
   {
@@ -79,7 +79,7 @@ const risks = [
 ];
 
 const architecture = [
-  { title: "Consent-gated script", body: "Nothing fires before consent. No identification, no tracking, until the homeowner says yes on your banner." },
+  { title: "Consent-gated script", body: "Nothing fires before consent. No identification, no tracking, until the visitor says yes on your banner." },
   { title: "Signed, timestamped records", body: "Every consent decision is logged with a signed audit ID, IP, and user agent — kept for seven years." },
   { title: "Audit retrieval on demand", body: "Export the complete consent trail any time. One regulator request or demand letter, one receipt." },
   { title: "No cold-callable numbers", body: "The deliverable is a consented email, enriched with name and location where available. We never hand you a number to cold-call." },
@@ -105,10 +105,10 @@ const architecture = [
           <span class="text-[color:var(--color-brand)]">The honest answer, not a one-word yes.</span>
         </h1>
         <p class="mx-auto mb-4 max-w-2xl text-lg leading-relaxed text-[color:var(--color-ink-2)]">
-          It's the question every smart contractor asks. It deserves a real answer.
+          It's the question every smart buyer asks. It deserves a real answer.
         </p>
         <p class="mx-auto max-w-2xl text-[15px] leading-relaxed text-[color:var(--color-ink-2)]">
-          The short version: what gets contractors sued isn't identifying a website visitor. It's reaching people who never opted in, and tracking visitors who never agreed. Consent Resolve is built the other way around.
+          The short version: what gets companies sued isn't identifying a website visitor. It's reaching people who never opted in, and tracking visitors who never agreed. Consent Resolve is built the other way around.
         </p>
       </div>
     </div>
@@ -119,7 +119,7 @@ const architecture = [
     <div class="container-content">
       <div class="mx-auto mb-12 max-w-2xl text-center">
         <Badge tone="warning" variant="soft" size="md" uppercase>The three real risks</Badge>
-        <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">What actually hits contractors.</h2>
+        <h2 class="display-2 mt-5 text-[color:var(--color-ink)]">What actually hits companies.</h2>
       </div>
       <div class="grid gap-5 md:grid-cols-3">
         {risks.map(({ Icon, title, body, source }) => (

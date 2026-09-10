@@ -85,7 +85,7 @@ export const TEAM: TeamMember[] = [
     hook: "Positioning. Calling out the BS.",
     bioParas: [
       "Aaron Phillips is the CMO and a co-founder of Consent Resolve, with 20+ years marketing web hosting, security, and SaaS to audiences who can smell a sales pitch a mile away. He spent eight years in executive leadership at cPanel — including Chief Business Officer and VP of Operations — handled business development at WHMCS, sat on the i2Coalition board, and most recently served as CMO of anti-malware platform Monarx.",
-      "Aaron also runs Hey Aaron! Marketing, a consultancy serving plumbers, roofers, and other home-service contractors in East Texas. That's not a side note — it's why Consent Resolve speaks contractor instead of ad-tech. Every job he's had has been some version of \"translate complicated tech into plain English without lying about it.\" That's the job here, too.",
+      "Aaron also runs Hey Aaron! Marketing, a consultancy serving plumbers, roofers, and other home-service contractors in East Texas. That's not a side note — it's why Consent Resolve speaks plain English instead of ad-tech jargon. Every job he's had has been some version of \"translate complicated tech into plain English without lying about it.\" That's the job here, too.",
     ],
     credentials: [
       { badge: "MARKETING", headline: "8 years in cPanel executive leadership" },
@@ -102,12 +102,12 @@ export const TEAM: TeamMember[] = [
     location: "Cincinnati, OH",
     hook: "The human who answers the phone.",
     bioParas: [
-      "Tyler Spurlock is the Account Manager at Consent Resolve and the person on the team who actually talks to contractors every day. A University of Cincinnati graduate, he came up through financial and data analytics — including reporting for the $92M-per-year food and beverage division at the Hotel del Coronado — before moving into consultative sales and account management.",
-      "Tyler hears what's working and what isn't directly from customers, and walks it back to engineering before any marketing copy gets written. If a claim survives Tyler, it survives contact with real contractors. Call or text (727) 999-9846 and Mack, our AI assistant, picks up on the spot — then puts you straight through to him.",
+      "Tyler Spurlock is the Account Manager at Consent Resolve and the person on the team who actually talks to customers every day. A University of Cincinnati graduate, he came up through financial and data analytics — including reporting for the $92M-per-year food and beverage division at the Hotel del Coronado — before moving into consultative sales and account management.",
+      "Tyler hears what's working and what isn't directly from customers, and walks it back to engineering before any marketing copy gets written. If a claim survives Tyler, it survives contact with real customers. Call or text (727) 999-9846 and Mack, our AI assistant, picks up on the spot — then puts you straight through to him.",
     ],
     credentials: [
       { badge: "CUSTOMER", headline: "Owned financial reporting on a $92M division" },
-      { badge: "CUSTOMER", headline: "Daily conversations with contractors" },
+      { badge: "CUSTOMER", headline: "Daily conversations with customers" },
     ],
     linkedin: "https://www.linkedin.com/in/tylerspurlock-478660276/",
     photo: "/team/tyler-spurlock.jpg",
