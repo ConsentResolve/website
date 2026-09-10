@@ -4,15 +4,15 @@
  * deck in /Users/aaronphillips/Downloads/consent-resolve-features.html).
  *
  * Voice locked to /style-guide/voice/:
- *   - Contractor is the hero; we're the guide.
- *   - 6-7th grade reading level, 2nd person, contractions.
- *   - Money is the through-line (jobs / $7 / spend / pay).
+ *   - The reader's business is the hero; we're the guide.
+ *   - 8-9th grade reading level, 2nd person, contractions.
+ *   - Revenue is the through-line (pipeline / deals / spend / pay).
  *   - No banned hype words (no "free", no "instant", etc.).
  *
  * Structure — four sections, each with its own job:
  *   Part 1  Stop losing leads you already paid for     (4 cards, dark)
- *   Part 2  Know who's serious before you call         (3 cards, light)
- *   Part 3  Turn identified visitors into booked jobs  (3 cards, bg-alt)
+ *   Part 2  Know who's serious before you reach out     (3 cards, light)
+ *   Part 3  Turn identified visitors into closed deals  (3 cards, bg-alt)
  *   Part 4  Stay legal without thinking about it       (5 cards + Pay-
  *                                                       Per-Results
  *                                                       risk-reversal
@@ -67,14 +67,14 @@ const parts: Part[] = [
     badgeTone: "warning",
     badgeSurface: "dark",
     headline: "Stop losing leads you already paid for.",
-    blurb: "Your website gets visitors every day. Most leave without a trace — and call the next shop instead. Here's how we catch the ones who tap your consent banner.",
+    blurb: "Your website gets visitors every day. Most leave without a trace — and go to a competitor instead. Here's how we catch the ones who tap your consent banner.",
     bg: "dark",
     gridCols: 2,
     cards: [
       {
         Icon: IconEye,
         title: "Visitor Identification",
-        body: "Real homeowners are on your site right now, looking at your services. Most leave without calling. We hand you their name and email — so the lead you already earned doesn't walk away.",
+        body: "Real visitors are on your site right now, looking at what you offer. Most leave without reaching out. We hand you their name and email — so the lead you already earned doesn't walk away.",
         href: "/features/visitor-identification/",
       },
       {
@@ -86,7 +86,7 @@ const parts: Part[] = [
       {
         Icon: IconRefresh,
         title: "Return-Visit Alerts",
-        body: "When a recovered homeowner comes back to your site, you know. Their record is already in your funnel, so your retargeting and email keep you top of mind until they call — warm, on their own time.",
+        body: "When a recovered visitor comes back to your site, you know. Their record is already in your funnel, so your retargeting and email keep you top of mind until they reach out — warm, on their own time.",
         href: "/features/multi-channel-follow-up/",
       },
       {
@@ -103,15 +103,15 @@ const parts: Part[] = [
     navLabel: "Sort the serious",
     badgeTone: "brand",
     badgeSurface: "light",
-    headline: "Know who's serious before you pick up the phone.",
-    blurb: "Your time is worth money. Spend it on the homeowners ready to buy — not the tire-kickers.",
+    headline: "Know who's serious before you reach out.",
+    blurb: "Your time is worth money. Spend it on the visitors ready to buy — not the tire-kickers.",
     bg: "light",
     gridCols: 3,
     cards: [
       {
         Icon: IconChartHistogram,
         title: "Browse History",
-        body: "Every lead arrives with a trail of what they looked at, in what order, and for how long. The homeowner who went from \"roof replacement\" to \"financing\" is ready for a call today.",
+        body: "Every lead arrives with a trail of what they looked at, in what order, and for how long. The visitor who went from \"pricing\" to \"enterprise plan\" is ready for a conversation today.",
         href: "/features/behavior-and-job-type-insights/",
       },
       {
@@ -123,17 +123,17 @@ const parts: Part[] = [
       {
         Icon: IconChartHistogram,
         title: "Most Viewed Pages",
-        body: "See which pages on your site real, identified homeowners look at most. Now you know what's bringing in jobs — and what's getting ignored.",
+        body: "See which pages on your site real, identified visitors look at most. Now you know what's bringing in deals — and what's getting ignored.",
       },
     ],
   },
   {
     slug: "into-booked-jobs",
     partLabel: "Part 3 of 4",
-    navLabel: "Book the job",
+    navLabel: "Close the deal",
     badgeTone: "brand",
     badgeSurface: "light",
-    headline: "Turn identified visitors into booked jobs.",
+    headline: "Turn identified visitors into closed deals.",
     blurb: "Follow-up shouldn't mean more work. Every recovered lead drops straight into the tools you already use.",
     bg: "alt",
     gridCols: 3,
@@ -141,12 +141,12 @@ const parts: Part[] = [
       {
         Icon: IconRefresh,
         title: "Ad Retargeting Audiences",
-        body: "Send your identified visitors straight into Facebook and Google as ready-made audiences. Ads shown to homeowners who already visited your site cost less and book more.",
+        body: "Send your identified visitors straight into Facebook and Google as ready-made audiences. Ads shown to visitors who already visited your site cost less and convert more.",
       },
       {
         Icon: IconPlugConnected,
         title: "Integrations",
-        body: "Pushes leads into Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, and GoHighLevel in a few clicks. No developer. No new system to learn.",
+        body: "Pushes leads into HubSpot, Salesforce, Pipedrive, Klaviyo, and more in a few clicks. No developer. No new system to learn.",
         href: "/features/crm-delivery/",
       },
       {
@@ -182,7 +182,7 @@ const parts: Part[] = [
       {
         Icon: IconShieldCheck,
         title: "Privacy-Law Compliance",
-        body: "Privacy laws are different in every state and change all the time. We track every one of them and keep you covered automatically. You run your shop — we'll watch the laws.",
+        body: "Privacy laws are different in every state and change all the time. We track every one of them and keep you covered automatically. You run your business — we'll watch the laws.",
         href: "/why-consent-first/",
       },
       {
@@ -243,9 +243,9 @@ const cardIconBg = (bg: Part["bg"]) =>
 
 <BaseLayout
   ogImage="/og/features.png"
-  title="Features — Turn Anonymous Homeowners Into Booked Jobs"
-  ogTitle="Every feature, built to turn site visitors into booked jobs."
-  description="Visitor identification, lead intel, funnel delivery, and built-in privacy compliance — every feature built to turn anonymous homeowners into booked jobs."
+  title="Features — Turn Anonymous Visitors Into Closed Deals"
+  ogTitle="Every feature, built to turn site visitors into closed deals."
+  description="Visitor identification, lead intel, funnel delivery, and built-in privacy compliance — every feature built to turn anonymous visitors into closed deals."
   schema={schemas}
 >
   <!-- ============================================================== -->
@@ -264,10 +264,10 @@ const cardIconBg = (bg: Part["bg"]) =>
         <div>
           <div class="mb-7"><Badge tone="brand" variant="soft" surface="dark" size="md" uppercase icon={IconShieldCheck}>Recovery first. Receipts always.</Badge></div>
           <h1 class="display-1 mb-7 text-white">
-            Every Tool Here Turns an Anonymous Homeowner <span class="text-[color:var(--color-mint-400)]">Into a Job.</span>
+            Every Tool Here Turns an Anonymous Visitor <span class="text-[color:var(--color-mint-400)]">Into a Deal.</span>
           </h1>
           <p class="max-w-xl text-lg leading-relaxed text-slate-300">
-            Identification, lead intel, funnel delivery, and follow-up — every feature on this page exists to recover the homeowners your ads already paid for. And every one sits on a consent-first foundation: documented consent, a 7-year audit trail, and a signed receipt on every lead, built for TCPA, CIPA, and state privacy laws like the Texas TDPSA. The jobs you book here never become a lawsuit.
+            Identification, lead intel, funnel delivery, and follow-up — every feature on this page exists to recover the visitors your marketing already paid for. And every one sits on a consent-first foundation: documented consent, a 7-year audit trail, and a signed receipt on every lead, built for TCPA, CIPA, and state privacy laws like the Texas TDPSA. The deals you close here never become a lawsuit.
           </p>
 
           <ul class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-300">

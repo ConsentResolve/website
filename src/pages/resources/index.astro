@@ -2,8 +2,8 @@
 /**
  * Resource Center landing page — /resources/.
  * Introduces the categories (How-To Guides, Glossary, Plain-Language
- * Explainers, Blog, Channel Comparisons) and links to each category page,
- * then shows the latest few resources. Each category lives on its own page.
+ * Explainers, Blog) and links to each category page, then shows the
+ * latest few resources. Each category lives on its own page.
  */
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import Breadcrumbs from "~/components/Breadcrumbs.astro";
@@ -12,7 +12,6 @@ import ResourceGrid from "~/components/resources/ResourceGrid.astro";
 import { itemListSchema } from "~/lib/seo";
 import { SITE } from "~/lib/site";
 import { RESOURCE_TYPES, RESOURCE_TYPE_ORDER, typeHref, getResources } from "~/lib/resources";
-import { COMPARE_PAGES } from "~/data/compare";
 import { GLOSSARY_TERMS } from "~/data/glossary";
 import {
   IconArrowRight,
@@ -20,7 +19,6 @@ import {
   IconVocabulary,
   IconBulb,
   IconNews,
-  IconChartBar,
 } from "@tabler/icons-react";
 
 const all = await getResources();
@@ -42,7 +40,7 @@ const typeCard = (type: (typeof RESOURCE_TYPE_ORDER)[number]) => ({
 });
 
 // Category cards. Glossary is a standalone single page (not a collection type),
-// so it's listed manually alongside the collection types + Channel Comparisons.
+// so it's listed manually alongside the collection types.
 const categories = [
   typeCard("how-to-guide"),
   {
@@ -55,15 +53,6 @@ const categories = [
   },
   typeCard("plain-language-explainer"),
   typeCard("blog"),
-  {
-    label: "Channel Comparisons",
-    blurb:
-      "With/without booked-job math for Google LSA, Thumbtack, Angi, and HomeAdvisor — how Consent Resolve stacks up additively.",
-    href: "/resources/compare/",
-    count: COMPARE_PAGES.length,
-    noun: "comparisons",
-    Icon: IconChartBar,
-  },
 ];
 
 const latest = all.slice(0, 3);

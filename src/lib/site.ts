@@ -32,18 +32,6 @@ export const PRIMARY_NAV: NavItem[] = [
   { label: "Features", href: "/features/" },
   { label: "How It Works", href: "/how-it-works/" },
   {
-    label: "Industries",
-    href: "/industries/",
-    children: [
-      { label: "Plumbers", href: "/plumber-leads/" },
-      { label: "Roofers", href: "/roofing-leads/" },
-      { label: "HVAC", href: "/hvac-leads/" },
-      { label: "Electricians", href: "/electrician-leads/" },
-      { label: "General Contractors", href: "/general-contractor-leads/" },
-      { label: "All industries →", href: "/industries/" },
-    ],
-  },
-  {
     label: "Resources",
     href: "/resources/",
     children: [
@@ -51,7 +39,6 @@ export const PRIMARY_NAV: NavItem[] = [
       { label: "Glossary", href: "/resources/glossary/", desc: "Plain-English definitions" },
       { label: "Straight Answers", href: "/resources/plain-language-explainers/", desc: "Plain “What is X?” answers" },
       { label: "Blog", href: "/resources/blog/", desc: "Ideas & evidence" },
-      { label: "Channel Comparisons", href: "/resources/compare/", desc: "With/without booked-job math" },
       { label: "All resources →", href: "/resources/" },
     ],
   },
@@ -64,23 +51,8 @@ export const FOOTER_NAV = {
     { label: "How It Works", href: "/how-it-works/" },
     { label: "Book a Walkthrough", href: "/demo/" },
     { label: "Live Demo", href: "/demo/sample/" },
-    { label: "Channel ROI", href: "/resources/compare/" },
     { label: "Pricing", href: "/pricing/" },
     { label: "Get Started", href: "https://dashboard.consentresolve.com/register" },
-  ],
-  industries: [
-    { label: "Plumbers", href: "/plumber-leads/" },
-    { label: "Roofers", href: "/roofing-leads/" },
-    { label: "HVAC", href: "/hvac-leads/" },
-    { label: "Electricians", href: "/electrician-leads/" },
-    { label: "All industries", href: "/industries/" },
-  ],
-  channels: [
-    { label: "+ Google LSA", href: "/resources/compare/google-local-service-ads/" },
-    { label: "+ Thumbtack", href: "/resources/compare/thumbtack/" },
-    { label: "+ Angi", href: "/resources/compare/angi/" },
-    { label: "+ HomeAdvisor", href: "/resources/compare/homeadvisor/" },
-    { label: "All channels", href: "/resources/compare/" },
   ],
   company: [
     { label: "About", href: "/about/" },

@@ -4,6 +4,37 @@
 // General site path redirects (retired pages -> canonical). Keys have NO trailing slash.
 export const PATH_REDIRECTS = {
   "/claim-50": "/demo/", // the book-a-meeting funnel now lives at /demo/; old /claim-50/ links redirect here
+
+  // Generic-SaaS pivot (Phase 3, 2026-09): retired the 17 trade landing pages,
+  // the /industries/ hub, the 4 platform /compare/ pages + hub, and /lead-math —
+  // all built around a home-service ICP the site no longer targets. GSC showed
+  // 0 clicks across every trade page in the 28d window before retirement, so
+  // there's no organic equity to preserve — these are plain redirects, not
+  // 1:1 content matches.
+  "/general-contractor-leads": "/features/",
+  "/handyman-leads": "/features/",
+  "/tree-removal-leads": "/features/",
+  "/hvac-leads": "/features/",
+  "/plumber-leads": "/features/",
+  "/locksmith-leads": "/features/",
+  "/electrician-leads": "/features/",
+  "/roofing-leads": "/features/",
+  "/painter-leads": "/features/",
+  "/deck-fence-leads": "/features/",
+  "/garage-door-leads": "/features/",
+  "/appliance-repair-leads": "/features/",
+  "/house-cleaning-leads": "/features/",
+  "/pest-control-leads": "/features/",
+  "/power-washing-leads": "/features/",
+  "/lawn-care-leads": "/features/",
+  "/mobile-car-service-leads": "/features/",
+  "/industries": "/features/",
+  "/resources/compare": "/pricing/",
+  "/resources/compare/thumbtack": "/pricing/",
+  "/resources/compare/angi": "/pricing/",
+  "/resources/compare/homeadvisor": "/pricing/",
+  "/resources/compare/google-local-service-ads": "/pricing/",
+  "/lead-math": "/pricing/",
 };
 
 export const BLOG_REDIRECTS = {
