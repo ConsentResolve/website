@@ -1,0 +1,132 @@
+---
+import DemoChrome from "./DemoChrome.astro";
+import { IconArrowRight, IconCheck, IconMapPin } from "@tabler/icons-react";
+
+const handle = "j*****y@example.com";
+const initials = "JE";
+const intent = "Water heater replacement quote";
+const tag = "water-heater-quote";
+---
+
+<DemoChrome active="visitors">
+  <div class="cp-header">
+    <p class="cp-title">Lead delivered</p>
+    <p class="cp-sub">Consented visitor → pushed to your CRM, automatically</p>
+  </div>
+
+  <div class="cp-flow">
+    <div class="cp-card cp-visitor-card">
+      <div class="cp-card-head">
+        <span>Resolved visitor</span>
+        <span class="cp-chip cp-chip-consented">CONSENTED</span>
+      </div>
+      <div class="cp-visitor-id">
+        <div class="cp-avatar">{initials}</div>
+        <div>
+          <div class="cp-handle">{handle}</div>
+          <div class="cp-intent">{intent}</div>
+          <div class="cp-loc"><IconMapPin size={12} stroke={1.75} color="#94a3b8" /> Austin, TX</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cp-arrow" aria-hidden="true">
+      <IconArrowRight size={22} stroke={2} color="#00E5A0" />
+    </div>
+
+    <div class="cp-card cp-crm-card">
+      <div class="cp-card-head">
+        <span>Pushed to HubSpot</span>
+        <span class="cp-chip cp-chip-done"><IconCheck size={11} stroke={2.5} /> Contact created</span>
+      </div>
+      <dl class="cp-dl">
+        <div>
+          <dt>Tag</dt>
+          <dd class="cp-mono">{tag}</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd>New lead</dd>
+        </div>
+        <div>
+          <dt>Synced</dt>
+          <dd>Just now</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <p class="cp-footnote">Every consented resolution lands in your CRM the same way — no manual export, no delay.</p>
+</DemoChrome>
+
+<style>
+  .cp-header { margin-bottom: 1.5rem; }
+  .cp-title {
+    font-family: var(--font-display, "Bricolage Grotesque", serif);
+    font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0; letter-spacing: -0.02em;
+  }
+  .cp-sub { color: #94a3b8; font-size: 0.9rem; margin: 0.375rem 0 0; }
+
+  .cp-flow {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1.25rem;
+    max-width: 800px;
+    margin: 2.5rem auto;
+  }
+  .cp-arrow {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px;
+    border-radius: 9999px;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+  }
+
+  .cp-card {
+    background: rgba(15,32,48,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.875rem;
+    padding: 1.25rem 1.375rem;
+  }
+  .cp-card-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+    color: #fff; font-size: 0.85rem; font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .cp-chip {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    font-size: 9px; font-weight: 800; letter-spacing: 0.1em;
+    padding: 3px 7px;
+    border-radius: 4px;
+  }
+  .cp-chip-consented { background: rgba(167,139,250,0.18); color: #c4b5fd; }
+  .cp-chip-done { background: rgba(0,229,160,0.18); color: #00E5A0; }
+
+  .cp-visitor-id { display: flex; align-items: center; gap: 0.875rem; }
+  .cp-avatar {
+    width: 48px; height: 48px; border-radius: 9999px;
+    background: rgba(0,229,160,0.18); color: #00E5A0;
+    font-family: var(--font-display, serif); font-size: 1.05rem; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cp-handle { font-family: var(--font-mono, monospace); font-size: 0.92rem; font-weight: 700; color: #fff; }
+  .cp-intent { color: #00E5A0; font-size: 0.78rem; font-weight: 600; margin-top: 3px; }
+  .cp-loc { display: inline-flex; align-items: center; gap: 0.3rem; color: #94a3b8; font-size: 0.72rem; margin-top: 4px; }
+
+  .cp-dl { margin: 0; }
+  .cp-dl > div {
+    display: grid; grid-template-columns: 80px 1fr;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .cp-dl > div:last-child { border-bottom: 0; padding-bottom: 0; }
+  .cp-dl dt {
+    color: #64748b; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .cp-dl dd { color: #fff; font-size: 0.82rem; font-weight: 500; margin: 0; }
+  .cp-mono { font-family: var(--font-mono, monospace); font-size: 0.78rem; color: #00E5A0; }
+
+  .cp-footnote { text-align: center; color: #64748b; font-size: 0.8rem; margin: 0; }
+</style>

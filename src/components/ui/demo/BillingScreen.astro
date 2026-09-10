@@ -1,0 +1,199 @@
+---
+import DemoChrome from "./DemoChrome.astro";
+import AnimatedNumber from "~/components/ui/AnimatedNumber.tsx";
+import { IconCreditCard, IconReceipt2, IconChartBar, IconCheck } from "@tabler/icons-react";
+
+const leads = 23;
+const rate = 7;
+const total = leads * rate;
+// ~4 weeks of daily lead volume, 2-6/day, slight upward trend.
+const daily = [2, 3, 2, 4, 3, 2, 5, 3, 4, 3, 5, 4, 3, 6, 4, 5, 4, 6, 5, 4, 6, 5, 6, 4, 5, 6, 5, 6];
+const maxDaily = Math.max(...daily);
+
+const invoices = [
+  { month: "May 2026", leads: 19, total: 133 },
+  { month: "Apr 2026", leads: 16, total: 112 },
+  { month: "Mar 2026", leads: 21, total: 147 },
+];
+---
+
+<DemoChrome active="billing">
+  <div class="bl-header">
+    <p class="bl-title">Billing</p>
+    <p class="bl-sub">Demo Service Co. — current billing period</p>
+  </div>
+
+  <div class="bl-summary">
+    <div class="bl-summary-main">
+      <div class="bl-summary-label">This month</div>
+      <div class="bl-summary-figure">
+        <AnimatedNumber client:visible value={leads} className="bl-num" />
+        <span class="bl-op">leads ×</span>
+        $<AnimatedNumber client:visible value={rate} className="bl-num-sm" />
+        <span class="bl-op">=</span>
+        <span class="bl-total">$<AnimatedNumber client:visible value={total} className="bl-num-lg" /></span>
+      </div>
+      <p class="bl-note">Pay only for leads you actually get, after they consent. No contract, no minimums — cancel anytime.</p>
+    </div>
+    <div class="bl-summary-badge">
+      <IconCheck size={14} stroke={2.5} color="#00E5A0" />
+      Auto-billed monthly
+    </div>
+  </div>
+
+  <div class="bl-grid">
+    <div class="bl-card bl-usage-card">
+      <div class="bl-card-head">
+        <IconChartBar size={14} stroke={1.75} color="#00E5A0" />
+        <span>Daily lead volume</span>
+        <span class="bl-card-meta">Last 4 weeks</span>
+      </div>
+      <div class="bl-bars">
+        {daily.map((v, i) => (
+          <div class="bl-bar-col" style={`animation-delay:${i * 20}ms`}>
+            <div class="bl-bar" style={`height:${Math.round((v / maxDaily) * 100)}%`}></div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="bl-card bl-payment-card">
+      <div class="bl-card-head">
+        <IconCreditCard size={14} stroke={1.75} color="#00E5A0" />
+        <span>Payment method</span>
+      </div>
+      <div class="bl-cc">
+        <div class="bl-cc-visual">VISA</div>
+        <div>
+          <div class="bl-cc-num">•••• •••• •••• 4242</div>
+          <div class="bl-cc-exp">Expires 08/29</div>
+        </div>
+      </div>
+      <button class="bl-cc-update">Update payment method</button>
+    </div>
+  </div>
+
+  <div class="bl-card bl-history-card">
+    <div class="bl-card-head">
+      <IconReceipt2 size={14} stroke={1.75} color="#00E5A0" />
+      <span>Recent invoices</span>
+    </div>
+    <ul class="bl-invoice-list">
+      {invoices.map((inv) => (
+        <li>
+          <span class="bl-inv-month">{inv.month}</span>
+          <span class="bl-inv-leads">{inv.leads} leads</span>
+          <span class="bl-inv-total">${inv.total.toFixed(2)}</span>
+          <span class="bl-inv-paid">Paid</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</DemoChrome>
+
+<style>
+  .bl-header { margin-bottom: 1.25rem; }
+  .bl-title {
+    font-family: var(--font-display, "Bricolage Grotesque", serif);
+    font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0; letter-spacing: -0.02em;
+  }
+  .bl-sub { color: #94a3b8; font-size: 0.875rem; margin: 0.375rem 0 0; }
+
+  .bl-summary {
+    background: linear-gradient(180deg, rgba(0,229,160,0.06), rgba(15,32,48,0.6) 70%);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.875rem;
+    padding: 1.375rem 1.5rem;
+    margin-bottom: 1.25rem;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+  }
+  .bl-summary-label {
+    color: #64748b; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .bl-summary-figure {
+    display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap;
+    margin-top: 0.5rem;
+    color: #fff;
+  }
+  .bl-num, .bl-num-sm {
+    font-family: var(--font-display, serif); font-weight: 800; font-size: 1.5rem; font-variant-numeric: tabular-nums;
+  }
+  .bl-op { color: #94a3b8; font-size: 1.1rem; font-weight: 600; }
+  .bl-total { display: inline-flex; align-items: baseline; color: #00E5A0; }
+  .bl-num-lg {
+    font-family: var(--font-display, serif); font-weight: 800; font-size: 2.25rem; font-variant-numeric: tabular-nums; color: #00E5A0;
+  }
+  .bl-note { color: #94a3b8; font-size: 0.8rem; line-height: 1.5; margin: 0.75rem 0 0; max-width: 420px; }
+  .bl-summary-badge {
+    display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: #00E5A0;
+    font-size: 0.78rem; font-weight: 700;
+    padding: 0.45rem 0.75rem;
+    border-radius: 9999px;
+  }
+
+  .bl-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; margin-bottom: 1rem; }
+  .bl-card {
+    background: rgba(15,32,48,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.875rem;
+    padding: 1.125rem 1.25rem;
+  }
+  .bl-card-head {
+    display: flex; align-items: center; gap: 0.5rem;
+    color: #fff; font-size: 0.85rem; font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .bl-card-meta { margin-left: auto; color: #64748b; font-size: 0.72rem; font-weight: 500; }
+
+  .bl-bars { display: flex; align-items: flex-end; gap: 4px; height: 96px; }
+  .bl-bar-col {
+    flex: 1; height: 100%; display: flex; align-items: flex-end;
+    opacity: 0; transform: translateY(4px);
+    animation: bl-bar-in 0.35s ease-out forwards;
+  }
+  @keyframes bl-bar-in { to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .bl-bar-col { animation: none; opacity: 1; transform: none; } }
+  .bl-bar { width: 100%; background: linear-gradient(180deg, #00E5A0, rgba(0,229,160,0.35)); border-radius: 3px 3px 0 0; min-height: 4px; }
+
+  .bl-cc { display: flex; align-items: center; gap: 0.875rem; margin-bottom: 1rem; }
+  .bl-cc-visual {
+    width: 44px; height: 30px; border-radius: 5px;
+    background: linear-gradient(135deg, #1a2a4a, #0a1628);
+    border: 1px solid rgba(255,255,255,0.12);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #cbd5e1; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.04em;
+  }
+  .bl-cc-num { color: #fff; font-family: var(--font-mono, monospace); font-size: 0.85rem; font-weight: 600; }
+  .bl-cc-exp { color: #64748b; font-size: 0.72rem; margin-top: 2px; }
+  .bl-cc-update {
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    padding: 0.55rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem; font-weight: 600;
+    cursor: pointer;
+  }
+
+  .bl-invoice-list { list-style: none; margin: 0; padding: 0; }
+  .bl-invoice-list li {
+    display: grid; grid-template-columns: 1fr auto auto auto;
+    gap: 1.25rem; align-items: center;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.82rem;
+  }
+  .bl-invoice-list li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .bl-inv-month { color: #fff; font-weight: 600; }
+  .bl-inv-leads { color: #94a3b8; }
+  .bl-inv-total { color: #fff; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .bl-inv-paid {
+    color: #00E5A0; background: rgba(0,229,160,0.14);
+    font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 4px;
+  }
+</style>
