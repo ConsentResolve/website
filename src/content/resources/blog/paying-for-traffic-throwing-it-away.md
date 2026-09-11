@@ -10,11 +10,11 @@ cluster: "lead-generation"
 read_time: "5 min"
 og_hook: "You paid for the click. Most of it walks back out the door."
 seo_title: "You're Paying for Website Traffic and Throwing It Away"
-seo_description: "Most contractor website visitors leave without converting. Why buying more traffic is the wrong fix — and what to do with visitors you already paid for."
+seo_description: "Most business website visitors leave without converting. Why buying more traffic is the wrong fix — and what to do with visitors you already paid for."
 focus_keyword: "website traffic wasted leads"
 canonical_url: "https://consentresolve.com/resources/blog/paying-for-traffic-throwing-it-away/"
 category: "Lead Generation"
-tags: ["lead generation", "conversion optimization", "website leads", "home services"]
+tags: ["lead generation", "conversion optimization", "website leads", "b2b leads"]
 funnel_stage: "capture"
 schema_type: "BlogPosting"
 excerpt: "You spend to get people to your website, then most of them leave without a trace. The cheapest growth you can buy isn't more clicks — it's keeping the ones you already paid for."
@@ -40,7 +40,7 @@ faq_items:
   - question: "Is it cheaper to buy more traffic or convert what I have?"
     answer: "Converting what you have is almost always cheaper. You've already paid to bring those visitors in, so lifting your conversion and recovering anonymous visitors multiplies the return on spend you've already made."
   - question: "What does it cost to recover an anonymous visitor?"
-    answer: "A flat $7 per recovered lead, and it's exclusive to you — never resold or shared. You follow up by email, into the funnel you already run, on the same ad budget."
+    answer: "Custom pricing per recovered lead, and it's exclusive to you — never resold or shared. You follow up by email, into the funnel you already run, on the same ad budget."
 sources:
   - label: "WordStream — website conversion benchmarks (~2% of visitors convert)"
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
@@ -54,11 +54,11 @@ You know exactly what a click costs you. What you probably don't track is how ma
 
 ## Why buying more traffic makes the leak bigger
 
-Contractors pour money into ads, LSA, and SEO to get people onto their website. Then the vast majority of those visitors leave without calling, without filling out a form, without leaving any way to reach them. The instinct, when the phone isn't ringing enough, is to buy more traffic. So you spend more to bring in more people — who also mostly leave. You've made the leak bigger, not smaller.
+Businesses pour money into ads, LSA, and SEO to get people onto their website. Then the vast majority of those visitors leave without calling, without filling out a form, without leaving any way to reach them. The instinct, when the phone isn't ringing enough, is to buy more traffic. So you spend more to bring in more people — who also mostly leave. You've made the leak bigger, not smaller.
 
 ## The cheapest growth isn't another click
 
-Traffic is not the bottleneck. *Keeping* the traffic is. Every visitor who lands and leaves anonymously is demand you already paid to create and then discarded. The cheapest growth available to a contractor isn't another click — it's converting more of the visitors already arriving, and recovering the ones who would otherwise vanish. That's a multiplier on every marketing dollar you're already spending.
+Traffic is not the bottleneck. *Keeping* the traffic is. Every visitor who lands and leaves anonymously is demand you already paid to create and then discarded. The cheapest growth available to a business isn't another click — it's converting more of the visitors already arriving, and recovering the ones who would otherwise vanish. That's a multiplier on every marketing dollar you're already spending.
 
 ## What actually happens on a first visit
 

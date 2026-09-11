@@ -51,12 +51,12 @@ faq_items:
   - question: "Is a consent banner really lower-effort than a form?"
     answer: "Much lower. A form asks a visitor to compose and submit several fields; a banner asks them to make one choice. That gap in effort is exactly why a banner can reach visitors a form never will — and when someone accepts, they become a real, consented contact without typing anything."
   - question: "What does a lead captured through the banner cost?"
-    answer: "A recovered visitor who accepts the consent banner becomes an email-grade, consent-first lead at a flat $7, exclusive to you and never resold. You follow up by email into the funnel you already run — never a cold call to a scraped number."
+    answer: "A recovered visitor who accepts the consent banner becomes an email-grade, consent-first lead at custom pricing, exclusive to you and never resold. You follow up by email into the funnel you already run — never a cold call to a scraped number."
 ---
 
 ## Two doors, and most people walk past one of them
 
-Every contractor website has a front door for leads: the contact form. Name, phone, email, a box that says "tell us about your project," and a Submit button. When a homeowner fills it out, you get a lead. It works — for the people who use it.
+Every business website has a front door for leads: the contact form. Name, phone, email, a box that says "tell us about your project," and a Submit button. When a visitor fills it out, you get a lead. It works — for the people who use it.
 
 The trouble is how few people use it. A contact form is a high-effort ask, and most visitors are not in the mood to do homework. So they browse, they get what they came for, and they leave without touching it. The form isn't broken. It is just built to catch one specific kind of visitor: the one ready to sit down and type.
 
@@ -76,7 +76,7 @@ That difference is why the two tools reach different halves of your audience.
 
 Here is the number that reframes the whole comparison. Across home-service websites, roughly [98% of visitors never convert or identify themselves](https://www.wordstream.com/blog/conversion-rate-benchmarks) — they never fill out the form, never call, and leave with no name attached. Your contact form, no matter how clean, is working the 2%.
 
-Think about what that means for a painter running ads. Say a hundred homeowners click through to the site this week. The contact form might catch two of them — the two who were ready to book a color consult today. The other ninety-eight looked at the gallery, read a review, maybe checked the service area, and left. The painter paid to bring all hundred to the site and captured two.
+Think about what that means for a consulting firm running ads. Say a hundred visitors click through to the site this week. The contact form might catch two of them — the two who were ready to book a consult today. The other ninety-eight looked at the case studies, read a review, maybe checked the service area, and left. The firm paid to bring all hundred to the site and captured two.
 
 A consent banner is the tool aimed at those other ninety-eight. Not all of them will say yes, of course. But a low-effort yes reaches a group a high-effort form structurally cannot — which is why [automated on-site capture](/resources/glossary/#visitor-identification) tends to pull in [far more contacts than a static form alone](https://bdow.com/stories/email-signup-benchmarks/). You are no longer limited to the sliver willing to type.
 
@@ -84,15 +84,15 @@ A consent banner is the tool aimed at those other ninety-eight. Not all of them 
 
 It would be easy to read all this as "banners beat forms." That is the wrong takeaway. The two tools are not rivals; they capture different people, and you want both.
 
-The **contact form** is still the right door for a high-intent buyer. Someone whose water heater just failed and who wants a call in the next hour should get a fast, obvious form — and you should answer it immediately, because [78% of buyers hire the first business that responds](https://www.vendasta.com/blog/lead-response-time/). Do not weaken that path.
+The **contact form** is still the right door for a high-intent buyer. Someone with an urgent problem who wants a call in the next hour should get a fast, obvious form — and you should answer it immediately, because [78% of buyers hire the first business that responds](https://www.vendasta.com/blog/lead-response-time/). Do not weaken that path.
 
-The **consent banner** is the door for everyone else — the browsers, the comparison shoppers, the homeowner three weeks from deciding. These people are not ready to type today, but many are willing to say yes to being contacted later. The banner turns that yes into a real, consented lead you can follow up with, instead of a visitor who vanishes.
+The **consent banner** is the door for everyone else — the browsers, the comparison shoppers, the visitor three weeks from deciding. These people are not ready to type today, but many are willing to say yes to being contacted later. The banner turns that yes into a real, consented lead you can follow up with, instead of a visitor who vanishes.
 
 Run only the form and you cap yourself at the 2%. Add the banner and you reach for the rest. The smart setup keeps the form exactly where it is and puts a banner in front of the traffic the form was always going to miss.
 
 ## "But won't a banner annoy the people ready to buy?"
 
-This is the honest objection, so let's answer it. The worry is that adding a consent banner clutters the page and gets in the way of the high-intent homeowner who was going to fill out the form anyway. In practice, the two live in different places and serve different moments. The form sits where a ready buyer expects it — on the contact page, in the header, next to your phone number. The banner is a light touch that asks its one question without hijacking the page.
+This is the honest objection, so let's answer it. The worry is that adding a consent banner clutters the page and gets in the way of the high-intent visitor who was going to fill out the form anyway. In practice, the two live in different places and serve different moments. The form sits where a ready buyer expects it — on the contact page, in the header, next to your phone number. The banner is a light touch that asks its one question without hijacking the page.
 
 The buyer who's ready to book isn't stopped by a one-line yes-or-no; they answer it in a second and go right to the form. Nothing about the banner slows down the 2% who were always going to convert. What it adds is a path for the other ninety-eight — the people who were never going to reach the form at all. You're not trading high-intent leads for low-intent ones. You're keeping every form-fill you already get and adding a second stream on top of it.
 
@@ -102,7 +102,7 @@ There's a related worry: won't banner-consented leads be lower quality than form
 
 When a visitor accepts a clear consent banner, [consent-first visitor identification](/features/visitor-identification/) turns that anonymous, consenting browser into a named contact — a real email — without a single field filled in. No form. And because the whole thing runs on consent, you are only ever contacting people who agreed to hear from you.
 
-That is the practical payoff of the comparison. The form gives you high-intent leads who found you and were ready. The banner gives you back the majority who found you and weren't ready yet — but agreed to let you follow up. You reach them by email, into the funnel you already run, never a cold call. A recovered lead is a flat **$7**, exclusive to you, never resold.
+That is the practical payoff of the comparison. The form gives you high-intent leads who found you and were ready. The banner gives you back the majority who found you and weren't ready yet — but agreed to let you follow up. You reach them by email, into the funnel you already run, never a cold call. A recovered lead is custom priced, exclusive to you, never resold.
 
 ## Set both doors up right
 

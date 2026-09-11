@@ -14,7 +14,7 @@ seo_description: "Real buyers walk into your website every day and you can't see
 focus_keyword: "anonymous website visitors"
 canonical_url: "https://consentresolve.com/resources/blog/website-storefront-lights-off/"
 category: "Marketing"
-tags: ["visitor identification", "website", "lead capture", "marketing", "home services"]
+tags: ["visitor identification", "website", "lead capture", "marketing", "b2b leads"]
 funnel_stage: "capture"
 schema_type: "BlogPosting"
 excerpt: "Customers walk into your website every day, and you can't see one of them. It's a storefront with the lights off — and most visitors leave in under 90 seconds without a word."
@@ -40,12 +40,12 @@ secondary_cta:
   label: "Compare lead channels and what they really cost"
   url: "/resources/compare/"
 faq_items:
-  - question: "How many website visitors actually contact a contractor?"
-    answer: "Very few. Across home-service sites, roughly 98% of visitors never convert or identify themselves — they browse, compare, and leave without filling out a form or calling. The other 2% are the only ones most contractors ever see."
-  - question: "How long do visitors stay on a contractor's website?"
+  - question: "How many website visitors actually contact a business?"
+    answer: "Very few. Across home-service sites, roughly 98% of visitors never convert or identify themselves — they browse, compare, and leave without filling out a form or calling. The other 2% are the only ones most businesses ever see."
+  - question: "How long do visitors stay on a business's website?"
     answer: "Not long. The average visitor spends about 87 seconds on a site before moving on, so the window to earn their attention and capture them is short — often gone before they ever think to call."
   - question: "How do you identify website visitors legally?"
-    answer: "With consent. Consent Resolve only identifies visitors who accept a clear consent banner, logs a timestamped record of that consent, and hands you an exclusive, email-grade lead for a flat $7 — never a phone number to cold-call, never resold."
+    answer: "With consent. Consent Resolve only identifies visitors who accept a clear consent banner, logs a timestamped record of that consent, and hands you an exclusive, email-grade lead at custom pricing — never a phone number to cold-call, never resold."
 ---
 
 ## Imagine running your shop this way
@@ -72,9 +72,9 @@ That's the difference between [knowing who's actually shopping you](/features/vi
 
 ## What seeing them actually changes
 
-Once the lights are on, you can do the obvious thing: follow up. The homeowner who priced your service this morning and didn't call gets one helpful email this afternoon — into the funnel you already run, never a cold call. You're reaching a warm buyer who was *just on your site*, not a stranger.
+Once the lights are on, you can do the obvious thing: follow up. The visitor who priced your service this morning and didn't call gets one helpful email this afternoon — into the funnel you already run, never a cold call. You're reaching a warm buyer who was *just on your site*, not a stranger.
 
-And it's cheap. A recovered, consented lead is a flat **$7**, exclusive to you, never resold. You're not buying new traffic — you're finally seeing and keeping the traffic you already paid to attract. The folks who [show up live and vanish](/resources/blog/see-whos-on-your-site-right-now-without-a-single-form-fill/) stop being a mystery and start being a pipeline.
+And it's cheap. A recovered, consented lead is custom pricing, exclusive to you, never resold. You're not buying new traffic — you're finally seeing and keeping the traffic you already paid to attract. The folks who [show up live and vanish](/resources/blog/see-whos-on-your-site-right-now-without-a-single-form-fill/) stop being a mystery and start being a pipeline.
 
 ## What to do about your dark storefront
 

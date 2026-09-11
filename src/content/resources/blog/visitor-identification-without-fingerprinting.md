@@ -57,7 +57,7 @@ faq_items:
 
 ## The part of "we can identify your visitors" nobody explains
 
-Every contractor has gotten the pitch: install our tag and we'll tell you who's browsing your site. It sounds like found money. What almost none of those pitches explain is *how* the tool figures out who someone is — and that mechanism is the whole legal story. Get it wrong and the tag you installed is quietly collecting data on people who never agreed, with your business name attached to it.
+Every business has gotten the pitch: install our tag and we'll tell you who's browsing your site. It sounds like found money. What almost none of those pitches explain is *how* the tool figures out who someone is — and that mechanism is the whole legal story. Get it wrong and the tag you installed is quietly collecting data on people who never agreed, with your business name attached to it.
 
 I look at this from the compliance side every day, so let me be plain about the two methods and why only one of them keeps you clear.
 
@@ -84,7 +84,7 @@ The other method is the one [Consent Resolve](/why-consent-first/) is built on, 
 
 A visitor lands on your site and sees a clear consent banner. Nothing identifying runs yet. If they decline, the story ends — no fingerprint, no match, no record. If they accept, *then* identification runs and the visit becomes a real, email-grade contact. The consent and the match are the same event. There is no path where a visitor gets identified before their yes.
 
-That design is what produces a [timestamped consent record](/resources/how-to-guides/identify-anonymous-website-visitors/) on every lead. It's not a courtesy — it's the proof that the person agreed, written at the moment they agreed. If a homeowner ever asks how you got their information, or a regulator ever asks the same, you have a signed receipt, not a shrug.
+That design is what produces a [timestamped consent record](/resources/how-to-guides/identify-anonymous-website-visitors/) on every lead. It's not a courtesy — it's the proof that the person agreed, written at the moment they agreed. If a visitor ever asks how you got their information, or a regulator ever asks the same, you have a signed receipt, not a shrug.
 
 ## "Consent-first" is an engineering choice, not a slogan
 
@@ -94,15 +94,15 @@ The honest trade is that consent-gated identification recovers fewer visitors th
 
 ## Whose name is on the tag matters
 
-Here's the detail contractors miss when a slick vendor demos a big "match rate." The tracking tag lives on *your* website. If it fingerprints visitors before they consent, then it's *your* business collecting personal data without permission — the vendor built the tool, but you're the one running it on your customers. When a state attorney general or a plaintiff's attorney looks at covert collection, the site operator is squarely in the frame. A high match rate is worth nothing if the method behind it is the exact thing regulators are penalizing, and the exposure lands on you, not the vendor who sold it.
+Here's the detail businesses miss when a slick vendor demos a big "match rate." The tracking tag lives on *your* website. If it fingerprints visitors before they consent, then it's *your* business collecting personal data without permission — the vendor built the tool, but you're the one running it on your customers. When a state attorney general or a plaintiff's attorney looks at covert collection, the site operator is squarely in the frame. A high match rate is worth nothing if the method behind it is the exact thing regulators are penalizing, and the exposure lands on you, not the vendor who sold it.
 
 That's why "does anything run before consent?" isn't a technical curiosity — it's a liability question about your own shop. A tool that identifies people before they opt in hands you a bigger list and a bigger problem in the same box.
 
 ## What consent-first looks like on a real site
 
-Make it concrete. A roofing company adds a visitor-identification tag to its site. A homeowner in a storm-damaged neighborhood lands on the shingle-replacement page. Before anything identifies them, they see a clear consent banner explaining that the site would like to follow up about their project. If they close it or decline, the roofer gets nothing — no name, no fingerprint, no shadow record sitting in a database. If they accept, the roofer gets an email-grade contact *and* a logged timestamp proving the homeowner said yes on that page, that day.
+Make it concrete. A consulting firm adds a visitor-identification tag to its site. A visitor researching a time-sensitive project lands on the service-details page. Before anything identifies them, they see a clear consent banner explaining that the site would like to follow up about their project. If they close it or decline, the firm gets nothing — no name, no fingerprint, no shadow record sitting in a database. If they accept, the firm gets an email-grade contact *and* a logged timestamp proving the visitor said yes on that page, that day.
 
-Two months later, that same homeowner emails asking, "how did you get my information?" The roofer doesn't stammer — they pull the consent record and answer plainly: you accepted our banner on this date while looking at roof replacement, and here's the log. That's the whole difference. A fingerprinting tool can't produce that answer, because there was never a yes to point to. A consent-first tool answers the question by design, because the yes is the thing that created the lead in the first place. For the everyday version of handling that exact question, see [never fear the "where did you get my info?" moment](/resources/blog/never-fear-where-did-you-get-my-info/).
+Two months later, that same visitor emails asking, "how did you get my information?" The firm doesn't stammer — they pull the consent record and answer plainly: you accepted our banner on this date while looking at our services, and here's the log. That's the whole difference. A fingerprinting tool can't produce that answer, because there was never a yes to point to. A consent-first tool answers the question by design, because the yes is the thing that created the lead in the first place. For the everyday version of handling that exact question, see [never fear the "where did you get my info?" moment](/resources/blog/never-fear-where-did-you-get-my-info/).
 
 ## What to ask before you install anyone's tag
 

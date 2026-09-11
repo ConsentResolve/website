@@ -20,7 +20,7 @@ funnel_stage: "retain-expand"
 schema_type: "BlogPosting"
 excerpt: "A private referral reaches one neighbor. A public review is a referral that reaches every stranger searching for your trade. Here's how to turn your reviews into a referral engine that keeps recommending you long after the job is done."
 tldr: "A review is a referral that works in public, at scale: instead of reaching one neighbor over the fence, it recommends you to every stranger searching for your trade. Positive reviews sway 91% of buyers, and 4 in 5 people use search to find local businesses, so each review keeps earning you leads long after the job ends. Build a simple system to ask for a review after every job, and your reviews become a referral engine that runs while you sleep."
-key_takeaways: "A one-to-one referral reaches a single person; a public review reaches everyone who searches. Reviews sway the vast majority of buyers and most people find local pros through search, so each review keeps recommending you indefinitely. The shops that win aren't luckier — they ask for a review after every job, on a system, and route the follow-up consent-first. Reviews are the scalable, compounding half of word of mouth, and most contractors leave them to chance."
+key_takeaways: "A one-to-one referral reaches a single person; a public review reaches everyone who searches. Reviews sway the vast majority of buyers and most people find local pros through search, so each review keeps recommending you indefinitely. The shops that win aren't luckier — they ask for a review after every job, on a system, and route the follow-up consent-first. Reviews are the scalable, compounding half of word of mouth, and most businesses leave them to chance."
 recap: "A review is word of mouth that works in public and never stops. Ask after every job on a system, make it a one-tap link, and follow up consent-first — and your reviews become a referral engine that recommends you to every searcher, long after the truck pulls away."
 sources:
   - label: "BrightLocal — Local Consumer Review Survey (positive reviews sway 91% of buyers)"
@@ -44,14 +44,14 @@ faq_items:
   - question: "How is a review different from a referral?"
     answer: "A referral is private and one-to-one — a customer mentions you to a single neighbor. A review is public and one-to-many — it recommends you to every stranger who searches for your trade, and it keeps doing it for months or years. A review is a referral that works at scale and doesn't stop when the conversation ends."
   - question: "Why do reviews keep earning leads after the job is done?"
-    answer: "Because they live where people look. Positive reviews sway 91% of buyers, and 4 in 5 people use search to find local businesses — so a homeowner comparing contractors months from now reads the review you earned today. Each one keeps recommending you, which is why reviews compound the way a single referral can't."
+    answer: "Because they live where people look. Positive reviews sway 91% of buyers, and 4 in 5 people use search to find local businesses — so a visitor comparing businesses months from now reads the review you earned today. Each one keeps recommending you, which is why reviews compound the way a single referral can't."
   - question: "How do I get more reviews without nagging, and does follow-up stay compliant?"
     answer: "Ask right after the job, when goodwill is highest, with a one-tap link, and make it a fixed step in every close-out so it isn't left to memory. Keep follow-up consent-first — email-grade, to customers who agreed to hear from you, never a cold call — so the ask feels welcome and your shop stays protected."
 ---
 
 ## The referral you can only give once — and the one that never stops
 
-Picture your best customer telling their neighbor over the fence how great you were. That's a referral, and it's gold. But notice its limit: it happened once, between two people, and then it was gone. If the neighbor doesn't need a contractor that week, the recommendation evaporates. You got one shot at one person.
+Picture your best customer telling their neighbor over the fence how great you were. That's a referral, and it's gold. But notice its limit: it happened once, between two people, and then it was gone. If the neighbor doesn't need a business that week, the recommendation evaporates. You got one shot at one person.
 
 Now picture that same customer leaving a public review instead. That review doesn't reach one neighbor — it reaches every stranger who searches for your trade next week, next month, next year. It recommends you over and over, to people you'll never meet, long after the job is done. Same happy customer, wildly different reach.
 
@@ -59,9 +59,9 @@ That's the insight most shops miss. A review isn't a smaller version of a referr
 
 ## Why reviews carry the weight of a personal referral
 
-The reason reviews work is that strangers treat them almost like a friend's recommendation. The research is blunt about it: [positive reviews sway 91% of buyers](https://www.brightlocal.com/research/local-consumer-review-survey/). When a homeowner is choosing between two painters they've never met, the one with a wall of recent, specific five-star reviews feels vouched-for — the reviews stand in for the neighbor who would have referred them.
+The reason reviews work is that strangers treat them almost like a friend's recommendation. The research is blunt about it: [positive reviews sway 91% of buyers](https://www.brightlocal.com/research/local-consumer-review-survey/). When a visitor is choosing between two businesses they've never met, the one with a wall of recent, specific five-star reviews feels vouched-for — the reviews stand in for the neighbor who would have referred them.
 
-And reviews reach people at the exact moment they're deciding, because that's where people look. [Four in five consumers use search to find local businesses](https://www.brightlocal.com/resources/local-seo-statistics/). So the homeowner comparing pest-control companies isn't asking around the cul-de-sac anymore — they're reading reviews on their phone. Your reviews are the referral that's already sitting there when they look, whether or not anyone thought to mention you.
+And reviews reach people at the exact moment they're deciding, because that's where people look. [Four in five consumers use search to find local businesses](https://www.brightlocal.com/resources/local-seo-statistics/). So the visitor comparing local businesses isn't asking around the cul-de-sac anymore — they're reading reviews on their phone. Your reviews are the referral that's already sitting there when they look, whether or not anyone thought to mention you.
 
 Put those two facts together and a review does something a single referral can't: it recommends you to a stranger, at the moment of decision, without you or your customer being in the room. That's an engine.
 
@@ -89,9 +89,9 @@ Automating the ask doesn't make it less personal — it makes sure the personal 
 
 ## The detail that makes a review keep working: recency and specificity
 
-Not all reviews pull equal weight, and knowing why lets you steer the engine instead of just running it. Two things make a review do real work. The first is recency. A homeowner comparing lawn-care companies trusts a wall of reviews from the last few months far more than a cluster from three years ago, because recent reviews signal a shop that's active and consistent right now. A steady drip of fresh reviews — the natural output of asking after every job — keeps your profile looking alive, which is exactly what a cautious buyer is checking for.
+Not all reviews pull equal weight, and knowing why lets you steer the engine instead of just running it. Two things make a review do real work. The first is recency. A visitor comparing local businesses trusts a wall of reviews from the last few months far more than a cluster from three years ago, because recent reviews signal a business that's active and consistent right now. A steady drip of fresh reviews — the natural output of asking after every job — keeps your profile looking alive, which is exactly what a cautious buyer is checking for.
 
-The second is specificity. "Great job, highly recommend" is fine, but "they diagnosed the ant problem the last company missed and came back free when we saw one more" is worth ten of them, because it reads like a real neighbor telling a real story. You can nudge for that without scripting it: instead of "please leave us a review," ask "if you have a second, it'd help to mention what we fixed and how it went." That small prompt turns a vague star rating into a persuasive mini-referral. Do it on every job and you're not just accumulating reviews — you're accumulating the *kind* of reviews that actually close the next stranger.
+The second is specificity. "Great job, highly recommend" is fine, but "they caught the issue the last company missed and came back free when we flagged it again" is worth ten of them, because it reads like a real neighbor telling a real story. You can nudge for that without scripting it: instead of "please leave us a review," ask "if you have a second, it'd help to mention what we fixed and how it went." That small prompt turns a vague star rating into a persuasive mini-referral. Do it on every job and you're not just accumulating reviews — you're accumulating the *kind* of reviews that actually close the next stranger.
 
 ## What the engine does over a year
 

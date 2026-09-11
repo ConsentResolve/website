@@ -68,7 +68,7 @@ So don't take the demo at face value. Run any vendor through a checklist before 
 
 This is the load-bearing question; everything else is downstream of it. Ask exactly when the tool identifies a visitor: before they've agreed to anything, or only after they've actively accepted a clear consent banner?
 
-- **Answer you want:** "Nothing happens until the visitor accepts the banner. No consent, no identification, no lead." A homeowner who ignores or declines the banner stays anonymous, full stop.
+- **Answer you want:** "Nothing happens until the visitor accepts the banner. No consent, no identification, no lead." A visitor who ignores or declines the banner stays anonymous, full stop.
 - **Red flag:** any version of "it works automatically," "it identifies everyone who lands," or "the banner is optional." A tool that identifies visitors *before* consent is collecting personal data from people who never agreed — which is the exact conduct behind California's [CIPA](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2) wiretap suits at $5,000 per violation and the [TDPSA enforcement](https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-sues-allstate-and-arity-unlawfully-collecting-using-and-selling-over-45) actions now underway.
 
 ## Question 2 — Does it keep a timestamped consent record you can produce?
@@ -103,7 +103,7 @@ What the tool hands you shapes how you're allowed to follow up.
 
 Modern privacy laws give consumers the right to access and delete their data. Your vendor has to make that possible, or the obligation lands on you with no way to meet it.
 
-- **Answer you want:** a clear process to delete a contact and honor opt-out or do-not-sell requests, so you can respond if a homeowner asks.
+- **Answer you want:** a clear process to delete a contact and honor opt-out or do-not-sell requests, so you can respond if a visitor asks.
 - **Red flag:** no mechanism, or "that's not really something people ask for." Both the CCPA and the TDPSA give consumers these rights, and the [CPPA](https://cppa.ca.gov/) enforces them. A tool with no deletion path leaves you unable to comply the day someone exercises a right they plainly have.
 
 ## Question 7 — Is it built to the strictest standard?

@@ -11,16 +11,16 @@ cluster: "compliance"
 read_time: "7 min"
 og_hook: "Texas has its own privacy law now. Here's what it asks of your site."
 seo_title: "The Texas TDPSA: What It Means for Your Website"
-seo_description: "What the Texas Data Privacy & Security Act asks of a contractor's website — and why a consent-first setup already satisfies it without slowing you down."
+seo_description: "What the Texas Data Privacy & Security Act asks of a business's website — and why a consent-first setup already satisfies it without slowing you down."
 focus_keyword: "texas tdpsa website"
 canonical_url: "https://consentresolve.com/resources/blog/texas-tdpsa-for-your-website/"
 category: "Compliance & Privacy"
-tags: ["tdpsa", "texas", "compliance", "privacy", "home services"]
+tags: ["tdpsa", "texas", "compliance", "privacy", "b2b leads"]
 funnel_stage: "convert"
 schema_type: "BlogPosting"
 disclaimer: true
 excerpt: "Texas now has a comprehensive data-privacy law of its own — the TDPSA — and it reaches small businesses other state laws skip. Here's what it asks of your website, and why a consent-first setup already covers it."
-tldr: "The Texas Data Privacy & Security Act (TDPSA) is Texas's comprehensive consumer-privacy law, requiring businesses to disclose what data they collect, honor opt-outs, and get clear consent before processing sensitive data. Unlike many state laws, it has no small-business size threshold, so a local contractor's website can fall under it. A consent-first setup — a clear banner, a timestamped record, and email-only follow-up — satisfies what the TDPSA asks without you having to become a privacy lawyer."
+tldr: "The Texas Data Privacy & Security Act (TDPSA) is Texas's comprehensive consumer-privacy law, requiring businesses to disclose what data they collect, honor opt-outs, and get clear consent before processing sensitive data. Unlike many state laws, it has no small-business size threshold, so a local business's website can fall under it. A consent-first setup — a clear banner, a timestamped record, and email-only follow-up — satisfies what the TDPSA asks without you having to become a privacy lawyer."
 key_takeaways: "The TDPSA applies to businesses that handle Texans' personal data and, unlike California's law, it does not exempt you just for being small. It asks for three practical things: tell people what you collect, let them opt out, and get clear consent before processing sensitive data. Texas has already shown it will enforce privacy hard — billion-dollar settlements and the first-ever suit under a comprehensive state privacy law. A consent-first website handles the everyday TDPSA requirements by design: clear banner, timestamped log, email-grade follow-up, 7-year audit trail."
 recap: "The TDPSA is Texas saying the same thing every privacy regime says — collect and contact people on consent, and keep proof. Run a consent-first site and the law's day-to-day requirements are already met; you capture the leads you're paying for and keep the receipt."
 sources:
@@ -51,14 +51,14 @@ faq_items:
   - question: "What does the TDPSA actually require of a website?"
     answer: "In plain terms: tell visitors what personal data you collect and why, give them a way to opt out of targeted advertising and the sale of their data, and get clear consent before you process sensitive data. A clear consent banner plus a timestamped record of who agreed covers the day-to-day mechanics."
   - question: "How does Consent Resolve keep me on the right side of the TDPSA?"
-    answer: "It only identifies visitors who accept a clear consent banner, logs a timestamped record, and hands you an email-grade lead for a flat $7 — exclusive, never resold. You follow up by email into your existing funnel, never a phone number to cold-dial, and every lead carries the consent receipt the law expects you to have."
+    answer: "It only identifies visitors who accept a clear consent banner, logs a timestamped record, and hands you an email-grade lead at custom pricing — exclusive, never resold. You follow up by email into your existing funnel, never a phone number to cold-dial, and every lead carries the consent receipt the law expects you to have."
 ---
 
 ## Texas wrote its own privacy law — and your website is in scope
 
-For years, Texas contractors could half-tune-out the privacy headlines. Those were California problems, Europe problems — somebody else's compliance department. That era is over. The Texas Data Privacy & Security Act, the TDPSA, took effect in 2024, and it is exactly what it sounds like: a comprehensive consumer data-privacy law for Texas, enforced by an Attorney General who has made privacy a signature issue.
+For years, Texas businesses could half-tune-out the privacy headlines. Those were California problems, Europe problems — somebody else's compliance department. That era is over. The Texas Data Privacy & Security Act, the TDPSA, took effect in 2024, and it is exactly what it sounds like: a comprehensive consumer data-privacy law for Texas, enforced by an Attorney General who has made privacy a signature issue.
 
-Here's the part most owners miss. A lot of state privacy laws only bite once you're processing data on hundreds of thousands of people. The TDPSA doesn't draw that line the same way. It reaches businesses of ordinary size — which means the website where your customers price a roof or a new AC can be in scope.
+Here's the part most owners miss. A lot of state privacy laws only bite once you're processing data on hundreds of thousands of people. The TDPSA doesn't draw that line the same way. It reaches businesses of ordinary size — which means the website where your customers price a service can be in scope.
 
 ## Why "we're too small to worry about it" is the trap
 
@@ -68,17 +68,17 @@ That's where the enforcement record gets your attention, not as a forecast for y
 
 ## What does the TDPSA actually require of my website?
 
-Strip away the legal language and the TDPSA asks a contractor's website for three practical things.
+Strip away the legal language and the TDPSA asks a business's website for three practical things.
 
 First, **transparency** — tell visitors what personal data you collect and why, in a privacy notice they can actually find. Second, **opt-out rights** — give people a clear way to opt out of targeted advertising and the sale of their data. Third, **consent for sensitive data** — get clear, affirmative consent before you process the categories the law treats as sensitive.
 
-Notice what all three have in common. None of them ask you to stop marketing or stop knowing who's on your site. They ask you to be upfront, to honor a no, and to get a yes before the sensitive stuff. That's not a wall around your business. It's a set of manners the law now expects — and they happen to be the same manners that make homeowners trust you.
+Notice what all three have in common. None of them ask you to stop marketing or stop knowing who's on your site. They ask you to be upfront, to honor a no, and to get a yes before the sensitive stuff. That's not a wall around your business. It's a set of manners the law now expects — and they happen to be the same manners that make visitors trust you.
 
 ## The setup that satisfies it without slowing you down
 
 This is where a [consent-first approach](/why-consent-first/) does the heavy lifting. Instead of bolting compliance on after the fact, it builds the law's requirements into how a lead is captured in the first place.
 
-A clear consent banner handles transparency and the affirmative yes. A [timestamped consent log](/features/built-in-compliance/) handles proof — so when anyone asks who agreed and when, the answer is one lookup, not a scramble. And because follow-up is **email-grade only** — never a phone number handed to you to cold-dial — you stay clear of the call-and-text rules that ride alongside privacy law. The lead drops into the funnel you already run, whether that's Jobber, Housecall Pro, ServiceTitan, or HubSpot.
+A clear consent banner handles transparency and the affirmative yes. A [timestamped consent log](/features/built-in-compliance/) handles proof — so when anyone asks who agreed and when, the answer is one lookup, not a scramble. And because follow-up is **email-grade only** — never a phone number handed to you to cold-dial — you stay clear of the call-and-text rules that ride alongside privacy law. The lead drops into the funnel you already run, whether that's HubSpot or another CRM.
 
 Compare that with the alternative. A purchased list or a shared-platform lead arrives with someone else's consent assumptions, or none at all. If a Texan exercises a TDPSA right and asks where their data came from, "we bought it from a vendor" is not the answer you want to be giving the Attorney General's office.
 
@@ -95,4 +95,4 @@ Consent Resolve was engineered to a stricter bar than any U.S. state law — the
 
 ## The short version for Texas pros
 
-The TDPSA is Texas joining the chorus: collect and contact people on consent, tell them what you're doing, and keep proof. Run a consent-first website and you've already answered it — while still capturing the homeowners you're paying to bring to your site. See [why consent-first protects your shop](https://consentresolve.com/why-consent-first/), and weigh it against [what your current lead channels actually cost](/resources/compare/), in fees and in exposure. This article is general information, not legal advice — for how the TDPSA applies to your specific business, talk to a Texas attorney.
+The TDPSA is Texas joining the chorus: collect and contact people on consent, tell them what you're doing, and keep proof. Run a consent-first website and you've already answered it — while still capturing the visitors you're paying to bring to your site. See [why consent-first protects your shop](https://consentresolve.com/why-consent-first/), and weigh it against [what your current lead channels actually cost](/resources/compare/), in fees and in exposure. This article is general information, not legal advice — for how the TDPSA applies to your specific business, talk to a Texas attorney.

@@ -57,7 +57,7 @@ faq_items:
 
 ## The instinct that wins the job can also cost you
 
-Everyone in the trades knows speed wins work. The homeowner who's ready tonight books the shop that answers tonight. So the natural instinct, the second a lead appears, is to grab the phone and call. Fast, human, direct — and, depending on how you got that number, one of the quickest ways to hand yourself a legal problem worth far more than the job.
+Everyone in the trades knows speed wins work. The visitor who's ready tonight books the shop that answers tonight. So the natural instinct, the second a lead appears, is to grab the phone and call. Fast, human, direct — and, depending on how you got that number, one of the quickest ways to hand yourself a legal problem worth far more than the job.
 
 That's the tension nobody warns a busy owner about. The pressure to respond in minutes pushes you toward the phone, and the phone is exactly the channel that carries the most compliance risk. The good news is you don't have to choose between winning the window and staying on the right side of the law. You just have to win it through the right channel.
 
@@ -65,19 +65,19 @@ That's the tension nobody warns a busy owner about. The pressure to respond in m
 
 The law that matters here is the [TCPA](/resources/plain-language-explainers/what-is-tcpa/) — [47 U.S.C. §227](https://www.law.cornell.edu/uscode/text/47/227). It governs calls and texts to consumers, and it's strict about reaching a number without proper consent, especially with any automated dialing or texting system. The penalties are assessed **per message**, which is what makes it dangerous for a small shop: it doesn't take a campaign to add up, just a handful of calls or texts to people who never agreed to be contacted that way. The [FCC's guidance on unwanted calls and texts](https://www.fcc.gov/consumers/guides/stop-unwanted-robocalls-and-texts) exists precisely because this is a heavily enforced area.
 
-So picture the fast-but-wrong version. A number shows up, you or a tool fires off an instant text — "Hey, saw you were looking at furnaces, want a quote?" — to someone who never handed you that number or agreed to be texted. You just won the speed contest and lost the compliance one. The homeowner didn't consent, there's no record that they did, and each of those messages is its own potential penalty. Speed didn't create the risk. The unconsented phone contact did.
+So picture the fast-but-wrong version. A number shows up, you or a tool fires off an instant text — "Hey, saw you were looking at our services, want a quote?" — to someone who never handed you that number or agreed to be texted. You just won the speed contest and lost the compliance one. The visitor didn't consent, there's no record that they did, and each of those messages is its own potential penalty. Speed didn't create the risk. The unconsented phone contact did.
 
 ## The follow-up window is real — you just win it differently
 
-None of this means slow down. The window is real and the stakes are exactly what they seem. About [78% of homeowners hire the contractor who responds first](https://www.vendasta.com/blog/lead-response-time/), and contacting a lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty. Being first still wins the job. Every figure is sourced on our [stats page](/stats/).
+None of this means slow down. The window is real and the stakes are exactly what they seem. About [78% of visitors hire the business who responds first](https://www.vendasta.com/blog/lead-response-time/), and contacting a lead within five minutes makes you up to [21× more likely to qualify it](https://cdn2.hubspot.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf) than waiting past thirty. Being first still wins the job. Every figure is sourced on our [stats page](/stats/).
 
 The move is to hit that window through a channel where fast and legal are the same thing. That channel is email, and the key is that the person on the other end already said yes.
 
 ## How consent-first follow-up wins the window safely
 
-Here's the compliant version of speed, step by step. A homeowner visits your site and sees a clear, visible consent banner. When they accept it, two things happen: they become a real, consented contact — a name and an email — and the acceptance is logged with a timestamp into a 7-year audit trail. Now [consent-first follow-up](/features/multi-channel-follow-up/) can fire an automatic email the instant that visitor is identified, inside the window, whether or not you're near your phone.
+Here's the compliant version of speed, step by step. A visitor visits your site and sees a clear, visible consent banner. When they accept it, two things happen: they become a real, consented contact — a name and an email — and the acceptance is logged with a timestamp into a 7-year audit trail. Now [consent-first follow-up](/features/multi-channel-follow-up/) can fire an automatic email the instant that visitor is identified, inside the window, whether or not you're near your phone.
 
-Read what that gets you. The speed that wins jobs — an instant first touch while intent is hot. The channel that keeps you safe — email into the funnel you already run, never a cold call to a scraped or purchased number. And the thing that turns "we followed up" into a defensible position: a timestamped record showing the homeowner agreed to hear from you before you ever reached out. If a regulator or a plaintiff's lawyer ever asks how you contacted someone, you answer with a date and a consent. A cold call can't answer that question, because nobody was asked.
+Read what that gets you. The speed that wins jobs — an instant first touch while intent is hot. The channel that keeps you safe — email into the funnel you already run, never a cold call to a scraped or purchased number. And the thing that turns "we followed up" into a defensible position: a timestamped record showing the visitor agreed to hear from you before you ever reached out. If a regulator or a plaintiff's lawyer ever asks how you contacted someone, you answer with a date and a consent. A cold call can't answer that question, because nobody was asked.
 
 That's why the compliant path here is also the *faster* one in practice. You're not waiting to be near a phone, and you're not pausing to wonder whether this number is safe to dial. The email goes the moment consent exists, every time.
 
@@ -85,7 +85,7 @@ That's why the compliant path here is also the *faster* one in practice. You're 
 
 The reason so many shops feel forced to choose is that they picture only two options: be fast and reckless, or be careful and slow. Consent-first follow-up dissolves that. The consent is captured *before* the follow-up, so by the time speed matters, the permission is already in place. You get to be the first responder and the compliant one at once.
 
-It also protects the relationship, not just the shop. A homeowner who accepted a banner and then gets a helpful email reads it as service. The same homeowner who gets an unexpected call on a number they never shared reads it as intrusion — and "intrusion" is a reputation problem long before it's a legal filing. Doing follow-up the consent-first way keeps you fast, safe, *and* welcome. You can read more on [why consent-first protects your shop](/why-consent-first/).
+It also protects the relationship, not just the shop. A visitor who accepted a banner and then gets a helpful email reads it as service. The same visitor who gets an unexpected call on a number they never shared reads it as intrusion — and "intrusion" is a reputation problem long before it's a legal filing. Doing follow-up the consent-first way keeps you fast, safe, *and* welcome. You can read more on [why consent-first protects your shop](/why-consent-first/).
 
 ## Where shops most often slip
 
@@ -93,7 +93,7 @@ The mistakes here aren't usually reckless — they're well-intentioned corners c
 
 - **Buying or scraping numbers to "get ahead."** A list of phone numbers feels like a shortcut to fast follow-up. It's the opposite: reaching those numbers with calls or automated texts is exactly the unconsented contact the TCPA targets. The people on a purchased list never agreed to hear from you.
 - **Auto-texting every new lead.** Texting reads as fast and modern, but an automated text to a number without the right consent carries the same risk as an automated call. Keep the fast automatic channel to email, where consent was captured up front.
-- **Assuming a form fill covers everything.** Even when a homeowner does hand over a number, consent for one kind of contact isn't blanket consent for all of it. The clean path is to keep the automatic first touch email-grade and reserve the phone for conversations the homeowner actually invited.
+- **Assuming a form fill covers everything.** Even when a visitor does hand over a number, consent for one kind of contact isn't blanket consent for all of it. The clean path is to keep the automatic first touch email-grade and reserve the phone for conversations the visitor actually invited.
 
 None of these are hard to avoid. They just require deciding, before the rush hits, that your instant channel is email and your phone is for people who asked to be called.
 
@@ -108,4 +108,4 @@ Compliance rarely comes down to intentions — it comes down to what you can sho
 - **Keep the record.** A timestamped consent log is your defense if anyone ever asks how you reached a contact. Make sure every contact has one.
 - **Automate it.** A person can't hit a five-minute window reliably, and rushing to the phone is where mistakes happen. Let the system send the compliant first touch instantly, then you handle the close.
 
-Speed wins the job. The wrong channel loses far more than the job. Hit the follow-up window the consent-first, email-grade way and you never have to trade one for the other — you get the fast first touch that books work and the record that keeps you safe. Each recovered lead is a flat **$7**, exclusive to you and never resold, with the consent already on file.
+Speed wins the job. The wrong channel loses far more than the job. Hit the follow-up window the consent-first, email-grade way and you never have to trade one for the other — you get the fast first touch that books work and the record that keeps you safe. Each recovered lead is custom priced, exclusive to you and never resold, with the consent already on file.

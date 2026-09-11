@@ -45,12 +45,12 @@ faq_items:
   - question: "Why doesn't my contact form catch more leads?"
     answer: "A static form only catches the small share of visitors who feel like stopping to fill it out — and the average visitor gives you under 90 seconds before leaving. Formless capture identifies consented visitors without asking them to type anything, so you reach far more of them."
   - question: "How does formless capture stay legal, and what do I get?"
-    answer: "It's consent-first: a visitor accepts a clear consent banner, the moment is logged with a timestamp, and you receive an email-grade lead — never a phone number to cold-call. Each one is exclusive to you and costs a flat $7."
+    answer: "It's consent-first: a visitor accepts a clear consent banner, the moment is logged with a timestamp, and you receive an email-grade lead — never a phone number to cold-call. Each one is exclusive to you at custom pricing."
 ---
 
 ## The number everyone brags about
 
-Walk into any contractor's office and ask how marketing's going, and you'll often hear about traffic. "We're getting twice the visitors we did last year." It sounds like progress. It feels like progress. And it might be doing almost nothing for the thing that actually matters: booked jobs.
+Walk into any business's office and ask how marketing's going, and you'll often hear about traffic. "We're getting twice the visitors we did last year." It sounds like progress. It feels like progress. And it might be doing almost nothing for the thing that actually matters: closed deals.
 
 Because traffic is only the front door. What happens *after* people walk in is where the money is made or lost — and for most home-service sites, it's quietly being lost.
 
@@ -58,13 +58,13 @@ Because traffic is only the front door. What happens *after* people walk in is w
 
 Here's the problem with making traffic the goal. Across home-service websites, about [98% of visitors never convert or identify themselves](https://www.wordstream.com/blog/conversion-rate-benchmarks). So if you double your traffic without changing anything else, you don't double your leads — you double the number of people leaving anonymous. The leak just gets bigger.
 
-And you don't have much time to stop it. The average visitor spends about [87 seconds](https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/) on a site before moving on. That's under a minute and a half to earn a name. A contact form sitting on your "Contact Us" page is asking a hurried, distracted homeowner to stop, type out their details, and hit send — and most of them simply won't.
+And you don't have much time to stop it. The average visitor spends about [87 seconds](https://spectruminfinite.com/blogs/average-time-spent-on-website-2025/) on a site before moving on. That's under a minute and a half to earn a name. A contact form sitting on your "Contact Us" page is asking a hurried, distracted visitor to stop, type out their details, and hit send — and most of them simply won't.
 
 ## What should the real goal be?
 
 The goal isn't more people at the top. It's keeping more of the people who already show up. That's [capture](/resources/glossary/#contact-capture), and it's the lever almost nobody pulls because everyone's busy chasing clicks.
 
-[Formless contact capture](/features/formless-contact-capture/), done consent-first, flips the model. Instead of waiting for a visitor to fill out a form, it identifies the ones who accept a clear consent banner and turns them into a real contact — a name and a consented email, logged with a timestamp. No typing required on their end. The homeowner who would've left in 87 seconds becomes someone you can email this afternoon.
+[Formless contact capture](/features/formless-contact-capture/), done consent-first, flips the model. Instead of waiting for a visitor to fill out a form, it identifies the ones who accept a clear consent banner and turns them into a real contact — a name and a consented email, logged with a timestamp. No typing required on their end. The visitor who would've left in 87 seconds becomes someone you can email this afternoon.
 
 ## The math that makes the case
 
@@ -74,18 +74,18 @@ This is why "fix capture first" isn't just thrift. It makes future traffic worth
 
 ## Why the form became the default — and why it's the bottleneck
 
-The contact form has been the standard for so long that most owners never question it. But think about what a form actually asks of a homeowner: stop browsing, decide they're ready to commit, type out their name, email, and a description of the problem, and hit send — all in the under-90-second sliver of attention you have. It's a high-effort ask aimed at people in a low-effort, comparison-shopping mood. No wonder it catches so few.
+The contact form has been the standard for so long that most owners never question it. But think about what a form actually asks of a visitor: stop browsing, decide they're ready to commit, type out their name, email, and a description of the problem, and hit send — all in the under-90-second sliver of attention you have. It's a high-effort ask aimed at people in a low-effort, comparison-shopping mood. No wonder it catches so few.
 
 A form also only ever hears from the most motivated sliver of your visitors — the ones already sold. Everyone still weighing options, still early in the decision, still just curious about price, sails right past it. Those are exactly the people worth capturing, because a timely, helpful follow-up is what tips them from "looking" to "booking." Formless capture reaches them precisely because it doesn't depend on them stopping to fill anything out.
 
 ## Where the captured leads go
 
-A captured lead is only useful if you act on it, so each consented contact lands in the CRM you already run — Jobber, Housecall Pro, ServiceTitan, HubSpot, or GoHighLevel — ready for follow-up, with a timestamped consent record attached. No new system, no exporting and re-importing. The visitor who would've evaporated in 87 seconds becomes a real, exclusive lead in the pipeline you already manage, for a flat $7.
+A captured lead is only useful if you act on it, so each consented contact lands in your CRM, ready for follow-up, with a timestamped consent record attached. No new system, no exporting and re-importing. The visitor who would've evaporated in 87 seconds becomes a real, exclusive lead in the pipeline you already manage, at custom pricing.
 
 ## What to do instead of buying more clicks
 
 - **Audit your capture, not your traffic.** Ask how many of last month's visitors became a contact. If it's a thin slice, that's your real bottleneck.
 - **Turn on consent-first formless capture** so you stop depending on the handful of people who fill out a form.
-- **Then, and only then, scale traffic.** Once you keep more of who you get, every new visitor pays off — and the leads are exclusive to you at a flat $7, never resold.
+- **Then, and only then, scale traffic.** Once you keep more of who you get, every new visitor pays off — and the leads are exclusive to you at custom pricing, never resold.
 
 More traffic feels like the answer because it's the number you can see going up. But a bucket with a hole in it doesn't need more water. It needs the hole fixed first.

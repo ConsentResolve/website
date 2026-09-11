@@ -78,6 +78,9 @@ export const BLOG_REDIRECTS = {
   "/resources/blog/what-a-roofers-website-trail-reveals-about-a-lead": "/resources/blog/what-a-website-trail-reveals-about-a-lead/",
   "/resources/blog/what-every-hvac-pro-should-know-about-the-shoppers-who-visit-and-vanish": "/resources/blog/what-every-business-should-know-about-the-shoppers-who-visit-and-vanish/",
   "/resources/blog/your-busiest-hvac-season-is-also-your-biggest-lead-leak-heres-the-fix": "/resources/blog/your-busiest-season-is-also-your-biggest-lead-leak-heres-the-fix/",
+  "/resources/blog/read-the-trail-knowing-what-a-homeowner-looked-at-before-they-call": "/resources/blog/read-the-trail-knowing-what-a-visitor-looked-at-before-they-call/",
+  "/resources/blog/why-homeowners-research-remodels-before-calling": "/resources/blog/why-buyers-research-for-weeks-before-reaching-out/",
+  "/resources/blog/why-homeowners-abandon-your-contact-form": "/resources/blog/why-visitors-abandon-your-contact-form/",
 
   // Generic-SaaS pivot (2026-09): retired 27 blog articles whose entire premise
   // was a trade+season/holiday combo that doesn't generalize (hurricane season,
@@ -131,6 +134,7 @@ export const BLOG_REDIRECTS = {
   "/resources/blog/what-every-tree-removal-pro-should-know-about-the-shoppers-who-visit-and-vanish": "/resources/blog/what-every-business-should-know-about-the-shoppers-who-visit-and-vanish/",
   "/resources/blog/the-handyman-rush-is-coming-stop-letting-ready-buyers-leave-anonymous": "/resources/blog/the-busy-season-rush-is-coming-stop-letting-ready-buyers-leave-anonymous/",
   "/resources/blog/the-painting-rush-is-coming-stop-letting-ready-buyers-leave-anonymous": "/resources/blog/the-busy-season-rush-is-coming-stop-letting-ready-buyers-leave-anonymous/",
+  "/resources/blog/the-roofing-rush-is-coming-stop-letting-ready-buyers-leave-anonymous": "/resources/blog/the-busy-season-rush-is-coming-stop-letting-ready-buyers-leave-anonymous/",
 
   "/resources/blog/a-signed-receipt-on-every-lead-why-consent-records-protect-your-shop-2": "/resources/blog/do-bought-leads-come-with-proof-of-consent/",
   "/resources/blog/a-signed-receipt-on-every-lead-why-consent-records-protect-your-shop-3": "/resources/blog/what-the-ftc-homeadvisor-order-teaches-businesses-about-leads/",
@@ -140,7 +144,7 @@ export const BLOG_REDIRECTS = {
   "/resources/blog/capturing-the-98-who-will-never-fill-out-your-form-4": "/resources/blog/how-to-vet-a-compliant-visitor-identification-tool/",
   "/resources/blog/capturing-the-98-who-will-never-fill-out-your-form-5": "/resources/blog/ways-to-capture-website-visitors-who-dont-convert/",
   "/resources/blog/consent-first-vs-buy-a-list-2": "/resources/blog/is-buying-a-lead-list-legal/",
-  "/resources/blog/contact-form-is-your-competitor-2": "/resources/blog/why-homeowners-abandon-your-contact-form/",
+  "/resources/blog/contact-form-is-your-competitor-2": "/resources/blog/why-visitors-abandon-your-contact-form/",
   "/resources/blog/cost-per-lead-vs-cost-per-job-2": "/resources/blog/how-many-leads-do-you-need-to-hit-your-revenue-goal/",
   "/resources/blog/crm-only-as-good-as-inputs-2": "/resources/blog/business-crm-data-hygiene/",
   "/resources/blog/follow-up-window-wins-jobs-2": "/resources/blog/answer-leads-faster-instead-of-buying-more/",
@@ -187,7 +191,7 @@ export const BLOG_REDIRECTS = {
   "/resources/blog/the-cookie-banner-that-keeps-you-legal-and-unlocks-every-lead-2": "/resources/blog/website-tracking-lawsuits-and-the-consent-banner-fix/",
   "/resources/blog/the-cookie-banner-that-keeps-you-legal-and-unlocks-every-lead-3": "/resources/blog/consent-banner-vs-contact-form/",
   "/resources/blog/the-cookie-banner-that-keeps-you-legal-and-unlocks-every-lead-4": "/resources/blog/what-makes-a-consent-banner-legally-compliant/",
-  "/resources/blog/the-general-contractors-rush-is-coming-stop-letting-ready-buyers-leave-anonymous-2": "/resources/blog/why-homeowners-research-remodels-before-calling/",
+  "/resources/blog/the-general-contractors-rush-is-coming-stop-letting-ready-buyers-leave-anonymous-2": "/resources/blog/why-buyers-research-for-weeks-before-reaching-out/",
   "/resources/blog/three-visits-before-they-called-2": "/resources/blog/how-to-nurture-leads-not-ready-to-buy/",
   "/resources/blog/turn-one-website-visit-into-an-ad-audience-that-books-jobs-2": "/resources/blog/is-retargeting-legal-for-businesses/",
   "/resources/blog/turn-one-website-visit-into-an-ad-audience-that-books-jobs-3": "/resources/blog/retargeting-vs-buying-shared-leads-cost/",

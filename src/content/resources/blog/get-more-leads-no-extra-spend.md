@@ -10,16 +10,16 @@ cluster: "lead-generation"
 read_time: "6 min"
 og_hook: "You already paid to get them here. 98% leave anyway. Here's the fix."
 seo_title: "Get More Leads Without Spending More on Ads"
-seo_description: "You don't need a bigger ad budget to get more leads. Recover the visitors you already paid to attract — consent-first, exclusive, a flat $7 each."
+seo_description: "You don't need a bigger ad budget to get more leads. Recover the visitors you already paid to attract — consent-first, exclusive, custom priced."
 focus_keyword: "get more leads without ads"
 canonical_url: "https://consentresolve.com/resources/blog/get-more-leads-no-extra-spend/"
 category: "Lead Generation"
-tags: ["lead generation", "visitor identification", "ad budget", "home services"]
+tags: ["lead generation", "visitor identification", "ad budget", "b2b leads"]
 funnel_stage: "get-found"
 schema_type: "BlogPosting"
 excerpt: "The cheapest leads you'll ever get are the ones already visiting your site. Most of them leave without a word — here's how to recover them on the budget you already spend."
 tldr: "You can get more leads without raising your ad budget by recovering the visitors you already paid to attract. Across home-service websites, about 98% of visitors leave without ever identifying themselves — that's traffic you bought and lost. Consent-first visitor identification turns those consented, anonymous visitors into real email contacts you can follow up with, so you sell more jobs on the same spend."
-key_takeaways: "More ad spend isn't the only path to more leads. The vast majority of the people you already pay to reach leave your site anonymous, and recovering even a slice of them costs far less than buying fresh clicks. Consent-first identification hands you a real, consented email for visitors who'd otherwise vanish — exclusive to you, a flat $7 each, with the follow-up running inside the funnel you already have."
+key_takeaways: "More ad spend isn't the only path to more leads. The vast majority of the people you already pay to reach leave your site anonymous, and recovering even a slice of them costs far less than buying fresh clicks. Consent-first identification hands you a real, consented email for visitors who'd otherwise vanish — exclusive to you, custom priced, with the follow-up running inside the funnel you already have."
 recap: "You're already paying to fill your site; you're just losing almost everyone who shows up. Recover the consented visitors, follow up by email, and you book more jobs without spending another dollar on ads."
 sources:
   - label: "WordStream — conversion rate benchmarks (98%)"
@@ -43,7 +43,7 @@ faq_items:
   - question: "How can I get more leads without spending more on ads?"
     answer: "Recover the visitors you already paid to bring to your site. Most of them leave without contacting you, but with consent-first identification you can turn the ones who accept a consent banner into real email contacts and follow up — no new ad spend required."
   - question: "Won't recovering visitors cost as much as buying new clicks?"
-    answer: "No. The traffic is already there — you paid for it once. Recovering a consented visitor who was already on your site costs a flat $7, far less than buying a fresh lead, and it's exclusive to you."
+    answer: "No. The traffic is already there — you paid for it once. Recovering a consented visitor who was already on your site is custom priced, far less than buying a fresh lead, and it's exclusive to you."
   - question: "Is identifying visitors legal, and how is the lead delivered?"
     answer: "It's legal when it's consent-first. Consent Resolve only identifies visitors who accept a clear consent banner, logs a timestamped record, and delivers an email-grade lead — never a phone number to cold-call. Follow-up is email, into the funnel you already run."
 ---
@@ -74,7 +74,7 @@ The logic travels even if the exact figure doesn't: the cheapest person to conve
 
 ## The cost comparison that matters
 
-Buying a fresh lead through a lead seller or an ad platform means paying full freight for someone who's never seen your name — and often watching the same lead get sold to your competitors. Recovering a homeowner who was *already on your site* costs a flat **$7**, and that lead is exclusive to you, never resold or shared. You're not adding a new line item to the budget; you're rescuing the spend you already made.
+Buying a fresh lead through a lead seller or an ad platform means paying full freight for someone who's never seen your name — and often watching the same lead get sold to your competitors. Recovering a visitor who was *already on your site* is custom priced, and that lead is exclusive to you, never resold or shared. You're not adding a new line item to the budget; you're rescuing the spend you already made.
 
 If you want to see how the channel math compares, our [comparison guides](/resources/compare/) line the platforms up side by side.
 
@@ -86,7 +86,7 @@ The shops that quietly out-book their competitors aren't outspending them. They'
 
 ## Where the recovered leads land
 
-Recovery only helps if the leads end up somewhere you'll actually work them. Each consented contact drops straight into the CRM you already run — Jobber, Housecall Pro, ServiceTitan, HubSpot, or GoHighLevel — so a recovered visitor becomes a real task in your pipeline, not a name in a spreadsheet you forget to open. No new tool to learn, no double entry. The lead shows up where your follow-up already happens, and it's exclusive to you with a timestamped consent record attached.
+Recovery only helps if the leads end up somewhere you'll actually work them. Each consented contact drops straight into the CRM you already run so a recovered visitor becomes a real task in your pipeline, not a name in a spreadsheet you forget to open. No new tool to learn, no double entry. The lead shows up where your follow-up already happens, and it's exclusive to you with a timestamped consent record attached.
 
 ## What to do this week
 

@@ -61,13 +61,13 @@ faq_items:
 
 Yes — you can legally identify the people visiting your website. The question that actually matters is *how*, because the law doesn't care that you learned who a visitor was so much as whether that visitor agreed to it. Consent-first identification, where a visitor sees a clear banner, accepts, and that acceptance is recorded before any contact happens, is on solid legal ground. Covert tracking — watching and identifying people who never agreed — is the conduct now generating lawsuits and multi-million-dollar settlements.
 
-Think of it as the difference between turning the lights on in your storefront and hiding a camera in it. Both let you see who came in. Only one asked permission — and in privacy law, permission is very nearly the whole game. The same act of identifying a visitor is a lawful lead when they agreed to it and a legal liability when they didn't. For a contractor deciding how to capture the [98% of visitors who never convert or identify themselves](https://www.wordstream.com/blog/conversion-rate-benchmarks), that distinction is the whole ballgame.
+Think of it as the difference between turning the lights on in your storefront and hiding a camera in it. Both let you see who came in. Only one asked permission — and in privacy law, permission is very nearly the whole game. The same act of identifying a visitor is a lawful lead when they agreed to it and a legal liability when they didn't. For a business deciding how to capture the [98% of visitors who never convert or identify themselves](https://www.wordstream.com/blog/conversion-rate-benchmarks), that distinction is the whole ballgame.
 
 ## Why "we can technically see them" isn't the test
 
 A lot of visitor-tracking tools lead with what's technically possible: match an anonymous browser to a real identity, resolve it to a name and contact, and hand it over. Technically impressive, legally beside the point. The regulators writing the checks aren't asking whether the match was possible. They're asking whether the person consented.
 
-That's why the covert model is the risky one. When a homeowner lands on a roofer's site to price a tear-off and gets silently identified and added to a call list they never agreed to, the roofer inherits a legal problem, not a lead. The tool did something clever; the contractor is the one holding the exposure.
+That's why the covert model is the risky one. When a visitor lands on a business's site to price a job and gets silently identified and added to a call list they never agreed to, the business inherits a legal problem, not a lead. The tool did something clever; the business is the one holding the exposure.
 
 ## The laws that actually apply
 
@@ -78,7 +78,7 @@ Four bodies of law shape this, and consent-first is designed to satisfy all of t
 - **State privacy laws** — Texas's TDPSA, California's CCPA — regulate collecting, using, and selling personal data. Texas has already [sued Allstate and its Arity unit](https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-sues-allstate-and-arity-unlawfully-collecting-using-and-selling-over-45) over collecting and selling data without permission.
 - **The big settlements** show where this trends. Texas secured a [$1.4 billion settlement with Meta](https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-secures-14-billion-settlement-meta-over-its-unauthorized-capture) over unauthorized capture. The enforcement appetite around unconsented data collection is not theoretical.
 
-None of that should scare a contractor away from identifying visitors. It should steer them toward the version built on consent.
+None of that should scare a business away from identifying visitors. It should steer them toward the version built on consent.
 
 ## What consent-first actually does
 
@@ -88,19 +88,19 @@ That sequence gives you two things at once. You get a lead — the warm buyer wh
 
 ## The receipt is the point
 
-Here's what most contractors miss: the value of consent-first isn't only that it's polite. It's that it produces evidence. Every identified visitor carries a signed receipt — the banner they accepted, the moment they accepted it — so your follow-up rests on documentation rather than a guess.
+Here's what most businesses miss: the value of consent-first isn't only that it's polite. It's that it produces evidence. Every identified visitor carries a signed receipt — the banner they accepted, the moment they accepted it — so your follow-up rests on documentation rather than a guess.
 
-Covert tracking gives you the opposite. Even when it hands you a real contact, it hands you no proof of permission, which means every lead is an unanswered question waiting to become a complaint. A roofer running the covert version might book a few jobs and never think about it — until the day someone asks, and there's nothing on file. Consent-first means there's always something on file.
+Covert tracking gives you the opposite. Even when it hands you a real contact, it hands you no proof of permission, which means every lead is an unanswered question waiting to become a complaint. A local shop running the covert version might book a few jobs and never think about it — until the day someone asks, and there's nothing on file. Consent-first means there's always something on file.
 
-And it keeps the lead clean in the ways that matter to your business, too: it's exclusive to you at a flat **$7**, never resold to the contractor down the road, and it complements your other channels — [Google Local Service Ads](/why-consent-first/) included — rather than pulling you into legal gray areas to compete.
+And it keeps the lead clean in the ways that matter to your business, too: it's exclusive to you at custom pricing, never resold to the business down the road, and it complements your other channels — [Google Local Service Ads](/why-consent-first/) included — rather than pulling you into legal gray areas to compete.
 
 ## Where the enforcement is actually heading
 
-Some contractors read "privacy law" and assume it's a coastal problem that won't reach a roofing shop in a mid-size town. The trend line says otherwise. The FTC's action against HomeAdvisor ended in a consent order — a settlement, not a fine — over how leads were marketed, and the pattern since has been regulators moving on data collection that happens without clear permission. State attorneys general are now the tip of the spear: the Texas suit against Allstate and Arity is about collecting and selling personal data without consent, and the state's billion-dollar settlements with large platforms show the enforcement appetite is national, not niche.
+Some businesses read "privacy law" and assume it's a coastal problem that won't reach a small shop in a mid-size town. The trend line says otherwise. The FTC's action against HomeAdvisor ended in a consent order — a settlement, not a fine — over how leads were marketed, and the pattern since has been regulators moving on data collection that happens without clear permission. State attorneys general are now the tip of the spear: the Texas suit against Allstate and Arity is about collecting and selling personal data without consent, and the state's billion-dollar settlements with large platforms show the enforcement appetite is national, not niche.
 
-The lesson for a contractor isn't to fear the technology. It's to notice which side of the consent line every one of these actions falls on. They target collection *without* permission. None of them target businesses that asked first and kept a record. That's the whole reason consent-first isn't a compliance checkbox bolted on afterward — it's the design choice that keeps you off the list entirely.
+The lesson for a business isn't to fear the technology. It's to notice which side of the consent line every one of these actions falls on. They target collection *without* permission. None of them target businesses that asked first and kept a record. That's the whole reason consent-first isn't a compliance checkbox bolted on afterward — it's the design choice that keeps you off the list entirely.
 
-There's a practical benefit beyond staying out of trouble, too. A homeowner who accepted your banner and then gets a helpful, expected email has a better experience than one who gets a surprise call from a shop they never contacted. Consent-first tends to produce warmer leads *because* the relationship started with permission. Doing it right legally and doing it right for the customer turn out to be the same move.
+There's a practical benefit beyond staying out of trouble, too. A visitor who accepted your banner and then gets a helpful, expected email has a better experience than one who gets a surprise call from a shop they never contacted. Consent-first tends to produce warmer leads *because* the relationship started with permission. Doing it right legally and doing it right for the customer turn out to be the same move.
 
 ## How to stay on the right side of the line
 

@@ -14,7 +14,7 @@ seo_description: "Forms capture a thin slice of your traffic. Here's how consent
 focus_keyword: "website visitor identification"
 canonical_url: "https://consentresolve.com/resources/blog/see-whos-on-your-site-right-now-without-a-single-form-fill/"
 category: "Feature Deep-Dive"
-tags: ["visitor identification", "lead capture", "home services", "consent-first"]
+tags: ["visitor identification", "lead capture", "b2b leads", "consent-first"]
 funnel_stage: "capture"
 schema_type: "BlogPosting"
 excerpt: "A contact form is a locked door most visitors walk past. Here's how consent-first visitor identification lets you see who's actually on your site — without asking anyone to fill out a thing."
@@ -49,12 +49,12 @@ faq_items:
   - question: "Is identifying website visitors legal?"
     answer: "It is when it's consent-first. Consent Resolve only identifies visitors who accept a visible consent banner, logs a timestamped record, keeps a 7-year audit trail, and hands you an email-grade lead — never a phone number to cold-call."
   - question: "What does each identified lead cost?"
-    answer: "A flat $7 per lead, exclusive to you and never resold or shared. You follow up by email into the funnel you already run, with a signed consent receipt on every lead."
+    answer: "Custom pricing per lead, exclusive to you and never resold or shared. You follow up by email into the funnel you already run, with a signed consent receipt on every lead."
 ---
 
 ## The busiest room you can't see into
 
-Open your analytics right now and you'll probably see people on your site this minute — reading your reviews, looking at past jobs, maybe lingering on your pricing page. Real homeowners with a real problem. And you can't reach a single one of them.
+Open your analytics right now and you'll probably see people on your site this minute — reading your reviews, looking at past jobs, maybe lingering on your pricing page. Real visitors with a real problem. And you can't reach a single one of them.
 
 That's the strange thing about a website. It's the busiest room in your business, full of people who came looking for exactly what you sell, and almost all of them are invisible to you. The only ones you ever meet are the handful who fill out the form.
 
@@ -66,7 +66,7 @@ It's not that those people weren't interested. The average visitor spends about 
 
 ## So how do you see the rest?
 
-This is what [visitor identification](/resources/glossary/#visitor-identification) is for — the consent-first version. When a homeowner lands on your site and accepts a clear consent banner, [Consent Resolve](/features/visitor-identification/) turns that anonymous, *consenting* visitor into a real contact: a name and a consented email, logged with a timestamp. No form. No "fill this out to continue." The visitor browses like normal; you simply get a way to follow up with the ones who agreed to hear from you.
+This is what [visitor identification](/resources/glossary/#visitor-identification) is for — the consent-first version. When a visitor lands on your site and accepts a clear consent banner, [Consent Resolve](/features/visitor-identification/) turns that anonymous, *consenting* visitor into a real contact: a name and a consented email, logged with a timestamp. No form. No "fill this out to continue." The visitor browses like normal; you simply get a way to follow up with the ones who agreed to hear from you.
 
 Think of it less as catching people and more as flipping the lights on in a storefront that was already full. The traffic was always there. Now you can see who's standing in it — at least the share who said yes.
 
@@ -78,7 +78,7 @@ That's the difference between a tool that creates risk and one that removes it. 
 
 ## What the numbers say about capturing more
 
-Here's where it's worth being careful and honest. The most direct evidence that automated, formless capture beats a static form comes from ecommerce, where it's been measured at scale: businesses see [10–15× more subscribers from automated capture than from forms alone](https://bdow.com/stories/email-signup-benchmarks/). That's cross-industry evidence that the *approach* works — not a number we'd ever promise a contractor. Your results vary by trade, traffic source, and how you follow up.
+Here's where it's worth being careful and honest. The most direct evidence that automated, formless capture beats a static form comes from ecommerce, where it's been measured at scale: businesses see [10–15× more subscribers from automated capture than from forms alone](https://bdow.com/stories/email-signup-benchmarks/). That's cross-industry evidence that the *approach* works — not a number we'd ever promise a business. Your results vary by trade, traffic source, and how you follow up.
 
 But the logic carries over plainly. If your form catches a sliver and the room is full, almost any method that reaches the consenting majority will out-deliver the form. You can see the full set of figures, each one sourced, on our [stats page](/stats/).
 
@@ -86,12 +86,12 @@ But the logic carries over plainly. If your form catches a sliver and the room i
 
 - **Turn on consent-first identification** so the visitors already arriving don't leak away anonymous.
 - **Have one short follow-up email ready** — friendly, helpful, "saw you stopped by, want us to take a look?" — so identified visitors hear from you the same day.
-- **Send it into the system you already use.** Identified leads flow into [Jobber, Housecall Pro, ServiceTitan, HubSpot, or GoHighLevel](/features/visitor-identification/), so nobody's copying anything by hand.
+- **Send it into the system you already use.** Identified leads flow into [the CRM you already run](/features/visitor-identification/), so nobody's copying anything by hand.
 - **Keep it email-only.** You're not cold-calling. You're emailing people who consented, into a funnel you already run.
 
-You don't need more visitors this month. You need to stop losing the ones standing in the room you can't currently see. If you've ever wondered how this compares to buying leads from a platform, the [channel math](/resources/compare/) is worth a look — a recovered visitor who was already on your site costs a flat **$7** and is exclusive to you, never resold.
+You don't need more visitors this month. You need to stop losing the ones standing in the room you can't currently see. If you've ever wondered how this compares to buying leads from a platform, the [channel math](/resources/compare/) is worth a look — a recovered visitor who was already on your site costs custom pricing and is exclusive to you, never resold.
 
-One more thing on the routine: the goal isn't to email everyone the same canned blast. The visitors worth following up with are the ones who showed real intent — read multiple pages, lingered on a service or pricing page, came back more than once. A short, relevant note to those people lands very differently than a mass send, and it keeps your list clean and your sender reputation intact. Quality of follow-up beats volume every time, especially when each lead already cost you only $7 and belongs to you alone.
+One more thing on the routine: the goal isn't to email everyone the same canned blast. The visitors worth following up with are the ones who showed real intent — read multiple pages, lingered on a service or pricing page, came back more than once. A short, relevant note to those people lands very differently than a mass send, and it keeps your list clean and your sender reputation intact. Quality of follow-up beats volume every time, especially when each lead already cost you so little and belongs to you alone.
 
 ## The point of seeing them
 

@@ -15,7 +15,7 @@ seo_description: "Buying or renting a contact list looks cheap until the TCPA ma
 focus_keyword: "buy a list vs consent first"
 canonical_url: "https://consentresolve.com/resources/blog/consent-first-vs-buy-a-list/"
 category: "Compliance & Privacy"
-tags: ["tcpa", "consent", "compliance", "lead lists", "home services"]
+tags: ["tcpa", "consent", "compliance", "lead lists", "b2b leads"]
 funnel_stage: "convert"
 schema_type: "BlogPosting"
 disclaimer: true
@@ -51,12 +51,12 @@ faq_items:
   - question: "What makes a consent-first lead different from a bought lead?"
     answer: "A consent-first lead is a person who accepted a clear consent banner on your own website, with a timestamped record proving it. A bought lead is a stranger who agreed to nothing you can show. One comes with a receipt you own; the other comes with someone else's assumptions and your liability."
   - question: "How does Consent Resolve deliver leads without the legal exposure?"
-    answer: "It only identifies visitors who accept a clear consent banner, logs a timestamped record, and hands you an email-grade lead for a flat $7 — exclusive, never resold. You follow up by email into your existing funnel, never a phone number to cold-dial, so the riskiest behavior is off the table from the start."
+    answer: "It only identifies visitors who accept a clear consent banner, logs a timestamped record, and hands you an email-grade lead at custom pricing — exclusive, never resold. You follow up by email into your existing funnel, never a phone number to cold-dial, so the riskiest behavior is off the table from the start."
 ---
 
 ## The list that looks cheap on Monday
 
-Somebody offers you 5,000 homeowner contacts in your service area for a few hundred bucks. On Monday morning that math looks unbeatable — pennies a name, instant pipeline, start dialing and texting by lunch. Every contractor has been pitched some version of this, and plenty have bitten.
+Somebody offers you 5,000 visitor contacts in your service area for a few hundred bucks. On Monday morning that math looks unbeatable — pennies a name, instant pipeline, start dialing and texting by lunch. Every business has been pitched some version of this, and plenty have bitten.
 
 Here's what the pitch leaves out. A bought or rented list isn't a list of people who want to hear from you. It's a list of people who agreed to *something, somewhere*, on terms you can't see and can't prove. The moment you contact them, you've inherited a risk you didn't create and can't defend.
 
@@ -74,7 +74,7 @@ Put the two side by side and it's stark.
 
 A **bought list** is a stranger who agreed to nothing you can see. You can't prove consent, you don't know how the data was gathered, and the same names were probably sold to a dozen other shops. If one of them asks "where did you get my number?", you're guessing.
 
-A **[consent-first lead](/why-consent-first/)** is a homeowner who landed on *your* website, accepted a clear consent banner, and got logged with a timestamp. You know exactly when they agreed and to what. The lead is exclusive to you — never resold — and it comes with a receipt you own.
+A **[consent-first lead](/why-consent-first/)** is a visitor who landed on *your* website, accepted a clear consent banner, and got logged with a timestamp. You know exactly when they agreed and to what. The lead is exclusive to you — never resold — and it comes with a receipt you own.
 
 Same goal, fill the pipeline. Opposite risk profile. One is a person who raised a hand on your own site; the other is a name pulled from a spreadsheet of people who didn't.
 
@@ -82,7 +82,7 @@ Same goal, fill the pipeline. Opposite risk profile. One is a person who raised 
 
 Owners worry that doing it the clean way means fewer leads. It's the reverse. The list you buy is full of people who don't know you and didn't ask for you. The visitors on your site already found you — they're pricing the job right now. [Identifying them on consent](/features/consent-first-identification/) turns the traffic you already paid for into real, defensible contacts, instead of paying again for strangers.
 
-And the follow-up is the part that keeps you clean. With consent-first, you never get handed a phone number to cold-dial. Leads are **email-grade**, dropped into the funnel you already run — Jobber, Housecall Pro, ServiceTitan, Klaviyo, GoHighLevel — so you reach people who agreed to hear from you, by the channel that carries the least risk. The behavior that lands shops in court simply isn't on your menu.
+And the follow-up is the part that keeps you clean. With consent-first, you never get handed a phone number to cold-dial. Leads are **email-grade**, dropped into the funnel you already run — the CRM and marketing tools you already use — so you reach people who agreed to hear from you, by the channel that carries the least risk. The behavior that lands businesses in court simply isn't on your menu.
 
 ## How to fill the pipeline without buying the risk
 
@@ -91,10 +91,10 @@ And the follow-up is the part that keeps you clean. With consent-first, you neve
 - **Follow up by email,** into your existing funnel, never a cold call to a number you bought.
 - **Keep the receipt.** A timestamped consent log and a 7-year audit trail mean the proof exists before anyone asks.
 
-The whole thing costs a flat **$7** per lead, exclusive and never resold — a fraction of what a single TCPA claim would run you, and without the spreadsheet of strangers.
+The whole thing is custom priced per lead, exclusive and never resold — a fraction of what a single TCPA claim would run you, and without the spreadsheet of strangers.
 
 Consent Resolve was engineered to the strictest privacy regime in the world — GDPR, whose [maximum fine reaches €20 million](https://gdpr-info.eu/issues/fines-penalties/) or 4% of global revenue — so a lead you capture this way holds up anywhere. Every figure here is sourced on our [stats page](/stats/).
 
 ## Buy the right thing
 
-The choice isn't "more leads" versus "fewer leads." It's "leads you can defend" versus "leads that can sue you." A bought list buys you strangers and someone else's risk. Consent-first identification buys you homeowners who already showed up on your site, with a record that protects you. See [why consent-first keeps your shop out of court](https://consentresolve.com/why-consent-first/), then look at [what your current lead channels actually cost](/resources/compare/) — in fees and in exposure. This article is general information, not legal advice.
+The choice isn't "more leads" versus "fewer leads." It's "leads you can defend" versus "leads that can sue you." A bought list buys you strangers and someone else's risk. Consent-first identification buys you visitors who already showed up on your site, with a record that protects you. See [why consent-first keeps your shop out of court](https://consentresolve.com/why-consent-first/), then look at [what your current lead channels actually cost](/resources/compare/) — in fees and in exposure. This article is general information, not legal advice.

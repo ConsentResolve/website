@@ -20,8 +20,8 @@ funnel_stage: "convert"
 schema_type: "BlogPosting"
 disclaimer: true
 excerpt: "Texas, California, and a growing list of states each passed their own privacy law, all slightly different. Chasing each one is a losing game — here's the setup that covers the whole patchwork by design."
-tldr: "The U.S. has no single federal privacy law, so states have each written their own — Texas's TDPSA, California's CCPA, and a dozen more — creating a patchwork of overlapping, slightly different rules. Trying to track every one is a losing game for a busy contractor. The shortcut is to engineer to the strictest standard in the world, GDPR, whose maximum fine reaches €20 million; clear what that bar requires and you clear the U.S. patchwork beneath it by design."
-key_takeaways: "There is no national privacy law, so a contractor who serves customers across state lines can touch several different regimes at once. Chasing each statute individually doesn't scale. Every one of them rests on the same foundation — collect and contact people on consent, disclose what you do, and keep proof — so building to the strictest bar, GDPR, covers the laws underneath it. A consent-first website with a clear banner, a timestamped log, and email-only follow-up is that bar in practice."
+tldr: "The U.S. has no single federal privacy law, so states have each written their own — Texas's TDPSA, California's CCPA, and a dozen more — creating a patchwork of overlapping, slightly different rules. Trying to track every one is a losing game for a busy business. The shortcut is to engineer to the strictest standard in the world, GDPR, whose maximum fine reaches €20 million; clear what that bar requires and you clear the U.S. patchwork beneath it by design."
+key_takeaways: "There is no national privacy law, so a business who serves customers across state lines can touch several different regimes at once. Chasing each statute individually doesn't scale. Every one of them rests on the same foundation — collect and contact people on consent, disclose what you do, and keep proof — so building to the strictest bar, GDPR, covers the laws underneath it. A consent-first website with a clear banner, a timestamped log, and email-only follow-up is that bar in practice."
 recap: "The patchwork looks overwhelming because you're picturing fifty rulebooks. Underneath, they all ask the same thing: consent, transparency, and a receipt. Build to the strictest standard once and the rest is covered — no statute-chasing required."
 sources:
   - label: "GDPR Info — maximum fine (€20M)"
@@ -49,16 +49,16 @@ faq_items:
   - question: "Why are there so many different state privacy laws?"
     answer: "Because the U.S. has no single federal consumer-privacy law, each state has filled the gap on its own — Texas with the TDPSA, California with the CCPA, and many more. They overlap heavily but differ in the details, which is why a business serving customers across state lines can be subject to several at once. This is general information, not legal advice."
   - question: "Do I really have to comply with privacy laws in states I don't live in?"
-    answer: "Generally, what matters is where your customers are, not where you are. If homeowners in California or other states visit your site and you collect their data, those states' laws can reach you. Building to one high standard is far simpler than mapping each state's rules to each customer."
+    answer: "Generally, what matters is where your customers are, not where you are. If visitors in California or other states visit your site and you collect their data, those states' laws can reach you. Building to one high standard is far simpler than mapping each state's rules to each customer."
   - question: "How does building to GDPR cover U.S. state laws?"
-    answer: "GDPR is the strictest mainstream privacy regime, with a maximum fine of €20 million or 4% of global revenue. Its core demands — clear consent, transparency, honored opt-outs, and provable records — sit at or above what U.S. state laws ask. Clear that bar and the state patchwork beneath it is covered. Consent Resolve is engineered to GDPR by default, with a flat $7 email-grade, consent-first lead."
+    answer: "GDPR is the strictest mainstream privacy regime, with a maximum fine of €20 million or 4% of global revenue. Its core demands — clear consent, transparency, honored opt-outs, and provable records — sit at or above what U.S. state laws ask. Clear that bar and the state patchwork beneath it is covered. Consent Resolve is engineered to GDPR by default, with a custom-priced, email-grade, consent-first lead."
 ---
 
 ## Fifty rulebooks and no referee
 
 If keeping up with privacy law feels impossible lately, it's not you. The United States never passed a single national consumer-privacy law, so the states did it themselves — one at a time, each a little different. Texas has the TDPSA. California has the CCPA. A dozen more have their own, with new ones arriving every legislative session. There's no federal referee harmonizing the rules.
 
-For a contractor whose customers don't stop at the state line, that's a real headache. A homeowner in Dallas, one in California checking out your work, one who moved from another state — each may be covered by a different statute the moment they land on your website. Picturing fifty rulebooks is enough to make any owner want to turn the site off.
+For a business whose customers don't stop at the state line, that's a real headache. A visitor in Dallas, one in California checking out your work, one who moved from another state — each may be covered by a different statute the moment they land on your website. Picturing fifty rulebooks is enough to make any owner want to turn the site off.
 
 ## Why chasing each law is the losing move
 
@@ -76,7 +76,7 @@ That's the whole logic behind [built-in compliance](/features/built-in-complianc
 
 ## The patchwork only grows from here
 
-It's worth being honest about the direction of travel. Every session, more states pass privacy laws, and the existing ones get amended and sharpened. The trend line points one way: more rules, more enforcement, more states with a private right of action that lets residents sue directly. A contractor who solves this statute-by-statute is signing up to redo the work every year, forever.
+It's worth being honest about the direction of travel. Every session, more states pass privacy laws, and the existing ones get amended and sharpened. The trend line points one way: more rules, more enforcement, more states with a private right of action that lets residents sue directly. A business who solves this statute-by-statute is signing up to redo the work every year, forever.
 
 Building to the strictest bar breaks that cycle. The reason GDPR works as your benchmark is that it was written years ahead of the U.S. wave and set the template most state laws now borrow from — consent, transparency, opt-out, provable records. When a new state law lands, it tends to ask for a subset of what you're already doing, not something new. You read the headline, confirm nothing major changed, and get back to running jobs. That's the difference between compliance as a one-time engineering decision and compliance as a permanent part-time job you never wanted.
 
@@ -86,12 +86,12 @@ It's less exotic than it sounds. In practice it's three things working together:
 
 - **A clear consent banner.** Identification only happens for visitors who say yes — which satisfies the consent and transparency demands shared across the patchwork.
 - **A timestamped consent log on a 7-year audit trail.** That's the provable record every regime expects, so "who agreed and when?" is one lookup in any state.
-- **Email-grade follow-up only.** You never get a phone number to cold-dial. Leads drop into the funnel you already run — Jobber, Housecall Pro, ServiceTitan, HubSpot, Klaviyo, GoHighLevel — by the channel that carries the least risk.
+- **Email-grade follow-up only.** You never get a phone number to cold-dial. Leads drop into the funnel you already run — whatever CRM or email tool your business uses — by the channel that carries the least risk.
 
 Done this way, [consent-first capture](/why-consent-first/) isn't a tax on your marketing. It's the version that keeps working as the map redraws itself, while still turning the traffic you already pay for into real, defensible leads.
 
 ## Stop tracking statutes, start clearing the bar
 
-You don't need to become a fifty-state privacy expert. You need a website built to the strictest standard there is, so the patchwork underneath is covered without you watching every legislature. Capture leads on consent, follow up by email at a flat **$7** per exclusive lead — never resold — and keep the receipt on every one.
+You don't need to become a fifty-state privacy expert. You need a website built to the strictest standard there is, so the patchwork underneath is covered without you watching every legislature. Capture leads on consent, follow up by email at custom pricing per exclusive lead — never resold — and keep the receipt on every one.
 
 See [how built-in compliance covers the patchwork by design](https://consentresolve.com/features/built-in-compliance/), read how [the Texas TDPSA fits the same pattern](/resources/blog/texas-tdpsa-for-your-website/), and weigh it against [what your current lead channels actually cost](/resources/compare/) — in fees and in exposure. Every figure here is sourced on our [stats page](/stats/). This article is general information, not legal advice — for how these laws apply to your specific business, talk to an attorney in your state.

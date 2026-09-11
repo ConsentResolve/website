@@ -12,10 +12,10 @@ read_time: "7 min"
 og_hook: "The phone-marketing law that can cost $500–$1,500 per text — explained."
 seo_title: "TCPA in Plain English for Home-Service Pros"
 seo_description: "What the TCPA actually says about calling and texting leads — and why consent-first lead capture keeps home-service pros on the safe side of it."
-focus_keyword: "tcpa for contractors"
+focus_keyword: "tcpa for businesses"
 canonical_url: "https://consentresolve.com/resources/blog/tcpa-plain-english/"
 category: "Compliance & Privacy"
-tags: ["tcpa", "compliance", "consent", "privacy", "home services"]
+tags: ["tcpa", "compliance", "consent", "privacy", "b2b leads"]
 funnel_stage: "convert"
 schema_type: "BlogPosting"
 disclaimer: true
@@ -59,12 +59,12 @@ faq_items:
   - question: "What's the difference between the TCPA and laws like CIPA or the TDPSA?"
     answer: "The TCPA is the federal law about calls and texts. CIPA is California's wiretap statute now used against non-consented website tracking, the TDPSA is Texas's data-privacy law, and GDPR is the EU standard. They cover different ground, but they share one theme: contact and track people only with consent, and keep the receipt."
   - question: "How does consent-first capture keep me on the safe side of the TCPA?"
-    answer: "Consent Resolve only identifies visitors who accept a clear consent banner, logs a timestamped record, and hands you an email-grade lead for a flat $7 — exclusive, never resold. You follow up by email into your existing funnel, never a phone number to cold-dial, which avoids the riskiest TCPA behavior entirely."
+    answer: "Consent Resolve only identifies visitors who accept a clear consent banner, logs a timestamped record, and hands you an email-grade lead at custom pricing — exclusive, never resold. You follow up by email into your existing funnel, never a phone number to cold-dial, which avoids the riskiest TCPA behavior entirely."
 ---
 
 ## The law you keep hearing about, finally explained
 
-If you run a plumbing, roofing, or HVAC shop, you've probably heard "TCPA" tossed around like a warning and never gotten a straight answer about what it is. Here it is in plain English: the TCPA — the Telephone Consumer Protection Act — is the federal law that restricts unsolicited calls and texts to consumers. It's the reason a stranger can sue you for a text message, and the reason "we bought a list and started dialing" is one of the most expensive sentences in home-service marketing.
+If you run a service-based business, you've probably heard "TCPA" tossed around like a warning and never gotten a straight answer about what it is. Here it is in plain English: the TCPA — the Telephone Consumer Protection Act — is the federal law that restricts unsolicited calls and texts to consumers. It's the reason a stranger can sue you for a text message, and the reason "we bought a list and started dialing" is one of the most expensive sentences in business marketing.
 
 You don't need a law degree to stay on the right side of it. You need to understand one idea: consent.
 
@@ -92,14 +92,14 @@ A shared lead bought from a platform comes with someone else's consent assumptio
 
 ## The clean way through
 
-Here's how home-service pros stay out of TCPA trouble without going quiet:
+Here's how businesses stay out of TCPA trouble without going quiet:
 
 - **Capture on consent.** Identify only the visitors who accept a clear banner. No banner, no contact.
-- **Follow up by email, not a cold call.** Email-grade leads go into the funnel you already run — Jobber, Housecall Pro, HubSpot, Klaviyo, whatever you use. You never get handed a phone number to cold-dial, which is the behavior the TCPA scrutinizes most.
+- **Follow up by email, not a cold call.** Email-grade leads go into the funnel you already run — HubSpot, Klaviyo, whatever CRM you use. You never get handed a phone number to cold-dial, which is the behavior the TCPA scrutinizes most.
 - **Keep the receipt.** A timestamped consent log and a 7-year audit trail mean the proof exists before anyone asks for it.
 
 Consent Resolve was built to a higher bar than any U.S. statute — the GDPR standard, whose [maximum fine reaches €20 million](https://gdpr-info.eu/issues/fines-penalties/) or 4% of global revenue. Engineer to the strictest regime in the world and TCPA compliance comes along for the ride. Every figure here is sourced on our [stats page](/stats/).
 
 ## Do this, sleep better
 
-The TCPA is not a reason to stop marketing. It's a reason to market to people who agreed to hear from you — and to keep proof that they did. Capture leads on consent, follow up by email at a flat $7 per exclusive lead, and keep a record on every one. See [why a consent-first approach protects your shop](https://consentresolve.com/why-consent-first/), and weigh it against [what your current lead channels actually cost](/resources/compare/) — in fees and in exposure.
+The TCPA is not a reason to stop marketing. It's a reason to market to people who agreed to hear from you — and to keep proof that they did. Capture leads on consent, follow up by email at custom pricing per exclusive lead, and keep a record on every one. See [why a consent-first approach protects your business](https://consentresolve.com/why-consent-first/), and weigh it against [what your current lead channels actually cost](/resources/compare/) — in fees and in exposure.

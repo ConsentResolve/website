@@ -50,15 +50,15 @@ sources:
 
 ## The leads you can't buy
 
-Ask any seasoned contractor where their best customers come from, and you'll usually hear the same answer: word of mouth. A neighbor mentions you over the fence. A satisfied homeowner forwards your name to their cousin. Those leads close easier, haggle less, and tend to become repeat customers — because they arrived already trusting you.
+Ask any seasoned business where their best customers come from, and you'll usually hear the same answer: word of mouth. A neighbor mentions you over the fence. A satisfied visitor forwards your name to their cousin. Those leads close easier, haggle less, and tend to become repeat customers — because they arrived already trusting you.
 
 So here's the strange part. The leads we most want are the ones we most often leave entirely to luck. We finish the job, shake hands, and hope the referral happens on its own.
 
 ## Why referrals slip away
 
-It's not that customers don't want to refer you. It's that life moves on. The job ends, the homeowner gets busy, and the moment when they were thrilled with your work — the moment they'd have happily told three friends — passes quietly. By the time their friend actually needs the work, your name has faded.
+It's not that customers don't want to refer you. It's that life moves on. The job ends, the visitor gets busy, and the moment when they were thrilled with your work — the moment they'd have happily told three friends — passes quietly. By the time their friend actually needs the work, your name has faded.
 
-The other reason referrals stall is that asking feels awkward. Nobody wants to be the contractor who hounds people for reviews. So most shops don't ask at all, and a reliable source of new work gets left on the table, job after job.
+The other reason referrals stall is that asking feels awkward. Nobody wants to be the business who hounds people for reviews. So most shops don't ask at all, and a reliable source of new work gets left on the table, job after job.
 
 ## What does a referral engine actually look like?
 
@@ -70,7 +70,7 @@ Done well, it's one well-timed, friendly message: a thank-you while the customer
 
 The reason most referral programs die is that they depend on a busy owner remembering to send the message. They don't. The fix is to take the remembering out of it.
 
-[Multi-channel follow-up](/features/multi-channel-follow-up/) lets you set the after-job message once and have it go out automatically, on your branding, into the funnel you already run. It's [consent-first](/why-consent-first/) and email-based — you're reaching your own customers, never cold-calling strangers — and it drops into the CRM you already use, whether that's Jobber, Housecall Pro, ServiceTitan, HubSpot, or GoHighLevel. The system handles the timing; you keep the relationship human. When a customer does reply or refer someone, you're talking to a warm contact, not chasing a cold one.
+[Multi-channel follow-up](/features/multi-channel-follow-up/) lets you set the after-job message once and have it go out automatically, on your branding, into the funnel you already run. It's [consent-first](/why-consent-first/) and email-based — you're reaching your own customers, never cold-calling strangers — and it drops into the CRM you already use. The system handles the timing; you keep the relationship human. When a customer does reply or refer someone, you're talking to a warm contact, not chasing a cold one.
 
 That's the whole trick: automate the part that's easy to forget, so the part that matters — your reputation for good work — actually gets to do its job.
 

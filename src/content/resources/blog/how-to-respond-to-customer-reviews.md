@@ -8,19 +8,19 @@ author_slug: "aaron-phillips"
 article_section: "Marketing"
 cluster: "marketing"
 read_time: "6 min"
-og_hook: "Your reply isn't for the reviewer. It's for the next homeowner reading it."
+og_hook: "Your reply isn't for the reviewer. It's for the next visitor reading it."
 seo_title: "How to Respond to Customer Reviews (Good and Bad)"
 seo_description: "Your review replies are read by the next buyer, not the reviewer. Here's how to respond to praise and to the occasional bad review so both win you jobs."
 focus_keyword: "how to respond to reviews"
 canonical_url: "https://consentresolve.com/resources/blog/how-to-respond-to-customer-reviews/"
 category: "Marketing"
-tags: ["reviews", "reputation", "customer experience", "marketing", "home services"]
+tags: ["reviews", "reputation", "customer experience", "marketing", "b2b leads"]
 funnel_stage: "retain-expand"
 schema_type: "BlogPosting"
-excerpt: "Collecting reviews is half the game — how you reply to them is the other half. Your responses are read by the next homeowner deciding whether to call, so here's how to handle praise and the occasional one-star so both work in your favor."
+excerpt: "Collecting reviews is half the game — how you reply to them is the other half. Your responses are read by the next visitor deciding whether to call, so here's how to handle praise and the occasional one-star so both work in your favor."
 tldr: "Respond to every review because your replies are read by future customers, not just the reviewer. For a positive review, thank them briefly, name the job, and keep it human. For a negative one, stay calm, take it offline, and show you own your work — the goal isn't to win the argument, it's to show the next reader you handle problems well. A shop that answers reviews looks active and accountable; one that ignores them looks absent."
 key_takeaways: "Review replies are public, and the audience is the next buyer, not the person who wrote them. Thank positive reviewers by name and mention the job so it reads real. For a bad review, never argue — respond calmly, acknowledge, offer to make it right offline, and let readers see you're accountable. Responding at all signals an active, present business. A handled complaint often builds more trust than a spotless page, because it proves you show up when something goes wrong."
-recap: "How you answer reviews matters as much as getting them. Reply to the good ones like a human and to the bad ones like a professional — because the real reader is the next homeowner deciding whether you're the shop that shows up. Owning a problem in public earns more trust than pretending you never have one."
+recap: "How you answer reviews matters as much as getting them. Reply to the good ones like a human and to the bad ones like a professional — because the real reader is the next visitor deciding whether you're the shop that shows up. Owning a problem in public earns more trust than pretending you never have one."
 related:
   - label: "Build a referral engine that runs itself"
     url: "/resources/blog/referral-engine-that-runs-itself/"
@@ -50,7 +50,7 @@ sources:
 
 ## The audience for your reply isn't the reviewer
 
-Most contractors think of a review reply as a private thank-you note or, when it's a bad one, a chance to set the record straight. Both misread who's actually reading. Your response sits in public, forever, under the review — and the person who reads it most is the *next* homeowner, the one deciding right now whether to call you or the shop down the road.
+Most businesses think of a review reply as a private thank-you note or, when it's a bad one, a chance to set the record straight. Both misread who's actually reading. Your response sits in public, forever, under the review — and the person who reads it most is the *next* visitor, the one deciding right now whether to call you or the shop down the road.
 
 That reframe changes everything about how you write. You're not answering the customer who left the review. You're showing a future customer what kind of business you run. Collecting reviews gets you on the page; how you reply is what turns a reader into a caller.
 
@@ -68,7 +68,7 @@ Keep it brief, human, and specific. A wall of identical "Thanks for your busines
 - **Mention the job.** "glad we got the AC back up before that heat wave hit" tells the next reader you remember real work, not a transaction.
 - **Keep it short and warm.** Two sentences is plenty. You're confirming you're a good shop, not writing an essay.
 
-Take a house-cleaning business replying to a five-star note: "Thank you, Dave — it was a pleasure getting the move-out spotless for you, and good luck in the new place." Thirty seconds, and every future reader just watched a real owner treat a customer like a person.
+Take a consulting firm replying to a five-star note: "Thank you, Dave — it was a pleasure helping you get the project across the finish line, and good luck with the next phase." Thirty seconds, and every future reader just watched a real owner treat a customer like a person.
 
 ## How to respond to the bad one
 
@@ -85,9 +85,9 @@ The goal isn't to win with that customer. It's to let every future reader watch 
 
 ## The habit that keeps it easy
 
-Responding gets skipped for the same reason asking gets skipped — it falls off a busy plate. Build it into a weekly rhythm the way you'd handle invoices: once a week, sit down, reply to every new review, good and bad. Ten minutes. Do that and your page stays visibly tended, which is its own quiet signal to the next homeowner that you're the kind of shop that doesn't let things slide.
+Responding gets skipped for the same reason asking gets skipped — it falls off a busy plate. Build it into a weekly rhythm the way you'd handle invoices: once a week, sit down, reply to every new review, good and bad. Ten minutes. Do that and your page stays visibly tended, which is its own quiet signal to the next visitor that you're the kind of shop that doesn't let things slide.
 
-It's the same principle behind every good customer touch — the [referral you earn](/resources/blog/referral-engine-that-runs-itself/), the [local visibility you build](/resources/blog/local-seo-for-busy-pros/), and the consent-first follow-up that treats people with respect. A recovered website lead, exclusive to you at a flat **$7**, followed up by email and never a cold call, comes from the same instinct: show up, be straight with people, and let that reputation do the selling.
+It's the same principle behind every good customer touch — the [referral you earn](/resources/blog/referral-engine-that-runs-itself/), the [local visibility you build](/resources/blog/local-seo-for-busy-pros/), and the consent-first follow-up that treats people with respect. A recovered website lead, exclusive to you at custom pricing, followed up by email and never a cold call, comes from the same instinct: show up, be straight with people, and let that reputation do the selling.
 
 ## The short version
 
@@ -96,4 +96,4 @@ It's the same principle behind every good customer touch — the [referral you e
 - **Complaints: calm, offline, accountable.** Write for the next reader, never to win the argument.
 - **Make it a weekly ten minutes.** A tended page sells for you around the clock.
 
-Getting reviews puts you in the running. Answering them well is how you close the reader who's deciding right now. If you want more of the homeowners you already reach to become work worth reviewing, start with [getting more from the traffic you have](/resources/how-to-guides/get-more-leads-from-website-traffic/).
+Getting reviews puts you in the running. Answering them well is how you close the reader who's deciding right now. If you want more of the visitors you already reach to become work worth reviewing, start with [getting more from the traffic you have](/resources/how-to-guides/get-more-leads-from-website-traffic/).

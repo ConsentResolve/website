@@ -18,7 +18,7 @@ tags: ["consent records", "audit trail", "consent-first identification", "compli
 funnel_stage: "convert"
 schema_type: "BlogPosting"
 excerpt: "A name and an email tell you who to follow up with. A timestamped consent record tells you that you're allowed to — and proves it if anyone ever asks. That receipt is the part most lead tools skip."
-tldr: "A consent record is a timestamped log of a visitor agreeing to be identified and contacted — it captures who consented, to what, and when — and it ships attached to every lead like a signed receipt. That receipt is what protects your shop: if a homeowner, a regulator, or a plaintiff's lawyer ever asks where you got someone's information, you have a clean, defensible answer instead of a scramble. Consent-first identification means every lead is email-grade, a flat $7, exclusive to you, with the permission proven, not assumed."
+tldr: "A consent record is a timestamped log of a visitor agreeing to be identified and contacted — it captures who consented, to what, and when — and it ships attached to every lead like a signed receipt. That receipt is what protects your shop: if a visitor, a regulator, or a plaintiff's lawyer ever asks where you got someone's information, you have a clean, defensible answer instead of a scramble. Consent-first identification means every lead is email-grade, custom pricing, exclusive to you, with the permission proven, not assumed."
 key_takeaways: "Most lead tools hand you a contact and stop. The piece that actually protects you is the consent record — a timestamped log proving the person agreed before you ever reached out. Kept properly as an audit trail, that record turns the dreaded 'where did you get my info?' question into a one-line answer. The lead is the asset; the receipt is the insurance, and consent-first identification ships both together."
 recap: "A lead without proof of permission is a risk wearing a contact's clothes. A timestamped consent record is the signed receipt that turns it into a defensible asset — and keeping that audit trail is how a careful shop sleeps at night."
 related:
@@ -38,9 +38,9 @@ faq_items:
   - question: "What exactly is a consent record?"
     answer: "It's a timestamped log of a visitor agreeing to be identified and contacted — capturing who consented, to what, and when. Think of it as a signed receipt that travels attached to the lead, so the permission isn't something you remember, it's something you can show."
   - question: "Why does a consent record protect my shop?"
-    answer: "Because privacy questions come down to proof. If a homeowner, regulator, or lawyer ever asks where you got someone's information, a kept audit trail gives you a clean, dated answer instead of a guess. The record is the difference between a defensible lead and an exposed one."
+    answer: "Because privacy questions come down to proof. If a visitor, regulator, or lawyer ever asks where you got someone's information, a kept audit trail gives you a clean, dated answer instead of a guess. The record is the difference between a defensible lead and an exposed one."
   - question: "Do I get this on every lead, and what does it cost?"
-    answer: "Yes — every lead from consent-first identification arrives with its timestamped record, retained as an audit trail. Each is email-grade and consent-first — you follow up by email, never a cold call — at a flat $7 per lead, exclusive to you and never resold."
+    answer: "Yes — every lead from consent-first identification arrives with its timestamped record, retained as an audit trail. Each is email-grade and consent-first — you follow up by email, never a cold call — at custom pricing per lead, exclusive to you and never resold."
 sources:
   - label: "47 U.S.C. §227 — TCPA (Cornell LII)"
     url: "https://www.law.cornell.edu/uscode/text/47/227"
@@ -52,7 +52,7 @@ sources:
 
 ## The question every shop dreads
 
-Sooner or later, someone asks it. A homeowner replies to your follow-up with three words: "Where'd you get my email?" Or it's a tougher version — a regulator, a complaint, a lawyer fishing for a class. The question is always the same underneath: *prove you were allowed to contact me.*
+Sooner or later, someone asks it. A visitor replies to your follow-up with three words: "Where'd you get my email?" Or it's a tougher version — a regulator, a complaint, a lawyer fishing for a class. The question is always the same underneath: *prove you were allowed to contact me.*
 
 I've spent my career building the part of the system that answers that question. And the honest truth is that most lead tools have no answer at all. They hand you a contact and wish you luck. When the question comes, you're guessing — and a guess is not a defense.
 

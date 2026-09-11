@@ -16,7 +16,7 @@ seo_description: "Not every opt-in counts under the TCPA. Here's what real, prov
 focus_keyword: "what counts as tcpa consent"
 canonical_url: "https://consentresolve.com/resources/blog/what-counts-as-tcpa-consent/"
 category: "Compliance & Privacy"
-tags: ["tcpa", "consent", "compliance", "privacy", "home services"]
+tags: ["tcpa", "consent", "compliance", "privacy", "b2b leads"]
 funnel_stage: "convert"
 schema_type: "BlogPosting"
 disclaimer: true
@@ -58,12 +58,12 @@ faq_items:
   - question: "Is a name from a purchased or shared list consented?"
     answer: "You usually can't know, which is the problem. Any consent belongs to whoever collected the name, under terms you didn't set and can't produce. If a recipient says they never agreed to hear from your shop, 'we bought the list' is not a defense. That uncertainty is why bought lists carry the most TCPA risk."
   - question: "What does provable consent look like, and how does consent-first help?"
-    answer: "It looks like a record: this person affirmatively agreed, at this time, to be contacted by you, for this purpose. Consent Resolve identifies only visitors who accept a clear consent banner, logs a timestamped record for a 7-year audit trail, and hands you an email-grade lead at a flat $7 — exclusive, never resold — so you follow up by email, not a cold call, with the proof already on file."
+    answer: "It looks like a record: this person affirmatively agreed, at this time, to be contacted by you, for this purpose. Consent Resolve identifies only visitors who accept a clear consent banner, logs a timestamped record for a 7-year audit trail, and hands you an email-grade lead at custom pricing — exclusive, never resold — so you follow up by email, not a cold call, with the proof already on file."
 ---
 
 ## "They opted in somewhere" is where shops get in trouble
 
-Most home-service owners know the TCPA exists and know it has something to do with consent. Where they get burned is assuming that any vague opt-in counts. A homeowner filled out *a* form once, or their name came from a list that supposedly had permission, so surely it's fine to text them, right?
+Most home-service owners know the TCPA exists and know it has something to do with consent. Where they get burned is assuming that any vague opt-in counts. A visitor filled out *a* form once, or their name came from a list that supposedly had permission, so surely it's fine to text them, right?
 
 Not necessarily. Under the TCPA — the federal law governing marketing calls and texts — not every "yes" is a yes. The law cares about a specific kind of consent: clear, informed, and provable. "They opted in somewhere" is precisely the phrase that turns into a settlement, because when a recipient says they never agreed, *somewhere* is not something you can point to. Let's break down what actually counts.
 
@@ -100,13 +100,13 @@ And the same theme runs through privacy enforcement beyond the phone. California
 
 The fix isn't a cleverer disclaimer. It's a record. Provable consent looks like a line you can pull up on demand: *this person affirmatively accepted a clear banner on your site, at this timestamp, agreeing to be contacted for this purpose.* That's an [express, documented opt-in](/resources/glossary/#express-written-consent) — the thing that turns a scary demand letter into a five-minute reply.
 
-That's the entire premise behind [consent-first](/why-consent-first/) capture. Consent Resolve identifies only the visitors who actively accept a clear consent banner, logs a [timestamped record](/resources/blog/a-signed-receipt-on-every-lead-why-consent-records-protect-your-shop/) held in a 7-year audit trail, and hands you an email-grade lead — a name and a consented email, never a phone number to cold-dial. Each lead is a flat $7, exclusive to you, never resold, and the proof of consent travels with it. Contrast that with a [bought list](/resources/blog/consent-first-vs-buy-a-list/), where the consent, if any, belongs to someone else and you inherit only the liability.
+That's the entire premise behind [consent-first](/why-consent-first/) capture. Consent Resolve identifies only the visitors who actively accept a clear consent banner, logs a [timestamped record](/resources/blog/a-signed-receipt-on-every-lead-why-consent-records-protect-your-shop/) held in a 7-year audit trail, and hands you an email-grade lead — a name and a consented email, never a phone number to cold-dial. Each lead is custom pricing, exclusive to you, never resold, and the proof of consent travels with it. Contrast that with a [bought list](/resources/blog/consent-first-vs-buy-a-list/), where the consent, if any, belongs to someone else and you inherit only the liability.
 
 Following up by email into the funnel you already run is itself a risk reducer: it keeps you out of the cold-calling and mass-texting behavior the TCPA scrutinizes hardest, and it means every contact is someone who said yes on *your* site, with the record to show it. Consent Resolve is built to the [GDPR standard](https://gdpr-info.eu/issues/fines-penalties/) — whose maximum fine reaches €20 million or 4% of global revenue — so the stricter European bar handles the U.S. rules by default. Every figure here is sourced on our [stats page](/stats/).
 
 ## Consent isn't forever: the part shops forget
 
-Even a valid, documented yes has limits, and this is where careful shops still trip. Consent is specific and it can be withdrawn. If a homeowner agreed to hear from you and later replies "stop" or unsubscribes, that yes is over — continuing to contact them turns a compliant relationship back into a violation. So a real consent system isn't just a collection of opt-ins; it's a living record that also tracks opt-outs and honors them promptly. A timestamped log that captures the yes but ignores the later no is only half a defense.
+Even a valid, documented yes has limits, and this is where careful shops still trip. Consent is specific and it can be withdrawn. If a visitor agreed to hear from you and later replies "stop" or unsubscribes, that yes is over — continuing to contact them turns a compliant relationship back into a violation. So a real consent system isn't just a collection of opt-ins; it's a living record that also tracks opt-outs and honors them promptly. A timestamped log that captures the yes but ignores the later no is only half a defense.
 
 The scope matters too. Consent to be contacted about a specific service isn't blanket permission to market anything forever, and consent given on your site is for *your* shop, not for a partner or a list buyer you might sell to later. Keeping consent narrow and honest — this person, this business, this purpose, until they say otherwise — is what keeps it defensible over time. It's also just decent treatment of a customer, which is the same instinct that earns the referral in the first place. The shops that get this right don't think of consent as a one-time checkbox; they think of it as an ongoing agreement they're obligated to keep, and they build the record to prove they kept it.
 

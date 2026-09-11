@@ -42,18 +42,18 @@ secondary_cta:
   url: "/resources/how-to-guides/get-more-leads-from-website-traffic/"
 faq_items:
   - question: "What do I actually have to install to start retargeting?"
-    answer: "One script on your website and a consent banner. The script identifies consented visitors and feeds the audience; the banner is what gates it so only homeowners who accept are ever tagged. There's no new ad account and no new platform to learn — you use the ad accounts you already run."
+    answer: "One script on your website and a consent banner. The script identifies consented visitors and feeds the audience; the banner is what gates it so only visitors who accept are ever tagged. There's no new ad account and no new platform to learn — you use the ad accounts you already run."
   - question: "Do I have to build the consent banner myself?"
     answer: "No. Consent-first retargeting includes a clear, visible banner that asks each visitor for permission, and logs each acceptance with a timestamp into a 7-year audit trail. You don't have to write legal copy or wire up a logging system — that's the part that comes built in."
   - question: "How long before retargeting is worth judging?"
     answer: "Give it two to three weeks. A retargeting audience compounds — every consented visit adds a member — so it's small on day one and far more useful once it's had real traffic run through it. Judging it after two days is like weighing a garden the day you plant it."
   - question: "What does it cost, and do I get a phone number?"
-    answer: "Recovered leads are a flat $7 each, exclusive to you and never resold. Follow-up is email-grade and retargeting into the funnel you already run — you never receive a phone number to cold-call."
+    answer: "Recovered leads are custom pricing, exclusive to you and never resold. Follow-up is email-grade and retargeting into the funnel you already run — you never receive a phone number to cold-call."
 ---
 
 ## You don't need a marketing department for this
 
-Most contractors assume retargeting is something only a shop with a marketing team can run — a tangle of pixels, ad-platform settings, and audience rules nobody has time to learn. It isn't. The setup is short, it's mostly one-time, and once it's running it feeds itself off the traffic you already get.
+Most businesses assume retargeting is something only a shop with a marketing team can run — a tangle of pixels, ad-platform settings, and audience rules nobody has time to learn. It isn't. The setup is short, it's mostly one-time, and once it's running it feeds itself off the traffic you already get.
 
 Here's the whole thing, in order, in plain steps. The order matters more than anything, because doing it in the wrong sequence is how you end up with an audience that's either useless or indefensible.
 
@@ -71,13 +71,13 @@ That one script is what later identifies consented visitors and feeds them into 
 
 ## Step 2 — Turn on the consent banner (this is the gate)
 
-This is the step that everything hinges on. When a homeowner lands on your site, they see a clear, visible consent banner asking permission. Nobody is tagged, tracked, or added to any audience until they accept it.
+This is the step that everything hinges on. When a visitor lands on your site, they see a clear, visible consent banner asking permission. Nobody is tagged, tracked, or added to any audience until they accept it.
 
-You don't have to build this banner or write the legal language — it comes ready, and each acceptance is logged with a timestamp into a 7-year audit trail. That record is what makes the audience defensible: if anyone ever asks how you got a contact, you have the date and the yes. Skip or rush this step and you've built the exact kind of covert-tracking audience that draws lawsuits. Do it first, and every member of your audience is a homeowner who chose to be reachable.
+You don't have to build this banner or write the legal language — it comes ready, and each acceptance is logged with a timestamp into a 7-year audit trail. That record is what makes the audience defensible: if anyone ever asks how you got a contact, you have the date and the yes. Skip or rush this step and you've built the exact kind of covert-tracking audience that draws lawsuits. Do it first, and every member of your audience is a visitor who chose to be reachable.
 
 ## Step 3 — Let the audience build (don't judge it yet)
 
-Now you wait, and this is the step most people get wrong by being impatient. A retargeting audience **compounds** — every consented visit adds another member, and members stick because they opted in. On day one your audience is tiny. By week three it's a real list of homeowners who came to your site and raised their hand.
+Now you wait, and this is the step most people get wrong by being impatient. A retargeting audience **compounds** — every consented visit adds another member, and members stick because they opted in. On day one your audience is tiny. By week three it's a real list of visitors who came to your site and raised their hand.
 
 Give it two to three weeks of normal traffic before you evaluate anything. Judging a retargeting audience after two days is like weighing a garden the afternoon you planted it. The whole value is in the accumulation. [Instant Retarget](/features/instant-retarget/) does this part automatically — you don't manage the list, you just let traffic run through it.
 
@@ -85,13 +85,13 @@ Give it two to three weeks of normal traffic before you evaluate anything. Judgi
 
 Once the audience has some size, you aim the ad accounts you *already run* at it. No new platform, no bigger budget required — you're just redirecting some of the spend you already have toward warm visitors instead of cold strangers.
 
-This is where the payoff shows up. A cold ad has to do two hard jobs at once: introduce your shop *and* sell it. An ad to your retargeting audience only has to do the second one, because the introduction already happened on the homeowner's first visit. That's why staying in front of past visitors tends to convert better — personalized follow-up to identified visitors has been tied to a [26% conversion lift](https://bigsur.ai/blog/cro-statistics) in cross-industry studies. Those numbers come from ecommerce, so treat them as evidence the approach works, not a promise for your shop; results vary by trade, traffic, and follow-up. Every figure is sourced on our [stats page](/stats/).
+This is where the payoff shows up. A cold ad has to do two hard jobs at once: introduce your shop *and* sell it. An ad to your retargeting audience only has to do the second one, because the introduction already happened on the visitor's first visit. That's why staying in front of past visitors tends to convert better — personalized follow-up to identified visitors has been tied to a [26% conversion lift](https://bigsur.ai/blog/cro-statistics) in cross-industry studies. Those numbers come from ecommerce, so treat them as evidence the approach works, not a promise for your shop; results vary by trade, traffic, and follow-up. Every figure is sourced on our [stats page](/stats/).
 
 ## A quick word on what "consented" actually captures
 
-One thing that trips people up on setup: they assume a consent banner means a stiff, legalese pop-up that scares visitors off. It doesn't have to, and it shouldn't. The banner that works is short, plain, and honest — it tells the homeowner you'd like to keep in touch and stay useful, and it asks. A painter's site, a garage-door shop, an appliance-repair page: the same clear ask fits all of them, because homeowners across every trade respond to being treated straight. You're not tricking anyone into an audience; you're inviting the ones who are interested to hear from you, which is exactly why the resulting list performs.
+One thing that trips people up on setup: they assume a consent banner means a stiff, legalese pop-up that scares visitors off. It doesn't have to, and it shouldn't. The banner that works is short, plain, and honest — it tells the visitor you'd like to keep in touch and stay useful, and it asks. A consulting firm's site, a law office, an accounting practice: the same clear ask fits all of them, because visitors across every industry respond to being treated straight. You're not tricking anyone into an audience; you're inviting the ones who are interested to hear from you, which is exactly why the resulting list performs.
 
-It also helps to know what you're *not* signing up for. You're not building a call list. Consent-first retargeting stays email-grade — the follow-up is ads plus email into the funnel you already run, never a phone number to cold-call. So the consent you're capturing is permission to stay visible and send a helpful note, not license to interrupt someone's dinner. That's a narrower, cleaner promise, and it's part of why homeowners say yes to it in the first place.
+It also helps to know what you're *not* signing up for. You're not building a call list. Consent-first retargeting stays email-grade — the follow-up is ads plus email into the funnel you already run, never a phone number to cold-call. So the consent you're capturing is permission to stay visible and send a helpful note, not license to interrupt someone's dinner. That's a narrower, cleaner promise, and it's part of why visitors say yes to it in the first place.
 
 ## Common setup mistakes to avoid
 
@@ -102,7 +102,7 @@ It also helps to know what you're *not* signing up for. You're not building a ca
 
 ## Step 5 — Pair it with one email
 
-The last step is the easy multiplier. Retargeting reaches consented visitors while they scroll somewhere else; an email reaches them directly in the inbox. Two warm touches on the same list beat one. Write one short, friendly note — a reminder of the work you do, easy to reply to — and let it go to the consenting visitors you can reach. It all stays email-grade and consent-first; you never get a phone number to cold-call, and the recovered lead stays a flat $7, exclusive to you.
+The last step is the easy multiplier. Retargeting reaches consented visitors while they scroll somewhere else; an email reaches them directly in the inbox. Two warm touches on the same list beat one. Write one short, friendly note — a reminder of the work you do, easy to reply to — and let it go to the consenting visitors you can reach. It all stays email-grade and consent-first; you never get a phone number to cold-call, and the recovered lead stays custom pricing, exclusive to you.
 
 ## The quick checklist
 
@@ -112,4 +112,4 @@ The last step is the easy multiplier. Retargeting reaches consented visitors whi
 - **Existing ads, existing budget** — point them at the warm audience; don't add spend.
 - **One email** into your funnel to double the warm touches.
 
-That's the entire setup. It's less work than most contractors expect and it runs off traffic you already have. If you want to see the audience-building in motion before you start, here's [how instant retargeting works](/features/instant-retarget/) — and if you want the broader playbook, the guide on [getting more leads from website traffic](/resources/how-to-guides/get-more-leads-from-website-traffic/) puts this step in context.
+That's the entire setup. It's less work than most businesses expect and it runs off traffic you already have. If you want to see the audience-building in motion before you start, here's [how instant retargeting works](/features/instant-retarget/) — and if you want the broader playbook, the guide on [getting more leads from website traffic](/resources/how-to-guides/get-more-leads-from-website-traffic/) puts this step in context.

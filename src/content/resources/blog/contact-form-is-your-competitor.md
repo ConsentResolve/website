@@ -14,7 +14,7 @@ seo_description: "Your 'Contact Us' form looks helpful, but it quietly turns awa
 focus_keyword: "contact form losing leads"
 canonical_url: "https://consentresolve.com/resources/blog/contact-form-is-your-competitor/"
 category: "Lead Generation"
-tags: ["formless contact capture", "contact form", "lead capture", "home services"]
+tags: ["formless contact capture", "contact form", "lead capture", "b2b leads"]
 funnel_stage: "capture"
 schema_type: "BlogPosting"
 excerpt: "It sits there looking helpful, but your contact form only works for the few visitors ready to type their details. For everyone else, it's a door that quietly closes."
@@ -47,7 +47,7 @@ faq_items:
   - question: "Should I get rid of my contact form?"
     answer: "No. Keep it for the people who want to use it. The point is to stop relying on it alone. Pair it with consent-first formless capture so the visitors who'll never fill out a form still become real, followable contacts."
   - question: "Is formless capture legal, and what does it cost?"
-    answer: "It's legal because it's consent-first: visitors accept a clear banner, the consent is logged with a timestamp, and you get an email-grade lead — never a phone number to cold-call. Each recovered lead is a flat $7, exclusive to you and never resold."
+    answer: "It's legal because it's consent-first: visitors accept a clear banner, the consent is logged with a timestamp, and you get an email-grade lead — never a phone number to cold-call. Each recovered lead is custom priced, exclusive to you and never resold."
 ---
 
 ## The competitor sitting on your homepage
@@ -72,15 +72,15 @@ They were interested. They were on your site. They just weren't ready to type, a
 
 ## The evidence that capture beats forms
 
-Look outside our trade for a second. In ecommerce, where this has been measured to death, automated capture pulls in [10–15× more subscribers than static opt-in forms alone](https://bdow.com/stories/email-signup-benchmarks/). That's cross-industry evidence, not a contractor guarantee — results vary by trade, traffic, and follow-up — but the direction is unmistakable. Asking people to do the work of identifying themselves leaves most of them on the table. Capturing the consented ones automatically does not.
+Look outside our trade for a second. In ecommerce, where this has been measured to death, automated capture pulls in [10–15× more subscribers than static opt-in forms alone](https://bdow.com/stories/email-signup-benchmarks/). That's cross-industry evidence, not a business guarantee — results vary by trade, traffic, and follow-up — but the direction is unmistakable. Asking people to do the work of identifying themselves leaves most of them on the table. Capturing the consented ones automatically does not.
 
-The same logic applies to your roofing or HVAC site. The figures are all sourced on our [stats page](/stats/).
+The same logic applies to your business's site. The figures are all sourced on our [stats page](/stats/).
 
 ## How to stop competing with yourself
 
 - **Keep the form, add capture.** Let willing visitors submit, and let [formless contact capture](/features/formless-contact-capture/) recover the consented visitors who never would.
 - **Turn anonymous into followable.** When a visitor accepts a clear consent banner, that consented visitor becomes a real name and email — no form, no phone number to cold-call.
 - **Follow up by email, fast.** Have one short, friendly message ready so recovered visitors hear from you the same day they were on your site.
-- **Route it to your CRM.** Drop recovered contacts into Jobber, Housecall Pro, or HubSpot so nothing slips.
+- **Route it to your CRM.** Drop recovered contacts into the CRM you already run so nothing slips.
 
 Your form isn't the enemy. Relying on it alone is. Give the 98% another way to become a lead and your own front door stops working against you. For the bigger picture, read [the 98% problem](/resources/blog/the-98-percent-problem/) or our [guide to getting more from existing traffic](/resources/how-to-guides/get-more-leads-from-website-traffic/).

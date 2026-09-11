@@ -10,7 +10,7 @@ cluster: "built-in-compliance"
 read_time: "6 min"
 og_hook: "That little banner isn't a formality. It's what makes the whole thing legal."
 seo_title: "The Consent Banner That Unlocks Every Lead Legally"
-seo_description: "The consent banner most contractors treat as a nuisance is the exact thing that makes identifying website visitors lawful. Here's how it works."
+seo_description: "The consent banner most businesses treat as a nuisance is the exact thing that makes identifying website visitors lawful. Here's how it works."
 focus_keyword: "consent banner"
 canonical_url: "https://consentresolve.com/resources/blog/the-cookie-banner-that-keeps-you-legal-and-unlocks-every-lead/"
 category: "Feature Deep-Dive"
@@ -40,7 +40,7 @@ faq_items:
   - question: "Isn't the banner just a formality I have to bolt on?"
     answer: "No — it's the load-bearing piece. From an engineering standpoint the banner isn't decoration at the end of the build; it's the gate the whole pipeline depends on. No accepted consent, no lawful identification. Treating it as optional is how shops end up with data they can't safely use."
   - question: "What actually gets recorded when someone accepts?"
-    answer: "The agreement is captured as a timestamped record — who consented, to what, and when — so the lead arrives with proof of permission attached. That record is why follow-up is email-grade and consent-first: you contact people who agreed to hear from you, at a flat $7 per lead, exclusive to you and never resold."
+    answer: "The agreement is captured as a timestamped record — who consented, to what, and when — so the lead arrives with proof of permission attached. That record is why follow-up is email-grade and consent-first: you contact people who agreed to hear from you, at custom pricing per lead, exclusive to you and never resold."
 sources:
   - label: "CA Penal Code §637.2 — CIPA"
     url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=637.2"
@@ -54,7 +54,7 @@ sources:
 
 ## The box everyone wants to dismiss
 
-You've clicked past a thousand of them. The little banner at the bottom of a website asking you to accept cookies or consent to contact. Most people — most contractors — treat it as a nuisance, a legal hoop, something the lawyers made us add. Get it off the screen and get to the real work.
+You've clicked past a thousand of them. The little banner at the bottom of a website asking you to accept cookies or consent to contact. Most people — most businesses — treat it as a nuisance, a legal hoop, something the lawyers made us add. Get it off the screen and get to the real work.
 
 I build this stuff, and I'll tell you the opposite is true. That banner is not the formality. It's the foundation. Everything you actually want — knowing who visited, being allowed to email them, having a defensible lead — hangs off the moment a visitor taps "accept."
 

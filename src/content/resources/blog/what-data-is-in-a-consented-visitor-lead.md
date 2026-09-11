@@ -19,9 +19,9 @@ tags: ["visitor identification", "consent", "data minimization", "privacy"]
 funnel_stage: "capture"
 schema_type: "BlogPosting"
 excerpt: "Identifying a website visitor without a form fill sounds like it must involve a deep profile. It doesn't. Here's the actual contents of a consented lead — and why what's left out is the point."
-tldr: "A consented visitor lead contains a deliberately small set of fields: the visitor's name, an email-grade address, the timestamped consent that permits contact, and a light read of what they looked at on your site. It's privacy-safe because it only exists after the homeowner opts in — no device fingerprint, no phone number, no data bought from a list. What you receive is exactly what someone agreed to share, which is both what keeps you compliant and what makes the lead worth working."
+tldr: "A consented visitor lead contains a deliberately small set of fields: the visitor's name, an email-grade address, the timestamped consent that permits contact, and a light read of what they looked at on your site. It's privacy-safe because it only exists after the visitor opts in — no device fingerprint, no phone number, no data bought from a list. What you receive is exactly what someone agreed to share, which is both what keeps you compliant and what makes the lead worth working."
 key_takeaways: "The record you get from consent-first identification is small on purpose — name, email-grade contact, consent timestamp, and basic browse context. That's data minimization: collecting only what's needed to follow up, which is what privacy laws reward. It's privacy-safe because consent comes first, nothing is fingerprinted, and you never receive a phone number to cold-call. A lean, consented record is easier to defend, easier to honor a deletion request on, and still enough to send a genuinely relevant email."
-recap: "A consented visitor lead isn't a dossier — it's a name, a consented email, a timestamped opt-in, and light browse context, created only when a homeowner says yes. The small footprint is what makes it privacy-safe, defensible, and still useful. What's left out matters as much as what's in."
+recap: "A consented visitor lead isn't a dossier — it's a name, a consented email, a timestamped opt-in, and light browse context, created only when a visitor says yes. The small footprint is what makes it privacy-safe, defensible, and still useful. What's left out matters as much as what's in."
 sources:
   - label: "WordStream — conversion rate benchmarks (98%)"
     url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
@@ -55,7 +55,7 @@ faq_items:
 
 ## "You identified them — so what do you actually have on them?"
 
-When a contractor first hears that a tool can identify website visitors without a form, the honest reaction is a little unease. It *sounds* like there must be a deep file behind it — a profile, a purchased list, some creepy guess about who a person is and what they earn. That instinct is healthy. It's also exactly why the contents of the record matter more than the fact that a record exists.
+When a business first hears that a tool can identify website visitors without a form, the honest reaction is a little unease. It *sounds* like there must be a deep file behind it — a profile, a purchased list, some creepy guess about who a person is and what they earn. That instinct is healthy. It's also exactly why the contents of the record matter more than the fact that a record exists.
 
 So let me answer the question directly, because the answer is reassuring in a way the pitch rarely bothers to explain: what's in a consented visitor lead is small, and what's deliberately left out is the whole point.
 
@@ -82,21 +82,21 @@ Just as important as the four fields is what never enters the record:
 
 - **No device fingerprint.** Nothing is built by silently reading a visitor's browser signals. Identification runs only after consent, so there's no covert profile underneath the name.
 - **No purchased list data.** Nothing is bought from a third-party data broker and bolted on. What you get came from *this* visitor's opt-in on *your* site, not a stranger's file.
-- **No phone number.** The lead is email-grade on purpose. You follow up by email, which keeps you clear of [TCPA](https://www.law.cornell.edu/uscode/text/47/227) calling and texting rules and on the channel the homeowner actually agreed to.
+- **No phone number.** The lead is email-grade on purpose. You follow up by email, which keeps you clear of [TCPA](https://www.law.cornell.edu/uscode/text/47/227) calling and texting rules and on the channel the visitor actually agreed to.
 
 Every one of those omissions is a deliberate choice. With [Consent Resolve](/why-consent-first/), a record simply doesn't exist until a visitor accepts a clear consent banner — so what you receive is exactly what someone agreed to share, and nothing that they didn't. That's the difference between "seeing who's on your site" as a privacy-safe practice and the invasive version people rightly fear.
 
 ## The receipt is what makes it defensible
 
-Contractors sometimes worry about the moment a homeowner asks, "where did you get my information?" With a consented lead, that's a comfortable question, not a dreaded one — because the record answers it. The timestamped consent *is* the receipt: this person accepted your banner, on this date, and here's the log. Compare that to a purchased list (no consent behind it at all) or a fingerprinted guess (no permission, no proof). Only a consented record can actually answer the question honestly. If you want the deeper version of that argument, see [why a signed receipt protects your shop](/resources/blog/a-signed-receipt-on-every-lead-why-consent-records-protect-your-shop/).
+Businesses sometimes worry about the moment a visitor asks, "where did you get my information?" With a consented lead, that's a comfortable question, not a dreaded one — because the record answers it. The timestamped consent *is* the receipt: this person accepted your banner, on this date, and here's the log. Compare that to a purchased list (no consent behind it at all) or a fingerprinted guess (no permission, no proof). Only a consented record can actually answer the question honestly. If you want the deeper version of that argument, see [why a signed receipt protects your shop](/resources/blog/a-signed-receipt-on-every-lead-why-consent-records-protect-your-shop/).
 
 Across home-service sites, [98% of visitors leave anonymous](https://www.wordstream.com/blog/conversion-rate-benchmarks) — the consented slice you recover is small relative to all that traffic, and each record within it is small by design. That combination is the point: modest data, freely given, provably consented.
 
 ## Why "just enough" is exactly enough
 
-Contractors sometimes assume a bigger profile would help them sell better — income data, home value, a full history. In practice, the four-field record is not just safer, it's *sufficient* for the job a follow-up actually has to do. Consider what a good first email needs: a name to address, a real address to send to, permission to send at all, and a reason the note is relevant. That's the record, one to one.
+Businesses sometimes assume a bigger profile would help them sell better — income data, home value, a full history. In practice, the four-field record is not just safer, it's *sufficient* for the job a follow-up actually has to do. Consider what a good first email needs: a name to address, a real address to send to, permission to send at all, and a reason the note is relevant. That's the record, one to one.
 
-Take a house-cleaning company as an example. The consented record says: Maria, a deliverable email, consented on the 12th, spent her visit on the recurring-cleaning page. That's everything the office needs to send a genuinely useful note — "Hi Maria, saw you were looking at recurring service; here's how our every-other-week plan works and a quick way to get on the schedule." A dossier full of household demographics wouldn't make that email one bit better. It would just be more sensitive data to guard, disclose, and delete for no added benefit. Data minimization isn't a compliance tax here; it lines up perfectly with what good follow-up needs.
+Take a consulting firm as an example. The consented record says: Maria, a deliverable email, consented on the 12th, spent her visit on the retainer-services page. That's everything the office needs to send a genuinely useful note — "Hi Maria, saw you were looking at our retainer options; here's how the engagement works and a quick way to get started." A dossier full of demographic data wouldn't make that email one bit better. It would just be more sensitive data to guard, disclose, and delete for no added benefit. Data minimization isn't a compliance tax here; it lines up perfectly with what good follow-up needs.
 
 ## How the small record makes rights requests easy
 
@@ -109,6 +109,6 @@ There's a practical upside that only shows up when someone exercises a privacy r
 - **The omissions are intentional.** No fingerprint, no purchased list, no phone number — you get only what a visitor agreed to share.
 - **The timestamp is the receipt.** It's what lets you answer "where did you get my info?" without flinching.
 
-Seeing who's on your site was never supposed to mean building a file on anyone. Done consent-first, it means holding the smallest useful record a homeowner freely gave you — and being able to prove exactly that.
+Seeing who's on your site was never supposed to mean building a file on anyone. Done consent-first, it means holding the smallest useful record a visitor freely gave you — and being able to prove exactly that.
 
 *This article is educational, not legal advice. Consult a qualified attorney about your specific obligations.*

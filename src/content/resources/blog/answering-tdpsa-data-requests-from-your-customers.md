@@ -11,7 +11,7 @@ cluster: "compliance"
 read_time: "7 min"
 og_hook: "The TDPSA gives Texans rights over their data. One may ask you to use them."
 seo_title: "Answering a TDPSA Data Request From a Customer"
-seo_description: "A Texan can ask you to show, delete, or stop selling their data under the TDPSA. Here's how a contractor answers that request calmly — and why consent-first helps."
+seo_description: "A Texan can ask you to show, delete, or stop selling their data under the TDPSA. Here's how a business answers that request calmly — and why consent-first helps."
 focus_keyword: "tdpsa consumer data request"
 canonical_url: "https://consentresolve.com/resources/blog/answering-tdpsa-data-requests-from-your-customers/"
 category: "Compliance & Privacy"
@@ -19,7 +19,7 @@ tags: ["tdpsa", "texas", "consumer rights", "compliance", "privacy"]
 funnel_stage: "convert"
 schema_type: "BlogPosting"
 disclaimer: true
-excerpt: "The Texas TDPSA doesn't just ask you to collect data carefully — it gives Texans the right to ask what you have, delete it, or stop its sale. Here's the calm, practical way a contractor answers that request, and why consent-first makes it a lookup instead of a scramble."
+excerpt: "The Texas TDPSA doesn't just ask you to collect data carefully — it gives Texans the right to ask what you have, delete it, or stop its sale. Here's the calm, practical way a business answers that request, and why consent-first makes it a lookup instead of a scramble."
 tldr: "Under the Texas Data Privacy & Security Act, a Texan can ask you to tell them what personal data you hold, correct it, delete it, or stop selling it. To answer, you verify who's asking, find their record, respond within the statute's deadline, and honor the request or explain any exemption. A consent-first setup makes this a quick lookup: every lead carries a timestamped consent record, so 'what do you have and where did it come from' has a clean answer instead of a scramble."
 key_takeaways: "The TDPSA gives Texans real rights — access, correction, deletion, and opt-out of data sale and targeted ads — and any of your customers can invoke them. Answering well means verifying the requester, locating their data, responding inside the legal window, and either complying or citing a valid exemption. The businesses that struggle are the ones who can't say what they hold or where it came from. Consent-first capture keeps a timestamped record on every lead, so a request becomes a lookup. This is general information, not legal advice."
 recap: "A TDPSA data request isn't a crisis if your records are clean. Verify the person, find their data, answer inside the deadline, and act on the request. Run a consent-first site and every lead already carries the receipt that makes the answer a lookup — talk to a Texas attorney for how the law applies to you."
@@ -69,7 +69,7 @@ The [TDPSA](/resources/blog/texas-tdpsa-for-your-website/) doesn't just tell you
 - **Delete** it.
 - **Opt out** of the sale of their data and of targeted advertising built on it.
 
-These aren't theoretical. Any homeowner who priced a job on your site, any past customer, any lead can send one. And "we didn't get around to it" is not a posture that ages well — Texas has made privacy a signature enforcement priority, and the pattern is clear from the [first-ever enforcement suit under a comprehensive state privacy law](https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-sues-allstate-and-arity-unlawfully-collecting-using-and-selling-over-45) to the [$1.4 billion Meta settlement](https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-secures-14-billion-settlement-meta-over-its-unauthorized-capture) and the [$1.375 billion Google settlement](https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-secures-historic-1375-billion-settlement-google-related-texans-data). The through-line in all of it is data collected or used without [consent](/resources/glossary/#consent). A single request from one customer is a much smaller thing — but the way you handle it should reflect the same principle.
+These aren't theoretical. Any visitor who priced a job on your site, any past customer, any lead can send one. And "we didn't get around to it" is not a posture that ages well — Texas has made privacy a signature enforcement priority, and the pattern is clear from the [first-ever enforcement suit under a comprehensive state privacy law](https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-sues-allstate-and-arity-unlawfully-collecting-using-and-selling-over-45) to the [$1.4 billion Meta settlement](https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-secures-14-billion-settlement-meta-over-its-unauthorized-capture) and the [$1.375 billion Google settlement](https://www.texasattorneygeneral.gov/news/releases/attorney-general-ken-paxton-secures-historic-1375-billion-settlement-google-related-texans-data). The through-line in all of it is data collected or used without [consent](/resources/glossary/#consent). A single request from one customer is a much smaller thing — but the way you handle it should reflect the same principle.
 
 ## How to actually answer a request
 
@@ -87,7 +87,7 @@ Here's the workflow, the way a five-truck shop should run it. This is general in
 
 There's one version of this that turns a five-minute task into a genuine problem: a request lands and you *can't say where the data came from*. If a lead was bought from a list or pulled off a shared platform, its origin is often a black box — someone else's consent assumptions, or none at all. When a Texan invokes their rights and asks "where did you get my info," ["we bought it from a vendor"](/resources/blog/never-fear-where-did-you-get-my-info/) is not an answer you want on record.
 
-That's the quiet advantage of collecting on consent in the first place. With a [consent-first approach](/why-consent-first/), every lead arrives with a timestamped record of a homeowner who saw a clear banner and said yes — the origin and the permission are on file *before* any request comes in. So "what do you have and where did it come from" has a clean, one-lookup answer. The lead is exclusive to you at a flat **$7**, never resold, and delivered email-grade into the funnel you already run — Jobber, Housecall Pro, ServiceTitan, or HubSpot — with the receipt attached.
+That's the quiet advantage of collecting on consent in the first place. With a [consent-first approach](/why-consent-first/), every lead arrives with a timestamped record of a visitor who saw a clear banner and said yes — the origin and the permission are on file *before* any request comes in. So "what do you have and where did it come from" has a clean, one-lookup answer. The lead is exclusive to you at custom pricing, never resold, and delivered email-grade into the funnel you already run — the CRM you already use — with the receipt attached.
 
 ## Build so the request is boring
 

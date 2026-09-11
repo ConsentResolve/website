@@ -46,20 +46,20 @@ faq_items:
   - question: "How do I know if I have a traffic problem or a leak problem?"
     answer: "Look at what happens after the visit. If people find your site but the majority leave anonymous and you never hear from them again, that's a leak, not a traffic shortage. Adding spend won't fix a leak; recovering those visits will."
   - question: "How does retargeting fix the leak instead of just adding traffic?"
-    answer: "Retargeting works on the visitors you already have. A single consented visit becomes part of a warm audience you stay in front of, so homeowners who would have left and forgotten you get a second and third chance to book — raising the return on traffic you already bought."
+    answer: "Retargeting works on the visitors you already have. A single consented visit becomes part of a warm audience you stay in front of, so visitors who would have left and forgotten you get a second and third chance to book — raising the return on traffic you already bought."
   - question: "Doesn't retargeting cost more on top of my ads?"
-    answer: "It runs on the ad accounts and budget you already use, and the recovered lead is a flat $7, exclusive to you and never resold. You're getting more out of existing spend, not stacking a new bill on top of it."
+    answer: "It runs on the ad accounts and budget you already use, and the recovered lead is custom priced, exclusive to you and never resold. You're getting more out of existing spend, not stacking a new bill on top of it."
 ---
 
 ## The reflex that quietly wastes money
 
-When the calendar gets thin, almost every contractor reaches for the same lever: spend more on ads. It feels like the responsible move — leads are down, so buy more traffic. But most of the time, buying more traffic is the wrong fix for the actual problem, and it quietly wastes money doing it.
+When the calendar gets thin, almost every business reaches for the same lever: spend more on ads. It feels like the responsible move — leads are down, so buy more traffic. But most of the time, buying more traffic is the wrong fix for the actual problem, and it quietly wastes money doing it.
 
 Here's the contrarian truth I've watched play out over and over running marketing for home-service shops: a slow month is rarely a traffic problem. It's almost always a *conversion-and-follow-through* problem. And you can't fix a follow-through problem by buying more of the thing that's already leaking.
 
 ## The number that changes the argument
 
-Start with one benchmark, because it reframes everything: about [98% of the people who visit a website leave without converting](https://www.wordstream.com/blog/conversion-rate-benchmarks). That's not a bad site — that's the normal shape of web traffic. For every 100 homeowners who land on your page, roughly 2 do something you can act on, and 98 vanish.
+Start with one benchmark, because it reframes everything: about [98% of the people who visit a website leave without converting](https://www.wordstream.com/blog/conversion-rate-benchmarks). That's not a bad site — that's the normal shape of web traffic. For every 100 visitors who land on your page, roughly 2 do something you can act on, and 98 vanish.
 
 Now run the math on "just spend more." If you double your ad budget, you roughly double your visitors — but you double them at the *same 98% leak rate*. You didn't fix anything. You just paid to send twice as many people through a funnel that loses almost all of them. More spend multiplies your conversion rate; it never improves it. That's why shops can pour money into ads for months and feel like they're running to stay in place: they're filling a leaky bucket faster instead of patching the hole.
 
@@ -75,9 +75,9 @@ Most owners diagnose every slow month as a traffic problem because more spend is
 
 ## Fixing the leak instead of feeding it
 
-Patching the leak means doing something with the 98% instead of writing them off. That's exactly what [retargeting](/features/instant-retarget/) is for. When a homeowner visits and accepts a clear consent banner, that single visit becomes part of a warm audience you can stay in front of — so a person who would have left and forgotten your name gets a second, third, and fourth chance to come back and book.
+Patching the leak means doing something with the 98% instead of writing them off. That's exactly what [retargeting](/features/instant-retarget/) is for. When a visitor visits and accepts a clear consent banner, that single visit becomes part of a warm audience you can stay in front of — so a person who would have left and forgotten your name gets a second, third, and fourth chance to come back and book.
 
-Notice what that does to the math. You're not adding visitors; you're raising how many of your *existing* visitors convert. If retargeting turns even a slice of the leaking 98% into booked jobs, your return on every traffic dollar climbs — without spending another dollar on traffic. The return on identifying and acting on visitor data has run [6–10×](https://www.practicalecommerce.com/how-brands-boost-roi-with-smart-data) in cross-industry studies; that's ecommerce evidence, not a contractor guarantee, and results vary by trade, traffic, and follow-up. But the direction is the point: recovering visits you already paid for pays off more than buying new ones. Every figure is sourced on our [stats page](/stats/).
+Notice what that does to the math. You're not adding visitors; you're raising how many of your *existing* visitors convert. If retargeting turns even a slice of the leaking 98% into closed deals, your return on every traffic dollar climbs — without spending another dollar on traffic. The return on identifying and acting on visitor data has run [6–10×](https://www.practicalecommerce.com/how-brands-boost-roi-with-smart-data) in cross-industry studies; that's ecommerce evidence, not a business guarantee, and results vary by trade, traffic, and follow-up. But the direction is the point: recovering visits you already paid for pays off more than buying new ones. Every figure is sourced on our [stats page](/stats/).
 
 ## The order that actually works
 
@@ -95,12 +95,12 @@ If this is so clear on paper, why does nearly every owner reach for the budget l
 
 There's also a story we tell ourselves that gets the causation backwards. When a shop doubles spend and books a few more jobs, it credits the extra spend — when often it just happened to catch a few more of the 2% who would've converted anyway. The leak never got smaller; the shop just paid to run more water past the same hole and caught a bit more spillover. That's an expensive way to grow, and it hides the cheaper win sitting in the traffic already visiting.
 
-Consider a house-cleaning company that pours another $800 a month into ads and books three more jobs. It looks like the spend worked. But if 98% of its visitors still leave anonymous, that same company could likely have booked those three jobs — and more — by recovering a slice of the traffic it already had, at $7 a lead instead of a bigger ad bill. The spend didn't fix anything. It just papered over the leak with volume, and the leak is still there next month, waiting to swallow the next budget increase too.
+Consider a local service business that pours another $800 a month into ads and books three more deals. It looks like the spend worked. But if 98% of its visitors still leave anonymous, that same business could likely have booked those three deals — and more — by recovering a slice of the traffic it already had, at custom pricing instead of a bigger ad bill. The spend didn't fix anything. It just papered over the leak with volume, and the leak is still there next month, waiting to swallow the next budget increase too.
 
 ## Before you raise the budget
 
 - **Check your real conversion path.** How many visitors leave anonymous versus become someone you can follow up with? That ratio tells you whether you have a leak.
-- **Recover before you acquire.** Retargeting the visits you already bought is cheaper than buying new ones, and the recovered lead is a flat $7, exclusive and never resold.
+- **Recover before you acquire.** Retargeting the visits you already bought is cheaper than buying new ones, and the recovered lead is custom priced, exclusive and never resold.
 - **Compare the channels honestly.** Before more spend goes anywhere, the [channel-by-channel math](/resources/compare/) shows where each dollar actually performs.
 - **Scale a funnel that holds.** Once each visit is worth more, then add traffic — and watch it convert instead of leak.
 

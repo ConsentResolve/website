@@ -52,12 +52,12 @@ faq_items:
   - question: "Why build to GDPR if my customers are in the U.S.?"
     answer: "Because GDPR is the strictest mainstream standard, and clearing the highest bar covers the ones beneath it. A banner engineered to satisfy GDPR's requirements for clear, affirmative, logged consent generally satisfies the CCPA and other state rules too — so you build once instead of chasing each statute as it changes."
   - question: "What has to be recorded for the consent to hold up?"
-    answer: "A timestamped record of the response — who consented, to what, and when — captured at the moment of the click. That record is what turns 'they agreed' into something you can actually prove. Consent Resolve logs it automatically, and every resulting lead is email-grade and consent-first at a flat $7, exclusive to you and never resold."
+    answer: "A timestamped record of the response — who consented, to what, and when — captured at the moment of the click. That record is what turns 'they agreed' into something you can actually prove. Consent Resolve logs it automatically, and every resulting lead is email-grade and consent-first at custom pricing, exclusive to you and never resold."
 ---
 
 ## A banner on the page is not the same as consent
 
-Most contractors assume that once there is a banner sitting at the bottom of their website, the compliance box is checked. It looks official. It has a button. Surely that is the point of it.
+Most businesses assume that once there is a banner sitting at the bottom of their website, the compliance box is checked. It looks official. It has a button. Surely that is the point of it.
 
 It isn't. A banner is only doing its job if it produces *valid consent*, and plenty of banners don't. The gray strip that just says "we use cookies — OK" is a notice, not a choice. The pop-up with a glowing "Accept All" and a decline link hidden three menus deep is a nudge, not agreement. Both technically exist. Neither is the thing that actually protects you when someone asks how you got their information.
 
@@ -69,7 +69,7 @@ Across the strictest privacy standards, valid consent keeps coming back to the s
 
 ### 1. It discloses plainly what accepting means
 
-Consent only counts if the person understood what they agreed to. That means the banner has to say, in language a homeowner reads once and gets, what happens when they accept — that they can be identified and followed up with. "We process data for legitimate interests" fails this test, because nobody outside a law office parses that. "Say yes and we can follow up by email about your project" passes.
+Consent only counts if the person understood what they agreed to. That means the banner has to say, in language a visitor reads once and gets, what happens when they accept — that they can be identified and followed up with. "We process data for legitimate interests" fails this test, because nobody outside a law office parses that. "Say yes and we can follow up by email about your project" passes.
 
 Vague disclosure is one of the most common ways a banner quietly stops being consent and becomes decoration. If a visitor could not tell you what they just agreed to, a regulator won't credit it either.
 
@@ -109,13 +109,13 @@ All three are common because they're easy, and all three leave you holding conse
 
 ## Run your own banner through the checklist
 
-Picture an electrician who added a banner two years ago and never looked at it again. Walk it through the four points. Does it say, in plain words, what accepting means — or just mention cookies? Is decline as easy as accept, or is "no" hidden? Is anything pre-ticked? Is the response actually logged somewhere you could retrieve? It is common for a banner to pass the first point and fail the other three. That is not a compliant banner; it is a compliant-looking one.
+Picture a business that added a banner two years ago and never looked at it again. Walk it through the four points. Does it say, in plain words, what accepting means — or just mention cookies? Is decline as easy as accept, or is "no" hidden? Is anything pre-ticked? Is the response actually logged somewhere you could retrieve? It is common for a banner to pass the first point and fail the other three. That is not a compliant banner; it is a compliant-looking one.
 
 The fix is not more banner. It is a banner that satisfies all four by design, with the record handled automatically so it is never the part you forgot. When that is in place, each accept becomes a [consent-first](/why-consent-first/) lead you can lawfully follow up with — by email, into the funnel you already run, never a cold call.
 
 ## The compliant-banner checklist
 
-- **Plain disclosure.** A homeowner can tell you what they agreed to after reading it once.
+- **Plain disclosure.** A visitor can tell you what they agreed to after reading it once.
 - **Genuine choice.** Decline is as easy and visible as accept — no hidden "no," no dark patterns.
 - **Nothing pre-selected.** Consent is an action the visitor takes, never a default they have to undo.
 - **A logged record.** Every response is captured with a timestamp you can produce on demand.
