@@ -9,9 +9,9 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "Texting a lead without consent? That's $500–$1,500 per message."
-excerpt: "The TCPA is the federal law on marketing calls and texts. Here's what it requires, why it matters for home-service contractors, and how to stay on the right side of it."
-seo_title: "What Is the TCPA? A Plain-English Guide for Contractors"
-seo_description: "The TCPA is the federal law on marketing calls and texts. Here's what it requires, why it matters for home-service contractors"
+excerpt: "The TCPA is the federal law on marketing calls and texts. Here's what it requires, why it matters for businesses, and how to stay on the right side of it."
+seo_title: "What Is the TCPA? A Plain-English Guide for Businesses"
+seo_description: "The TCPA is the federal law on marketing calls and texts. Here's what it requires, why it matters for businesses"
 focus_keyword: "what is the tcpa"
 canonical_url: "https://consentresolve.com/resources/plain-language-explainers/what-is-tcpa/"
 category: "Privacy & Consent"
@@ -50,7 +50,7 @@ faq_items:
 
 ## What the TCPA covers
 
-The Telephone Consumer Protection Act is the main federal law on telemarketing in the United States. It sets the rules for calls and texts sent to consumers, and it's the law behind most of the "robocall" headlines. For a contractor, the part that matters is simple: if you want to call or text people to market your services, the TCPA decides when you're allowed to — and what it costs if you get it wrong.
+The Telephone Consumer Protection Act is the main federal law on telemarketing in the United States. It sets the rules for calls and texts sent to consumers, and it's the law behind most of the "robocall" headlines. For a business, the part that matters is simple: if you want to call or text people to market your services, the TCPA decides when you're allowed to — and what it costs if you get it wrong.
 
 It also created the national **Do Not Call** registry and the rules on **quiet hours** (no telemarketing calls before 8 a.m. or after 9 p.m. in the recipient's local time).
 
@@ -64,9 +64,9 @@ The TCPA draws a line based on *how* you contact someone and *whether they agree
 
 The penalties are what give the law teeth: **$500 per call or text, up to $1,500 if the violation is willful**, with no cap on the total.
 
-## Why it matters for contractors
+## Why it matters for businesses
 
-A lot of contractors inherit TCPA risk without realizing it — usually by buying a list or a batch of "leads" and running them through a texting tool. If those people never gave *you* consent, every message is exposure. One afternoon's blast to a few hundred numbers can theoretically run into six figures of liability.
+A lot of businesses inherit TCPA risk without realizing it — usually by buying a list or a batch of "leads" and running them through a texting tool. If those people never gave *you* consent, every message is exposure. One afternoon's blast to a few hundred numbers can theoretically run into six figures of liability.
 
 The flip side is reassuring: leads who actually opted in to hear from you are safe to contact on the channel they agreed to. The goal isn't to fear follow-up — it's to make sure the people you're following up with said yes first.
 
@@ -79,4 +79,4 @@ The flip side is reassuring: leads who actually opted in to hear from you are sa
 
 ## How it relates to consent
 
-The TCPA is the reason "who said yes, and to what?" is the most important question in contractor marketing. Consent-first lead generation answers it by design: a lead is only handed to you after the person agreed to be contacted, tagged with the channel they approved, and backed by a record of that agreement. That's the difference between a follow-up you can make confidently and one that could end in a lawsuit.
+The TCPA is the reason "who said yes, and to what?" is the most important question in business marketing. Consent-first lead generation answers it by design: a lead is only handed to you after the person agreed to be contacted, tagged with the channel they approved, and backed by a record of that agreement. That's the difference between a follow-up you can make confidently and one that could end in a lawsuit.

@@ -53,7 +53,7 @@ sources:
 
 Customer acquisition cost, or CAC, is the total amount you spend to win one new customer. Not one lead — one paying customer. It rolls up everything it takes to turn a stranger into someone who hands you money: the ads, the lead fees, the software, and the hours spent following up and closing.
 
-If cost per lead measures the front door, CAC measures the whole trip from "interested" to "paid invoice." That makes it one of the most honest growth numbers a contractor can track, because it includes the leads that didn't pan out. You paid for those too.
+If cost per lead measures the front door, CAC measures the whole trip from "interested" to "paid invoice." That makes it one of the most honest growth numbers a business can track, because it includes the leads that didn't pan out. You paid for those too.
 
 ## How to calculate it
 
@@ -74,9 +74,9 @@ Leave the time out and your CAC looks artificially low. For a small shop where t
 
 Like cost per lead, calculate CAC per channel when you can. A blended number across every source hides which channels win customers cheaply and which ones drain the budget.
 
-## Why it matters for contractors
+## Why it matters for businesses
 
-CAC matters because it tells you the true price of growth. Plenty of contractors know roughly what a lead costs but have never worked out what a *customer* costs — and those are wildly different numbers once you account for the leads that go nowhere.
+CAC matters because it tells you the true price of growth. Plenty of businesses know roughly what a lead costs but have never worked out what a *customer* costs — and those are wildly different numbers once you account for the leads that go nowhere.
 
 Here's the key idea: **a high CAC isn't a problem on its own.** What matters is the gap between what it costs to win a customer and what that customer is worth to you. Spending $400 to win a customer who brings you $5,000 over time is a fantastic trade. Spending $400 to win a one-time $300 job is a slow way to go broke. CAC only becomes meaningful when you set it next to the value of a customer — which is exactly what lifetime value measures.
 
@@ -92,6 +92,6 @@ This is also why chasing the cheapest leads can backfire. If a bargain channel s
 
 ## How it relates to consent-first leads
 
-The fastest way to wreck your customer acquisition cost is to pour money into leads that don't close — shared leads sold to four contractors, recycled lists, people who never agreed to hear from you. You pay for all of them, and only a sliver become customers, so your CAC quietly balloons.
+The fastest way to wreck your customer acquisition cost is to pour money into leads that don't close — shared leads sold to four businesses, recycled lists, people who never agreed to hear from you. You pay for all of them, and only a sliver become customers, so your CAC quietly balloons.
 
 Consent-first leads attack the problem from the other side. When the person agreed to be contacted on a channel they chose, and the lead is exclusively yours, more of them answer and more of them book. Fewer wasted leads means a lower cost per customer won. At a flat, predictable price per lead, you can actually forecast your CAC instead of guessing at it — and that's what lets you grow on purpose instead of by luck.

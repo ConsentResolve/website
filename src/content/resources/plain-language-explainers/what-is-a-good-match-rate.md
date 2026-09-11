@@ -48,7 +48,7 @@ sources:
   - label: "SearchLight Digital — Google LSA cost-per-lead benchmark ($53 blended)"
     url: "https://searchlightdigital.io/google-local-service-ads-cost-per-lead/"
   - label: "99 Calls — LSA cost-per-lead estimator by trade"
-    url: "https://99calls.com/LSA-Cost-Estimator/general-contractor"
+    url: "https://99calls.com/LSA-Cost-Estimator/general-business"
 ---
 
 ## What it is
@@ -73,13 +73,13 @@ So when you see a match rate, ask what's underneath it:
 - A very high rate usually means the consent bar got lowered to inflate the number.
 - A rate with no explanation of consent at all is the biggest warning of the three.
 
-## Why it matters for contractors
+## Why it matters for businesses
 
-Match rate is the number providers love to put on a sales slide, because a big percentage looks like more leads for your money. For a busy contractor, that's exactly the trap. You don't actually want the most identities — you want the most *good, contactable* prospects who won't get you in trouble.
+Match rate is the number providers love to put on a sales slide, because a big percentage looks like more leads for your money. For a busy business, that's exactly the trap. You don't actually want the most identities — you want the most *good, contactable* prospects who won't get you in trouble.
 
 Here's the practical version. Suppose two services both run on your site for a month. Service A reports a 5% match rate and hands you a short list of people who genuinely shopped your business and agreed to be contacted. Service B reports a 70% match rate and hands you a big pile that includes people who never agreed to anything. Service B looks better on paper and is worse in every way that counts: lower-quality contacts, more wasted follow-up time, and real legal exposure if you start calling or texting people who never opted in.
 
-The contractors who get value from visitor identification are the ones who stop treating match rate as a scoreboard and start treating it as a clue about method.
+The businesses who get value from visitor identification are the ones who stop treating match rate as a scoreboard and start treating it as a clue about method.
 
 ## Common mistakes
 
@@ -92,4 +92,4 @@ The contractors who get value from visitor identification are the ones who stop 
 
 Match rate and consent are tied together more tightly than most people realize. Every point of match rate above the consent line comes from someone who didn't agree to be identified. So a service's match rate is, in a real sense, a measure of how much it's willing to bend the consent standard.
 
-That's why a consent-first service treats a modest match rate as a sign it's doing the job right. ConsentResolve only counts visitors who actually agreed to be identified and contacted, which keeps the rate honest and the leads exclusive to you — never resold, flat $7 each. The goal was never to identify everyone. It's to confidently hand you the people who already said yes, and to leave the rest anonymous, the way they're supposed to be.
+That's why a consent-first service treats a modest match rate as a sign it's doing the job right. ConsentResolve only counts visitors who actually agreed to be identified and contacted, which keeps the rate honest and the leads exclusive to you — never resold, at custom pricing. The goal was never to identify everyone. It's to confidently hand you the people who already said yes, and to leave the rest anonymous, the way they're supposed to be.

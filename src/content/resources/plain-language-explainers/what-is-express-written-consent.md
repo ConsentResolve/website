@@ -68,18 +68,18 @@ For consent to hold up, the agreement has to do a few specific things:
 
 Get those right and you have a clean basis to follow up. Skip them and you may be holding a phone number you legally can't text.
 
-## Why it matters for contractors
+## Why it matters for businesses
 
-Most contractors run into this the moment they start texting leads. A homeowner fills out a form, the contractor drops the number into a texting tool, and the texts start flowing. If that form didn't capture express written consent the right way, every automated text is exposure under the TCPA — $500 to $1,500 per message.
+Most businesses run into this the moment they start texting leads. A visitor fills out a form, the business drops the number into a texting tool, and the texts start flowing. If that form didn't capture express written consent the right way, every automated text is exposure under the TCPA — $500 to $1,500 per message.
 
-The reassuring part is that getting it right is not hard. A single well-written line next to your contact form, with a checkbox the homeowner ticks themselves, can capture solid consent. The work is in setting it up once and keeping the record — not in some heavy legal process.
+The reassuring part is that getting it right is not hard. A single well-written line next to your contact form, with a checkbox the visitor ticks themselves, can capture solid consent. The work is in setting it up once and keeping the record — not in some heavy legal process.
 
-Where contractors get burned is leads they didn't gather themselves. A purchased list, a shared lead, or a "verified" contact from a vendor may come with no real consent at all — or consent that named the vendor, not you. Consent doesn't transfer just because a number changed hands.
+Where businesses get burned is leads they didn't gather themselves. A purchased list, a shared lead, or a "verified" contact from a vendor may come with no real consent at all — or consent that named the vendor, not you. Consent doesn't transfer just because a number changed hands.
 
 ## Common mistakes
 
 - **Pre-checked boxes.** If the box is already ticked when the page loads, the person didn't take an affirmative step. That's not valid consent.
-- **Consent that names the wrong company.** A homeowner who agreed to hear from a lead vendor did not agree to hear from you. The agreement has to name the business that actually contacts them.
+- **Consent that names the wrong company.** A visitor who agreed to hear from a lead vendor did not agree to hear from you. The agreement has to name the business that actually contacts them.
 - **Making it a requirement.** Forcing someone to accept texts before they can get a quote breaks the rule that consent can't be a condition of purchase.
 - **No paper trail.** If you can't show the consent, you can't defend the contact. "We're pretty sure they agreed" is not a defense.
 - **Assuming one yes covers everything.** Permission to text isn't permission to make prerecorded calls, and an email opt-in isn't permission to text. Match the consent to the channel.
@@ -88,4 +88,4 @@ Where contractors get burned is leads they didn't gather themselves. A purchased
 
 Express written consent is the legal heart of consent-first marketing. It's the difference between a lead you can text with confidence and a phone number that's really a liability.
 
-That's why a consent-first lead is built around it. The homeowner agrees to be contacted, on the channel they chose, naming the business that will reach out — and that agreement is captured and kept. When a lead arrives that way, the hardest compliance question in contractor marketing — "did this person actually say yes to *me*?" — is already answered before you ever pick up the phone.
+That's why a consent-first lead is built around it. The visitor agrees to be contacted, on the channel they chose, naming the business that will reach out — and that agreement is captured and kept. When a lead arrives that way, the hardest compliance question in business marketing — "did this person actually say yes to *me*?" — is already answered before you ever pick up the phone.

@@ -15,11 +15,11 @@ seo_description: "Pay-per-lead means you pay a set price for each lead you recei
 focus_keyword: "what is pay per lead"
 canonical_url: "https://consentresolve.com/resources/plain-language-explainers/what-is-pay-per-lead/"
 category: "Lead Generation"
-tags: ["pay per lead", "pay per click", "retainer", "lead generation", "contractor marketing"]
+tags: ["pay per lead", "pay per click", "retainer", "lead generation", "business marketing"]
 funnel_stage: "convert"
 schema_type: "Article"
-tldr: "Pay-per-lead means you pay a set price for each lead you receive — not for ad clicks and not for a monthly retainer. You only pay when an actual prospect comes in, which makes the cost predictable. The catch to watch for: some pay-per-lead providers sell the same lead to several contractors, so check whether the leads are exclusive before you judge the price."
-key_takeaways: "Pay-per-lead charges a fixed price per lead, so you only pay when a real prospect arrives. Pay-per-click charges for ad clicks whether or not they turn into leads; retainers charge a flat monthly fee for ongoing work. Pay-per-lead is the most predictable of the three because cost maps directly to leads. The thing to check is exclusivity — shared pay-per-lead means the same lead goes to several contractors at once. ConsentResolve is pay-per-lead at a flat $7, and every lead is exclusive to one contractor."
+tldr: "Pay-per-lead means you pay a set price for each lead you receive — not for ad clicks and not for a monthly retainer. You only pay when an actual prospect comes in, which makes the cost predictable. The catch to watch for: some pay-per-lead providers sell the same lead to several businesses, so check whether the leads are exclusive before you judge the price."
+key_takeaways: "Pay-per-lead charges a fixed price per lead, so you only pay when a real prospect arrives. Pay-per-click charges for ad clicks whether or not they turn into leads; retainers charge a flat monthly fee for ongoing work. Pay-per-lead is the most predictable of the three because cost maps directly to leads. The thing to check is exclusivity — shared pay-per-lead means the same lead goes to several businesses at once. ConsentResolve is pay-per-lead at custom pricing, and every lead is exclusive to one business."
 related:
   - label: "Glossary: Shared Lead"
     url: "/resources/glossary/#shared-lead"
@@ -32,7 +32,7 @@ related:
   - label: "Pricing"
     url: "/pricing/"
 primary_cta:
-  label: "See flat $7 pay-per-lead pricing →"
+  label: "See custom pay-per-lead pricing →"
   url: "/pricing/"
 faq_items:
   - question: "What does pay-per-lead mean?"
@@ -42,12 +42,10 @@ faq_items:
   - question: "Is pay-per-lead cheaper than a marketing retainer?"
     answer: "It depends on volume, but pay-per-lead is more predictable. A retainer is a flat monthly cost no matter how many leads you get; pay-per-lead scales with the leads you actually receive."
   - question: "What should I watch for with pay-per-lead providers?"
-    answer: "Exclusivity. Some pay-per-lead providers sell the same lead to several contractors at once. A low price per lead means little if four other businesses got the same lead, so always ask whether leads are exclusive."
+    answer: "Exclusivity. Some pay-per-lead providers sell the same lead to several businesses at once. A low price per lead means little if four other businesses got the same lead, so always ask whether leads are exclusive."
 sources:
-  - label: "HomeServiceDirect — shared-lead economics (4–5 pros, $25–$100+ per lead)"
-    url: "https://www.homeservicedirect.net/how-to-get-leads-flooring-business/"
-  - label: "HouseCall Pro — Angi/HomeAdvisor shared-lead cost & model"
-    url: "https://www.housecallpro.com/resources/angi-formerly-angies-list-competitors-sites-like-angi/"
+  - label: "WordStream — average conversion rates and cost-per-lead benchmarks"
+    url: "https://www.wordstream.com/blog/conversion-rate-benchmarks"
 ---
 
 ## What pay-per-lead means
@@ -56,11 +54,11 @@ Pay-per-lead is a way of buying marketing where you pay a set price for each lea
 
 The appeal is simple: your money lines up with actual prospects, not with activity. You're not paying for impressions, clicks, or a marketer's monthly hours and hoping leads show up at the end. You're paying for the leads themselves, one at a time, at a price you knew in advance.
 
-For a busy contractor, that's easy to budget around. If a lead costs a flat price and you know roughly how many you can handle in a week, you can do the math on what you're spending before you spend it. There aren't many surprises.
+For a busy business, that's easy to budget around. If a lead costs a flat price and you know roughly how many you can handle in a week, you can do the math on what you're spending before you spend it. There aren't many surprises.
 
 ## Pay-per-lead vs pay-per-click vs retainer
 
-Pay-per-lead is one of three common ways contractors pay for marketing. They charge for completely different things, which is why the price tags are hard to compare head-to-head until you line them up.
+Pay-per-lead is one of three common ways businesses pay for marketing. They charge for completely different things, which is why the price tags are hard to compare head-to-head until you line them up.
 
 | | Pay-per-lead | Pay-per-click | Retainer |
 |---|---|---|---|
@@ -80,24 +78,24 @@ With a **retainer**, you pay a marketer or agency a flat monthly fee to handle y
 
 Pay-per-lead sounds clean, and it can be — but there's one thing that quietly undoes a low price: **exclusivity**.
 
-Some pay-per-lead providers sell the same lead to several contractors at the same time. You see a cheap price per lead and feel good about it, then realize you're calling a homeowner who's already heard from three other businesses that bought the exact same lead. These are shared leads, and they go to several contractors at once, which means you're competing on speed and price for something you already paid for.
+Some pay-per-lead providers sell the same lead to several businesses at the same time. You see a cheap price per lead and feel good about it, then realize you're calling a visitor who's already heard from three other businesses that bought the exact same lead. These are shared leads, and they go to several businesses at once, which means you're competing on speed and price for something you already paid for.
 
 So a low per-lead price isn't automatically a good deal. A lead that's yours alone is worth far more than a cheaper lead split four ways, because you can actually book it. Before you compare prices between two pay-per-lead providers, you have to know whether you're comparing exclusive leads or shared ones. (For a deeper look, see [What Is an Exclusive Lead?](/resources/plain-language-explainers/what-is-an-exclusive-lead/))
 
-The question to ask is the same one that cuts through every lead pitch: *"How many other contractors get this same lead?"*
+The question to ask is the same one that cuts through every lead pitch: *"How many other businesses get this same lead?"*
 
 ## How to judge the real cost
 
-The number on the invoice is "cost per lead." The number that matters to your business is **cost per booked job**. Those two can be very different.
+The number on the invoice is "cost per lead." The number that matters to your business is **cost per closed deal**. Those two can be very different.
 
-Imagine cheap shared leads at a low price each, but four contractors get every one, so you book a small fraction of them. Now imagine exclusive leads at a higher price each, where you're the only one calling, so you book a much bigger share. Even though each exclusive lead cost more, the cost to actually *land a job* can come out lower — and you wasted less time chasing people who'd already hired someone.
+Imagine cheap shared leads at a low price each, but four businesses get every one, so you book a small fraction of them. Now imagine exclusive leads at a higher price each, where you're the only one calling, so you book a much bigger share. Even though each exclusive lead cost more, the cost to actually *land a job* can come out lower — and you wasted less time chasing people who'd already hired someone.
 
-So when you weigh a pay-per-lead offer, run it all the way to booked jobs. A flat, predictable price per lead is good. A flat, predictable price for a lead that's exclusively yours is better.
+So when you weigh a pay-per-lead offer, run it all the way to closed deals. A flat, predictable price per lead is good. A flat, predictable price for a lead that's exclusively yours is better.
 
 ## How ConsentResolve does it
 
-ConsentResolve is pay-per-lead at a flat $7 per lead — no clicks to pay for, no monthly retainer, no minimums. You pay for leads, and you know the price up front.
+ConsentResolve is pay-per-lead at custom pricing — no clicks to pay for, no monthly retainer, no minimums. You pay for leads, and you know the price up front.
 
-Two things make that $7 different from a cheap shared lead. First, every lead is exclusive: it's sold to one contractor only and never resold or shared, so you're the only business reaching out to that homeowner. Second, every lead is consent-first — the homeowner agreed to be contacted before the lead ever reaches you, so your follow-up starts on solid footing.
+Two things make that pricing different from a cheap shared lead. First, every lead is exclusive: it's sold to one business only and never resold or shared, so you're the only business reaching out to that visitor. Second, every lead is consent-first — the visitor agreed to be contacted before the lead ever reaches you, so your follow-up starts on solid footing.
 
-If you want to see exactly what's included at that price, the [pricing page](/pricing/) lays it out.
+If you want to see exactly what's included, the [pricing page](/pricing/) lays it out.

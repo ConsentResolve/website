@@ -9,9 +9,9 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "One bad email blast can cost $53,088 per message. Here's the rulebook."
-excerpt: "CAN-SPAM is the federal law for marketing emails. Here's what it requires, why it matters for home-service contractors, and how to send email the safe way."
+excerpt: "CAN-SPAM is the federal law for marketing emails. Here's what it requires, why it matters for businesses, and how to send email the safe way."
 seo_title: "What Is the CAN-SPAM Act?"
-seo_description: "CAN-SPAM is the federal law for marketing emails. Here's what it requires, why it matters for home-service contractors, and how to send email the safe way."
+seo_description: "CAN-SPAM is the federal law for marketing emails. Here's what it requires, why it matters for businesses, and how to send email the safe way."
 focus_keyword: "what is the can-spam act"
 canonical_url: "https://consentresolve.com/resources/plain-language-explainers/what-is-can-spam-act/"
 category: "Privacy & Consent"
@@ -52,7 +52,7 @@ faq_items:
 
 ## What it is
 
-The CAN-SPAM Act is the main federal law in the United States for commercial email. Despite the name, it isn't only about junk mail blasted to strangers — it covers any email whose main purpose is to promote a product or service. For a contractor, that means the law applies to your monthly newsletter, your "spring gutter special" announcement, and even a one-off promotional note to a single homeowner.
+The CAN-SPAM Act is the main federal law in the United States for commercial email. Despite the name, it isn't only about junk mail blasted to strangers — it covers any email whose main purpose is to promote a product or service. For a business, that means the law applies to your monthly newsletter, your "spring gutter special" announcement, and even a one-off promotional note to a single visitor.
 
 The law is run by the Federal Trade Commission. It doesn't ban marketing email, and it doesn't require people to opt in before you reach out. Instead, it sets a short list of things you must do every time you send a commercial message, and a short list of things you can never do.
 
@@ -70,11 +70,11 @@ CAN-SPAM comes down to a handful of plain rules. Follow them and you're in good 
 
 The penalties are what make this worth taking seriously. The FTC can pursue a civil penalty for **each separate email** that violates the law, and the per-email maximum runs into the tens of thousands of dollars. A campaign of a few hundred non-compliant messages is no longer a small problem.
 
-## Why it matters for contractors
+## Why it matters for businesses
 
-Most contractors think of email as the "safe" channel, and compared to texting it carries less legal risk — there's no prior-consent requirement like the TCPA puts on calls and texts. But "safe" is not the same as "no rules."
+Most businesses think of email as the "safe" channel, and compared to texting it carries less legal risk — there's no prior-consent requirement like the TCPA puts on calls and texts. But "safe" is not the same as "no rules."
 
-The bigger day-to-day risk for a contractor usually isn't an FTC penalty; it's deliverability. Email providers like Gmail and Outlook watch how people react to your messages. When you email homeowners who never asked to hear from you, more of them mark you as spam. Enough complaints and your emails stop landing in inboxes at all — including the ones to customers who *do* want to hear from you.
+The bigger day-to-day risk for a business usually isn't an FTC penalty; it's deliverability. Email providers like Gmail and Outlook watch how people react to your messages. When you email visitors who never asked to hear from you, more of them mark you as spam. Enough complaints and your emails stop landing in inboxes at all — including the ones to customers who *do* want to hear from you.
 
 So the rules and the results point the same direction. Emailing people who opted in keeps you compliant, keeps complaints low, and keeps your messages out of the spam folder. Emailing a purchased list does the opposite on every count.
 
@@ -88,6 +88,6 @@ So the rules and the results point the same direction. Emailing people who opted
 
 ## How it relates to consent
 
-CAN-SPAM sets the floor for what's legal, but consent sets the bar for what actually works. A contractor who only emails homeowners who asked to be contacted clears the legal rules without trying and avoids the spam complaints that quietly kill an email program.
+CAN-SPAM sets the floor for what's legal, but consent sets the bar for what actually works. A business who only emails visitors who asked to be contacted clears the legal rules without trying and avoids the spam complaints that quietly kill an email program.
 
-That's the idea behind consent-first lead generation. A lead reaches you only after the homeowner agreed to be contacted, on the channel they chose, with a record of that agreement. For email, that means your messages go to people who expect them — which is both the compliant way and the way that keeps you in the inbox.
+That's the idea behind consent-first lead generation. A lead reaches you only after the visitor agreed to be contacted, on the channel they chose, with a record of that agreement. For email, that means your messages go to people who expect them — which is both the compliant way and the way that keeps you in the inbox.

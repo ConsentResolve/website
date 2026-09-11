@@ -35,6 +35,15 @@ export const PATH_REDIRECTS = {
   "/resources/compare/homeadvisor": "/pricing/",
   "/resources/compare/google-local-service-ads": "/pricing/",
   "/lead-math": "/pricing/",
+
+  // Guide/explainer corpus (2026-09): retired the 3 pieces whose entire premise
+  // was Google Local Service Ads / neighbor-marketing-after-a-job — concepts
+  // specific to local home-service businesses, not the generic-SaaS ICP.
+  "/resources/how-to-guides/win-google-local-service-ads": "/resources/how-to-guides/",
+  "/resources/how-to-guides/market-to-neighbors-after-every-job": "/resources/how-to-guides/",
+  "/resources/plain-language-explainers/what-are-google-local-services-ads": "/resources/plain-language-explainers/",
+  "/resources/plain-language-explainers/what-is-email-marketing-for-contractors": "/resources/plain-language-explainers/what-is-email-marketing-for-businesses/",
+  "/resources/plain-language-explainers/what-is-sms-marketing-for-contractors": "/resources/plain-language-explainers/what-is-sms-marketing-for-businesses/",
 };
 
 export const BLOG_REDIRECTS = {

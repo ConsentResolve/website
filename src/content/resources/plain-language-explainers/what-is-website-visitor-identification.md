@@ -9,7 +9,7 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "Most people who visit your site leave without ever filling out a form."
-excerpt: "Website visitor identification tells you who came to your site. Here's how it works, the difference between consent-based and scrape-everyone approaches, and why it matters for contractors."
+excerpt: "Website visitor identification tells you who came to your site. Here's how it works, the difference between consent-based and scrape-everyone approaches, and why it matters for businesses."
 seo_title: "What Is Website Visitor Identification?"
 seo_description: "Website visitor identification tells you who came to your site. Here's how it works, the difference between consent-based and scrape-everyone approaches"
 focus_keyword: "what is website visitor identification"
@@ -19,7 +19,7 @@ tags: ["visitor identification", "first-party data", "lead generation", "consent
 funnel_stage: "get-found"
 schema_type: "Article"
 tldr: "Website visitor identification is the practice of figuring out who an otherwise anonymous website visitor is — turning a page view into a name, business, or contact you can follow up with. The compliant version surfaces only visitors who agreed to be identified; the risky version tries to de-anonymize everyone."
-key_takeaways: "Website visitor identification connects an anonymous visit to a real person or business so you can follow up. There are two very different versions: consent-based identification (the visitor agreed to be identified) and de-anonymize-everyone tools (no agreement, higher risk). For contractors, the value is recovering warm interest that would otherwise leave without a form fill. Treat any provider that can't show how consent was collected as a liability, not a shortcut."
+key_takeaways: "Website visitor identification connects an anonymous visit to a real person or business so you can follow up. There are two very different versions: consent-based identification (the visitor agreed to be identified) and de-anonymize-everyone tools (no agreement, higher risk). For businesses, the value is recovering warm interest that would otherwise leave without a form fill. Treat any provider that can't show how consent was collected as a liability, not a shortcut."
 glossary_slug: "visitor-identification"
 related:
   - label: "Glossary: Visitor Identification"
@@ -57,7 +57,7 @@ sources:
 
 Website visitor identification is the practice of figuring out who came to your website. Most of the time, a visitor is just a number in your analytics — a page view, a session, a bounce. Identification tries to attach a real name, business, or contact to that visit so you can follow up.
 
-Think about your own site for a minute. Someone in your service area searches for a roofer or a plumber, lands on your page, reads about you, maybe checks your reviews — and then leaves without calling or filling out anything. That person was interested. You just never found out who they were. Visitor identification is the attempt to close that gap.
+Think about your own site for a minute. Someone in your area searches for what you offer, lands on your page, reads about you, maybe checks your reviews — and then leaves without calling or filling out anything. That person was interested. You just never found out who they were. Visitor identification is the attempt to close that gap.
 
 There are two very different versions of this, and the difference is the whole story. One version only surfaces visitors who **agreed** to be identified. The other tries to de-anonymize **everyone** who lands on your page, whether they agreed or not. The first is built on consent. The second is the kind of quiet tracking that gets businesses in trouble.
 
@@ -76,13 +76,13 @@ The steps look like this:
 
 The risky version skips the consent step entirely. It tries to reverse-engineer an identity from device fingerprints, IP addresses, and data brokers — no agreement required. It can produce more "matches," but every one of them is a person who never agreed to be found.
 
-## Why it matters for contractors
+## Why it matters for businesses
 
-For a home-service business, the math is simple. You spend money to get people to your site — ads, SEO, your truck wraps, word of mouth. The large majority of those visitors leave without contacting you. That's not a failure of your website; it's just how shopping works. People compare three or four contractors before they pick one.
+For a business, the math is simple. You spend money to get people to your site — ads, SEO, word of mouth. The large majority of those visitors leave without contacting you. That's not a failure of your website; it's just how shopping works. People compare three or four businesses before they pick one.
 
 Consent-based visitor identification gives you a chance to recover some of that warm interest. Instead of hoping a visitor remembers to call back, you can follow up with people who showed real interest in your business and agreed to be contacted. That's a fundamentally different thing from buying a list of strangers and cold-calling them.
 
-It also keeps you on the right side of the line. A contractor who follows up with consented visitors is reaching out to people who said yes. A contractor who buys a de-anonymized list is reaching out to people who never heard of him — and that's where the legal and reputational risk lives.
+It also keeps you on the right side of the line. A business who follows up with consented visitors is reaching out to people who said yes. A business who buys a de-anonymized list is reaching out to people who never heard of him — and that's where the legal and reputational risk lives.
 
 ## Common mistakes
 
@@ -95,4 +95,4 @@ It also keeps you on the right side of the line. A contractor who follows up wit
 
 Consent is the dividing line between visitor identification that helps you and visitor identification that exposes you. The technology to recognize a visitor exists either way. What makes it safe is that the person agreed to be identified before you ever saw them.
 
-A consent-first service treats that agreement as the product, not an afterthought. Every lead is someone who said yes — recognized because they opted in, tagged with how you're allowed to reach them, and backed by a record of that consent. ConsentResolve works this way on purpose: leads are consented, exclusive to you, never resold, at a flat $7 each. The point isn't to find everyone who visits. It's to confidently follow up with the ones who already raised their hand.
+A consent-first service treats that agreement as the product, not an afterthought. Every lead is someone who said yes — recognized because they opted in, tagged with how you're allowed to reach them, and backed by a record of that consent. ConsentResolve works this way on purpose: leads are consented, exclusive to you, never resold, at custom pricing. The point isn't to find everyone who visits. It's to confidently follow up with the ones who already raised their hand.

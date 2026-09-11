@@ -19,7 +19,7 @@ tags: ["identity resolution", "visitor identification", "deterministic matching"
 funnel_stage: "convert"
 schema_type: "Article"
 tldr: "Identity resolution is the process of connecting scattered pieces of information — a visit, an email, a device — to figure out they all belong to the same real person. It can be done confidently (deterministic) or by educated guess (probabilistic), and the consent behind it matters more than the method."
-key_takeaways: "Identity resolution links separate signals to a single real person. Deterministic matching uses solid shared identifiers and is high-confidence; probabilistic matching uses statistical guesses and is lower-confidence. For contractors, the safer leads come from deterministic matches built on consent. A service that resolves everyone using probabilistic guessing without consent is the risky approach to avoid."
+key_takeaways: "Identity resolution links separate signals to a single real person. Deterministic matching uses solid shared identifiers and is high-confidence; probabilistic matching uses statistical guesses and is lower-confidence. For businesses, the safer leads come from deterministic matches built on consent. A service that resolves everyone using probabilistic guessing without consent is the risky approach to avoid."
 glossary_slug: "identity-resolution"
 related:
   - label: "Glossary: Identity Resolution"
@@ -40,7 +40,7 @@ faq_items:
     answer: "It takes separate signals — a website visit, an email address, a device — and works out that they belong to the same person, so a business can recognize a returning visitor or connect a visit to a known contact."
   - question: "What's the difference between deterministic and probabilistic matching?"
     answer: "Deterministic matching links records using solid shared identifiers, like a confirmed email, so it's high-confidence. Probabilistic matching uses statistical clues, like device and location patterns, to make an educated guess, so it's lower-confidence and more error-prone."
-  - question: "Which type of matching is safer for contractors?"
+  - question: "Which type of matching is safer for businesses?"
     answer: "Deterministic matching built on consent. It gives you confident, accurate matches of people who agreed to be identified, instead of guesses about strangers who never did."
   - question: "Can identity resolution be done without consent?"
     answer: "Technically yes — probabilistic methods can try to resolve anyone. But resolving identities of people who never agreed to be identified is the risky, scrape-everyone approach that raises privacy-law problems."
@@ -55,7 +55,7 @@ sources:
 
 Identity resolution is the process of connecting scattered pieces of information to figure out they all belong to the same real person. Online, a single person leaves a trail of disconnected signals — a visit from a phone, another from a laptop, an email they once typed into a form, a session with no name attached. Identity resolution stitches those pieces together so a business can say "these all point to one person."
 
-For a contractor, the everyday version is recognizing that the anonymous visit you got today is the same homeowner who filled out a form last week. That recognition is identity resolution doing its job: turning a pile of separate clues into one identifiable contact.
+For a business, the everyday version is recognizing that the anonymous visit you got today is the same visitor who filled out a form last week. That recognition is identity resolution doing its job: turning a pile of separate clues into one identifiable contact.
 
 Like visitor identification, it comes in a safe form and a risky form. The safe form resolves people who agreed to be identified, using solid evidence. The risky form tries to resolve everyone, often by guessing. The technology is similar; the consent — and the confidence — is what separates them.
 
@@ -79,7 +79,7 @@ Here's how they stack up:
 
 Many large data platforms blend both. The trouble starts when probabilistic guessing is used to resolve people who never agreed to be identified — which is how a service ends up "identifying" visitors it has no real basis to name.
 
-## Why it matters for contractors
+## Why it matters for businesses
 
 You don't need to run an identity-resolution platform to care about how this works. You just need to know what's behind the leads you're handed, because it determines whether they're trustworthy.
 
@@ -100,4 +100,4 @@ Identity resolution answers "who is this?" Consent answers "am I allowed to cont
 
 The safest combination is deterministic matching anchored on a consent record: the person is identified on solid evidence, and that same evidence shows they agreed to be contacted. That's a lead you can act on without second-guessing it. The risky combination is probabilistic resolution with no consent — guessing at strangers' identities and reaching out anyway.
 
-A consent-first service is built around the safe combination on purpose. ConsentResolve surfaces visitors who were confidently matched and who agreed to be identified and contacted — leads that are exclusive to you, never resold, at a flat $7 each. The aim isn't to resolve everyone who passes through. It's to hand you confident matches of people who already said yes.
+A consent-first service is built around the safe combination on purpose. ConsentResolve surfaces visitors who were confidently matched and who agreed to be identified and contacted — leads that are exclusive to you, never resold, at custom pricing. The aim isn't to resolve everyone who passes through. It's to hand you confident matches of people who already said yes.

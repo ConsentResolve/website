@@ -53,7 +53,7 @@ sources:
 
 Customer lifetime value, or LTV, is the total profit one customer brings you over the entire time they stay with you. Not just the first job — every job, every year, plus the referrals and reviews that come from keeping them happy. It's the difference between thinking of a customer as a single $300 repair and thinking of them as $3,000 of work over five years.
 
-For contractors, this is one of the most overlooked numbers in the business. Most people quote and bill one job at a time, so they think one job at a time. LTV asks a bigger question: what is this relationship actually worth before it ends?
+For businesses, this is one of the most overlooked numbers in the business. Most people quote and bill one job at a time, so they think one job at a time. LTV asks a bigger question: what is this relationship actually worth before it ends?
 
 ## How to calculate it
 
@@ -72,11 +72,11 @@ That's a basic version, and basic is fine. You can get fancier by adding the val
 
 The biggest mistake is leaving out the years. A single job might be worth $300, but if a typical customer gives you that job three times over their relationship and refers a neighbor, the lifetime number is several times higher.
 
-## Why it matters for contractors
+## Why it matters for businesses
 
 LTV matters because it sets the ceiling on what you can afford to spend to win a customer. This is the whole game. If you don't know what a customer is worth, every lead price feels too high — because you're comparing it to a single job instead of the full relationship.
 
-Picture two contractors. One thinks a customer is worth $300 (the first job) and won't pay more than a few dollars a lead. The other knows a customer is worth $1,200 over time and can comfortably spend $300 to win one and still pocket $900 in profit. The second contractor will outbid the first for every good lead and grow faster — not because they're reckless, but because they did the math.
+Picture two businesses. One thinks a customer is worth $300 (the first job) and won't pay more than a few dollars a lead. The other knows a customer is worth $1,200 over time and can comfortably spend $300 to win one and still pocket $900 in profit. The second business will outbid the first for every good lead and grow faster — not because they're reckless, but because they did the math.
 
 LTV also changes how you treat the customers you already have. If a customer is worth $1,200, a follow-up call, a maintenance reminder, or a quick thank-you isn't a chore — it's protecting an asset. The longer they stay, the bigger that number grows.
 

@@ -5,26 +5,26 @@ resource_type: "how-to-guide"
 status: "published"
 author: "Tyler Spurlock"
 featured_image: "/images/resources/how-to-guides/stop-losing-jobs-missed-calls-featured.jpg"
-excerpt: "A homeowner with a broken AC calls three companies and books the first one that answers. Every missed call is a booked job for a competitor. Here is the catch-net."
+excerpt: "A visitor with a broken AC calls three companies and books the first one that answers. Every missed call is a closed deal for a competitor. Here is the catch-net."
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "7 min"
-og_hook: "A missed call is a booked job — for the other guy."
-seo_title: "How to Stop Losing Jobs to Missed Calls (Home Service Guide)"
-seo_description: "Step-by-step system for home-service contractors to capture every call: measure your miss rate, missed-call text-back, after-hours routing, and call logging."
+og_hook: "A missed call is a closed deal — for the other guy."
+seo_title: "How to Stop Losing Jobs to Missed Calls"
+seo_description: "Step-by-step system for businesses to capture every call: measure your miss rate, missed-call text-back, after-hours routing, and call logging."
 focus_keyword: "missed call text back"
 canonical_url: "https://consentresolve.com/resources/how-to-guides/stop-losing-jobs-missed-calls/"
 category: "Lead Capture"
-tags: ["missed calls", "speed to lead", "lead capture", "call tracking", "home services"]
+tags: ["missed calls", "speed to lead", "lead capture", "call tracking", "local business"]
 industry: "home-services"
-audience: "home-service-contractors"
+audience: "home-service-businesses"
 funnel_stage: "capture"
 schema_type: "HowTo"
 primary_cta:
   label: "Capture every lead, not just the calls you catch"
   url: "https://consentresolve.com/"
 secondary_cta:
-  label: "Read: How to follow up with leads so you book the job"
+  label: "Read: How to follow up with leads so you close the deal"
   url: "https://consentresolve.com/resources/how-to-guides/follow-up-with-leads/"
 key_takeaways: "In urgent trades, the first to answer wins, so every missed call is usually a lost job. Measure your true miss rate, turn on instant missed-call text-back, route after-hours calls on purpose, and back it all with a human-sounding voicemail and an AI fallback. Log and review every call. Capturing demand you already earned is cheaper than buying more of it."
 how_to_steps:
@@ -41,8 +41,8 @@ how_to_steps:
   - name: "Log every call"
     text: "Capture and review all inbound calls so you can spot patterns — peak miss times, repeat callers, sources — and keep improving. What gets logged gets managed."
 faq_items:
-  - question: "What percentage of calls do contractors miss?"
-    answer: "Many home-service businesses miss a quarter or more of inbound calls, especially during jobs and after hours — and a large share of those callers never call back, they call a competitor instead."
+  - question: "What percentage of calls do businesses miss?"
+    answer: "Many businesses miss a quarter or more of inbound calls, especially during jobs and after hours — and a large share of those callers never call back, they call a competitor instead."
   - question: "Is texting a missed caller back compliant?"
     answer: "Texting back someone who just called you is generally well-grounded because they initiated contact, but you should still keep records, identify your business, and honor any request to stop."
   - question: "What is missed-call text-back?"
@@ -56,15 +56,15 @@ sources:
 
 ## Introduction
 
-Picture the homeowner whose water heater just failed. They are not researching — they are panicking, and they are working down a list. They call you. You are under a sink with both hands full, so it rings out. By the time you call back twenty minutes later, they have already booked the second company on their list, the one that picked up. That call was a job, and it is gone. For most contractors, missed calls are a larger and more fixable leak than any ad-spend problem. This guide builds the catch-net.
+Picture the visitor whose water heater just failed. They are not researching — they are panicking, and they are working down a list. They call you. You are under a sink with both hands full, so it rings out. By the time you call back twenty minutes later, they have already booked the second company on their list, the one that picked up. That call was a job, and it is gone. For most businesses, missed calls are a larger and more fixable leak than any ad-spend problem. This guide builds the catch-net.
 
 ## Who This Is For
 
-Owner-operators and small teams who answer their own phones, work in the field, and cannot always pick up — and any home-service business that suspects callers are slipping away. If you have never measured how many calls you miss, that is the first sign this guide is for you.
+Owner-operators and small teams who answer their own phones, work in the field, and cannot always pick up — and any business that suspects callers are slipping away. If you have never measured how many calls you miss, that is the first sign this guide is for you.
 
 ## Why It Matters
 
-In urgent home-service categories, the first company to respond usually wins the job, full stop. A missed call is not a deferred opportunity; it is almost always a lost one, because the caller simply moves to the next number. Capturing those calls costs far less than generating new leads to replace them, and it directly converts demand you already earned into booked revenue. It is one of the highest-ROI fixes available to a contractor.
+In urgent urgent-response categories, the first company to respond usually wins the job, full stop. A missed call is not a deferred opportunity; it is almost always a lost one, because the caller simply moves to the next number. Capturing those calls costs far less than generating new leads to replace them, and it directly converts demand you already earned into booked revenue. It is one of the highest-ROI fixes available to a business.
 
 ## Step-by-Step Instructions
 

@@ -1,23 +1,23 @@
 ---
-title: "How to Follow Up With Leads So You Actually Book the Job"
+title: "How to Follow Up With Leads So You Actually Close the Deal"
 slug: "follow-up-with-leads"
 resource_type: "how-to-guide"
 status: "published"
 author: "Tyler Spurlock"
 featured_image: "/images/resources/how-to-guides/follow-up-with-leads-featured.jpg"
-excerpt: "Lead response time is the single biggest predictor of who wins the job, yet most contractors take hours. Here is a speed-to-lead system that runs without you babysitting it."
+excerpt: "Lead response time is the single biggest predictor of who wins the job, yet most businesses take hours. Here is a speed-to-lead system that runs without you babysitting it."
 published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "9 min"
 og_hook: "The first 5 minutes decide who books the job."
-seo_title: "How to Follow Up With Leads So You Book the Job"
-seo_description: "A step-by-step follow-up system for home-service contractors: the 5-minute rule, first-touch templates, a multi-touch cadence"
+seo_title: "How to Follow Up With Leads So You Close the Deal"
+seo_description: "A step-by-step follow-up system for local businesses: the 5-minute rule, first-touch templates, a multi-touch cadence"
 focus_keyword: "lead follow up"
 canonical_url: "https://consentresolve.com/resources/how-to-guides/follow-up-with-leads/"
 category: "Lead Nurturing"
-tags: ["speed to lead", "lead follow up", "automation", "lead nurturing", "home services"]
+tags: ["speed to lead", "lead follow up", "automation", "lead nurturing", "local business"]
 industry: "home-services"
-audience: "home-service-contractors"
+audience: "home-service-businesses"
 funnel_stage: "convert"
 schema_type: "HowTo"
 primary_cta:
@@ -42,9 +42,9 @@ how_to_steps:
     text: "Set a point where a non-responsive lead is marked dormant and dropped from active follow-up (you can revive them later — see Guide 10's sibling, reactivation). Chasing forever wastes effort and risks annoying people."
 faq_items:
   - question: "How fast should I respond to a new lead?"
-    answer: "Within five minutes if at all possible. Response speed is the strongest predictor of whether you book the job, and the odds drop sharply with every passing hour."
+    answer: "Within five minutes if at all possible. Response speed is the strongest predictor of whether you close the deal, and the odds drop sharply with every passing hour."
   - question: "How many times should I follow up with a lead?"
-    answer: "Plan for around seven touches across text, email, and phone over a couple of weeks. Most contractors quit after one or two, which is why so many winnable leads go cold."
+    answer: "Plan for around seven touches across text, email, and phone over a couple of weeks. Most businesses quit after one or two, which is why so many winnable leads go cold."
   - question: "Can I automate lead follow-up without it feeling spammy?"
     answer: "Yes — automate the timing and reminders, keep the messages personal and helpful, contact people only on consented channels, and always make it easy to opt out."
 sources:
@@ -56,15 +56,15 @@ sources:
 
 ## Introduction
 
-Two contractors get the same lead. The first replies in three minutes with a friendly text and a question. The second calls back the next afternoon. The first one books the job almost every time — not because they are better at the work, but because they were there first and they kept showing up. Speed-to-lead and persistent follow-up are the most reliable, least glamorous edge in home services. The problem is that doing it consistently by hand is impossible when you are also running jobs. This guide gives you a system that runs itself while staying personal and compliant.
+Two businesses get the same lead. The first replies in three minutes with a friendly text and a question. The second calls back the next afternoon. The first one closes the deal almost every time — not because they are better at the work, but because they were there first and they kept showing up. Speed-to-lead and persistent follow-up are the most reliable, least glamorous edge in business. The problem is that doing it consistently by hand is impossible when you are also running the business. This guide gives you a system that runs itself while staying personal and compliant.
 
 ## Who This Is For
 
-Home-service businesses that get leads — from the website, LSA, calls, or consented visitor identification — but lose too many between "inquiry" and "booked." If your follow-up depends on remembering to circle back when you have a free minute, this is the fix.
+Businesses that get leads — from the website, LSA, calls, or consented visitor identification — but lose too many between "inquiry" and "booked." If your follow-up depends on remembering to circle back when you have a free minute, this is the fix.
 
 ## Why It Matters
 
-Across industries, the company that responds first wins a disproportionate share of deals, and the odds of connecting fall off a cliff after the first hour. Equally important, most leads are not lost to a competitor on day one — they are lost to silence, because the contractor followed up once and gave up. Tightening response time and extending your follow-up turns the same lead volume into noticeably more booked jobs, with no extra spend.
+Across industries, the company that responds first wins a disproportionate share of deals, and the odds of connecting fall off a cliff after the first hour. Equally important, most leads are not lost to a competitor on day one — they are lost to silence, because the business followed up once and gave up. Tightening response time and extending your follow-up turns the same lead volume into noticeably more closed deals, with no extra spend.
 
 ## Step-by-Step Instructions
 

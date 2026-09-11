@@ -1,6 +1,6 @@
 ---
-title: "What Is Email Marketing for Contractors?"
-slug: "what-is-email-marketing-for-contractors"
+title: "What Is Email Marketing for Businesses?"
+slug: "what-is-email-marketing-for-businesses"
 resource_type: "plain-language-explainer"
 status: "published"
 author: "Aaron Phillips"
@@ -9,16 +9,16 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "6 min"
 og_hook: "Email is the cheapest way to stay in front of past customers — done right."
-excerpt: "Email marketing helps contractors stay in touch with leads and past customers. Here's how it works, what the CAN-SPAM rules require, and how to do it without getting flagged as spam."
-seo_title: "What Is Email Marketing for Contractors?"
-seo_description: "Email marketing helps contractors stay in touch with leads and past customers. Here's how it works, what the CAN-SPAM rules require"
-focus_keyword: "email marketing for contractors"
-canonical_url: "https://consentresolve.com/resources/plain-language-explainers/what-is-email-marketing-for-contractors/"
+excerpt: "Email marketing helps businesses stay in touch with leads and past customers. Here's how it works, what the CAN-SPAM rules require, and how to do it without getting flagged as spam."
+seo_title: "What Is Email Marketing for Businesses?"
+seo_description: "Email marketing helps businesses stay in touch with leads and past customers. Here's how it works, what the CAN-SPAM rules require"
+focus_keyword: "email marketing for businesses"
+canonical_url: "https://consentresolve.com/resources/plain-language-explainers/what-is-email-marketing-for-businesses/"
 category: "Marketing Channels"
-tags: ["email marketing", "can-spam", "lead nurture", "home services", "compliance"]
+tags: ["email marketing", "can-spam", "lead nurture", "local business", "compliance"]
 funnel_stage: "convert"
 schema_type: "Article"
-tldr: "Email marketing for contractors means sending helpful, permission-based emails to leads and past customers — reminders, seasonal tips, offers, and follow-ups. It's low cost and effective, but it's governed by the CAN-SPAM Act, which requires honest subject lines, a real address, and an easy way to unsubscribe."
+tldr: "Email marketing for businesses means sending helpful, permission-based emails to leads and past customers — reminders, seasonal tips, offers, and follow-ups. It's low cost and effective, but it's governed by the CAN-SPAM Act, which requires honest subject lines, a real address, and an easy way to unsubscribe."
 key_takeaways: "Email is the cheapest reliable way to stay in front of people who already know you, and it's owned — no platform can take your list away. The CAN-SPAM Act sets the rules: tell the truth in the subject and header, include your real postal address, and make unsubscribing easy and instant. Send to people who gave you their email expecting to hear from you, not to bought or scraped lists. Helpful and occasional beats salesy and constant."
 sources:
   - label: "FTC — CAN-SPAM Act: A Compliance Guide for Business"
@@ -28,8 +28,8 @@ glossary_slug: "email-marketing"
 related:
   - label: "Glossary: Email Marketing"
     url: "/resources/glossary/#email-marketing"
-  - label: "What Is SMS Marketing for Contractors?"
-    url: "/resources/plain-language-explainers/what-is-sms-marketing-for-contractors/"
+  - label: "What Is SMS Marketing for Businesses?"
+    url: "/resources/plain-language-explainers/what-is-sms-marketing-for-businesses/"
   - label: "What Is the CAN-SPAM Act?"
     url: "/resources/plain-language-explainers/what-is-can-spam-act/"
   - label: "How It Works"
@@ -42,17 +42,17 @@ faq_items:
     answer: "The CAN-SPAM Act doesn't strictly require prior opt-in the way text rules do, but the smart and respectful practice is to email people who gave you their address expecting to hear from you. Buying or scraping lists leads to spam complaints, bad deliverability, and a damaged sender reputation, even when it's technically allowed."
   - question: "What does CAN-SPAM require in a marketing email?"
     answer: "Honest 'from' and subject lines, a clear note if the message is an ad, your valid physical postal address, and a working unsubscribe link that you honor promptly — generally within 10 business days. Those rules apply to every commercial email you send."
-  - question: "How often should a contractor email their list?"
+  - question: "How often should a business email their list?"
     answer: "There's no magic number, but useful and occasional beats salesy and constant. A seasonal tip, a maintenance reminder, or a genuine offer every few weeks keeps you in mind without wearing out your welcome. Watch your unsubscribe rate as a signal."
-  - question: "Is email marketing still effective for contractors?"
+  - question: "Is email marketing still effective for businesses?"
     answer: "Yes. It's one of the cheapest ways to stay in front of past customers and slow-to-decide leads, and you own the list — no platform can take it away or change the rules overnight. Done with permission and restraint, it quietly drives repeat and referral work."
 ---
 
-## What email marketing is for a contractor
+## What email marketing is for a business
 
-Email marketing is exactly what it sounds like: using email to stay in touch with the people who matter to your business. For a contractor, that usually means past customers and leads who reached out but haven't booked yet. You send things they'll actually find useful — a seasonal maintenance reminder, a heads-up before the busy season, a real offer, or a simple "we're still here when you need us."
+Email marketing is exactly what it sounds like: using email to stay in touch with the people who matter to your business. For a business, that usually means past customers and leads who reached out but haven't booked yet. You send things they'll actually find useful — a seasonal maintenance reminder, a heads-up before the busy season, a real offer, or a simple "we're still here when you need us."
 
-It's one of the cheapest tools you have. Unlike ads, you're not paying per click or per lead every time. And unlike a social media following, the list is *yours*. No platform can change the rules or shut off your reach overnight. That's why email is often the quiet workhorse behind repeat and referral jobs — the contractors who keep a clean list of past customers tend to get called again without spending a dime on new advertising.
+It's one of the cheapest tools you have. Unlike ads, you're not paying per click or per lead every time. And unlike a social media following, the list is *yours*. No platform can change the rules or shut off your reach overnight. That's why email is often the quiet workhorse behind repeat and referral jobs — the businesses who keep a clean list of past customers tend to get called again without spending a dime on new advertising.
 
 ## How it works
 
@@ -80,13 +80,13 @@ CAN-SPAM doesn't demand a signed opt-in the way the text-message rules do. But "
 
 ## Why permission still matters most
 
-Here's the part that trips up busy contractors. Because CAN-SPAM is looser than the text rules, some people assume email is a free-for-all — buy a list, blast it, see what sticks. It doesn't work, and it backfires.
+Here's the part that trips up busy businesses. Because CAN-SPAM is looser than the text rules, some people assume email is a free-for-all — buy a list, blast it, see what sticks. It doesn't work, and it backfires.
 
 Email providers like Gmail and Outlook watch how people react to your messages. When strangers mark you as spam, the providers learn that your emails are unwanted and start sending *all* of them — even to people who do want them — straight to the junk folder. One bad blast to a bought list can quietly poison your ability to reach your good customers. So permission isn't just about the law. It's about whether your email ever gets seen at all.
 
 ## What to actually send
 
-Knowing the rules is one thing; knowing what to put in the email is another. The good news is you don't need to be a copywriter. The emails that work for contractors are the ones that are genuinely useful to a homeowner.
+Knowing the rules is one thing; knowing what to put in the email is another. The good news is you don't need to be a copywriter. The emails that work for businesses are the ones that are genuinely useful to a visitor.
 
 A few that earn their place in the inbox:
 

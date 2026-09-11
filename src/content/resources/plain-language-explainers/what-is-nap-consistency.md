@@ -9,13 +9,13 @@ published_at: 2026-06-09
 updated_at: 2026-06-09
 read_time: "5 min"
 og_hook: "Name, address, phone — identical everywhere, or Google trusts you less."
-excerpt: "NAP consistency means your business name, address, and phone number match everywhere online. Here's what it is, how it works, and why it matters for home-service contractors."
+excerpt: "NAP consistency means your business name, address, and phone number match everywhere online. Here's what it is, how it works, and why it matters for local businesses."
 seo_title: "What Is NAP Consistency?"
 seo_description: "NAP consistency means your business name, address, and phone number match everywhere online. Here's what it is, how it works"
 focus_keyword: "what is nap consistency"
 canonical_url: "https://consentresolve.com/resources/plain-language-explainers/what-is-nap-consistency/"
-category: "Home Services"
-tags: ["nap consistency", "local seo", "google business profile", "citations", "home services"]
+category: "Local Business"
+tags: ["nap consistency", "local seo", "google business profile", "citations", "local business"]
 funnel_stage: "get-found"
 schema_type: "Article"
 tldr: "NAP consistency means your business Name, Address, and Phone number are written exactly the same way everywhere they appear online — your website, Google, Yelp, directories, everywhere. When they match, Google trusts you more and ranks you higher in local results. When they conflict, Google gets confused and your visibility suffers."
@@ -30,7 +30,7 @@ related:
     url: "/resources/plain-language-explainers/what-is-a-google-business-profile/"
   - label: "What Is a Service Area Business (SAB)?"
     url: "/resources/plain-language-explainers/what-is-a-service-area-business/"
-  - label: "How to Rank in the Google Map Pack for Home Services"
+  - label: "How to Rank in the Google Map Pack"
     url: "/resources/how-to-guides/rank-google-map-pack-home-services/"
 primary_cta:
   label: "See how consented leads work →"
@@ -53,7 +53,7 @@ sources:
 
 NAP stands for **Name, Address, and Phone number** — the three basic facts about your business. NAP consistency means those three facts are written exactly the same way everywhere they show up online: your website, your Google Business Profile, Yelp, Facebook, Bing, Apple Maps, and every directory that lists you.
 
-"Exactly the same" is the part contractors underestimate. If your website says "Smith & Sons Plumbing, 100 Main Street, Suite 200" and an old directory says "Smith and Sons Plumbing, 100 Main St, Ste 200," those look like a perfect match to a human but a little fuzzy to a search engine. NAP consistency is the work of making every listing agree, down to the punctuation.
+"Exactly the same" is the part businesses underestimate. If your website says "Smith & Sons Plumbing, 100 Main Street, Suite 200" and an old directory says "Smith and Sons Plumbing, 100 Main St, Ste 200," those look like a perfect match to a human but a little fuzzy to a search engine. NAP consistency is the work of making every listing agree, down to the punctuation.
 
 It sounds fussy, and it is. But it's also one of the cheapest, most reliable ways for a local business to look trustworthy to Google — and trust is what gets you ranked.
 
@@ -74,9 +74,9 @@ The fix is straightforward, if tedious:
 
 This is a core part of [local SEO](/resources/plain-language-explainers/what-is-local-seo/), and it works hand in hand with a complete [Google Business Profile](/resources/plain-language-explainers/what-is-a-google-business-profile/). For service area businesses that hide their address, consistency still applies to the name and phone number, and to how your service areas are described.
 
-## Why it matters for contractors
+## Why it matters for businesses
 
-Contractors are especially prone to NAP problems, usually through no fault of their own. You change your cell number. You move the business from your old house to your new one. You let a marketing company set up listings years ago and never saw what they entered. Each of those leaves a trail of slightly-wrong information that Google is still reading today.
+Businesses are especially prone to NAP problems, usually through no fault of their own. You change your cell number. You move the business from your old house to your new one. You let a marketing company set up listings years ago and never saw what they entered. Each of those leaves a trail of slightly-wrong information that Google is still reading today.
 
 The cost is invisible but real: you can do everything else right — great reviews, honest photos, the correct category — and still rank below a competitor partly because your contact info is a mess across the web. Cleaning it up is one of the few local SEO tasks with a clear, achievable finish line, and it tends to pay off because so many competitors never bother.
 
@@ -94,4 +94,4 @@ There's also a customer-trust angle that mirrors how ConsentResolve thinks about
 
 Start by writing down your one true NAP — the exact name, address, and phone number you want everywhere. Update your Google Business Profile and website to match it precisely. Then work through the major directories and search for your business name to find listings you forgot existed.
 
-It's not exciting work, and you'll finish it in an afternoon or two. But for a home-service contractor, that afternoon buys you something durable: a business that looks settled and trustworthy to both Google and customers, with no stray numbers or addresses quietly sending people — or your ranking — the wrong way.
+It's not exciting work, and you'll finish it in an afternoon or two. But for a local business, that afternoon buys you something durable: a business that looks settled and trustworthy to both Google and customers, with no stray numbers or addresses quietly sending people — or your ranking — the wrong way.
