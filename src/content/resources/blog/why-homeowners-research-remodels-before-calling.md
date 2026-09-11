@@ -30,7 +30,7 @@ sources:
     url: "https://www.vendasta.com/blog/lead-response-time/"
 related:
   - label: "The general contractors rush — catch the Q4 remodel wave"
-    url: "/resources/blog/the-general-contractors-rush-is-coming-stop-letting-ready-buyers-leave-anonymous/"
+    url: "/resources/blog/the-busy-season-rush-is-coming-stop-letting-ready-buyers-leave-anonymous/"
   - label: "Capturing the 98% who will never fill out your form"
     url: "/resources/blog/capturing-the-98-who-will-never-fill-out-your-form/"
   - label: "General contractor leads"
