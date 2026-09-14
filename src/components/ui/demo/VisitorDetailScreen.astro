@@ -20,14 +20,12 @@ import {
   IconCalendar,
 } from "@tabler/icons-react";
 
-// Trade-aware demo record. Defaults preserve the original water-heater example
-// for non-trade usages (/demo, etc.); the industry pages pass their own service.
 const {
-  service = "water heater replacement",
-  serviceSlug = "water-heater-replacement",
-  query = "austin water heater repair",
-  tag = "water-heater-quote",
-  intent = "Water heater replacement quote",
+  service = "enterprise plan",
+  serviceSlug = "enterprise-plan",
+  query = "b2b lead generation platform",
+  tag = "enterprise-plan-inquiry",
+  intent = "Enterprise plan inquiry",
 } = Astro.props as { service?: string; serviceSlug?: string; query?: string; tag?: string; intent?: string };
 
 const handle = "j*****y@example.com";

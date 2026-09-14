@@ -4,8 +4,7 @@
  *
  * As of June 2026 this is a thin wrapper around the StepFlow primitive
  * (src/components/ui/StepFlow.astro) so the same five-step recovery
- * flow ships everywhere it's used: /how-it-works/ and every /[trade]-
- * leads/ industry page.
+ * flow ships everywhere it's used: /how-it-works/ and the homepage.
  *
  * Promoted from the original animated dark-comet section to the new
  * five-step illustrated strip (visit → consent → accept → feed → win).
@@ -19,34 +18,26 @@
 import StepFlow from "~/components/ui/StepFlow.astro";
 ---
 
-<!--
-  NOTE (generic-SaaS pivot, Phase 2): step illustrations below still depict
-  service-pro-coded artwork (per their alt text, e.g. "a homeowner browsing
-  a contractor's website") — copy has been genericized, but the SVGs
-  themselves need to be regenerated in a follow-up design/asset pass. Alt
-  text is left accurate to the CURRENT artwork on purpose (don't caption an
-  image with text that no longer matches what's shown).
--->
 <StepFlow
   eyebrow="How it works in five"
   title="Five steps. One outcome."
   titleAccent="More pipeline. More deals."
   steps={[
     {
-      illustration: "/illustrations/steps/01-homeowner-visit.svg",
-      alt: "A homeowner browsing a contractor's website",
+      illustration: "/illustrations/steps/01-visitor-visit.svg",
+      alt: "A visitor browsing a business's website next to a browser window",
       title: "Someone visits<br/>your website",
       blurb: "From a search ad, social post, or organic search.",
     },
     {
       illustration: "/illustrations/steps/02-we-handle-consent.svg",
-      alt: "A consent banner with a shield checkmark badge",
+      alt: "A document with a shield checkmark badge next to a laptop",
       title: "We handle<br/>consent",
       blurb: "Our banner asks. Your privacy policy stays current — Termageddon-backed.",
     },
     {
-      illustration: "/illustrations/steps/03-homeowner-accepts.svg",
-      alt: "A hand pressing accept on a cookie consent banner",
+      illustration: "/illustrations/steps/03-visitor-accepts.svg",
+      alt: "A hand pressing accept on a checkmark badge",
       title: "They<br/>say yes",
       blurb: "No yes, no data. That's what keeps you on the right side of the rules.",
     },
@@ -57,8 +48,8 @@ import StepFlow from "~/components/ui/StepFlow.astro";
       blurb: "Lands in HubSpot, Salesforce, Pipedrive, Klaviyo — in seconds.",
     },
     {
-      illustration: "/illustrations/steps/05-more-calls-more-jobs.svg",
-      alt: "A service pro answering a ringing phone",
+      illustration: "/illustrations/steps/05-more-pipeline-more-deals.svg",
+      alt: "A smartphone showing a contact profile with a checkmark and notification badge",
       title: "More pipeline.<br/>More deals.",
       blurb: "Warm inbound from visitors who already saw you in their inbox.",
       highlight: true,

@@ -3,22 +3,22 @@ import DemoChrome from "./DemoChrome.astro";
 import AnimatedNumber from "~/components/ui/AnimatedNumber.tsx";
 import { IconChartBar, IconShield, IconArrowDownRight, IconArrowUpRight } from "@tabler/icons-react";
 
-// Anonymized lead entries — fictional TX home-service businesses, last 48h, varied lead scores.
+// Anonymized lead entries — fictional B2B companies, last 48h, varied lead scores.
 const visitors = [
-  { initials: "LS", company: "Lone Star Roofing Co.",     trade: "Roofing",  city: "Houston, TX",      score: 94, time: "3m ago",  isNew: true },
-  { initials: "AC", company: "Alamo City HVAC",            trade: "HVAC",     city: "San Antonio, TX",  score: 88, time: "22m ago" },
-  { initials: "BB", company: "Bluebonnet Plumbing",        trade: "Plumbing", city: "Austin, TX",       score: 76, time: "1h ago" },
-  { initials: "HC", company: "Hill Country Roofing",       trade: "Roofing",  city: "Fredericksburg, TX", score: 91, time: "2h ago" },
-  { initials: "GC", company: "Gulf Coast Air & Heat",      trade: "HVAC",     city: "Corpus Christi, TX", score: 82, time: "4h ago" },
-  { initials: "PW", company: "Piney Woods Plumbing",       trade: "Plumbing", city: "Tyler, TX",        score: 65, time: "6h ago" },
-  { initials: "RG", company: "Rio Grande Roofing",         trade: "Roofing",  city: "El Paso, TX",      score: 79, time: "9h ago" },
-  { initials: "BT", company: "Big Texan HVAC Services",    trade: "HVAC",     city: "Lubbock, TX",      score: 97, time: "Yesterday, 11:42 AM" },
-  { initials: "LH", company: "Longhorn Plumbing Co.",      trade: "Plumbing", city: "Fort Worth, TX",   score: 71, time: "Yesterday, 8:15 AM" },
-  { initials: "CC", company: "Cedar Creek Roofing",        trade: "Roofing",  city: "Plano, TX",        score: 85, time: "Yesterday, 6:03 AM", adBlocker: true },
-  { initials: "BV", company: "Brazos Valley Air",          trade: "HVAC",     city: "Waco, TX",         score: 68, time: "2 days ago, 9:20 PM" },
-  { initials: "PH", company: "Panhandle Plumbing",         trade: "Plumbing", city: "Amarillo, TX",     score: 73, time: "2 days ago, 4:11 PM" },
-  { initials: "TR", company: "Trinity River Roofing",      trade: "Roofing",  city: "Dallas, TX",       score: 89, time: "2 days ago, 1:37 PM" },
-  { initials: "HV", company: "Hidalgo HVAC Solutions",     trade: "HVAC",     city: "McAllen, TX",      score: 62, time: "2 days ago, 10:02 AM" },
+  { initials: "NA", company: "Northstar Analytics",   trade: "SaaS",         city: "Austin, TX",      score: 94, time: "3m ago",  isNew: true },
+  { initials: "BP", company: "Bluepeak Consulting",    trade: "Consulting",   city: "Denver, CO",      score: 88, time: "22m ago" },
+  { initials: "IL", company: "Ironclad Logistics",     trade: "Logistics",    city: "Chicago, IL",     score: 76, time: "1h ago" },
+  { initials: "VM", company: "Vantage Point Media",    trade: "Marketing",    city: "Nashville, TN",   score: 91, time: "2h ago" },
+  { initials: "CF", company: "Clearwater Financial",   trade: "Finance",      city: "Charlotte, NC",   score: 82, time: "4h ago" },
+  { initials: "MS", company: "Meridian Systems",       trade: "SaaS",         city: "Seattle, WA",     score: 65, time: "6h ago" },
+  { initials: "AP", company: "Anchor Point Legal",     trade: "Legal",        city: "Phoenix, AZ",     score: 79, time: "9h ago" },
+  { initials: "RC", company: "Redwood Commerce",       trade: "Retail",       city: "Portland, OR",    score: 97, time: "Yesterday, 11:42 AM" },
+  { initials: "FG", company: "Fieldstone Group",       trade: "Consulting",   city: "Minneapolis, MN", score: 71, time: "Yesterday, 8:15 AM" },
+  { initials: "LV", company: "Lighthouse Ventures",    trade: "Finance",      city: "Raleigh, NC",     score: 85, time: "Yesterday, 6:03 AM", adBlocker: true },
+  { initials: "GP", company: "Granite Peak Insurance",  trade: "Insurance",    city: "Columbus, OH",    score: 68, time: "2 days ago, 9:20 PM" },
+  { initials: "CW", company: "Cobalt Works",           trade: "Manufacturing", city: "Boise, ID",       score: 73, time: "2 days ago, 4:11 PM" },
+  { initials: "SR", company: "Summit Ridge Partners",  trade: "Consulting",   city: "San Diego, CA",   score: 89, time: "2 days ago, 1:37 PM" },
+  { initials: "CL", company: "Crestline Solutions",    trade: "SaaS",         city: "Atlanta, GA",     score: 62, time: "2 days ago, 10:02 AM" },
 ];
 const scoreTone = (s: number) => (s >= 85 ? "hot" : s >= 70 ? "warm" : "cool");
 
