@@ -54,86 +54,55 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     />
     <SEO {...props} />
 
-    <!-- Consent Reveal (replaces the Termageddon/Usercentrics CMP, 2026-09-30 test) — a
-         consent gate that shows visitors, live, what the platform learns about them once
-         they say yes. Single file, shadow-root rendered, brand="cr" auto-detected from
-         hostname. demo-match mode is forced on so every "yes" shows the sample matched-
-         record UI (explicitly labeled "(sample record for testing)" by the script itself)
-         rather than hitting a real identity-resolution endpoint — no resolve API is wired
-         up yet. See public/consent-reveal.js for the full brand/config surface. -->
-    <script is:inline>
-      window.ConsentRevealConfig = { resolve: "demo-match", policyUrl: "/privacy-policy/" };
-    </script>
-    <script is:inline src="/consent-reveal.js" defer></script>
+    <!-- ConsentResolve CMP (cookie consent banner + script blocker), wraps Usercentrics -->
+    <link rel="preconnect" href="https://cdn.consentresolve.com" />
+    <script is:inline src="https://cdn.consentresolve.com/consentresolve.js"></script>
+    <script is:inline>ConsentResolve.init({siteId:'9a7ac777-3ca8-483a-b452-0c4deba31c3c',usercentricsSettingsId:'NToLbWs-EAo6fS'});ConsentResolve.page();</script>
 
-    <!-- Consent-gated third-party trackers — INERT (type=text/plain) until the visitor
-         accepts in Consent Reveal. data-consent-gate is just a stable marker for the
-         activation loop below; the service names in each comment are for our own reference,
-         not read by any code (Consent Reveal has no per-service consent, only accept/decline).
-         Activation: on the 'consentreveal' event (fires both for a fresh choice and, via
-         applyChoice(), when a returning visitor's saved choice is re-applied on load) with
-         choice === 'accepted', every [data-consent-gate] script is cloned into a real,
-         executing <script> tag (the standard text/plain-unblock technique). -->
-
-    <!-- Meta Pixel (ad measurement). Emitted only when PUBLIC_META_PIXEL_ID is set. -->
+    <!-- Meta Pixel (ad measurement) — CONSENT-GATED via ConsentResolve/Usercentrics
+         autoblocker: type=text/plain keeps it inert; the CMP flips it to executable
+         only after the user consents to the "Facebook Pixel" service. The data-usercentrics
+         value MUST match the service name configured in the ConsentResolve/Usercentrics
+         dashboard. Emitted only when PUBLIC_META_PIXEL_ID is set. -->
     {META_PIXEL_ID && (
-      <script is:inline type="text/plain" data-consent-gate="Facebook Pixel" set:html={`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${META_PIXEL_ID}');fbq('init','${META_ADS_PIXEL_ID}');fbq('track','PageView');`} />
+      <script is:inline type="text/plain" data-usercentrics="Facebook Pixel" set:html={`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${META_PIXEL_ID}');fbq('init','${META_ADS_PIXEL_ID}');fbq('track','PageView');`} />
     )}
 
-    <!-- TikTok Pixel (ad measurement). Emitted only when PUBLIC_TIKTOK_PIXEL_ID is set. -->
+    <!-- TikTok Pixel (ad measurement) — CONSENT-GATED (autoblocker; data-usercentrics
+         must match the configured "TikTok Pixel" service). Emitted only when PUBLIC_TIKTOK_PIXEL_ID is set. -->
     {TIKTOK_PIXEL_ID && (
-      <script is:inline type="text/plain" data-consent-gate="TikTok Pixel" set:html={`!function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];ttq.setAndDefer=function(e,n){e[n]=function(){e.push([n].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(e){for(var n=ttq._i[e]||[],i=0;i<ttq.methods.length;i++)ttq.setAndDefer(n,ttq.methods[i]);return n};ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=r;ttq._t=ttq._t||{};ttq._t[e]=+new Date;ttq._o=ttq._o||{};ttq._o[e]=n||{};var s=d.createElement("script");s.type="text/javascript";s.async=!0;s.src=r+"?sdkid="+e+"&lib="+t;var a=d.getElementsByTagName("script")[0];a.parentNode.insertBefore(s,a)};ttq.load('${TIKTOK_PIXEL_ID}');ttq.page()}(window,document,'ttq');`} />
+      <script is:inline type="text/plain" data-usercentrics="TikTok Pixel" set:html={`!function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];ttq.setAndDefer=function(e,n){e[n]=function(){e.push([n].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(e){for(var n=ttq._i[e]||[],i=0;i<ttq.methods.length;i++)ttq.setAndDefer(n,ttq.methods[i]);return n};ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=r;ttq._t=ttq._t||{};ttq._t[e]=+new Date;ttq._o=ttq._o||{};ttq._o[e]=n||{};var s=d.createElement("script");s.type="text/javascript";s.async=!0;s.src=r+"?sdkid="+e+"&lib="+t;var a=d.getElementsByTagName("script")[0];a.parentNode.insertBefore(s,a)};ttq.load('${TIKTOK_PIXEL_ID}');ttq.page()}(window,document,'ttq');`} />
     )}
 
-    <!-- Leadsy AI vtag (visitor identification). -->
-    <script is:inline type="text/plain" data-consent-gate="Leadsy" data-gate-src="https://r2.leadsy.ai/tag.js" id="vtag-ai-js" data-pid="1a05vWNgmDU1HfyCP" data-version="062024"></script>
+    <!-- Leadsy AI vtag (visitor identification) — CONSENT-GATED via ConsentResolve/Usercentrics
+         autoblocker: type=text/plain keeps it inert until the user consents to the "Leadsy"
+         service. The data-usercentrics value MUST match the service name configured in the
+         ConsentResolve/Usercentrics dashboard, or the script never loads. -->
+    <script is:inline type="text/plain" data-usercentrics="Leadsy" id="vtag-ai-js" async src="https://r2.leadsy.ai/tag.js" data-pid="1a05vWNgmDU1HfyCP" data-version="062024"></script>
 
-    <!-- RB2B (GetEmails) website-visitor identification. key=9NMMZHRE54NW. -->
-    <script is:inline type="text/plain" data-consent-gate="RB2B">
+    <!-- RB2B (GetEmails) website-visitor identification — CONSENT-GATED via the
+         ConsentResolve/Usercentrics autoblocker: type=text/plain keeps it inert until the
+         visitor consents to the "RB2B" service (Termageddon built-in, template 22sYxVE_5GTFil).
+         Fires only after consent — consistent with our consent-first stance. key=9NMMZHRE54NW. -->
+    <script is:inline type="text/plain" data-usercentrics="RB2B">
       !function(key){if(window.reb2b)return;window.reb2b={loaded:true};var s=document.createElement("script");s.async=true;s.src="https://b2bjsstore.s3.us-west-2.amazonaws.com/b/"+key+"/"+key+".js.gz";document.getElementsByTagName("script")[0].parentNode.insertBefore(s,document.getElementsByTagName("script")[0]);}("9NMMZHRE54NW");
     </script>
 
-    <!-- Apollo.io website visitor tracker (visitor identification; replaced RB2B). -->
-    <script is:inline type="text/plain" data-consent-gate="Apollo">
+    <!-- Apollo.io website visitor tracker (visitor identification; replaced RB2B) —
+         CONSENT-GATED via ConsentResolve/Usercentrics autoblocker: type=text/plain keeps
+         it inert until the user consents to the "Apollo" service. data-usercentrics MUST
+         match the service name configured in the CMP/Termageddon, or it never loads. -->
+    <script is:inline type="text/plain" data-usercentrics="Apollo">
       function initApollo(){var n=Math.random().toString(36).substring(7),o=document.createElement("script");o.src="https://assets.apollo.io/micro/website-tracker/tracker.iife.js?nocache="+n,o.async=!0,o.defer=!0,o.onload=function(){window.trackingFunctions.onLoad({appId:"6a398efaaa2d0a001467ff7f"})},document.head.appendChild(o)}initApollo();
     </script>
 
-    <!-- Leadfeeder / Dealfront website-visitor tracker (COMPANY-level identification). Site id kn9Eq4R0mJk8RlvP. -->
-    <script is:inline type="text/plain" data-consent-gate="Leadfeeder">
+    <!-- Leadfeeder / Dealfront website-visitor tracker (COMPANY-level identification) —
+         CONSENT-GATED via ConsentResolve/Usercentrics autoblocker: type=text/plain keeps
+         it inert until the visitor consents to the "Leadfeeder" service. data-usercentrics
+         MUST match the EXACT service name configured in Termageddon, or it never loads.
+         Site id kn9Eq4R0mJk8RlvP. -->
+    <script is:inline type="text/plain" data-usercentrics="Leadfeeder">
       (function(ss,ex){window.ldfdr=window.ldfdr||function(){(ldfdr._q=ldfdr._q||[]).push([].slice.call(arguments));};(function(d,s){fs=d.getElementsByTagName(s)[0];function ce(src){var cs=d.createElement(s);cs.src=src;cs.async=1;fs.parentNode.insertBefore(cs,fs);};ce('https://sc.lfeeder.com/lftracker_v1_'+ss+(ex?'_'+ex:'')+'.js');})(document,'script');})('kn9Eq4R0mJk8RlvP');
-    </script>
-
-    <!-- Activates every [data-consent-gate] script above once Consent Reveal reports an
-         accepted choice — fresh accept, or a returning visitor's saved choice replayed on
-         load (applyChoice() fires 'consentreveal' in both cases). Runs once; re-checks on
-         the event in case the gated scripts weren't in the DOM yet (they always are here,
-         but this keeps the helper generically correct). -->
-    <script is:inline>
-      (function () {
-        var done = false;
-        function activate() {
-          if (done) return;
-          done = true;
-          document.querySelectorAll('script[data-consent-gate]').forEach(function (old) {
-            var s = document.createElement('script');
-            for (var i = 0; i < old.attributes.length; i++) {
-              var a = old.attributes[i];
-              if (a.name === 'type') continue;
-              if (a.name === 'data-gate-src') { s.src = a.value; continue; }
-              s.setAttribute(a.name, a.value);
-            }
-            if (old.textContent) s.textContent = old.textContent;
-            old.parentNode.replaceChild(s, old);
-          });
-        }
-        // This script runs synchronously during HTML parsing, well before the deferred
-        // consent-reveal.js executes — so the listener is always attached in time to catch
-        // applyChoice()'s 'consentreveal' dispatch, whether that's a fresh click or a
-        // returning visitor's saved choice replayed on load. No load-order fallback needed.
-        window.addEventListener('consentreveal', function (e) {
-          if (e.detail && e.detail.choice === 'accepted') activate();
-        });
-      })();
     </script>
 
 
@@ -158,9 +127,10 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <script is:inline>
       (function(){try{
         function vid(){return (document.cookie.match(/(?:^|;\s*)cr_vid=([^;]+)/)||[])[1]||"";}
-        // Best-effort consent read from Consent Reveal (window.ConsentReveal.choice()).
-        function consent(){ try{ if(window.ConsentReveal){ var c=window.ConsentReveal.choice();
-          return c==="accepted"?"granted":c==="declined"?"denied":"unknown"; } }catch(e){} return "unknown"; }
+        // Best-effort consent read from the CMP (Usercentrics API the CR CMP wraps).
+        function consent(){ try{ if(window.UC_UI&&UC_UI.getServicesBaseInfo){ var svc=UC_UI.getServicesBaseInfo()||[];
+          if(!svc.length) return "unknown";
+          return svc.some(function(s){return s&&s.consent&&s.consent.status===true;})?"granted":"denied"; } }catch(e){} return "unknown"; }
         function ping(){ if(document.visibilityState!=="visible") return; var v=vid(); if(!v) return;
           var s=JSON.stringify({vid:v,path:location.pathname,consent:consent()});
           if(navigator.sendBeacon){navigator.sendBeacon("/api/ping",new Blob([s],{type:"application/json"}));}
@@ -209,8 +179,10 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
     <!-- Meta Pixel is consent-gated above (PUBLIC_META_PIXEL_ID). The old un-gated
          duplicate was removed — it double-counted PageViews and bypassed consent. -->
 
-    <!-- Microsoft Clarity (session recording). -->
-    <script is:inline type="text/plain" data-consent-gate="Microsoft Clarity">
+    <!-- Microsoft Clarity (session recording) — CONSENT-GATED via ConsentResolve/Usercentrics
+         autoblocker: type=text/plain keeps it inert until the user consents to the
+         "Microsoft Clarity" service. data-usercentrics MUST match the configured service name. -->
+    <script is:inline type="text/plain" data-usercentrics="Microsoft Clarity">
       (function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
         t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
@@ -222,7 +194,7 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
          (fires for every visitor, no consent check) at Aaron's explicit request, 2026-08-25,
          to test resolution rates. This is NOT the site's normal pattern — every other
          third-party tracker (Clarity, Meta Pixel, Google Consent Mode) is consent-gated via
-         the Consent Reveal activation loop (type=text/plain + data-consent-gate), and
+         the Usercentrics/Termageddon autoblocker (type=text/plain + data-usercentrics), and
          this one runs live/unconsented in direct tension with that. Re-gate it the same way
          (see the Clarity block above for the pattern) once testing is done — don't leave this
          running unconsented in production. -->
@@ -396,9 +368,11 @@ const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-18263188422"; 
       // click it. If he isn't booted yet, an explicit click is intent to chat: boot + open.
       window.crRetellOpen=function(){var f=null;try{document.querySelectorAll("*").forEach(function(el){if(!f&&el.shadowRoot){var b=el.shadowRoot.querySelector('button[aria-label="Open Assistant"],button[aria-label*="Assistant" i]');if(b)f=b;}});}catch(e){}if(f){f.click();return true;}return false;};
     </script>
-    <!-- CONSENT-GATED passive load — inert (type=text/plain) until the visitor accepts in
-         Consent Reveal, same [data-consent-gate] activation loop as every other tracker. -->
-    {!noChat && <script is:inline type="text/plain" data-consent-gate="Retell Chat">window.__retellBoot(!!window.__retellOpenOnLoad);</script>}
+    <!-- CONSENT-GATED passive load via ConsentResolve/Usercentrics autoblocker:
+         type=text/plain keeps it inert until the visitor consents to the "Retell Chat"
+         service. data-usercentrics MUST match the EXACT service name configured in the CMP,
+         or the passive FAB stays blocked — same requirement every other pixel here has. -->
+    {!noChat && <script is:inline type="text/plain" data-usercentrics="Retell Chat">window.__retellBoot(!!window.__retellOpenOnLoad);</script>}
 
     <!-- Conversion tracking helper. ONE call site for every ad-measurable action so
          campaigns have something to optimize toward besides PageView (which was all
